@@ -108,29 +108,46 @@ class NetcdfReader(object):
             group = self.path2group[path]
             return group.variables.keys()
 
-    def read_value(self, varname, path="/"):
+    def read_value(self, varname, path="/", cmode=None):
         """
         Returns the values of variable with name varname in the group specified by path.
+
+        Args:
+            varname:
+                Name of the variable
+            path:
+                path to the group.
+            cmode:
+                if cmode=="c", a complex ndarrays is constructed and returned
+                (netcdf does not provide native support from complex datatype).
         """
         var = self.read_variable(varname, path=path)
-        # scalar or array
-        return var[0] if not var.shape else var[:]
+
+        if cmode is None:
+            # scalar or array
+            return var[0] if not var.shape else var[:]
+        else:
+            assert var.shape[-1] == 2
+            if cmode == "c":
+                return var[...,0] + 1j*var[...,1]
+            else:
+                raise ValueError("Wrong value for cmode %s" % cmode)
+
+    #def read_values(self, varnames, cmode=None):
+    #    """Returns a list with the values of the variables."""
+    #    vars = self._read_variables(*varnames, **kwargs)
+    #    values = []
+    #    # scalar or array
+    #    for var in vars:
+    #        v = var[0] if not var.shape else var[:]
+    #        values.append(v)
+    #    return values
 
     def read_variable(self, varname, path="/"):
         """
         Returns the variable with name varname in the group specified by path.
         """
         return self._read_variables(varname, path=path)[0]
-
-    def read_values(self, *varnames, **kwargs):
-        """Retunrs a list with the values of the variables."""
-        vars = self._read_variables(*varnames, **kwargs)
-        values = []
-        # scalar or array
-        for var in vars:
-            v = var[0] if not var.shape else var[:]
-            values.append(v)
-        return values
 
     def _read_dimensions(self, *dimnames, **kwargs):
         path = kwargs.get("path", "/")
