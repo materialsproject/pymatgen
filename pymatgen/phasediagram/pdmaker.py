@@ -17,7 +17,15 @@ __date__ = "Nov 25, 2012"
 import collections
 import numpy as np
 
-from pyhull.convex_hull import ConvexHull
+try:
+    # If scipy ConvexHull exists, use it because it is faster for large hulls.
+    # This requires scipy >= 0.12.0.
+    from scipy.spatial import ConvexHull
+    HULL_METHOD = "scipy"
+except ImportError:
+    # Fall back to pyhull if scipy >= 0.12.0 does not exist.
+    from pyhull.convex_hull import ConvexHull
+    HULL_METHOD = "pyhull"
 
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
@@ -132,7 +140,10 @@ class PhaseDiagram (object):
         if len(qhull_data) == dim:
             self.facets = [range(dim)]
         else:
-            facets = ConvexHull(qhull_data, joggle=True).vertices
+            if HULL_METHOD == "scipy":
+                facets = ConvexHull(qhull_data, qhull_options="QJ i").simplices
+            else:
+                facets = ConvexHull(qhull_data, joggle=True).vertices
             finalfacets = []
             for facet in facets:
                 is_non_element_facet = any(
