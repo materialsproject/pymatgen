@@ -65,6 +65,12 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(sorted_s[1].species_and_occu, Composition("O"))
         self.assertEqual(sorted_s[0].charge, 1)
         self.assertEqual(sorted_s[1].charge, -2)
+        s = IStructure(self.lattice, ["Se", "C", "Se", "C"],
+                       [[0] * 3, [0.5] * 3, [0.25] * 3, [0.75] * 3])
+        self.assertEqual([site.specie.symbol
+                          for site in s.get_sorted_structure()],
+                         ["C", "C", "Se", "Se"])
+
 
     def test_fractional_occupations(self):
         coords = list()

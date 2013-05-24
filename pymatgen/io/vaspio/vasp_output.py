@@ -523,7 +523,7 @@ class Vasprun(object):
         if len(self.projected_eigenvalues) != 0:
             for i in range(len(eigen)):
                 peigen.append({})
-                for spin in eigen[i]:
+                for spin in eigen[i].keys():
                     peigen[i][spin] = []
                     for j in range(len(eigen[i][spin])):
                         peigen[i][spin].append({})
