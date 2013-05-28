@@ -274,6 +274,24 @@ class SymmetryFinder(object):
             symmops.append(op)
         return symmops
 
+
+    def get_point_group_operations(self, cartesian=False):
+        """
+        Return symmetry operations as a list of SymmOp objects.
+        By default returns fractional coord symmops.
+        But cartesian can be returned too.
+        """
+        (rotation, translation) = self._get_symmetry()
+        symmops = []
+        mat = self._structure.lattice.matrix.T
+        invmat = np.linalg.inv(mat)
+        for rot, trans in zip(rotation, translation):
+            if cartesian:
+                rot = np.dot(mat, np.dot(rot, invmat))
+                trans = np.dot(trans, self._structure.lattice.matrix)
+            op = SymmOp.from_rotation_and_translation(rot, np.array([0,0,0]))
+            symmops.append(op)
+        return symmops
     def get_symmetrized_structure(self):
         """
         Get a symmetrized structure. A symmetrized structure is one where the
