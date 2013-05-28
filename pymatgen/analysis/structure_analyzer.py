@@ -209,12 +209,12 @@ class VoronoiConnectivity(object):
     """
 
     # Radius in Angstrom cutoff to look for coordinating atoms
-    cutoff = 10
 
-    def __init__(self, structure):
+    def __init__(self, structure, cutoff=10):
+        self.cutoff = cutoff
         self.s = structure
         recp_len = np.array(self.s.lattice.reciprocal_lattice.abc)
-        i = np.ceil(VoronoiConnectivity.cutoff * recp_len / (2 * math.pi))
+        i = np.ceil(cutoff * recp_len / (2 * math.pi))
         offsets = np.mgrid[-i[0]:i[0] + 1, -i[1]:i[1] + 1, -i[2]:i[2] + 1].T
         self.offsets = np.reshape(offsets, (-1, 3))
         #shape = [image, axis]
@@ -274,6 +274,20 @@ class VoronoiConnectivity(object):
         image of site j
         """
         return np.max(self.connectivity_array, axis=2)
+
+    def get_connections(self):
+        """
+        Returns a list of site pairs that are Voronoi Neighbors, along
+        with their real-space distances.
+        """
+        con = []
+        maxconn = self.max_connectivity
+        for ii in range(0, maxconn.shape[0]):
+            for jj in range(0, maxconn.shape[1]):
+                if maxconn[ii][jj] != 0:
+                    dist = self.s.get_distance(ii, jj)
+                    con.append([ii, jj, dist])
+        return con
 
     def get_sitej(self, site_index, image_index):
         """
