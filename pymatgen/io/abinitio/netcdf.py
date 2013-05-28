@@ -18,7 +18,10 @@ __status__ = "Development"
 __date__ = "$Feb 21, 2013M$"
 
 __all__ = [
+    "as_ncreader",
+    "as_etsfreader",
     "NetcdfReader",
+    "ETSF_Reader",
     "GSR_Reader",
     "structure_from_etsf_file",
 ]
@@ -27,6 +30,28 @@ try:
     import netCDF4
 except ImportError:
     netCDF4 = None
+
+
+def _asreader(file, cls):
+    closeit = False
+    if not isinstance(file, cls):
+        file, closeit = cls(file), True
+    return file, closeit
+
+
+def as_ncreader(file):
+    """
+    Convert file into a NetcdfReader instance.
+    Returns reader, closeit where closeit is set to True
+    if we have to close the file before leaving the procedure.
+    """
+    return _asreader(file, NetcdfReader)
+
+
+def as_etsfreader(file):
+    return _asreader(file, ETSF_Reader)
+
+################################################################################
 
 
 class NetcdfReaderError(Exception):
@@ -82,7 +107,8 @@ class NetcdfReader(object):
         Navigate all the groups in the file starting from top.
         If top is None, the root group is used.
         """
-        if top is None: top = self.rootgrp
+        if top is None:
+            top = self.rootgrp
 
         values = top.groups.values()
         yield values
@@ -121,7 +147,10 @@ class NetcdfReader(object):
                 if cmode=="c", a complex ndarrays is constructed and returned
                 (netcdf does not provide native support from complex datatype).
         """
-        var = self.read_variable(varname, path=path)
+        try:
+            var = self.read_variable(varname, path=path)
+        except:
+            raise
 
         if cmode is None:
             # scalar or array
@@ -133,16 +162,6 @@ class NetcdfReader(object):
             else:
                 raise ValueError("Wrong value for cmode %s" % cmode)
 
-    #def read_values(self, varnames, cmode=None):
-    #    """Returns a list with the values of the variables."""
-    #    vars = self._read_variables(*varnames, **kwargs)
-    #    values = []
-    #    # scalar or array
-    #    for var in vars:
-    #        v = var[0] if not var.shape else var[:]
-    #        values.append(v)
-    #    return values
-
     def read_variable(self, varname, path="/"):
         """
         Returns the variable with name varname in the group specified by path.
@@ -151,19 +170,27 @@ class NetcdfReader(object):
 
     def _read_dimensions(self, *dimnames, **kwargs):
         path = kwargs.get("path", "/")
-        if path == "/":
-            return [self.rootgrp.dimensions[dname] for dname in dimnames]
-        else:
-            group = self.path2group[path]
-            return [group.dimensions[dname] for dname in dimnames]
+        try:
+            if path == "/":
+                return [self.rootgrp.dimensions[dname] for dname in dimnames]
+            else:
+                group = self.path2group[path]
+                return [group.dimensions[dname] for dname in dimnames]
+
+        except KeyError:
+            raise self.Error("dimnames %s, kwargs %s" % (dimnames, kwargs))
 
     def _read_variables(self, *varnames, **kwargs):
         path = kwargs.get("path", "/")
-        if path == "/":
-            return [self.rootgrp.variables[vname] for vname in varnames]
-        else:
-            group = self.path2group[path]
-            return [group.variables[vname] for vname in varnames]
+        try:
+            if path == "/":
+                return [self.rootgrp.variables[vname] for vname in varnames]
+            else:
+                group = self.path2group[path]
+                return [group.variables[vname] for vname in varnames]
+
+        except KeyError:
+            raise self.Error("varnames %s, kwargs %s" % (varnames, kwargs))
 
     def read_values_with_map(self, names, map_names=None, path="/"):
         """
@@ -195,20 +222,24 @@ class NetcdfReader(object):
             try:
                 # Try to read a variable.
                 od[k] = self.read_value(key, path=path)
-            except KeyError:
+            except self.Error:
                 try:
                     # Try to read a dimension.
                     od[k] = self.read_dimvalue(key, path=path)
-                except KeyError:
+                except self.Error:
                     # key is missing!
                     missing.append((k, key))
 
         return od, missing
 
 
+class ETSF_Reader(NetcdfReader):
+    """
+    This object reads data from a file written according to the
+    ETSF-IO specifications.
+    """
     # This quantities are Abinit specific.
     # We assume that the netcdf file contains the crystallographic section.
-
     @property
     def chemical_symbols(self):
         """Chemical symbols char [number of atom species][symbol length]."""
@@ -224,7 +255,7 @@ class NetcdfReader(object):
         """Returns the type index from the chemical symbol. Note python convention."""
         return self._chemical_symbols.index(symbol)
 
-    def read_structure(self, site_properties=None):
+    def read_structure(self):
         """
         Returns the crystalline structure.
 
@@ -235,12 +266,13 @@ class NetcdfReader(object):
         if self.ngroups != 1:
             raise NotImplementedError("ngroups != 1")
 
-        return structure_from_etsf_file(self, site_properties=site_properties)
+        return structure_from_etsf_file(self)
+
 
 ################################################################################
 
 
-class GSR_Reader(NetcdfReader):
+class GSR_Reader(ETSF_Reader):
     """
     This object reads the results stored in the _GSR (Ground-State Results)
     file. produced by ABINIT. It provides helper function to access the most
@@ -292,9 +324,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
             filename or NetcdfReader instance.
         site_properties:
     """
-    open_and_close = isinstance(ncdata, str)
-    if open_and_close:
-        ncdata = NetcdfReader(ncdata)
+    ncdata, closeit = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
     lattice = Bohr2Ang(ncdata.read_value("primitive_vectors"))
@@ -320,7 +350,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
 
     structure = Structure(lattice, species, red_coords, site_properties=d)
 
-    if open_and_close:
+    if closeit:
         ncdata.close()
 
     return structure
