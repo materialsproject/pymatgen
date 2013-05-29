@@ -2099,7 +2099,7 @@ class Molecule(IMolecule):
         """
         return self.__class__.from_sites(self)
 
-    def substitute(self, index, func_grp, bond_order=1):
+    def substitute(self, index, func_grp_name, bond_order=1):
         """
         Substitute atom at index with a functional group.
 
@@ -2135,6 +2135,60 @@ class Molecule(IMolecule):
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
+# Create a list of fuctional groups. Group name as key, molecule object as value.
+        func_grp_dic={'F':Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]]),
+                      'methyl':Molecule(["X", "C", "H", "H", "H"],
+                                        [[0.000000, 0.000000, 1.08],
+                                         [0.000000, 0.000000, 0.000000],
+                                         [1.026719, 0.000000, -0.363000],
+                                         [-0.513360, -0.889165, -0.363000],
+                                         [-0.513360, 0.889165, -0.363000]]),
+                      'carboxyl':Molecule(["X","O","O","C","H"],
+                                         [[-1.54,  -0.86,   0.00],
+                                             [0.40,   -0.01,   0.00],
+                                             [-1.46,  1.19,    0.00],
+                                             [-0.83,  -0.01,   0.00],
+                                             [-0.81,  1.91,    0.00]]),
+                      'ethyl':Molecule(["X","C","C","H","H","H","H","H"],
+                        [[0.07,   -0.81,   0.26],
+                         [0.46,   -0.29,   1.17],
+                        [1.96,   -0.29,   1.17],
+                        [0.07,   0.76,    1.17],
+                        [0.07, -0.81, 2.07],
+                        [2.36, -1.33, 1.16],
+                        [2.36, 0.23, 0.26],
+                        [2.36, 0.23, 2.07]]),
+                       'ethynyl':Molecule(["X","C","C","H"],
+                        [[-2.1, 1.20, 0.0],
+                        [-1.0,   1.2,   0.07],
+                        [0.15,   1.2,   0.0],
+                        [1.2,   1.2,    0.0]]),
+                        'hydroxyl':Molecule(["O","H","X"],
+                        [[-1.85,  0.36,    0.00],
+                        [-0.89,  0.36,    0.00],
+                        [-2.17,  1.27,    0.00]]),
+                        'methyl':Molecule(["X","C","H","H","H"],
+                        [ [-0.97,  0.64,    0.00],
+                          [0.10,   0.64,    0.00],
+                        [0.46,   -0.37,   0.00],
+                        [0.46,   1.15,    0.87],
+                        [0.46,   1.15,    -0.87]]),
+                        'vinyl':Molecule(["X","C","C","H","H","H"],
+                        [[1.74,   0.96,    0.00],
+                        [-0.17,  0.03,    0.00],
+                        [1.15,   0.03,    0.00],
+                        [-0.77,  0.96,    0.00],
+                        [-0.77,  -0.89,   0.00],
+                        [1.74,   -0.89,   0.00]])}
+
+        # Check to see whether the functional group is in database. If yes, assign
+
+        if func_grp_name in func_grp_dic.keys():
+            print func_grp_name
+            func_grp=func_grp_dic[func_grp_name]
+            print func_grp
+        else:
+            raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
 
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
@@ -2183,3 +2237,5 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
+
+print "Hello"
