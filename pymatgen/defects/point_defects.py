@@ -5,7 +5,6 @@ Abstract class for defects
 """
 from __future__ import division
 
-__author__ = "Bharat K. Medasani"
 
 import abc 
 
@@ -32,6 +31,7 @@ class Defect:
     def make_supercells_with_defects(self, scaling_matrix):
         """
         Generate the supercell with input multipliers and create the defect
+        To create unit cell with defect pass unit matrix.
         """ 
         print 'Not implemented'
     
@@ -84,7 +84,8 @@ class Vacancy(Defect):
         
     def make_supercells_with_defects(self, scaling_matrix):
         """
-        Returns sequence of supercells containing unique defects
+        Returns sequence of supercells in pymatgen.core.structure.Structure
+        format, with each supercell containing unique vacancy
         """
         sc_with_vac = []
         for uniq_defect_site in self.enumerate():
@@ -97,25 +98,74 @@ class Interstitial(Defect):
     """
     Subclass of Defect to generate interstitials
     """
-    def __init__(self, inp_structure ):
+    def __init__(self, structure):
         """
         Given a structure, generate unique interstitial sites
         
         Args:
-            inp_structure:
+            structure:
                 pymatgen.core.Structure
         """
         
-        self._structure = inp_structure
+        self._structure = structure
         self._uniq_interstitial_sites = []
-        #symm_finder = SymmetryFinder(self._structure)
-        #Use Zeo++ to analyze the void space and identify the void space
-    
+
+        #Use Zeo++ to obtain the voronoi nodes. The unique voronoi nodes
+        #are possible candidates for interstitial sites
+        possibleInterstitialSites = _get_zeo_uniq_voronoi_nodes(self._structure)
+        
+        #Do futher processing on possibleInterstitialSites to obtain 
+        #interstitial sites
+        self._uniq_interstitial_sites = possibleInterstitialSites
+        
+        
     def enumerate_uniq_defectsites(self):
         return self._uniq_interstitial_sites
 
-    def add_interstitial(self, site, element):
-        pass
+            
+    def _supercell_with_defect(self, scaling_matrix, defect_site, element):
+        sc = self._structure.copy()
+        sc.make_supercell(scaling_matrix)
+        oldf_coords = defect_site.frac_coords
+        coords = defect_site.lattice.get_cartesian_coords(oldf_coords)
+        newf_coords = sc.lattice.get_fractional_coords(coords)
+        sc_defect_site = PeriodicSite(defect_site.species_and_occu, newf_coords,
+                                      sc.lattice,
+                                      properties=defect_site.properties)
+        for i in range(len(sc.sites)):
+            if sc_defect_site == sc.sites[i]:
+                sc.replace(i, element)
+                return sc
+           
 
     def make_supercells_with_defects(self, scaling_matrix, element):
-        pass
+        """
+        Returns sequence of supercells in pymatgen.core.structure.Structure
+        format, with each supercell containing unique interstitial
+        """
+        sc_with_interstitial = []
+        for uniq_defect_site in self.enumerate():
+            sc_with_interstitial.append(self._supercell_with_defect(
+                                    scaling_matrix, uniq_defect_site, element))
+        return sc_with_interstitial
+
+def _get_zeo_uniq_voronoi_nodes(structure):
+    """
+    Obtain uniq voronoi nodes using Zeo++
+    """
+    from pymatgen.io.cssrio import Cssr
+    from zeo.netstorage import AtomNetwork, VoronoiNetwork
+    from voronoi_node_symmetry import uniq_voronoi_nodes
+    cssrStruct = Cssr(structure)
+    name = "tmp"
+    tmpCssrFile = name+".cssr"
+    tmpVoroXyzFile = name+"_voro.xyz"
+    cssrStruct.write_file(tmpCssrFile)
+    # Use pymatgen radii for elements in future
+    atmnet = AtomNetwork(tmpCssrFile)
+    vornet = atmnet.perform_voronoi_decomposition()
+    tmpProbeRad = 0.1
+    vornet.analyze_writeto_xyz(name, tmpProbeRad, atmnet)
+    return uniq_voronoi_nodes(tmpCssrFile, tmpVoroXyzFile)
+    
+    
