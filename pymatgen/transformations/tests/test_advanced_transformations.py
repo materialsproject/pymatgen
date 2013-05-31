@@ -183,7 +183,7 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
         t = SubstitutionPredictorTransformation.from_dict(d)
         self.assertEqual(t._threshold, 2,
                          'incorrect threshold passed through dict')
-        self.assertEqual(t._substitutor._sp._alpha, -2,
+        self.assertEqual(t._substitutor.p.alpha, -2,
                          'incorrect alpha passed through dict')
 
 
