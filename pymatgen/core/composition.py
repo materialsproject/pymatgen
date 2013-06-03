@@ -16,6 +16,7 @@ __date__ = "Nov 10, 2012"
 
 import re
 import collections
+import string
 from fractions import gcd
 from itertools import chain
 from pymatgen.core.periodic_table import smart_element_or_specie, Element
@@ -439,9 +440,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         reduced_comp = self.get_reduced_composition_and_factor()[0]
         els = sorted(reduced_comp.elements, key=lambda e: reduced_comp[e])
-        ascii_code = 65
         anon_formula = []
-        for e in els:
+        for anon, e in zip(string.ascii_uppercase, els):
             amt = reduced_comp[e]
             if amt > 0:
                 if amt == 1:
@@ -450,8 +450,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                     amt_str = str(int(amt))
                 else:
                     amt_str = str(amt)
-                anon_formula.append("{}{}".format(chr(ascii_code), amt_str))
-                ascii_code += 1
+                anon_formula.append("{}{}".format(anon, amt_str))
         return "".join(anon_formula)
 
     def __repr__(self):
