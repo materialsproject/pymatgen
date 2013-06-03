@@ -46,7 +46,7 @@ class SubstitutionProbability(object):
         alpha:
             weight function for never observed substitutions
     """
-    
+
     def __init__(self, lambda_table=None, alpha=-5):
         if lambda_table is not None:
             self._lambda_table = lambda_table
@@ -55,7 +55,7 @@ class SubstitutionProbability(object):
             json_file = os.path.join(module_dir, 'data', 'lambda.json')
             with open(json_file) as f:
                 self._lambda_table = json.load(f)
-        
+
         #build map of specie pairs to lambdas
         self.alpha = alpha
         self._l = {}
@@ -67,7 +67,7 @@ class SubstitutionProbability(object):
                 self.species.add(s1)
                 self.species.add(s2)
                 self._l[frozenset([s1, s2])] = float(row[2])
-                
+
         #create Z and px
         self.Z = 0
         self._px = defaultdict(float)
@@ -76,16 +76,14 @@ class SubstitutionProbability(object):
             self._px[s1] += value / 2
             self._px[s2] += value / 2
             self.Z += value
-            
-                
+
     def get_lambda(self, s1, s2):
         k = frozenset([smart_element_or_specie(s1),
                        smart_element_or_specie(s2)])
         return self._l.get(k, self.alpha)
-    
+
     def get_px(self, sp):
         return self._px[smart_element_or_specie(sp)]
-    
     
     def prob(self, s1, s2):
         """
@@ -178,6 +176,10 @@ class SubstitutionPredictor(object):
             will be from the list species. If false, the keys will be 
             from that list. 
         """
+        for sp in species:
+            if smart_element_or_specie(sp) not in self.p.species:
+                raise ValueError("the species {} is not allowed for the"
+                                 "probability model you are using".format(sp))
         max_probabilities = []
         for s1 in species:
             if to_this_composition:
@@ -185,7 +187,7 @@ class SubstitutionPredictor(object):
             else:
                 max_p = max([self.p.cond_prob(s1, s2) for s2 in self.p.species])
             max_probabilities.append(max_p)
-        
+
         output = []
 
         def _recurse(output_prob, output_species):
@@ -198,7 +200,8 @@ class SubstitutionPredictor(object):
                         odict['substitutions'] = dict(zip(output_species, species))
                     else:
                         odict['substitutions'] = dict(zip(species, output_species))
-                    output.append(odict)
+                    if len(output_species) == len(set(output_species)):
+                        output.append(odict)
                     return
                 for sp in self.p.species:
                     i = len(output_prob)
@@ -207,11 +210,11 @@ class SubstitutionPredictor(object):
                     else:
                         prob = self.p.cond_prob(species[i], sp)
                     _recurse(output_prob + [prob], output_species + [sp])
-                    
+
         _recurse([], [])
         logging.info('{} substitutions found'.format(len(output)))
         return output
-        
+
     def composition_prediction(self, composition, to_this_composition = True):
         """
         Returns charged balanced substitutions from a starting or ending 
