@@ -84,7 +84,7 @@ class SubstitutionProbability(object):
 
     def get_px(self, sp):
         return self._px[smart_element_or_specie(sp)]
-    
+
     def prob(self, s1, s2):
         """
         Gets the probability of 2 species substitution. Not used by the
@@ -100,8 +100,10 @@ class SubstitutionProbability(object):
         Conditional probability of substituting s1 for s2.
 
         Args:
-            s1: The *variable* specie
-            s2: The *fixed* specie
+            s1:
+                The *variable* specie
+            s2:
+                The *fixed* specie
 
         Returns:
             Conditional probability used by structure predictor.
@@ -149,17 +151,17 @@ class SubstitutionProbability(object):
     @classmethod
     def from_dict(cls, d):
         return cls(**d['init_args'])
-        
-        
+
+
 class SubstitutionPredictor(object):
     """
-    Predicts likely substitutions either to or from a given composition 
+    Predicts likely substitutions either to or from a given composition
     or species list using the SubstitutionProbability
     """
     def __init__(self, lambda_table=None, alpha=-5, threshold=1e-3):
         self.p = SubstitutionProbability(lambda_table, alpha)
         self.threshold = threshold
-    
+
     def list_prediction(self, species, to_this_composition = True):
         """
         Args:
@@ -167,14 +169,14 @@ class SubstitutionPredictor(object):
                 list of species
             to_this_composition:
                 If true, substitutions with this as a final composition
-                will be found. If false, substitutions with this as a 
+                will be found. If false, substitutions with this as a
                 starting composition will be found (these are slightly
                 different)
         Returns:
-            List of predictions in the form of dictionaries. 
+            List of predictions in the form of dictionaries.
             If to_this_composition is true, the values of the dictionary
-            will be from the list species. If false, the keys will be 
-            from that list. 
+            will be from the list species. If false, the keys will be
+            from that list.
         """
         for sp in species:
             if smart_element_or_specie(sp) not in self.p.species:
@@ -217,21 +219,23 @@ class SubstitutionPredictor(object):
 
     def composition_prediction(self, composition, to_this_composition = True):
         """
-        Returns charged balanced substitutions from a starting or ending 
-        composition
+        Returns charged balanced substitutions from a starting or ending
+        composition.
+
         Args:
             composition:
                 starting or ending composition
             to_this_composition:
                 If true, substitutions with this as a final composition
-                will be found. If false, substitutions with this as a 
+                will be found. If false, substitutions with this as a
                 starting composition will be found (these are slightly
                 different)
+        
         Returns:
-            List of predictions in the form of dictionaries. 
+            List of predictions in the form of dictionaries.
             If to_this_composition is true, the values of the dictionary
-            will be from the list species. If false, the keys will be 
-            from that list. 
+            will be from the list species. If false, the keys will be
+            from that list.
         """
         preds = self.list_prediction(composition.keys(), to_this_composition)
         output = []
@@ -247,4 +251,4 @@ class SubstitutionPredictor(object):
                 output.append(p)
         logging.info('{} charge balanced substitutions found'.format(len(output)))
         return output
-        
+
