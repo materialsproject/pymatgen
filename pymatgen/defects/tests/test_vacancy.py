@@ -28,7 +28,7 @@ class VacancyTest(unittest.TestCase):
         uniq_sites.append(mgo_uc1.sites[3])
         uniq_sites.append(mgo_uc1.sites[7])
         mgo_vac = Vacancy(mgo_uc1)
-        uniq_def_sites = mgo_vac.enumerate_uniq_defects()
+        uniq_def_sites = mgo_vac.enumerate_uniq_defectsites()
         self.assertTrue(len(uniq_def_sites) == 2, "Vacancy init failed")
         #mgo_spg = Spacegroup(int_number=225)
         #self.assertTrue(mgo_spg.are_symmetrically_equivalent(uniq_sites,

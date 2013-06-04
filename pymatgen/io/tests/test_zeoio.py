@@ -9,18 +9,16 @@ from __future__ import division
 import unittest
 import os
 
-from pymatgen.io.zeoio import ZeoCssr
+from pymatgen.io.zeoio import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.core.structure import Structure
+from pymatgen.core.structure import Structure, Molecule
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
 class ZeoCssrTest(unittest.TestCase):
-
     def setUp(self):
-
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
         self.zeocssr = ZeoCssr(p.structure)
@@ -61,6 +59,46 @@ class ZeoCssrTest(unittest.TestCase):
         zeocssr = ZeoCssr.from_file(filename)
         self.assertIsInstance(zeocssr.structure, Structure)
 
+class ZeoVoronoiXYZTest(unittest.TestCase):
+    def setUp(self):
+        coords = [
+                [0.000000, 0.000000, 0.000000],
+                [0.000000, 0.000000, 1.089000],
+                [1.026719, 0.000000, -0.363000],
+                [-0.513360, -0.889165, -0.363000],
+                [-0.513360, 0.889165, -0.363000]]
+        prop = [0.4, 0.2, 0.2, 0.2, 0.2]
+        self.mol = Molecule(
+                ["C", "H", "H", "H", "H"], coords, 
+                site_properties={"voronoi_radius":prop})
+        self.xyz = ZeoVoronoiXYZ(self.mol)
+
+    def test_str(self):
+        ans = """5
+H4 C1
+C 0.000000 0.000000 0.000000 0.400000
+H 0.000000 0.000000 1.089000 0.200000
+H 1.026719 0.000000 -0.363000 0.200000
+H -0.513360 -0.889165 -0.363000 0.200000
+H -0.513360 0.889165 -0.363000 0.200000"""
+        self.assertEqual(str(self.xyz), ans)
+
+    def test_from_file(self):
+        filename = os.path.join(test_dir, "EDI_voro.xyz")
+        vorXYZ = ZeoVoronoiXYZ.from_file(filename)
+        self.assertIsInstance(vorXYZ.molecule, Molecule)
+
+
+class GetVoronoiNodesTest(unittest.TestCase):
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        p = Poscar.from_file(filepath)
+        self.structure = p.structure
+
+
+    def test_get_voronoi_nodes(self):
+        vor_struct = get_voronoi_nodes(self.structure)
+        self.assertIsInstance(vor_struct, Structure)
 
 if __name__ == "__main__":
     unittest.main()
