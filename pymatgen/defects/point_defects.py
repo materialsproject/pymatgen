@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
 """
-Abstract class for defects
+This module defines classes for point defects
 """
 from __future__ import division
-
-
 import abc 
 
 from pymatgen.core.sites import PeriodicSite
@@ -88,7 +86,7 @@ class Vacancy(Defect):
         format, with each supercell containing unique vacancy
         """
         sc_with_vac = []
-        for uniq_defect_site in self.enumerate():
+        for uniq_defect_site in self.enumerate_uniq_defectsites():
             sc_with_vac.append(self._supercell_with_defect(scaling_matrix, 
                                                            uniq_defect_site))
         return sc_with_vac
@@ -144,7 +142,7 @@ class Interstitial(Defect):
         format, with each supercell containing unique interstitial
         """
         sc_with_interstitial = []
-        for uniq_defect_site in self.enumerate():
+        for uniq_defect_site in self.enumerate_uniq_defectsites():
             sc_with_interstitial.append(self._supercell_with_defect(
                                     scaling_matrix, uniq_defect_site, element))
         return sc_with_interstitial
@@ -153,19 +151,22 @@ def _get_zeo_uniq_voronoi_nodes(structure):
     """
     Obtain uniq voronoi nodes using Zeo++
     """
-    from pymatgen.io.cssrio import Cssr
+    from pymatgen.io.cifio import CifWriter
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
     from voronoi_node_symmetry import uniq_voronoi_nodes
-    cssrStruct = Cssr(structure)
+    #cssrStruct = Cssr(structure)
+    cifwriteobj = CifWriter(structure)
     name = "tmp"
-    tmpCssrFile = name+".cssr"
+    #tmpCssrFile = name+".cssr"
+    tmpCifFile = name+".cif"
     tmpVoroXyzFile = name+"_voro.xyz"
-    cssrStruct.write_file(tmpCssrFile)
+    #cssrStruct.write_file(tmpCssrFile)
+    cifwriteobj.write_file(tmpCifFile)
     # Use pymatgen radii for elements in future
-    atmnet = AtomNetwork(tmpCssrFile)
+    atmnet = AtomNetwork.readfromCif(tmpCifFile)
     vornet = atmnet.perform_voronoi_decomposition()
     tmpProbeRad = 0.1
     vornet.analyze_writeto_xyz(name, tmpProbeRad, atmnet)
-    return uniq_voronoi_nodes(tmpCssrFile, tmpVoroXyzFile)
+    return uniq_voronoi_nodes(tmpCifFile, tmpVoroXyzFile)
     
     
