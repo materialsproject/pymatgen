@@ -8,6 +8,7 @@ import abc
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.io.zeoio import get_voronoi_nodes
 
 #from pymatgen.core.structure import PeriodicSize
 #from pymatgen.core.structure_modifier import SuperCellMaker
@@ -110,14 +111,17 @@ class Interstitial(Defect):
 
         #Use Zeo++ to obtain the voronoi nodes. The unique voronoi nodes
         #are possible candidates for interstitial sites
-        possibleInterstitialSites = _get_zeo_uniq_voronoi_nodes(self._structure)
+        possible_interstitial_sites = _get_uniq_voronoi_nodes(structure)
         
         #Do futher processing on possibleInterstitialSites to obtain 
         #interstitial sites
-        self._uniq_interstitial_sites = possibleInterstitialSites
+        self._uniq_interstitial_sites = possible_interstitial_sites
         
         
     def enumerate_uniq_defectsites(self):
+        """
+        Enumerate all the defect sites unique w.r.t. symmetry
+        """
         return self._uniq_interstitial_sites
 
             
@@ -127,46 +131,57 @@ class Interstitial(Defect):
         oldf_coords = defect_site.frac_coords
         coords = defect_site.lattice.get_cartesian_coords(oldf_coords)
         newf_coords = sc.lattice.get_fractional_coords(coords)
-        sc_defect_site = PeriodicSite(defect_site.species_and_occu, newf_coords,
-                                      sc.lattice,
-                                      properties=defect_site.properties)
-        for i in range(len(sc.sites)):
-            if sc_defect_site == sc.sites[i]:
-                sc.replace(i, element)
-                return sc
+        #sc_defect_site = PeriodicSite(element, newf_coords,
+        #                              sc.lattice)
+        try:
+            sc.append(element, newf_coords, coords_are_cartesian=False, 
+                      validate_proximity=True)
+        except ValueError:      
+            sc = None
+        finally:
+            return sc
            
-
     def make_supercells_with_defects(self, scaling_matrix, element):
         """
         Returns sequence of supercells in pymatgen.core.structure.Structure
         format, with each supercell containing unique interstitial
         """
-        sc_with_interstitial = []
-        for uniq_defect_site in self.enumerate_uniq_defectsites():
-            sc_with_interstitial.append(self._supercell_with_defect(
-                                    scaling_matrix, uniq_defect_site, element))
-        return sc_with_interstitial
+        sc_list_with_interstitial = []
+        for defect_site in self.enumerate_uniq_defectsites():
+            sc_with_inter = self._supercell_with_defect(
+                    scaling_matrix, defect_site, element
+                    )
+            if sc_with_inter:
+                sc_list_with_interstitial.append(sc_with_inter)
+        return sc_list_with_interstitial
 
-def _get_zeo_uniq_voronoi_nodes(structure):
+def _get_uniq_voronoi_nodes(structure):
     """
-    Obtain uniq voronoi nodes using Zeo++
+    Obtain symmetrically unique voronoi nodes using Zeo++ and 
+    pymatgen.symmetry.finder.SymmetryFinder
+    Args:
+        strucutre:
+            pymatgen Structure object
+
+    Returns:
+        Symmetrically unique voronoi nodes as pymatgen Strucutre
     """
-    from pymatgen.io.cifio import CifWriter
-    from zeo.netstorage import AtomNetwork, VoronoiNetwork
-    from voronoi_node_symmetry import uniq_voronoi_nodes
-    #cssrStruct = Cssr(structure)
-    cifwriteobj = CifWriter(structure)
-    name = "tmp"
-    #tmpCssrFile = name+".cssr"
-    tmpCifFile = name+".cif"
-    tmpVoroXyzFile = name+"_voro.xyz"
-    #cssrStruct.write_file(tmpCssrFile)
-    cifwriteobj.write_file(tmpCifFile)
-    # Use pymatgen radii for elements in future
-    atmnet = AtomNetwork.readfromCif(tmpCifFile)
-    vornet = atmnet.perform_voronoi_decomposition()
-    tmpProbeRad = 0.1
-    vornet.analyze_writeto_xyz(name, tmpProbeRad, atmnet)
-    return uniq_voronoi_nodes(tmpCifFile, tmpVoroXyzFile)
+    vor_node_struct = get_voronoi_nodes(structure)
+    vor_symmetry_finder = SymmetryFinder(vor_node_struct)
+    vor_symm_struct = vor_symmetry_finder.get_symmetrized_structure()
+    equiv_sites = vor_symm_struct.equivalent_sites
+    uniq_sites = []
+    for equiv_site in vor_symm_struct.equivalent_sites:
+        uniq_sites.append(equiv_site[0])
+
+    lat = strucutre.lattice
+    sp = [site.specie for site in uniq_sites]   # "Al" because to Zeo++
+    coords = [site.coords for site in uniq_sites]
+    vor_node_radii = [site.properties.voronoi_radius for site in uniq_sites]
+    uniq_vor_node_struct = Structure(lat, sp, coords, 
+            coords_are_cartesian=True, 
+            site_properties={'voronoi_radius':vor_node_radii}
+            )
+    return uniq_vor_node_strucut
     
     

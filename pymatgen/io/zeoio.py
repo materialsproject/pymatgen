@@ -8,8 +8,11 @@ Zeo++ can be obtained from http://www.maciejharanczyk.info/Zeopp/
 from __future__ import division
 
 import re
+import tempfile
+import os
+import shutil
 
-#from zeo.netstorage import AtomNetwork
+from zeo.netstorage import AtomNetwork, VoronoiNetwork
 
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
@@ -146,7 +149,7 @@ class ZeoVoronoiXYZ(XYZ):
                 sp.append(m.group(1))  # this is 1-indexed
                 coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
                 prop.append(m.group(5))
-        print prop
+        #print prop
         return ZeoVoronoiXYZ(
             Molecule(sp, coords, site_properties={'voronoi_radius':prop})
         )
@@ -166,4 +169,49 @@ class ZeoVoronoiXYZ(XYZ):
         with zopen(filename) as f:
             return ZeoVoronoiXYZ.from_string(f.read())
         
+    def __str__(self):
+        output = [str(len(self._mol)), self._mol.composition.formula]
+        fmtstr = "{{}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}} {{:.{0}f}}".format(
+                self.precision
+                )
+        for site in self._mol:
+            output.append(fmtstr.format(
+                site.specie, site.x, site.y, site.z,
+                site.properties['voronoi_radius']
+                ))
+        return "\n".join(output)
+
+
+def get_voronoi_nodes(structure):
+
+    """
+    Using Zeo++ analyze the void space in the input structure
+    and return information  about voronoi nodes as pymatgen structure
+    Args:
+        structure:
+            pymatgen.core.structure.Structure
+
+    Returns:
+        voronoi nodes as pymatgen.core.structure.Strucutre using the 
+        lattice of input structure lattice
+    """
+        
+    temp_dir = tempfile.mkdtemp()
+    current_dir = os.getcwd()
+    name = "temp_zeo"
+    zeo_inp_filename = name+".cssr"
+    os.chdir(temp_dir)
+    ZeoCssr(structure).write_file(zeo_inp_filename)
+    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename)
+    vornet = atmnet.perform_voronoi_decomposition()
+    vornet.analyze_writeto_XYZ(name, 0.3, atmnet)
+    voronoi_out_filename = name+'_voro.xyz'
+    voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
+    a = structure.lattice.a
+    b = structure.lattice.b
+    c = structure.lattice.c
+    voronoi_node_struct = voronoi_node_mol.get_boxed_structure(a, b, c)
+    os.chdir(current_dir)
+    shutil.rmtree(temp_dir)
+    return voronoi_node_struct 
 
