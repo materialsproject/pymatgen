@@ -99,7 +99,7 @@ class Interstitial(Defect):
     """
     def __init__(self, structure):
         """
-        Given a structure, generate unique interstitial sites
+        Given a structure, generate symmetrically unique interstitial sites.
         
         Args:
             structure:
@@ -120,7 +120,8 @@ class Interstitial(Defect):
         
     def enumerate_uniq_defectsites(self):
         """
-        Enumerate all the defect sites unique w.r.t. symmetry
+        Enumerate all the defect sites unique w.r.t. symmetry.
+        The defect site has "Al" as occupied specie.
         """
         return self._uniq_interstitial_sites
 
@@ -174,14 +175,14 @@ def _get_uniq_voronoi_nodes(structure):
     for equiv_site in vor_symm_struct.equivalent_sites:
         uniq_sites.append(equiv_site[0])
 
-    lat = strucutre.lattice
-    sp = [site.specie for site in uniq_sites]   # "Al" because to Zeo++
-    coords = [site.coords for site in uniq_sites]
-    vor_node_radii = [site.properties.voronoi_radius for site in uniq_sites]
-    uniq_vor_node_struct = Structure(lat, sp, coords, 
-            coords_are_cartesian=True, 
-            site_properties={'voronoi_radius':vor_node_radii}
-            )
-    return uniq_vor_node_strucut
+    #lat = structure.lattice
+    #sp = [site.specie for site in uniq_sites]   # "Al" because to Zeo++
+    #coords = [site.coords for site in uniq_sites]
+    #vor_node_radii = [site.properties['voronoi_radius'] for site in uniq_sites]
+    #uniq_vor_node_struct = Structure(lat, sp, coords, 
+    #        coords_are_cartesian=True, 
+    #        site_properties={'voronoi_radius':vor_node_radii}
+    #        )
+    return uniq_sites
     
     
