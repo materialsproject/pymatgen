@@ -237,9 +237,9 @@ class ETSF_Reader(NetcdfReader):
     """
     This object reads data from a file written according to the
     ETSF-IO specifications.
+
+    We assume that the netcdf file contains at least the crystallographic section.
     """
-    # This quantities are Abinit specific.
-    # We assume that the netcdf file contains the crystallographic section.
     @property
     def chemical_symbols(self):
         """Chemical symbols char [number of atom species][symbol length]."""
@@ -278,7 +278,6 @@ class GSR_Reader(ETSF_Reader):
     file. produced by ABINIT. It provides helper function to access the most
     important quantities.
     """
-
     def read_band_structure(self):
         raise NotImplementedError("")
         structure = self.read_structure()
