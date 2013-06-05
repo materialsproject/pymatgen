@@ -376,7 +376,7 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
         diffusivities:
             A sequence of diffusivities (e.g., from DiffusionAnalyzer
             .diffusivity).
-        **kwargs:
+        \*\*kwargs:
             Any keyword args supported by matplotlib.pyplot.plot.
 
     Returns:

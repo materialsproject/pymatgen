@@ -745,6 +745,13 @@ class Specie(MSONable):
             return self.oxi_state < other_oxi
 
     @property
+    def element(self):
+        """
+        Underlying element object
+        """
+        return self._el
+
+    @property
     def ionic_radius(self):
         """
         Ionic radius of specie. Returns None if data is not present.
