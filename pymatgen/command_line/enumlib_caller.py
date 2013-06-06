@@ -288,7 +288,13 @@ class EnumlibAdaptor(object):
         rs.communicate()
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
-            ordered_structure = Structure.from_sites(self.ordered_sites)
+            # Need to strip sites of site_properties, which would otherwise
+            # result in an index error. Hence Structure is reconstructed in
+            # the next step.
+            ordered_structure = Structure(
+                original_latt,
+                [site.species_and_occu for site in self.ordered_sites],
+                [site.frac_coords for site in self.ordered_sites])
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
         for n in range(1, num_structs + 1):
