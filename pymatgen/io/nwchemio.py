@@ -17,9 +17,10 @@ __date__ = "6/5/13"
 import re
 
 from pymatgen.core import Molecule
+import pymatgen.core.physical_constants as phyc
 from pymatgen.util.io_utils import zopen
 from pymatgen.serializers.json_coders import MSONable
-import pymatgen.core.physical_constants as phyc
+
 
 class NwTask(MSONable):
     """
