@@ -258,6 +258,71 @@ class NwInputError(Exception):
     pass
 
 
+class NwOutput(object):
+    """
+    A Nwchem output file parser. Very basic for now - supports only dft and
+    only parses energies.
+    """
+
+    def __init__(self, filename):
+        self.filename = filename
+
+        with zopen(filename) as f:
+            data = f.read()
+
+        chunks = re.split("NWChem Input Module", data)
+        chunks.pop()
+        preamble = chunks.pop(0)
+
+        self.job_info = self._parse_preamble(preamble)
+        self.data = map(self._parse_job, chunks)
+
+    def _parse_preamble(self, preamble):
+        info = {}
+        for l in preamble.split("\n"):
+            toks = l.split("=")
+            if len(toks) > 1:
+                info[toks[0].strip()] = toks[-1].strip()
+        return info
+
+    def _parse_job(self, output):
+        energy_patt = re.compile("Total \w+ energy\s+=\s+([\.\-\d]+)")
+        coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
+                                "([\.\-\d]+)\s+([\.\-\d]+)")
+
+        energies = []
+        molecules = []
+        species = []
+        coords = []
+        parse_geom = False
+        job_type = ""
+        for l in output.split("\n"):
+            if parse_geom:
+                if l.strip() == "Atomic Mass":
+                    molecules.append(Molecule(species, coords))
+                    species = []
+                    coords = []
+                    parse_geom = False
+                else:
+                    m = coord_patt.search(l)
+                    if m:
+                        species.append(m.group(1).capitalize())
+                        coords.append([float(m.group(2)), float(m.group(3)),
+                                       float(m.group(4))])
+            else:
+                m = energy_patt.search(l)
+                if m:
+                    energies.append(float(m.group(1)))
+                elif l.find("Geometry \"geometry\"") != -1:
+                    parse_geom = True
+                elif job_type == "" and l.strip().startswith("NWChem"):
+                    job_type = l.strip()
+
+        return {"job_type": job_type, "energies": energies,
+                "molecules": molecules}
+
+
+
 import unittest
 import os
 import json
@@ -414,6 +479,13 @@ task dft energy
         self.assertIsInstance(nwi, NwInput)
         #Ensure it is json-serializable.
         json.dumps(d)
+
+
+class NwOutputTest(unittest.TestCase):
+
+    def test_read(self):
+        nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
+        print nwo.data
 
 
 if __name__ == "__main__":
