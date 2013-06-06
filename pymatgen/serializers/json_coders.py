@@ -162,8 +162,13 @@ class PMGJSONDecoder(json.JSONDecoder):
                 classname = None
             if modname:
                 if modname == "datetime" and classname == "datetime":
-                    return datetime.datetime.strptime(d["string"],
-                                                      "%Y-%m-%d %H:%M:%S.%f")
+                    try:
+                        dt = datetime.datetime.strptime(d["string"],
+                                                        "%Y-%m-%d %H:%M:%S.%f")
+                    except ValueError:
+                        dt = datetime.datetime.strptime(d["string"],
+                                                      "%Y-%m-%d %H:%M:%S")
+                    return dt
                 mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
                     cls_ = getattr(mod, classname)
@@ -214,7 +219,7 @@ def pmg_load(filename, **kwargs):
     Args:
         filename:
             Filename of file to open. Can be gzipped or bzipped.
-        **kwargs:
+        \*\*kwargs:
             Any of the keyword arguments supported by the json.load method.
 
     Returns:
@@ -236,7 +241,7 @@ def pmg_dump(obj, filename, **kwargs):
             Object to dump.
         filename:
             Filename of file to open. Can be gzipped or bzipped.
-        **kwargs:
+        \*\*kwargs:
             Any of the keyword arguments supported by the json.load method.
     """
     return json.dump(obj, zopen(filename, "w"), cls=PMGJSONEncoder, **kwargs)
