@@ -262,7 +262,9 @@ class NwInputError(Exception):
 class NwOutput(object):
     """
     A Nwchem output file parser. Very basic for now - supports only dft and
-    only parses energies.
+    only parses energies and geometries. Please note that Nwchem typically
+    outputs energies in either au or kJ/mol. All energies are converted to
+    eV in the parser.
     """
 
     def __init__(self, filename):
