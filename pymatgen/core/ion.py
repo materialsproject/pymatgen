@@ -171,8 +171,9 @@ class Ion(MSONable):
             d:
                  {symbol: amount} dict.
         """
-        composition = Composition.from_dict(d['composition'])
+#        composition = Composition.from_dict(d['composition'])
         charge = d['charge']
+        composition = Composition.from_dict({i: d[i] for i in d if i != 'charge'})
         return Ion(composition, charge)
 
     @property
@@ -182,10 +183,9 @@ class Ion(MSONable):
             dict with element symbol and reduced amount e.g.,
             {"Fe": 2.0, "O":3.0}.
         """
-        d = {}
         reduced_formula = self._composition.reduced_formula
         c = Composition(reduced_formula)
-        d['composition'] = c.to_dict
+        d = c.to_dict
         d['charge'] = self._charge
         return d
 

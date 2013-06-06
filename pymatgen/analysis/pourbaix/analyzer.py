@@ -206,12 +206,12 @@ class PourbaixAnalyzer(object):
                         coord = bound_coords[i]
                         s = coord - coord_facet
                         q = coord_facet
-                        if np.cross(r, s) == 0:
+                        if np.cross(r, s) < tol:
                             break
                         else:
                             t = np.cross(q - p, s) / np.cross(r, s)
                             u = np.cross(q - p, r) / np.cross(r, s)
-                            if ((t > tol) & (t-1 < tol)) & ((u > tol) & (u-1 < tol)):
+                            if ((t > tol) & (t - 1 < tol)) & ((u > tol) & (u - 1 < tol)):
                                 dist[i] = 100000000
             bound_coords = np.array(bound_coords)
             dist_edge[edge] = dist
@@ -301,6 +301,7 @@ class PourbaixAnalyzer(object):
                         sim = Simplex(line)
                         chempot_ranges[entries[vertex]].append(sim)
 
+#        chempot_ranges_cleaned = chempot_ranges
         chempot_ranges_cleaned = {}
         for entry in self._pd.stable_entries:
             chempot_ranges_cleaned[entry] = self.check_regions(entry, chempot_ranges[entry])
@@ -405,12 +406,12 @@ class PourbaixAnalyzer(object):
             s = np.array([line2.coords[1][0] - line2.coords[0][0],\
                           line2.coords[1][1] - line2.coords[0][1]])
             q = np.array([line2.coords[0][0], line2.coords[0][1]])
-            if np.cross(r, s) == 0:
+            if np.cross(r, s) < tol:
                 continue
             else:
                 t = np.cross(q - p, s) / np.cross(r, s)
                 u = np.cross(q - p, r) / np.cross(r, s)
-                if ((t >= 0) & (t <= 1)) & ((u >= 0) & (u <= 1)):
+                if ((t >= tol) & (abs(t - 1) <= tol)) & ((u >= tol) & (abs(u - 1) <= tol)):
                     if ((t < tol) | (abs(t - 1.0) < tol)) &\
                      ((u > tol) & (abs(u - 1.0) > tol)):
                         intersect_coords = q + u * s

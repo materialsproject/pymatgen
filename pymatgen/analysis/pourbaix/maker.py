@@ -82,12 +82,11 @@ class PourbaixDiagram(object):
         for entry in entries_to_process:
             row = [entry.npH, entry.nPhi, entry.g0]
             data.append(row)
-        from operator import itemgetter
         temp = zip(data, self._qhull_entries)
         temp.sort(key=lambda x: x[0][2])
         [data, self._qhull_entries] = zip(*temp)
         return data
-        
+
     def _process_multielement_entries(self):
         """
         Create entries for multi-element Pourbaix construction
@@ -111,8 +110,8 @@ class PourbaixDiagram(object):
                 red_fac = 1.0
             for i in xrange(len(elt_list)):
                 sum_nel += entry0.composition[Element(elt_list[i])]/red_fac
-            b = [entry0.composition[Element(elt_list[i])]/red_fac - composition_list[i]*sum_nel for i in xrange(1, len(elt_list))]
-            for j in xrange(1,len(entry_list)):
+            b = [entry0.composition[Element(elt_list[i])]/red_fac - composition_list[i] * sum_nel for i in xrange(1, len(elt_list))]
+            for j in xrange(1, len(entry_list)):
                 entry = entries[entry_list[j]]
                 if entry.phase_type == "Solid":
                     red_fac = entry.composition.get_reduced_composition_and_factor()[1]
@@ -123,7 +122,7 @@ class PourbaixDiagram(object):
                     sum_nel += entry.composition[Element(el)]/red_fac
                 for i in xrange(1, len(elt_list)):
                     el = elt_list[i]
-                    A[i-1][j-1] = composition_list[i] * sum_nel - entry.composition[Element(el)]/red_fac
+                    A[i-1][j-1] = composition_list[i] * sum_nel - entry.composition[Element(el)] / red_fac
             try:
                 weights = np.linalg.solve(np.array(A), np.array(b))
             except np.linalg.linalg.LinAlgError as err:
@@ -208,12 +207,14 @@ class PourbaixDiagram(object):
                     logger.debug("Removing UCH facet : {}".format(facet))
             final_facets = np.array(final_facets)
             self._facets = final_facets
-
+        
+        stable_vertices = set()
         for facet in self._facets:
             for vertex in facet:
+                stable_vertices.add(vertex)
                 stable_entries.add(self._qhull_entries[vertex])
         self._stable_entries = stable_entries
-        self._vertices = vertices
+        self._vertices = stable_vertices
 
     @property
     def facets(self):

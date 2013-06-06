@@ -47,12 +47,9 @@ class PourbaixPlotter(object):
         self.show_unstable = show_unstable
 
     @property
-    def pd_plot_data(self):
+    def pourbaix_hull_plot_data(self):
         """
-        Plot data for phase diagram.
-        2-comp - Full hull with energies
-        3/4-comp - Projection into 2D or 3D Gibbs triangle.
-
+        Pourbaix diagram convex hull data
         Returns:
             (lines, stable_entries, unstable_entries):
                 - lines is a list of list of coordinates for lines in the PD.
@@ -96,12 +93,31 @@ class PourbaixPlotter(object):
 
         return (lines, stable_entries, unstable_entries)
 
-    def show(self, label_stable=True, label_unstable=False):
+#    @property
+#    def pourbaix_plot_data(self):
+#        """
+#        """
+#        pd = self._pd
+#        analyzer = PourbaixAnalyzer(pd)
+#        chempots = analyzer.get_chempot_range_map()
+#        labels = list()
+#        xlabel = list()
+#        ylabel = list()
+#        zlabel = list()
+#        for entry, lines in chempots.items():
+
+    def show(self, label_stable=True, label_unstable=False, filename = ""):
         """
-        Draws the convex diagram using Matplotlib and show it.
+        Draws the convex hull diagram using Matplotlib and show it.
         """
         plt = self._get_plot(label_stable, label_unstable)
-        plt.show()
+	if filename == "":
+            print "Showing the figure"
+            print filename
+	    plt.show()
+	else:
+            print "Trying to save convex hull to file", filename
+	    plt.savefig(filename, bbox_inches=0)
 
     def _get_plot(self, label_stable=True, label_unstable=False):
         """
@@ -114,8 +130,8 @@ class PourbaixPlotter(object):
         ax = p3.Axes3D(fig)
         font = FontProperties()
         font.set_weight("bold")
-        font.set_size(20)
-        (lines, labels, unstable) = self.pd_plot_data
+        font.set_size(14)
+        (lines, labels, unstable) = self.pourbaix_hull_plot_data
         count = 1
         newlabels = list()
         for x, y, z in lines:
@@ -141,8 +157,8 @@ class PourbaixPlotter(object):
                 count += 1
 
         plt.figtext(0.01, 0.01, "\n".join(newlabels))
-        plt.xlabel("npH")
-        plt.ylabel("nel")
+        plt.xlabel("pH")
+        plt.ylabel("V")
         return plt
 
     def plot_planes(self):
@@ -174,14 +190,26 @@ class PourbaixPlotter(object):
         plt.ylabel("E (V)")
         plt.show()
 
-    def plot_chempot_range_map(self, limits=None):
+    def plot_chempot_range_map(self, limits = None, title="", filename=""):
+        self.plot_pourbaix(limits, title, filename)
+
+    def plot_pourbaix(self, limits = None, title="", filename=""):
+        plt = self.get_pourbaix_plot(limits = limits, title = title)
+        if filename == "":
+            plt.show()
+        else:
+            plt.savefig(filename, bbox_inches=0)
+
+    def get_pourbaix_plot(self, limits = None, title = ""):
         """
         Plot pourbaix diagram
         """
-        elements = ["H+", 'V']
-        plt = get_publication_quality_plot(12, 8)
+#        elements = ["H+", 'V']
+        plt = get_publication_quality_plot(24, 14.4)
         analyzer = PourbaixAnalyzer(self._pd)
+        self.analyzer = analyzer
         chempot_ranges = analyzer.get_chempot_range_map()
+        self.chempot_ranges = chempot_ranges
         if (limits):
             xlim = limits[0]
             ylim = limits[1]
@@ -199,10 +227,11 @@ class PourbaixPlotter(object):
         ax = plt.gca()
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
-        plt.plot(h_line[0], h_line[1], "r--")
-        plt.plot(o_line[0], o_line[1], "r--")
-        plt.plot(neutral_line[0], neutral_line[1], "k-.")
-        plt.plot(V0_line[0], V0_line[1], "k-.")
+        lw = 3
+        plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
+        plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
+        plt.plot(neutral_line[0], neutral_line[1], "k-.",linewidth=lw)
+        plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
         for entry, lines in chempot_ranges.items():
             region = []
             center_x = 0.0
@@ -211,7 +240,7 @@ class PourbaixPlotter(object):
             count_center = 0.0
             for line in lines:
                 (x, y) = line.coords.transpose()
-                plt.plot(x, y, "k-")
+                plt.plot(x, y, "k-", linewidth=lw)
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
@@ -237,12 +266,13 @@ class PourbaixPlotter(object):
                  ((center_y == ylim[0]) | (center_y == ylim[1]))):
                 continue
             xy = (center_x, center_y)
-            plt.annotate(self.print_name(entry), xy, fontsize=22)
+            plt.annotate(self.print_name(entry), xy, fontsize=30, color="b")
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
+        plt.title(title, fontsize=30, fontweight='bold')
         plt.tight_layout()
-        plt.show()
+        return plt
 
     def print_name(self, entry):
         """
@@ -250,44 +280,80 @@ class PourbaixPlotter(object):
         """
         str_name = ""
         if isinstance(entry, MultiEntry):
+	    if len(entry.entrylist) > 2:
+                return str(self._pd.qhull_entries.index(entry))
+##            for e in entry.entrylist:
+##                indx = self._pd.unprocessed_entries.index(e)
+##                str_name += str(indx) + " + "
+##            str_name = str_name[:-3]
             for e in entry.entrylist:
-                indx = self._pd.unprocessed_entries.index(e)
-                str_name += str(indx) + " + "
+                str_name += latexify_ion(latexify(e.name)) + " + "
             str_name = str_name[:-3]
             return str_name
         else:
             return latexify_ion(latexify(entry.name))
 
-    def legend(self, label_unstable = False):
+    def legend(self, label_unstable = False, legend_file = ""):
         import matplotlib.pyplot as plt
         if self._pd._multielement:
-            fig = plt.figure(facecolor='white')
-            fig.suptitle('Legend', fontsize=14, fontweight='bold')
-            ax1 = plt.axes(frameon=False)
-            ax1.get_xaxis().set_visible(False)
-            ax1.axes.get_yaxis().set_visible(False)
+#            fig = plt.figure(facecolor='white')
+#            fig.suptitle('Legend', fontsize=14, fontweight='bold')
+#            ax1 = plt.axes(frameon=False)
+#            ax1.get_xaxis().set_visible(False)
+#            ax1.axes.get_yaxis().set_visible(False)
             unprocessed_entries = self._pd.unprocessed_entries
             set_of_entries = set()
-            for entry in self._pd.qhull_entries:
+            list_of_entries = {}
+            for entry in self._pd.stable_entries:
+                index_ent = self._pd.qhull_entries.index(entry)
+                str_ename = ""
                 for e in entry.entrylist:
+                    str_ename += e.name + " + "
                     for ent in unprocessed_entries: 
                         if ent.name == e.name:
                             indx = unprocessed_entries.index(ent)
                             set_of_entries.add(indx)
                             continue
+                str_ename = str_ename[:-3]
+                list_of_entries[index_ent] = str_ename
             if (label_unstable):
                 for entry in [entry for entry in self._pd.all_entries if entry not in self._pd.stable_entries]:
                     for e in entry.entrylist:
                         indx = unprocessed_entries.index(e)
                         set_of_entries.add(indx)
             str_labels = " Species: \n"
-            f = open("Legends_file", 'w')
-            for i in set_of_entries:
-                str_labels += str(i) + " : " + str(unprocessed_entries[i].name) + "\n"
-            f.write(str_labels)
-            f.close()
-            plt.text(0, 0, str_labels, fontsize=15)
-            plt.show()
+            if legend_file:
+                f = open(legend_file, 'w')
+                for i in list_of_entries.keys():
+                    str_labels += str(i) + " : " + list_of_entries[i] + "\n"
+                f.write(str_labels)
+                f.close()
+            return str_labels
+#            plt.text(0, 0, str_labels, fontsize=15)
+#            plt.show()
+
+    def write_image(self, plt, stream, image_format="svg"):
+        """
+        Writes the phase diagram to an image in a stream.
+
+        Args:
+            plt:
+                matplotlib plot
+            stream:
+                stream to write to. Can be a file stream or a StringIO stream.
+            image_format
+                format for image. Can be any of matplotlib supported formats.
+                Defaults to svg for best results for vector graphics.
+        """
+#        if self._dim < 4:
+#            plt = self._get_2d_plot()
+#        elif self._dim == 4:
+#            plt = self._get_3d_plot()
+
+        f = plt.gcf()
+        f.set_size_inches((12, 10))
+
+        plt.savefig(stream, format=image_format)
 
 
 def latexify_ion(formula):
