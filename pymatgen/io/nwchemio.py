@@ -19,7 +19,7 @@ import re
 from pymatgen.core import Molecule
 from pymatgen.util.io_utils import zopen
 from pymatgen.serializers.json_coders import MSONable
-
+import pymatgen.core.physical_constants as phyc
 
 class NwTask(MSONable):
     """
@@ -289,8 +289,11 @@ class NwOutput(object):
         energy_patt = re.compile("Total \w+ energy\s+=\s+([\.\-\d]+)")
         coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
                                 "([\.\-\d]+)\s+([\.\-\d]+)")
+        corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
+                                      "\s+([\.\-\d]+)")
 
         energies = []
+        corrections = {}
         molecules = []
         species = []
         coords = []
@@ -312,11 +315,17 @@ class NwOutput(object):
             else:
                 m = energy_patt.search(l)
                 if m:
-                    energies.append(float(m.group(1)))
+                    energies.append(float(m.group(1)) * phyc.Ha_eV)
                 elif l.find("Geometry \"geometry\"") != -1:
                     parse_geom = True
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
+                else:
+                    m = corrections_patt.search(l)
+                    if m:
+                        corrections[m.group(1)] = float(m.group(2)) / \
+                            phyc.EV_PER_ATOM_TO_KJ_PER_MOL
 
         return {"job_type": job_type, "energies": energies,
+                "corrections": corrections,
                 "molecules": molecules}
