@@ -117,7 +117,7 @@ class PourbaixEntry(MSONable):
         """
         Returns the concentration contribution to the free energy
         """
-        return PREFAC * math.log10(self._concn)
+        return self.normalization_factor * PREFAC * math.log10(self._concn)
 
     @property
     def phase_type(self):
@@ -326,7 +326,10 @@ class MultiEntry(PourbaixEntry):
             for el in entry.composition.elements:
                 if (el == Element("O")) | (el == Element("H")):
                     continue
-                red_fac = entry.composition.get_reduced_composition_and_factor()[1]
+                if entry._phase_type == 'Solid':
+                    red_fac = entry.composition.get_reduced_composition_and_factor()[1]
+                else:
+                    red_fac = 1.0
                 norm_fac += self._weights[i] * entry.composition[el] / red_fac
         fact = 1.0 / norm_fac
         return fact
