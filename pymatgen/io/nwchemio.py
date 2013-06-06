@@ -21,54 +21,56 @@ from pymatgen.util.io_utils import zopen
 from pymatgen.serializers.json_coders import MSONable
 
 
-THEORIES = {"scf": "Hartree-Fock",
-            "dft": "DFT",
-            "sodft": "Spin-Orbit DFT",
-            "mp2": "MP2 using a semi-direct algorithm",
-            "direct_mp2": "MP2 using a full-direct algorithm",
-            "rimp2": "MP2 using the RI approximation",
-            "ccsd": "Coupled-cluster single and double excitations",
-            "ccsd(t)": "Coupled-cluster linearized triples approximation",
-            "ccsd+t(ccsd)": "Fourth order triples contribution",
-            "mcscf": "Multiconfiguration SCF",
-            "selci": "Selected CI with perturbation correction",
-            "md": "Classical molecular dynamics simulation",
-            "pspw": "Pseudopotential plane-wave DFT for molecules and "
-                    "insulating solids using NWPW",
-            "band": "Pseudopotential plane-wave DFT for solids using NWPW",
-            "tce": "Tensor Contraction Engine"}
-
-OPERATIONS = {"energy": "Evaluate the single point energy.",
-              "gradient": "Evaluate the derivative of the energy with "
-                          "respect to nuclear coordinates.",
-              "optimize": "Minimize the energy by varying the molecular "
-                          "structure.",
-              "saddle": "Conduct a search for a transition state (or saddle "
-                        "point) using either Driver module (the default) or "
-                        "Stepper.",
-              "hessian": "Compute second derivatives.",
-              "frequencies": "Compute second derivatives and print out an "
-                             "analysis of molecular vibrations.",
-              "freq": "Same as frequencies.",
-              "vscf": "Compute anharmonic contributions to the vibrational "
-                      "modes.",
-              "property": "Calculate the properties for the wave function.",
-              "dynamics": "Perform classical molecular dynamics.",
-              "thermodynamics": "Perform multi-configuration thermo-dynamic "
-                                "integration using classical MD."}
-
-
 class NwTask(MSONable):
     """
-    Base task for Nwchem. Very flexible arguments to support many types of
-    potential setups. Users should use more friendly subclasses unless they
-    need the flexibility.
+    Base task for Nwchem.
     """
+
+    theories = {"scf": "Hartree-Fock",
+                "dft": "DFT",
+                "sodft": "Spin-Orbit DFT",
+                "mp2": "MP2 using a semi-direct algorithm",
+                "direct_mp2": "MP2 using a full-direct algorithm",
+                "rimp2": "MP2 using the RI approximation",
+                "ccsd": "Coupled-cluster single and double excitations",
+                "ccsd(t)": "Coupled-cluster linearized triples approximation",
+                "ccsd+t(ccsd)": "Fourth order triples contribution",
+                "mcscf": "Multiconfiguration SCF",
+                "selci": "Selected CI with perturbation correction",
+                "md": "Classical molecular dynamics simulation",
+                "pspw": "Pseudopotential plane-wave DFT for molecules and "
+                        "insulating solids using NWPW",
+                "band": "Pseudopotential plane-wave DFT for solids using NWPW",
+                "tce": "Tensor Contraction Engine"}
+
+    operations = {"energy": "Evaluate the single point energy.",
+                  "gradient": "Evaluate the derivative of the energy with "
+                              "respect to nuclear coordinates.",
+                  "optimize": "Minimize the energy by varying the molecular "
+                              "structure.",
+                  "saddle": "Conduct a search for a transition state (or "
+                            "saddle point).",
+                  "hessian": "Compute second derivatives.",
+                  "frequencies": "Compute second derivatives and print out an "
+                                 "analysis of molecular vibrations.",
+                  "freq": "Same as frequencies.",
+                  "vscf": "Compute anharmonic contributions to the "
+                          "vibrational modes.",
+                  "property": "Calculate the properties for the wave "
+                              "function.",
+                  "dynamics": "Perform classical molecular dynamics.",
+                  "thermodynamics": "Perform multi-configuration "
+                                    "thermodynamic integration using "
+                                    "classical MD."}
 
     def __init__(self, mol, charge=None, spin_multiplicity=None,
                  title=None, theory="dft", operation="optimize",
                  basis_set="6-31++G**", theory_directives=None):
         """
+        Very flexible arguments to support many types of potential setups.
+        Users should use more friendly static methods unless they need the
+        flexibility.
+
         Args:
             mol:
                 Input molecule
@@ -86,9 +88,9 @@ class NwTask(MSONable):
                 based on the formula, theory and operation of the task is
                 autogenerated.
             theory:
-                The theory used for the task. Defaults to dft.
+                The theory used for the task. Defaults to "dft".
             operation:
-                The operation for the task.
+                The operation for the task. Defaults to "optimize".
             basis_set:
                 The basis set used for the task. Defaults to 6-31++G**.
             theory_directives:
@@ -97,12 +99,11 @@ class NwTask(MSONable):
                 exchange correlation functional using {"xc": "b3lyp"}.
         """
         #Basic checks.
-        if theory.lower() not in THEORIES.keys():
+        if theory.lower() not in NwTask.theories.keys():
             raise NwInputError("Invalid theory {}".format(theory))
 
-        if operation.lower() not in OPERATIONS.keys():
+        if operation.lower() not in NwTask.operations.keys():
             raise NwInputError("Invalid operation {}".format(operation))
-
 
         self.mol = mol
         self.title = title if title is not None else "{} {} {}".format(
@@ -163,27 +164,31 @@ class NwTask(MSONable):
                       operation=d["operation"], basis_set=d["basis_set"],
                       theory_directives=d["theory_directives"])
 
+    @classmethod
+    def dft_task(cls, mol, xc="b3lyp", **kwargs):
+        """
+        A class method for quickly creating DFT tasks.
 
-class DFTTask(NwTask):
-    """
-    Creates a DFT task from a molecule.
-    """
-
-    def __init__(self, mol, xc="b3lyp", charge=None, spin_multiplicity=None,
-                 title=None, operation="optimize", basis_set="6-31++G*",
-                 theory_directives=None):
-        super(DFTTask, self).__init__(
-            mol, charge=charge, spin_multiplicity=spin_multiplicity,
-            title=title, theory="dft", operation=operation,
-            basis_set=basis_set, theory_directives=theory_directives)
-
-        self.theory_directives.update({"xc": xc,
-                                       "mult": self.spin_multiplicity})
+        Args:
+            mol:
+                Input molecule
+            xc:
+                Exchange correlation to use.
+            \*\*kwargs:
+                Any of the other kwargs supported by NwTask. Note the theory
+                is always "dft" for a dft task.
+        """
+        t = NwTask(mol, **kwargs)
+        t.theory = "dft"
+        t.theory_directives.update({"xc": xc,
+                                    "mult": t.spin_multiplicity})
+        return t
 
 
 class NwInput(MSONable):
     """
-    An object representing a Nwchem input file.
+    An object representing a Nwchem input file, which is essentially a list
+    of tasks on a particular molecule.
     """
 
     def __init__(self, mol, tasks, directives=None):
@@ -297,40 +302,37 @@ task dft optimize"""
         self.assertRaises(NwInputError, NwTask, mol, theory="bad")
         self.assertRaises(NwInputError, NwTask, mol, operation="bad")
 
-
-class DFTTaskTest(unittest.TestCase):
-
-    def setUp(self):
-        self.task = DFTTask(mol, charge=1, operation="energy")
-
-    def test_str_and_from_string(self):
+    def test_dft_task(self):
+        task = NwTask.dft_task(mol, charge=1, operation="energy")
         ans = """title "H4C1 dft energy"
 charge 1
 basis
- H library 6-31++G*
- C library 6-31++G*
+ H library 6-31++G**
+ C library 6-31++G**
 end
 dft
  xc b3lyp
  mult 2
 end
 task dft energy"""
-        self.assertEqual(str(self.task), ans)
+
+        self.assertEqual(str(task), ans)
 
 
 class NwInputTest(unittest.TestCase):
 
     def setUp(self):
         tasks = [
-            DFTTask(mol, operation="optimize", xc="b3lyp",
-                    basis_set="6-31++G*"),
-            DFTTask(mol, operation="freq", xc="b3lyp", basis_set="6-31++G*"),
-            DFTTask(mol, operation="energy", xc="b3lyp",
-                    basis_set="6-311++G**"),
-            DFTTask(mol, charge=mol.charge + 1, operation="energy", xc="b3lyp",
-                    basis_set="6-311++G**"),
-            DFTTask(mol, charge=mol.charge - 1, operation="energy", xc="b3lyp",
-                    basis_set="6-311++G**")
+            NwTask.dft_task(mol, operation="optimize", xc="b3lyp",
+                            basis_set="6-31++G*"),
+            NwTask.dft_task(mol, operation="freq", xc="b3lyp",
+                            basis_set="6-31++G*"),
+            NwTask.dft_task(mol, operation="energy", xc="b3lyp",
+                            basis_set="6-311++G**"),
+            NwTask.dft_task(mol, charge=mol.charge + 1, operation="energy",
+                            xc="b3lyp", basis_set="6-311++G**"),
+            NwTask.dft_task(mol, charge=mol.charge - 1, operation="energy",
+                            xc="b3lyp", basis_set="6-311++G**")
         ]
         self.nwi = NwInput(mol, tasks)
 
@@ -410,6 +412,7 @@ task dft energy
         d = self.nwi.to_dict
         nwi = NwInput.from_dict(d)
         self.assertIsInstance(nwi, NwInput)
+        #Ensure it is json-serializable.
         json.dumps(d)
 
 
