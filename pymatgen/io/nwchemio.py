@@ -18,9 +18,10 @@ import re
 
 from pymatgen.core import Molecule
 from pymatgen.util.io_utils import zopen
+from pymatgen.serializers.json_coders import MSONable
 
 
-class NwTask(object):
+class NwTask(MSONable):
     """
     Base task for Nwchem. Very flexible arguments to support many types of
     potential setups. Users should use more friendly subclasses unless they
@@ -30,7 +31,7 @@ class NwTask(object):
     def __init__(self, mol, charge=None, spin_multiplicity=None,
                  title=None, theory="dft", operation="optimize",
                  basis_set="6-31++G**", theory_directives=None):
-
+        self.mol = mol
         self.title = title if title is not None else "{} {} {}".format(
             re.sub("\s", "", mol.formula), theory, operation)
 
@@ -70,16 +71,34 @@ class NwTask(object):
         o.append("task {} {}".format(self.theory, self.operation))
         return "\n".join(o)
 
+    @property
+    def to_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__, "mol": self.mol.to_dict,
+                "charge": self.charge,
+                "spin_multiplicity": self.spin_multiplicity,
+                "title": self.title, "theory": self.theory,
+                "operation": self.operation, "basis_set": self.basis_set,
+                "theory_directives": self.theory_directives}
+
+    @classmethod
+    def from_dict(cls, d):
+        mol = Molecule.from_dict(d["mol"])
+        return NwTask(mol, charge=d["charge"],
+                      spin_multiplicity=d["spin_multiplicity"],
+                      title=d["title"], theory=d["theory"],
+                      operation=d["operation"], basis_set=d["basis_set"],
+                      theory_directives=d["theory_directives"])
+
 
 class DFTTask(NwTask):
     """
-    Creates a DFT task from a molecule with some other basic init.
+    Creates a DFT task from a molecule.
     """
 
     def __init__(self, mol, xc="b3lyp", charge=None, spin_multiplicity=None,
                  title=None, operation="optimize", basis_set="6-31++G*",
                  theory_directives=None):
-
         super(DFTTask, self).__init__(
             mol, charge=charge, spin_multiplicity=spin_multiplicity,
             title=title, theory="dft", operation=operation,
@@ -89,7 +108,7 @@ class DFTTask(NwTask):
                                        "mult": self.spin_multiplicity})
 
 
-class NwInput(object):
+class NwInput(MSONable):
     """
     An object representing a Nwchem input file.
     """
@@ -103,14 +122,15 @@ class NwInput(object):
                 file.
             tasks:
                 List of NwTasks.
-            job_title:
-                Title of job.
+            directives:
+                List of root level directives as tuple. E.g.,
+                [("start", "water"), ("print", "high")]
         """
         self._mol = mol
         if directives is None:
             self.directives = [("start", re.sub("\s", "", self._mol.formula))]
         else:
-            self.directives = self.directives
+            self.directives = directives
         self.tasks = tasks
 
     @property
@@ -121,7 +141,6 @@ class NwInput(object):
         return self._mol
 
     def __str__(self):
-
         o = []
         for d in self.directives:
             o.append("{} {}".format(d[0], d[1]))
@@ -139,9 +158,24 @@ class NwInput(object):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
 
+    @property
+    def to_dict(self):
+        return {
+            "mol": self._mol.to_dict,
+            "tasks": [t.to_dict for t in self.tasks],
+            "directives": self.directives
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return NwInput(Molecule.from_dict(d["mol"]),
+                       [NwTask.from_dict(dt) for dt in d["tasks"]],
+                       d["directives"])
+
 
 import unittest
 import os
+import json
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
@@ -149,10 +183,10 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..",
 
 
 coords = [[0.000000, 0.000000, 0.000000],
-                  [0.000000, 0.000000, 1.089000],
-                  [1.026719, 0.000000, -0.363000],
-                  [-0.513360, -0.889165, -0.363000],
-                  [-0.513360, 0.889165, -0.363000]]
+          [0.000000, 0.000000, 1.089000],
+          [1.026719, 0.000000, -0.363000],
+          [-0.513360, -0.889165, -0.363000],
+          [-0.513360, 0.889165, -0.363000]]
 mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
 
@@ -174,11 +208,15 @@ end
 task dft optimize"""
         self.assertEqual(str(self.task), ans)
 
+    def test_to_from_dict(self):
+        d = self.task.to_dict
+        t = NwTask.from_dict(d)
+        self.assertIsInstance(t, NwTask)
+
 
 class DFTTaskTest(unittest.TestCase):
 
     def setUp(self):
-
         self.task = DFTTask(mol, charge=1, operation="energy")
 
     def test_str_and_from_string(self):
@@ -283,6 +321,12 @@ end
 task dft energy
 """
         self.assertEqual(str(self.nwi), ans)
+
+    def test_to_from_dict(self):
+        d = self.nwi.to_dict
+        nwi = NwInput.from_dict(d)
+        self.assertIsInstance(nwi, NwInput)
+        json.dumps(d)
 
 
 if __name__ == "__main__":
