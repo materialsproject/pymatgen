@@ -242,14 +242,14 @@ class NwInput(MSONable):
         return {
             "mol": self._mol.to_dict,
             "tasks": [t.to_dict for t in self.tasks],
-            "directives": self.directives
+            "directives": [list(t) for t in self.directives]
         }
 
     @classmethod
     def from_dict(cls, d):
         return NwInput(Molecule.from_dict(d["mol"]),
                        [NwTask.from_dict(dt) for dt in d["tasks"]],
-                       d["directives"])
+                       [tuple(li) for li in d["directives"]])
 
 
 class NwInputError(Exception):
