@@ -1461,7 +1461,7 @@ class BetheSalpeter(AbivarAble):
             #)
 
         else:
-            raise ValueError("Unknown algorithm for EXC!""")
+            raise ValueError("Unknown algorithm for EXC!")
 
         abivars.update(self.kwargs)
         return abivars
@@ -1473,11 +1473,16 @@ class Perturbation(AbivarAble):
     """
     Base class for perturbations: a base perturbatins is 
     essentially defined by a q-point in reduced coordinates.
-    suggested_kptopt returns the value of kptopt that can 
-    be used to sample the Brillouin zone.
     Subclasses should extend the base method to_abivars.
+    and provide the method `suggested_kptopt` that returns 
+    the value of kptopt that can be used to sample the Brillouin zone.
     """
     def __init__(self, qpt):
+        """
+        Args:
+            qpt:
+                reduced coordinates of the q-point associated to the perturbation.
+        """
         self.qpt = npreshape(qpt, (-1,3))
         self.nqpt = len(self.qpt)
 
@@ -1498,7 +1503,8 @@ class Perturbation(AbivarAble):
 class PhononPerturbation(Perturbation):
     """
     A phonon perturbation is specified by the q-point in reduced 
-    coordinates, the displaced atom and the reduced direction.
+    coordinates, the index of the displaced atom and the reduced direction.
+    along which the atom is moved.
 
     Example::
         # Response-function calculation, with q=0
@@ -1512,7 +1518,7 @@ class PhononPerturbation(Perturbation):
     def __init__(self, qpt, rfatpol, rfdir):
         super(PhononPert, self).__init__(qpt)
         self.rfatpol = rfatpol
-        self.rfdir = rfdir
+        self.rfdir = np.reshape(rfdir, (3,))
 
     @property
     def suggested_kptopt(self):
@@ -1538,11 +1544,12 @@ class PhononPerturbation(Perturbation):
 class DDKPerturbation(Perturbation):
     """
     A DDK perturbation is specified by the q-point in reduced 
-    coordinates, and the reduced direction.
+    coordinates, and the direction in k-space.
     """
     def __init__(self, rfdir):
         # This is a calculation at the Gamma point
         super(PhononPert, self).__init__(qpt=[0.0, 0.0, 0.0])
+        self.rfdir = np.reshape(rfdir, (3,))
 
     @property
     def suggested_kptopt(self):
@@ -1560,13 +1567,13 @@ class DDKPerturbation(Perturbation):
 #class ElectricPerturbation(Perturbation):
 #class ElasticPerturbation(Perturbation):
 
-def irred_perturbations(structure, qpoint, pert_classes, scf_ksampling):
+def irred_perturbations(input, qpoint):
     """
-    This function computes the list of irreducible perturbations for a given q-point.
+    This function computes the list of irreducible perturbations for the given q-point.
     """
     # Call abinit to get the irred perturbations.
     # TODO
-    #pertinfo = read_pertinfo()
+    #pertinfo = get_pertinfo()
 
     # Initialize the list of irreducible perturbations.
     perts = []
@@ -1587,7 +1594,7 @@ class IFC(AbivarAble):
             ddb_filename:
                 Path to the DDB file.
             ngqpt:
-                Monkhorst-Pack divisions
+                Monkhorst-Pack divisions.
             q1shfts:
                 Monkhorst-Pack shifts.
             ifcflag:
