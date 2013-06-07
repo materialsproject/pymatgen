@@ -807,7 +807,7 @@ class StructureMatcher(MSONable):
         else:
             return min_rms, min_mapping
 
-    def fit_anonymous_oxidation_matching(self, struct1, struct2):
+    def fit_anonymous_all_mapping(self, struct1, struct2):
         """
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. Preferentially pairs together species
@@ -820,10 +820,9 @@ class StructureMatcher(MSONable):
                 2nd oxidation state decorated structure
 
         Returns:
-            (min_mapping)
-            min_mapping is the corresponding minimal species mapping that would map
-            struct1 to struct2. (None, None) is returned if the minimax_rms
-            exceeds the threshold.
+            (mappings)
+            mappings is a list of possible species mappings that
+            would map struct1 to struct2.
         """
         sp1 = list(set(struct1.species_and_occu))
         sp2 = list(set(struct2.species_and_occu))
@@ -833,28 +832,27 @@ class StructureMatcher(MSONable):
 
         latt1 = struct1.lattice
         fcoords1 = struct1.frac_coords
-        current_oxi_diff = float("inf")
-        min_mapping = None
+        mappings = []
         for perm in itertools.permutations(sp2):
             sp_mapping = dict(zip(sp1, perm))
             mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
             transformed_structure = Structure(latt1, mapped_sp, fcoords1)
             rms = self.get_rms_dist(transformed_structure, struct2)
             if rms is not None:
-                #calculate absolute change in oxidation state
+
                 possible_mapping = {k: v for k, v in sp_mapping.items()
                                     if k != v}
 
-                oxi_diff = sum([abs(sub[0]._elmap.keys()[0]._oxi_state - sub[1]._elmap.keys()[0]._oxi_state)
-                                       for sub in possible_mapping.items()])
-
-                if oxi_diff <= current_oxi_diff and rms[1] < self.stol:
-                        current_oxi_diff = oxi_diff
-                        min_mapping = possible_mapping
-        if min_mapping is None:
+                if rms[1] < self.stol:
+                    #check if mapping already found
+                    for k, v in possible_mapping.iteritems():
+                        if {k: v} not in mappings:
+                                mappings.append({k: v})
+        if not mappings:
             return None
         else:
-            return min_mapping
+
+            return mappings
 
     def fit_anonymous(self, struct1, struct2):
         """
