@@ -604,7 +604,7 @@ class StructureMatcher(MSONable):
             #if mismatch try to fit a supercell or return None
             if self._supercell and not (
                     (struct1.num_sites % struct2.num_sites)
-                    and (struct2.num_sites % struct1.num_sites)):
+                and (struct2.num_sites % struct1.num_sites)):
                 return self._supercell_fit(struct1, struct2, break_on_match)
             else:
                 return None
@@ -786,7 +786,7 @@ class StructureMatcher(MSONable):
         sp2 = list(set(struct2.species_and_occu))
 
         if len(sp1) != len(sp2):
-            return None
+            return None, None
 
         latt1 = struct1.lattice
         fcoords1 = struct1.frac_coords
@@ -806,6 +806,55 @@ class StructureMatcher(MSONable):
             return None, None
         else:
             return min_rms, min_mapping
+
+    def fit_anonymous_oxidation_matching(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. Preferentially pairs together species
+        with closer oxidation states over minimizing rms_distance
+
+        Args:
+            struct1:
+                1st oxidation state decorated structure
+            struct2:
+                2nd oxidation state decorated structure
+
+        Returns:
+            (min_mapping)
+            min_mapping is the corresponding minimal species mapping that would map
+            struct1 to struct2. (None, None) is returned if the minimax_rms
+            exceeds the threshold.
+        """
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+
+        if len(sp1) != len(sp2):
+            return None
+
+        latt1 = struct1.lattice
+        fcoords1 = struct1.frac_coords
+        current_oxi_diff = float("inf")
+        min_mapping = None
+        for perm in itertools.permutations(sp2):
+            sp_mapping = dict(zip(sp1, perm))
+            mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
+            transformed_structure = Structure(latt1, mapped_sp, fcoords1)
+            rms = self.get_rms_dist(transformed_structure, struct2)
+            if rms is not None:
+                #calculate absolute change in oxidation state
+                possible_mapping = {k: v for k, v in sp_mapping.items()
+                                    if k != v}
+
+                oxi_diff = sum([abs(sub[0]._elmap.keys()[0]._oxi_state - sub[1]._elmap.keys()[0]._oxi_state)
+                                       for sub in possible_mapping.items()])
+
+                if oxi_diff <= current_oxi_diff and rms[1] < self.stol:
+                        current_oxi_diff = oxi_diff
+                        min_mapping = possible_mapping
+        if min_mapping is None:
+            return None
+        else:
+            return min_mapping
 
     def fit_anonymous(self, struct1, struct2):
         """
@@ -831,6 +880,7 @@ class StructureMatcher(MSONable):
             species and occupancy dicts are non-hashable.
         """
         min_rms, min_mapping = self.get_minimax_rms_anonymous(struct1, struct2)
+
         if min_rms is None or min_rms > self.stol:
             return None
         else:
