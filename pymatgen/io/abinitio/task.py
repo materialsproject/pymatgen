@@ -253,6 +253,7 @@ class Task(object):
 
 ##########################################################################################
 
+
 class AbinitTask(Task):
     """
     Base class defining an abinit calculation
@@ -656,6 +657,7 @@ class RunHints(collections.OrderedDict):
         #return AttrDict(odict)
 
 ##########################################################################################
+
 
 class RunMode(dict, MSONable):
     """
