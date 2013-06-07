@@ -1247,7 +1247,7 @@ class Potcar(list):
         else:
             if functionals[0] == "PE":
                 functional = "PBE"
-            elif functionals[1] == "91":
+            elif functionals[0] == "91":
                 functional = "PW91"
             else:
                 functional = "LDA"
