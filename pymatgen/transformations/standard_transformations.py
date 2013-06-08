@@ -341,8 +341,9 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
+        sp_map = {str(k):str(v) for k, v in self._species_map.iteritems()}
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"species_map": self._species_map},
+                "init_args": {"species_map": sp_map},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
