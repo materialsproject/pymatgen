@@ -75,8 +75,8 @@ class AbstractComparator(MSONable):
         """
         return
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         for trans_modules in ['structure_matcher']:
             mod = __import__('pymatgen.analysis.' + trans_modules,
                              globals(), locals(), [d['@class']], -1)
@@ -604,7 +604,7 @@ class StructureMatcher(MSONable):
             #if mismatch try to fit a supercell or return None
             if self._supercell and not (
                     (struct1.num_sites % struct2.num_sites)
-                and (struct2.num_sites % struct1.num_sites)):
+                    and (struct2.num_sites % struct1.num_sites)):
                 return self._supercell_fit(struct1, struct2, break_on_match)
             else:
                 return None
@@ -756,8 +756,8 @@ class StructureMatcher(MSONable):
                 "primitive_cell": self._primitive_cell,
                 "scale": self._scale}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         return StructureMatcher(
             ltol=d["ltol"], stol=d["stol"], angle_tol=d["angle_tol"],
             primitive_cell=d["primitive_cell"], scale=d["scale"],
@@ -851,7 +851,6 @@ class StructureMatcher(MSONable):
         if not mappings:
             return None
         else:
-
             return mappings
 
     def fit_anonymous(self, struct1, struct2):
