@@ -72,6 +72,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.7.3
+------
+1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support.
+
 v2.7.2
 ------
 1. Minor bug fix release to fix some rare errors in very high dimensional
