@@ -17,6 +17,7 @@ import re
 import math
 import abc
 import itertools
+import copy
 
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.decorators import requires
@@ -89,6 +90,79 @@ class AbstractMolAtomMapper(MSONable):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
+class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
+    '''
+    Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class
+    '''
+    def uniform_labels(self, mol1, mol2):
+        '''
+        Pair the geometrically equivalent atoms of the molecules.
+        Calculate RMSD on all possible isomorphism mappings and return mapping 
+        with the least RMSD
+        
+        Args:
+            mol1:
+                First molecule. OpenBabel OBMol or pymatgen Molecule object.
+            mol2:
+                Second molecule. OpenBabel OBMol or pymatgen Molecule object.
+
+        Returns:
+            (list1, list2) if uniform atom order is found. list1 and list2
+            are for mol1 and mol2, respectively. Their length equal
+            to the number of atoms. They represents the uniform atom order
+            of the two molecules. The
+            value of each element is the original atom index in mol1 or mol2
+             of the current atom in
+            uniform atom order.
+            (None, None) if unform atom is not available.
+        '''
+        obmol1 = BabelMolAdaptor(mol1).openbabel_mol
+        obmol2 = BabelMolAdaptor(mol2).openbabel_mol
+        
+        h1 = self.get_molecule_hash(obmol1)
+        h2 = self.get_molecule_hash(obmol2)   
+        if h1 != h2:
+            return (None, None)
+        
+        query = ob.CompileMoleculeQuery(obmol1)
+        isomapper = ob.OBIsomorphismMapper.GetInstance(query)
+        isomorph = ob.vvpairUIntUInt()
+        isomapper.MapAll(obmol2, isomorph)
+        
+        sorted_isomorph = [sorted(x, key=lambda p: p[0]) for x in isomorph]
+        label2_list = tuple([tuple([p[1] + 1 for p in x]) for x in sorted_isomorph])
+        
+        vmol1 = obmol1
+        aligner = ob.OBAlign(True, False)
+        aligner.SetRefMol(vmol1)
+        least_rmsd = float("Inf")
+        best_label2 = None
+        for label2 in label2_list:
+            vmol2 = ob.OBMol()
+            for i in label2:
+                vmol2.AddAtom(obmol2.GetAtom(i))
+            aligner.SetTargetMol(vmol2)
+            aligner.Align()
+            rmsd = aligner.GetRMSD()
+            if rmsd < least_rmsd:
+                least_rmsd = rmsd
+                best_label2 = copy.copy(label2)
+                
+        label1 = range(1, obmol1.NumAtoms() + 1)
+        
+        return (label1, best_label2)
+    
+    
+    def get_molecule_hash(self, mol):
+        """
+        Return inchi as molecular hash
+        """
+        obConv = ob.OBConversion()
+        obConv.SetOutFormat("inchi")
+        obConv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = obConv.WriteString(mol)
+        match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
+        inchi = match.group("inchi")
 
 class InchiMolAtomMapper(AbstractMolAtomMapper):
     """
@@ -197,7 +271,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         # if no enough point, add the farthest atom to centriod of the first
         # equivalent atoms group
         if vmol.NumAtoms() < 3:
-            if len(ilabels) == 0: # more than 1 non-hydrogen molecule
+            if len(ilabels) > 1: # more than 1 non-hydrogen molecule
                 symm = eq_atoms[farthest_group_idx-1]
                 
                 orig_farthest_idx = ilabels[symm[0]-1]
@@ -224,6 +298,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 # atoms so they must be bonded to each other
                 if len(ilabels) > 1:
                     if vmol.NumAtoms() != 2:
+                        print vmol.NumAtoms()
                         raise Exception("Design Error! No enough atoms")
                     orig_nearest_idx = ilabels[eq_atoms[0][0]-1]
                     nearest_distance = float("inf")
@@ -643,44 +718,3 @@ class MoleculeMatcher(MSONable):
             tolerance=d["tolerance"],
             mapper=AbstractMolAtomMapper.from_dict(d["mapper"]))
 
-
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(
-        description="Check whether two molecules have the same structure and"
-                    " geometry or group molecule for more than 3 molecules")
-    parser.add_argument("molecules", type=argparse.FileType(mode='r'),
-                        nargs='+', metavar="FILENAME",
-                        help="The filename of the two molecules to be compared")
-    parser.add_argument("-f", "--format", dest="format", default="xyz",
-                        help="format of the molecule files OpenBabel abbrev.")
-    parser.add_argument("-t", "--tolerance", dest="tolerance", default="0.01",
-                        type=float,
-                        help="tolerance of RMDS comparison, in Angstrom")
-    parser.add_argument("-g", "--group_prefix", dest="group_prefix",
-                        default="mol_",
-                        help="prefix of file names for the output of molecular groups")
-    args = parser.parse_args()
-
-    matcher = MoleculeMatcher(args.tolerance)
-
-    if len(args.molecules) < 2:
-        parser.print_help()
-        exit(0)
-
-    if len(args.molecules) == 2:
-        mol1 = BabelMolAdaptor.from_string(args.molecules[0].read(), args.format).pymatgen_mol
-        mol2 = BabelMolAdaptor.from_string(args.molecules[1].read(), args.format).pymatgen_mol
-
-        if matcher.fit(mol1, mol2):
-            print "The two molecules are equal"
-        else:
-            print "The two molecules are different"
-    else:
-        mol_list = [BabelMolAdaptor.from_string(f.read(), args.format).pymatgen_mol \
-                    for f in args.molecules]
-        all_groups = matcher.group_molecules(mol_list)
-        for i, g in enumerate(all_groups):
-            for j, m in enumerate(g):
-                filename = args.group_prefix + str(i) + '_' + str(j) + '.' + args.format
-                BabelMolAdaptor(m).write_file(filename, args.format)
