@@ -42,7 +42,6 @@ class MoleculeMatcherTest(unittest.TestCase):
         rotcoords = [op.operate(c) for c in coords]
         mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
         mm = MoleculeMatcher()
-        print mm.fit(mol1, mol2)
         self.assertTrue(mm.fit(mol1, mol2))
 
 

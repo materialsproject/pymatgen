@@ -197,46 +197,49 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         # if no enough point, add the farthest atom to centriod of the first
         # equivalent atoms group
         if vmol.NumAtoms() < 3:
-            symm = eq_atoms[farthest_group_idx-1]
-            orig_farthest_idx = ilabels[symm[0]-1]
-            farthest_distance = 0.0
-            c1x, c1y, c1z = self._group_centroid(mol, ilabels, symm)
-            for i in symm:
-                orig_idx = ilabels[i-1]
-                oa1 = mol.GetAtom(orig_idx)
-                current_distance = math.sqrt((c1x - float(oa1.x())) ** 2 +
-                                             (c1y - float(oa1.y())) ** 2 +
-                                             (c1z - float(oa1.z())) ** 2)
-                if current_distance > farthest_distance:
-                    farthest_distance = current_distance
-                    orig_farthest_idx = orig_idx
-            a1 = vmol.NewAtom()
-            a1.SetAtomicNum(9)
-            a1.SetVector(mol.GetAtom(orig_farthest_idx).GetVector())
-            orig_last_idx = orig_farthest_idx
+            if len(ilabels) == 0: # more than 1 non-hydrogen molecule
+                symm = eq_atoms[farthest_group_idx-1]
+                
+                orig_farthest_idx = ilabels[symm[0]-1]
+                farthest_distance = 0.0
+                c1x, c1y, c1z = self._group_centroid(mol, ilabels, symm)
+                for i in symm:
+                    orig_idx = ilabels[i-1]
+                    oa1 = mol.GetAtom(orig_idx)
+                    current_distance = math.sqrt((c1x - float(oa1.x())) ** 2 +
+                                                 (c1y - float(oa1.y())) ** 2 +
+                                                 (c1z - float(oa1.z())) ** 2)
+                    if current_distance > farthest_distance:
+                        farthest_distance = current_distance
+                        orig_farthest_idx = orig_idx
+                a1 = vmol.NewAtom()
+                a1.SetAtomicNum(9)
+                a1.SetVector(mol.GetAtom(orig_farthest_idx).GetVector())
+                orig_last_idx = orig_farthest_idx
 
             if vmol.NumAtoms() < 3:
                 # only 1 symm group in the original molecule
                 # find a nearest atom connected to the last atom
                 # all other atoms are hydrogen, a hydrogen can't connect two
                 # atoms so they must be bonded to each other
-                if vmol.NumAtoms() != 2:
-                    raise Exception("Design Error! No enough atoms")
-                orig_nearest_idx = ilabels[eq_atoms[0][0]-1]
-                nearest_distance = float("inf")
-                for symm in eq_atoms:
-                    for i in symm:
-                        orig_idx = ilabels[i-1]
-                        oa1 = mol.GetAtom(orig_idx)
-                        if oa1.IsConnected(mol.GetAtom(orig_last_idx)) \
-                                and (orig_idx != orig_last_idx):
-                            current_distance = oa1.GetDistance(orig_last_idx)
-                            if current_distance < nearest_distance:
-                                nearest_distance = current_distance
-                                orig_nearest_idx = orig_idx
-                a1 = vmol.NewAtom()
-                a1.SetAtomicNum(9)
-                a1.SetVector(mol.GetAtom(orig_nearest_idx).GetVector())
+                if len(ilabels) > 1:
+                    if vmol.NumAtoms() != 2:
+                        raise Exception("Design Error! No enough atoms")
+                    orig_nearest_idx = ilabels[eq_atoms[0][0]-1]
+                    nearest_distance = float("inf")
+                    for symm in eq_atoms:
+                        for i in symm:
+                            orig_idx = ilabels[i-1]
+                            oa1 = mol.GetAtom(orig_idx)
+                            if oa1.IsConnected(mol.GetAtom(orig_last_idx)) \
+                                    and (orig_idx != orig_last_idx):
+                                current_distance = oa1.GetDistance(orig_last_idx)
+                                if current_distance < nearest_distance:
+                                    nearest_distance = current_distance
+                                    orig_nearest_idx = orig_idx
+                    a1 = vmol.NewAtom()
+                    a1.SetAtomicNum(9)
+                    a1.SetVector(mol.GetAtom(orig_nearest_idx).GetVector())
         return vmol
 
     def _largest_radius_group_idx(self, mol, ilabels, eq_atoms):
