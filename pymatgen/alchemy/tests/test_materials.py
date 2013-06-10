@@ -107,7 +107,7 @@ class TransformedStructureTest(unittest.TestCase):
                            'r'))
         d['other_parameters'] = {'tags': ['test']}
         ts = TransformedStructure.from_dict(d)
-        ts.set_parameter('author', 'Will')
+        ts.other_parameters['author'] = 'Will'
         ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
         self.assertEqual("MnPO4",
                          ts.final_structure.composition.reduced_formula)
