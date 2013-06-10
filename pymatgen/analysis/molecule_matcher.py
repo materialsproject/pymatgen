@@ -81,14 +81,11 @@ class AbstractMolAtomMapper(MSONable):
             mod = __import__('pymatgen.analysis.' + trans_modules,
                              globals(), locals(), [d['@class']], -1)
             if hasattr(mod, d['@class']):
-                trans = getattr(mod, d['@class'])
-                return trans()
-        raise ValueError("Invalid MolAtomMapper dict")
+                class_proxy = getattr(mod, d['@class'])
+                from_dict_proxy = getattr(class_proxy, "from_dict")
+                return from_dict_proxy(d)
+        raise ValueError("Invalid Comparator dict")
 
-    @property
-    def to_dict(self):
-        return {"version": __version__, "@module": self.__class__.__module__,
-                "@class": self.__class__.__name__}
 
 class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
     '''
@@ -163,6 +160,15 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         inchi_text = obConv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
         inchi = match.group("inchi")
+        
+    @property
+    def to_dict(self):
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
+
+    @classmethod
+    def from_dict(cls, d):
+        return IsomorphismMolAtomMapper()
 
 
 class InchiMolAtomMapper(AbstractMolAtomMapper):
@@ -178,6 +184,16 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         '''
         self._angle_tolerance = angle_tolerance
         self._assistant_mapper = IsomorphismMolAtomMapper()
+    
+    @property
+    def to_dict(self):
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "angle_tolerance": self._angle_tolerance}
+
+    @classmethod
+    def from_dict(cls, d):
+        return InchiMolAtomMapper(angle_tolerance=d["angle_tolerance"])
 
     def _inchi_labels(self, mol):
         """
@@ -675,7 +691,7 @@ class MoleculeMatcher(MSONable):
     def to_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "tolerance": self._tolerance, "mapper": self._mapper}
+                "tolerance": self._tolerance, "mapper": self._mapper.to_dict}
 
     @classmethod
     def from_dict(cls, d):

@@ -113,6 +113,18 @@ class MoleculeMatcherTest(unittest.TestCase):
         with open(os.path.join(test_dir, "grouped_mol_list.txt")) as f:
             grouped_text = f.read().strip()
         self.assertEqual(str(filename_groups), grouped_text)
+        
+    def test_to_and_from_dict(self):
+        mm = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
+        d = mm.to_dict
+        mm2 = MoleculeMatcher.from_dict(d)
+        self.assertEqual(d, mm2.to_dict)
+        
+        mm = MoleculeMatcher(tolerance=0.5, mapper=IsomorphismMolAtomMapper())
+        d = mm.to_dict
+        mm2 = MoleculeMatcher.from_dict(d)
+        self.assertEqual(d, mm2.to_dict)
+
 
 if __name__ == '__main__':
     unittest.main()
