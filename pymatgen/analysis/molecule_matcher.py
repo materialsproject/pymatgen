@@ -164,10 +164,20 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
         inchi = match.group("inchi")
 
+
 class InchiMolAtomMapper(AbstractMolAtomMapper):
     """
     Pair atoms by inchi labels.
     """
+    
+    def __init__(self, angle_tolerance=10.0):
+        '''
+        Args:
+            angle_tolerance:
+                The angle threshold to assume linear molecule. In degrees.
+        '''
+        self._angle_tolerance = angle_tolerance
+        self._assistant_mapper = IsomorphismMolAtomMapper()
 
     def _inchi_labels(self, mol):
         """
@@ -225,11 +235,10 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         c1z /= num_atoms
         return c1x, c1y, c1z
 
-    def _virtual_molecule(self, mol, ilabels, eq_atoms, farthest_group_idx):
+    def _virtual_molecule(self, mol, ilabels, eq_atoms):
         """
         Create a virtual molecule by unique atoms, the centriods of the
-        equivalent
-        atoms, special atoms
+        equivalent atoms
 
         Args:
             mol:
@@ -251,7 +260,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         non_unique_atoms = set([a for g in eq_atoms for a in g])
         all_atoms = set(range(1, len(ilabels) + 1))
         unique_atom_labels = sorted(all_atoms - non_unique_atoms)
-
+        
         #try to align molecules using unique atoms
         for i in unique_atom_labels:
             orig_idx = ilabels[i-1]
@@ -264,91 +273,20 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         if vmol.NumAtoms() < 3:
             for symm in eq_atoms:
                 c1x, c1y, c1z = self._group_centroid(mol, ilabels, symm)
-                a1 = vmol.NewAtom()
-                a1.SetAtomicNum(9)
-                a1.SetVector(c1x, c1y, c1z)
-
-        # if no enough point, add the farthest atom to centriod of the first
-        # equivalent atoms group
-        if vmol.NumAtoms() < 3:
-            if len(ilabels) > 1: # more than 1 non-hydrogen molecule
-                symm = eq_atoms[farthest_group_idx-1]
-                
-                orig_farthest_idx = ilabels[symm[0]-1]
-                farthest_distance = 0.0
-                c1x, c1y, c1z = self._group_centroid(mol, ilabels, symm)
-                for i in symm:
-                    orig_idx = ilabels[i-1]
-                    oa1 = mol.GetAtom(orig_idx)
-                    current_distance = math.sqrt((c1x - float(oa1.x())) ** 2 +
-                                                 (c1y - float(oa1.y())) ** 2 +
-                                                 (c1z - float(oa1.z())) ** 2)
-                    if current_distance > farthest_distance:
-                        farthest_distance = current_distance
-                        orig_farthest_idx = orig_idx
-                a1 = vmol.NewAtom()
-                a1.SetAtomicNum(9)
-                a1.SetVector(mol.GetAtom(orig_farthest_idx).GetVector())
-                orig_last_idx = orig_farthest_idx
-
-            if vmol.NumAtoms() < 3:
-                # only 1 symm group in the original molecule
-                # find a nearest atom connected to the last atom
-                # all other atoms are hydrogen, a hydrogen can't connect two
-                # atoms so they must be bonded to each other
-                if len(ilabels) > 1:
-                    if vmol.NumAtoms() != 2:
-                        print vmol.NumAtoms()
-                        raise Exception("Design Error! No enough atoms")
-                    orig_nearest_idx = ilabels[eq_atoms[0][0]-1]
-                    nearest_distance = float("inf")
-                    for symm in eq_atoms:
-                        for i in symm:
-                            orig_idx = ilabels[i-1]
-                            oa1 = mol.GetAtom(orig_idx)
-                            if oa1.IsConnected(mol.GetAtom(orig_last_idx)) \
-                                    and (orig_idx != orig_last_idx):
-                                current_distance = oa1.GetDistance(orig_last_idx)
-                                if current_distance < nearest_distance:
-                                    nearest_distance = current_distance
-                                    orig_nearest_idx = orig_idx
+                min_distance = float("inf")
+                for i in range(1, vmol.NumAtoms()+1):
+                    va = vmol.GetAtom(i)
+                    distance = math.sqrt((c1x - va.x())**2 + (c1y - va.y())**2 + (c1z - va.z())**2)
+                    if distance < min_distance:
+                        min_distance = distance
+                if min_distance > 0.2:
                     a1 = vmol.NewAtom()
                     a1.SetAtomicNum(9)
-                    a1.SetVector(mol.GetAtom(orig_nearest_idx).GetVector())
+                    a1.SetVector(c1x, c1y, c1z)
+
         return vmol
 
-    def _largest_radius_group_idx(self, mol, ilabels, eq_atoms):
-        """
-        Find the equivalent atom group index which the farthest atom to
-        centroid is located in.
-
-        Args:
-            mol:
-                The molecule. OpenBabel OBMol object
-            ilabels:
-                inchi lable map
-            eq_atom:
-                equivalent atoms
-
-        Return:
-            tuple (group index, largest distance). Group index starts from 1.
-        """
-        farthest_group_idx = 0
-        farthest_distance = 0.0
-        for current_group_idx, symm in enumerate(eq_atoms):
-            c1x, c1y, c1z = self._group_centroid(mol, ilabels, symm)
-            for i in symm:
-                orig_idx = ilabels[i-1]
-                oa1 = mol.GetAtom(orig_idx)
-                current_distance = math.sqrt((c1x - float(oa1.x())) ** 2 +
-                                             (c1y - float(oa1.y())) ** 2 +
-                                             (c1z - float(oa1.z())) ** 2)
-                if current_distance > farthest_distance:
-                    farthest_distance = current_distance
-                    farthest_group_idx = current_group_idx
-        return farthest_group_idx + 1, farthest_distance
-
-    def _align_heavy_atoms(self, mol1, mol2, ilabel1, ilabel2, eq_atoms):
+    def _align_heavy_atoms(self, mol1, mol2, vmol1, vmol2, ilabel1, ilabel2, eq_atoms):
         """
         Align the label of topologically identical atoms of second molecule
         towards first molecule
@@ -358,6 +296,10 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 First molecule. OpenBabel OBMol object
             mol2:
                 Second molecule. OpenBabel OBMol object
+            vmol1:
+                First virtual molecule constructed by centroids. OpenBabel OBMol object
+            vmol2:
+                First virtual molecule constructed by centroids. OpenBabel OBMol object
             ilabel1:
                 inchi label map of the first molecule
             ilabel2:
@@ -368,19 +310,6 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Return:
             corrected inchi labels of heavy atoms of the second molecule
         """
-
-        farthest_group_idx, farthest_distance = \
-            self._largest_radius_group_idx(mol1, ilabel1, eq_atoms)
-        farthest_group_idx2, farthest_distance2 = \
-            self._largest_radius_group_idx(mol2, ilabel2, eq_atoms)
-        if farthest_distance2 > farthest_distance:
-            farthest_distance = farthest_distance2
-            farthest_group_idx = farthest_group_idx2
-
-        vmol1 = self._virtual_molecule(mol1, ilabel1, eq_atoms,
-                                       farthest_group_idx)
-        vmol2 = self._virtual_molecule(mol2, ilabel2, eq_atoms,
-                                       farthest_group_idx)
 
         nvirtual = vmol1.NumAtoms()
         nheavy = len(ilabel1)
@@ -532,28 +461,64 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         elements = [int(mol.GetAtom(i).GetAtomicNum()) for i in label]
         return elements
 
-    def uniform_labels(self, mol1, mol2):
-        obmol_orig_1 = BabelMolAdaptor(mol1).openbabel_mol
-        obmol_orig_2 = BabelMolAdaptor(mol2).openbabel_mol
+    def _is_molecule_linear(self, mol):
+        '''
+        Is the molecule a linear one
+        
+        Args:
+            mol:
+                The molecule. OpenBabel OBMol object.
+        
+        Returns:
+            Boolean value.
+        '''
+        if mol.NumAtoms() < 3:
+            return True
+        a1 = mol.GetAtom(1)
+        a2 = mol.GetAtom(2)
+        for i in range(3, mol.NumAtoms()+1):
+            angle = float(mol.GetAtom(i).GetAngle(a2, a1))
+            if angle < 0.0:
+                angle = -angle
+            if angle > 90.0:
+                angle = 180.0 - angle
+            if angle > self._angle_tolerance:
+                return False
+        return True
 
-        ilabel1, iequal_atom1, inchi1 = self._inchi_labels(obmol_orig_1)
-        ilabel2, iequal_atom2, inchi2 = self._inchi_labels(obmol_orig_2)
+    def uniform_labels(self, mol1, mol2):
+        obmol1 = BabelMolAdaptor(mol1).openbabel_mol
+        obmol2 = BabelMolAdaptor(mol2).openbabel_mol
+
+        ilabel1, iequal_atom1, inchi1 = self._inchi_labels(obmol1)
+        ilabel2, iequal_atom2, inchi2 = self._inchi_labels(obmol2)
 
         if inchi1 != inchi2:
             return None, None  # Topoligically different
 
         if iequal_atom1 != iequal_atom2:
             raise Exception("Design Error! Equavilent atoms are inconsistent")
+        
+        
+        vmol1 = self._virtual_molecule(obmol1, ilabel1, iequal_atom1)
+        vmol2 = self._virtual_molecule(obmol2, ilabel2, iequal_atom2)
+        
+        clabel1, clabel2 = None, None
+        if vmol1.NumAtoms() < 3 or self._is_molecule_linear(vmol1) \
+        or self._is_molecule_linear(vmol2): 
+            # using isomorphism for difficult (actually simple) molecules
+            clabel1, clabel2 = self._assistant_mapper.uniform_labels(mol1, mol2)      
+        else:           
+            heavy_atom_indices2 = self._align_heavy_atoms(obmol1, obmol2,
+                                                          vmol1, vmol2, ilabel1,
+                                                          ilabel2, iequal_atom1)
+            clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2, 
+                                                          ilabel1,
+                                                          heavy_atom_indices2)
+        
 
-        heavy_atom_indices2 = self._align_heavy_atoms(obmol_orig_1,
-                                                      obmol_orig_2, ilabel1,
-                                                      ilabel2, iequal_atom1)
-        clabel1, clabel2 = self._align_hydrogen_atoms(obmol_orig_1,
-                                                      obmol_orig_2, ilabel1,
-                                                      heavy_atom_indices2)
-
-        elements1 = self._get_elements(obmol_orig_1, clabel1)
-        elements2 = self._get_elements(obmol_orig_2, clabel2)
+        elements1 = self._get_elements(obmol1, clabel1)
+        elements2 = self._get_elements(obmol2, clabel2)
 
         if elements1 != elements2:
             raise Exception("Design Error! Atomic elements are inconsistent")
