@@ -554,7 +554,9 @@ class MoleculeMatcher(MSONable):
     """
     Class to match molecules and identify whether molecules are the same.
     """
-
+    @requires(ob,
+              "BabelMolAdaptor requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org.")
     def __init__(self, tolerance=0.01, mapper=InchiMolAtomMapper()):
         """
         Args:
