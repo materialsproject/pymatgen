@@ -146,6 +146,11 @@ class TransformedStructureTest(unittest.TestCase):
         self.assertIn('history', d)
         self.assertIn('version', d)
         self.assertEqual(Structure.from_dict(d).formula, 'Na4 Fe4 P4 O16')
+        
+    def test_snl(self):
+        snl = self.trans.to_snl([('will', 'will@test.com')])
+        ts = TransformedStructure.from_snl(snl)
+        self.assertEqual(ts.history[-1]['name'], 'SubstitutionTransformation')
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
