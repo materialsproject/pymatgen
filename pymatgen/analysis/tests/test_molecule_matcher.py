@@ -25,7 +25,8 @@ from pymatgen.io.babelio import BabelMolAdaptor
 
 try:
     import openbabel as ob
-except ImportError:
+    ob.OBAlign
+except (ImportError, AttributeError):
     ob = None
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
@@ -64,19 +65,19 @@ def test_fit_with_mapper(test_class, mapper):
     mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "j1.xyz")).pymatgen_mol
     mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "j2.xyz")).pymatgen_mol
     test_class.assertTrue(mm.fit(mol1, mol2))
-    
+
     mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "ethene1.xyz")).pymatgen_mol
     mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "ethene2.xyz")).pymatgen_mol
     test_class.assertTrue(mm.fit(mol1, mol2))
-    
+
     mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "toluene1.xyz")).pymatgen_mol
     mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "toluene2.xyz")).pymatgen_mol
     test_class.assertTrue(mm.fit(mol1, mol2))
-    
+
     mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "cyclohexane1.xyz")).pymatgen_mol
     mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "cyclohexane2.xyz")).pymatgen_mol
     test_class.assertTrue(mm.fit(mol1, mol2))
-    
+
     mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "oxygen1.xyz")).pymatgen_mol
     mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "oxygen2.xyz")).pymatgen_mol
     test_class.assertTrue(mm.fit(mol1, mol2))
@@ -92,13 +93,13 @@ class MoleculeMatcherTest(unittest.TestCase):
     def test_fit(self):
         test_fit_with_mapper(self, IsomorphismMolAtomMapper())
         test_fit_with_mapper(self, InchiMolAtomMapper())
-    
+
     def test_get_rmsd(self):
         mm = MoleculeMatcher()
         mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t3.xyz")).pymatgen_mol
         mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t4.xyz")).pymatgen_mol
-        self.assertEqual('{0:7.3}'.format(mm.get_rmsd(mol1, mol2)), "0.00488") 
-        
+        self.assertEqual('{0:7.3}'.format(mm.get_rmsd(mol1, mol2)), "0.00488")
+
     def test_group_molecules(self):
         mm = MoleculeMatcher(tolerance=0.001)
         filename_list = None
@@ -113,13 +114,13 @@ class MoleculeMatcherTest(unittest.TestCase):
         with open(os.path.join(test_dir, "grouped_mol_list.txt")) as f:
             grouped_text = f.read().strip()
         self.assertEqual(str(filename_groups), grouped_text)
-        
+
     def test_to_and_from_dict(self):
         mm = MoleculeMatcher(tolerance=0.5, mapper=InchiMolAtomMapper(angle_tolerance=50.0))
         d = mm.to_dict
         mm2 = MoleculeMatcher.from_dict(d)
         self.assertEqual(d, mm2.to_dict)
-        
+
         mm = MoleculeMatcher(tolerance=0.5, mapper=IsomorphismMolAtomMapper())
         d = mm.to_dict
         mm2 = MoleculeMatcher.from_dict(d)
