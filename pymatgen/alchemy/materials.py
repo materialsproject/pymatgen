@@ -27,6 +27,8 @@ from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 from pymatgen.matproj.snl import StructureNL
 
+from warnings import warn
+
 dec = PMGJSONDecoder()
 
 class TransformedStructure(MSONable):
@@ -214,6 +216,9 @@ class TransformedStructure(MSONable):
         output.append(str(self.other_parameters))
         return "\n".join(output)
     
+    def set_parameter(self, key, value):
+        self.other_parameters[key] = value
+    
     @property
     def was_modified(self):
         """
@@ -320,6 +325,9 @@ class TransformedStructure(MSONable):
         
     def to_snl(self, authors, projects=None, references='', remarks=None,
                data=None, created_at=None):
+        if self.other_parameters:
+            warn('Data in TransformedStructure.other_parameters discarded '
+                 'during type conversion to SNL')
         hist = []
         for h in self.history:
             hist.append({'name' : 'pymatgen', 
