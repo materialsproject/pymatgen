@@ -39,18 +39,10 @@ class TransformedStructure(MSONable):
     """
     
     def __init__(self, structure, transformations=None, history=None,
-                 other_parameters=None, authors=None, projects=None,
-                 references = '', remarks=None, data=None,
-                 created_at=None):
+                 other_parameters=None):
         self.final_structure = structure
         self.history = history or []
         self.other_parameters = other_parameters or {}
-        self.authors = authors
-        self.projects = projects
-        self.references = references
-        self.remarks = remarks
-        self.data = data
-        self.created_at = created_at
         self._undone = []
         
         transformations = transformations or []
@@ -326,24 +318,20 @@ class TransformedStructure(MSONable):
         return cls(s, history=d["history"], 
                    other_parameters=d.get("other_parameters", None))
         
-    @property
-    def to_snl(self):
+    def to_snl(self, authors, projects=None, references='', remarks=None,
+               data=None, created_at=None):
         hist = []
         for h in self.history:
             hist.append({'name' : 'pymatgen', 
                          'url' : 'http://github.com/materialsproject/pymatgen',
                          'description' : h})
-        return StructureNL(self.final_structure, self.authors, self.projects,
-                           self.references, self.remarks, self.data, self.history,
-                           self.created_at)
+        return StructureNL(self.final_structure, authors, projects, references,
+                           remarks, data, self.history, created_at)
         
     @classmethod
     def from_snl(cls, snl):
         hist = []
         for h in snl.history:
             hist.append(h.description)
-        return cls(snl.structure, history=hist, authors=snl.authors,
-                   projects=snl.projects, references=snl.references,
-                   remarks=snl.remarks, data=snl.data, 
-                   created_at=snl.created_at)
+        return cls(snl.structure, history=hist)
 
