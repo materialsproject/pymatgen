@@ -32,67 +32,13 @@ except (ImportError, AttributeError):
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules", "molecule_matcher")
 
-def test_fit_with_mapper(test_class, mapper):
-    coords = [[0.000000, 0.000000, 0.000000],
-              [0.000000, 0.000000, 1.089000],
-              [1.026719, 0.000000, -0.363000],
-              [-0.513360, -0.889165, -0.363000],
-              [-0.513360, 0.889165, -0.363000]]
-    mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
-    op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
-    rotcoords = [op.operate(c) for c in coords]
-    mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
-    mm = MoleculeMatcher(mapper=mapper)
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "benzene1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "benzene2.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "benzene1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t2.xyz")).pymatgen_mol
-    test_class.assertFalse(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "c1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "c2.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t3.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t4.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "j1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "j2.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "ethene1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "ethene2.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "toluene1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "toluene2.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "cyclohexane1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "cyclohexane2.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "oxygen1.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "oxygen2.xyz")).pymatgen_mol
-    test_class.assertTrue(mm.fit(mol1, mol2))
-
-    mm = MoleculeMatcher(tolerance=0.001, mapper=mapper)
-    mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t3.xyz")).pymatgen_mol
-    mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t4.xyz")).pymatgen_mol
-    test_class.assertFalse(mm.fit(mol1, mol2))
 
 @unittest.skipIf(ob is None, "OpenBabel not present. Skipping...")
 class MoleculeMatcherTest(unittest.TestCase):
 
     def test_fit(self):
-        test_fit_with_mapper(self, IsomorphismMolAtomMapper())
-        test_fit_with_mapper(self, InchiMolAtomMapper())
+        self.test_fit_with_mapper(IsomorphismMolAtomMapper())
+        self.test_fit_with_mapper(InchiMolAtomMapper())
 
     def test_get_rmsd(self):
         mm = MoleculeMatcher()
@@ -125,6 +71,60 @@ class MoleculeMatcherTest(unittest.TestCase):
         d = mm.to_dict
         mm2 = MoleculeMatcher.from_dict(d)
         self.assertEqual(d, mm2.to_dict)
+
+    def test_fit_with_mapper(self, mapper):
+        coords = [[0.000000, 0.000000, 0.000000],
+                  [0.000000, 0.000000, 1.089000],
+                  [1.026719, 0.000000, -0.363000],
+                  [-0.513360, -0.889165, -0.363000],
+                  [-0.513360, 0.889165, -0.363000]]
+        mol1 = Molecule(["C", "H", "H", "H", "H"], coords)
+        op = SymmOp.from_origin_axis_angle([0, 0, 0], [0.1, 0.2, 0.3], 60)
+        rotcoords = [op.operate(c) for c in coords]
+        mol2 = Molecule(["C", "H", "H", "H", "H"], rotcoords)
+        mm = MoleculeMatcher(mapper=mapper)
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "benzene1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "benzene2.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "benzene1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t2.xyz")).pymatgen_mol
+        self.assertFalse(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "c1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "c2.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t3.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t4.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "j1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "j2.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "ethene1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "ethene2.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "toluene1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "toluene2.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "cyclohexane1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "cyclohexane2.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "oxygen1.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "oxygen2.xyz")).pymatgen_mol
+        self.assertTrue(mm.fit(mol1, mol2))
+
+        mm = MoleculeMatcher(tolerance=0.001, mapper=mapper)
+        mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t3.xyz")).pymatgen_mol
+        mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t4.xyz")).pymatgen_mol
+        self.assertFalse(mm.fit(mol1, mol2))
 
 
 if __name__ == '__main__':
