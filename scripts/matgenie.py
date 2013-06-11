@@ -53,6 +53,7 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
                                                "initial_structure"])
 
     ncpus = multiprocessing.cpu_count()
+    ncpus = None if ncpus < 2 else ncpus
     logging.info("Detected {} cpus".format(ncpus))
     queen = BorgQueen(drone, number_of_drones=ncpus)
     if os.path.exists(save_file) and not reanalyze:
