@@ -16,6 +16,7 @@ __date__ = "Mar 5, 2012"
 import unittest
 import os
 import json
+import warnings
 
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import \
@@ -24,7 +25,6 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.io.vaspio_set import MPVaspInputSet
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
-
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -107,7 +107,7 @@ class TransformedStructureTest(unittest.TestCase):
                            'r'))
         d['other_parameters'] = {'tags': ['test']}
         ts = TransformedStructure.from_dict(d)
-        ts.set_parameter('author', 'Will')
+        ts.other_parameters['author'] = 'Will'
         ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
         self.assertEqual("MnPO4",
                          ts.final_structure.composition.reduced_formula)
@@ -141,11 +141,23 @@ class TransformedStructureTest(unittest.TestCase):
         ts.redo_next_change()
 
     def test_to_dict(self):
+        self.trans.set_parameter('author', 'will')
         d = self.trans.to_dict
         self.assertIn('last_modified', d)
         self.assertIn('history', d)
         self.assertIn('version', d)
+        self.assertIn('author', d['other_parameters'])
         self.assertEqual(Structure.from_dict(d).formula, 'Na4 Fe4 P4 O16')
+        
+    def test_snl(self):
+        self.trans.set_parameter('author', 'will')
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            snl = self.trans.to_snl([('will', 'will@test.com')])
+            self.assertEqual(len(w), 1, 'Warning not raised on type conversion '
+                             'with other_parameters')
+        ts = TransformedStructure.from_snl(snl)
+        self.assertEqual(ts.history[-1]['name'], 'SubstitutionTransformation')
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
