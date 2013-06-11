@@ -326,7 +326,7 @@ class TransformedStructure(MSONable):
                          'url' : 'http://github.com/materialsproject/pymatgen',
                          'description' : h})
         return StructureNL(self.final_structure, authors, projects, references,
-                           remarks, data, self.history, created_at)
+                           remarks, data, hist, created_at)
         
     @classmethod
     def from_snl(cls, snl):
