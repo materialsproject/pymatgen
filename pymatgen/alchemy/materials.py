@@ -306,7 +306,7 @@ class TransformedStructure(MSONable):
         d["history"] = deepcopy(self.history)
         d["version"] = __version__
         d["last_modified"] = str(datetime.datetime.utcnow())
-        d["other_parameters"] = self.other_parameters
+        d["other_parameters"] = deepcopy(self.other_parameters)
         return d
     
     @classmethod
