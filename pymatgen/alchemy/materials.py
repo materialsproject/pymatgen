@@ -331,7 +331,7 @@ class TransformedStructure(MSONable):
         hist = []
         for h in self.history:
             hist.append({'name' : 'pymatgen', 
-                         'url' : 'http://github.com/materialsproject/pymatgen',
+                         'url' : 'http://pypi.python.org/pypi/pymatgen',
                          'description' : h})
         return StructureNL(self.final_structure, authors, projects, references,
                            remarks, data, hist, created_at)
