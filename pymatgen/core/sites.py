@@ -251,6 +251,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         species_list = []
         for spec, occu in self._species.items():
             d = spec.to_dict
+            del d["@module"]
+            del d["@class"]
             d["occu"] = occu
             species_list.append(d)
         return {"name": self.species_string, "species": species_list,
@@ -507,6 +509,8 @@ class PeriodicSite(Site, MSONable):
         species_list = []
         for spec, occu in self._species.items():
             d = spec.to_dict
+            del d["@module"]
+            del d["@class"]
             d["occu"] = occu
             species_list.append(d)
         return {"label": self.species_string, "species": species_list,
