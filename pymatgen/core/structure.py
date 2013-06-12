@@ -923,9 +923,13 @@ class IStructure(SiteCollection, MSONable):
         """
         Json-serializable dict representation of Structure
         """
+        latt_dict = self._lattice.to_dict
+        del latt_dict["@module"]
+        del latt_dict["@class"]
+
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
-             "lattice": self._lattice.to_dict, "sites": []}
+             "lattice": latt_dict, "sites": []}
         for site in self:
             site_dict = site.to_dict
             del site_dict["lattice"]
@@ -1203,7 +1207,12 @@ class IMolecule(SiteCollection, MSONable):
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
-             "sites": [site.to_dict for site in self]}
+             "sites": []}
+        for site in self:
+            site_dict = site.to_dict
+            del site_dict["@module"]
+            del site_dict["@class"]
+            d["sites"].append(site_dict)
         return d
 
     @classmethod
