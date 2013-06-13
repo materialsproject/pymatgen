@@ -17,6 +17,8 @@ __date__ = "Sep 23, 2011"
 
 
 import math
+import os
+import json
 import collections
 import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
@@ -33,6 +35,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
+from pymatgen.core.functional_groups import load_functional_group_data
 
 
 class SiteCollection(collections.Sequence):
@@ -2108,7 +2111,8 @@ class Molecule(IMolecule):
         """
         return self.__class__.from_sites(self)
 
-    def substitute(self, index, func_grp, bond_order=1):
+
+    def substitute(self, index, func_grp_name=None, func_grp_selfdefined=None, bond_order=1):
         """
         Substitute atom at index with a functional group.
 
@@ -2130,7 +2134,9 @@ class Molecule(IMolecule):
                 Defaults to 1.
         """
 
+
         # Find the nearest neighbor that is not a terminal atom.
+
         non_terminal_nn = None
         for nn, dist in self.get_neighbors(self[index], 5):
             if len(self.get_neighbors(nn, 1.1 * dist)) > 1:
@@ -2145,9 +2151,22 @@ class Molecule(IMolecule):
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
 
+        # Pass value of functional group--either from user-defined or from functional .json
+        if func_grp_name is not None:
+        # Check to see whether the functional group is in database. If yes, assign
+            func_dic=load_functional_group_data()
+            if func_grp_name in func_dic:
+              func_grp =Molecule(func_dic[func_grp_name][0], func_dic[func_grp_name][1])
+            else:
+              raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
+        else:
+            if func_grp_selfdefined is not None:
+                func_grp=func_grp_selfdefined
+            else:
+                raise RuntimeError("Description of functional group required.")
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
-        bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
+        bl = get_bond_length(non_terminal_nn.specie, func_grp.species,
                              bond_order=bond_order)
         if bl is not None:
             func_grp = func_grp.copy()
@@ -2192,3 +2211,5 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
+
+
