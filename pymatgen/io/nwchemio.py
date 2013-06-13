@@ -93,7 +93,11 @@ class NwTask(MSONable):
             operation:
                 The operation for the task. Defaults to "optimize".
             basis_set:
-                The basis set used for the task. Defaults to 6-31++G**.
+                The basis set used for the task. It can either be a
+                string (for which the same basis set will apply for
+                all species) or a dict specifying basis sets on a per
+                atom basis. E.g., {"C": "6-311++G**",
+                "H": "6-31++G**"}. Defaults to "6-31++G**".
             theory_directives:
                 A dict of theory directives. For example,
                 if you are running dft calculations, you may specify the
@@ -125,7 +129,13 @@ class NwTask(MSONable):
         elements = set(mol.composition.get_el_amt_dict().keys())
 
         self.theory = theory
-        self.basis_set = basis_set
+        if hasattr(basis_set, "items") and hasattr(basis_set, "keys"):
+            if not elements.issubset(basis_set.keys()):
+                raise NwInputError("Too few basis sets specified.")
+            self.basis_set = basis_set
+        else:
+            self.basis_set = {el: basis_set for el in elements}
+
         self.elements = elements
         self.operation = operation
         self.theory_directives = theory_directives \
@@ -135,8 +145,8 @@ class NwTask(MSONable):
         o = ["title \"{}\"".format(self.title),
              "charge {}".format(self.charge),
              "basis"]
-        for el in self.elements:
-            o.append(" {} library {}".format(el, self.basis_set))
+        for el, bset in self.basis_set.items():
+            o.append(" {} library {}".format(el, bset))
         o.append("end")
         if self.theory_directives:
             o.append("{}".format(self.theory))
