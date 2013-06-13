@@ -128,4 +128,3 @@ def get_bond_length(sp1, sp2, bond_order=1):
             return all_lengths.get(bond_order)
         else:
             return all_lengths.get(1)
-    return None
