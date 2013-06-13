@@ -329,9 +329,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
                                     for row in transformation])
             if contains_oxidation_state:
                 if transformation not in ewald_matrices:
-                    s = Structure.from_sites(structure.sites)
-                    s.make_supercell(transformation)
-                    ewald = EwaldSummation(s)
+                    s_supercell = Structure.from_sites(structure.sites)
+                    s_supercell.make_supercell(transformation)
+                    ewald = EwaldSummation(s_supercell)
                     ewald_matrices[transformation] = ewald
                 else:
                     ewald = ewald_matrices[transformation]
