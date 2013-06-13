@@ -330,16 +330,32 @@ class TransformedStructure(MSONable):
                  'during type conversion to SNL')
         hist = []
         for h in self.history:
-            hist.append({'name' : 'pymatgen', 
-                         'url' : 'http://pypi.python.org/pypi/pymatgen',
+            snl_metadata = h.pop('_snl', {})
+            hist.append({'name' : snl_metadata.pop('name', 'pymatgen'),
+                         'url' : snl_metadata.pop('url', 
+                                    'http://pypi.python.org/pypi/pymatgen'),
                          'description' : h})
         return StructureNL(self.final_structure, authors, projects, references,
                            remarks, data, hist, created_at)
         
     @classmethod
     def from_snl(cls, snl):
+        """
+        Args:
+            snl:
+                Starting snl
+            copy_metadata:
+                update the authors, projects, references, and remarks
+                in the last history node with the metadata at the
+                root of the SNL object
+            copy_data:
+                copy the contents of snl.data into the last history
+                node
+        """
         hist = []
         for h in snl.history:
-            hist.append(h.description)
+            d = h.description
+            d['_snl'] = {'url' : h.url, 'name' : h.name}
+            hist.append(d)
         return cls(snl.structure, history=hist)
 
