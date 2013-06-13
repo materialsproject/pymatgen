@@ -81,7 +81,7 @@ class ReactionTest(unittest.TestCase):
                           "1.000 Na + 0.500 K2O -> 0.500 Na2O + 1.000 K",
                           "Wrong reaction obtained!")
 
-        # Test for an old bug which has a problem when excess product is 
+        # Test for an old bug which has a problem when excess product is
         # defined.
         products = [Composition("FePO4"), Composition("O")]
         reactants = [Composition("FePO4")]

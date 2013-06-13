@@ -186,8 +186,6 @@ class Strategy(object):
             #ratio = augration_high if high else augratio_norm 
             #pawecutdg = ecut * ratio
 
-    #def get_abivar(self, varname):
-
     @property
     def tolerance(self):
         "Return a dict {varname: varvalue} with the tolerance used for the calculation."
@@ -418,13 +416,6 @@ class RelaxStrategy(ScfStrategy):
     def make_input(self):
         # Initialize the system section from structure.
         raise NotImplementedError("")
-        #system = self._make_systemcard()
-        ## Variables for electrons.
-        #electrons = self._make_electronscard()
-        #kpoints = self._make_kpointscard()
-        #relax = self._make_relaxcard()
-        #control = ControlCard(system, electrons, kmesh, relax, **self.extra_abivars)
-        #return Input(system, electrons, kpoints, relax, control)
 
 ##########################################################################################
 
@@ -590,13 +581,13 @@ class InputWriter(object):
         return self.abiobj_dict.values()
 
     def add_abiobj(self, obj):
-        "Add the object to the card"
+        "Add the object to self"
         if not hasattr(obj, "to_abivars"):
             raise ValueError("%s does not define the method to_abivars" % str(obj))
 
         cname = obj.__class__.__name__
         if cname in self.abiobj_dict:
-            raise ValueError("%s is already in the Card" % cname)
+            raise ValueError("%s is already stored" % cname)
         self.abiobj_dict[cname] = obj
 
     def add_extra_abivars(self, abivars):
@@ -653,58 +644,25 @@ class InputWriter(object):
                 Set to True for pretty aligned output.
         """
         lines = []
+        app = lines.append
 
         # Write the Abinit objects first.
         for obj in self.abiobjects:
-            lines.append([80*"#", ""])
-            lines.append(["#", "%s" % obj.__class__.__name__])
-            lines.append([80*"#", ""])
+            app([80*"#", ""])
+            app(["#", "%s" % obj.__class__.__name__])
+            app([80*"#", ""])
             for (k, v) in obj.to_abivars().items():
-                lines.append(self._format_kv(k, v))
+                app(self._format_kv(k, v))
 
         # Extra variables.
         if self.extra_abivars:
-            lines.append([80*"#", ""])
-            lines.append(["#", "Extra_Abivars"])
-            lines.append([80*"#", ""])
+            app([80*"#", ""])
+            app(["#", "Extra_Abivars"])
+            app([80*"#", ""])
             for (k, v) in self.extra_abivars.items():
-                lines.append(self._format_kv(k, v))
+                app(self._format_kv(k, v))
 
         if pretty:
             return str_aligned(lines, header=None)
         else:
             return str_delimited(lines, header=None, delimiter=5*" ")
-
-    #def diff(self, other):
-    #    """
-    #    Diff function for Card.  Compares two objects and indicates which
-    #    parameters are the same and which are not. Useful for checking whether
-    #    two runs were done using the same parameters.
-                                                                                    
-    #    Args:
-    #        other:
-    #            The other Card object to compare to.
-                                                                                    
-    #    Returns:
-    #        Dict of the following format:
-    #        {"Same" : parameters_that_are_the_same,
-    #        "Different": parameters_that_are_different}
-    #        Note that the parameters are return as full dictionaries of values.
-    #        E.g. {"natom":3}
-    #    """
-    #    similar_param, different_param = {}, {}
-    #    for (k1, v1) in self.items():
-    #        if k1 not in other:
-    #            different_param[k1] = {self.name : v1, other.name : "Default"}
-    #        elif v1 != other[k1]:
-    #            different_param[k1] = {self.name : v1, other.name : other[k1]}
-    #        else:
-    #            similar_param[k1] = v1
-                                                                                    
-    #    for (k2, v2) in other.items():
-    #        if k2 not in similar_param and k2 not in different_param:
-    #            if k2 not in self:
-    #                different_param[k2] = {self.name : "Default", other.name : v2}
-                                                                                    
-    #    return {"Same": similar_param, "Different": different_param}
-

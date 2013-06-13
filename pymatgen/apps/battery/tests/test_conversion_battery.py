@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Feb 2, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -25,7 +25,6 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
 
 
-
 class ConversionElectrodeTest(unittest.TestCase):
 
     def setUp(self):
@@ -40,10 +39,10 @@ class ConversionElectrodeTest(unittest.TestCase):
                                          'specific_energy': 2049.7192465127678,
                                          'energy_density': 6588.8896693479574}
         expected_properties['FeF3'] = {'average_voltage': 3.06179925889,
-                                         'capacity_grav': 601.54508701578118,
-                                         'capacity_vol': 2132.2069115142394,
-                                         'specific_energy': 1841.8103016131706,
-                                         'energy_density': 6528.38954147}
+                                       'capacity_grav': 601.54508701578118,
+                                       'capacity_vol': 2132.2069115142394,
+                                       'specific_energy': 1841.8103016131706,
+                                       'energy_density': 6528.38954147}
 
         for f in formulas:
 
@@ -56,8 +55,7 @@ class ConversionElectrodeTest(unittest.TestCase):
             #json.dump(entries, fid, cls=PMGJSONEncoder)
 
             c = ConversionElectrode.from_composition_and_entries(
-                                                                Composition(f),
-                                                                entries)
+                Composition(f), entries)
             self.assertEqual(len(c.get_sub_electrodes(True)), c.num_steps)
             self.assertEqual(len(c.get_sub_electrodes(False)),
                              sum(xrange(1, c.num_steps + 1)))

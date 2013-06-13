@@ -4,7 +4,7 @@
 This module defines useful physical constants and conversion factors.
 All units are in SI units except for conversion factors.
 
-.. attribute:: ELECTRON_CHARGE
+.. attribute:: ELECTRON_CHARGE or e
 
     Charge of an electron in coulombs.
 
@@ -12,15 +12,23 @@ All units are in SI units except for conversion factors.
 
     Permittivity of vacuum
 
-.. attribute:: BOLTZMANN_CONST
+.. attribute:: BOLTZMANN_CONST or k_b
 
     Boltzmann's constant
+
+.. attribute:: R
+
+    Gas constant in J K-1 mol-1
+
+.. attribute:: F
+
+    Faraday's constant in C / mol
 
 .. attribute:: ELECTRON_VOLT
 
     eV in Joules.
 
-.. attribute:: AVOGADROS_CONST
+.. attribute:: AVOGADROS_CONST or N_a
 
     Avogardo's constant
 
@@ -64,6 +72,13 @@ BOLTZMANN_CONST = 1.3806488e-23
 ELECTRON_VOLT = 1.602176565e-19
 AVOGADROS_CONST = 6.02214129e23
 
+#Some useful aliases
+N_a = AVOGADROS_CONST
+k_b = BOLTZMANN_CONST
+e = ELECTRON_CHARGE
+R = AVOGADROS_CONST * BOLTZMANN_CONST
+F = AVOGADROS_CONST * ELECTRON_CHARGE
+
 #Conversion factors
 
 EV_PER_ATOM_TO_J_PER_MOL = ELECTRON_VOLT * AVOGADROS_CONST
@@ -75,8 +90,12 @@ AMU_TO_KG = 1.660538921e-27
 #: 1 Hartree, in eV
 Ha_eV = 27.21138386
 
+eV_Ha = 1./Ha_eV
+
 #: 1 Bohr, in Angstrom
 Bohr_Ang = 0.52917720859
+
+Ang_Bohr = 1./Bohr_Ang
 
 ###############################################################################
 # Conversion tools.

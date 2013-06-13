@@ -25,7 +25,6 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.core.structure import Structure
-from pymatgen.core.structure_modifier import StructureEditor, SupercellMaker
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
 from pymatgen.transformations.transformation_abc import AbstractTransformation
@@ -90,9 +89,9 @@ class RotationTransformation(AbstractTransformation):
             self._axis, self._angle, self._angle_in_radians)
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.apply_operation(self._symmop)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.apply_operation(self._symmop)
+        return s
 
     def __str__(self):
         return "Rotation Transformation about axis " + \
@@ -135,9 +134,9 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         self.oxi_states = oxidation_states
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.add_oxidation_state_by_element(self.oxi_states)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.add_oxidation_state_by_element(self.oxi_states)
+        return s
 
     @property
     def inverse(self):
@@ -211,9 +210,9 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
     This transformation removes oxidation states from a structure
     """
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.remove_oxidation_states()
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.remove_oxidation_states()
+        return s
 
     @property
     def inverse(self):
@@ -267,8 +266,9 @@ class SupercellTransformation(AbstractTransformation):
                                         [0, 0, scale_c]])
 
     def apply_transformation(self, structure):
-        maker = SupercellMaker(structure, self._matrix)
-        return maker.modified_structure
+        s = Structure.from_sites(structure)
+        s.make_supercell(self._matrix)
+        return s
 
     def __str__(self):
         return "Supercell Transformation with scaling matrix " + \
@@ -318,9 +318,9 @@ class SubstitutionTransformation(AbstractTransformation):
             else:
                 value = smart_element_or_specie(v)
             species_map[smart_element_or_specie(k)] = value
-        editor = StructureEditor(structure)
-        editor.replace_species(species_map)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.replace_species(species_map)
+        return s
 
     def __str__(self):
         return "Substitution Transformation :" + \
@@ -341,8 +341,9 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
+        sp_map = {str(k):str(v) for k, v in self._species_map.iteritems()}
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"species_map": self._species_map},
+                "init_args": {"species_map": sp_map},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -360,10 +361,10 @@ class RemoveSpeciesTransformation(AbstractTransformation):
         self._species = species_to_remove
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        map(editor.remove_species, [[smart_element_or_specie(sp)]
-                                    for sp in self._species])
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        map(s.remove_species, [[smart_element_or_specie(sp)]
+                               for sp in self._species])
+        return s
 
     def __str__(self):
         return "Remove Species Transformation :" + ", ".join(self._species)
@@ -587,12 +588,13 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if sym_test:
                     equivalent_sites[j].append(i)
                     found = True
+                    break
             if not found:
                 equivalent_sites.append([i])
                 exemplars.append(site)
 
         #generate the list of manipulations and input structure
-        se = StructureEditor(structure)
+        s = Structure.from_sites(structure)
         m_list = []
         for g in equivalent_sites:
             total_occupancy = sum([structure[i].species_and_occu for i in g],
@@ -608,7 +610,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             initial_sp = max(total_occupancy.keys(),
                              key=lambda x: abs(x.oxi_state))
             for i in g:
-                se.replace_site(i, initial_sp)
+                s.replace(i, initial_sp)
             #determine the manipulations
             for k, v in total_occupancy.items():
                 if k == initial_sp:
@@ -620,8 +622,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             if empty > 0.5:
                 m_list.append([0, empty, list(g), None])
 
-        structure = se.modified_structure
-        matrix = EwaldSummation(structure).total_energy_matrix
+        matrix = EwaldSummation(s).total_energy_matrix
         ewald_m = EwaldMinimizer(matrix, m_list, num_to_return, self._algo)
 
         self._all_structures = []
@@ -630,7 +631,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         num_atoms = sum(structure.composition.values())
 
         for output in ewald_m.output_lists:
-            se = StructureEditor(structure)
+            s_copy = s.copy()
             # do deletions afterwards because they screw up the indices of the
             # structure
             del_indices = []
@@ -638,13 +639,13 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    se.replace_site(manipulation[0], manipulation[1])
-            se.delete_sites(del_indices)
+                    s_copy.replace(manipulation[0], manipulation[1])
+            s_copy.remove_sites(del_indices)
             self._all_structures.append(
                 {"energy": output[0],
                  "energy_above_minimum":
                  (output[0] - lowest_energy) / num_atoms,
-                 "structure": se.modified_structure.get_sorted_structure()})
+                 "structure": s_copy.get_sorted_structure()})
 
         if return_ranked_list:
             return self._all_structures
@@ -746,9 +747,9 @@ class PerturbStructureTransformation(AbstractTransformation):
         self._amp = amplitude
 
     def apply_transformation(self, structure):
-        editor = StructureEditor(structure)
-        editor.perturb_structure(self._amp)
-        return editor.modified_structure
+        s = Structure.from_sites(structure.sites)
+        s.perturb(self._amp)
+        return s
 
     def __str__(self):
         return "PerturbStructureTransformation : " + \

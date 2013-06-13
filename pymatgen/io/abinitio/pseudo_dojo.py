@@ -1,9 +1,6 @@
 from __future__ import division, print_function
 
-import sys
 import os
-import os.path
-import collections
 import abc
 import shutil
 import numpy as np
@@ -11,7 +8,8 @@ import numpy as np
 from pprint import pprint
 
 from pymatgen.util.num_utils import sort_dict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump #, PMGJSONDecoder
+from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.io.abinitio.task import RunMode
 from pymatgen.io.abinitio.pseudos import Pseudo
 from pymatgen.io.abinitio.launcher import SimpleResourceManager
 from pymatgen.io.abinitio.deltaworks import DeltaFactory
@@ -19,15 +17,32 @@ from pymatgen.io.abinitio.calculations import PPConvergenceFactory
 
 ################################################################################
 
+
 class DojoError(Exception):
-    "Base Error class for DOJO calculations."
+    """Base Error class for DOJO calculations."""
 
 
 class Dojo(object):
+    """
+    This object drives the execution of the tests for the pseudopotential.
+
+    A Dojo has a set of masters, each master is associated to a particular trial
+    and is responsilble for the validation/rating of the results of the tests.
+    """
     Error = DojoError
 
     def __init__(self, runmode=None, max_ncpus=1, max_level=None, verbose=0):
-
+        """
+        Args:
+            runmode:
+                `RunMode` instance specifying the options for parallel execution.
+            max_ncpus:
+                Max number of CPUs to use
+            max_level:
+                Max test level to perform.
+            verbose:
+                Verbosity level (int).
+        """
         self.runmode = runmode if runmode else RunMode.sequential()
         self.max_ncpus = max_ncpus
         self.verbose = verbose
@@ -47,13 +62,21 @@ class Dojo(object):
         return repr_dojo_levels()
 
     def challenge_pseudo(self, pseudo):
+        """
+        This method represents the main entry point for client code.
+        The Dojo receives a pseudo-like object and delegate the execution
+        of the tests to the dojo_masters
+
+        Args:
+            `Pseudo` object or filename.
+        """
         pseudo = Pseudo.aspseudo(pseudo)
 
         workdir = "DOJO_" + pseudo.name
 
         # Build master instances.
         masters = [cls(runmode=self.runmode, max_ncpus=self.max_ncpus,
-                       verbose=verbose) for cls in self.master_classes]
+                       verbose=self.verbose) for cls in self.master_classes]
 
         kwargs = {}
         for master in masters:
@@ -63,12 +86,24 @@ class Dojo(object):
 ################################################################################
 
 class DojoMaster(object):
-    "Subclasses must define the class attribute level"
+    """"
+    Abstract base class for the dojo masters.
+    Subclasses must define the class attribute level.
+    """
     __metaclass__ = abc.ABCMeta
 
     Error = DojoError
 
     def __init__(self, runmode=None, max_ncpus=1, verbose=0):
+        """
+        Args:
+            runmode:
+                `RunMode` instance specifying the options for parallel execution.
+            max_ncpus:
+                Max number of CPUs to use
+            verbose:
+                Verbosity level (int).
+        """
         self.runmode = runmode if runmode else RunMode.sequential()
         self.max_ncpus = max_ncpus
         self.verbose = verbose
@@ -78,7 +113,7 @@ class DojoMaster(object):
 
     @staticmethod
     def subclass_from_dojo_level(dojo_level):
-        "Returns the DojoMaster subclass given the dojo_level"
+        """Returns a subclass of `DojoMaster` given the dojo_level."""
         classes = []
         for cls in DojoMaster.__subclasses__():
             if cls.dojo_level == dojo_level:
@@ -90,8 +125,8 @@ class DojoMaster(object):
 
     def accept_pseudo(self, pseudo):
         """
-        Return True if the mast can train the pseudo.
-        This method is called before testing the pseudo
+        Returns True if the mast can train the pseudo.
+        This method is called before testing the pseudo.
 
         A master can train the pseudo if his level == pseudo.dojo_level + 1
         """
@@ -116,15 +151,23 @@ class DojoMaster(object):
 
     @abc.abstractmethod
     def challenge(self, workdir, **kwargs):
-        "Run the calculation"
+        """Abstract method to run the calculation."""
 
     @abc.abstractmethod
     def make_report(self, **kwargs):
-        "Returns report, isok"
+        """
+        Abstract method.
+        Returns report, isok.
+            report:
+                Dictionary with the results of the trial.
+            isok:
+                True if results are valid.
+        """
 
     def write_dojo_report(self, report, overwrite_data=False, ignore_errors=False):
-        "Writes/updates the DOJO_REPORT section of the pseudopotential"
-
+        """
+        Write/update the DOJO_REPORT section of the pseudopotential.
+        """
         #if self.errors and not ignore_errors:
         #    pprint(self.errors)
         #    raise self.Error("Cannot update dojo data since self.errors is not empty")
@@ -144,6 +187,7 @@ class DojoMaster(object):
         pseudo.write_dojo_report(old_report)
 
     def start_training(self, workdir, **kwargs):
+        """Start the tests in the working directory workdir."""
         results = self.challenge(workdir, **kwargs)
 
         report, isok = self.make_report(results, **kwargs)
@@ -157,7 +201,12 @@ class DojoMaster(object):
 
 ################################################################################
 
+
 class HintsMaster(DojoMaster):
+    """
+    Level 0 master that analyzes the convergence of the total energy versus
+    the plane-wave cutoff energy.
+    """
     dojo_level = 0
     dojo_key = "hints"
 
@@ -226,7 +275,11 @@ class HintsMaster(DojoMaster):
 
 ################################################################################
 
+
 class DeltaFactorMaster(DojoMaster):
+    """
+    Level 1 master that drives the computation of the delta factor.
+    """
     dojo_level = 1
     dojo_key = "delta_factor"
 
@@ -249,7 +302,8 @@ class DeltaFactorMaster(DojoMaster):
 
         retcodes = SimpleResourceManager(w, self.max_ncpus).run()
 
-        if self.verbose: print("returncodes %s" % retcodes)
+        if self.verbose:
+            print("returncodes %s" % retcodes)
 
         wf_results = work.get_results()
 
@@ -283,11 +337,14 @@ _key2level = {}
 for cls in DojoMaster.__subclasses__():
     _key2level[cls.dojo_key] = cls.dojo_level
 
+
 def dojo_key2level(key):
-    "Return the trial level from the name found in the pseudo"
+    """Return the trial level from the name found in the pseudo."""
     return _key2level[key]
 
+
 def repr_dojo_levels():
+    """String representation of the different levels of the Dojo."""
     level2key = {v: k for k,v in _key2level.items()}
     lines = ["Dojo level --> Challenge"]
     for k in sorted(level2key):

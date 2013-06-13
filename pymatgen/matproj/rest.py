@@ -35,8 +35,10 @@ from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
 from pymatgen.serializers.json_coders import PMGJSONEncoder
+from pymatgen.util.decorators import cached_class
 
 
+@cached_class
 class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST
@@ -443,6 +445,9 @@ class MPRester(object):
                 same as the list of structures if not None.
             created_at:
                 A datetime object
+
+        Returns:
+            A list of inserted submission ids.
         """
         try:
             data = [{}] * len(structures) if data is None else data
@@ -466,7 +471,7 @@ class MPRester(object):
                 if resp["valid_response"]:
                     if resp.get("warning"):
                         warnings.warn(resp["warning"])
-                    return resp
+                    return resp['inserted_ids']
                 else:
                     raise MPRestError(resp["error"])
 

@@ -69,24 +69,12 @@ class AbstractTransformation(MSONable):
         returned as a ranked list.
         """
         return False
-    
+
     @property
     def use_multiprocessing(self):
         """
-        Indicates whether the transformation can be applied by a 
-        subprocessing pool. This should be overridden to return True for 
+        Indicates whether the transformation can be applied by a
+        subprocessing pool. This should be overridden to return True for
         transformations that the transmuter can parallelize.
         """
         return False
-    
-    @staticmethod
-    def from_dict(d):
-        for trans_modules in ['standard_transformations',
-                              'site_transformations',
-                              'advanced_transformations']:
-            mod = __import__('pymatgen.transformations.' + trans_modules,
-                             globals(), locals(), [d['name']], -1)
-            if hasattr(mod, d['name']):
-                trans = getattr(mod, d['name'])
-                return trans(**d['init_args'])
-        raise ValueError("Invalid Transformations dict")

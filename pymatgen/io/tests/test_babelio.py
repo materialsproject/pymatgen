@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Apr 28, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -21,7 +21,7 @@ from pymatgen.io.xyzio import XYZ
 from pymatgen.io.babelio import BabelMolAdaptor
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+                        "test_files", "molecules")
 
 try:
     import openbabel as ob
@@ -61,6 +61,14 @@ class BabelMolAdaptorTest(unittest.TestCase):
         adaptor = BabelMolAdaptor.from_string(str(xyz), "xyz")
         mol = adaptor.pymatgen_mol
         self.assertEqual(mol.formula, "H4 C1")
+
+    def test_localopt(self):
+        self.mol.replace(1, "H", [0, 0, 1.05])
+        adaptor = BabelMolAdaptor(self.mol)
+        adaptor.localopt()
+        optmol = adaptor.pymatgen_mol
+        for site in optmol[1:]:
+            self.assertAlmostEqual(site.distance(optmol[0]), 1.09216, 2)
 
 if __name__ == "__main__":
     unittest.main()
