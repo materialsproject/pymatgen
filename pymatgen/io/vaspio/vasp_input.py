@@ -414,8 +414,8 @@ class Poscar(MSONable):
                 "predictor_corrector": self.predictor_corrector,
                 "comment": self.comment}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         return Poscar(Structure.from_dict(d["structure"]),
                       comment=d["comment"],
                       selective_dynamics=d["selective_dynamics"],
@@ -506,13 +506,10 @@ class Incar(dict):
         d["@class"] = self.__class__.__name__
         return d
 
-    @staticmethod
-    def from_dict(d):
-        i = Incar()
-        for k, v in d.items():
-            if k not in ("@module", "@class"):
-                i[k] = v
-        return i
+    @classmethod
+    def from_dict(cls, d):
+        return Incar({k: v for k, v in d.items() if k not in ("@module",
+                                                              "@class")})
 
     def get_string(self, sort_keys=False, pretty=False):
         """
@@ -572,7 +569,7 @@ class Incar(dict):
         Returns:
             Incar object
         """
-        with zopen(filename, "r") as f:
+        with zopen(filename) as f:
             lines = list(clean_lines(f.readlines()))
         params = {}
         for line in lines:
@@ -598,7 +595,8 @@ class Incar(dict):
         """
         list_keys = ("LDAUU", "LDAUL", "LDAUJ", "LDAUTYPE", "MAGMOM")
         bool_keys = ("LDAU", "LWAVE", "LSCALU", "LCHARG", "LPLANE", "LHFCALC")
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN")
+        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN",
+                      "POTIM")
         int_keys = ("NSW", "NBANDS", "NELMIN", "ISIF", "IBRION", "ISPIN",
                     "ICHARG", "NELM", "ISMEAR", "NPAR", "LDAUPRINT", "LMAXMIX",
                     "ENCUT", "NSIM", "NKRED", "NUPDOWN", "ISPIND")
@@ -637,7 +635,28 @@ class Incar(dict):
                 return int(val)
 
         except ValueError:
-            return val.capitalize()
+            pass
+
+        #Not in standard keys. We will try a hirerachy of conversions.
+        try:
+            val = int(val)
+            return val
+        except ValueError:
+            if key == "LORBIT":
+               print val
+            pass
+
+        try:
+            val = float(val)
+            return val
+        except ValueError:
+            pass
+
+        if "true" in val.lower():
+            return True
+
+        if "false" in val.lower():
+            return False
 
         return val.capitalize()
 
@@ -662,7 +681,7 @@ class Incar(dict):
         different_param = {}
         for k1, v1 in self.items():
             if k1 not in other:
-                different_param[k1] = {"INCAR1": v1, "INCAR2": "Default"}
+                different_param[k1] = {"INCAR1": v1, "INCAR2": None}
             elif v1 != other[k1]:
                 different_param[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
@@ -670,7 +689,7 @@ class Incar(dict):
         for k2, v2 in other.items():
             if k2 not in similar_param and k2 not in different_param:
                 if k2 not in self:
-                    different_param[k2] = {"INCAR1": "Default", "INCAR2": v2}
+                    different_param[k2] = {"INCAR1": None, "INCAR2": v2}
         return {"Same": similar_param, "Different": different_param}
 
     def __add__(self, other):
@@ -872,10 +891,12 @@ class Kpoints(MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        style = Kpoints.supported_modes.Gamma
-        if not is_hexagonal:
-            num_div = [i + i % 2 for i in num_div]
-            style = Kpoints.supported_modes.Monkhorst
+        all_odd = all([i % 2 == 1 for i in num_div])
+
+        style = Kpoints.supported_modes.Monkhorst
+        if all_odd or is_hexagonal:
+            style = Kpoints.supported_modes.Gamma
+
         comment = "pymatgen generated KPOINTS with grid density = " + \
             "{} / atom".format(kppa)
         num_kpts = 0
@@ -935,7 +956,7 @@ class Kpoints(MSONable):
             kpts = []
             labels = []
             patt = re.compile("([e0-9\.\-]+)\s+([e0-9\.\-]+)\s+([e0-9\.\-]+)"
-                              "\s*!\s*(.*)")
+                              "\s*!*\s*(.*)")
             for i in range(4, len(lines)):
                 line = lines[i]
                 m = patt.match(line)
@@ -1040,16 +1061,16 @@ class Kpoints(MSONable):
         d["@class"] = self.__class__.__name__
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         comment = d.get("comment", "")
         generation_style = d.get("generation_style")
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
         num_kpts = d.get("nkpoints", 0)
         #coord_type = d.get("coord_type", None)
-        return Kpoints(comment=comment, kpts=kpts, style=generation_style,
-                       kpts_shift=kpts_shift, num_kpts=num_kpts)
+        return cls(comment=comment, kpts=kpts, style=generation_style,
+                   kpts_shift=kpts_shift, num_kpts=num_kpts)
 
 
 def get_potcar_dir():
@@ -1205,11 +1226,9 @@ class Potcar(list):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
-        functional = d["functional"]
-        symbols = d["symbols"]
-        return Potcar(symbols=symbols, functional=functional)
+    @classmethod
+    def from_dict(cls, d):
+        return Potcar(symbols=d["symbols"], functional=d["functional"])
 
     @staticmethod
     def from_file(filename):
@@ -1228,7 +1247,7 @@ class Potcar(list):
         else:
             if functionals[0] == "PE":
                 functional = "PBE"
-            elif functionals[1] == "91":
+            elif functionals[0] == "91":
                 functional = "PW91"
             else:
                 functional = "LDA"
@@ -1328,8 +1347,8 @@ class VaspInput(dict, MSONable):
         d["@class"] = self.__class__.__name__
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         dec = PMGJSONDecoder()
         sub_d = {"optional_files": {}}
         for k, v in d.items():
@@ -1337,7 +1356,7 @@ class VaspInput(dict, MSONable):
                 sub_d[k.lower()] = dec.process_decoded(v)
             elif k not in ["@module", "@class"]:
                 sub_d["optional_files"][k] = dec.process_decoded(v)
-        return VaspInput(**sub_d)
+        return cls(**sub_d)
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
         """

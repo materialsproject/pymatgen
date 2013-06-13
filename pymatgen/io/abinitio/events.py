@@ -8,23 +8,24 @@ from __future__ import division, print_function
 import os.path
 import collections
 import json
-#import abc
+# import abc
 
 from pymatgen.serializers.json_coders import MSONable
 
-################################################################################
 
-class AbinitEvent(MSONable):
+class Event(MSONable):
     """
     Example (JSON)
 
     <Event>
-        class: "ScfConvergenceWarning",
-        tolname: tolwfr,
-        actual_tol: 1.0e-8,
-        required_tol: 1.0e-10,
-        nstep: 50,
-        message: "The human-readable message goes here!"
+        "class": "ScfConvergenceWarning",
+        "src_file": "routine name",
+        "src_line": "line number in src_file",
+        "message": "The human-readable message goes here!"
+        "tolname": "tolwfr",
+        "actual_tol": 1.0e-8,
+        "required_tol": 1.0e-10,
+        "nstep": 50,
     </Event>
     """
     @staticmethod
@@ -66,7 +67,7 @@ class AbinitEvent(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        return cls({k: v for k,v in d.items() if not k.startswith("@")})
+        return cls({k: v for (k, v) in d.items() if not k.startswith("@")})
 
     def iscritical(self):
         """
@@ -75,7 +76,7 @@ class AbinitEvent(MSONable):
         """
         return False
 
-    def get_action(self):
+    def action(self):
         """
         Returns a dictionary whose values that can be used to decide
         which actions should be performed e.g the SCF data at the last
@@ -84,32 +85,31 @@ class AbinitEvent(MSONable):
         """
         return {}
 
-##########################################################################################
 
-class Comment(AbinitEvent):
-    "Base class for Comment events"
+class Comment(Event):
+    """Base class for Comment events"""
 
-class Error(AbinitEvent):
-    "Base class for Error events"
 
+class Error(Event):
+    """Base class for Error events"""
     @property
     def iscritical(self):
         return True
 
-class Bug(AbinitEvent):
-    "Base class for Bug events"
 
+class Bug(Event):
+    """Base class for Bug events"""
     @property
     def iscritical(self):
         return True
 
-class Warning(AbinitEvent):
+
+class Warning(Event):
     """
     Base class for Warning events (the most important class).
-    Developers should subclass inherit from this class to define the different exceptions
+    Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
-
     # FIXME: for the moment we tag a warning as critical, then, once we migrate to the
     # JSON-like format, only CriticalWarnings will trigger some kind of action.
     @property
@@ -126,8 +126,9 @@ _BASE_CLASSES = [
 
 ##########################################################################################
 
+
 class EventList(collections.Iterable, MSONable):
-    "Iterable storing the events produced by an abinit calculation"
+    """Iterable storing the events produced by an abinit calculation."""
 
     def __init__(self, filename, events=None):
         """
@@ -142,8 +143,8 @@ class EventList(collections.Iterable, MSONable):
         self._events_by_baseclass = collections.defaultdict(list)
 
         if events is not None:
-            for e in events:
-                self.append(event)
+            for ev in events:
+                self.append(ev)
 
     def __len__(self):
         return len(self._events)
@@ -211,8 +212,10 @@ class EventList(collections.Iterable, MSONable):
 
 ##########################################################################################
 
+
 class EventParserError(Exception):
-    "Base class for the exceptions raised by EventParser"
+    """Base class for the exceptions raised by EventParser."""
+
 
 class EventParser(object):
     """

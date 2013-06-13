@@ -15,43 +15,46 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-import abc
+
 import math
 import collections
 import itertools
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 import numpy as np
 
+from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie
+from pymatgen.core.periodic_table import Element, Specie, \
+    smart_element_or_specie
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
-from pymatgen.core.bonds import CovalentBond
+from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
 
 
-class SiteCollection(collections.Sequence, collections.Hashable):
+class SiteCollection(collections.Sequence):
     """
     Basic SiteCollection. Essentially a sequence of Sites or PeriodicSites.
     This serves as a base class for Molecule (a collection of Site, i.e., no
     periodicity) and Structure (a collection of PeriodicSites, i.e.,
     periodicity). Not meant to be instantiated directly.
     """
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = ABCMeta
 
     #Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.01
 
-    @abc.abstractproperty
+    @abstractproperty
     def sites(self):
         """
-        Returns a tuple of sites in the Structure.
+        Returns a tuple of sites.
         """
         return
 
-    @abc.abstractmethod
+    @abstractmethod
     def get_distance(self, i, j):
         """
         Returns distance between sites at index i and j.
@@ -98,12 +101,18 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         return [site.species_and_occu for site in self]
 
     @property
+    def ntypesp(self):
+        """Number of types of atoms."""
+        return len(self.types_of_specie)
+
+    @property
     def types_of_specie(self):
         """
         List of types of specie. Only works for ordered structures.
         Disordered structures will raise an AttributeError.
         """
-        types = []  # Cannot use sets since we want a deterministic algorithm.
+        # Cannot use set since we want a deterministic algorithm.
+        types = []
         for site in self:
             if site.specie not in types:
                 types.append(site.specie)
@@ -115,6 +124,25 @@ class SiteCollection(collections.Sequence, collections.Hashable):
             for site in self:
                 if site.specie == t:
                     yield site
+
+    def indices_from_symbol(self, symbol):
+        """
+        Returns a tuple with the sequential indices of the sites
+        that contain an element with the given chemical symbol.
+        """
+        indices = []
+        for i, specie in enumerate(self.species):
+            if specie.symbol == symbol:
+                indices.append(i)
+        return tuple(indices)
+
+    @property
+    def symbol_set(self):
+        """
+        Tuple with the set of chemical symbols.
+        Note that len(symbol_set) == len(types_of_specie)
+        """
+        return tuple([specie.symbol for specie in self.types_of_specie])
 
     @property
     def atomic_numbers(self):
@@ -218,13 +246,7 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         """
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
-        ans = np.dot(v1, v2) / np.linalg.norm(v1) / np.linalg.norm(v2)
-
-        #Correct for stupid numerical error which may result in acos being
-        #operated on a number with absolute value larger than 1
-        ans = min(ans, 1)
-        ans = max(-1, ans)
-        return math.acos(ans) * 180 / math.pi
+        return get_angle(v1, v2, units="degrees")
 
     def get_dihedral(self, i, j, k, l):
         """
@@ -248,8 +270,8 @@ class SiteCollection(collections.Sequence, collections.Hashable):
         v3 = self[i].coords - self[j].coords
         v23 = np.cross(v2, v3)
         v12 = np.cross(v1, v2)
-        return math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
-                          np.dot(v12, v23)) * 180 / math.pi
+        return math.degrees(math.atan2(np.linalg.norm(v2) * np.dot(v1, v23),
+                            np.dot(v12, v23)))
 
     def is_valid(self, tol=DISTANCE_TOLERANCE):
         """
@@ -260,20 +282,20 @@ class SiteCollection(collections.Sequence, collections.Hashable):
             tol:
                 Distance tolerance. Default is 0.01A.
         """
-        for (s1, s2) in itertools.combinations(self.sites, 2):
+        for s1, s2 in itertools.combinations(self.sites, 2):
             if s1.distance(s2) < tol:
                 return False
         return True
 
 
-class Structure(SiteCollection, MSONable):
+class IStructure(SiteCollection, MSONable):
     """
-    Basic Structure object with periodicity. Essentially a sequence of
-    PeriodicSites having a common lattice. Structure is made to be immutable
-    so that they can function as keys in a dict. Modifications should be done
-    by making a new Structure using the structure_modifier module or your own
-    methods. Structure extends Sequence and Hashable, which means that in many
-    cases, it can be used like any Python sequence. Iterating through a
+    Basic immutable Structure object with periodicity. Essentially a sequence
+    of PeriodicSites having a common lattice. IStructure is made to be
+    immutable so that they can function as keys in a dict. To make
+    modifications, use the standard Structure object instead. Structure
+    extends Sequence and Hashable, which means that in many cases,
+    it can be used like any Python sequence. Iterating through a
     structure is equivalent to going through the sites in sequence.
     """
 
@@ -329,23 +351,28 @@ class Structure(SiteCollection, MSONable):
             prop = None
             if site_properties:
                 prop = {k: v[i] for k, v in site_properties.items()}
-            sites.append(PeriodicSite(species[i], coords[i],
-                                      self._lattice, to_unit_cell,
-                                      coords_are_cartesian,
-                                      properties=prop))
+            sites.append(
+                PeriodicSite(species[i], coords[i], self._lattice,
+                             to_unit_cell,
+                             coords_are_cartesian=coords_are_cartesian,
+                             properties=prop))
         self._sites = tuple(sites)
         if validate_proximity and not self.is_valid():
             raise StructureError(("Structure contains sites that are ",
                                   "less than 0.01 Angstrom apart!"))
 
-    @staticmethod
-    def from_sites(sites):
+    @classmethod
+    def from_sites(cls, sites, validate_proximity=False):
         """
         Convenience constructor to make a Structure from a list of sites.
 
         Args:
             sites:
                 Sequence of PeriodicSites. Sites must have the same lattice.
+            validate_proximity:
+                Whether to check if there are sites that are less than 0.01 Ang
+                apart. Defaults to False.
+
         """
         props = collections.defaultdict(list)
         lattice = None
@@ -356,10 +383,10 @@ class Structure(SiteCollection, MSONable):
                 raise ValueError("Sites must belong to the same lattice")
             for k, v in site.properties.items():
                 props[k].append(v)
-        return Structure(lattice,
-                         [site.species_and_occu for site in sites],
-                         [site.frac_coords for site in sites],
-                         site_properties=props)
+        return cls(lattice, [site.species_and_occu for site in sites],
+                   [site.frac_coords for site in sites],
+                   site_properties=props,
+                   validate_proximity=validate_proximity)
 
     @property
     def sites(self):
@@ -374,6 +401,13 @@ class Structure(SiteCollection, MSONable):
         Lattice of the structure.
         """
         return self._lattice
+
+    @property
+    def reciprocal_lattice(self):
+        """
+        Reciprocal lattice of the structure.
+        """
+        return self._lattice.reciprocal_lattice
 
     def lattice_vectors(self, space="r"):
         """
@@ -578,7 +612,7 @@ class Structure(SiteCollection, MSONable):
                 fcoords = fcoord + image
                 coords = frac_2_cart(fcoords)
                 submat = np.tile(coords, (n, 1))
-                dists = (site_coords - submat) ** 2
+                dists = np.power(site_coords - submat, 2)
                 dists = np.sqrt(dists.sum(axis=1))
                 withindists = (dists <= r) * (dists > 1e-8)
                 sp = self[j].species_and_occu
@@ -618,7 +652,7 @@ class Structure(SiteCollection, MSONable):
         Sites are sorted by the electronegativity of the species.
         """
         sites = sorted(self)
-        return Structure.from_sites(sites)
+        return self.__class__.from_sites(sites)
 
     def get_reduced_structure(self, reduction_algo="niggli"):
         """
@@ -637,8 +671,9 @@ class Structure(SiteCollection, MSONable):
             raise ValueError("Invalid reduction algo : {}"
                              .format(reduction_algo))
 
-        return Structure(reduced_latt, self.species_and_occu, self.cart_coords,
-                         coords_are_cartesian=True, to_unit_cell=True)
+        return self.__class__(reduced_latt, self.species_and_occu,
+                              self.cart_coords,
+                              coords_are_cartesian=True, to_unit_cell=True)
 
     def copy(self, site_properties=None, sanitize=False):
         """
@@ -666,10 +701,10 @@ class Structure(SiteCollection, MSONable):
         if site_properties:
             props.update(site_properties)
         if not sanitize:
-            return Structure(self._lattice,
-                             [site.species_and_occu for site in self],
-                             [site.frac_coords for site in self],
-                             site_properties=props)
+            return self.__class__(self._lattice,
+                                  self.species_and_occu,
+                                  self.frac_coords,
+                                  site_properties=props)
         else:
             reduced_latt = self._lattice.get_lll_reduced_lattice()
             new_sites = []
@@ -683,7 +718,7 @@ class Structure(SiteCollection, MSONable):
                                               to_unit_cell=True,
                                               properties=site_props))
             new_sites = sorted(new_sites)
-            return Structure.from_sites(new_sites)
+            return self.__class__.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10):
         """
@@ -720,10 +755,10 @@ class Structure(SiteCollection, MSONable):
         end_coords = np.array(end_structure.frac_coords)
 
         vec = end_coords - start_coords
-        structs = [Structure(self.lattice,
-                             [site.species_and_occu for site in self._sites],
-                             start_coords + float(x) / float(nimages) * vec,
-                             site_properties=self.site_properties)
+        sp = self.species_and_occu
+        structs = [self.__class__(self.lattice,
+                   sp, start_coords + float(x) / float(nimages) * vec,
+                   site_properties=self.site_properties)
                    for x in range(0, nimages + 1)]
         return structs
 
@@ -850,8 +885,8 @@ class Structure(SiteCollection, MSONable):
                 new_frac.append(all_frac[i0])
 
             if correct:
-                new_structure = Structure(latt, new_sp, new_frac,
-                                          to_unit_cell=True)
+                new_structure = self.__class__(
+                    latt, new_sp, new_frac, to_unit_cell=True)
                 break
 
         if new_structure and len(new_structure) != len(self):
@@ -888,9 +923,13 @@ class Structure(SiteCollection, MSONable):
         """
         Json-serializable dict representation of Structure
         """
+        latt_dict = self._lattice.to_dict
+        del latt_dict["@module"]
+        del latt_dict["@class"]
+
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
-             "lattice": self._lattice.to_dict, "sites": []}
+             "lattice": latt_dict, "sites": []}
         for site in self:
             site_dict = site.to_dict
             del site_dict["lattice"]
@@ -899,8 +938,8 @@ class Structure(SiteCollection, MSONable):
             d["sites"].append(site_dict)
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Reconstitute a Structure object from a dict representation of Structure
         created using to_dict.
@@ -914,14 +953,16 @@ class Structure(SiteCollection, MSONable):
         """
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
-        return Structure.from_sites(sites)
+        return cls.from_sites(sites)
 
 
-class Molecule(SiteCollection, MSONable):
+class IMolecule(SiteCollection, MSONable):
     """
-    Basic Molecule object without periodicity. Essentially a sequence of sites.
-    Molecule is made to be immutable so that they can function as keys in a
-    dict. Modifications should be done by making a new Molecule.
+    Basic immutable Molecule object without periodicity. Essentially a
+    sequence of sites. IMolecule is made to be immutable so that they can
+    function as keys in a dict. For a mutable molecule,
+    use the :class:Molecule.
+
     Molecule extends Sequence and Hashable, which means that in many cases,
     it can be used like any Python sequence. Iterating through a molecule is
     equivalent to going through the sites in sequence.
@@ -1032,10 +1073,11 @@ class Molecule(SiteCollection, MSONable):
         """
         return self._sites
 
-    @staticmethod
-    def from_sites(sites):
+    @classmethod
+    def from_sites(cls, sites, charge=0, spin_multiplicity=None,
+                   validate_proximity=False):
         """
-        Convenience static constructor to make a Molecule from a list of sites.
+        Convenience constructor to make a Molecule from a list of sites.
 
         Args:
             sites:
@@ -1045,9 +1087,11 @@ class Molecule(SiteCollection, MSONable):
         for site in sites:
             for k, v in site.properties.items():
                 props[k].append(v)
-        return Molecule([site.species_and_occu for site in sites],
-                        [site.coords for site in sites],
-                        site_properties=props)
+        return cls([site.species_and_occu for site in sites],
+                   [site.coords for site in sites],
+                   charge=charge, spin_multiplicity=spin_multiplicity,
+                   validate_proximity=validate_proximity,
+                   site_properties=props)
 
     def break_bond(self, ind1, ind2, tol=0.2):
         """
@@ -1095,7 +1139,8 @@ class Molecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return (Molecule.from_sites(cluster) for cluster in clusters)
+        return (self.__class__.from_sites(cluster)
+                for cluster in clusters)
 
     def get_covalent_bonds(self, tol=0.2):
         """
@@ -1144,7 +1189,9 @@ class Molecule(SiteCollection, MSONable):
 
     def __str__(self):
         outs = ["Molecule Summary ({s})".format(s=str(self.composition)),
-                "Reduced Formula: " + self.composition.reduced_formula]
+                "Reduced Formula: " + self.composition.reduced_formula,
+                "Charge = {}, Spin Mult = {}".format(
+                    self._charge, self._spin_multiplicity)]
         to_s = lambda x: "%0.6f" % x
         outs.append("Sites ({i})".format(i=len(self)))
         for i, site in enumerate(self):
@@ -1160,11 +1207,16 @@ class Molecule(SiteCollection, MSONable):
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
-             "sites": [site.to_dict for site in self]}
+             "sites": []}
+        for site in self:
+            site_dict = site.to_dict
+            del site_dict["@module"]
+            del site_dict["@class"]
+            d["sites"].append(site_dict)
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Reconstitute a Molecule object from a dict representation created using
         to_dict.
@@ -1190,7 +1242,7 @@ class Molecule(SiteCollection, MSONable):
             for k, v in siteprops.items():
                 props[k].append(v)
 
-        return Molecule(species, coords, site_properties=props)
+        return cls(species, coords, site_properties=props)
 
     def get_distance(self, i, j):
         """
@@ -1304,10 +1356,834 @@ class Molecule(SiteCollection, MSONable):
         """
         center = self.center_of_mass
         new_coords = np.array(self.cart_coords) - center
-        return Molecule(self.species_and_occu, new_coords,
-                        charge=self._charge,
-                        spin_multiplicity=self._spin_multiplicity,
-                        site_properties=self.site_properties)
+        return self.__class__(self.species_and_occu, new_coords,
+                              charge=self._charge,
+                              spin_multiplicity=self._spin_multiplicity,
+                              site_properties=self.site_properties)
+
+
+class Structure(IStructure):
+    """
+    Mutable version of structure. Much easier to use for editing,
+    but cannot be used as a key in a dict.
+    """
+    __hash__ = None
+
+    def __init__(self, lattice, species, coords, validate_proximity=False,
+                 to_unit_cell=False, coords_are_cartesian=False,
+                 site_properties=None):
+        """
+        Create a periodic structure.
+
+        Args:
+            lattice:
+                The lattice, either as a pymatgen.core.lattice.Lattice or
+                simply as any 2D array. Each row should correspond to a lattice
+                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
+            species:
+                List of species on each site. Can take in flexible input,
+                including:
+
+                i.  A sequence of element / specie specified either as string
+                    symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
+                    e.g., (3, 56, ...) or actual Element or Specie objects.
+
+                ii. List of dict of elements/species and occupancies, e.g.,
+                    [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
+                    disordered structures.
+            fractional_coords:
+                list of fractional coordinates of each species.
+            validate_proximity:
+                Whether to check if there are sites that are less than 0.01 Ang
+                apart. Defaults to False.
+            coords_are_cartesian:
+                Set to True if you are providing coordinates in cartesian
+                coordinates. Defaults to False.
+            site_properties:
+                Properties associated with the sites as a dict of sequences,
+                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
+                length as the atomic species and fractional_coords.
+                Defaults to None for no properties.
+        """
+        IStructure.__init__(
+            self, lattice, species, coords,
+            validate_proximity=validate_proximity, to_unit_cell=to_unit_cell,
+            coords_are_cartesian=coords_are_cartesian,
+            site_properties=site_properties)
+
+        self._sites = list(self._sites)
+
+    def append(self, species, coords, coords_are_cartesian=False,
+               validate_proximity=False, properties=None):
+        """
+        Append a site to the structure.
+
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to False.
+
+        Returns:
+            New structure with inserted site.
+        """
+        return self.insert(len(self), species, coords,
+                           coords_are_cartesian=coords_are_cartesian,
+                           validate_proximity=validate_proximity,
+                           properties=properties)
+
+    def insert(self, i, species, coords, coords_are_cartesian=False,
+               validate_proximity=False, properties=None):
+        """
+        Insert a site to the structure.
+
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            coords_are_cartesian:
+                Whether coordinates are cartesian. Defaults to False.
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to False.
+
+        Returns:
+            New structure with inserted site.
+        """
+        if not coords_are_cartesian:
+            new_site = PeriodicSite(species, coords, self._lattice,
+                                    properties=properties)
+        else:
+            frac_coords = self._lattice.get_fractional_coords(coords)
+            new_site = PeriodicSite(species, frac_coords, self._lattice,
+                                    properties=properties)
+
+        if validate_proximity:
+            for site in self:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                    raise ValueError("New site is too close to an existing "
+                                     "site!")
+
+        self._sites.insert(i, new_site)
+
+    def remove(self, i):
+        """
+        Remove site at index i.
+
+        Args:
+            i:
+                index of site to remove.
+        """
+        del(self._sites[i])
+
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to all sites.
+
+        Args:
+            property_name:
+                The name of the property to add.
+            values:
+                A sequence of values. Must be same length as number of sites.
+        """
+        if len(values) != len(self._sites):
+            raise ValueError("Values must be same length as sites.")
+        for i in xrange(len(self._sites)):
+            site = self._sites[i]
+            props = site.properties
+            if not props:
+                props = {}
+            props[property_name] = values[i]
+            self._sites[i] = PeriodicSite(site.species_and_occu,
+                                          site.frac_coords, self._lattice,
+                                          properties=props)
+
+    def replace_species(self, species_mapping):
+        """
+        Swap species in a structure.
+
+        Args:
+            species_mapping:
+                dict of species to swap. Species can be elements too.
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na
+                substitution. The second species can be a sp_and_occu dict.
+                For example, a site with 0.5 Si that is passed the mapping
+                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
+                have .375 Ge and .125 C.
+        """
+        latt = self._lattice
+        species_mapping = {smart_element_or_specie(k): v
+                           for k, v in species_mapping.items()}
+
+        def mod_site(site):
+            new_atom_occu = collections.defaultdict(int)
+            for sp, amt in site.species_and_occu.items():
+                if sp in species_mapping:
+                    if isinstance(species_mapping[sp], dict):
+                        for new_sp, new_amt in species_mapping[sp].items():
+                            new_atom_occu[smart_element_or_specie(new_sp)] \
+                                += amt * new_amt
+                    else:
+                        new_atom_occu[smart_element_or_specie(
+                            species_mapping[sp])] += amt
+                else:
+                    new_atom_occu[sp] += amt
+            return PeriodicSite(new_atom_occu, site.frac_coords, latt,
+                                properties=site.properties)
+
+        self._sites = map(mod_site, self._sites)
+
+    def replace(self, index, species_n_occu):
+        """
+        Replace a single site. Takes either a species or a dict of species and
+        occupations.
+
+        Args:
+            index:
+                The index of the site in the _sites list.
+            species:
+                A species object.
+        """
+        self._sites[index] = PeriodicSite(species_n_occu,
+                                          self._sites[index].frac_coords,
+                                          self._lattice,
+                                          properties=self._sites[index].
+                                          properties)
+
+    def remove_species(self, species):
+        """
+        Remove all occurrences of a species from a structure.
+
+        Args:
+            species:
+                species to remove.
+        """
+        new_sites = []
+        species = map(smart_element_or_specie, species)
+
+        for site in self._sites:
+            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+                           if sp not in species}
+            if len(new_sp_occu) > 0:
+                new_sites.append(PeriodicSite(
+                    new_sp_occu, site.frac_coords, self._lattice,
+                    properties=site.properties))
+        self._sites = new_sites
+
+    def remove_sites(self, indices):
+        """
+        Delete sites with at indices.
+
+        Args:
+            indices:
+                sequence of indices of sites to delete.
+        """
+        self._sites = [self._sites[i] for i in range(len(self._sites))
+                       if i not in indices]
+
+    def apply_operation(self, symmop):
+        """
+        Apply a symmetry operation to the structure and return the new
+        structure. The lattice is operated by the rotation matrix only.
+        Coords are operated in full and then transformed to the new lattice.
+
+        Args:
+            symmop:
+                Symmetry operation to apply.
+        """
+        self._lattice = Lattice([symmop.apply_rotation_only(row)
+                                 for row in self._lattice.matrix])
+
+        def operate_site(site):
+            new_cart = symmop.operate(site.coords)
+            new_frac = self._lattice.get_fractional_coords(new_cart)
+            return PeriodicSite(site.species_and_occu, new_frac, self._lattice,
+                                properties=site.properties)
+        self._sites = map(operate_site, self._sites)
+
+    def modify_lattice(self, new_lattice):
+        """
+        Modify the lattice of the structure.  Mainly used for changing the
+        basis.
+
+        Args:
+            new_lattice:
+                New lattice
+        """
+        self._lattice = new_lattice
+        new_sites = []
+        for site in self._sites:
+            new_sites.append(PeriodicSite(site.species_and_occu,
+                                          site.frac_coords,
+                                          self._lattice,
+                                          properties=site.properties))
+        self._sites = new_sites
+
+    def apply_strain(self, strain):
+        """
+        Apply an isotropic strain to the lattice.
+
+        Args:
+            strain:
+                Amount of strain to apply. E.g., 0.01 means all lattice
+                vectors are increased by 1%. This is equivalent to
+                calling modify_lattice with a lattice with lattice parameters
+                that are 1% larger.
+        """
+        self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
+
+    def translate_sites(self, indices, vector, frac_coords=True):
+        """
+        Translate specific sites by some vector, keeping the sites within the
+        unit cell.
+
+        Args:
+            sites:
+                List of site indices on which to perform the translation.
+            vector:
+                Translation vector for sites.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+        """
+        for i in indices:
+            site = self._sites[i]
+            if frac_coords:
+                fcoords = site.frac_coords + vector
+            else:
+                fcoords = self._lattice.get_fractional_coords(site.coords
+                                                              + vector)
+            new_site = PeriodicSite(site.species_and_occu, fcoords,
+                                    self._lattice, to_unit_cell=True,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
+    def perturb(self, distance):
+        """
+        Performs a random perturbation of the sites in a structure to break
+        symmetries.
+
+        Args:
+            distance:
+                distance in angstroms by which to perturb each site.
+        """
+        def get_rand_vec():
+            #deals with zero vectors.
+            vector = np.random.randn(3)
+            vnorm = np.linalg.norm(vector)
+            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+
+        for i in range(len(self._sites)):
+            self.translate_sites([i], get_rand_vec(), frac_coords=False)
+
+    def add_oxidation_state_by_element(self, oxidation_states):
+        """
+        Add oxidation states to a structure.
+
+        Args:
+            structure:
+                pymatgen.core.structure Structure object.
+            oxidation_states:
+                dict of oxidation states.
+                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[sym])] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except KeyError:
+            raise ValueError("Oxidation state of all elements must be "
+                             "specified in the dictionary.")
+
+    def add_oxidation_state_by_site(self, oxidation_states):
+        """
+        Add oxidation states to a structure by site.
+
+        Args:
+            oxidation_states:
+                List of oxidation states.
+                E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[i])] = occu
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except IndexError:
+            raise ValueError("Oxidation state of all sites must be "
+                             "specified in the dictionary.")
+
+    def remove_oxidation_states(self):
+        """
+        Removes oxidation states from a structure.
+        """
+        for i, site in enumerate(self._sites):
+            new_sp = collections.defaultdict(float)
+            for el, occu in site.species_and_occu.items():
+                sym = el.symbol
+                new_sp[Element(sym)] += occu
+            new_site = PeriodicSite(new_sp, site.frac_coords,
+                                    self._lattice,
+                                    coords_are_cartesian=False,
+                                    properties=site.properties)
+            self._sites[i] = new_site
+
+    def make_supercell(self, scaling_matrix):
+        """
+        Create a supercell.
+
+        Args:
+            scaling_matrix:
+                A scaling matrix for transforming the lattice vectors.
+                Has to be all integers. Several options are possible:
+
+                a. A full 3x3 scaling matrix defining the linear combination
+                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   1]] generates a new structure with lattice vectors a' =
+                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
+                   vectors of the original structure.
+                b. An sequence of three scaling factors. E.g., [2, 1, 1]
+                   specifies that the supercell should have dimensions 2a x b x
+                   c.
+                c. A number, which simply scales all lattice vectors by the
+                   same factor.
+
+        """
+        scale_matrix = np.array(scaling_matrix, np.int16)
+        if scale_matrix.shape != (3, 3):
+            scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
+        old_lattice = self._lattice
+        new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
+        new_sites = []
+
+        def range_vec(i):
+            return range(max(scale_matrix[:][:, i])
+                         - min(scale_matrix[:][:, i]) + 1)
+
+        for site in self:
+            for (i, j, k) in itertools.product(range_vec(0), range_vec(1),
+                                               range_vec(2)):
+                fcoords = site.frac_coords + np.array([i, j, k])
+                coords = old_lattice.get_cartesian_coords(fcoords)
+                new_coords = new_lattice.get_fractional_coords(coords)
+                new_site = PeriodicSite(site.species_and_occu, new_coords,
+                                        new_lattice,
+                                        properties=site.properties)
+                contains_site = False
+                for s in new_sites:
+                    if s.is_periodic_image(new_site):
+                        contains_site = True
+                        break
+                if not contains_site:
+                    new_sites.append(new_site)
+        self._sites = new_sites
+        self._lattice = new_lattice
+
+
+class Molecule(IMolecule):
+    """
+    Mutable Molecule. It has all the methods in IMolecule, but in addition,
+    it allows a user to perform edits on the molecule.
+    """
+    __hash__ = None
+
+    def __init__(self, species, coords, charge=0,
+                 spin_multiplicity=None, validate_proximity=False,
+                 site_properties=None):
+        """
+        Creates a MutableMolecule.
+
+        Args:
+            species:
+                list of atomic species. Possible kinds of input include a list
+                of dict of elements/species and occupancies, a List of
+                elements/specie specified as actual Element/Specie, Strings
+                ("Fe", "Fe2+") or atomic numbers (1,56).
+            coords:
+                list of cartesian coordinates of each species.
+            charge:
+                Charge for the molecule. Defaults to 0.
+            spin_multiplicity:
+                Spin multiplicity for molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
+            validate_proximity:
+                Whether to check if there are sites that are less than 1 Ang
+                apart. Defaults to False.
+            site_properties:
+                Properties associated with the sites as a dict of sequences,
+                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
+                length as the atomic species and fractional_coords.
+                Defaults to None for no properties.
+        """
+        IMolecule.__init__(
+            self, species, coords, charge=charge,
+            spin_multiplicity=spin_multiplicity,
+            validate_proximity=validate_proximity,
+            site_properties=site_properties)
+        self._sites = list(self._sites)
+
+    def append(self, species, coords, validate_proximity=True,
+               properties=None):
+        """
+        Appends a site to the molecule.
+
+        Args:
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
+            properties:
+                A dict of properties for the Site.
+
+        Returns:
+            New molecule with inserted site.
+        """
+        return self.insert(len(self), species, coords,
+                           validate_proximity=validate_proximity,
+                           properties=properties)
+
+    def set_charge_and_spin(self, charge, spin_multiplicity=None):
+        """
+        Set the charge and spin multiplicity.
+
+        Args:
+            charge:
+                Charge for the molecule. Defaults to 0.
+            spin_multiplicity:
+                Spin multiplicity for molecule. Defaults to None,
+                which means that the spin multiplicity is set to 1 if the
+                molecule has no unpaired electrons and to 2 if there are
+                unpaired electrons.
+        """
+        self._charge = charge
+        nelectrons = 0
+        for site in self._sites:
+            for sp, amt in site.species_and_occu.items():
+                nelectrons += sp.Z * amt
+        nelectrons -= charge
+        self._nelectrons = nelectrons
+        if spin_multiplicity:
+            if (nelectrons + spin_multiplicity) % 2 != 1:
+                raise ValueError(
+                    "Charge of {} and spin multiplicity of {} is"
+                    " not possible for this molecule".format(
+                    self._charge, spin_multiplicity))
+            self._spin_multiplicity = spin_multiplicity
+        else:
+            self._spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
+
+    def insert(self, i, species, coords, validate_proximity=False,
+               properties=None):
+        """
+        Insert a site to the molecule.
+
+        Args:
+            i:
+                index to insert site
+            species:
+                species of inserted site
+            coords:
+                coordinates of inserted site
+            validate_proximity:
+                Whether to check if inserted site is too close to an existing
+                site. Defaults to True.
+            properties:
+                A dict of properties for the Site.
+
+        Returns:
+            New molecule with inserted site.
+        """
+        new_site = Site(species, coords, properties=properties)
+        if validate_proximity:
+            for site in self:
+                if site.distance(new_site) < self.DISTANCE_TOLERANCE:
+                    raise ValueError("New site is too close to an existing "
+                                     "site!")
+        self._sites.insert(i, new_site)
+
+    def add_site_property(self, property_name, values):
+        """
+        Adds a property to a site.
+
+        Args:
+            property_name:
+                The name of the property to add.
+            values:
+                A sequence of values. Must be same length as number of sites.
+        """
+        if len(values) != len(self._sites):
+            raise ValueError("Values must be same length as sites.")
+        for i in xrange(len(self._sites)):
+            site = self._sites[i]
+            props = site.properties
+            if not props:
+                props = {}
+            props[property_name] = values[i]
+            self._sites[i] = Site(site.species_and_occu, site.coords,
+                                  properties=props)
+
+    def remove(self, i):
+        """
+        Delete site at index i.
+
+        Args:
+            i:
+                index of site to remove.
+
+        Returns:
+            New structure with site removed.
+        """
+        del(self._sites[i])
+
+    def replace_species(self, species_mapping):
+        """
+        Swap species in a molecule.
+
+        Args:
+            species_mapping:
+                dict of species to swap. Species can be elements too.
+                e.g., {Element("Li"): Element("Na")} performs a Li for Na
+                substitution. The second species can be a sp_and_occu dict.
+                For example, a site with 0.5 Si that is passed the mapping
+                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
+                have .375 Ge and .125 C.
+        """
+        species_mapping = {smart_element_or_specie(k): v
+                           for k, v in species_mapping.items()}
+
+        def mod_site(site):
+            new_atom_occu = dict()
+            for sp, amt in site.species_and_occu.items():
+                if sp in species_mapping:
+                    if isinstance(species_mapping[sp], (Element, Specie)):
+                        if species_mapping[sp] in new_atom_occu:
+                            new_atom_occu[species_mapping[sp]] += amt
+                        else:
+                            new_atom_occu[species_mapping[sp]] = amt
+                    elif isinstance(species_mapping[sp], dict):
+                        for new_sp, new_amt in species_mapping[sp].items():
+                            if new_sp in new_atom_occu:
+                                new_atom_occu[new_sp] += amt * new_amt
+                            else:
+                                new_atom_occu[new_sp] = amt * new_amt
+                else:
+                    if sp in new_atom_occu:
+                        new_atom_occu[sp] += amt
+                    else:
+                        new_atom_occu[sp] = amt
+            return Site(new_atom_occu, site.coords, properties=site.properties)
+        self._sites = map(mod_site, self._sites)
+
+    def replace(self, index, species_n_occu, coords=None):
+        """
+        Replace a single site. Takes either a species or a dict of occus.
+
+        Args:
+            index:
+                The index of the site in the _sites list
+            species:
+                A species object.
+            coords:
+                If supplied, the new coords are used. Otherwise,
+                the old coordinates are retained.
+        """
+        coords = coords if coords is not None else self._sites[index].coords
+        self._sites[index] = Site(species_n_occu, coords,
+                                  properties=self._sites[index].properties)
+
+    def remove_species(self, species):
+        """
+        Remove all occurrences of a species from a molecule.
+
+        Args:
+            species:
+                Species to remove.
+        """
+        new_sites = []
+        species = map(smart_element_or_specie, species)
+        for site in self._sites:
+            new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
+                           if sp not in species}
+            if len(new_sp_occu) > 0:
+                new_sites.append(Site(new_sp_occu, site.coords,
+                                      properties=site.properties))
+        self._sites = new_sites
+
+    def remove_sites(self, indices):
+        """
+        Delete sites with at indices.
+
+        Args:
+            indices:
+                sequence of indices of sites to delete.
+        """
+        self._sites = [self._sites[i] for i in range(len(self._sites))
+                       if i not in indices]
+
+    def translate_sites(self, indices, vector):
+        """
+        Translate specific sites by some vector, keeping the sites within the
+        unit cell.
+
+        Args:
+            sites:
+                List of site indices on which to perform the translation.
+            vector:
+                Translation vector for sites.
+        """
+        for i in indices:
+            site = self._sites[i]
+            new_site = Site(site.species_and_occu, site.coords + vector,
+                            properties=site.properties)
+            self._sites[i] = new_site
+
+    def perturb(self, distance):
+        """
+        Performs a random perturbation of the sites in a structure to break
+        symmetries.
+
+        Args:
+            distance:
+                distance in angstroms by which to perturb each site.
+        """
+        def get_rand_vec():
+            #deals with zero vectors.
+            vector = np.random.randn(3)
+            vnorm = np.linalg.norm(vector)
+            return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
+
+        for i in range(len(self._sites)):
+            self.translate_sites([i], get_rand_vec())
+
+    def apply_operation(self, symmop):
+        """
+        Apply a symmetry operation to the molecule.
+
+        Args:
+            symmop:
+                Symmetry operation to apply.
+        """
+        def operate_site(site):
+            new_cart = symmop.operate(site.coords)
+            return Site(site.species_and_occu, new_cart,
+                        properties=site.properties)
+        self._sites = map(operate_site, self._sites)
+
+    def copy(self):
+        """
+        Convenience method to get a copy of the molecule.
+
+        Returns:
+            A copy of the Molecule.
+        """
+        return self.__class__.from_sites(self)
+
+    def substitute(self, index, func_grp, bond_order=1):
+        """
+        Substitute atom at index with a functional group.
+
+        Args:
+            index:
+                Index of atom to substitute.
+            func_grp:
+                Substituent molecule. The first atom must be a DummySpecie
+                X, indicating the position of nearest neighbor. The second
+                atom must be the next nearest atom. For example,
+                for a methyl group substitution, func_grp should be X-CH3,
+                where X is the first site and C is the second site. What the
+                code will do is to remove the index site, and connect the
+                nearest neighbor to the C atom in CH3. The X-C bond
+                indicates the directionality to connect the atoms.
+            bond_order:
+                A specified bond order to calculate the bond length between
+                the attached functional group and the nearest neighbor site.
+                Defaults to 1.
+        """
+
+        # Find the nearest neighbor that is not a terminal atom.
+        non_terminal_nn = None
+        for nn, dist in self.get_neighbors(self[index], 5):
+            if len(self.get_neighbors(nn, 1.1 * dist)) > 1:
+                non_terminal_nn = nn
+                break
+
+        if non_terminal_nn is None:
+            raise RuntimeError("Can't find a non-terminal neighbor to attach"
+                               " functional group to.")
+
+        # Set the origin point to be the coordinates of the nearest
+        # non-terminal neighbor.
+        origin = non_terminal_nn.coords
+
+        # If a bond length can be found, modify func_grp so that the X-group
+        # bond length is equal to the bond length.
+        bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
+                             bond_order=bond_order)
+        if bl is not None:
+            func_grp = func_grp.copy()
+            vec = func_grp[0].coords - func_grp[1].coords
+            func_grp.replace(0, "X",
+                             func_grp[1].coords
+                             + bl / np.linalg.norm(vec) * vec)
+
+        # Align X to the origin.
+        x = func_grp[0]
+        func_grp.translate_sites(range(len(func_grp)), origin - x.coords)
+
+        #Find angle between the attaching bond and the bond to be replaced.
+        v1 = func_grp[1].coords - origin
+        v2 = self[index].coords - origin
+        angle = get_angle(v1, v2)
+
+        if 1 < abs(angle % 180) < 179:
+            # For angles which are not 0 or 180, we perform a rotation about
+            # the origin along an axis perpendicular to both bonds to align
+            # bonds.
+            axis = np.cross(v1, v2)
+            op = SymmOp.from_origin_axis_angle(origin, axis, angle)
+            func_grp.apply_operation(op)
+        elif abs(abs(angle) - 180) < 1:
+            # We have a 180 degree angle. Simply do an inversion about the
+            # origin
+            for i in range(len(func_grp)):
+                func_grp.replace(i, func_grp[i].species_and_occu,
+                                 origin - (func_grp[i].coords - origin))
+
+        # Remove the atom to be replaced, and add the rest of the functional
+        # group.
+        self.remove(index)
+        for site in func_grp[1:]:
+            self._sites.append(site)
 
 
 class StructureError(Exception):

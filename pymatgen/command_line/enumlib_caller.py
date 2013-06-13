@@ -46,7 +46,6 @@ from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.core.periodic_table import DummySpecie
 from pymatgen.util.io_utils import which
 from pymatgen.util.decorators import requires
@@ -54,6 +53,11 @@ from pymatgen.util.decorators import requires
 logger = logging.getLogger(__name__)
 
 
+@requires(which('multienum.x') and which('makestr.x'),
+          "EnumlibAdaptor requires the executables 'multienum.x' and "
+          "'makestr.x' to be in the path. Please download the library at"
+          "http://enum.sourceforge.net/ and follow the instructions in "
+          "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.
@@ -64,11 +68,6 @@ class EnumlibAdaptor(object):
     """
     amount_tol = 1e-5
 
-    @requires(which('multienum.x') and which('makestr.x'),
-              "EnumlibAdaptor requires the executables 'multienum.x' and "
-              "'makestr.x' to be in the path. Please download the library at"
-              "http://enum.sourceforge.net/ and follow the instructions in "
-              "the README to compile these two executables accordingly.")
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
                  symm_prec=0.1, enum_precision_parameter=0.001,
                  refine_structure=False):
@@ -289,7 +288,13 @@ class EnumlibAdaptor(object):
         rs.communicate()
         if len(self.ordered_sites) > 0:
             original_latt = self.ordered_sites[0].lattice
-            ordered_structure = Structure.from_sites(self.ordered_sites)
+            # Need to strip sites of site_properties, which would otherwise
+            # result in an index error. Hence Structure is reconstructed in
+            # the next step.
+            ordered_structure = Structure(
+                original_latt,
+                [site.species_and_occu for site in self.ordered_sites],
+                [site.frac_coords for site in self.ordered_sites])
             inv_org_latt = np.linalg.inv(original_latt.matrix)
 
         for n in range(1, num_structs + 1):
@@ -311,9 +316,9 @@ class EnumlibAdaptor(object):
                     transformation = [[int(round(cell)) for cell in row]
                                       for row in transformation]
                     logger.debug("Supercell matrix: {}".format(transformation))
-                    maker = SupercellMaker(ordered_structure, transformation)
-                    sites.extend([site.to_unit_cell
-                                  for site in maker.modified_structure])
+                    s = Structure.from_sites(ordered_structure)
+                    s.make_supercell(transformation)
+                    sites.extend([site.to_unit_cell for site in s])
                     super_latt = sites[-1].lattice
                 else:
                     super_latt = new_latt

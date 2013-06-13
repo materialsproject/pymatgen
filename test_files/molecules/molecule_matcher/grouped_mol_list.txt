@@ -1,0 +1,1 @@
+[['t3.xyz', 't2.xyz', 't1.xyz'], ['toluene2.xyz', 'toluene1.xyz'], ['benzene2.xyz', 'benzene1.xyz'], ['c1.xyz', 'c2.xyz'], ['cyclohexane2.xyz', 'cyclohexane1.xyz'], ['ethene1.xyz', 'ethene2.xyz'], ['j1.xyz', 'j2.xyz'], ['oxygen1.xyz', 'oxygen2.xyz'], ['t5.xyz'], ['t4.xyz']]

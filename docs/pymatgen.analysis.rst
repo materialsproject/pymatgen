@@ -17,6 +17,14 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`diffusion_analyzer` Module
+--------------------------------
+
+.. automodule:: pymatgen.analysis.diffusion_analyzer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`ewald` Module
 -------------------
 
@@ -45,14 +53,6 @@ analysis Package
 -------------------------------
 
 .. automodule:: pymatgen.analysis.structure_matcher
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`symmetry_fitter` Module
------------------------------
-
-.. automodule:: pymatgen.analysis.symmetry_fitter
     :members:
     :undoc-members:
     :show-inheritance:

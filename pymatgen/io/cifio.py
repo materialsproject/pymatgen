@@ -152,7 +152,7 @@ class CifParser(object):
         #rescale occupancies if necessary
         for species in allspecies:
             totaloccu = sum(species.values())
-            if  1 < totaloccu <= self._occupancy_tolerance:
+            if 1 < totaloccu <= self._occupancy_tolerance:
                 for key, value in species.iteritems():
                     species[key] = value / totaloccu
 
@@ -178,7 +178,7 @@ class CifParser(object):
         for k, v in self._cif.items():
             try:
                 structures.append(self._get_structure(v, primitive))
-            except KeyError:
+            except KeyError as ex:
                 pass
         return structures
 

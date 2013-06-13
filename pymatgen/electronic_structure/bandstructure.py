@@ -822,8 +822,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for spin in self._projections}
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Args:
             A dict with all data for a band structure symm line object.

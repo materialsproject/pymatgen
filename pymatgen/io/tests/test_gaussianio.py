@@ -20,7 +20,7 @@ from pymatgen import Molecule
 from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                        'test_files')
+                        'test_files', "molecules")
 
 
 class GaussianInputTest(unittest.TestCase):
@@ -34,9 +34,9 @@ class GaussianInputTest(unittest.TestCase):
                   [-0.513360, 0.889165, -0.363000]]
         self.coords = coords
         mol = Molecule(["C", "H", "H", "H", "H"], coords)
-        self.gau = GaussianInput(mol,
-                                 route_parameters={'SP': "", "SCF": "Tight"},
-                                 input_parameters={"EPS": 12})
+        self.gau = GaussianInput(
+            mol, route_parameters={'SP': "", "SCF": "Tight"},
+            input_parameters={"EPS": 12})
 
     def test_init(self):
         mol = Molecule(["C", "H", "H", "H", "H"], self.coords)
@@ -98,6 +98,7 @@ EPS=12
                 mol = gau.molecule
         ans = """Molecule Summary (H4 O2)
 Reduced Formula: H2O
+Charge = 0, Spin Mult = 1
 Sites (6)
 1 O     0.000000     0.000000     0.000000
 2 O     0.000000     0.000000     2.912902

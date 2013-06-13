@@ -60,7 +60,7 @@ class Substitutor(MSONable):
         returns the species in the domain of the probability function
         any other specie will not work
         """
-        return self._sp.species_list
+        return self._sp.species
 
     def pred_from_structures(self, target_species, structures_list,
                              remove_duplicates=True):
@@ -97,13 +97,13 @@ class Substitutor(MSONable):
                 #and the probability of subst. is above the threshold
                 els = s['structure'].composition.elements
                 if len(els) == len(permut) and \
-                   len(list(set(els) & set(self.get_allowed_species()))) == \
+                    len(list(set(els) & set(self.get_allowed_species()))) == \
                         len(els) and self._sp.cond_prob_list(permut, els) > \
                         self._threshold:
 
                     clean_subst = {els[i]: permut[i]
-                         for i in xrange(0, len(els))
-                         if els[i] != permut[i]}
+                                   for i in xrange(0, len(els))
+                                   if els[i] != permut[i]}
 
                     if len(clean_subst) == 0:
                         continue
@@ -120,9 +120,10 @@ class Substitutor(MSONable):
                         )
                         result.append(ts)
                         transmuter.append_transformed_structures([ts])
+
         if remove_duplicates:
-            transmuter.apply_filter(RemoveDuplicatesFilter(symprec=\
-                                                           self._symprec))
+            transmuter.apply_filter(RemoveDuplicatesFilter(
+                symprec=self._symprec))
         return transmuter.transformed_structures
 
     @staticmethod
@@ -164,7 +165,7 @@ class Substitutor(MSONable):
         max_probabilities = []
         for s2 in species_list:
             max_p = 0
-            for s1 in self._sp.species_list:
+            for s1 in self._sp.species:
                 max_p = max([self._sp.cond_prob(s1, s2), max_p])
             max_probabilities.append(max_p)
         output = []
@@ -180,7 +181,7 @@ class Substitutor(MSONable):
                         'probability': reduce(mul, best_case_prob)}
                     output.append(odict)
                     return
-                for sp in self._sp.species_list:
+                for sp in self._sp.species:
                     i = len(output_prob)
                     prob = self._sp.cond_prob(sp, species_list[i])
                     _recurse(output_prob + [prob], output_species + [sp])
@@ -215,8 +216,8 @@ class Substitutor(MSONable):
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         t = d['threshold']
         kwargs = d['kwargs']
-        return Substitutor(threshold=t, **kwargs)
+        return cls(threshold=t, **kwargs)

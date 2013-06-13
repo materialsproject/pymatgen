@@ -19,6 +19,7 @@ import re
 import logging
 import multiprocessing
 import sys
+import datetime
 
 from collections import OrderedDict
 
@@ -34,7 +35,7 @@ from pymatgen.io.vaspio_set import MPVaspInputSet, MITVaspInputSet
 from pymatgen.io.smartio import read_structure, write_structure
 from pymatgen.io.cssrio import Cssr
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.alchemy.transmuters import StandardTransmuter
+from pymatgen.alchemy.materials import TransformedStructure
 
 save_file = "vasp_data.gz"
 
@@ -59,7 +60,10 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
             + " Use -f to force re-analysis."
         queen.load_data(save_file)
     else:
-        queen.parallel_assimilate(rootdir)
+        if ncpus > 1:
+            queen.parallel_assimilate(rootdir)
+        else:
+            queen.serial_assimilate(rootdir)
         msg = "Analysis results saved to {} for faster ".format(save_file) + \
               "subsequent loading."
         queen.save_data(save_file)
@@ -157,7 +161,10 @@ def plot_dos(args):
 
     plotter = DosPlotter()
     plotter.add_dos_dict(all_dos)
-    plotter.show()
+    if args.file:
+        plotter.get_plot().savefig(args.file[0])
+    else:
+        plotter.show()
 
 
 def plot_chgint(args):
@@ -234,12 +241,20 @@ def convert_fmt(args):
             c.write_file(out_filename)
         elif oformat == "VASP":
             input_set = MPVaspInputSet()
-            transmuter = StandardTransmuter.from_structures([structure], [])
-            transmuter.write_vasp_input(input_set, output_dir=out_filename)
+            ts = TransformedStructure(
+                structure, [],
+                history=[{"source": "file",
+                          "datetime": str(datetime.datetime.now()),
+                          "original_file": open(filename).read()}])
+            ts.write_vasp_input(input_set, output_dir=out_filename)
         elif oformat == "MITVASP":
             input_set = MITVaspInputSet()
-            transmuter = StandardTransmuter.from_structures([structure], [])
-            transmuter.write_vasp_input(input_set, output_dir=out_filename)
+            ts = TransformedStructure(
+                structure, [],
+                history=[{"source": "file",
+                          "datetime": str(datetime.datetime.now()),
+                          "original_file": open(filename).read()}])
+            ts.write_vasp_input(input_set, output_dir=out_filename)
 
     except Exception as ex:
         print "Error converting file. Are they in the right format?"
@@ -359,14 +374,16 @@ if __name__ == "__main__":
     parser_plot.add_argument("filename", metavar="filename", type=str, nargs=1,
                              help="vasprun.xml file to plot")
     parser_plot.add_argument("-s", "--site", dest="site", action="store_const",
-                             const=True, help="plot site projected DOS")
+                             const=True, help="Plot site projected DOS")
     parser_plot.add_argument("-e", "--element", dest="element", type=str,
                              nargs=1,
                              help="List of elements to plot as comma-separated"
                              " values e.g., Fe,Mn")
     parser_plot.add_argument("-o", "--orbital", dest="orbital",
                              action="store_const", const=True,
-                             help="plot orbital projected DOS")
+                             help="Plot orbital projected DOS")
+    parser_plot.add_argument("-f", "--file", dest="file", type=str, nargs=1,
+                             help="Save to file.")
     parser_plot.set_defaults(func=plot_dos)
 
     parser_plotchg = subparsers.add_parser("plotchgint",
