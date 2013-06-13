@@ -198,7 +198,7 @@ class TransformedStructure(MSONable):
             create_directory:
                 Create the directory if not present. Defaults to True.
         """
-        vasp_input_set.write_input(self._structures[-1], output_dir,
+        vasp_input_set.write_input(self.final_structure, output_dir,
                                    make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
             json.dump(self.to_dict, fp)
@@ -227,7 +227,7 @@ class TransformedStructure(MSONable):
         is in the case of performing a substitution transformation on the
         structure when the specie to replace isn't in the structure.
         """
-        return not self._structures[-1] == self._structures[-2]
+        return not self.final_structure == self.structures[-2]
     
     @property
     def structures(self):
@@ -235,7 +235,8 @@ class TransformedStructure(MSONable):
         Returns a copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
-        hstructs = [Structure.from_dict(s['input_structure']) for s in self.history]
+        hstructs = [Structure.from_dict(s['input_structure']) for s in self.history \
+                    if 'input_structure' in s]
         return hstructs + [self.final_structure]
             
     @staticmethod
