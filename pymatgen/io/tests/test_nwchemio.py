@@ -39,7 +39,25 @@ class NwTaskTest(unittest.TestCase):
     def setUp(self):
         self.task = NwTask(mol, theory_directives={"xc": "b3lyp"})
 
+    def test_multi_bset(self):
+        t = NwTask(mol, basis_set={"C": "6-311++G**", "H": "6-31++G**"},
+                   theory_directives={"xc": "b3lyp"})
+        ans = """title "H4C1 dft optimize"
+charge 0
+basis
+ H library 6-31++G**
+ C library 6-311++G**
+end
+dft
+ xc b3lyp
+end
+task dft optimize"""
+        self.assertEqual(str(t), ans)
+        self.assertRaises(NwInputError, NwTask, mol,
+                          basis_set={"H": "6-31++G**"})
+
     def test_str_and_from_string(self):
+
         ans = """title "H4C1 dft optimize"
 charge 0
 basis
