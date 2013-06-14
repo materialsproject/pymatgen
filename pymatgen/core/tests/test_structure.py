@@ -614,6 +614,8 @@ class MoleculeTest(PymatgenTest):
                        [0, -.780362, -.456316]])
         self.mol.substitute(1, oh)
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.43)
+        self.mol.substitute(3, "methyl")
+        self.assertEqual(self.mol.formula, "H7 C3 O1 F1")
 
 if __name__ == '__main__':
     import unittest
