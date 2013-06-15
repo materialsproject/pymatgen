@@ -60,7 +60,10 @@ def get_energies(rootdir, reanalyze, verbose, pretty, detailed, sort):
             + " Use -f to force re-analysis."
         queen.load_data(save_file)
     else:
-        queen.parallel_assimilate(rootdir)
+        if ncpus > 1:
+            queen.parallel_assimilate(rootdir)
+        else:
+            queen.serial_assimilate(rootdir)
         msg = "Analysis results saved to {} for faster ".format(save_file) + \
               "subsequent loading."
         queen.save_data(save_file)

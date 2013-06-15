@@ -39,7 +39,7 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 30, 2012"
 
 import json
-from abc import ABCMeta, abstractproperty, abstractmethod
+from abc import ABCMeta, abstractproperty
 import datetime
 
 from pymatgen.util.io_utils import zopen
@@ -167,7 +167,7 @@ class PMGJSONDecoder(json.JSONDecoder):
                                                         "%Y-%m-%d %H:%M:%S.%f")
                     except ValueError:
                         dt = datetime.datetime.strptime(d["string"],
-                                                      "%Y-%m-%d %H:%M:%S")
+                                                        "%Y-%m-%d %H:%M:%S")
                     return dt
                 mod = __import__(modname, globals(), locals(), [classname], -1)
                 if hasattr(mod, classname):
