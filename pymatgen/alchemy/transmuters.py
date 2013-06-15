@@ -210,7 +210,7 @@ class StandardTransmuter(object):
                 The value for the parameter.
         """
         for x in self.transformed_structures:
-            x.set_parameter(key, value)
+            x.other_parameters[key] = value
 
     def add_tags(self, tags):
         """
@@ -226,7 +226,7 @@ class StandardTransmuter(object):
     def __str__(self):
         output = ["Current structures", "------------"]
         for x in self.transformed_structures:
-            output.append(str(x._structures[-1]))
+            output.append(str(x.final_structure))
         return "\n".join(output)
 
     def append_transformed_structures(self, tstructs_or_transmuter):
