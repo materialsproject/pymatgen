@@ -145,3 +145,10 @@ def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
                        scr_strategy, sigma_strategy)
 
 ################################################################################
+
+
+#def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa,
+#                 nscf_nband, ecuteps, ecutsigx, accuracy="normal",
+#                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+#                 ppmodel="godby", charge=0.0, scf_solver=None,
+#                 inclvkb=2, sigma_nband=None, scr_nband=None):
