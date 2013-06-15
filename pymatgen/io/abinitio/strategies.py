@@ -380,7 +380,7 @@ class NscfStrategy(Strategy):
 
 class RelaxStrategy(ScfStrategy):
 
-    def __init__(structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized", 
+    def __init__(self, structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized", 
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
         """
         Args:
@@ -390,6 +390,8 @@ class RelaxStrategy(ScfStrategy):
                 List of pseudopotentials.
             ksampling:
                 Ksampling object defining the sampling of the BZ.
+            relax_algo:
+                Object defining the algorith for the structural relaxation.
             accuracy:
                 Accuracy of the calculation.
             spin_mode: 
@@ -416,6 +418,11 @@ class RelaxStrategy(ScfStrategy):
     def make_input(self):
         # Initialize the system section from structure.
         raise NotImplementedError("")
+        input_str = super(RelaxStrategy, self).make_input()
+
+        input = InputWriter(self.relax_algo)
+        input_str += input.get_string()
+        return input_str
 
 ##########################################################################################
 

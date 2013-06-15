@@ -1337,12 +1337,10 @@ class SelfEnergy(AbivarAble):
 
 class BetheSalpeter(AbivarAble):
     """This object contains the parameters for the solution of the Bethe-Salpeter equation."""
-
     # Types of excitonic Hamiltonian.
-    # TDA refers to the Tamm-Dancoff approximation.
     _EXC_TYPES = {
-        "TDA": 0,
-        "coupling": 1,
+        "TDA": 0,          # Tamm-Dancoff approximation.
+        "coupling": 1,     # Calculation with coupling.
     }
 
     # Algorithms used to compute the macroscopic dielectric function 
@@ -1360,8 +1358,8 @@ class BetheSalpeter(AbivarAble):
         "model_df"
         ]
 
-    def __init__(self, loband, nband, soenergy, coulomb_mode, ecuteps, mdf_epsinf=None, exc_type="TDA", with_lf=True, **kwargs):
-        # FIXME spin!, loband(nsppol)?
+    def __init__(self, loband, nband, soenergy, coulomb_mode, ecuteps, bs_freq_mesh, mdf_epsinf=None, 
+                exc_type="TDA", with_lf=True, zcut=None, **kwargs):
         """
         Args:
             loband: 
@@ -1374,6 +1372,8 @@ class BetheSalpeter(AbivarAble):
                 Treatment of the Coulomb term.
             ecuteps: 
                 Cutoff energy for W in Hartree.
+            bs_freq_mesh:
+                Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
             mdf_epsinf: 
                 Macroscopic dielectric function :math:`\espilon_\inf` used in 
                 the model dielectric function.
@@ -1381,6 +1381,8 @@ class BetheSalpeter(AbivarAble):
                 Approximation used for the BSE Hamiltonian
             with_lf:
                 True if local field effects are includes <==> exchange term is included
+            zcut:
+                Broadening parameter in Ha.
             **kwargs:
                 Extra keywords
         """
@@ -1390,10 +1392,12 @@ class BetheSalpeter(AbivarAble):
         self.coulomb_mode - coulomb_mode
         assert coulomb_mode in self._COULOMB_MODES
         self.ecuteps = ecuteps
+        self.bs_freq_mesh = np.array(bs_freq_mesh)
         self.mdf_epsinf = mdf_epsinf
         self.exc_type = exc_type
         assert exc_type in self._EXC_TYPES
         self.with_lf = with_lf
+        self.zcut = zcut
 
         # TODO
         self.chksymbreak = 0
@@ -1434,8 +1438,10 @@ class BetheSalpeter(AbivarAble):
             nband=self.nband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
+            bs_freq_mesh=self.bs_freq_mesh,
             inclvkb=self.inclvkb,
             bs_exchange_term=1 if with_lf else 0,
+            zcut=self.zcut
             #mdf_epsinf=self.mdf_epsinf,
             )
 

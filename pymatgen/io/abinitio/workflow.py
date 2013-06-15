@@ -1132,3 +1132,56 @@ class GW_Workflow(Workflow):
         self.register_task(sigma_strategy, links=sigma_links)
 
 ################################################################################
+
+class BSE_Workflow(Workflow):
+
+    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, bse_strategy): 
+        # gw_strategies=None):
+        """
+        Workflow for GW calculations.
+
+        Args:
+            workdir:
+                Working directory of the calculation.
+            runmode:
+                Run mode.
+            scf_strategy:
+                SCFStrategy instance
+            nscf_strategy:
+                NSCFStrategy instance
+            bse_strategy:
+                BSEStrategy instance.
+        """
+        #    scr_strategy:
+        #        Strategy for the screening run.
+        #    sigma_strategy:
+        #        Strategy for the self-energy run.
+        super(BSE_Workflow, self).__init__(workdir, runmode)
+
+        # Register the GS-SCF run.
+        scf_link = self.register_task(scf_strategy)
+
+        # Construct the input for the NSCF run.
+        nscf_link = self.register_task(nscf_strategy,
+                                       links=scf_link.produces_exts("_DEN"))
+        #if gw_strategies is not None:
+            # Construct the input for the NSCF run.
+            #nscf_strategy = gw_strategies[0]
+            #nscf_link = self.register_task(nscf_strategy,
+            #                               links=scf_link.produces_exts("_DEN"))
+
+            # Register the SCR run.
+            #scr_strategy = gw_strategies[0]
+            #screen_link = self.register_task(scr_strategy,
+            #                                links=nscf_link.produces_exts("_WFK"))
+
+            # Register the SIGMA run.
+            #sigma_strategy = gw_strategies[1]
+            #sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
+
+            #self.register_task(sigma_strategy, links=sigma_links)
+
+        # Construct the input for the NSCF run.
+        bse_link = self.register_task(bse_strategy,
+                                      links=nscf_link.produces_exts("_WFK"))
+
