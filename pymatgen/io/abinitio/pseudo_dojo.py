@@ -8,7 +8,7 @@ import numpy as np
 from pprint import pprint
 
 from pymatgen.util.num_utils import sort_dict
-from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
+from pymatgen.serializers.json_coders import json_pretty_dump
 from pymatgen.io.abinitio.task import RunMode
 from pymatgen.io.abinitio.pseudos import Pseudo
 from pymatgen.io.abinitio.launcher import SimpleResourceManager

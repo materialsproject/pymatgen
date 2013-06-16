@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from __future__ import division, print_function
 
 import sys
@@ -7,7 +6,6 @@ import os.path
 import collections
 import numpy as np
 
-from pymatgen.io.abinitio.abiobjects import Smearing
 from pymatgen.io.abinitio.workflow import DeltaTest
 
 try:
@@ -30,7 +28,14 @@ class DeltaFactory(object):
     Error = DeltaFactoryError
 
     def __init__(self):
-        self.delta_data = DeltaFactorDataset()
+        self._delta_data = DeltaFactorDataset()
+
+    def get_cif_path(self, symbol):
+        """Returns the path to the CIF file associated to the given symbol."""
+        try:
+            return self._delta_data.cif_paths[symbol]
+        except KeyError:
+            raise CIFNotFoundError("%s: cannot find CIF file for symbol" % symbol)
 
     def work_for_pseudo(self, workdir, runmode, pseudo, accuracy="normal", kppa=6750, 
         ecut=None, smearing="fermi_dirac:0.0005"):
@@ -40,11 +45,12 @@ class DeltaFactory(object):
         :Note: 0.001 Rydberg is the value used with WIEN2K
         """
         try:
-            cif_path = self.delta_data.cif_paths[pseudo.symbol]
-        except KeyError:
-            raise CIFNotFoundError("%s: cannot find CIF file for pseudo" % pseudo.name)
+            cif_path = self.get_cif_path[pseudo.symbol]
+        except CIFNotFoundError:
+            raise 
 
-        # Include spin polarization for O, Cr and Mn (antiferromagnetic) and Fe, Co, and Ni (ferromagnetic). 
+        # Include spin polarization for O, Cr and Mn (antiferromagnetic) 
+        # and Fe, Co, and Ni (ferromagnetic). 
         spin_mode = "unpolarized"
 
         if pseudo.symbol in ["Fe", "Co", "Ni"]: spin_mode = "polarized"
