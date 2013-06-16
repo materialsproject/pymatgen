@@ -200,7 +200,6 @@ class NwOutputTest(unittest.TestCase):
 
         self.assertEqual(0, nwo.data[0]["Charge"])
         self.assertEqual(-1, nwo.data[-1]["Charge"])
-
         self.assertAlmostEqual(-1102.622361621359, nwo.data[0]["energies"][-1])
         self.assertAlmostEqual(-1102.9985415777337, nwo.data[2]["energies"][-1])
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])

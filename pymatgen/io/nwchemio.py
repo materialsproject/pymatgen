@@ -303,9 +303,9 @@ class NwOutput(object):
                                 "([\.\-\d]+)\s+([\.\-\d]+)")
         corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
                                       "\s+([\.\-\d]+)")
-        preamble_patt = re.compile("(No. of atoms|No. of "
-                                   "electrons|Charge|Spin "
-                                   "multiplicity)\s*:\s*([\-\d]+)")
+        preamble_patt = re.compile("(No. of atoms|No. of electrons"
+                                   "|SCF calculation type|Charge|Spin "
+                                   "multiplicity)\s*:\s*(\S+)")
 
         data = {}
         energies = []
@@ -336,7 +336,12 @@ class NwOutput(object):
 
                 m = preamble_patt.search(l)
                 if m:
-                    data[m.group(1)] = int(m.group(2))
+                    try:
+                        val = int(m.group(2))
+                    except ValueError:
+                        val = m.group(2)
+                    k = m.group(1).replace("No. of ", "n").replace(" ", "_")
+                    data[k] = val
                 elif l.find("Geometry \"geometry\"") != -1:
                     parse_geom = True
                 elif job_type == "" and l.strip().startswith("NWChem"):
