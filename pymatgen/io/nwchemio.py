@@ -146,7 +146,7 @@ class NwTask(MSONable):
              "charge {}".format(self.charge),
              "basis"]
         for el, bset in self.basis_set.items():
-            o.append(" {} library {}".format(el, bset))
+            o.append(" {} library \"{}\"".format(el, bset))
         o.append("end")
         if self.theory_directives:
             o.append("{}".format(self.theory))
