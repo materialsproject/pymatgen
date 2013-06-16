@@ -286,7 +286,6 @@ class NwOutput(object):
         chunks = re.split("NWChem Input Module", data)
         chunks.pop()
         preamble = chunks.pop(0)
-
         self.job_info = self._parse_preamble(preamble)
         self.data = map(self._parse_job, chunks)
 
@@ -304,7 +303,11 @@ class NwOutput(object):
                                 "([\.\-\d]+)\s+([\.\-\d]+)")
         corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
                                       "\s+([\.\-\d]+)")
+        preamble_patt = re.compile("(No. of atoms|No. of "
+                                   "electrons|Charge|Spin "
+                                   "multiplicity)\s*:\s*([\-\d]+)")
 
+        data = {}
         energies = []
         corrections = {}
         molecules = []
@@ -329,6 +332,11 @@ class NwOutput(object):
                 m = energy_patt.search(l)
                 if m:
                     energies.append(float(m.group(1)) * phyc.Ha_eV)
+                    continue
+
+                m = preamble_patt.search(l)
+                if m:
+                    data[m.group(1)] = int(m.group(2))
                 elif l.find("Geometry \"geometry\"") != -1:
                     parse_geom = True
                 elif job_type == "" and l.strip().startswith("NWChem"):
@@ -339,6 +347,8 @@ class NwOutput(object):
                         corrections[m.group(1)] = float(m.group(2)) / \
                             phyc.EV_PER_ATOM_TO_KJ_PER_MOL
 
-        return {"job_type": job_type, "energies": energies,
-                "corrections": corrections,
-                "molecules": molecules}
+        data.update({"job_type": job_type, "energies": energies,
+                     "corrections": corrections,
+                     "molecules": molecules})
+
+        return data
