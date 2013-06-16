@@ -45,16 +45,6 @@ class FrozenDict(dict):
         for (k, v) in dict(*args, **kwargs).iteritems():
             self[k] = v
 
-def nested_dict_items(nested):
-    "Iterate over the items of a nested Mapping (e.g. a dictionary)."
-
-    for (key, value) in nested.items():
-        if isinstance(value, collections.Mapping):
-            for (inner_key, inner_value) in nested_dict_items(value):
-                yield inner_key, inner_value
-        else:
-            yield key, value
-
 def _read_nlines(filename, nlines):
     """
     Read at most nlines lines from file filename.
