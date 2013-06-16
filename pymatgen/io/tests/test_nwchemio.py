@@ -45,8 +45,8 @@ class NwTaskTest(unittest.TestCase):
         ans = """title "H4C1 dft optimize"
 charge 0
 basis
- H library 6-31++G**
- C library 6-311++G**
+ H library "6-31++G**"
+ C library "6-311++G**"
 end
 dft
  xc b3lyp
@@ -61,8 +61,8 @@ task dft optimize"""
         ans = """title "H4C1 dft optimize"
 charge 0
 basis
- H library 6-31++G**
- C library 6-31++G**
+ H library "6-31++G**"
+ C library "6-31++G**"
 end
 dft
  xc b3lyp
@@ -84,8 +84,8 @@ task dft optimize"""
         ans = """title "H4C1 dft energy"
 charge 1
 basis
- H library 6-31++G**
- C library 6-31++G**
+ H library "6-31++G**"
+ C library "6-31++G**"
 end
 dft
  xc b3lyp
@@ -126,8 +126,8 @@ end
 title "H4C1 dft optimize"
 charge 0
 basis
- H library 6-31++G*
- C library 6-31++G*
+ H library "6-31++G*"
+ C library "6-31++G*"
 end
 dft
  xc b3lyp
@@ -138,8 +138,8 @@ task dft optimize
 title "H4C1 dft freq"
 charge 0
 basis
- H library 6-31++G*
- C library 6-31++G*
+ H library "6-31++G*"
+ C library "6-31++G*"
 end
 dft
  xc b3lyp
@@ -150,8 +150,8 @@ task dft freq
 title "H4C1 dft energy"
 charge 0
 basis
- H library 6-311++G**
- C library 6-311++G**
+ H library "6-311++G**"
+ C library "6-311++G**"
 end
 dft
  xc b3lyp
@@ -162,8 +162,8 @@ task dft energy
 title "H4C1 dft energy"
 charge 1
 basis
- H library 6-311++G**
- C library 6-311++G**
+ H library "6-311++G**"
+ C library "6-311++G**"
 end
 dft
  xc b3lyp
@@ -174,8 +174,8 @@ task dft energy
 title "H4C1 dft energy"
 charge -1
 basis
- H library 6-311++G**
- C library 6-311++G**
+ H library "6-311++G**"
+ C library "6-311++G**"
 end
 dft
  xc b3lyp
