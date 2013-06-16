@@ -322,6 +322,7 @@ def structure_from_etsf_file(ncdata, site_properties=None):
         ncdata:
             filename or NetcdfReader instance.
         site_properties:
+            Dictionary with site properties.
     """
     ncdata, closeit = as_ncreader(ncdata)
 

@@ -1477,11 +1477,11 @@ class BetheSalpeter(AbivarAble):
 
 class Perturbation(AbivarAble):
     """
-    Base class for perturbations: a base perturbatins is 
-    essentially defined by a q-point in reduced coordinates.
-    Subclasses should extend the base method to_abivars.
-    and provide the method `suggested_kptopt` that returns 
-    the value of kptopt that can be used to sample the Brillouin zone.
+    Base class for perturbations: a base perturbatins is essentially defined 
+    by a q-point in reduced coordinates.
+
+    Subclasses should extend the base method to_abivars and provide the method `suggested_kptopt` 
+    that returns the value of kptopt that can be used to sample the Brillouin zone.
     """
     def __init__(self, qpt):
         """
@@ -1513,13 +1513,14 @@ class PhononPerturbation(Perturbation):
     along which the atom is moved.
 
     Example::
-        # Response-function calculation, with q=0
-          rfphon   1            # Will consider phonon-type perturbation
-         rfatpol   1 2          # All the atoms will be displaced
-           rfdir   1 1 1        # Along all reduced coordinate axis
-            nqpt   1            # One wavevector is to be considered
-             qpt   0 0 0        # This wavevector is q=0 (Gamma)
-          kptopt   2            # Automatic generation of k points, taking
+
+         # Response-function calculation, with q=0
+         rfphon  1            # Will consider phonon-type perturbation
+         rfatpol 1 2          # All the atoms will be displaced
+         rfdir   1 1 1        # Along all reduced coordinate axis
+         nqpt    1            # One wavevector is to be considered
+         qpt     0 0 0        # This wavevector is q=0 (Gamma)
+         kptopt  2            # Automatic generation of k points, taking
     """
     def __init__(self, qpt, rfatpol, rfdir):
         super(PhononPert, self).__init__(qpt)
@@ -1604,9 +1605,9 @@ class IFC(AbivarAble):
             q1shfts:
                 Monkhorst-Pack shifts.
             ifcflag:
-                Interatomic force constant flag
+                Interatomic force constant flag.
             brav:
-                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex
+                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex.
         """
         self.ddb_filename = os.path.abspath(ddb_filename)
         if not os.path.exists(self.ddb_filename):
@@ -1639,26 +1640,13 @@ class IFC(AbivarAble):
         """
         Args:
             asr:
-                Acoustic Sum Rule. 1 => imposed asymetrically
+                Acoustic Sum Rule. 1 to impose it asymetrically.
             chneut:
                 Charge neutrality requirement for effective charges.
             dipdip:
-                Dipole-dipole interaction treatment
+                Dipole-dipole interaction treatment.
             symdinmat:
-
-            !Wavevector list number 1 (Reduced coordinates and normalization factor)
-            nph1l    71      ! number of phonons in list 1
-            qph1l   0.0000  0.0000  0.0000   1.0    !(gamma point)
-
-            !Wavevector list number 2 (Cartesian directions for non-analytic gamma phonons)
-            !The output for this calculation must be cut-and-pasted into the
-            ! t59_out.freq file to be used as band2eps input to get proper LO-TO
-            ! splitting at gamma.  Note that gamma occurrs twice.
-
-            nph2l    1       ! number of directions in list 2
-            qph2l   1.0  0.0  0.0    0.0
-            # This line added when defaults were changed (v5.3) to keep the previous, old behaviour
-            symdynmat 0
+                TODO
         """
         # Build input for anaddb. Variables are stored in the dict d.
         d = {
