@@ -206,6 +206,16 @@ class NwOutputTest(unittest.TestCase):
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
         self.assertAlmostEqual(-14.997876767843081, ea)
+        self.assertEqual(nwo.data[4]["basis_set"]["C"]["Description"],
+                         "6-311++G**")
+
+        nwo = NwOutput(os.path.join(test_dir, "H4C3O3_1.nwout"))
+        self.assertTrue(nwo.data[-1]["has_error"])
+        self.assertEqual(nwo.data[-1]["errors"][0], "Bad convergence")
+
+        nwo = NwOutput(os.path.join(test_dir, "C1N1Cl1_1.nwout"))
+        self.assertTrue(nwo.data[-1]["has_error"])
+        self.assertEqual(nwo.data[-1]["errors"][0], "autoz error")
 
 
 if __name__ == "__main__":
