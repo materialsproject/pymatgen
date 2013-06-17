@@ -15,6 +15,9 @@ from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure, Molecule
+from pymatgen.io.smartio import read_structure
+
+from .netcdf import structure_from_etsf_file
 
 ##########################################################################################
 
@@ -337,11 +340,9 @@ def asabistructure(obj):
         if os.path.isfile(obj):
 
             if obj.endswith(".nc"):
-                from .netcdf import structure_from_etsf_file
                 structure = structure_from_etsf_file(obj)
                 print(structure._sites)
             else:
-                from pymatgen.io.smartio import read_structure
                 structure = read_structure(obj)
 
             # Promote
@@ -1487,10 +1488,10 @@ class ExcHamiltonian(AbivarAble):
 
 class Perturbation(AbivarAble):
     """
-    Base class for perturbations: a base perturbatins is essentially defined 
+    Base class for perturbations: a base perturbation is essentially defined 
     by a q-point in reduced coordinates.
 
-    Subclasses should extend the base method to_abivars and provide the method `suggested_kptopt` 
+    Subclasses should extend the base method `to_abivars` and provide the method `suggested_kptopt` 
     that returns the value of kptopt that can be used to sample the Brillouin zone.
     """
     def __init__(self, qpt):
@@ -1521,19 +1522,9 @@ class PhononPerturbation(Perturbation):
     A phonon perturbation is specified by the q-point in reduced 
     coordinates, the index of the displaced atom and the reduced direction.
     along which the atom is moved.
-
-    Example::
-
-         # Response-function calculation, with q=0
-         rfphon  1            # Will consider phonon-type perturbation
-         rfatpol 1 2          # All the atoms will be displaced
-         rfdir   1 1 1        # Along all reduced coordinate axis
-         nqpt    1            # One wavevector is to be considered
-         qpt     0 0 0        # This wavevector is q=0 (Gamma)
-         kptopt  2            # Automatic generation of k points, taking
     """
     def __init__(self, qpt, rfatpol, rfdir):
-        super(PhononPert, self).__init__(qpt)
+        super(PhononPerturbation, self).__init__(qpt)
         self.rfatpol = rfatpol
         self.rfdir = np.reshape(rfdir, (3,))
 
@@ -1548,13 +1539,24 @@ class PhononPerturbation(Perturbation):
             return 3
 
     def to_abivars(self):
-        abivars = super(PhononPert, self).to_abivars()
+        #Example::
+        #                                                                     
+        # Response-function calculation, with q=0
+        # rfphon  1        # Will consider phonon-type perturbation
+        # rfatpol 1 2      # All the atoms will be displaced
+        # rfdir   1 1 1    # Along all reduced coordinate axis
+        # nqpt    1        # One wavevector is to be considered
+        # qpt     0 0 0    # This wavevector is q=0 (Gamma)
+        # kptopt  2        # Automatic generation of k points (time-reversal symmetry only)
+
+        abivars = super(PhononPertubation, self).to_abivars()
 
         abivars.extend(dict(
             rfphon=1,             
             rfatpol=self.rfatpol, 
             rfdir=self.rfdir,
         ))
+
         return abivars
 
 
@@ -1564,8 +1566,8 @@ class DDKPerturbation(Perturbation):
     coordinates, and the direction in k-space.
     """
     def __init__(self, rfdir):
-        # This is a calculation at the Gamma point
-        super(PhononPert, self).__init__(qpt=[0.0, 0.0, 0.0])
+        # Calculation at the Gamma point
+        super(DDKPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
         self.rfdir = np.reshape(rfdir, (3,))
 
     @property
@@ -1573,7 +1575,7 @@ class DDKPerturbation(Perturbation):
         return 2
 
     def to_abivars(self):
-        abivars = super(PhononPert, self).to_abivars()
+        abivars = super(DDKPert, self).to_abivars()
 
         abivars.extend(dict(
             rfelfd=2,           # Activate the calculation of the d/dk perturbation
@@ -1581,16 +1583,24 @@ class DDKPerturbation(Perturbation):
         ))
         return abivars
 
-#class ElectricPerturbation(Perturbation):
-#class ElasticPerturbation(Perturbation):
+#class ElectricPertunation(Perturbation):
+#    def __init__(self, rfdir):
+#        # Calculation at the Gamma point
+#        super(ElectricPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
+
+#class ElasticPertubation(Perturbation):
+#    def __init__(self, rfdir):
+#        # Calculation at the Gamma point
+#        super(ElasticPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
+
 
 def irred_perturbations(input, qpoint):
     """
-    This function computes the list of irreducible perturbations for the given q-point.
+    This function returns the list of irreducible perturbations at the given q-point.
     """
     # Call abinit to get the irred perturbations.
     # TODO
-    #pertinfo = get_pertinfo()
+    #pert_info = get_pert_info()
 
     # Initialize the list of irreducible perturbations.
     perts = []
@@ -1631,12 +1641,13 @@ class IFC(AbivarAble):
         self.nqshft = len(self.q1shft)
 
     def to_abivars(self):
+
         d = dict(
             ifcflag=self.ifcflag,
             brav=self.brav,
             ngqpt="%d %d %d" % tuple(q for q in self.ngqpt),
             nqshft=self.nqshft,
-        )
+            )
 
         lines = []
         for shift in self.q1shfts:
