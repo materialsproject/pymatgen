@@ -198,15 +198,15 @@ class NwOutputTest(unittest.TestCase):
     def test_read(self):
         nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
 
-        self.assertEqual(0, nwo.data[0]["Charge"])
-        self.assertEqual(-1, nwo.data[-1]["Charge"])
+        self.assertEqual(0, nwo.data[0]["charge"])
+        self.assertEqual(-1, nwo.data[-1]["charge"])
         self.assertAlmostEqual(-1102.622361621359, nwo.data[0]["energies"][-1])
         self.assertAlmostEqual(-1102.9985415777337, nwo.data[2]["energies"][-1])
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
         self.assertAlmostEqual(-14.997876767843081, ea)
-        self.assertEqual(nwo.data[4]["basis_set"]["C"]["Description"],
+        self.assertEqual(nwo.data[4]["basis_set"]["C"]["description"],
                          "6-311++G**")
 
         nwo = NwOutput(os.path.join(test_dir, "H4C3O3_1.nwout"))

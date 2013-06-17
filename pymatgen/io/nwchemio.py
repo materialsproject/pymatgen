@@ -348,6 +348,7 @@ class NwOutput(object):
                     elif toks[0] == "Tag":
                         bset_header = toks
                         bset_header.pop(4)
+                        bset_header = [h.lower() for h in bset_header]
             else:
                 m = energy_patt.search(l)
                 if m:
@@ -361,7 +362,7 @@ class NwOutput(object):
                     except ValueError:
                         val = m.group(2)
                     k = m.group(1).replace("No. of ", "n").replace(" ", "_")
-                    data[k] = val
+                    data[k.lower()] = val
                 elif l.find("Geometry \"geometry\"") != -1:
                     parse_geom = True
                 elif l.find("Summary of \"ao basis\"") != -1:
