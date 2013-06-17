@@ -107,7 +107,7 @@ def get_abinit_psp_dir(code="ABINIT"):
     return None
 
 ##########################################################################################
-_periodic_table = PeriodicTable()
+_PTABLE = PeriodicTable()
 
 class Pseudo(object):
     """
@@ -178,7 +178,7 @@ class Pseudo(object):
     @property
     def element(self):
         "Pymatgen Element"
-        return _periodic_table[self.Z]
+        return _PTABLE[self.Z]
 
     @property
     def symbol(self):
@@ -232,18 +232,6 @@ class Pseudo(object):
     def has_dojo_report(self):
         "True if self contains the DOJO_REPORT section."
         return self.dojo_report
-
-    @property
-    def dojo_level(self):
-        "The maximum level of the DOJO trials passes by the pseudo."
-        if not self.dojo_report:
-            return None
-        else:
-            # FIXME
-            #from pymatgen.io.abinitio.pseudo_dojo import dojo_key2level
-            from pseudo_dojo.core.dojo import dojo_key2level
-            levels = [dojo_key2level(key) for key in self.dojo_report]
-            return max(levels)
 
     #def dojo_rank(self):
 

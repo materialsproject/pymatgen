@@ -835,7 +835,8 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 class PseudoConvergence(Workflow):
 
     def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode="sequential", spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+                 runmode="sequential", spin_mode="polarized", 
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
 
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
