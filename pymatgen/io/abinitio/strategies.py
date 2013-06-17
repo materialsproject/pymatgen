@@ -314,7 +314,7 @@ class ScfStrategy(Strategy):
 
 class NscfStrategy(Strategy):
     """
-    Strategy for non-self-consiste calculations.
+    Strategy for non-self-consistent calculations.
     """
     def __init__(self, scf_strategy, ksampling, nscf_nband, nscf_algorithm=None, **extra_abivars):
         """

@@ -213,13 +213,14 @@ def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
 ################################################################################
 
 
-def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa,
-                 nscf_nband, nscf_ngkpt, nscg_shiftk, 
-                 ecuteps, bs_loband, soenergy, mdf_epsinf, accuracy="normal",
-                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband, 
+                 nscf_ngkpt, nscg_shiftk, ecuteps, bs_loband, soenergy, mdf_epsinf, 
+                 accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                  charge=0.0, scf_solver=None):
     """
-    Returns a Work object that performs a Bethe-Salpeter calculation for the given material.
+    Returns a Work object that performs a GS + NSCF + Bethe-Salpeter calculation.
+    The self-energy corrections are approximated with the scissors operator. The screening
+    in modeled by the model dielectric function.
 
     Args:
         workdir:
@@ -272,6 +273,7 @@ def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa,
 
     # Init Strategy for the BSE calculation.
     # FIXME
+    raise NotImplementedError("")
     bs_nband = 6
     coulomb_mode = "model_df"
     bs_freq_mesh = [0, 2, 0.1]
