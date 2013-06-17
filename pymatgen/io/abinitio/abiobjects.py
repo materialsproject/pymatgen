@@ -615,7 +615,8 @@ class KSampling(AbivarAble):
     #                   )
 
     @classmethod
-    def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, use_time_reversal=True, comment=None):
+    def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, 
+                  use_time_reversal=True, comment=None):
         """
         Convenient static constructor for a Monkhorst-Pack mesh.
 
@@ -1335,7 +1336,7 @@ class SelfEnergy(AbivarAble):
 ##########################################################################################
 
 
-class BetheSalpeter(AbivarAble):
+class ExcHamiltonian(AbivarAble):
     """This object contains the parameters for the solution of the Bethe-Salpeter equation."""
     # Types of excitonic Hamiltonian.
     _EXC_TYPES = {
@@ -1358,11 +1359,11 @@ class BetheSalpeter(AbivarAble):
         "model_df"
         ]
 
-    def __init__(self, loband, nband, soenergy, coulomb_mode, ecuteps, bs_freq_mesh, mdf_epsinf=None, 
-                exc_type="TDA", with_lf=True, zcut=None, **kwargs):
+    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, bs_freq_mesh, mdf_epsinf=None, 
+                exc_type="TDA", algo="haydock", with_lf=True, zcut=None, **kwargs):
         """
         Args:
-            loband: 
+            bs_loband: 
                 Lowest band index used in the e-h  basis set.
             nband: 
                 Max band index used in the e-h  basis set.
@@ -1386,21 +1387,23 @@ class BetheSalpeter(AbivarAble):
             **kwargs:
                 Extra keywords
         """
-        self.loband = loband
+        self.bs_loband = bs_loband
         self.nband  = nband
         self.soenergy = soenergy
-        self.coulomb_mode - coulomb_mode
+        self.coulomb_mode = coulomb_mode
         assert coulomb_mode in self._COULOMB_MODES
         self.ecuteps = ecuteps
         self.bs_freq_mesh = np.array(bs_freq_mesh)
         self.mdf_epsinf = mdf_epsinf
         self.exc_type = exc_type
         assert exc_type in self._EXC_TYPES
+        self.algo = algo
+        assert algo in self._ALGO2VAR
         self.with_lf = with_lf
         self.zcut = zcut
 
         # TODO
-        self.chksymbreak = 0
+        #self.chksymbreak = 0
 
         # Extra options.
         self.kwargs = kwargs
@@ -1413,63 +1416,70 @@ class BetheSalpeter(AbivarAble):
     @property
     def use_haydock(self):
         """True if we are using the Haydock iterative technique."""
+        return self.algo == "haydock"
 
     @property
     def use_cg(self):
         """True if we are using the conjugate gradient method."""
+        return self.algo == "cg"
 
     @property
     def use_direct_diago(self):
         """True if we are performing the direct diagonalization of the BSE Hamiltonian."""
+        return self.algo == "direct_diago"
 
     @classmethod
-    def TDA_with_model_df(cls, loband, nband, soenery, mdf_einf, soenergy, **kwargs):
+    def TDA_with_model_df(cls, bs_loband, nband, soenery, mdf_einf, soenergy, **kwargs):
         """
         Static constructor used for performing Tamm-Dancoff calculations 
         with the model dielectric functions and the scissors operator.
         """
-        #return cls(loband, nband, soenergy, coulomb_mode, ecuteps, mdf_epsinf=None, exc_type="TDA", with_lf=True, kwargs)
+        raise NotImplementedError("")
+        return cls(bs_loband, nband, soenergy, "model_df", ecuteps, bs_freq_mesh, 
+                   mdf_epsinf=mdf_eing, exc_type="TDA", with_lf=True, **kwargs)
 
     def to_abivars(self):
         "Returns a dictionary with the abinit variables"
 
         abivars = dict(
-            loband=self.loband,
-            nband=self.nband,
+            bs_loband=self.bs_loband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
             bs_freq_mesh=self.bs_freq_mesh,
+            #bs_algo = self._ALGO2VAR[self.algo],
+            bs_coulomb_term=21,
+            bs_calctype=1,
             inclvkb=self.inclvkb,
-            bs_exchange_term=1 if with_lf else 0,
-            zcut=self.zcut
-            #mdf_epsinf=self.mdf_epsinf,
+            bs_exchange_term=1 if self.with_lf else 0,
+            zcut=self.zcut,
+            mdf_epsinf=self.mdf_epsinf,
             )
 
         if self.use_haydock:
+            # FIXME
+            abivars.update(
+                bs_haydock_niter=100,      # No. of iterations for Haydock
+                bs_hayd_term=0,            # No terminator
+                bs_haydock_tol=[0.05, 0],  # Stopping criteria
+            )
+
+        elif self.use_direct_diago:
             raise NotImplementedError("")
             abivars.update(
                 foo=1,
-                #bs_haydock_niter 60     # No. of iterations for Haydock
-                #bs_hayd_term      0     # No terminator
-                #bs_haydock_tol 0.05 0   # Stopping criteria
             )
 
         elif self.use_cg:
             raise NotImplementedError("")
-            #abivars.update(
-            #    foo=1,
-            #)
-
-        elif self.use_direct_diago:
-            raise NotImplementedError("")
-            #abivars.update(
-            #    foo=1,
-            #)
+            abivars.update(
+                foo=1,
+            )
 
         else:
-            raise ValueError("Unknown algorithm for EXC!")
+            raise ValueError("Unknown algorithm for EXC: %s" % self.algo)
 
         abivars.update(self.kwargs)
+
         return abivars
 
 ##########################################################################################

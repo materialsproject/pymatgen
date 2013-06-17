@@ -29,6 +29,7 @@ from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
 from .pseudos import Pseudo, PseudoTable, get_abinit_psp_dir
 from .strategies import ScfStrategy
 from .task import RunMode
+from .eos import EOS
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -1002,8 +1003,7 @@ class DeltaTest(Workflow):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
                  spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                 accuracy="normal",
-                 ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
+                 accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
         super(DeltaTest, self).__init__(workdir, runmode)
 
@@ -1062,7 +1062,7 @@ class DeltaTest(Workflow):
             "dojo_level": 1,
         })
 
-        from .eos import EOS
+
         try:
             eos_fit = EOS.Murnaghan().fit(self.volumes, etotal)
             print(eos_fit)
@@ -1071,7 +1071,7 @@ class DeltaTest(Workflow):
 
             wf_results.update({
                 "v0": eos_fit.v0,
-                "b" : eos_fit.b,
+                "b0": eos_fit.b0,
                 "bp": eos_fit.bp,
             })
 
@@ -1133,12 +1133,13 @@ class GW_Workflow(Workflow):
 
 ################################################################################
 
-class BSE_Workflow(Workflow):
+class BSEMDF_Workflow(Workflow):
 
     def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, bse_strategy): 
-        # gw_strategies=None):
         """
-        Workflow for GW calculations.
+        Workflow for simple BSE calculations in which the self-energy corrections 
+        are approximated by the scissors operator and the screening in modeled 
+        with model dielectric function.
 
         Args:
             workdir:
@@ -1146,17 +1147,13 @@ class BSE_Workflow(Workflow):
             runmode:
                 Run mode.
             scf_strategy:
-                SCFStrategy instance
+                ScfStrategy instance
             nscf_strategy:
-                NSCFStrategy instance
+                NscfStrategy instance
             bse_strategy:
                 BSEStrategy instance.
         """
-        #    scr_strategy:
-        #        Strategy for the screening run.
-        #    sigma_strategy:
-        #        Strategy for the self-energy run.
-        super(BSE_Workflow, self).__init__(workdir, runmode)
+        super(BSEMDF_Workflow, self).__init__(workdir, runmode)
 
         # Register the GS-SCF run.
         scf_link = self.register_task(scf_strategy)
@@ -1164,24 +1161,8 @@ class BSE_Workflow(Workflow):
         # Construct the input for the NSCF run.
         nscf_link = self.register_task(nscf_strategy,
                                        links=scf_link.produces_exts("_DEN"))
-        #if gw_strategies is not None:
-            # Construct the input for the NSCF run.
-            #nscf_strategy = gw_strategies[0]
-            #nscf_link = self.register_task(nscf_strategy,
-            #                               links=scf_link.produces_exts("_DEN"))
 
-            # Register the SCR run.
-            #scr_strategy = gw_strategies[0]
-            #screen_link = self.register_task(scr_strategy,
-            #                                links=nscf_link.produces_exts("_WFK"))
-
-            # Register the SIGMA run.
-            #sigma_strategy = gw_strategies[1]
-            #sigma_links = [nscf_link.produces_exts("_WFK"), screen_link.produces_exts("_SCR"),]
-
-            #self.register_task(sigma_strategy, links=sigma_links)
-
-        # Construct the input for the NSCF run.
+        # Construct the input for the BSE run.
         bse_link = self.register_task(bse_strategy,
                                       links=nscf_link.produces_exts("_WFK"))
 

@@ -1,4 +1,4 @@
-"Strategy objects for creating ABINIT calculations."
+"""Strategy objects for creating ABINIT calculations."""
 from __future__ import division, print_function
 
 import abc
@@ -16,8 +16,6 @@ __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
-__status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
 
 ##########################################################################################
 
@@ -63,7 +61,7 @@ def select_pseudos(pseudos, structure):
 
 class Strategy(object):
     """
-    A Strategy object generates the abinit input file used for a particular type of calculation
+    A Strategy object generates the ABINIT input file used for a particular type of calculation
     e.g. ground-state runs, structural relaxations, self-energy calculations ...
 
     A Strategy can absorb data (e.g. data produced in the previous steps of a workflow) and 
@@ -150,6 +148,7 @@ class Strategy(object):
 
     @property
     def data(self):
+        """Data absorbed by the strategy during the workflow."""
         try:
             return self. _data
         except AttributeError:
@@ -168,7 +167,8 @@ class Strategy(object):
     @property
     def ecut(self):
         try:
-            return self.extra_abivars["ecut"] # User option.
+            # User option.
+            return self.extra_abivars["ecut"] 
         except KeyError:
             # Compute ecut from the Pseudo Hints.
             hints = [p.hint_for_accuracy(self.accuracy) for p in self.pseudos]
@@ -241,7 +241,7 @@ class Strategy(object):
 
     @abc.abstractmethod
     def make_input(self, *args, **kwargs):
-        "Returns an Input instance"
+        """Returns an Input instance."""
 
 ##########################################################################################
 
@@ -379,6 +379,7 @@ class NscfStrategy(Strategy):
 ##########################################################################################
 
 class RelaxStrategy(ScfStrategy):
+    """Extends ScfStrategy by adding an algorithm for the structural relaxation."""
 
     def __init__(self, structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized", 
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
@@ -416,22 +417,22 @@ class RelaxStrategy(ScfStrategy):
         return "scf"
 
     def make_input(self):
-        # Initialize the system section from structure.
-        raise NotImplementedError("")
+        # Input for the GS run
         input_str = super(RelaxStrategy, self).make_input()
 
+        # Add the variables for the structural relaxation.
         input = InputWriter(self.relax_algo)
         input_str += input.get_string()
+
         return input_str
 
 ##########################################################################################
 
 class ScreeningStrategy(Strategy):
+    """Stratefy for Screening calculations."""
 
     def __init__(self, scf_strategy, nscf_strategy, screening, **extra_abivars):
         """
-        Constructor for screening calculations.
-                                                                                                       
         Args:
             scf_strategy:
                 Strategy used for the ground-state calculation
@@ -493,11 +494,10 @@ class ScreeningStrategy(Strategy):
 ##########################################################################################
 
 class SelfEnergyStrategy(Strategy):
+    """Strategy for self-energy calculations."""
 
     def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma, **extra_abivars):
         """
-        Constructor for screening calculations.
-                                                                                                       
         Args:
             scf_strategy:
                 Strategy used for the ground-state calculation
@@ -560,10 +560,76 @@ class SelfEnergyStrategy(Strategy):
 
 ##########################################################################################
 
+class MDFBSE_Strategy(Strategy):
+    """
+    Strategy for Bethe-Salpeter calculation based on the model dielectric function 
+    and the scissors operator
+    """
+    def __init__(self, scf_strategy, nscf_strategy, exc_ham, **extra_abivars):
+        """
+        Args:
+            scf_strategy:
+                Strategy used for the ground-state calculation.
+            nscf_strategy:
+                Strategy used for the non-self consistent calculation.
+            exc_ham:
+                `ExcitonicHamiltonian` instance.
+            extra_abivars:
+                Extra ABINIT variables added directly to the input file.
+        """
+        super(MDFBSE_Strategy, self).__init__()
+
+        self.pseudos = scf_strategy.pseudos
+
+        self.scf_strategy = scf_strategy
+        self.nscf_strategy = nscf_strategy
+
+        self.exc_ham = exc_ham
+
+        self.extra_abivars = extra_abivars
+
+        scf_electrons  = scf_strategy.electrons
+        nscf_electrons = nscf_strategy.electrons
+
+        if exc_ham.nband > nscf_electrons.nband:
+            raise ValueError("Cannot use more that %d bands for the EXC hamiltonian." % nscf_electrons.nband)
+
+        self.ksampling = nscf_strategy.ksampling
+
+        if not self.ksampling.is_homogeneous:
+            raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
+
+        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
+                                   smearing  = scf_electrons.smearing,
+                                   nband     = exc_ham.nband,
+                                   charge    = scf_electrons.charge,
+                                   comment   = None,
+                                  )
+    @property
+    def runlevel(self):
+        return "bse"
+
+    def make_input(self):
+        # FIXME
+        extra = {"optdriver": self.optdriver,
+                 "ecut"     : self.ecut,
+                 "ecutwfn"  : self.ecut,
+                # "pawecutdg": self.pawecutdg,
+                }
+        #extra.update(self.tolerance)
+        extra.update(self.extra_abivars)
+                                                                                     
+        input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
+        return input.get_string()
+
+##########################################################################################
+
+
 class InputWriter(object): 
     """
-    This object receives a list of AbivarAbles objects, a dictionary with extra ABINIT variables 
-    and produces a (nicely formatted?) string with the input file.
+    This object receives a list of `AbivarAble` objects, an optional 
+    dictionary with extra ABINIT variables and produces a (nicely formatted?) 
+    string with the input file.
     """
     def __init__(self, *args, **kwargs):
         self.abiobj_dict = collections.OrderedDict()
@@ -579,16 +645,16 @@ class InputWriter(object):
             self.add_extra_abivars({k:v})
 
     def __str__(self):
-        "String representation (the section of the abinit input file)"
+        """String representation (the section of the abinit input file)."""
         return self.get_string()
 
     @property
     def abiobjects(self):
-        "List of objects stored in self"
+        """List of objects stored in self."""
         return self.abiobj_dict.values()
 
     def add_abiobj(self, obj):
-        "Add the object to self"
+        """Add the object to self."""
         if not hasattr(obj, "to_abivars"):
             raise ValueError("%s does not define the method to_abivars" % str(obj))
 
@@ -598,11 +664,11 @@ class InputWriter(object):
         self.abiobj_dict[cname] = obj
 
     def add_extra_abivars(self, abivars):
-        "Add variables (dict) to extra_abivars"
+        """Add variables (dict) to extra_abivars."""
         self.extra_abivars.update(abivars)
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables defined by the Card"
+        """Returns a dictionary with the abinit variables defined by the Card."""
         abivars = {}
         for obj in self.abiobjects:
             abivars.update(obj.to_abivars())
@@ -619,7 +685,7 @@ class InputWriter(object):
 
     @staticmethod
     def _format_kv(key, value):
-        "Formatter"
+        """Formatter"""
         if value is None:  
             return [] # Use ABINIT default.
                                                                                    
@@ -673,3 +739,4 @@ class InputWriter(object):
             return str_aligned(lines, header=None)
         else:
             return str_delimited(lines, header=None, delimiter=5*" ")
+

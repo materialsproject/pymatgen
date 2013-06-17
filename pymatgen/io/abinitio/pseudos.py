@@ -239,7 +239,9 @@ class Pseudo(object):
         if not self.dojo_report:
             return None
         else:
-            from pymatgen.io.abinitio.pseudo_dojo import dojo_key2level
+            # FIXME
+            #from pymatgen.io.abinitio.pseudo_dojo import dojo_key2level
+            from pseudo_dojo.core.dojo import dojo_key2level
             levels = [dojo_key2level(key) for key in self.dojo_report]
             return max(levels)
 
