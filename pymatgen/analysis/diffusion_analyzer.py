@@ -360,6 +360,9 @@ def get_conversion_factor(structure, species, temperature):
 
 
 def _get_vasprun(args):
+    """
+    Internal method to support multiprocessing.
+    """
     return Vasprun(args[0], ionic_step_skip=args[1])
 
 
@@ -373,15 +376,15 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
         diffusivities:
             A sequence of diffusivities (e.g., from DiffusionAnalyzer
             .diffusivity).
-        **kwargs:
+        \*\*kwargs:
             Any keyword args supported by matplotlib.pyplot.plot.
 
     Returns:
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
-    t_1 = 1000/np.array(temps)
+    t_1 = 1000 / np.array(temps)
     logd = np.log10(diffusivites)
-    #Do a least square regression of log(D) vs 1000/T
+    #Do a least squares regression of log(D) vs 1000/T
     A = np.array([t_1, np.ones(len(temps))]).T
     w = np.array(np.linalg.lstsq(A, logd)[0])
     from pymatgen.util.plotting_utils import get_publication_quality_plot

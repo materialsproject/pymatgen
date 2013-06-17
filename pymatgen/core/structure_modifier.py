@@ -428,6 +428,7 @@ class StructureEditor(StructureModifier):
         return Structure(self._lattice, species, coords, False,
                          site_properties=props)
 
+    
 
 @deprecated(replacement=Structure)
 class SupercellMaker(StructureModifier):

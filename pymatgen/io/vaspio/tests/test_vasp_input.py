@@ -152,8 +152,8 @@ direct
         v = np.array(poscar.velocities)
 
         for x in np.sum(v, axis=0):
-            self.assertAlmostEqual(x, 0, 7,
-                                   'Velocities initialized with a net momentum')
+            self.assertAlmostEqual(
+                x, 0, 7, 'Velocities initialized with a net momentum')
 
         temperature = struct[0].specie.atomic_mass * AMU_TO_KG * \
             np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
@@ -169,6 +169,7 @@ class IncarTest(unittest.TestCase):
         incar["LDAU"] = "T"
         self.assertEqual(incar["ALGO"], "Damped", "Wrong Algo")
         self.assertEqual(float(incar["EDIFF"]), 1e-4, "Wrong EDIFF")
+        self.assertEqual(type(incar["LORBIT"]), int)
 
     def test_diff(self):
         filepath1 = os.path.join(test_dir, 'INCAR')
@@ -177,38 +178,38 @@ class IncarTest(unittest.TestCase):
         incar2 = Incar.from_file(filepath2)
         self.assertEqual(
             incar1.diff(incar2),
-            {'Different': {'NELM': {'INCAR1': 'Default', 'INCAR2': 100},
-                           'ISPIND': {'INCAR1': 2, 'INCAR2': 'Default'},
-                           'LWAVE': {'INCAR1': True, 'INCAR2': False},
-                           'LDAUPRINT': {'INCAR1': 'Default', 'INCAR2': 1},
-                           'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6,
-                                                 0.6, 0.6, 0.6, 0.6, 0.6,
-                                                 0.6, 0.6, 0.6, 0.6, 0.6,
-                                                 0.6, 0.6, 0.6, 0.6, 0.6,
-                                                 0.6, 0.6],
-                                      'INCAR2': 'Default'},
-                           'NELMIN': {'INCAR1': 'Default', 'INCAR2': 3},
-                           'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': 'Default'},
-                           'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': 'Default'},
-                           'LSCALU': {'INCAR1': False, 'INCAR2': 'Default'},
-                           'ENCUT': {'INCAR1': 500, 'INCAR2': 'Default'},
-                           'NSIM': {'INCAR1': 1, 'INCAR2': 'Default'},
-                           'ICHARG': {'INCAR1': 'Default', 'INCAR2': 1},
-                           'NSW': {'INCAR1': 99, 'INCAR2': 51},
-                           'NKRED': {'INCAR1': 2, 'INCAR2': 'Default'},
-                           'NUPDOWN': {'INCAR1': 0, 'INCAR2': 'Default'},
-                           'LCHARG': {'INCAR1': True, 'INCAR2': 'Default'},
-                           'LPLANE': {'INCAR1': True, 'INCAR2': 'Default'},
-                           'ISMEAR': {'INCAR1': 0, 'INCAR2':-5},
-                           'NPAR': {'INCAR1': 8, 'INCAR2': 1},
-                           'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
-                                      'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
-                           'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
-                           'LHFCALC': {'INCAR1': True, 'INCAR2': 'Default'},
-                           'TIME': {'INCAR1': 0.4, 'INCAR2': 'Default'}},
+            {'Different': {
+                'NELM': {'INCAR1': None, 'INCAR2': 100},
+                'ISPIND': {'INCAR1': 2, 'INCAR2': None},
+                'LWAVE': {'INCAR1': True, 'INCAR2': False},
+                'LDAUPRINT': {'INCAR1': None, 'INCAR2': 1},
+                'MAGMOM': {'INCAR1': [6, -6, -6, 6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6,
+                                      0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6],
+                           'INCAR2': None},
+                'NELMIN': {'INCAR1': None, 'INCAR2': 3},
+                'ENCUTFOCK': {'INCAR1': 0.0, 'INCAR2': None},
+                'HFSCREEN': {'INCAR1': 0.207, 'INCAR2': None},
+                'LSCALU': {'INCAR1': False, 'INCAR2': None},
+                'ENCUT': {'INCAR1': 500, 'INCAR2': None},
+                'NSIM': {'INCAR1': 1, 'INCAR2': None},
+                'ICHARG': {'INCAR1': None, 'INCAR2': 1},
+                'NSW': {'INCAR1': 99, 'INCAR2': 51},
+                'NKRED': {'INCAR1': 2, 'INCAR2': None},
+                'NUPDOWN': {'INCAR1': 0, 'INCAR2': None},
+                'LCHARG': {'INCAR1': True, 'INCAR2': None},
+                'LPLANE': {'INCAR1': True, 'INCAR2': None},
+                'ISMEAR': {'INCAR1': 0, 'INCAR2': -5},
+                'NPAR': {'INCAR1': 8, 'INCAR2': 1},
+                'SYSTEM': {'INCAR1': 'Id=[0] dblock_code=[97763-icsd] formula=[li mn (p o4)] sg_name=[p n m a]',
+                           'INCAR2': 'Id=[91090] dblock_code=[20070929235612linio-59.53134651-vasp] formula=[li3 ni3 o6] sg_name=[r-3m]'},
+                'ALGO': {'INCAR1': 'Damped', 'INCAR2': 'Fast'},
+                'LHFCALC': {'INCAR1': True, 'INCAR2': None},
+                'TIME': {'INCAR1': 0.4, 'INCAR2': None}},
              'Same': {'IBRION': 2, 'PREC': 'Accurate', 'ISIF': 3, 'LMAXMIX': 4,
                       'LREAL': 'Auto', 'ISPIN': 2, 'EDIFF': 0.0001,
-                      'LORBIT': '11', 'SIGMA': 0.05}})
+                      'LORBIT': 11, 'SIGMA': 0.05}})
 
     def test_to_dict_and_from_dict(self):
         file_name = os.path.join(test_dir, 'INCAR')
@@ -234,7 +235,7 @@ class KpointsTest(unittest.TestCase):
 
         filepath = os.path.join(test_dir, 'KPOINTS')
         kpoints = Kpoints.from_file(filepath)
-        self.assertEqual(kpoints.kpts, [[2, 4, 6]], "Wrong kpoint lattice read")
+        self.assertEqual(kpoints.kpts, [[2, 4, 6]])
 
         filepath = os.path.join(test_dir, 'KPOINTS.band')
         kpoints = Kpoints.from_file(filepath)
@@ -303,7 +304,8 @@ class PotcarSingleTest(unittest.TestCase):
                 'EATOM': '2024.8347 eV,  148.8212 Ry', 'NDATA': '100',
                 'LULTRA': 'F    use ultrasoft PP ?',
                 'QGAM': '8.907    optimization parameters',
-                'ENMIN': '202.399 eV', 'RCLOC': '1.725    cutoff for local pot',
+                'ENMIN': '202.399 eV',
+                'RCLOC': '1.725    cutoff for local pot',
                 'RCORE': '2.300    outmost cutoff radius',
                 'RDEP': '2.338    radius for radial grids',
                 'IUNSCR': '1    unscreen: 0-lin 1-nonlin 2-no',

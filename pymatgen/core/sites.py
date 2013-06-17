@@ -234,6 +234,10 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         if self._species.average_electroneg > \
                 other._species.average_electroneg:
             return 1
+        if self.species_string < other.species_string:
+            return -1
+        if self.species_string > other.species_string:
+            return 1
         return 0
 
     def __str__(self):
@@ -247,6 +251,8 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         species_list = []
         for spec, occu in self._species.items():
             d = spec.to_dict
+            del d["@module"]
+            del d["@class"]
             d["occu"] = occu
             species_list.append(d)
         return {"name": self.species_string, "species": species_list,
@@ -503,6 +509,8 @@ class PeriodicSite(Site, MSONable):
         species_list = []
         for spec, occu in self._species.items():
             d = spec.to_dict
+            del d["@module"]
+            del d["@class"]
             d["occu"] = occu
             species_list.append(d)
         return {"label": self.species_string, "species": species_list,

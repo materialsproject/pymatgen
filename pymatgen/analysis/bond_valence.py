@@ -15,14 +15,14 @@ __date__ = "Oct 26, 2012"
 
 import collections
 import json
-import itertools
-import os
+import numpy as np
 import operator
-from math import exp, sqrt
+import os
 
+from math import exp, sqrt
 from pymatgen.core.periodic_table import Element, Specie
-from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure
+from pymatgen.symmetry.finder import SymmetryFinder
 
 #Let's initialize some module level properties.
 
@@ -193,54 +193,73 @@ class BVAnalyzer(object):
             #Retain probabilities that are at least 1/100 of highest prob.
             valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
                                    val))
-
-        #Based on the max allowed permutations, determine the number of
-        #candidates per site.
-        num_perm = 0
-        selected_valences = [[v.pop(0)] for v in valences]
-        while num_perm < self.max_permutations:
-            max_prob = 0
-            ind = -1
-            for i, v in enumerate(valences):
-                if len(v) > 0 and all_prob[i][v[0]] > max_prob:
-                    max_prob = v[0]
-                    ind = i
-            if ind == -1:
-                break
-            else:
-                selected_valences[ind].append(valences[ind].pop(0))
-            num_perm = reduce(operator.mul, map(len, selected_valences))
-
-        scores = {}
-        #Find valid valence combinations and score them by total probability.
-        for v_set in itertools.product(*selected_valences):
-            total = 0
+        
+        #make variables needed for recursion
+        nsites = np.array(map(len, equi_sites))
+        vmin = np.array(map(min, valences))
+        vmax = np.array(map(max, valences))
+        
+        self._n = 0
+        self._best_score = 0
+        self._best_vset = None
+        
+        def evaluate_assignment(v_set):
             el_oxi = collections.defaultdict(list)
             for i, sites in enumerate(equi_sites):
-                total += v_set[i] * len(sites)
                 el_oxi[sites[0].specie.symbol].append(v_set[i])
-
-            #Calculate the maximum range in oxidation states for each element.
             max_diff = max([max(v) - min(v) for v in el_oxi.values()])
-
-            if total == 0 and max_diff <= 1:
-                #Cell has to be charge neutral. And the maximum difference in
-                #oxidation state for each element cannot exceed 1.
-                score = reduce(operator.mul, [all_prob[i][v]
-                                              for i, v in enumerate(v_set)])
-                scores[tuple(v_set)] = score
-
-        if scores:
-            best = max(scores.keys(), key=lambda k: scores[k])
+            if max_diff > 1:
+                return
+            score = reduce(operator.mul, [all_prob[i][v]
+                                          for i, v in enumerate(v_set)])
+            if score > self._best_score:
+                self._best_vset = v_set
+                self._best_score = score
+            
+        def _recurse(assigned=[]):
+            #recurses to find permutations of valences based on whether a 
+            #charge balanced assignment can still be found
+            if self._n > self.max_permutations:
+                return
+            
+            i = len(assigned)
+            highest = vmax.copy()
+            highest[:i] = assigned
+            highest *= nsites
+            highest = np.sum(highest)
+            
+            lowest = vmin.copy()
+            lowest[:i] = assigned
+            lowest *= nsites
+            lowest = np.sum(lowest)
+            
+            if highest < 0 or lowest > 0:
+                if i == len(valences):
+                    self._n += 1
+                return
+            
+            if i == len(valences):
+                evaluate_assignment(assigned)
+                self._n += 1
+                return
+            else:
+                for v in valences[i]:
+                    new_assigned = list(assigned)
+                    _recurse(new_assigned + [v])
+                    
+        _recurse()
+        
+        if self._best_vset:
             assigned = {}
-            for val, sites in zip(best, equi_sites):
+            for val, sites in zip(self._best_vset, equi_sites):
                 for site in sites:
                     assigned[site] = val
 
             return [int(assigned[site]) for site in structure]
         else:
             raise ValueError("Valences cannot be assigned!")
-
+            
+        
     def get_oxi_state_decorated_structure(self, structure):
         """
         Get an oxidation state decorated structure. This currently works only

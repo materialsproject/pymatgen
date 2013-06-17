@@ -60,7 +60,7 @@ class Substitutor(MSONable):
         returns the species in the domain of the probability function
         any other specie will not work
         """
-        return self._sp.species_list
+        return self._sp.species
 
     def pred_from_structures(self, target_species, structures_list,
                              remove_duplicates=True):
@@ -165,7 +165,7 @@ class Substitutor(MSONable):
         max_probabilities = []
         for s2 in species_list:
             max_p = 0
-            for s1 in self._sp.species_list:
+            for s1 in self._sp.species:
                 max_p = max([self._sp.cond_prob(s1, s2), max_p])
             max_probabilities.append(max_p)
         output = []
@@ -181,7 +181,7 @@ class Substitutor(MSONable):
                         'probability': reduce(mul, best_case_prob)}
                     output.append(odict)
                     return
-                for sp in self._sp.species_list:
+                for sp in self._sp.species:
                     i = len(output_prob)
                     prob = self._sp.cond_prob(sp, species_list[i])
                     _recurse(output_prob + [prob], output_species + [sp])
