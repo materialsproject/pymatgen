@@ -1,16 +1,18 @@
-"Tools to compute equations of states with different models."
+"""Tools to compute equations of states with different models."""
 from __future__ import division, print_function
 
 import numpy as np
 
 __all__ = [
-"EOS",
+    "EOS",
 ]
+
+__version__ = "1.0"
 
 ##########################################################################################
 
 def murnaghan(V, E0, B0, BP, V0):
-    'From PRB 28,5480 (1983)'
+    """From PRB 28,5480 (1983)"""
 
     E = E0 + B0*V/BP*(((V0/V)**BP)/(BP-1)+1) - V0*B0/(BP-1)
     return E
@@ -29,14 +31,14 @@ def birch(V, E0, B0, BP, V0):
     return E
 
 def birch_murnaghan(V, E0, B0, BP, V0):
-    'BirchMurnaghan equation from PRB 70, 224107'
+    """BirchMurnaghan equation from PRB 70, 224107"""
 
     eta = (V/V0)**(1./3.)
     E = E0 + 9.*B0*V0/16.*(eta**2-1)**2*(6 + BP*(eta**2-1.) - 4.*eta**2)
     return E
 
 def pourier_tarantola(V, E0, B0, BP, V0):
-    'Pourier-Tarantola equation from PRB 70, 224107'
+    """Pourier-Tarantola equation from PRB 70, 224107"""
 
     eta = (V/V0)**(1./3.)
     squiggle = -3.*np.log(eta)
@@ -55,7 +57,7 @@ def vinet(V, E0, B0, BP, V0):
 
 ##########################################################################################
 class EOSError(Exception):
-    "Exceptions raised by EOS"
+    """Exceptions raised by EOS."""
 
 class EOS(object):
     """
@@ -135,7 +137,7 @@ class EOS(object):
 
 
 class EOS_Fit(object):
-    "Performs the fit of E(V) and provides method to access the results of the fit."
+    """Performs the fit of E(V) and provides method to access the results of the fit."""
 
     def __init__(self, volumes, energies, func):
         """ 
@@ -180,7 +182,7 @@ class EOS_Fit(object):
             raise exc
 
         self.e0 = self.eos_params[0]
-        self.b  = self.eos_params[1]
+        self.b0 = self.eos_params[1]
         self.bp = self.eos_params[2]
         self.v0 = self.eos_params[3]
 
@@ -192,14 +194,14 @@ class EOS_Fit(object):
         app = lines.append
         app("Equation of State: %s" % self.name)
         app("Minimum volume = %1.2f Ang^3" % self.v0)
-        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa, bp = %1.2f" % (self.b, self.b*160.21773, self.bp))
+        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa, bp = %1.2f" % (self.b0, self.b0*160.21773, self.bp))
         return "\n".join(lines)
 
     @property
     def name(self):
         return self.func.__name__
 
-    def plot(self, show=True, savefig=None):
+    def plot(self, **kwargs):
         """
         Uses Matplotlib to plot the energy curve.  
 
@@ -241,12 +243,14 @@ class EOS_Fit(object):
         ax.legend(lines, legends, 'upper right', shadow=True)
                                                                                                                                          
         fig.text(0.4,0.5,'Min volume = %1.2f $\AA^3$' % self.v0, transform = ax.transAxes)
-        fig.text(0.4,0.4,'Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa' % (self.b, self.b*160.21773), transform = ax.transAxes)
+        fig.text(0.4,0.4,'Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa' % (
+            self.b0, self.b0*160.21773), transform = ax.transAxes)
         fig.text(0.4,0.3,'Bp = %1.2f' % self.bp, transform = ax.transAxes)
 
-        if show:
+        if kwargs.pop("show", True):
             plt.show()
 
+        savefig = kwargs.pop("savefig", None)
         if savefig is not None:
             fig.savefig(savefig)
 

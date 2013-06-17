@@ -379,7 +379,7 @@ class ShellLauncher(TaskLauncher):
 
 class SimpleResourceManager(object):
 
-    def __init__(self, work, max_ncpus, sleep_time=5):
+    def __init__(self, work, max_ncpus, sleep_time=20):
         """
             Args:
                 work:
