@@ -182,7 +182,8 @@ class PDPlotter(object):
             font.set_size(16)
             for entry, coords in unstable.items():
                 vec = (np.array(coords) - center)
-                vec = vec / np.linalg.norm(vec) * 10
+                vec = vec / np.linalg.norm(vec) * 10 \
+                    if np.linalg.norm(vec) != 0 else vec
                 label = entry.name
                 plt.plot(coords[0], coords[1], "ks", linewidth=3,
                          markeredgecolor="k", markerfacecolor="r",

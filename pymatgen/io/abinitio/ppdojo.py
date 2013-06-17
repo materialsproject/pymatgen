@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""This scripts drives the execution of the pseudo dojo tests."""
 from __future__ import division, print_function
 
 import sys
@@ -22,11 +23,8 @@ def main():
 
     parser = ArgumentParser()
 
-    #parser.add_argument('-j', '--py-nthreads', type=int, default=1,
-    #                    help="The number of threads used (run PY_NTHREADS calculations simultaneously).")
-
     parser.add_argument('-m', '--max_ncpus', type=int, default=1,
-                        help="Maximum number of CPUS that will be used by the DOJO.")
+                        help="Maximum number of CPUs used by the DOJO.")
 
     parser.add_argument('-n', '--mpi-ncpus', type=int, default=1,
                         help="Number of MPI Cpus per run).")

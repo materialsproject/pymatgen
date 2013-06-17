@@ -23,7 +23,8 @@ from pymatgen.command_line.enumlib_caller import EnumlibAdaptor
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.structure_prediction.substitutor import Substitutor
+from pymatgen.structure_prediction.substitution_probability import \
+    SubstitutionPredictor
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -328,9 +329,9 @@ class EnumerateStructureTransformation(AbstractTransformation):
                                     for row in transformation])
             if contains_oxidation_state:
                 if transformation not in ewald_matrices:
-                    s = Structure.from_sites(structure.sites)
-                    s.make_supercell(transformation)
-                    ewald = EwaldSummation(s)
+                    s_supercell = Structure.from_sites(structure.sites)
+                    s_supercell.make_supercell(transformation)
+                    ewald = EwaldSummation(s_supercell)
                     ewald_matrices[transformation] = ewald
                 else:
                     ewald = ewald_matrices[transformation]
@@ -391,14 +392,15 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         """
         self._kwargs = kwargs
         self._threshold = threshold
-        self._substitutor = Substitutor(threshold, **kwargs)
+        self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
             raise ValueError("SubstitutionPredictorTransformation doesn't"
                              " support returning 1 structure")
 
-        preds = self._substitutor.pred_from_comp(structure.composition)
+        preds = self._substitutor.composition_prediction(structure.composition,
+                                                         to_this_composition=False)
         preds.sort(key=lambda x: x['probability'], reverse=True)
 
         outputs = []

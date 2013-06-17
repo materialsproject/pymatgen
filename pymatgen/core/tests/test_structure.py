@@ -65,6 +65,12 @@ class IStructureTest(PymatgenTest):
         self.assertEqual(sorted_s[1].species_and_occu, Composition("O"))
         self.assertEqual(sorted_s[0].charge, 1)
         self.assertEqual(sorted_s[1].charge, -2)
+        s = IStructure(self.lattice, ["Se", "C", "Se", "C"],
+                       [[0] * 3, [0.5] * 3, [0.25] * 3, [0.75] * 3])
+        self.assertEqual([site.specie.symbol
+                          for site in s.get_sorted_structure()],
+                         ["C", "C", "Se", "Se"])
+
 
     def test_fractional_occupations(self):
         coords = list()
@@ -240,13 +246,23 @@ class StructureTest(PymatgenTest):
         s.insert(1, "O", [0.5, 0.5, 0.5])
         self.assertEqual(s.formula, "Si2 O1")
         self.assertTrue(s.ntypesp == 2)
+        self.assertTrue(s.symbol_set == ("Si", "O"))
+        self.assertTrue(s.indices_from_symbol("Si") == (0,2))
+        self.assertTrue(s.indices_from_symbol("O") == (1,))
         s.remove(2)
         self.assertEqual(s.formula, "Si1 O1")
+        self.assertTrue(s.indices_from_symbol("Si") == (0,))
+        self.assertTrue(s.indices_from_symbol("O") == (1,))
         s.append("N", [0.25, 0.25, 0.25])
         self.assertEqual(s.formula, "Si1 N1 O1")
         self.assertTrue(s.ntypesp == 3)
+        self.assertTrue(s.symbol_set == ("Si", "O", "N"))
+        self.assertTrue(s.indices_from_symbol("Si") == (0,))
+        self.assertTrue(s.indices_from_symbol("O") == (1,))
+        self.assertTrue(s.indices_from_symbol("N") == (2,))
         s.replace(0, "Ge")
         self.assertEqual(s.formula, "Ge1 N1 O1")
+        self.assertTrue(s.symbol_set == ("Ge", "O", "N"))
         s.replace_species({"Ge": "Si"})
         self.assertEqual(s.formula, "Si1 N1 O1")
         self.assertTrue(s.ntypesp == 3)
@@ -598,6 +614,8 @@ class MoleculeTest(PymatgenTest):
                        [0, -.780362, -.456316]])
         self.mol.substitute(1, oh)
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.43)
+        self.mol.substitute(3, "methyl")
+        self.assertEqual(self.mol.formula, "H7 C3 O1 F1")
 
 if __name__ == '__main__':
     import unittest
