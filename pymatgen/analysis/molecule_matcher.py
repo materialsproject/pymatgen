@@ -31,9 +31,8 @@ except ImportError:
 class AbstractMolAtomMapper(MSONable):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
-    find the uniform
-    atom order of two molecules that can pair the geometrically equivalent
-    atoms.
+    find the uniform atom order of two molecules that can pair the
+    geometrically equivalent atoms.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -52,10 +51,9 @@ class AbstractMolAtomMapper(MSONable):
             (list1, list2) if uniform atom order is found. list1 and list2
             are for mol1 and mol2, respectively. Their length equal
             to the number of atoms. They represents the uniform atom order
-            of the two molecules. The
-            value of each element is the original atom index in mol1 or mol2
-             of the current atom in
-            uniform atom order.
+            of the two molecules. The value of each element is the original
+            atom index in mol1 or mol2 of the current atom in uniform atom
+            order.
             (None, None) if unform atom is not available.
         """
         pass
@@ -88,15 +86,15 @@ class AbstractMolAtomMapper(MSONable):
 
 
 class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
-    '''
+    """
     Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class
-    '''
+    """
     def uniform_labels(self, mol1, mol2):
-        '''
+        """
         Pair the geometrically equivalent atoms of the molecules.
-        Calculate RMSD on all possible isomorphism mappings and return mapping 
+        Calculate RMSD on all possible isomorphism mappings and return mapping
         with the least RMSD
-        
+
         Args:
             mol1:
                 First molecule. OpenBabel OBMol or pymatgen Molecule object.
@@ -107,28 +105,27 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             (list1, list2) if uniform atom order is found. list1 and list2
             are for mol1 and mol2, respectively. Their length equal
             to the number of atoms. They represents the uniform atom order
-            of the two molecules. The
-            value of each element is the original atom index in mol1 or mol2
-             of the current atom in
-            uniform atom order.
+            of the two molecules. The value of each element is the original
+            atom index in mol1 or mol2 of the current atom in uniform atom
+            order.
             (None, None) if unform atom is not available.
-        '''
+        """
         obmol1 = BabelMolAdaptor(mol1).openbabel_mol
         obmol2 = BabelMolAdaptor(mol2).openbabel_mol
-        
+
         h1 = self.get_molecule_hash(obmol1)
-        h2 = self.get_molecule_hash(obmol2)   
+        h2 = self.get_molecule_hash(obmol2)
         if h1 != h2:
             return (None, None)
-        
+
         query = ob.CompileMoleculeQuery(obmol1)
         isomapper = ob.OBIsomorphismMapper.GetInstance(query)
         isomorph = ob.vvpairUIntUInt()
         isomapper.MapAll(obmol2, isomorph)
-        
+
         sorted_isomorph = [sorted(x, key=lambda p: p[0]) for x in isomorph]
         label2_list = tuple([tuple([p[1] + 1 for p in x]) for x in sorted_isomorph])
-        
+
         vmol1 = obmol1
         aligner = ob.OBAlign(True, False)
         aligner.SetRefMol(vmol1)
@@ -144,12 +141,12 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             if rmsd < least_rmsd:
                 least_rmsd = rmsd
                 best_label2 = copy.copy(label2)
-                
+
         label1 = range(1, obmol1.NumAtoms() + 1)
-        
+
         return (label1, best_label2)
-    
-    
+
+
     def get_molecule_hash(self, mol):
         """
         Return inchi as molecular hash
@@ -160,7 +157,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         inchi_text = obConv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
         inchi = match.group("inchi")
-        
+
     @property
     def to_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
@@ -175,16 +172,16 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     """
     Pair atoms by inchi labels.
     """
-    
+
     def __init__(self, angle_tolerance=10.0):
-        '''
+        """
         Args:
             angle_tolerance:
                 The angle threshold to assume linear molecule. In degrees.
-        '''
+        """
         self._angle_tolerance = angle_tolerance
         self._assistant_mapper = IsomorphismMolAtomMapper()
-    
+
     @property
     def to_dict(self):
         return {"version": __version__, "@module": self.__class__.__module__,
@@ -276,7 +273,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         non_unique_atoms = set([a for g in eq_atoms for a in g])
         all_atoms = set(range(1, len(ilabels) + 1))
         unique_atom_labels = sorted(all_atoms - non_unique_atoms)
-        
+
         #try to align molecules using unique atoms
         for i in unique_atom_labels:
             orig_idx = ilabels[i-1]
@@ -480,11 +477,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     def _is_molecule_linear(self, mol):
         '''
         Is the molecule a linear one
-        
+
         Args:
             mol:
                 The molecule. OpenBabel OBMol object.
-        
+
         Returns:
             Boolean value.
         '''
@@ -514,24 +511,24 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         if iequal_atom1 != iequal_atom2:
             raise Exception("Design Error! Equavilent atoms are inconsistent")
-        
-        
+
+
         vmol1 = self._virtual_molecule(obmol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(obmol2, ilabel2, iequal_atom2)
-        
+
         clabel1, clabel2 = None, None
         if vmol1.NumAtoms() < 3 or self._is_molecule_linear(vmol1) \
-        or self._is_molecule_linear(vmol2): 
+        or self._is_molecule_linear(vmol2):
             # using isomorphism for difficult (actually simple) molecules
-            clabel1, clabel2 = self._assistant_mapper.uniform_labels(mol1, mol2)      
-        else:           
+            clabel1, clabel2 = self._assistant_mapper.uniform_labels(mol1, mol2)
+        else:
             heavy_atom_indices2 = self._align_heavy_atoms(obmol1, obmol2,
                                                           vmol1, vmol2, ilabel1,
                                                           ilabel2, iequal_atom1)
-            clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2, 
+            clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2,
                                                           ilabel1,
                                                           heavy_atom_indices2)
-        
+
 
         elements1 = self._get_elements(obmol1, clabel1)
         elements2 = self._get_elements(obmol2, clabel2)

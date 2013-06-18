@@ -284,7 +284,8 @@ class NwOutput(object):
             data = f.read()
 
         chunks = re.split("NWChem Input Module", data)
-        chunks.pop()
+        if re.search("CITATION", chunks[-1]):
+            chunks.pop()
         preamble = chunks.pop(0)
         self.job_info = self._parse_preamble(preamble)
         self.data = map(self._parse_job, chunks)
@@ -306,6 +307,8 @@ class NwOutput(object):
         preamble_patt = re.compile("(No. of atoms|No. of electrons"
                                    "|SCF calculation type|Charge|Spin "
                                    "multiplicity)\s*:\s*(\S+)")
+        error_defs = {"Calculation failed to converge": "Bad convergence",
+                      "geom_binvr: #indep variables incorrect": "autoz error"}
 
         data = {}
         energies = []
@@ -313,9 +316,15 @@ class NwOutput(object):
         molecules = []
         species = []
         coords = []
+        errors = []
+        basis_set = {}
         parse_geom = False
+        parse_bset = False
         job_type = ""
         for l in output.split("\n"):
+            for e, v in error_defs.items():
+                if l.find(e) != -1:
+                    errors.append(v)
             if parse_geom:
                 if l.strip() == "Atomic Mass":
                     molecules.append(Molecule(species, coords))
@@ -328,6 +337,18 @@ class NwOutput(object):
                         species.append(m.group(1).capitalize())
                         coords.append([float(m.group(2)), float(m.group(3)),
                                        float(m.group(4))])
+            elif parse_bset:
+                if l.strip() == "":
+                    parse_bset = False
+                else:
+                    toks = l.split()
+                    if toks[0] != "Tag" and not re.match("\-+", toks[0]):
+                        basis_set[toks[0]] = dict(zip(bset_header[1:],
+                                                      toks[1:]))
+                    elif toks[0] == "Tag":
+                        bset_header = toks
+                        bset_header.pop(4)
+                        bset_header = [h.lower() for h in bset_header]
             else:
                 m = energy_patt.search(l)
                 if m:
@@ -341,9 +362,11 @@ class NwOutput(object):
                     except ValueError:
                         val = m.group(2)
                     k = m.group(1).replace("No. of ", "n").replace(" ", "_")
-                    data[k] = val
+                    data[k.lower()] = val
                 elif l.find("Geometry \"geometry\"") != -1:
                     parse_geom = True
+                elif l.find("Summary of \"ao basis\"") != -1:
+                    parse_bset = True
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
                 else:
@@ -354,6 +377,9 @@ class NwOutput(object):
 
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
-                     "molecules": molecules})
+                     "molecules": molecules,
+                     "basis_set": basis_set,
+                     "errors": errors,
+                     "has_error": len(errors) > 0})
 
         return data
