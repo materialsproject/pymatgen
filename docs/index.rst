@@ -72,7 +72,7 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.7.3
+v2.7.4
 ------
 1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support. (by: Shyue Ping
    Ong).
