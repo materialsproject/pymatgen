@@ -62,6 +62,7 @@ def _read_nlines(filename, nlines):
         return lines
 
 def read_dojo_report(filename):
+    """Helper function to read the DOJO_REPORT from file."""
     with open(filename, "r") as fh:
          lines = fh.readlines()
          try:
@@ -142,7 +143,7 @@ class Pseudo(object):
             self.__class__.__name__, id(self), self.name)
 
     def __str__(self):
-        "String representation"
+        """String representation."""
         lines = []
         app = lines.append
         app("<%s: %s>" % (self.__class__.__name__, self.name))
@@ -152,46 +153,52 @@ class Pseudo(object):
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
         app("  radius for non-linear core correction: %s" % self.nlcc_radius)
+        app("")
+
+        hint_normal = self.hint_for_accuracy()
+        if hint_normal is not None:
+            app("  hint for normal accuracy: %s" % str(hint_normal))
+
         return "\n".join(lines)
 
     @abc.abstractproperty
     def summary(self):
-        "String summarizing the most important properties"
+        """String summarizing the most important properties."""
 
     @abc.abstractproperty
     def filepath(self):
-        "Absolute path of the pseudopotential file"
+        """Absolute path of the pseudopotential file."""
 
     @property
     def name(self):
-        "File basename"
+        """File basename."""
         return os.path.basename(self.filepath)
 
     @abc.abstractproperty
     def Z(self):
-        "The atomic number of the atom."
+        """The atomic number of the atom."""""""""
 
     @abc.abstractproperty
     def Z_val(self):
-        "Valence charge"
+        """Valence charge"""
 
     @property
     def element(self):
-        "Pymatgen Element"
+        """Pymatgen `Element`."""
         return _PTABLE[self.Z]
 
     @property
     def symbol(self):
-        "Element symbol."
+        """Element symbol."""
         return self.element.symbol
 
     @abc.abstractproperty
     def l_max(self):
-        "Maximum angular momentum"
+        """Maximum angular momentum."""
 
     @abc.abstractproperty
     def l_local(self):
-        "Angular momentum used for the local part"
+        """Angular momentum used for the local part."""
 
     #@abc.abstractproperty
     #def xc_family(self):
@@ -203,17 +210,17 @@ class Pseudo(object):
 
     @property
     def xc_type(self):
-        "XC identifier e.g LDA-PW, GGA-PBE, GGA-revPBE"
+        """XC identifier e.g LDA-PW, GGA-PBE, GGA-revPBE."""
         return "-".join([self.xc_family, self.xc_flavor])
 
     @property
     def isnc(self):
-        "True if norm-conserving pseudopotential"
+        """True if norm-conserving pseudopotential."""
         return isinstance(self, NcPseudo)
 
     @property
     def ispaw(self):
-        "True if PAW pseudopotential"
+        """True if PAW pseudopotential."""
         return isinstance(self, PawPseudo)
 
     #@abc.abstractproperty
@@ -230,15 +237,27 @@ class Pseudo(object):
 
     @property
     def has_dojo_report(self):
-        "True if self contains the DOJO_REPORT section."
+        """True if self contains the DOJO_REPORT section."""
         return self.dojo_report
 
-    #def dojo_rank(self):
+    def delta_factor(self, accuracy="normal"):
+        """
+        Returns the deltafactor [meV/natom] computed with the given accuracy.
+        None if self does not have info on the deltafactor.
+        """
+        if not self.has_dojo_report:
+            return None
+        try:
+            return self.dojo_report["delta_factor"][accuracy]["dfact"]
+        except KeyError:
+            return None
 
     def read_dojo_report(self):
+        """Read the DOJO_REPORT section, returns {} if section is not present.""" 
         return read_dojo_report(self.path)
 
     def write_dojo_report(self, report):
+        """Write a new DOJO_REPORT section to the pseudopotential file."""
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
 
@@ -263,6 +282,7 @@ class Pseudo(object):
             fh.writelines(lines)
 
     def remove_dojo_report(self):
+        """Remove the DOJO_REPORT section from the pseudopotential file."""
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
             lines = fh.readlines()
@@ -279,16 +299,15 @@ class Pseudo(object):
                return
 
             del lines[start+1:stop]
-            #print(lines)
 
         # Write new file.
         with open(self.path, "w") as fh:
             fh.writelines(lines)
 
-    def hint_for_accuracy(self, accuracy):
+    def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns an hint object with parameters such as ecut and aug_ratio for
-        given accuracy. Returns None if no hint is available.
+        Returns an hint object with parameters such as ecut [Ha] and 
+        aug_ratio for given accuracy. Returns None if no hint is available.
 
         Args:
             accuracy: ["low", "normal", "high"]
@@ -306,20 +325,16 @@ class Pseudo(object):
                 return False
         return True
 
-    def checksum(self):
-        """
-        Return the checksum of the pseudopotential file.
-
-        The checksum is given by the tuple (basename, num_lines, hexmd5)
-        where basename if the file name, hexmd5 is the (hex) MD5 hash,
-        and num_lines is the number of lines in the file.
-        """
-        import hashlib
-        hasher = hashlib.md5()
-        with open(self.filepath, "r") as fh:
-            hasher.update(fh.read())
-
-        return self.name, len(text.splitlines()), hasher.hexdigest()
+    #@property
+    #def md5(self):
+    #    """
+    #    Return the checksum of the pseudopotential file.
+    #    """
+    #    import hashlib
+    #    hasher = hashlib.md5()
+    #    with open(self.filepath, "r") as fh:
+    #        hasher.update(fh.read())
+    #        return hasher.hexdigest()
 
 ##########################################################################################
 
