@@ -74,7 +74,12 @@ Latest Change Log
 
 v2.7.3
 ------
-1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support.
+1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support. (by: Shyue Ping
+   Ong).
+2. New MoleculeMatcher class for comparing molecules by RMS. Requires
+   openbabel with python bindings. (by: Xiaohui Qu)
+3. New functional group substitution capability for molecules (by: Lei Cheng
+   and Shyue Ping Ong).
 
 v2.7.2
 ------
@@ -97,8 +102,8 @@ v2.7.1
    immutability) which will perform exactly the same way as the previous
    classes. With this change, the :mod:`pymatgen.core.structure_modifier`
    module is now deprecated and will be removed in a future version.
-2. read_structure and write_structure now supports pymatgen's json
-   serialized structures.
+2. read_structure and write_structure now supports pymatgen's json serialized
+   structures.
 3. read_mol and write_mol functions now available (analogues of
    read_structure and write_structure for molecules)
 
