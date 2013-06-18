@@ -1031,7 +1031,8 @@ class DeltaTest(Workflow):
 
         v0 = structure.volume
 
-        self.volumes = v0 * np.arange(94, 106, 2) / 100.
+        # From 94% to 106% of the equilibrium volume.
+        self.volumes = v0 * np.arange(94, 108, 2) / 100.
 
         for vol in self.volumes:
 
