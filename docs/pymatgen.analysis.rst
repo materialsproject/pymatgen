@@ -33,6 +33,14 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`molecule_matcher` Module
+------------------------------
+
+.. automodule:: pymatgen.analysis.molecule_matcher
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`reaction_calculator` Module
 ---------------------------------
 
