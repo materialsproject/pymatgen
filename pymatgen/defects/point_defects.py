@@ -5,10 +5,13 @@ This module defines classes for point defects
 """
 from __future__ import division
 import abc 
+from sets import Set
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.zeoio import get_voronoi_nodes
+from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
+from pymatgen.analysis.bond_valence import BVAnalyzer
 
 #from pymatgen.core.structure import PeriodicSize
 #from pymatgen.core.structure_modifier import SuperCellMaker
@@ -20,16 +23,25 @@ class Defect:
     __metaclass__ = abc.ABCMeta
     
     @abc.abstractmethod
-    def enumerate_uniq_defectsites(self):
+    def enumerate_defectsites(self):
         """
-        Enumerates all the unique defects
+        Enumerates all the symmetrically distinct defects.
+        """
+        print 'Not implemented'
+
+    @abc.abstractproperty
+    def structure(self):
+        """
+        Returns the structure without any defects
+        Useful for Mott-Littleton calculations.
         """
         print 'Not implemented'
     
     @abc.abstractmethod
     def make_supercells_with_defects(self, scaling_matrix):
         """
-        Generate the supercell with input multipliers and create the defect
+        Generate the supercell with input multipliers and create the defect.
+        First supercell has no defects.
         To create unit cell with defect pass unit matrix.
         """ 
         print 'Not implemented'
@@ -37,36 +49,130 @@ class Defect:
     
 class Vacancy(Defect):
     """
-    Subclass of Defect to generate vacancies
+    Subclass of Defect to generate vacancies and their analysis
     """
-    def __init__(self, inp_structure):
+    def __init__(self, structure):
         """
-        Given a structure, generate the unique vacancy sites
-        
+
         Args:
             inp_structure:
                 pymatgen.core.Structure
         """
         
-        self._structure = inp_structure
+        self._structure = structure
+        # Store symmetrically distinct sites, their coordination numbers
+        # coordinated_sites, effective charge
         symm_finder = SymmetryFinder(self._structure)
         symm_structure = symm_finder.get_symmetrized_structure()
         equiv_site_seq = symm_structure.equivalent_sites
-        self._uniq_vac_sites = []
+        self._vac_sites = []
         for equiv_sites in equiv_site_seq:
-            self._uniq_vac_sites.append(equiv_sites[0])
-        
-        
-    def enumerate_uniq_defectsites(self):
-        """
-        Enumerate the unique defect sites
-        
-        Returns:
-            List of unique defect sites
+            self._vac_sites.append(equiv_sites[0])
+        self._vac_site_indices = []
+        for site in self._vac_sites:
+            for i in range(len(self._structure.sites)):
+                if site == self._structure[i]:
+                    self._vac_site_indices.append(i)
+        coord_finder = VoronoiCoordFinder(self._structure)
+        self._vac_coordination_numbers = []
+        self._vac_coordinated_sites = []
+        for i in self._vac_site_indices:
+            self._vac_coordination_numbers.append(
+                    coord_finder.get_coordination_number(i))
+            self._vac_coordinated_sites.append(
+                    coord_finder.get_coordinated_sites(i))
+        # Effective charge (In Kroger-Vink notation, cation vacancy has 
+        # effectively -ve charge and anion vacancy has +ve charge.) Inverse
+        # the BVAnalyzer.get_valences result.
+        bv = BVAnalyzer()
+        valences = bv.get_valences(self._structure)
+        self._vac_eff_charges = []
+        for i in self._vac_site_indices:
+            self._vac_eff_charges.append(-valences[i])
 
+
+    def defectsite_count(self):
         """
-        return self._uniq_vac_sites
+        Returns the number of symmetrically distinct vacancy sites
+        """
+        return len(self._vac_sites)
+        
+    def enumerate_defectsites(self):
+        """
+        Returns symmetrically distinct vacancy sites
+        
+        """
+        return self._vac_sites
     
+    def get_defectsite_indices(self):
+        """
+        Returns indices of symmetrically distinct vacancy sites
+        
+        """
+        return self._vac_site_indices
+
+    def get_defectsite(self,n):
+        return self._vac_sites[i]
+
+    def get_defectsite_index(self, n):
+        """
+        index of the vacacy site in the structure.sites list
+        Args:
+            n
+                Index of vacancy list
+        """
+        return self._vac_site_indices[n]
+
+    def get_defectsite_coordination_number(self, n):
+        """
+        Returns the coordination number of vacancy site.
+        Args:
+            n
+                Index of vacancy list
+        """
+        return self._vac_coordination_numbers[n]
+
+    def get_defectsite_coordinated_sites(self, n):
+        """
+        Returns the sites surrounding the vacancy site.
+        Args:
+            n
+                Index of vacancy list
+        """
+        return self._vac_coordinated_sites[n]
+
+    def get_defectsite_coordinated_elements(self, n):
+        """
+        Returns the elements of sites surrounding the vacancy site.
+        Args:
+            n
+                Index of vacancy list
+        """
+        coordinated_species = []
+        for site in self._vac_coordinated_sites[n]:
+            coordinated_species.append(site.species_and_occu)
+        return set(coordinated_species)
+
+    def get_defectsite_effective_charge(self, n):
+        """
+        Effective charge (In Kroger-Vink notation, cation vacancy has 
+        effectively -ve charge and anion vacancy has +ve charge.) 
+        Args:
+            n
+                Index of vacancy list
+
+        Returns:
+            Effective charnge of defect site
+        """
+        return self._vac_eff_charges[n]
+
+    @property
+    def structure(self):
+        """
+        Returns the structure without any defects
+        """
+        return self._structure
+
     def _supercell_with_defect(self, scaling_matrix, defect_site):
         sc = self._structure.copy()
         sc.make_supercell(scaling_matrix)
@@ -83,13 +189,23 @@ class Vacancy(Defect):
         
     def make_supercells_with_defects(self, scaling_matrix):
         """
-        Returns sequence of supercells in pymatgen.core.structure.Structure
-        format, with each supercell containing unique vacancy
+        Generate sequence of supercells in pymatgen.core.structure.Structure
+        format, with each supercell containing one vacancy.
+
+        Args:
+            scaling_matrix:
+                super cell scale parameters in matrix forms
+
+        Returns:
+            Supercells with vacancies. First supercell has no defects.
         """
         sc_with_vac = []
-        for uniq_defect_site in self.enumerate_uniq_defectsites():
+        sc = self._structure.copy()
+        sc.make_supercell(scaling_matrix)
+        sc_with_vac.append(sc)
+        for defect_site in self.enumerate_defectsites():
             sc_with_vac.append(self._supercell_with_defect(scaling_matrix, 
-                                                           uniq_defect_site))
+                                                           defect_site))
         return sc_with_vac
              
         
@@ -99,7 +215,7 @@ class Interstitial(Defect):
     """
     def __init__(self, structure):
         """
-        Given a structure, generate symmetrically unique interstitial sites.
+        Given a structure, generate symmetrically distinct interstitial sites.
         
         Args:
             structure:
@@ -107,24 +223,33 @@ class Interstitial(Defect):
         """
         
         self._structure = structure
-        self._uniq_interstitial_sites = []
+        self._interstitial_sites = []
 
-        #Use Zeo++ to obtain the voronoi nodes. The unique voronoi nodes
+        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
+        #the symmetry reduced voronoi nodes
         #are possible candidates for interstitial sites
-        possible_interstitial_sites = _get_uniq_voronoi_nodes(structure)
+        possible_interstitial_sites = _symmetry_reduced_voronoi_nodes(structure)
         
         #Do futher processing on possibleInterstitialSites to obtain 
         #interstitial sites
-        self._uniq_interstitial_sites = possible_interstitial_sites
+        self._interstitial_sites = possible_interstitial_sites
         
         
-    def enumerate_uniq_defectsites(self):
+    def enumerate_defectsites(self):
         """
-        Enumerate all the defect sites unique w.r.t. symmetry.
+        Enumerate all the symmetrically distinct interstitial sites.
         The defect site has "Al" as occupied specie.
         """
-        return self._uniq_interstitial_sites
-
+        return self._interstitial_sites
+    
+    @property
+    def structure(self):
+        """
+        Returns the structure without any defects
+        Useful for Mott-Littleton calculations.
+        """
+        return self._structure
+    
             
     def _supercell_with_defect(self, scaling_matrix, defect_site, element):
         sc = self._structure.copy()
@@ -145,10 +270,14 @@ class Interstitial(Defect):
     def make_supercells_with_defects(self, scaling_matrix, element):
         """
         Returns sequence of supercells in pymatgen.core.structure.Structure
-        format, with each supercell containing unique interstitial
+        format, with each supercell containing an interstitial.
+        First supercell has no defects.
         """
         sc_list_with_interstitial = []
-        for defect_site in self.enumerate_uniq_defectsites():
+        sc = self._structure.copy()
+        sc.make_supercell(scaling_matrix)
+        sc_list_with_interstitial.append(sc)
+        for defect_site in self.enumerate_defectsites():
             sc_with_inter = self._supercell_with_defect(
                     scaling_matrix, defect_site, element
                     )
@@ -156,33 +285,33 @@ class Interstitial(Defect):
                 sc_list_with_interstitial.append(sc_with_inter)
         return sc_list_with_interstitial
 
-def _get_uniq_voronoi_nodes(structure):
+def _symmetry_reduced_voronoi_nodes(structure):
     """
-    Obtain symmetrically unique voronoi nodes using Zeo++ and 
+    Obtain symmetry reduced voronoi nodes using Zeo++ and 
     pymatgen.symmetry.finder.SymmetryFinder
     Args:
         strucutre:
             pymatgen Structure object
 
     Returns:
-        Symmetrically unique voronoi nodes as pymatgen Strucutre
+        Symmetrically distinct voronoi nodes as pymatgen Strucutre
     """
     vor_node_struct = get_voronoi_nodes(structure)
     vor_symmetry_finder = SymmetryFinder(vor_node_struct)
     vor_symm_struct = vor_symmetry_finder.get_symmetrized_structure()
     equiv_sites = vor_symm_struct.equivalent_sites
-    uniq_sites = []
+    sites = []
     for equiv_site in vor_symm_struct.equivalent_sites:
-        uniq_sites.append(equiv_site[0])
+        sites.append(equiv_site[0])
 
     #lat = structure.lattice
-    #sp = [site.specie for site in uniq_sites]   # "Al" because to Zeo++
-    #coords = [site.coords for site in uniq_sites]
-    #vor_node_radii = [site.properties['voronoi_radius'] for site in uniq_sites]
-    #uniq_vor_node_struct = Structure(lat, sp, coords, 
+    #sp = [site.specie for site in sites]   # "Al" because to Zeo++
+    #coords = [site.coords for site in sites]
+    #vor_node_radii = [site.properties['voronoi_radius'] for site in sites]
+    #vor_node_struct = Structure(lat, sp, coords, 
     #        coords_are_cartesian=True, 
     #        site_properties={'voronoi_radius':vor_node_radii}
     #        )
-    return uniq_sites
+    return sites
     
     
