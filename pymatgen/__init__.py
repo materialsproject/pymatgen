@@ -2,8 +2,8 @@ __author__ = ", ".join(["Shyue Ping Ong", "Anubhav Jain", "Geoffroy Hautier",
                         "William Davidson Richard", "Stephen Dacek",
                         "Michael Kocher", "Dan Gunter", "Shreyas Cholia",
                         "Vincent L Chevrier", "Rickard Armiento"])
-__date__ = "May 12 2013"
-__version__ = "2.7.3"
+__date__ = "Jun 18 2013"
+__version__ = "2.7.4"
 
 import json
 #Useful aliases for commonly used objects and modules.
