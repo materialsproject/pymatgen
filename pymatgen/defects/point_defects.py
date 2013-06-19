@@ -125,25 +125,25 @@ class Vacancy(Defect):
 
     def get_defectsite_coordination_number(self, n):
         """
-        Returns the coordination number of vacancy site.
+        Coordination number of vacancy site.
         Args:
             n
                 Index of vacancy list
         """
         return self._vac_coordination_numbers[n]
 
-    def get_defectsite_coordinated_sites(self, n):
+    def get_coordinated_sites(self, n):
         """
-        Returns the sites surrounding the vacancy site.
+        The sites surrounding the vacancy site.
         Args:
             n
                 Index of vacancy list
         """
         return self._vac_coordinated_sites[n]
 
-    def get_defectsite_coordinated_elements(self, n):
+    def get_coordinated_elements(self, n):
         """
-        Returns the elements of sites surrounding the vacancy site.
+        Elements of sites surrounding the vacancy site.
         Args:
             n
                 Index of vacancy list
@@ -166,10 +166,34 @@ class Vacancy(Defect):
         """
         return self._vac_eff_charges[n]
 
+    def get_coordsites_min_max_charge(self,n):
+        """
+        Minimum and maximum charge of sites surrounding the vacancy site.
+        Args:
+            n
+                Index of vacancy list
+        """
+        bv = BVAnalyzer()
+        struct_valences = bv.get_valences(self._structure)
+        coordinated_site_valences = []
+
+        def _get_index(site):
+            for i in range(len(self._structure.sites)):
+                if site.is_periodic_image(self._structure.sites[i]):
+                    return i
+            raise ValueError("Site not found")
+
+        for site in self._vac_coordinated_sites[n]:
+            ind = _get_index(site)
+            coordinated_site_valences.append(struct_valences[ind])
+        coordinated_site_valences.sort()
+        return coordinated_site_valences[0], coordinated_site_valences[-1]
+
+
     @property
     def structure(self):
         """
-        Returns the structure without any defects
+        Structure without any defects
         """
         return self._structure
 
