@@ -9,11 +9,14 @@ from __future__ import division
 import unittest
 import os
 
+from pymatgen.io.cifio import CifParser
 from pymatgen.io.zeoio import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes
+from pymatgen.io.zeoio import get_void_volume_surfarea
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.structure import Structure, Molecule
+from pymatgen.defects.point_defects import Vacancy
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+test_dir = os.path.join('/Users/mbkumar/Research/Defects/pymatgen',
                         'test_files')
 
 
@@ -88,17 +91,38 @@ H -0.513360 0.889165 -0.363000 0.200000"""
         vorXYZ = ZeoVoronoiXYZ.from_file(filename)
         self.assertIsInstance(vorXYZ.molecule, Molecule)
 
-
 class GetVoronoiNodesTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
         self.structure = p.structure
 
-
     def test_get_voronoi_nodes(self):
         vor_struct = get_voronoi_nodes(self.structure)
         self.assertIsInstance(vor_struct, Structure)
+
+class GetVoidVolumeSurfaceTest(unittest.TestCase):
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        p = Poscar.from_file(filepath)
+        filepath1 = os.path.join(test_dir, 'LiMn2O4.cif')
+        p1 = CifParser(filepath1).get_structures()[0]
+        #vacancy = Vacancy(p.structure)
+        vacancy = Vacancy(p1)
+
+        um = [[1,0,0],[0,1,0],[0,0,1]]
+        self._vac_struct = vacancy.make_supercells_with_defects(um)[1]
+        #print self._vac_struct
+    
+    def test_void_volume_surface_area(self):
+        #for struct in self._vac_struct:
+        #   vol, sa = get_void_volume_surfarea(struct)
+        #   self.assertIsInstance(vol, float)
+        #   self.assertIsInstance(sa, float)
+        vol, sa = get_void_volume_surfarea(self._vac_struct)
+        print "vol:  ", vol, "sa:  ", sa
+        self.assertIsInstance(vol, float)
+        self.assertIsInstance(sa, float)
 
 if __name__ == "__main__":
     unittest.main()

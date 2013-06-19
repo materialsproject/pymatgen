@@ -13,6 +13,7 @@ import os
 import shutil
 
 from zeo.netstorage import AtomNetwork, VoronoiNetwork
+from zeo.area_volume import volume, surface_area
 
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
@@ -23,7 +24,7 @@ from pymatgen.util.io_utils import zopen
 class ZeoCssr(Cssr):
     """
     ZeoCssr adds extra fields to CSSR sites to conform with Zeo++ 
-    input CSSR format
+    input CSSR format. Modifies some routines of Cssr class.
     """
     def __init__(self, structure):
         """
@@ -182,18 +183,24 @@ class ZeoVoronoiXYZ(XYZ):
         return "\n".join(output)
 
 
-def get_voronoi_nodes(structure):
+def get_voronoi_nodes(structure, rad_file=None, probe_rad=0.1):
 
     """
-    Using Zeo++ analyze the void space in the input structure
-    and return information  about voronoi nodes as pymatgen structure
+    Analyze the void space in the input structure using voronoi decomposition
+    Calls Zeo++ for Voronoi decomposition
     Args:
         structure:
             pymatgen.core.structure.Structure
+        rad_file (optional):
+            File containing element and radius values in a table
+            If not given Zeo++ default values are used.
+            For non-covalent materials, its a good idea to provide it.
+        probe_rad (optional):
+            Sampling probe radius in Angstroms. Default is 0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre using the 
-        lattice of input structure lattice
+        voronoi nodes as pymatgen.core.structure.Strucutre within the 
+        unit cell defined by the lattice of input structure 
     """
         
     temp_dir = tempfile.mkdtemp()
@@ -202,9 +209,13 @@ def get_voronoi_nodes(structure):
     zeo_inp_filename = name+".cssr"
     os.chdir(temp_dir)
     ZeoCssr(structure).write_file(zeo_inp_filename)
-    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename)
+    #*******Future implementation***********
+    # Compute site radii using structure analyzer and generate rad_file
+    # Check if pymatgen has any method already implemented
+    #***************************************
+    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
     vornet = atmnet.perform_voronoi_decomposition()
-    vornet.analyze_writeto_XYZ(name, 0.3, atmnet)
+    vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name+'_voro.xyz'
     voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
     a = structure.lattice.a
@@ -214,4 +225,44 @@ def get_voronoi_nodes(structure):
     os.chdir(current_dir)
     shutil.rmtree(temp_dir)
     return voronoi_node_struct 
+
+def get_void_volume_surfarea(structure, rad_file=None, probe_rad=0.2):
+    """
+    Computes the volume and surface area of isolated void using Zeo++.
+    Useful to compute the volume and surface area of vacant site.
+    Args:
+        structure:
+            pymatgen Structure containing vacancy
+    Returns:
+        volume:
+            floating number representing the volume of void
+    """
+    temp_dir = tempfile.mkdtemp()
+    current_dir = os.getcwd()
+    name = "temp_zeo"
+    zeo_inp_filename = name+".cssr"
+    os.chdir(temp_dir)
+    ZeoCssr(structure).write_file(zeo_inp_filename)
+    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
+    #atmnet.write_to_CIF("test.cif")
+    vol_str = volume(atmnet, 0.2, probe_rad, 10000)
+    #print vol_str
+    sa_str = surface_area(atmnet, 0.2, probe_rad, 10000)
+    vol = None
+    sa = None
+    for line in vol_str.split("\n"):
+        if "Number_of_pockets" in line:
+            fields = line.split()
+            if float(fields[1]) > 1:
+                raise ValueError("Too many voids")
+            vol = float(fields[3])
+    for line in sa_str.split("\n"):
+        if "Number_of_pockets" in line:
+            fields = line.split()
+            if float(fields[1]) > 1:
+                raise ValueError("Too many voids")
+            sa = float(fields[3])
+    if not vol or not sa:
+        raise ValueError("No voids present. Check input structure")
+    return vol, sa
 
