@@ -57,7 +57,7 @@ class VacancyTest(unittest.TestCase):
             site_index = self._mgo_vac.get_defectsite_index(i)
             site_el = self._mgo_uc[site_index].species_and_occu
             self.assertTrue(
-                    site_el not in self._mgo_vac.get_defectsite_coordinated_elements(
+                    site_el not in self._mgo_vac.get_coordinated_elements(
                         i), "Coordinated elements are wrong")
 
     def test_get_defectsite_effective_charge(self):
@@ -70,7 +70,10 @@ class VacancyTest(unittest.TestCase):
             if site_el["O"] == 1:
                 self.assertEqual(eff_charge, 2)
 
-
+    def test_get_coordinatedsites_min_max_charge(self):
+        for i in range(self._mgo_vac.defectsite_count()):
+            min_chrg, max_chrg = self._mgo_vac.get_coordsites_min_max_charge(i)
+            self.assertEqual(min_chrg, max_chrg)
         
 class InterstitialTest(unittest.TestCase):
     def setUp(self):
