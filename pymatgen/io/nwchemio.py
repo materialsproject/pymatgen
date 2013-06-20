@@ -15,6 +15,7 @@ __date__ = "6/5/13"
 
 
 import re
+import collections
 
 from pymatgen.core import Molecule
 import pymatgen.core.physical_constants as phyc
@@ -294,16 +295,14 @@ class NwInput(MSONable):
                 read_geom = True
 
         tasks = []
+        charge = None
+        spin_multiplicity = None
+        title = None
+        theory = "scf"
+        basis_set = None
+        theory_directives = collections.defaultdict(dict)
         #Parse the tasks
         for c in chunks:
-            charge = None
-            spin_multiplicity = None
-            title = None
-            theory = "scf"
-            operation = None
-            basis_set = {}
-            theory_directives = {}
-
             lines = c.strip().split("\n")
             while len(lines) > 0:
                 l = lines.pop(0).strip()
@@ -312,29 +311,29 @@ class NwInput(MSONable):
                     charge = int(toks[1])
                 elif toks[0].lower() == "title":
                     title = l.lstrip("title \"").rstrip("\"")
-                elif toks[0].lower() == "task":
-                    operation = toks[2]
-                    theory = toks[1]
                 elif toks[0].lower() == "basis":
                     l = lines.pop(0).strip()
+                    basis_set = {}
                     while l.lower() != "end":
                         toks = l.split()
                         basis_set[toks[0]] = toks[-1].strip("\"")
                         l = lines.pop(0).strip()
-                elif toks[0].lower() == "dft":
+                elif toks[0].lower() in NwTask.theories:
+                    theory = toks[0].lower()
                     l = lines.pop(0).strip()
                     while l.lower() != "end":
                         toks = l.split()
-                        theory_directives[toks[0]] = toks[-1]
+                        theory_directives[theory][toks[0]] = toks[-1]
                         if toks[0] == "mult":
                             spin_multiplicity = float(toks[1])
                         l = lines.pop(0).strip()
-
-            tasks.append(NwTask(mol, charge=charge,
-                                spin_multiplicity=spin_multiplicity,
-                                title=title, theory=theory,
-                                operation=operation, basis_set=basis_set,
-                                theory_directives=theory_directives))
+                elif toks[0].lower() == "task":
+                    tasks.append(
+                        NwTask(mol, charge=charge,
+                               spin_multiplicity=spin_multiplicity,
+                               title=title, theory=toks[1],
+                               operation=toks[2], basis_set=basis_set,
+                               theory_directives=theory_directives[toks[1]]))
 
         return NwInput(mol, tasks=tasks, directives=directives)
 
