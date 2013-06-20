@@ -317,6 +317,7 @@ class NwInput(MSONable):
                 #Parse theory directives.
                 theory = toks[0].lower()
                 l = lines.pop(0).strip()
+                theory_directives[theory] = {}
                 while l.lower() != "end":
                     toks = l.split()
                     theory_directives[theory][toks[0]] = toks[-1]

@@ -244,6 +244,7 @@ charge -1
 task dft energy
 """
         nwi = NwInput.from_string(str_inp)
+        print nwi
         self.assertEqual(nwi.tasks[0].theory, "scf")
         self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
         self.assertEqual(nwi.tasks[-1].theory, "dft")
