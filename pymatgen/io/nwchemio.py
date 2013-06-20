@@ -400,8 +400,9 @@ class NwOutput(object):
         preamble_patt = re.compile("(No. of atoms|No. of electrons"
                                    "|SCF calculation type|Charge|Spin "
                                    "multiplicity)\s*:\s*(\S+)")
-        error_defs = {"Calculation failed to converge": "Bad convergence",
-                      "geom_binvr: #indep variables incorrect": "autoz error"}
+        error_defs = {
+            "calculations not reaching convergence criteria": "Bad convergence",
+            "geom_binvr: #indep variables incorrect": "autoz error"}
 
         data = {}
         energies = []
