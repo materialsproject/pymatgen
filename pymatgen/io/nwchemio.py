@@ -275,65 +275,62 @@ class NwInput(MSONable):
         Returns:
             NwInput object
         """
-        chunks = re.split("\n\s*\n", string_input.strip())
         directives = []
-        species = []
-        coords = []
-        read_geom = False
-        for l in chunks.pop(0).split("\n"):
-            if read_geom:
-                if l.strip().lower() == "end":
-                    mol = Molecule(species, coords)
-                    read_geom = False
-                else:
-                    toks = l.strip().split()
-                    species.append(toks[0])
-                    coords.append(map(float, toks[1:]))
-            elif not l.strip().startswith("geometry"):
-                directives.append(l.strip().split())
-            else:
-                read_geom = True
-
         tasks = []
         charge = None
         spin_multiplicity = None
         title = None
-        theory = "scf"
         basis_set = None
         theory_directives = collections.defaultdict(dict)
-        #Parse the tasks
-        for c in chunks:
-            lines = c.strip().split("\n")
-            while len(lines) > 0:
+
+        lines = string_input.strip().split("\n")
+        while len(lines) > 0:
+            l = lines.pop(0).strip()
+            if l == "":
+                continue
+
+            toks = l.split()
+            if toks[0].lower() == "geometry":
                 l = lines.pop(0).strip()
-                toks = l.split()
-                if toks[0].lower() == "charge":
-                    charge = int(toks[1])
-                elif toks[0].lower() == "title":
-                    title = l.lstrip("title \"").rstrip("\"")
-                elif toks[0].lower() == "basis":
+                basis_set = {}
+                species = []
+                coords = []
+                while l.lower() != "end":
+                    toks = l.split()
+                    species.append(toks[0])
+                    coords.append(map(float, toks[1:]))
                     l = lines.pop(0).strip()
-                    basis_set = {}
-                    while l.lower() != "end":
-                        toks = l.split()
-                        basis_set[toks[0]] = toks[-1].strip("\"")
-                        l = lines.pop(0).strip()
-                elif toks[0].lower() in NwTask.theories:
-                    theory = toks[0].lower()
+                mol = Molecule(species, coords)
+
+            elif toks[0].lower() == "charge":
+                charge = int(toks[1])
+            elif toks[0].lower() == "title":
+                title = l.lstrip("title \"").rstrip("\"")
+            elif toks[0].lower() == "basis":
+                l = lines.pop(0).strip()
+                basis_set = {}
+                while l.lower() != "end":
+                    toks = l.split()
+                    basis_set[toks[0]] = toks[-1].strip("\"")
                     l = lines.pop(0).strip()
-                    while l.lower() != "end":
-                        toks = l.split()
-                        theory_directives[theory][toks[0]] = toks[-1]
-                        if toks[0] == "mult":
-                            spin_multiplicity = float(toks[1])
-                        l = lines.pop(0).strip()
-                elif toks[0].lower() == "task":
-                    tasks.append(
-                        NwTask(mol, charge=charge,
-                               spin_multiplicity=spin_multiplicity,
-                               title=title, theory=toks[1],
-                               operation=toks[2], basis_set=basis_set,
-                               theory_directives=theory_directives[toks[1]]))
+            elif toks[0].lower() in NwTask.theories:
+                theory = toks[0].lower()
+                l = lines.pop(0).strip()
+                while l.lower() != "end":
+                    toks = l.split()
+                    theory_directives[theory][toks[0]] = toks[-1]
+                    if toks[0] == "mult":
+                        spin_multiplicity = float(toks[1])
+                    l = lines.pop(0).strip()
+            elif toks[0].lower() == "task":
+                tasks.append(
+                    NwTask(mol, charge=charge,
+                           spin_multiplicity=spin_multiplicity,
+                           title=title, theory=toks[1],
+                           operation=toks[2], basis_set=basis_set,
+                           theory_directives=theory_directives[toks[1]]))
+            else:
+                directives.append(l.strip().split())
 
         return NwInput(mol, tasks=tasks, directives=directives)
 
