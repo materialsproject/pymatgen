@@ -15,7 +15,6 @@ __date__ = "6/5/13"
 
 
 import re
-import collections
 
 from pymatgen.core import Molecule
 import pymatgen.core.physical_constants as phyc
@@ -281,7 +280,7 @@ class NwInput(MSONable):
         spin_multiplicity = None
         title = None
         basis_set = None
-        theory_directives = collections.defaultdict(dict)
+        theory_directives = {}
 
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
@@ -330,7 +329,7 @@ class NwInput(MSONable):
                            spin_multiplicity=spin_multiplicity,
                            title=title, theory=toks[1],
                            operation=toks[2], basis_set=basis_set,
-                           theory_directives=theory_directives[toks[1]]))
+                           theory_directives=theory_directives.get(toks[1])))
             else:
                 directives.append(l.strip().split())
 
