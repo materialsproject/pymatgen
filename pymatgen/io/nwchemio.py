@@ -216,10 +216,7 @@ class NwInput(MSONable):
                 [("start", "water"), ("print", "high")]
         """
         self._mol = mol
-        if directives is None:
-            self.directives = [("start", re.sub("\s", "", self._mol.formula))]
-        else:
-            self.directives = directives
+        self.directives = directives if directives is not None else []
         self.tasks = tasks
 
     @property
