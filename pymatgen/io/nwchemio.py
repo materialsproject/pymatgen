@@ -293,6 +293,8 @@ class NwInput(MSONable):
             else:
                 read_geom = True
 
+        tasks = []
+        #Parse the tasks
         for c in chunks:
             charge = None
             spin_multiplicity = None
@@ -300,16 +302,41 @@ class NwInput(MSONable):
             theory = "scf"
             operation = None
             basis_set = {}
-            for l in c.strip().split("\n"):
-                toks = l.strip().split()
-                if toks[0] == "charge":
+            theory_directives = {}
+
+            lines = c.strip().split("\n")
+            while len(lines) > 0:
+                l = lines.pop(0).strip()
+                toks = l.split()
+                if toks[0].lower() == "charge":
                     charge = int(toks[1])
-                    """
-            (self, mol, charge=None, spin_multiplicity=None,
-                 title=None, theory="dft", operation="optimize",
-                 basis_set="6-31++G**", theory_directives=None)
-                    """
-        return NwInput(mol, tasks=[], directives=directives)
+                elif toks[0].lower() == "title":
+                    title = l.lstrip("title \"").rstrip("\"")
+                elif toks[0].lower() == "task":
+                    operation = toks[2]
+                    theory = toks[1]
+                elif toks[0].lower() == "basis":
+                    l = lines.pop(0).strip()
+                    while l.lower() != "end":
+                        toks = l.split()
+                        basis_set[toks[0]] = toks[-1].strip("\"")
+                        l = lines.pop(0).strip()
+                elif toks[0].lower() == "dft":
+                    l = lines.pop(0).strip()
+                    while l.lower() != "end":
+                        toks = l.split()
+                        theory_directives[toks[0]] = toks[-1]
+                        if toks[0] == "mult":
+                            spin_multiplicity = float(toks[1])
+                        l = lines.pop(0).strip()
+
+            tasks.append(NwTask(mol, charge=charge,
+                                spin_multiplicity=spin_multiplicity,
+                                title=title, theory=theory,
+                                operation=operation, basis_set=basis_set,
+                                theory_directives=theory_directives))
+
+        return NwInput(mol, tasks=tasks, directives=directives)
 
     @classmethod
     def from_file(cls, filename):

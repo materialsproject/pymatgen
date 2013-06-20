@@ -194,7 +194,10 @@ task dft energy
 
     def test_from_string_and_file(self):
         nwi = NwInput.from_file(os.path.join(test_dir, "ch4.nw"))
-        print nwi
+        self.assertEqual(nwi.tasks[0].theory, "dft")
+        self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
+        self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
+
 
 class NwOutputTest(unittest.TestCase):
 
