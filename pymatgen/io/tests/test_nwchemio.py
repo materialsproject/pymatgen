@@ -192,6 +192,9 @@ task dft energy
         #Ensure it is json-serializable.
         json.dumps(d)
 
+    def test_from_string_and_file(self):
+        nwi = NwInput.from_file(os.path.join(test_dir, "ch4.nw"))
+        print nwi
 
 class NwOutputTest(unittest.TestCase):
 

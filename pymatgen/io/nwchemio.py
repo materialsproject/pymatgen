@@ -261,6 +261,72 @@ class NwInput(MSONable):
                        [NwTask.from_dict(dt) for dt in d["tasks"]],
                        [tuple(li) for li in d["directives"]])
 
+    @classmethod
+    def from_string(cls, string_input):
+        """
+        Read an NwInput from a string. Currently tested to work with
+        files generated from this class itself.
+
+        Args:
+            string_input:
+                string_input to parse.
+
+        Returns:
+            NwInput object
+        """
+        chunks = re.split("\n\s*\n", string_input.strip())
+        directives = []
+        species = []
+        coords = []
+        read_geom = False
+        for l in chunks.pop(0).split("\n"):
+            if read_geom:
+                if l.strip().lower() == "end":
+                    mol = Molecule(species, coords)
+                    read_geom = False
+                else:
+                    toks = l.strip().split()
+                    species.append(toks[0])
+                    coords.append(map(float, toks[1:]))
+            elif not l.strip().startswith("geometry"):
+                directives.append(l.strip().split())
+            else:
+                read_geom = True
+
+        for c in chunks:
+            charge = None
+            spin_multiplicity = None
+            title = None
+            theory = "scf"
+            operation = None
+            basis_set = {}
+            for l in c.strip().split("\n"):
+                toks = l.strip().split()
+                if toks[0] == "charge":
+                    charge = int(toks[1])
+                    """
+            (self, mol, charge=None, spin_multiplicity=None,
+                 title=None, theory="dft", operation="optimize",
+                 basis_set="6-31++G**", theory_directives=None)
+                    """
+        return NwInput(mol, tasks=[], directives=directives)
+
+    @classmethod
+    def from_file(cls, filename):
+        """
+        Read an NwInput from a file. Currently tested to work with
+        files generated from this class itself.
+
+        Args:
+            filename:
+                Filename to parse.
+
+        Returns:
+            NwInput object
+        """
+        with zopen(filename) as f:
+            return cls.from_string(f.read())
+
 
 class NwInputError(Exception):
     """
