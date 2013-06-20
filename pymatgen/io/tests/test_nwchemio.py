@@ -197,6 +197,55 @@ task dft energy
         self.assertEqual(nwi.tasks[0].theory, "dft")
         self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
         self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
+        #Try a simplified input.
+        str_inp = """start H4C1
+geometry units angstroms
+ C 0.0 0.0 0.0
+ H 0.0 0.0 1.089
+ H 1.026719 0.0 -0.363
+ H -0.51336 -0.889165 -0.363
+ H -0.51336 0.889165 -0.363
+end
+
+title "H4C1 dft optimize"
+charge 0
+basis
+ H library "6-31++G*"
+ C library "6-31++G*"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task scf optimize
+
+title "H4C1 dft freq"
+charge 0
+task scf freq
+
+title "H4C1 dft energy"
+charge 0
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+task dft energy
+
+title "H4C1 dft energy"
+charge 1
+dft
+ xc b3lyp
+ mult 2
+end
+task dft energy
+
+title "H4C1 dft energy"
+charge -1
+task dft energy
+"""
+        nwi = NwInput.from_string(str_inp)
+        self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
+        self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
 
 
 class NwOutputTest(unittest.TestCase):
