@@ -291,8 +291,8 @@ class NwInput(MSONable):
 
             toks = l.split()
             if toks[0].lower() == "geometry":
+                #Parse geometry
                 l = lines.pop(0).strip()
-                basis_set = {}
                 species = []
                 coords = []
                 while l.lower() != "end":
@@ -301,12 +301,12 @@ class NwInput(MSONable):
                     coords.append(map(float, toks[1:]))
                     l = lines.pop(0).strip()
                 mol = Molecule(species, coords)
-
             elif toks[0].lower() == "charge":
                 charge = int(toks[1])
             elif toks[0].lower() == "title":
-                title = l.lstrip("title \"").rstrip("\"")
+                title = l[5:].strip().strip("\"")
             elif toks[0].lower() == "basis":
+                #Parse basis sets
                 l = lines.pop(0).strip()
                 basis_set = {}
                 while l.lower() != "end":
@@ -314,6 +314,7 @@ class NwInput(MSONable):
                     basis_set[toks[0]] = toks[-1].strip("\"")
                     l = lines.pop(0).strip()
             elif toks[0].lower() in NwTask.theories:
+                #Parse theory directives.
                 theory = toks[0].lower()
                 l = lines.pop(0).strip()
                 while l.lower() != "end":
