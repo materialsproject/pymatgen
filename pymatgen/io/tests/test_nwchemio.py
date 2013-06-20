@@ -114,8 +114,7 @@ class NwInputTest(unittest.TestCase):
         self.nwi = NwInput(mol, tasks)
 
     def test_str(self):
-        ans = """start H4C1
-geometry units angstroms
+        ans = """geometry units angstroms
  C 0.0 0.0 0.0
  H 0.0 0.0 1.089
  H 1.026719 0.0 -0.363
