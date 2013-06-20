@@ -836,7 +836,7 @@ class PseudoParser(object):
         # List of files that could not been parsed.
         self._wrong_paths  = []
 
-    def scan_directory(self, dirname, exclude_exts=None):
+    def scan_directory(self, dirname, exclude_exts=(), exclude_fnames=()):
         """
         Analyze the files contained in directory dirname.
         Args:
@@ -844,12 +844,10 @@ class PseudoParser(object):
                 directory path
             exclude_exts:
                 list of file extensions that should be skipped.
-
+            exclude_fnames:
+                list of file names that should be skipped.
         :return: List of pseudopotential objects.
         """
-        if exclude_exts is None:
-            exclude_exts = []
-
         for (i, ext) in enumerate(exclude_exts):
             if not ext.strip().startswith("."):
                 exclude_exts[i] =  "." + ext.strip()
@@ -858,8 +856,9 @@ class PseudoParser(object):
         paths = []
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
-            if ext not in exclude_exts:
-                paths.append(os.path.join(dirname, fname))
+            if ext in exclude_exts or fname in exclude_fnames:
+                continue
+            paths.append(os.path.join(dirname, fname))
 
         pseudos = []
         for path in paths:
