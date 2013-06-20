@@ -25,14 +25,6 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`deltaworks` Module
-------------------------
-
-.. automodule:: pymatgen.io.abinitio.deltaworks
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`eos` Module
 -----------------
 
@@ -61,22 +53,6 @@ abinitio Package
 --------------------
 
 .. automodule:: pymatgen.io.abinitio.netcdf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`ppdojo` Module
---------------------
-
-.. automodule:: pymatgen.io.abinitio.ppdojo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`pseudo_dojo` Module
--------------------------
-
-.. automodule:: pymatgen.io.abinitio.pseudo_dojo
     :members:
     :undoc-members:
     :show-inheritance:
@@ -128,11 +104,4 @@ abinitio Package
     :members:
     :undoc-members:
     :show-inheritance:
-
-Subpackages
------------
-
-.. toctree::
-
-    pymatgen.io.abinitio.deltafactor
 

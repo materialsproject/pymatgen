@@ -26,9 +26,10 @@ from pymatgen.io.abinitio.task import task_factory, Task
 from .utils import abinit_output_iscomplete, File
 from .netcdf import GSR_Reader
 from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
-from .pseudos import Pseudo, PseudoDatabase, PseudoTable, get_abinit_psp_dir
+from .pseudos import Pseudo, PseudoTable, get_abinit_psp_dir
 from .strategies import ScfStrategy
 from .task import RunMode
+from .eos import EOS
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -708,8 +709,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
 
     accidx = {"H": ihigh, "N": inormal, "L": ilow}
 
-    table = []
-    app = table.append
+    table = []; app = table.append
 
     app(["iter", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
     for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
@@ -751,7 +751,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
 
 ##########################################################################################
 
-def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, **kwargs):
+def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
     """
     Uses Matplotlib to plot the energy curve as function of ecut
 
@@ -768,13 +768,20 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
                 - NC: etotals = [3.4, 4,5 ...], aug_ratios = [1,]
                 - PAW: etotals = [[3.4, ...], [3.6, ...]], aug_ratios = [4,6]
 
-        show:
-            True to show the figure
-        savefig:
-            'abc.png' or 'abc.eps'* to save the figure to a file.
-    """
-    import matplotlib.pyplot as plt
+        =========     ==============================================================
+        kwargs        description
+        =========     ==============================================================
+        show          True to show the figure
+        savefig       'abc.png' or 'abc.eps'* to save the figure to a file.
+        =========     ==============================================================
 
+    Returns:
+        `matplotlib` figure.
+    """
+    show = kwargs.pop("show", True)
+    savefig = kwargs.pop("savefig", None)
+
+    import matplotlib.pyplot as plt
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
 
@@ -810,6 +817,7 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
     ax.set_xticks(ecut_list)
 
     #ax.yaxis.set_view_interval(-10, emax + 0.01 * abs(emax))
+    #ax.xaxis.set_view_interval(-10, 20)
     ax.yaxis.set_view_interval(-10, 20)
 
     ax.set_title("$\Delta$ Etotal Vs Ecut")
@@ -820,12 +828,15 @@ def plot_etotal(ecut_list, etotals, aug_ratios, show=True, savefig=None, *args, 
     if savefig is not None:
         fig.savefig(savefig)
 
+    return fig
+
 ##########################################################################################
 
 class PseudoConvergence(Workflow):
 
     def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode="sequential", spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+                 runmode="sequential", spin_mode="polarized", 
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
 
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
@@ -1002,8 +1013,7 @@ class DeltaTest(Workflow):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
                  spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                 accuracy="normal",
-                 ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
+                 accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
         super(DeltaTest, self).__init__(workdir, runmode)
 
@@ -1021,7 +1031,8 @@ class DeltaTest(Workflow):
 
         v0 = structure.volume
 
-        self.volumes = v0 * np.arange(90, 112, 2) / 100.
+        # From 94% to 106% of the equilibrium volume.
+        self.volumes = v0 * np.arange(94, 108, 2) / 100.
 
         for vol in self.volumes:
 
@@ -1062,17 +1073,22 @@ class DeltaTest(Workflow):
             "dojo_level": 1,
         })
 
-        from .eos import EOS
-        try:
-            eos_fit = EOS.Murnaghan().fit(self.volumes, etotal)
-            print(eos_fit)
 
+        try:
+            #eos_fit = EOS.Murnaghan().fit(self.volumes/num_sites, etotal/num_sites)
+            #print("murn",eos_fit)
+            #eos_fit.plot(show=False, savefig=self.path_in_workdir("murn_eos.pdf"))
+
+            # Use same fit as the one employed for the deltafactor.
+            eos_fit = EOS.DeltaFactor().fit(self.volumes/num_sites, etotal/num_sites)
+            print("delta",eos_fit)
             eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
 
             wf_results.update({
                 "v0": eos_fit.v0,
-                "b" : eos_fit.b,
-                "bp": eos_fit.bp,
+                "b0": eos_fit.b0,
+                "b0_GPa": eos_fit.b0_GPa,
+                "b1": eos_fit.b1,
             })
 
         except EOS.Error as exc:
@@ -1132,3 +1148,37 @@ class GW_Workflow(Workflow):
         self.register_task(sigma_strategy, links=sigma_links)
 
 ################################################################################
+
+class BSEMDF_Workflow(Workflow):
+
+    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, bse_strategy): 
+        """
+        Workflow for simple BSE calculations in which the self-energy corrections 
+        are approximated by the scissors operator and the screening in modeled 
+        with model dielectric function.
+
+        Args:
+            workdir:
+                Working directory of the calculation.
+            runmode:
+                Run mode.
+            scf_strategy:
+                ScfStrategy instance
+            nscf_strategy:
+                NscfStrategy instance
+            bse_strategy:
+                BSEStrategy instance.
+        """
+        super(BSEMDF_Workflow, self).__init__(workdir, runmode)
+
+        # Register the GS-SCF run.
+        scf_link = self.register_task(scf_strategy)
+
+        # Construct the input for the NSCF run.
+        nscf_link = self.register_task(nscf_strategy,
+                                       links=scf_link.produces_exts("_DEN"))
+
+        # Construct the input for the BSE run.
+        bse_link = self.register_task(bse_strategy,
+                                      links=nscf_link.produces_exts("_WFK"))
+

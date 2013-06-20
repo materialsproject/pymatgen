@@ -1,21 +1,26 @@
-"Tools to compute equations of states with different models."
+"""Tools to compute equations of states with different models."""
 from __future__ import division, print_function
 
+import collections
 import numpy as np
 
+import pymatgen.core.physical_constants as const
+
 __all__ = [
-"EOS",
+    "EOS",
 ]
+
+__version__ = "1.0"
 
 ##########################################################################################
 
-def murnaghan(V, E0, B0, BP, V0):
-    'From PRB 28,5480 (1983)'
+def murnaghan(V, E0, B0, B1, V0):
+    """From PRB 28,5480 (1983)"""
 
-    E = E0 + B0*V/BP*(((V0/V)**BP)/(BP-1)+1) - V0*B0/(BP-1)
+    E = E0 + B0*V/B1*(((V0/V)**B1)/(B1-1)+1) - V0*B0/(B1-1)
     return E
 
-def birch(V, E0, B0, BP, V0):
+def birch(V, E0, B0, B1, V0):
     """
     From Intermetallic compounds: Principles and Practice, Vol. I: Principles
     Chapter 9 pages 195-210 by M. Mehl. B. Klein, D. Papaconstantopoulos paper downloaded from Web
@@ -25,37 +30,73 @@ def birch(V, E0, B0, BP, V0):
 
     E = (E0
          + 9.0/8.0*B0*V0*((V0/V)**(2.0/3.0) - 1.0)**2
-         + 9.0/16.0*B0*V0*(BP-4.)*((V0/V)**(2.0/3.0) - 1.0)**3)
+         + 9.0/16.0*B0*V0*(B1-4.)*((V0/V)**(2.0/3.0) - 1.0)**3)
     return E
 
-def birch_murnaghan(V, E0, B0, BP, V0):
-    'BirchMurnaghan equation from PRB 70, 224107'
+def birch_murnaghan(V, E0, B0, B1, V0):
+    """BirchMurnaghan equation from PRB 70, 224107"""
 
     eta = (V/V0)**(1./3.)
-    E = E0 + 9.*B0*V0/16.*(eta**2-1)**2*(6 + BP*(eta**2-1.) - 4.*eta**2)
+    E = E0 + 9.*B0*V0/16.*(eta**2-1)**2*(6 + B1*(eta**2-1.) - 4.*eta**2)
     return E
 
-def pourier_tarantola(V, E0, B0, BP, V0):
-    'Pourier-Tarantola equation from PRB 70, 224107'
+def pourier_tarantola(V, E0, B0, B1, V0):
+    """Pourier-Tarantola equation from PRB 70, 224107"""
 
     eta = (V/V0)**(1./3.)
     squiggle = -3.*np.log(eta)
 
-    E = E0 + B0*V0*squiggle**2/6.*(3. + squiggle*(BP - 2))
+    E = E0 + B0*V0*squiggle**2/6.*(3. + squiggle*(B1 - 2))
     return E
 
-def vinet(V, E0, B0, BP, V0):
+def vinet(V, E0, B0, B1, V0):
     'Vinet equation from PRB 70, 224107'
 
     eta = (V/V0)**(1./3.)
 
-    E = (E0 + 2.*B0*V0/(BP-1.)**2
-         * (2. - (5. +3.*BP*(eta-1.)-3.*eta)*np.exp(-3.*(BP-1.)*(eta-1.)/2.)))
+    E = (E0 + 2.*B0*V0/(B1-1.)**2
+         * (2. - (5. +3.*B1*(eta-1.)-3.*eta)*np.exp(-3.*(B1-1.)*(eta-1.)/2.)))
     return E
 
+
+def deltafactor_polyfit(volumes, energies):
+    """
+    This is the routine used to compute V0, B0, B1 in the deltafactor code.
+
+    Taken from deltafactor/eosfit.py
+    """
+    fitdata = np.polyfit(volumes**(-2./3.), energies, 3, full=True)
+    ssr = fitdata[1]
+    sst = np.sum((energies - np.average(energies))**2.)
+    residuals0 = ssr/sst
+    deriv0 = np.poly1d(fitdata[0])
+    deriv1 = np.polyder(deriv0, 1)
+    deriv2 = np.polyder(deriv1, 1)
+    deriv3 = np.polyder(deriv2, 1)
+
+    v0 = 0
+    x = 0
+    for x in np.roots(deriv1):
+        if x > 0 and deriv2(x) > 0:
+            v0 = x**(-3./2.)
+            break
+    else:
+        raise EOSError("No minimum could be found")
+    
+    derivV2 = 4./9. * x**5. * deriv2(x)
+    derivV3 = (-20./9. * x**(13./2.) * deriv2(x) - 8./27. * x**(15./2.) * deriv3(x))
+    b0 = derivV2 / x**(3./2.)
+    b1 = -1 - x**(-3./2.) * derivV3 / derivV2
+
+    n = collections.namedtuple("DeltaFitResults", "v0 b0 b1 poly1d")
+    return n(v0, b0, b1, fitdata[0])
+
 ##########################################################################################
+
+
 class EOSError(Exception):
-    "Exceptions raised by EOS"
+    """Exceptions raised by EOS."""
+
 
 class EOS(object):
     """
@@ -67,8 +108,7 @@ class EOS(object):
            PRB 28, 5480 (1983)
 
        birch
-           Intermetallic compounds: Principles and Practice,
-           Vol I: Principles. pages 195-210
+           Intermetallic compounds: Principles and Practice, Vol I: Principles. pages 195-210
 
        birchmurnaghan
            PRB 70, 224107
@@ -96,9 +136,11 @@ class EOS(object):
         "birch_murnaghan"  : birch_murnaghan,
         "pourier_tarantola": pourier_tarantola,
         "vinet"            : vinet,
+        "deltafactor"      : deltafactor_polyfit,
     }
 
     def __init__(self, eos_name='murnaghan'):
+        self._eos_name = eos_name
         self._func = self.functions[eos_name]
 
     @staticmethod
@@ -121,6 +163,10 @@ class EOS(object):
     def Vinet():
         return EOS(eos_name='vinet')
 
+    @staticmethod
+    def DeltaFactor():
+        return EOS(eos_name='deltafactor')
+
     def fit(self, volumes, energies):
         """
         Fit energies [eV] as function of volumes [Angstrom^3].
@@ -129,15 +175,15 @@ class EOS(object):
         the minumum energy, and the bulk modulus.  
         Notice that the units for the bulk modulus is eV/Angstrom^3.
         """
-        return EOS_Fit(volumes, energies, self._func)
+        return EOS_Fit(volumes, energies, self._func, self._eos_name)
 
 ##########################################################################################
 
 
 class EOS_Fit(object):
-    "Performs the fit of E(V) and provides method to access the results of the fit."
+    """Performs the fit of E(V) and provides method to access the results of the fit."""
 
-    def __init__(self, volumes, energies, func):
+    def __init__(self, volumes, energies, func, eos_name):
         """ 
         args:
             energies: list of energies in eV 
@@ -147,59 +193,82 @@ class EOS_Fit(object):
         self.volumes  = np.array(volumes) 
         self.energies = np.array(energies)
         self.func     = func
+        self.eos_name = eos_name
         self.exceptions = []
 
-        # objective function that will be minimized
-        def objective(pars, x, y):
-            return y - self.func(x, *pars)
+        if eos_name == "deltafactor":
 
-        # quadratic fit to get an initial guess for the parameters 
-        a,b,c = np.polyfit(volumes, energies, 2) 
-                                           
-        v0 = -b/(2*a)
-        e0 = a*v0**2 + b*v0 + c
-        b0 = 2*a*v0
-        bP = 4  # Bp is usually a small number like 4
+            self.ierr = 0
+            try:
+                results = deltafactor_polyfit(self.volumes, self.energies)
 
-        vmin, vmax = self.volumes.min(), self.volumes.max()
+                self.e0 = None
+                self.v0 = results.v0
+                self.b0 = results.b0
+                self.b1 = results.b1
+                self.p0 = results.poly1d
+                self.eos_params = results.poly1d
 
-        if not (vmin < v0 and v0 < vmax):
-            exc = EOSError('The minimum volume of a fitted parabola is not in the input volumes\n.')
-            self.exceptions.append(exc)
-            print(str(exc))
+            except EOSError as exc:
+                self.ierr = 1
+                print(str(exc))
+                self.exceptions.append(exc)
+                raise 
 
-        # Initial guesses for the parameters
-        self.p0 = [e0, b0, bP, v0] 
+        else:
+            # Objective function that will be minimized
+            def objective(pars, x, y):
+                return y - self.func(x, *pars)
 
-        from scipy.optimize import leastsq
-        self.eos_params, self.ierr = leastsq(objective, self.p0, args=(volumes, energies)) 
+            # Quadratic fit to get an initial guess for the parameters 
+            a,b,c = np.polyfit(volumes, energies, 2) 
+                                               
+            v0 = -b/(2*a)
+            e0 = a*v0**2 + b*v0 + c
+            b0 = 2*a*v0
+            b1 = 4  # b1 is usually a small number like 4
 
-        if self.ierr not in [1,2,3,4]:
-            exc = EOSError("Optimal parameters not found")
-            self.exceptions.append(exc)
-            raise exc
+            vmin, vmax = self.volumes.min(), self.volumes.max()
 
-        self.e0 = self.eos_params[0]
-        self.b  = self.eos_params[1]
-        self.bp = self.eos_params[2]
-        self.v0 = self.eos_params[3]
+            if not (vmin < v0 and v0 < vmax):
+                exc = EOSError('The minimum volume of a fitted parabola is not in the input volumes\n.')
+                print(str(exc))
+                self.exceptions.append(exc)
 
-        #TODO: Add support for rich comparison so that we can define an order
-        # based on the accuracy of the fit.
+            # Initial guesses for the parameters
+            self.p0 = [e0, b0, b1, v0] 
+
+            from scipy.optimize import leastsq
+            self.eos_params, self.ierr = leastsq(objective, self.p0, args=(volumes, energies)) 
+
+            if self.ierr not in [1,2,3,4]:
+                exc = EOSError("Optimal parameters not found")
+                print(str(exc))
+                self.exceptions.append(exc)
+                raise exc
+
+            self.e0 = self.eos_params[0]
+            self.b0 = self.eos_params[1]
+            self.b1 = self.eos_params[2]
+            self.v0 = self.eos_params[3]
 
     def __str__(self):
         lines = []
         app = lines.append
         app("Equation of State: %s" % self.name)
         app("Minimum volume = %1.2f Ang^3" % self.v0)
-        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa, bp = %1.2f" % (self.b, self.b*160.21773, self.bp))
+        app("Bulk modulus = %1.2f eV/Ang^3 = %1.2f GPa, b1 = %1.2f" % (self.b0, self.b0_GPa, self.b1))
         return "\n".join(lines)
 
     @property
     def name(self):
         return self.func.__name__
 
-    def plot(self, show=True, savefig=None):
+    @property
+    def b0_GPa(self):
+        return self.b0 * const.eVA3_GPa
+
+    def plot(self, **kwargs):
         """
         Uses Matplotlib to plot the energy curve.  
 
@@ -208,6 +277,9 @@ class EOS_Fit(object):
                 True to show the figure 
             savefig:
                 'abc.png' or 'abc.eps' to save the figure to a file.
+
+        Returns:
+            Matplotlib figure.
         """
         import matplotlib.pyplot as plt
                                                                                                                                          
@@ -221,7 +293,7 @@ class EOS_Fit(object):
         ax = fig.add_subplot(1,1,1)
 
         lines, legends = [], []
-                                                                                                                                         
+
         # Plot input data.
         line, = ax.plot(self.volumes, self.energies, "ro")
         lines.append(line)
@@ -229,7 +301,12 @@ class EOS_Fit(object):
 
         # Plot EOS.
         vfit = np.linspace(vmin, vmax, 100)
-        line, = ax.plot(vfit, self.func(vfit, *self.eos_params) ,"b-")
+
+        if self.eos_name == "deltafactor":
+            xx = vfit**(-2./3.)
+            line, = ax.plot(vfit, np.polyval(self.eos_params, xx) ,"b-")
+        else:
+            line, = ax.plot(vfit, self.func(vfit, *self.eos_params) ,"b-")
 
         lines.append(line)
         legends.append(self.name + ' fit')
@@ -239,15 +316,21 @@ class EOS_Fit(object):
         ax.set_xlabel("Volume $\AA^3$")
         ax.set_ylabel("Energy (eV)")
         ax.legend(lines, legends, 'upper right', shadow=True)
-                                                                                                                                         
-        fig.text(0.4,0.5,'Min volume = %1.2f $\AA^3$' % self.v0, transform = ax.transAxes)
-        fig.text(0.4,0.4,'Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa' % (self.b, self.b*160.21773), transform = ax.transAxes)
-        fig.text(0.4,0.3,'Bp = %1.2f' % self.bp, transform = ax.transAxes)
 
-        if show:
+        # Add text with fit parameters.
+        text = []; app = text.append
+        app("Min Volume = %1.2f $\AA^3$" % self.v0)
+        app("Bulk modulus = %1.2f eV/$\AA^3$ = %1.2f GPa" % (self.b0, self.b0_GPa))
+        app("B1 = %1.2f" % self.b1)
+        fig.text(0.4, 0.5, "\n".join(text), transform=ax.transAxes)
+
+        if kwargs.pop("show", True):
             plt.show()
 
+        savefig = kwargs.pop("savefig", None)
         if savefig is not None:
             fig.savefig(savefig)
+
+        return fig
 
 ##########################################################################################
