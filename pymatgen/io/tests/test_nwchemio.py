@@ -37,11 +37,14 @@ mol = Molecule(["C", "H", "H", "H", "H"], coords)
 class NwTaskTest(unittest.TestCase):
 
     def setUp(self):
-        self.task = NwTask(mol, theory_directives={"xc": "b3lyp"})
+        self.task = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="dft",
+                           theory_directives={"xc": "b3lyp"})
 
     def test_multi_bset(self):
-        t = NwTask(mol, basis_set={"C": "6-311++G**", "H": "6-31++G**"},
-                   theory_directives={"xc": "b3lyp"})
+        t = NwTask.from_molecule(
+            mol, theory="dft", basis_set={"C": "6-311++G**",
+                                          "H": "6-31++G**"},
+            theory_directives={"xc": "b3lyp"})
         ans = """title "H4C1 dft optimize"
 charge 0
 basis
@@ -53,16 +56,13 @@ dft
 end
 task dft optimize"""
         self.assertEqual(str(t), ans)
-        self.assertRaises(NwInputError, NwTask, mol,
-                          basis_set={"H": "6-31++G**"})
 
     def test_str_and_from_string(self):
 
-        ans = """title "H4C1 dft optimize"
+        ans = """title "dft optimize"
 charge 0
 basis
- H library "6-31++G**"
- C library "6-31++G**"
+ H library "6-31g"
 end
 dft
  xc b3lyp
@@ -76,23 +76,24 @@ task dft optimize"""
         self.assertIsInstance(t, NwTask)
 
     def test_init(self):
-        self.assertRaises(NwInputError, NwTask, mol, theory="bad")
-        self.assertRaises(NwInputError, NwTask, mol, operation="bad")
+        self.assertRaises(NwInputError, NwTask, 0, 1, {"H": "6-31g"},
+                          theory="bad")
+        self.assertRaises(NwInputError, NwTask, 0, 1, {"H": "6-31g"},
+                          operation="bad")
 
     def test_dft_task(self):
         task = NwTask.dft_task(mol, charge=1, operation="energy")
         ans = """title "H4C1 dft energy"
 charge 1
 basis
- H library "6-31++G**"
- C library "6-31++G**"
+ H library "6-31g"
+ C library "6-31g"
 end
 dft
  xc b3lyp
  mult 2
 end
 task dft energy"""
-
         self.assertEqual(str(task), ans)
 
 
