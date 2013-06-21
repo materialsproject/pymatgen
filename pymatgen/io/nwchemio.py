@@ -203,7 +203,7 @@ class NwInput(MSONable):
     """
 
     def __init__(self, mol, tasks, directives=None,
-                 geometry_options=None):
+                 geometry_options=("units", "angstroms")):
         """
         Args:
             mol:
@@ -217,14 +217,13 @@ class NwInput(MSONable):
                 [("start", "water"), ("print", "high")]
             geometry_options:
                 Additional list of options to be supplied to the geometry.
-                E.g., ["noautoz"]. Note that ["units", "angstroms"] are
-                already added by default.
+                E.g., ["units", "angstroms", "noautoz"]. Defaults to
+                ("units", "angstroms").
         """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
-        self.geometry_options = geometry_options \
-            if geometry_options is not None else []
+        self.geometry_options = geometry_options
 
     @property
     def molecule(self):
@@ -238,7 +237,7 @@ class NwInput(MSONable):
         for d in self.directives:
             o.append("{} {}".format(d[0], d[1]))
         o.append("geometry "
-                 + " ".join(["units", "angstroms"] + self.geometry_options))
+                 + " ".join(self.geometry_options))
         for site in self._mol:
             o.append(" {} {} {} {}".format(site.specie.symbol, site.x, site.y,
                                            site.z))
@@ -288,7 +287,7 @@ class NwInput(MSONable):
         title = None
         basis_set = None
         theory_directives = {}
-
+        geom_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
             l = lines.pop(0).strip()
@@ -297,6 +296,7 @@ class NwInput(MSONable):
 
             toks = l.split()
             if toks[0].lower() == "geometry":
+                geom_options = toks[1:]
                 #Parse geometry
                 l = lines.pop(0).strip()
                 species = []
@@ -340,7 +340,8 @@ class NwInput(MSONable):
             else:
                 directives.append(l.strip().split())
 
-        return NwInput(mol, tasks=tasks, directives=directives)
+        return NwInput(mol, tasks=tasks, directives=directives,
+                       geometry_options=geom_options)
 
     @classmethod
     def from_file(cls, filename):
