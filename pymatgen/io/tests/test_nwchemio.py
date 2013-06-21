@@ -111,7 +111,8 @@ class NwInputTest(unittest.TestCase):
             NwTask.dft_task(mol, charge=mol.charge - 1, operation="energy",
                             xc="b3lyp", basis_set="6-311++G**")
         ]
-        self.nwi = NwInput(mol, tasks, geometry_options=["noautoz"])
+        self.nwi = NwInput(mol, tasks,
+                           geometry_options=["units", "angstroms", "noautoz"])
 
     def test_str(self):
         ans = """geometry units angstroms noautoz
@@ -243,6 +244,7 @@ charge -1
 task dft energy
 """
         nwi = NwInput.from_string(str_inp)
+        self.assertEqual(nwi.geometry_options, ['units', 'angstroms'])
         self.assertEqual(nwi.tasks[0].theory, "scf")
         self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
         self.assertEqual(nwi.tasks[-1].theory, "dft")
