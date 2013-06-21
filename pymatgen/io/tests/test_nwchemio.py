@@ -111,10 +111,10 @@ class NwInputTest(unittest.TestCase):
             NwTask.dft_task(mol, charge=mol.charge - 1, operation="energy",
                             xc="b3lyp", basis_set="6-311++G**")
         ]
-        self.nwi = NwInput(mol, tasks)
+        self.nwi = NwInput(mol, tasks, geometry_options=["noautoz"])
 
     def test_str(self):
-        ans = """geometry units angstroms
+        ans = """geometry units angstroms noautoz
  C 0.0 0.0 0.0
  H 0.0 0.0 1.089
  H 1.026719 0.0 -0.363

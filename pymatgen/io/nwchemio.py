@@ -202,7 +202,8 @@ class NwInput(MSONable):
     of tasks on a particular molecule.
     """
 
-    def __init__(self, mol, tasks, directives=None):
+    def __init__(self, mol, tasks, directives=None,
+                 geometry_options=None):
         """
         Args:
             mol:
@@ -214,10 +215,16 @@ class NwInput(MSONable):
             directives:
                 List of root level directives as tuple. E.g.,
                 [("start", "water"), ("print", "high")]
+            geometry_options:
+                Additional list of options to be supplied to the geometry.
+                E.g., ["noautoz"]. Note that ["units", "angstroms"] are
+                already added by default.
         """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
+        self.geometry_options = geometry_options \
+            if geometry_options is not None else []
 
     @property
     def molecule(self):
@@ -230,7 +237,8 @@ class NwInput(MSONable):
         o = []
         for d in self.directives:
             o.append("{} {}".format(d[0], d[1]))
-        o.append("geometry units angstroms")
+        o.append("geometry "
+                 + " ".join(["units", "angstroms"] + self.geometry_options))
         for site in self._mol:
             o.append(" {} {} {} {}".format(site.specie.symbol, site.x, site.y,
                                            site.z))
@@ -249,14 +257,16 @@ class NwInput(MSONable):
         return {
             "mol": self._mol.to_dict,
             "tasks": [t.to_dict for t in self.tasks],
-            "directives": [list(t) for t in self.directives]
+            "directives": [list(t) for t in self.directives],
+            "geometry_options": self.geometry_options
         }
 
     @classmethod
     def from_dict(cls, d):
         return NwInput(Molecule.from_dict(d["mol"]),
-                       [NwTask.from_dict(dt) for dt in d["tasks"]],
-                       [tuple(li) for li in d["directives"]])
+                       tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
+                       directives=[tuple(li) for li in d["directives"]],
+                       geometry_options=d["geometry_options"])
 
     @classmethod
     def from_string(cls, string_input):
@@ -395,7 +405,7 @@ class NwOutput(object):
                                    "|SCF calculation type|Charge|Spin "
                                    "multiplicity)\s*:\s*(\S+)")
         error_defs = {
-            "calculations not reaching convergence criteria": "Bad convergence",
+            "calculations not reaching convergence": "Bad convergence",
             "geom_binvr: #indep variables incorrect": "autoz error"}
 
         data = {}
