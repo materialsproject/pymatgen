@@ -61,18 +61,6 @@ def _read_nlines(filename, nlines):
             lines.append(line)
         return lines
 
-def read_dojo_report(filename):
-    """Helper function to read the DOJO_REPORT from file."""
-    with open(filename, "r") as fh:
-         lines = fh.readlines()
-         try:
-             start = lines.index("<DOJO_REPORT>\n")
-         except ValueError:
-             return {}
-         stop = lines.index("</DOJO_REPORT>\n")
-
-         return json.loads("".join(l for l in lines[start+1:stop]))
-
 _l2str = {
     0: "s",
     1: "p",
@@ -107,7 +95,33 @@ def get_abinit_psp_dir(code="ABINIT"):
 
     return None
 
+def read_dojo_report(filename):
+    """Helper function to read the DOJO_REPORT from file."""
+    with open(filename, "r") as fh:
+        lines = fh.readlines()
+        try:
+            start = lines.index("<DOJO_REPORT>\n")
+        except ValueError:
+            return {}
+
+        stop = lines.index("</DOJO_REPORT>\n")
+        return json.loads("".join(lines[start+1:stop]))
+
+#class DojoReport(dict):
+#    _LATEST_VERSION = 1.0
+#    _START_LINE = "<DOJO_REPORT>\n"
+#    _END_LINE = "</DOJO_REPORT>\n"
+#
+#    @classmethod
+#    def from_file(cls, path):
+#        new = read_dojo_report(path)
+#        new.__class__ = cls
+#        return new
+#
+#    #def to_file(self, path):
+
 ##########################################################################################
+
 _PTABLE = PeriodicTable()
 
 class Pseudo(object):
@@ -201,17 +215,17 @@ class Pseudo(object):
         """Angular momentum used for the local part."""
 
     #@abc.abstractproperty
-    #def xc_family(self):
-    #    "XC family e.g LDA, GGA, MGGA."
+    #def xc_type(self):
+    #    """XC family e.g LDA, GGA, MGGA."""
 
     #@abc.abstractproperty
     #def xc_flavor(self):
-    #    "XC flavor e.g PW, PW91, PBE."
+    #    """XC flavor e.g PW, PW91, PBE."""
 
-    @property
-    def xc_type(self):
-        """XC identifier e.g LDA-PW, GGA-PBE, GGA-revPBE."""
-        return "-".join([self.xc_family, self.xc_flavor])
+    #@property
+    #def xc_functional(self):
+    #    """XC identifier e.g LDA-PW91, GGA-PBE, GGA-revPBE."""
+    #    return "-".join([self.xc_type, self.xc_flavor])
 
     @property
     def isnc(self):
@@ -225,20 +239,20 @@ class Pseudo(object):
 
     #@abc.abstractproperty
     #def has_soc(self):
-    #    "True if pseudo contains spin-orbit coupling."
+    #    """True if pseudo contains spin-orbit coupling."""
 
     #@abc.abstractmethod
     #def num_of_projectors(self, l='s'):
-    #    "Number of projectors for the angular channel l"
+    #    """Number of projectors for the angular channel l"""
 
     #@abc.abstractmethod
     #def generation_mode
-    #    "scalar scalar-relativistic, relativistic"
+    #    """scalar scalar-relativistic, relativistic."""
 
     @property
     def has_dojo_report(self):
         """True if self contains the DOJO_REPORT section."""
-        return self.dojo_report
+        return bool(self.dojo_report)
 
     def delta_factor(self, accuracy="normal"):
         """
@@ -258,11 +272,13 @@ class Pseudo(object):
 
     def write_dojo_report(self, report):
         """Write a new DOJO_REPORT section to the pseudopotential file."""
+        path = self.path
+
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
 
         # Read lines from file and insert jstring between the tags.
-        with open(self.path, "r") as fh:
+        with open(path, "r") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -278,13 +294,14 @@ class Pseudo(object):
                del lines[start+1:stop]
 
         #  Write new file.
-        with open(self.path, "w") as fh:
+        with open(path, "w") as fh:
             fh.writelines(lines)
 
     def remove_dojo_report(self):
         """Remove the DOJO_REPORT section from the pseudopotential file."""
         # Read lines from file and insert jstring between the tags.
-        with open(self.path, "r") as fh:
+        path = self.path
+        with open(path, "r") as fh:
             lines = fh.readlines()
             try:
                 start = lines.index("<DOJO_REPORT>\n")
@@ -301,7 +318,7 @@ class Pseudo(object):
             del lines[start+1:stop]
 
         # Write new file.
-        with open(self.path, "w") as fh:
+        with open(path, "w") as fh:
             fh.writelines(lines)
 
     def hint_for_accuracy(self, accuracy="normal"):
@@ -319,7 +336,7 @@ class Pseudo(object):
 
     @property
     def has_hints(self):
-        "True if self provides hints on the cutoff energy"
+        """True if self provides hints on the cutoff energy."""
         for acc in ["low", "normal", "high"]:
             if self.hint_for_accuracy(acc) is None:
                 return False
@@ -368,7 +385,7 @@ class PawPseudo(object):
 
     @abc.abstractproperty
     def paw_radius(self):
-        "Radius of the PAW sphere in a.u."
+        """Radius of the PAW sphere in a.u."""
 
 ##########################################################################################
 
@@ -377,8 +394,14 @@ class AbinitPseudo(Pseudo):
     An AbinitPseudo is a pseudopotential whose file contains an abinit header.
     """
     def __init__(self, path, header):
-
-        self.path     = path
+        """
+        Args:
+            path:
+                Filename.
+            header:
+                `AbinitHeader` instance.
+        """
+        self.path = path
         self._summary = header.summary
         self.dojo_report = header.dojo_report
         #self.pspcod  = header.pspcod
@@ -391,6 +414,7 @@ class AbinitPseudo(Pseudo):
 
     @property
     def summary(self):
+        """Summary line reported in the ABINIT header."""
         return self._summary.strip()
 
     @property
@@ -403,7 +427,6 @@ class AbinitPseudo(Pseudo):
 
     @property
     def Z_val(self):
-        "Number of valence electrons."
         return self._zion
 
     @property
@@ -420,7 +443,6 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     """
     Norm-conserving pseudopotential in the Abinit format.
     """
-
     @property
     def summary(self):
         return self._summary.strip()
@@ -435,7 +457,7 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
 
     @property
     def Z_val(self):
-        "Number of valence electrons."
+        """Number of valence electrons."""
         return self._zion
 
     @property
@@ -469,8 +491,6 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
     @property
     def to_dict(self):
-        #d["@module"] = self.__class__.__module__
-        #d["@class"] = self.__class__.__name__
         return {f: getattr(self, f) for f in self._fields}
 
     @classmethod
@@ -491,7 +511,6 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
     Return dict{key1 : value1, key2 : value2, ...}
     """
-
     if isinstance(lines, basestring):
         lines = [lines]
 
@@ -529,8 +548,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
 ##########################################################################################
 
 class AbinitHeader(dict):
-    "Dictionary whose keys can be also accessed as attributes."
-
+    """Dictionary whose keys can be also accessed as attributes."""
     def __getattr__(self, name):
         try:
             # Default behaviour
@@ -545,6 +563,12 @@ class AbinitHeader(dict):
 ##########################################################################################
 
 def _int_from_str(string):
+    """
+    Convert string into integer
+
+    Raise:
+        TypeError if string is not a valid integer
+    """
     float_num = float(string)
     int_num = int(float_num)
     if float_num == int_num:
@@ -558,7 +582,7 @@ class NcAbinitHeader(AbinitHeader):
     """
     _attr_desc = collections.namedtuple("att", "default astype")
 
-    _vars = {
+    _VARS = {
         # Mandatory
         "zatom"        : _attr_desc(None, _int_from_str),
         "zion"         : _attr_desc(None, float),
@@ -582,7 +606,7 @@ class NcAbinitHeader(AbinitHeader):
 
         self.summary = summary.strip()
 
-        for (key, desc) in NcAbinitHeader._vars.items():
+        for (key, desc) in NcAbinitHeader._VARS.items():
             default, astype = desc.default, desc.astype
 
             value = kwargs.pop(key, None)
@@ -603,8 +627,7 @@ class NcAbinitHeader(AbinitHeader):
         self["dojo_report"] = kwargs.pop("dojo_report", {})
 
         if kwargs:
-            msg = "kwargs should be empty but got %s" % str(kwargs)
-            raise RuntimeError(msg)
+            raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
 
     @staticmethod
     def fhi_header(filename, ppdesc):
@@ -702,7 +725,7 @@ class PawAbinitHeader(AbinitHeader):
     """
     _attr_desc = collections.namedtuple("att", "default astype")
 
-    _vars = {
+    _VARS = {
         "zatom"           : _attr_desc(None, float),
         "zion"            : _attr_desc(None, float),
         "pspdat"          : _attr_desc(None, float),
@@ -725,12 +748,11 @@ class PawAbinitHeader(AbinitHeader):
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
-
         super(PawAbinitHeader, self).__init__()
 
         self.summary = summary.strip()
 
-        for (key, desc) in PawAbinitHeader._vars.items():
+        for (key, desc) in PawAbinitHeader._VARS.items():
             default, astype = desc.default, desc.astype
 
             value = kwargs.pop(key, None)
@@ -802,7 +824,7 @@ class PawAbinitHeader(AbinitHeader):
 ##########################################################################################
 
 class PseudoParserError(Exception):
-    pass
+    """Base Error class for the exceptions raised by `PseudoParser`"""
 
 class PseudoParser(object):
     """
@@ -839,6 +861,7 @@ class PseudoParser(object):
     def scan_directory(self, dirname, exclude_exts=(), exclude_fnames=()):
         """
         Analyze the files contained in directory dirname.
+
         Args:
             dirname:
                 directory path
@@ -846,7 +869,8 @@ class PseudoParser(object):
                 list of file extensions that should be skipped.
             exclude_fnames:
                 list of file names that should be skipped.
-        :return: List of pseudopotential objects.
+        returns: 
+            List of pseudopotential objects.
         """
         for (i, ext) in enumerate(exclude_exts):
             if not ext.strip().startswith("."):
@@ -877,10 +901,12 @@ class PseudoParser(object):
         """
         Read the pseudopotential descriptor from file filename.
 
-        :return: Pseudopontential descriptor. None if filename is not a valid pseudopotential file.
-        :raise: `PseudoParserError` if fileformat is not supported.
-        """
+        Returns:
+            Pseudopontential descriptor. None if filename is not a valid pseudopotential file.
 
+        Raises:
+            `PseudoParserError` if fileformat is not supported.
+        """
         if filename.endswith(".xml"):
             raise self.Error("XML pseudo not supported yet")
 
@@ -925,8 +951,8 @@ class PseudoParser(object):
         """
         Read and parse a pseudopotential file.
 
-        :return: pseudopotential object or None if filename is not
-                 a valid pseudopotential file.
+        Returns: 
+            pseudopotential object or None if filename is not a valid pseudopotential file.
         """
         path = os.path.abspath(filename)
 
@@ -937,17 +963,17 @@ class PseudoParser(object):
         psp_type = ppdesc.psp_type
 
         parsers = {
-         "FHI"              : NcAbinitHeader.fhi_header,
-         "TM"               : NcAbinitHeader.tm_header,
-         "HGH"              : NcAbinitHeader.hgh_header,
-         "HGHK"             : NcAbinitHeader.hgh_header,
-         "PAW_abinit_text"  : PawAbinitHeader.paw_header,
+         "FHI"            : NcAbinitHeader.fhi_header,
+         "TM"             : NcAbinitHeader.tm_header,
+         "HGH"            : NcAbinitHeader.hgh_header,
+         "HGHK"           : NcAbinitHeader.hgh_header,
+         "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
-        #try:
-        header = parsers[ppdesc.name](path, ppdesc)
-        #except Exception as exc:
-        #    raise self.Error(str(exc))
+        try:
+            header = parsers[ppdesc.name](path, ppdesc)
+        except Exception as exc:
+            raise self.Error(str(exc))
 
         root, ext = os.path.splitext(path)
 
@@ -990,6 +1016,7 @@ class PseudoTable(collections.Sequence):
     """
     @classmethod
     def astable(cls, items):
+        """Return an instance of `PseudoTable from the iterable items.""" 
         if isinstance(items, cls):
             return items
         return cls(items)
@@ -1042,7 +1069,7 @@ class PseudoTable(collections.Sequence):
         return len(list(self.__iter__()))
 
     def __iter__(self):
-        "Process the elements in Z order."
+        """Process the elements in Z order."""
         for z in self.zlist:
             for pseudo in self._pseudos_with_z[z]:
                 yield pseudo
@@ -1056,23 +1083,23 @@ class PseudoTable(collections.Sequence):
     #    strio.seek(0)
     #    return strio.read()
 
-    @property
-    def allnc(self):
-        "True if all pseudos are norm-conserving"
-        return all(p.isnc for p in self)
-
-    @property
-    def allpaw(self):
-        "True if all pseudos are PAW"
-        return all(p.ispaw for p in self)
-
     #@property
     #def long_name(self):
     #    return "-".join([getattr(self, key) for key in ["psp_type", "xc_type", "name"]])
 
     @property
+    def allnc(self):
+        """True if all pseudos are norm-conserving."""
+        return all(p.isnc for p in self)
+
+    @property
+    def allpaw(self):
+        """True if all pseudos are PAW."""
+        return all(p.ispaw for p in self)
+
+    @property
     def zlist(self):
-        "Ordered list with the atomic numbers available in the table."
+        """Ordered list with the atomic numbers available in the table."""
         zlist = list(self._pseudos_with_z.keys())
         zlist.sort()
         return zlist
@@ -1097,7 +1124,7 @@ class PseudoTable(collections.Sequence):
             return []
 
     def pseudo_from_name(self, name):
-        "Return the pseudo in the table with the given name"
+        """Return the pseudo in the table with the given name"""
         for pseudo in self:
             if pseudo.name == name:
                 return pseudo
@@ -1114,12 +1141,10 @@ class PseudoTable(collections.Sequence):
                 Template for displaying the element properties, with one
                 % for each property.
 
-        :Returns: None
-
         For example, print a table of mass and density.
 
         from periodictable import elements
-        elements.list('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3")
+        elements.list_properties('symbol','mass','density', format="%-2s: %6.2f u %5.2f g/cm^3")
         H :   1.01 u   0.07 g/cm^3
         He:   4.00 u   0.12 g/cm^3
         Li:   6.94 u   0.53 g/cm^3
@@ -1131,23 +1156,23 @@ class PseudoTable(collections.Sequence):
 
         for pseudo in self:
             try:
-                L = tuple(getattr(pseudo,p) for p in props)
+                values = tuple(getattr(pseudo, p) for p in props)
             except AttributeError:
                 # Skip elements which don't define all the attributes
                 continue
 
             # Skip elements with a value of None
-            if any(v is None for v in L):
+            if any(v is None for v in values):
                 continue
 
             if format is None:
-                print(" ".join(str(p) for p in L))
+                print(" ".join(str(p) for p in values))
             else:
-                #try:
-                print(format % L)
-                #except:
-                #    print "format",format,"args",L
-                #    raise
+                try:
+                    print(format % values)
+                except:
+                    print("format",format,"args",values)
+                    raise
 
     def print_table(self, stream=sys.stdout, filter_function=None):
         """
@@ -1156,8 +1181,8 @@ class PseudoTable(collections.Sequence):
         Args:
             filter_function:
                 A filtering function taking a Pseudo as input and returns a boolean.
-                For example, setting filter_function = lambda el: el.X > 2 will print
-                a periodic table containing only elements with electronegativity > 2.
+                For example, setting filter_function = lambda el: el.Z_val > 2 will print
+                a periodic table containing only pseudos with Z_val > 2.
         """
         for row in range(1, 10):
             rowstr = []
@@ -1169,4 +1194,31 @@ class PseudoTable(collections.Sequence):
                     rowstr.append("   ")
             print(" ".join(rowstr))
 
-##########################################################################################
+    def sorted(self, attrname, reverse=False):
+        """Sort the table according to the value of attribute attrname."""
+        attrs = []
+        for i, pseudo in self:
+            try:
+                a = getattr(pseudo, attrname)
+            except AttributeError:
+                a = np.inf
+            attrs.append((i, a))
+
+        # Sort attrs, and build new table with sorted pseudos.
+        attrs = sorted(attrs, key=lambda t:t[1], reverse=reverse)
+        return self.__class__([self[a[0]] for a in attrs])
+
+    def select(self, condition):
+        """
+        Select only those pseudopotentials for which condition is True.
+
+        Args:
+            condition:
+                Function that accepts a `Pseudo` object and returns True or False.
+        """
+        return self.__class__([p for p in self if condition(p)])
+
+    def with_dojo_report(self):
+        """Select pseudos containing the DOJO_REPORT section."""
+        return self.select(condition=lambda p : p.has_dojo_report)
+
