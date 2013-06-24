@@ -88,7 +88,7 @@ class Substitutor(MSONable):
         transmuter = StandardTransmuter([])
         if len(list(set(target_species) & set(self.get_allowed_species()))) \
                 != len(target_species):
-            return ValueError("the species in target_species are not allowed"
+            raise ValueError("the species in target_species are not allowed"
                               + "for the probability model you are using")
 
         for permut in itertools.permutations(target_species):
