@@ -20,6 +20,7 @@ from pymatgen.io.xyzio import XYZ
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.io_utils import zopen
+from pymatgen.analysis.bond_valence import BVAnalyzer
 
 class ZeoCssr(Cssr):
     """
@@ -183,7 +184,7 @@ class ZeoVoronoiXYZ(XYZ):
         return "\n".join(output)
 
 
-def get_voronoi_nodes(structure, rad_file=None, probe_rad=0.1):
+def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
 
     """
     Analyze the void space in the input structure using voronoi decomposition
@@ -213,6 +214,13 @@ def get_voronoi_nodes(structure, rad_file=None, probe_rad=0.1):
     # Compute site radii using structure analyzer and generate rad_file
     # Check if pymatgen has any method already implemented
     #***************************************
+    rad_file = None
+    if rad_dict:
+        rad_file = name+".rad"
+        with open(rad_file, 'w+') as fp:
+            for el in rad_dict.keys():
+                fp.write(el, "   ", rad_dict[el])
+
     atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
     vornet = atmnet.perform_voronoi_decomposition()
     vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
@@ -226,13 +234,16 @@ def get_voronoi_nodes(structure, rad_file=None, probe_rad=0.1):
     shutil.rmtree(temp_dir)
     return voronoi_node_struct 
 
-def get_void_volume_surfarea(structure, rad_file=None, probe_rad=0.2):
+def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2, probe_rad=0.1):
     """
     Computes the volume and surface area of isolated void using Zeo++.
     Useful to compute the volume and surface area of vacant site.
     Args:
         structure:
             pymatgen Structure containing vacancy
+        rad_dict(optional):
+            Dictionary with short name of elements as keys and their radii
+        probe_rad(optional)
     Returns:
         volume:
             floating number representing the volume of void
@@ -243,26 +254,60 @@ def get_void_volume_surfarea(structure, rad_file=None, probe_rad=0.2):
     zeo_inp_filename = name+".cssr"
     os.chdir(temp_dir)
     ZeoCssr(structure).write_file(zeo_inp_filename)
+
+    rad_file = None
+    #print rad_dict
+    if rad_dict:
+        rad_file = name+".rad"
+        with open(rad_file, 'w+') as fp:
+            for el in rad_dict.keys():
+                fp.write("{0}     {1}".format(el,rad_dict[el]))
+
     atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
     #atmnet.write_to_CIF("test.cif")
-    vol_str = volume(atmnet, 0.2, probe_rad, 10000)
+    vol_str = volume(atmnet, 0.3, probe_rad, 5000)
     #print vol_str
-    sa_str = surface_area(atmnet, 0.2, probe_rad, 10000)
+    sa_str = surface_area(atmnet, 0.3, probe_rad, 5000)
     vol = None
     sa = None
+    #print vol_str
+    #print '-----;;'
+    #print sa_str
     for line in vol_str.split("\n"):
         if "Number_of_pockets" in line:
             fields = line.split()
+            #print "*****vol fields********"
+            #print fields
+            #print "************************"
             if float(fields[1]) > 1:
-                raise ValueError("Too many voids")
+                #print structure
+                #print rad_dict
+                #raise ValueError("Too many voids")
+                vol = -1.0
+                break
+            if float(fields[1]) == 0:
+                vol = -1.0
+                break
             vol = float(fields[3])
     for line in sa_str.split("\n"):
         if "Number_of_pockets" in line:
             fields = line.split()
+            #print "*****vol fields********"
+            #print fields
+            #print "************************"
             if float(fields[1]) > 1:
-                raise ValueError("Too many voids")
+                #print structure
+                #raise ValueError("Too many voids")
+                sa = -1.0
+                break
+            if float(fields[1]) == 0:
+                sa = -1.0
+                break
             sa = float(fields[3])
     if not vol or not sa:
-        raise ValueError("No voids present. Check input structure")
+        raise ValueError("Error in zeo++ output stream")
+
+    os.chdir(current_dir)
+    shutil.rmtree(temp_dir)
     return vol, sa
 

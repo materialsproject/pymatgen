@@ -108,10 +108,10 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         filepath1 = os.path.join(test_dir, 'LiMn2O4.cif')
         p1 = CifParser(filepath1).get_structures()[0]
         #vacancy = Vacancy(p.structure)
-        vacancy = Vacancy(p1)
+        self._vacancy = Vacancy(p1)
 
         um = [[1,0,0],[0,1,0],[0,0,1]]
-        self._vac_struct = vacancy.make_supercells_with_defects(um)[1]
+        self._vac_struct = self._vacancy.make_supercells_with_defects(um)[1]
         #print self._vac_struct
     
     def test_void_volume_surface_area(self):
@@ -119,7 +119,9 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         #   vol, sa = get_void_volume_surfarea(struct)
         #   self.assertIsInstance(vol, float)
         #   self.assertIsInstance(sa, float)
-        vol, sa = get_void_volume_surfarea(self._vac_struct)
+        vol, sa = get_void_volume_surfarea(
+                self._vac_struct, self._vacancy.ionic_radii
+                )
         print "vol:  ", vol, "sa:  ", sa
         self.assertIsInstance(vol, float)
         self.assertIsInstance(sa, float)
