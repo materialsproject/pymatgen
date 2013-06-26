@@ -22,9 +22,9 @@ __email__ = "gmatteo at gmail.com"
 class PPConvergenceFactory(object):
     """Factory object"""
 
-    def work_for_pseudo(self, workdir, pseudo, ecut_range, runmode="sequential",
-                        atols_mev=(10, 1, 0.1), spin_mode="polarized",
-                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+    def work_for_pseudo(self, workdir, pseudo, ecut_range, 
+                        runmode="sequential", toldfe=1.e-8, atols_mev=(10, 1, 0.1), 
+                        spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
         """
         Return a Work object given the pseudopotential pseudo.
 
@@ -37,6 +37,8 @@ class PPConvergenceFactory(object):
                 range of cutoff energies in Ha units.
             runmode:
                 Run mode.
+            toldfe:
+                Tolerance on the total energy (Ha).
             atols_mev:
                 Tolerances in meV for accuracy in ["low", "normal", "high"]
             spin_mode:
@@ -52,13 +54,15 @@ class PPConvergenceFactory(object):
 
         if isinstance(ecut_range, slice):
             workflow = PseudoIterativeConvergence(
-                workdir, pseudo, ecut_range, atols_mev, runmode=runmode,
-                spin_mode=spin_mode, acell=acell, smearing=smearing)
+                workdir, pseudo, ecut_range, atols_mev, 
+                runmode=runmode, toldfe=toldfe, spin_mode=spin_mode, 
+                acell=acell, smearing=smearing)
 
         else:
             workflow = PseudoConvergence(
-                workdir, pseudo, ecut_range, atols_mev, runmode=runmode,
-                spin_mode=spin_mode, acell=acell, smearing=smearing)
+                workdir, pseudo, ecut_range, atols_mev, 
+                runmode=runmode, toldfe=toldfe, spin_mode=spin_mode, 
+                acell=acell, smearing=smearing)
 
         return workflow
 
