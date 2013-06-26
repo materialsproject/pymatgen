@@ -968,7 +968,9 @@ class PseudoIterativeConvergence(IterativeWork):
 
         data = self.check_etotal_convergence()
 
-        plot_etotal(data["ecut_list"], data["etotal"], data["aug_ratios"],
+        ecut_list, etotal, aug_ratios = data["ecut_list"],  data["etotal"], data["aug_ratios"]
+
+        plot_etotal(ecut_list, etotal, aug_ratios,
             show=False, savefig=self.path_in_workdir("etotal.pdf"))
 
         wf_results.update(data)
