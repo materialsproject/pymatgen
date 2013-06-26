@@ -274,7 +274,8 @@ class StructureNL(object):
                       "references": self.references,
                       "remarks": self.remarks,
                       "history": [h.to_dict for h in self.history],
-                      "created_at": self.created_at}
+                      "created_at": json.loads(json.dumps(self.created_at,
+                                                cls=PMGJSONEncoder))}
         d["about"].update(json.loads(json.dumps(self.data,
                                                 cls=PMGJSONEncoder)))
         return d

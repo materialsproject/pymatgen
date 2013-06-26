@@ -143,6 +143,8 @@ class DiffusionAnalyzer(MSONable):
             min_dt = int(1000 / (self.step_skip * self.time_step))
             max_dt = min(dc_x.shape[0] * dc_x.shape[1] // self.min_obs,
                          dc_x.shape[1])
+            if min_dt >= max_dt:
+                raise ValueError('Not enough data to calculate diffusivity')
             timesteps = np.arange(min_dt, max_dt,
                                   max(int((max_dt - min_dt) / 200), 1))
             self.dt = timesteps * self.time_step * self.step_skip
