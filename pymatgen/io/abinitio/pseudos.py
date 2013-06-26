@@ -1216,7 +1216,7 @@ class PseudoTable(collections.Sequence):
             condition:
                 Function that accepts a `Pseudo` object and returns True or False.
         """
-        return self.__class__([p for p in self if condition(p)])
+        return PseudoTable([p for p in self if condition(p)])
 
     def with_dojo_report(self):
         """Select pseudos containing the DOJO_REPORT section."""

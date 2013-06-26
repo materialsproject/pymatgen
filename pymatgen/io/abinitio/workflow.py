@@ -170,7 +170,7 @@ class BaseWorkflow(object):
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
     def processes(self):
-        "Return a list of objects that support the subprocess.Popen protocol."
+        """Return a list of objects that support the subprocess.Popen protocol."""
 
     def poll(self):
         """
@@ -236,7 +236,7 @@ class BaseWorkflow(object):
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
-        "Method called before submitting the calculations."
+        """Method called before submitting the calculations."""
 
     def _setup(self, *args, **kwargs):
         self.setup(*args, **kwargs)
@@ -835,13 +835,14 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 class PseudoConvergence(Workflow):
 
     def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode="sequential", spin_mode="polarized", 
+                 runmode="sequential", toldfe=1.e-8, spin_mode="polarized", 
                  acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
 
         super(PseudoConvergence, self).__init__(workdir, runmode)
 
         # Temporary object used to build the strategy.
         generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev,
+                                               toldfe    = toldfe,
                                                spin_mode = spin_mode,
                                                acell     = acell,
                                                smearing  = smearing,
@@ -871,7 +872,7 @@ class PseudoConvergence(Workflow):
 
         if not monotonic(etotal, mode="<", atol=1.0e-5):
             print("E(ecut) is not decreasing")
-            wf_results.push_exceptions("E(ecut) is not decreasing")
+            wf_results.push_exceptions("E(ecut) is not decreasing:\n" + str(etotal))
 
         if kwargs.get("json_dump", True):
             wf_results.json_dump(self.path_in_workdir("results.json"))
@@ -881,7 +882,8 @@ class PseudoConvergence(Workflow):
 class PseudoIterativeConvergence(IterativeWork):
 
     def __init__(self, workdir, pseudo, ecut_list_or_slice, atols_mev,
-                 runmode="sequential", spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50,):
+                 runmode="sequential", toldfe=1.e-8, spin_mode="polarized", 
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50,):
         """
         Args:
             workdir:
@@ -902,6 +904,7 @@ class PseudoIterativeConvergence(IterativeWork):
         self.pseudo = Pseudo.aspseudo(pseudo)
 
         self.atols_mev = atols_mev
+        self.toldfe = toldfe
         self.spin_mode = spin_mode
         self.smearing = Smearing.assmearing(smearing)
         self.acell = acell
@@ -938,6 +941,7 @@ class PseudoIterativeConvergence(IterativeWork):
         extra_abivars = {
             "ecut" : ecut,
             "prtwf": 0,
+            "toldfe": self.toldfe,
         }
         strategy = ScfStrategy(boxed_atom, self.pseudo, gamma_only,
                                spin_mode=self.spin_mode, smearing=self.smearing,
@@ -971,7 +975,7 @@ class PseudoIterativeConvergence(IterativeWork):
 
         if not monotonic(data["etotal"], mode="<", atol=1.0e-5):
             print("E(ecut) is not decreasing")
-            wf_results.push_exceptions("E(ecut) is not decreasing")
+            wf_results.push_exceptions("E(ecut) is not decreasing\n" + str(etotal))
 
         if kwargs.get("json_dump", True):
             wf_results.json_dump(self.path_in_workdir("results.json"))
@@ -1012,7 +1016,7 @@ class Relaxation(Workflow):
 class DeltaTest(Workflow):
 
     def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
-                 spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+                 spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
         super(DeltaTest, self).__init__(workdir, runmode)
@@ -1038,14 +1042,15 @@ class DeltaTest(Workflow):
 
             new_lattice = structure.lattice.scale(vol)
 
-            new_structure = Structure(new_lattice, structure.species,
-                                      structure.frac_coords)
+            new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
             new_structure = AbiStructure.asabistructure(new_structure)
 
             extra_abivars = {
                 "ecutsm": ecutsm,
                 "prtwf" : 0,
+                "toldfe": toldfe,
             }
+
             if ecut is not None:
                 extra_abivars.update({"ecut": ecut})
 

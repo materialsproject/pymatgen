@@ -192,7 +192,7 @@ class Strategy(object):
         # Check user options first.
         for tolname in self._tolerances:
             try:
-                return {name: self.extra_abivars[tolname]}
+                return {tolname: self.extra_abivars[tolname]}
             except KeyError:
                 pass
 
