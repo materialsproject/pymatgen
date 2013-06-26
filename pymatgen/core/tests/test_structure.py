@@ -449,6 +449,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
     def test_to_from_dict(self):
         propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
+                                  charge=1,
                                   site_properties={'magmom':
                                                    [0.5, -0.5, 1, 2, 3]})
         d = propertied_mol.to_dict
@@ -457,6 +458,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(propertied_mol, mol)
         self.assertEqual(mol[0].magmom, 0.5)
         self.assertEqual(mol.formula, "H4 C1")
+        self.assertEqual(mol.charge, 1)
+
 
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)

@@ -200,6 +200,8 @@ class NwTask(MSONable):
                     "Charge of {} and spin multiplicity of {} is"
                     " not possible for this molecule".format(
                         charge, spin_multiplicity))
+        elif charge == mol.charge:
+            spin_multiplicity = mol.spin_multiplicity
         else:
             spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
 

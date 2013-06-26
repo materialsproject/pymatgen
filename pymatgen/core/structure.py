@@ -1210,6 +1210,8 @@ class IMolecule(SiteCollection, MSONable):
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
+             "charge": self._charge,
+             "spin_multiplicity": self._spin_multiplicity,
              "sites": []}
         for site in self:
             site_dict = site.to_dict
@@ -1245,7 +1247,9 @@ class IMolecule(SiteCollection, MSONable):
             for k, v in siteprops.items():
                 props[k].append(v)
 
-        return cls(species, coords, site_properties=props)
+        return cls(species, coords, charge=d.get("charge"),
+                   spin_multiplicity=d.get("spin_multiplicity"),
+                   site_properties=props)
 
     def get_distance(self, i, j):
         """
