@@ -198,7 +198,7 @@ class TransformedStructure(MSONable):
             create_directory:
                 Create the directory if not present. Defaults to True.
         """
-        vasp_input_set.write_input(self._structures[-1], output_dir,
+        vasp_input_set.write_input(self.final_structure, output_dir,
                                    make_dir_if_not_present=create_directory)
         with open(os.path.join(output_dir, "transformations.json"), "w") as fp:
             json.dump(self.to_dict, fp)
@@ -227,7 +227,7 @@ class TransformedStructure(MSONable):
         is in the case of performing a substitution transformation on the
         structure when the specie to replace isn't in the structure.
         """
-        return not self._structures[-1] == self._structures[-2]
+        return not self.final_structure == self.structures[-2]
     
     @property
     def structures(self):
@@ -235,7 +235,8 @@ class TransformedStructure(MSONable):
         Returns a copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
-        hstructs = [Structure.from_dict(s['input_structure']) for s in self.history]
+        hstructs = [Structure.from_dict(s['input_structure']) for s in self.history \
+                    if 'input_structure' in s]
         return hstructs + [self.final_structure]
             
     @staticmethod
@@ -330,16 +331,32 @@ class TransformedStructure(MSONable):
                  'during type conversion to SNL')
         hist = []
         for h in self.history:
-            hist.append({'name' : 'pymatgen', 
-                         'url' : 'http://pypi.python.org/pypi/pymatgen',
+            snl_metadata = h.pop('_snl', {})
+            hist.append({'name' : snl_metadata.pop('name', 'pymatgen'),
+                         'url' : snl_metadata.pop('url', 
+                                    'http://pypi.python.org/pypi/pymatgen'),
                          'description' : h})
         return StructureNL(self.final_structure, authors, projects, references,
                            remarks, data, hist, created_at)
         
     @classmethod
     def from_snl(cls, snl):
+        """
+        Args:
+            snl:
+                Starting snl
+            copy_metadata:
+                update the authors, projects, references, and remarks
+                in the last history node with the metadata at the
+                root of the SNL object
+            copy_data:
+                copy the contents of snl.data into the last history
+                node
+        """
         hist = []
         for h in snl.history:
-            hist.append(h.description)
+            d = h.description
+            d['_snl'] = {'url' : h.url, 'name' : h.name}
+            hist.append(d)
         return cls(snl.structure, history=hist)
 

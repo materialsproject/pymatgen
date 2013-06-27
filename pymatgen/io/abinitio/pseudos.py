@@ -1,6 +1,6 @@
 """
-This module provides objects describing the basic parameters of the pseudopotentials used in Abinit,
-a parser to instantiate pseudopotential objects from file and a simple database to access the official pseudopotential tables.
+This module provides objects describing the basic parameters of the 
+pseudopotentials used in Abinit, and a parser to instantiate pseudopotential objects..
 """
 from __future__ import division, print_function
 
@@ -14,26 +14,18 @@ import cPickle as pickle
 import cStringIO as StringIO
 import numpy as np
 
-from warnings import warn
-from pprint import pprint
-
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.core.physical_constants import Ha_eV, Ha2meV
 from pymatgen.util.num_utils import iterator_from_slice
-#from pymatgen.serializers.json_coders import MSONable
 
 __all__ = [
-'Pseudo',
-'PseudoDatabase',
+    "Pseudo",
+    "PseudoTable",
 ]
 
 __author__ = "Matteo Giantomassi"
-__copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
-__email__ = "gmatteo at gmail.com"
-__status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
 
 ##########################################################################################
 # Tools and helper functions.
@@ -53,16 +45,6 @@ class FrozenDict(dict):
         for (k, v) in dict(*args, **kwargs).iteritems():
             self[k] = v
 
-def nested_dict_items(nested):
-    "Iterate over the items of a nested Mapping (e.g. a dictionary)."
-
-    for (key, value) in nested.items():
-        if isinstance(value, collections.Mapping):
-            for (inner_key, inner_value) in nested_dict_items(value):
-                yield inner_key, inner_value
-        else:
-            yield key, value
-
 def _read_nlines(filename, nlines):
     """
     Read at most nlines lines from file filename.
@@ -80,6 +62,7 @@ def _read_nlines(filename, nlines):
         return lines
 
 def read_dojo_report(filename):
+    """Helper function to read the DOJO_REPORT from file."""
     with open(filename, "r") as fh:
          lines = fh.readlines()
          try:
@@ -125,7 +108,7 @@ def get_abinit_psp_dir(code="ABINIT"):
     return None
 
 ##########################################################################################
-_periodic_table = PeriodicTable()
+_PTABLE = PeriodicTable()
 
 class Pseudo(object):
     """
@@ -160,7 +143,7 @@ class Pseudo(object):
             self.__class__.__name__, id(self), self.name)
 
     def __str__(self):
-        "String representation"
+        """String representation."""
         lines = []
         app = lines.append
         app("<%s: %s>" % (self.__class__.__name__, self.name))
@@ -170,46 +153,52 @@ class Pseudo(object):
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
         app("  radius for non-linear core correction: %s" % self.nlcc_radius)
+        app("")
+
+        hint_normal = self.hint_for_accuracy()
+        if hint_normal is not None:
+            app("  hint for normal accuracy: %s" % str(hint_normal))
+
         return "\n".join(lines)
 
     @abc.abstractproperty
     def summary(self):
-        "String summarizing the most important properties"
+        """String summarizing the most important properties."""
 
     @abc.abstractproperty
     def filepath(self):
-        "Absolute path of the pseudopotential file"
+        """Absolute path of the pseudopotential file."""
 
     @property
     def name(self):
-        "File basename"
+        """File basename."""
         return os.path.basename(self.filepath)
 
     @abc.abstractproperty
     def Z(self):
-        "The atomic number of the atom."
+        """The atomic number of the atom."""""""""
 
     @abc.abstractproperty
     def Z_val(self):
-        "Valence charge"
+        """Valence charge"""
 
     @property
     def element(self):
-        "Pymatgen Element"
-        return _periodic_table[self.Z]
+        """Pymatgen `Element`."""
+        return _PTABLE[self.Z]
 
     @property
     def symbol(self):
-        "Element symbol."
+        """Element symbol."""
         return self.element.symbol
 
     @abc.abstractproperty
     def l_max(self):
-        "Maximum angular momentum"
+        """Maximum angular momentum."""
 
     @abc.abstractproperty
     def l_local(self):
-        "Angular momentum used for the local part"
+        """Angular momentum used for the local part."""
 
     #@abc.abstractproperty
     #def xc_family(self):
@@ -221,17 +210,17 @@ class Pseudo(object):
 
     @property
     def xc_type(self):
-        "XC identifier e.g LDA-PW, GGA-PBE, GGA-revPBE"
+        """XC identifier e.g LDA-PW, GGA-PBE, GGA-revPBE."""
         return "-".join([self.xc_family, self.xc_flavor])
 
     @property
     def isnc(self):
-        "True if norm-conserving pseudopotential"
+        """True if norm-conserving pseudopotential."""
         return isinstance(self, NcPseudo)
 
     @property
     def ispaw(self):
-        "True if PAW pseudopotential"
+        """True if PAW pseudopotential."""
         return isinstance(self, PawPseudo)
 
     #@abc.abstractproperty
@@ -248,25 +237,27 @@ class Pseudo(object):
 
     @property
     def has_dojo_report(self):
-        "True if self contains the DOJO_REPORT section."
+        """True if self contains the DOJO_REPORT section."""
         return self.dojo_report
 
-    @property
-    def dojo_level(self):
-        "The maximum level of the DOJO trials passes by the pseudo."
-        if not self.dojo_report:
+    def delta_factor(self, accuracy="normal"):
+        """
+        Returns the deltafactor [meV/natom] computed with the given accuracy.
+        None if self does not have info on the deltafactor.
+        """
+        if not self.has_dojo_report:
             return None
-        else:
-            from pymatgen.io.abinitio.pseudo_dojo import dojo_key2level
-            levels = [dojo_key2level(key) for key in self.dojo_report]
-            return max(levels)
-
-    #def dojo_rank(self):
+        try:
+            return self.dojo_report["delta_factor"][accuracy]["dfact"]
+        except KeyError:
+            return None
 
     def read_dojo_report(self):
+        """Read the DOJO_REPORT section, returns {} if section is not present.""" 
         return read_dojo_report(self.path)
 
     def write_dojo_report(self, report):
+        """Write a new DOJO_REPORT section to the pseudopotential file."""
         # Create JSON string from report.
         jstring = json.dumps(report, indent=4, sort_keys=True) + "\n"
 
@@ -291,6 +282,7 @@ class Pseudo(object):
             fh.writelines(lines)
 
     def remove_dojo_report(self):
+        """Remove the DOJO_REPORT section from the pseudopotential file."""
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
             lines = fh.readlines()
@@ -307,16 +299,15 @@ class Pseudo(object):
                return
 
             del lines[start+1:stop]
-            #pprint(lines)
 
         # Write new file.
         with open(self.path, "w") as fh:
             fh.writelines(lines)
 
-    def hint_for_accuracy(self, accuracy):
+    def hint_for_accuracy(self, accuracy="normal"):
         """
-        Returns an hint object with parameters such as ecut and aug_ratio for
-        given accuracy. Returns None if no hint is available.
+        Returns an hint object with parameters such as ecut [Ha] and 
+        aug_ratio for given accuracy. Returns None if no hint is available.
 
         Args:
             accuracy: ["low", "normal", "high"]
@@ -334,20 +325,16 @@ class Pseudo(object):
                 return False
         return True
 
-    def checksum(self):
-        """
-        Return the checksum of the pseudopotential file.
-
-        The checksum is given by the tuple (basename, line_num, hexmd5)
-        where basename if the file name, hexmd5 is the (hex) MD5 hash,
-        and line_num is the number of lines in the file.
-        """
-        import hashlib
-        hasher = hashlib.md5()
-        with open(self.filepath, "r") as fh:
-            hasher.update(fh.read())
-
-        return self.name, len(text.splitlines()), hasher.hexdigest()
+    #@property
+    #def md5(self):
+    #    """
+    #    Return the checksum of the pseudopotential file.
+    #    """
+    #    import hashlib
+    #    hasher = hashlib.md5()
+    #    with open(self.filepath, "r") as fh:
+    #        hasher.update(fh.read())
+    #        return hasher.hexdigest()
 
 ##########################################################################################
 
@@ -849,7 +836,7 @@ class PseudoParser(object):
         # List of files that could not been parsed.
         self._wrong_paths  = []
 
-    def scan_directory(self, dirname, exclude_exts=None):
+    def scan_directory(self, dirname, exclude_exts=(), exclude_fnames=()):
         """
         Analyze the files contained in directory dirname.
         Args:
@@ -857,12 +844,10 @@ class PseudoParser(object):
                 directory path
             exclude_exts:
                 list of file extensions that should be skipped.
-
+            exclude_fnames:
+                list of file names that should be skipped.
         :return: List of pseudopotential objects.
         """
-        if exclude_exts is None:
-            exclude_exts = []
-
         for (i, ext) in enumerate(exclude_exts):
             if not ext.strip().startswith("."):
                 exclude_exts[i] =  "." + ext.strip()
@@ -871,8 +856,9 @@ class PseudoParser(object):
         paths = []
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
-            if ext not in exclude_exts:
-                paths.append(os.path.join(dirname, fname))
+            if ext in exclude_exts or fname in exclude_fnames:
+                continue
+            paths.append(os.path.join(dirname, fname))
 
         pseudos = []
         for path in paths:
@@ -1053,7 +1039,7 @@ class PseudoTable(collections.Sequence):
             return self._pseudos_with_z[Z]
 
     def __len__(self):
-        return len(list(self._iter__()))
+        return len(list(self.__iter__()))
 
     def __iter__(self):
         "Process the elements in Z order."
@@ -1061,8 +1047,8 @@ class PseudoTable(collections.Sequence):
             for pseudo in self._pseudos_with_z[z]:
                 yield pseudo
 
-    def __repr__(self):
-        return "<%s at %s, long_name = %s>" % (self.__class__.__name__, id(self), self.long_name)
+    #def __repr__(self):
+    #    return "<%s at %s, long_name = %s>" % (self.__class__.__name__, id(self), self.long_name)
 
     #def __str__(self):
     #    strio = StringIO.StringIO()
@@ -1080,9 +1066,9 @@ class PseudoTable(collections.Sequence):
         "True if all pseudos are PAW"
         return all(p.ispaw for p in self)
 
-    @property
-    def long_name(self):
-        return "-".join([getattr(self, key) for key in ["psp_type", "xc_type", "name"]])
+    #@property
+    #def long_name(self):
+    #    return "-".join([getattr(self, key) for key in ["psp_type", "xc_type", "name"]])
 
     @property
     def zlist(self):
@@ -1182,194 +1168,5 @@ class PseudoTable(collections.Sequence):
                 else:
                     rowstr.append("   ")
             print(" ".join(rowstr))
-
-##########################################################################################
-
-class PseudoDatabase(dict):
-
-    _save_file = "pseudo_database.pickle"
-    #
-    #        "TM"
-    #"LDA"   "HGH"
-    #"GGA"   "HGK"
-    #        "FHI"
-    #        "USERS"
-
-    #"LDA"   "ATOMPAW"
-    #"GGA"   "USPP"
-    #        "USERS"
-
-    # xc_type = xc_family-[xc_flavor]
-    # dirname = psp_type _ xc_type _ table_name
-    PSP_TYPES = ["NC", "PAW"]
-
-    XC_FAMILIES = ["LDA", "GGA"]
-
-    XC_FLAVOR   = ["PBE", "PW91"]
-
-    XC_TYPES = ["LDA", "GGA"]
-
-    def __new__(cls, dirpath=None, force_reload=False):
-        new = dict.__new__(cls)
-
-        if dirpath is None:
-            return new
-
-        dirpath = os.path.abspath(dirpath)
-
-        cached_database = os.path.join(dirpath, cls._save_file)
-
-        if not os.path.exists(cached_database) or force_reload:
-            new = PseudoDatabase.__build(new, dirpath)
-        else:
-            new = PseudoDatabase.__from_filename(new, cached_database)
-
-        return new
-
-    def __init__(self, dirpath=None, force_reload=False):
-        pass
-
-    def __len__(self):
-        return len([self.all_pseudos])
-
-    def __build(self, top):
-        print("Building new database...")
-
-        new_database = PseudoDatabase()
-
-        for key in self.PSP_TYPES:
-            new_database[key] = None
-
-        parser = PseudoParser()
-
-        for psp_type in self.PSP_TYPES:
-            new_database[psp_type] = dict.fromkeys(self.XC_TYPES, dict())
-
-        for (dirpath, dirnames, filenames) in os.walk(top):
-            for dirname in dirnames:
-
-                try:
-                    psp_type, xc_type, table_type = os.path.basename(dirname).split("_")
-                except:
-                    err_msg = "Malformatted name for directory %s" % dirname
-                    raise RuntimeError(err_msg)
-                #print(psp_type, xc_type, table_type)
-
-                if psp_type not in self.PSP_TYPES or xc_type not in self.XC_TYPES:
-                    raise ValueError("Don't know how to handle %s %s" % (psp_type, xc_type))
-
-                pseudos = parser.scan_directory( os.path.join(dirpath, dirname),
-                    exclude_exts = [".py", ".ini", ".sh", ".gz", ".pl", ".txt", ".swp", ".data", "pickle",])
-
-                table = PseudoTable(pseudos)
-
-                new_database[psp_type][xc_type][table_type] = table
-
-        # Save the database.
-        cached_database = os.path.join(top, self._save_file)
-
-        new_database.save(cached_database)
-
-        return new_database
-
-    def __from_filename(self, filename):
-
-        cached_database = filename
-        if cached_database is None: cached_database = self._save_file
-
-        print("Loading database from: %s" % cached_database)
-
-        # Read the database from the cpickle file.
-        # Use file locking mechanism to prevent IO from other processes.
-        #with FileLock(database_path + ".lock") as lock:
-        with open(cached_database, "r") as fh:
-            database = pickle.load(fh)
-
-        #assert database.dirpath == os.path.split(abspath(cached_database))[0]
-        return database
-
-    @property
-    def LDA_HGH_PPTABLE(self):
-        return self["NC"]["LDA"]["HGH"]
-
-    @property
-    def GGA_FHI_PPTABLE(self):
-        return self["NC"]["GGA"]["FHI"]
-
-    @property
-    def GGA_HGHK_PPTABLE(self):
-        return self["NC"]["GGA"]["HGHK"]
-
-    @property
-    def path(self):
-        return self._path
-
-    @property
-    def dirname(self):
-        return os.path.dirname(self._path)
-
-    def save(self, filename=None, protocol=-1):
-
-        cached_database = filename
-        if cached_database is None: cached_database = self._save_file
-
-        print("Saving database on file %s" % cached_database)
-
-        # Save the database in the cpickle file.
-        # Use file locking mechanism to prevent IO from other processes.
-        #with FileLock(cached_database) as lock:
-
-        self._path = cached_database
-
-        with open(cached_database, "w") as fh:
-            pickle.dump(self, fh, protocol=protocol)
-
-    @property
-    def all_pseudos(self):
-        "Return a list with all the pseudopotentials in the database"
-        pseudos = []
-        for (k, table) in nested_dict_items(self):
-            pseudos.extend([p for p in table])
-        return pseudos
-
-    def write_hash_table(self, filename):
-        #with open(filename, "w") as fh
-        fh = sys.stdout
-
-        def tail2(path):
-            head, tail0 = os.path.split(path)
-            head, tail1 = os.path.split(head)
-            return os.path.join(tail1, tail0)
-
-        fh.write("# relative_path, md5 num_line\n")
-        for pseudo in self.all_pseudos():
-            #print type(pseudo), pseudo
-            checksum = pseudo.checksum()
-            relative_path = tail2(pseudo.path)
-            fh.write("%s %s %s\n" % (relative_path, checksum[0], checksum[1]))
-
-    def table(self, psp_type, xc_type):
-        return self[psp_type][xc_type].values()
-
-    def nc_tables(self, xc_type):
-        "Iterate over the norm-conserving tables with XC type xc_type."
-        return self.table("NC", xc_type)
-
-    def paw_tables(self, psp_type, xc_type):
-        "Iterate over the PAW tables with XC type xc_type."
-        return self.table("PAW", xc_type)
-
-    def nc_pseudos(self, symbol, xc_type, table_type=None, **kwargs):
-        "Return a list of :class:`Pseudo` instances."
-        pseudos = []
-        for table in self.nc_tables(xc_type):
-            if table_type is not None and table_type != table.type: continue
-            pseudos.extend( table.pseudos_with_symbol(symbol) )
-
-        return pseudos
-
-    #def paw_pseudos(self, symbol, xc_type, table_type=None, **kwargs):
-
-    #def find_all(self, symbol, xc_type):
 
 ##########################################################################################
