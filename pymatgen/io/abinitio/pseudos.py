@@ -835,11 +835,11 @@ class PseudoParser(object):
     """
     Error = PseudoParserError
 
-    #: Supported values of pspcod
+    # Supported values of pspcod
     ppdesc = collections.namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _pspcodes = collections.OrderedDict( {
+    _PSPCODES = collections.OrderedDict( {
         1 : ppdesc(1, "TM",  "NC", None),
         3 : ppdesc(3, "HGH", "NC", None),
         #4 : ppdesc(4, "NC",     , None),
@@ -929,10 +929,10 @@ class PseudoParser(object):
                         raise self.Error("%s: Invalid line\n %s"  % (filename, line))
                         return None
 
-                    if pspcod not in self._pspcodes:
+                    if pspcod not in self._PSPCODES:
                         raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
 
-                    ppdesc = PseudoParser._pspcodes[pspcod]
+                    ppdesc = self._PSPCODES[pspcod]
 
                     if pspcod == 7:
                         # PAW -> need to know the format pspfmt

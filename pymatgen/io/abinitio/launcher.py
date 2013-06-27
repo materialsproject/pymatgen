@@ -12,14 +12,14 @@ from subprocess import Popen, PIPE
 from pymatgen.io.abinitio.utils import File
 
 __all__ = [
-"ScriptEditor",
-"ShellLauncher",
+    "ScriptEditor",
+    "ShellLauncher",
 ]
 
 # =========================================================================== #
 
 class ScriptEditor(object):
-    "Simple editor that simplifies the writing of shell scripts"
+    """Simple editor that simplifies the writing of shell scripts"""
     _shell = '/bin/bash'
 
     def __init__(self):
@@ -36,33 +36,33 @@ class ScriptEditor(object):
             self._lines.extend([pre + t for t in text])
 
     def reset(self):
-        "Reset the Editor"
+        """Reset the editor."""
         try:
             del self._lines
         except AttributeError:
             pass
 
     def shebang(self):
-        "Adds the shebang line"
+        """Adds the shebang line."""
         self._lines.append('#!' + self.shell)
 
     def declare_var(self, key, val):
-        "Return a lines setting a variable."
+        """Return a lines setting a variable."""
         line = key + '=' + str(val)
         self._add(line)
 
     def declare_vars(self, d):
-        "Declare the variabled defined in d (dict)"
+        """Declare the variabled defined in d (dict)"""
         for k,v in d.items():
             self.declare_var(k, v)
 
     def export_envar(self, key, val):
-        "Export an environment variable"
+        """Export an environment variable."""
         line = "export " + key + "=" + str(val)
         self._add(line)
 
     def export_envars(self, env):
-        "Export the environment variables contained in the dict env."
+        """Export the environment variables contained in the dict env."""
         for k,v in env.items():
             self.export_envar(k, v)
 
@@ -86,7 +86,7 @@ class ScriptEditor(object):
         self._add(lines)
 
     def get_script_str(self, reset=True):
-        "Returns a string with the script and reset the editor if reset is True"
+        """Returns a string with the script and reset the editor if reset is True"""
         s = "\n".join(l for l in self._lines)
         if reset:
             self.reset()
@@ -99,7 +99,7 @@ class OMPEnv(dict):
     Dictionary with the OpenMP environment variables"
     see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables"
     """
-    _keys = [
+    _KEYS = [
        "OMP_SCHEDULE",
        "OMP_NUM_THREADS",
        "OMP_DYNAMIC",
@@ -128,7 +128,7 @@ class OMPEnv(dict):
         err_msg = ""
         for key, value in self.items():
             self[key] = str(value)
-            if key not in OMPEnv._keys:
+            if key not in OMPEnv._KEYS:
                 err_msg += "unknown option %s" % key
 
         if err_msg: 
@@ -151,13 +151,13 @@ class OMPEnv(dict):
 
         err_msg = ""
         for key in parser.options("openmp"):
-            if key.upper() not in OMPEnv._keys:
+            if key.upper() not in OMPEnv._KEYS:
                 err_msg += "unknown option %s, maybe a typo" % key
 
         if err_msg: 
             raise ValueError(err_msg)
 
-        for key in OMPEnv._keys:
+        for key in OMPEnv._KEYS:
             try:
                 obj[key] = str(parser.get("openmp", key))
             except NoOptionError:
@@ -174,12 +174,12 @@ class OMPEnv(dict):
 ##########################################################################################
 
 class TaskLauncher(object):
-    "Abstract class for a task launcher"
+    """Abstract class for a task launcher."""
     __metaclass__ = abc.ABCMeta
 
     @staticmethod
     def from_launcher_type(launcher_type):
-        "Returns the subclass from a string giving its type."
+        """Returns the subclass from a string giving its type."""
         classes = []
         for cls in TaskLauncher.__subclasses__():
            if cls._type == launcher_type:
@@ -209,7 +209,8 @@ class TaskLauncher(object):
             post_lines:
                 Lines after the main execution. Default is [].
             exe:
-                The name of the binary to be executed (located in bindir or in $PATH if not bindir). Default is abinit.
+                The name of the binary to be executed 
+                (located in bindir or in $PATH if not bindir). Default is abinit.
             mpirun:
                 The mpi runner.
                 E.g. 'mpirun -n 6'. Default is None.
@@ -240,29 +241,29 @@ class TaskLauncher(object):
 
     @property
     def tot_ncpus(self):
-        "Total number of CPUs employed"
+        """Total number of CPUs employed"""
         return self.mpi_ncpus * self.omp_ncpus 
 
     @property
     def has_mpirun(self):
-        "True if we are using a mpirunner"
+        """True if we are using a mpirunner"""
         return bool(self.mpirun)
 
     @property
     def has_omp(self):
-        "True if we are using OMP threads"
+        """True if we are using OMP threads"""
         return hasattr(self,"omp_env") and bool(getattr(self, "omp_env"))
                                                       
     @property
     def omp_ncpus(self):
-        "Number of OMP threads" 
+        """Number of OMP threads."""
         if self.has_omp:
             return self.omp_env["OMP_NUM_THREADS"]
         else:
             return 1
 
     def get_script_str(self):
-        "Returns a string wth the script."
+        """Returns a string wth the script."""
         se = ScriptEditor()
 
         se.shebang()
@@ -309,7 +310,7 @@ class TaskLauncher(object):
         return se.get_script_str()
 
     def write_script(self, overwrite=True):
-        "Writes the script file."
+        """Writes the script file."""
         #if not self.jobfile.exists:
         #    os.makedirs(self.jobfile.dirname)
 
@@ -327,7 +328,7 @@ class TaskLauncher(object):
 
     @abc.abstractmethod
     def make_rsmheader(self):
-        "Return a list of string with the options passed to the resource manager"
+        """Return a list of string with the options passed to the resource manager"""
 
     @abc.abstractmethod
     def launch(self, task, *args, **kwargs):
@@ -377,14 +378,21 @@ class ShellLauncher(TaskLauncher):
 
 ##########################################################################################
 
+
+class SimpleResourceManagerError(Exception):
+    """Base error class for `SimpleResourceManager."""
+
+
 class SimpleResourceManager(object):
 
-    def __init__(self, work, max_ncpus, sleep_time=20):
+    Error = SimpleResourceManagerError
+
+    def __init__(self, work, max_ncpus, sleep_time=20, verbose=0):
         """
             Args:
                 work:
                     Work instance.
-                max_ncpsu: 
+                max_ncpus: 
                     The maximum number of CPUs that can be used.
                 sleep_time:
                     Time delay (seconds) before trying to start a new task.
@@ -392,16 +400,16 @@ class SimpleResourceManager(object):
         self.work = work
         self.max_ncpus = max_ncpus 
         self.sleep_time = sleep_time
-        self.verbose = 0
+        self.verbose = verbose
 
         for task in self.work:
             if task.tot_ncpus > self.max_ncpus:
-                raise ValueError("Task %s requires %s CPUs, but max_ncpus is %d" % (
+                err_msg = "Task %s requires %s CPUs, but max_ncpus is %d" % (
                     repr(task), task.tot_ncpus, max_ncpus))
+                raise self.Error(err_msg)
 
     def run(self, *args, **kwargs):
-        "Call the start method of the object contained in work."
-
+        """Call the start method of the object contained in work."""
         while True:
             polls = self.work.poll()
             # Fetch the first task that is ready to run
@@ -427,10 +435,11 @@ class SimpleResourceManager(object):
         self.work.wait()
 
         #if any([t.status != t.S_DONE for t in self]):
-        #        for task in self:
-        #            print([link for link in task._links])
-        #            #print([link_stat==task.S_DONE for link_stat in task.links_status])
-        #        raise RuntimeError("Deadlock, likely due to task dependencies: status %s" % str([t.status for t in self]))
+        #   for task in self:
+        #       print([link for link in task._links])
+        #       #print([link_stat==task.S_DONE for link_stat in task.links_status])
+        #       msg = "Deadlock, likely due to task dependencies: status %s" % str([t.status for t in self]))
+        #       self.Error(msg)
 
         return self.work.returncodes
 

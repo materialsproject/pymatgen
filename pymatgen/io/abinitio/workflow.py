@@ -38,9 +38,6 @@ __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
-__email__ = "gmatteo at gmail.com"
-__status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
 
 #__all__ = [
 #]
@@ -69,7 +66,7 @@ class Product(object):
     # so that I can avoid creating symbolic links before running but
     # the presence of the C-bindings complicates the implementation
     # (gfortran SIGFAULTs if I add strings to dataset_type!
-    _ext2abivars = {
+    _EXT2ABIVARS = {
         "_DEN": {"irdden": 1},
         "_WFK": {"irdwfk": 1},
         "_SCR": {"irdscr": 1},
@@ -86,7 +83,7 @@ class Product(object):
         return self.file.path
 
     def get_abivars(self):
-        return self._ext2abivars[self.ext].copy()
+        return self._EXT2ABIVARS[self.ext].copy()
 
 
 class WorkLink(object):
@@ -147,14 +144,14 @@ class WorkLink(object):
         return abivars
 
     def get_filepaths_and_exts(self):
-        "Returns the paths of the output files produced by self and its extensions"
+        """Returns the paths of the output files produced by self and its extensions"""
         filepaths = [prod.get_filepath() for prod in self._products]
         exts = [prod.ext for prod in self._products]
         return filepaths, exts
 
     @property
     def status(self):
-        "The status of the link, equivalent to the task status"
+        """The status of the link, equivalent to the task status"""
         return self._task.status
 
 ################################################################################
@@ -350,7 +347,7 @@ class Workflow(BaseWorkflow, MSONable):
         return self._tasks.__iter__()
 
     def chunks(self, chunk_size):
-        "Yield successive chunks of tasks of lenght chunk_size."
+        """Yield successive chunks of tasks of lenght chunk_size."""
         for tasks in chunks(self, chunk_size):
             yield tasks
 
@@ -380,16 +377,16 @@ class Workflow(BaseWorkflow, MSONable):
 
     @property
     def isnc(self):
-        "True if norm-conserving calculation"
+        """True if norm-conserving calculation."""
         return all(task.isnc for task in self)
 
     @property
     def ispaw(self):
-        "True if PAW calculation"
+        """True if PAW calculation."""
         return all(task.ispaw for task in self)
 
     def path_in_workdir(self, filename):
-        "Create the absolute path of filename in the workind directory."
+        """Create the absolute path of filename in the workind directory."""
         return os.path.join(self.workdir, filename)
 
     def setup(self, *args, **kwargs):
@@ -441,12 +438,12 @@ class Workflow(BaseWorkflow, MSONable):
         return WorkLink(task)
 
     def build(self, *args, **kwargs):
-        "Creates the top level directory"
+        """Creates the top level directory."""
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
 
     def get_status(self, only_highest_rank=False):
-        "Get the status of the tasks in self."
+        """Get the status of the tasks in self."""
         status_list = [task.status for task in self]
 
         if only_highest_rank:
@@ -1049,8 +1046,9 @@ class DeltaTest(Workflow):
 
             extra_abivars = {
                 "ecutsm": ecutsm,
-                "prtwf" : 0,
                 "toldfe": toldfe,
+                "prtwf" : 0,
+                "paral_kgb": 0,
             }
 
             if ecut is not None:
