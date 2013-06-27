@@ -33,11 +33,11 @@ class PourbaixEntry(MSONable):
     Each bulk solid/ion has a free energy g of the form:
     g = g0_ref + 0.0591 log10(concn) - nO mu_H2O + (nH - 2nO) pH + phi (-nH+2nO+q)
     """
-    def __init__(self, entry, g=None):
+    def __init__(self, entry, g=None, entry_id=None):
         """
         Args:
             entry:
-                Either an Ion object or a Composition object
+                An entry object (ComputedEntry/ComputedStructureEntry/PDEntry)
             energy:
                 Energy of entry
         """
@@ -61,6 +61,12 @@ class PourbaixEntry(MSONable):
             self._g0 = entry.energy
         self._calc_coeff_terms()
         self._name = self._entry.composition.reduced_formula
+        try:
+            self.entry_id = entry.entry_id
+        except AttributeError:
+            self.entry_id = entry_id
+#        else:
+#            self.entry_id = entry_id
 
     @property
     def name(self):

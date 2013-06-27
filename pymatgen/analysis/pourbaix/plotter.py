@@ -159,6 +159,7 @@ class PourbaixPlotter(object):
         plt.figtext(0.01, 0.01, "\n".join(newlabels))
         plt.xlabel("pH")
         plt.ylabel("V")
+#        plt.tight_layout()
         return plt
 
     def plot_planes(self):
@@ -271,7 +272,7 @@ class PourbaixPlotter(object):
         plt.xlabel("pH")
         plt.ylabel("E (V)")
         plt.title(title, fontsize=30, fontweight='bold')
-        plt.tight_layout()
+#        plt.tight_layout()
         return plt
 
     def print_name(self, entry):
@@ -352,7 +353,7 @@ class PourbaixPlotter(object):
 
         f = plt.gcf()
         f.set_size_inches((12, 10))
-
+        plt.tight_layout(pad=1.09)
         plt.savefig(stream, format=image_format)
 
 
