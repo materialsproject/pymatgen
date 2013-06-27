@@ -405,7 +405,7 @@ class SimpleResourceManager(object):
         for task in self.work:
             if task.tot_ncpus > self.max_ncpus:
                 err_msg = "Task %s requires %s CPUs, but max_ncpus is %d" % (
-                    repr(task), task.tot_ncpus, max_ncpus))
+                    repr(task), task.tot_ncpus, max_ncpus)
                 raise self.Error(err_msg)
 
     def run(self, *args, **kwargs):
