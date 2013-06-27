@@ -237,6 +237,12 @@ class StructureNL(object):
         self.remarks = [remarks] if isinstance(remarks, basestring) \
             else remarks
 
+        # check remarks limit
+        for r in self.remarks:
+            if len(r) > 140:
+                raise ValueError("The remark exceeds the maximum size of"
+                                 "140 characters: {}".format(r))
+
         # check data limit
         self.data = data if data else {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
@@ -274,7 +280,8 @@ class StructureNL(object):
                       "references": self.references,
                       "remarks": self.remarks,
                       "history": [h.to_dict for h in self.history],
-                      "created_at": self.created_at}
+                      "created_at": json.loads(json.dumps(self.created_at,
+                                                cls=PMGJSONEncoder))}
         d["about"].update(json.loads(json.dumps(self.data,
                                                 cls=PMGJSONEncoder)))
         return d

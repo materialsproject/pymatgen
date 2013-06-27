@@ -17,6 +17,8 @@ __date__ = "Sep 23, 2011"
 
 
 import math
+import os
+import json
 import collections
 import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
@@ -33,6 +35,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
+from pymatgen.util.decorators import singleton
 
 
 class SiteCollection(collections.Sequence):
@@ -1207,6 +1210,8 @@ class IMolecule(SiteCollection, MSONable):
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
+             "charge": self._charge,
+             "spin_multiplicity": self._spin_multiplicity,
              "sites": []}
         for site in self:
             site_dict = site.to_dict
@@ -1242,7 +1247,9 @@ class IMolecule(SiteCollection, MSONable):
             for k, v in siteprops.items():
                 props[k].append(v)
 
-        return cls(species, coords, site_properties=props)
+        return cls(species, coords, charge=d.get("charge", 0),
+                   spin_multiplicity=d.get("spin_multiplicity"),
+                   site_properties=props)
 
     def get_distance(self, i, j):
         """
@@ -2116,14 +2123,19 @@ class Molecule(IMolecule):
             index:
                 Index of atom to substitute.
             func_grp:
-                Substituent molecule. The first atom must be a DummySpecie
-                X, indicating the position of nearest neighbor. The second
-                atom must be the next nearest atom. For example,
-                for a methyl group substitution, func_grp should be X-CH3,
-                where X is the first site and C is the second site. What the
-                code will do is to remove the index site, and connect the
-                nearest neighbor to the C atom in CH3. The X-C bond
-                indicates the directionality to connect the atoms.
+                Substituent molecule. There are two options:
+
+                1. Providing an actual molecule as the input. The first atom
+                   must be a DummySpecie X, indicating the position of
+                   nearest neighbor. The second atom must be the next
+                   nearest atom. For example, for a methyl group
+                   substitution, func_grp should be X-CH3, where X is the
+                   first site and C is the second site. What the code will
+                   do is to remove the index site, and connect the nearest
+                   neighbor to the C atom in CH3. The X-C bond indicates the
+                   directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                   relevant template in functional_groups.json.
             bond_order:
                 A specified bond order to calculate the bond length between
                 the attached functional group and the nearest neighbor site.
@@ -2131,6 +2143,7 @@ class Molecule(IMolecule):
         """
 
         # Find the nearest neighbor that is not a terminal atom.
+
         non_terminal_nn = None
         for nn, dist in self.get_neighbors(self[index], 5):
             if len(self.get_neighbors(nn, 1.1 * dist)) > 1:
@@ -2145,6 +2158,19 @@ class Molecule(IMolecule):
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
 
+        # Pass value of functional group--either from user-defined or from
+        # functional.json
+        if isinstance(func_grp, Molecule):
+            func_grp = func_grp
+        else:
+            # Check to see whether the functional group is in database.
+            func_dic = FunctionalGroups()
+            if func_grp not in func_dic:
+                raise RuntimeError("Can't find functional group in list. "
+                                   "Provide explicit coordinate instead")
+            else:
+                func_grp = func_dic[func_grp]
+
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
         bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
@@ -2152,8 +2178,7 @@ class Molecule(IMolecule):
         if bl is not None:
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
-            func_grp.replace(0, "X",
-                             func_grp[1].coords
+            func_grp.replace(0, "X", func_grp[1].coords
                              + bl / np.linalg.norm(vec) * vec)
 
         # Align X to the origin.
@@ -2192,3 +2217,17 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
+
+
+@singleton
+class FunctionalGroups(dict):
+
+    def __init__(self):
+        """
+        Loads functional group data from json file. Return list that can be
+        easily converted into a Molecule object. The .json file, of course,
+        has to be under the same directory of this function"""
+        with open(os.path.join(os.path.dirname(__file__),
+                               "func_groups.json")) as f:
+            for k, v in json.load(f).items():
+                self[k] = Molecule(v["species"], v["coords"])

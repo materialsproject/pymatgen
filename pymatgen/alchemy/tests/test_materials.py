@@ -25,6 +25,7 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.io.vaspio_set import MPVaspInputSet
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
+from pymatgen.matproj.snl import StructureNL
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -158,6 +159,17 @@ class TransformedStructureTest(unittest.TestCase):
                              'with other_parameters')
         ts = TransformedStructure.from_snl(snl)
         self.assertEqual(ts.history[-1]['name'], 'SubstitutionTransformation')
+        
+        h = ('testname', 'testURL', {'test' : 'testing'})
+        snl = StructureNL(ts.final_structure,[('will', 'will@test.com')], 
+                          history = [h])
+        snl = TransformedStructure.from_snl(snl).to_snl([('notwill', 
+                                                          'notwill@test.com')])
+        self.assertEqual(snl.history, [h])
+        self.assertEqual(snl.authors, [('notwill', 'notwill@test.com')])
+        
+        
+        
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

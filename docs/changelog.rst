@@ -1,6 +1,41 @@
 Change log
 ==========
 
+v2.7.1
+------
+1. **Major backwards-incompatible change.** With effect from v2.7.1,
+   the default Structure and Molecule classes are now *mutable* objects. All
+   functionality in the :mod:`pymatgen.core.structure_modifier` has been
+   ported over to the new mutable classes. This change was implemented
+   because the immutability of Structure and Molecule has resulted in very
+   awkward code to make changes to them. The main cost of this change is that
+   Structure and Molecule can no longer be used as dict keys (__hash__ has
+   been set to None). However, we believe this is a minor cost given that we
+   have rarely seen the use of Structure or Molecule as dict keys in any case.
+   For the rare instances where such functionality is needed,
+   we have provided the IStructure and IMolecule classes (where I indicates
+   immutability) which will perform exactly the same way as the previous
+   classes. With this change, the :mod:`pymatgen.core.structure_modifier`
+   module is now deprecated and will be removed in a future version.
+2. read_structure and write_structure now supports pymatgen's json serialized
+   structures.
+3. read_mol and write_mol functions now available (analogues of
+   read_structure and write_structure for molecules)
+
+v2.7.0
+------
+1. Beta support for ABINIT input and output via pymatgen.io.abinitio
+   (courtesy of the excellent work of Matteo Giantomassi).
+2. Properties are now checked when comparing two Species for equality.
+3. MaterialsProjectVaspInputSet is now renamed to MPVaspInputSet for easier
+   typing. The old input sets have been deprecated.
+4. New VaspInputSets for MPStatic, MPNonSCF, MITMD which supports uniform
+   grid, bandstructure and molecular dynamics calculations. The MD input set
+   uses MIT parameters for speed.
+5. A beta DiffusionAnalysis class in the apps package.
+6. A revised KPOINT grid algorithm that generates more reasonable meshes.
+7. A guided install script is now provided for Mac and Linux users.
+
 v2.6.6
 ------
 1. Updates to feffio (credit: Alan Dozier)
