@@ -1247,7 +1247,7 @@ class IMolecule(SiteCollection, MSONable):
             for k, v in siteprops.items():
                 props[k].append(v)
 
-        return cls(species, coords, charge=d.get("charge"),
+        return cls(species, coords, charge=d.get("charge", 0),
                    spin_multiplicity=d.get("spin_multiplicity"),
                    site_properties=props)
 
