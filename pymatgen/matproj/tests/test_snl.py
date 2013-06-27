@@ -52,6 +52,9 @@ class StructureNLCase(unittest.TestCase):
         self.unicode_title = u"@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
         self.junk = "This is junk text, not a BibTeX reference"
 
+        # set up remarks
+        self.remark_fail = ["This is a really long remark that is clearly invalid and must fail, don't you agree? It would be silly to allow remarks that went on forever and ever."]
+
         # set up some authors
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
         self.america = "Captain America <captainamerica@avengers.com>"
@@ -133,6 +136,12 @@ class StructureNLCase(unittest.TestCase):
                          'Data storage is broken')
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
                           data={"bad_key": 1})
+
+    def test_remarks(self):
+        a = StructureNL(self.s, self.hulk, remarks="string format")
+        self.assertEqual(a.remarks[0], "string format")
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
+                          remarks=self.remark_fail)
 
     def test_eq(self):
         # test basic equals()
