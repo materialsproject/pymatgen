@@ -105,7 +105,6 @@ class Vacancy(Defect):
                 self._valence_dict[sites[i].species_string] = valences[i]
                 if len(self._valence_dict) == len(self._structure.composition):
                     break
-        #print self._valence_dict
 
         self._rad_dict = {}
         for el in self._valence_dict.keys():
@@ -113,7 +112,6 @@ class Vacancy(Defect):
             self._rad_dict[el] = Specie(el, val).ionic_radius
             if not self._rad_dict[el]: #get covalent radii
                 pass
-        #print self._rad_dict
         assert len(self._rad_dict) == len(self._structure.composition)
 
         self._vac_eff_charges = None
@@ -347,39 +345,17 @@ class Interstitial(Defect):
         self._structure = structure
         self._interstitial_sites = []
 
-        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
-        #the symmetry reduced voronoi nodes
-        #are possible candidates for interstitial sites
-        possible_interstitial_sites = _symmetry_reduced_voronoi_nodes(structure)
-        
-        #Do futher processing on possibleInterstitialSites to obtain 
-        #interstitial sites
-        self._interstitial_sites = possible_interstitial_sites
-
-        self._interstitial_coord_no = []
-        self._interstitial_coord_sites = []
-        self._valence_dict = {}
-        self._rad_dict = {}
-        self._radius = []
-
-        for site in self._interstitial_sites:
-            struct = self._structure.copy()
-            struct.append(site.species_string, site.frac_coords)
-            coord_finder = VoronoiCoordFinder(struct)
-            self._interstitial_coord_no.append(
-                    coord_finder.get_coordination_number(-1))
-            self._interstitial_coord_sites.append(
-                    coord_finder.get_coordinated_sites(-1))
-
         bv = BVAnalyzer()
         try:
             valences = bv.get_valences(self._structure)
         except:
             valences = [0]*len(self._structure.sites)
-            err_str = "BVAnalyzer failed. The defect effective charge, and"
-            err_str += " volume and surface area may not work"
+            err_str = "BVAnalyzer failed for ", self._structure.composition
             print err_str
             raise ValueError()
+
+        self._valence_dict = {}
+        self._rad_dict = {}
 
         sites = self._structure.sites
         for i in range(len(sites)):
@@ -390,14 +366,62 @@ class Interstitial(Defect):
                 if len(self._valence_dict) == len(self._structure.composition):
                     break
 
-        self._rad_dict = {}
+        #import sys
+        #print >>sys.stderr, self._valence_dict
         for el in self._valence_dict.keys():
             val = self._valence_dict[el]
             self._rad_dict[el] = Specie(el, val).ionic_radius
             if not self._rad_dict[el]: #get covalent radii
-                pass
+                raise ValueError(
+                        "No radius for "+el+"with oxidation state "+str(val)
+                        )
         assert len(self._rad_dict) == len(self._structure.composition)
+        #print >>sys.stderr, self._rad_dict
 
+
+        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
+        #the symmetry reduced voronoi nodes
+        #are possible candidates for interstitial sites
+        try:
+            possible_interstitial_sites = _symmetry_reduced_voronoi_nodes(
+                structure, self._rad_dict
+                )
+        except:
+            raise ValueError("Symmetry_reduced_voronoi_nodes failed")
+        
+        #print >>sys.stderr, "Interstitial sites evaluated"
+        #Do futher processing on possibleInterstitialSites to obtain 
+        #interstitial sites
+        self._interstitial_sites = possible_interstitial_sites 
+        self._interstitial_coord_no = []
+        self._interstitial_coord_sites = []
+        self._radius = []
+
+        for site in self._interstitial_sites:
+            struct = self._structure.copy()
+            struct.append(site.species_string, site.frac_coords)
+            coord_finder = VoronoiCoordFinder(struct)
+            self._interstitial_coord_no.append(
+                    coord_finder.get_coordination_number(-1))
+            coord_sites = coord_finder.get_coordinated_sites(-1)
+
+            # In some cases coordination sites to interstitials include 
+            # interstitials also. 
+            sites_to_be_deleted = []
+            for i in range(len(coord_sites)):
+                # In the future replace voronoi node place holder "H" with 
+                # some thing else
+                if coord_sites[i].species_string == 'H':
+                    sites_to_be_deleted.append(i)
+            sites_to_be_deleted.reverse()
+            for ind in sites_to_be_deleted:
+                del coord_sites[ind]
+            self._interstitial_coord_sites.append(coord_sites)
+
+        #for i in len(self._interstitial_sites):
+        #    for site in self._interstitial_coord_sites[i]:
+        #        if site.species_string == 'H':
+                    
         for site in self._interstitial_sites:
             self._radius.append(float(site.properties['voronoi_radius']))
     
@@ -414,11 +438,14 @@ class Interstitial(Defect):
         """
         return self._interstitial_sites
 
-    def get_defectsite(self,n):
+    def get_defectsite(self, n):
         """
         Returns the Site position of the interstitial.
         """
         return self._interstitial_sites[n]
+
+    def delete_defectsite(self, n):
+        del self._interstitial_sites[n]
 
     def get_defectsite_coordination_number(self, n):
         """
@@ -460,7 +487,27 @@ class Interstitial(Defect):
         coordsite_valence_sum = 0.0
 
         for site in self._interstitial_coord_sites[n]:
-            coordsite_valence_sum += self._valence_dict[site.species_string]
+            try:
+                coordsite_valence_sum += self._valence_dict[site.species_string]
+            except:
+                print len(self._structure.sites)
+                print '--------'
+                print len(self._interstitial_coord_sites[n])
+                print '--------'
+                print "Structure "
+                print self._structure
+                print '--------'
+                print "Interstitial coord sites"
+                for site1 in self._interstitial_coord_sites[n]:
+                    print site1.species_string, site1.frac_coords
+                print '--------'
+                print "Interstitial site"
+                print self._interstitial_sites[n].frac_coords
+                print '--------'
+                print "Interstitial sites"
+                for site1 in self._interstitial_sites:
+                    print site1
+                raise ValueError("Interstitial site as coordination site")
         return coordsite_valence_sum
 
     def get_coordsites_min_max_charge(self,n):
@@ -489,6 +536,27 @@ class Interstitial(Defect):
         """
         return self._radius[n]
 
+    def get_radii(self):
+        return self._radius
+
+    def prune_defectsites(self):
+        """
+        Prunes the defect sites based on voornoi radius
+        Useful if the symmetry based pruning of initial sites returned
+        from Zeo++ fails.
+        """
+        distinct_radii = list(set(self._radius))
+        no_dstnt_radii = len(distinct_radii)
+        flag = [False]*no_dstnt_radii
+        for rad in distinct_radii:
+            ind = self._radius.index(rad)
+            for i in range(len(self._radius)-1,ind,-1):
+                if self._radius[i] == rad:
+                    self._radius.pop(i)
+                    self._interstitial_sites.pop(i)
+                    self._interstitial_coord_no.pop(i) 
+                    self._interstitial_coord_sites.pop(i)
+
     def get_surface_area(self, n):
         """
         Surface area of the nth interstitial
@@ -510,7 +578,7 @@ class Interstitial(Defect):
         return self._structure
 
     @property
-    def ionic_radii(self):
+    def struct_ionic_radii(self):
         """
         Ionic radii of elements in the structure
         """
@@ -557,7 +625,7 @@ class Interstitial(Defect):
                 sc_list_with_interstitial.append(sc_with_inter)
         return sc_list_with_interstitial
 
-def _symmetry_reduced_voronoi_nodes(structure):
+def _symmetry_reduced_voronoi_nodes(structure, rad_dict):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and 
     pymatgen.symmetry.finder.SymmetryFinder
@@ -568,7 +636,7 @@ def _symmetry_reduced_voronoi_nodes(structure):
     Returns:
         Symmetrically distinct voronoi nodes as pymatgen Strucutre
     """
-    vor_node_struct = get_voronoi_nodes(structure)
+    vor_node_struct = get_voronoi_nodes(structure, rad_dict)
     vor_symmetry_finder = SymmetryFinder(vor_node_struct)
     vor_symm_struct = vor_symmetry_finder.get_symmetrized_structure()
     equiv_sites = vor_symm_struct.equivalent_sites
