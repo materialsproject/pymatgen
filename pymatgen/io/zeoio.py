@@ -150,8 +150,7 @@ class ZeoVoronoiXYZ(XYZ):
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
                 coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
-                prop.append(m.group(5))
-        #print prop
+                prop.append(float(m.group(5)))
         return ZeoVoronoiXYZ(
             Molecule(sp, coords, site_properties={'voronoi_radius':prop})
         )
@@ -210,31 +209,37 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     zeo_inp_filename = name+".cssr"
     os.chdir(temp_dir)
     ZeoCssr(structure).write_file(zeo_inp_filename)
-    #*******Future implementation***********
-    # Compute site radii using structure analyzer and generate rad_file
-    # Check if pymatgen has any method already implemented
-    #***************************************
     rad_file = None
     if rad_dict:
         rad_file = name+".rad"
         with open(rad_file, 'w+') as fp:
             for el in rad_dict.keys():
-                fp.write(el, "   ", rad_dict[el])
+                fp.write("{0} {1}".format(el,rad_dict[el]))
 
     atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
     vornet = atmnet.perform_voronoi_decomposition()
     vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name+'_voro.xyz'
     voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
-    a = structure.lattice.a
-    b = structure.lattice.b
-    c = structure.lattice.c
-    voronoi_node_struct = voronoi_node_mol.get_boxed_structure(a, b, c)
+    species = ["H"]*len(voronoi_node_mol.sites)
+    coords = []
+    prop = []
+    for site in voronoi_node_mol.sites:
+        coords.append(list(site.coords))
+        prop.append(site.properties['voronoi_radius'])
+
+    voronoi_node_struct = Structure(
+            structure.lattice, species, coords, coords_are_cartesian=True, 
+            site_properties={"voronoi_radius": prop}
+            )
+
     os.chdir(current_dir)
     shutil.rmtree(temp_dir)
-    return voronoi_node_struct 
 
-def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2, probe_rad=0.1):
+    return voronoi_node_struct
+
+def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2, 
+                             probe_rad=0.1):
     """
     Computes the volume and surface area of isolated void using Zeo++.
     Useful to compute the volume and surface area of vacant site.
@@ -243,6 +248,7 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2, probe_rad=0
             pymatgen Structure containing vacancy
         rad_dict(optional):
             Dictionary with short name of elements as keys and their radii
+        chan_rad(optional):
         probe_rad(optional)
     Returns:
         volume:
@@ -256,7 +262,6 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2, probe_rad=0
     ZeoCssr(structure).write_file(zeo_inp_filename)
 
     rad_file = None
-    #print rad_dict
     if rad_dict:
         rad_file = name+".rad"
         with open(rad_file, 'w+') as fp:
@@ -264,25 +269,14 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2, probe_rad=0
                 fp.write("{0}     {1}".format(el,rad_dict[el]))
 
     atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
-    #atmnet.write_to_CIF("test.cif")
     vol_str = volume(atmnet, 0.3, probe_rad, 5000)
-    #print vol_str
     sa_str = surface_area(atmnet, 0.3, probe_rad, 5000)
     vol = None
     sa = None
-    #print vol_str
-    #print '-----;;'
-    #print sa_str
     for line in vol_str.split("\n"):
         if "Number_of_pockets" in line:
             fields = line.split()
-            #print "*****vol fields********"
-            #print fields
-            #print "************************"
             if float(fields[1]) > 1:
-                #print structure
-                #print rad_dict
-                #raise ValueError("Too many voids")
                 vol = -1.0
                 break
             if float(fields[1]) == 0:
@@ -292,11 +286,7 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2, probe_rad=0
     for line in sa_str.split("\n"):
         if "Number_of_pockets" in line:
             fields = line.split()
-            #print "*****vol fields********"
-            #print fields
-            #print "************************"
             if float(fields[1]) > 1:
-                #print structure
                 #raise ValueError("Too many voids")
                 sa = -1.0
                 break

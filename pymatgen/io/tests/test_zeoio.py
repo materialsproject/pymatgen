@@ -15,6 +15,8 @@ from pymatgen.io.zeoio import get_void_volume_surfarea
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.defects.point_defects import Vacancy
+from pymatgen.analysis.bond_valence import BVAnalyzer
+from pymatgen.core.periodic_table import Specie
 
 test_dir = os.path.join('/Users/mbkumar/Research/Defects/pymatgen',
                         'test_files')
@@ -96,9 +98,30 @@ class GetVoronoiNodesTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         p = Poscar.from_file(filepath)
         self.structure = p.structure
+        bv = BVAnalyzer()
+        valences = bv.get_valences(self.structure)
+        self.rad_dict = {}
+        valence_dict = {}
+        sites = self.structure.sites
+        for i in range(len(sites)):
+            if sites[i].species_string in valence_dict.keys():
+                continue
+            else:
+                valence_dict[sites[i].species_string] = valences[i]
+                if len(valence_dict) == len(self.structure.composition):
+                    break
+
+        self.rad_dict = {}
+        for el in valence_dict.keys():
+            val = valence_dict[el]
+            self.rad_dict[el] = Specie(el, val).ionic_radius
+            if not self.rad_dict[el]: #get covalent radii
+                pass
+        #print self._rad_dict
+        assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_struct = get_voronoi_nodes(self.structure)
+        vor_struct = get_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_struct, Structure)
 
 class GetVoidVolumeSurfaceTest(unittest.TestCase):
@@ -127,4 +150,6 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         self.assertIsInstance(sa, float)
 
 if __name__ == "__main__":
-    unittest.main()
+    #unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(GetVoronoiNodesTest)
+    unittest.TextTestRunner().run(suite)
