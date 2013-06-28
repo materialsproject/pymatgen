@@ -20,7 +20,7 @@ import numpy as np
 import json
 
 from pymatgen import Structure, Molecule
-from pymatgen.matproj.snl import StructureNL, HistoryNode
+from pymatgen.matproj.snl import StructureNL, HistoryNode, Author
 
 
 class StructureNLCase(unittest.TestCase):
@@ -189,6 +189,21 @@ class StructureNLCase(unittest.TestCase):
         molnl = StructureNL(self.mol, self.hulk, references=self.pmg)
         b = StructureNL.from_dict(molnl.to_dict)
         self.assertEqual(molnl, b)
+
+    def test_from_structures(self):
+        s1 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+        s2 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Mn"], [[0, 0, 0]])
+        remarks = ["unittest"]
+        authors="Test User <test@materialsproject.com>"
+        snl_list = StructureNL.from_structures([s1, s2], authors, remarks=remarks)
+
+        self.assertEqual(len(snl_list), 2)
+        snl1 = snl_list[0]
+        snl2 = snl_list[1]
+        self.assertEqual(snl1.remarks, remarks)
+        self.assertEqual(snl2.remarks, remarks)
+        self.assertEqual(snl1.authors, [Author.parse_author(authors)])
+        self.assertEqual(snl2.authors, [Author.parse_author(authors)])
 
 
 if __name__ == '__main__':
