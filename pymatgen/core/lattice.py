@@ -106,7 +106,10 @@ class Lattice(MSONable):
         Returns:
             Fractional coordinates.
         """
-        return dot(cart_coords, self.inv_matrix)
+        CC=np.mod(dot(cart_coords, self.inv_matrix),1)
+        newCC = np.copy(CC)
+        for k, v in {1:0}.iteritems(): newCC[CC==k] = v
+        return newCC
 
     @staticmethod
     def cubic(a):
