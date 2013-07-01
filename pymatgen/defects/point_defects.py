@@ -18,6 +18,59 @@ from pymatgen.core import Specie
 #from pymatgen.core.structure import PeriodicSize
 #from pymatgen.core.structure_modifier import SuperCellMaker
 
+class StructWithValenceIonicRadius:
+    """
+    Structure with site valences and ionic radii computed
+    """
+    def __init__(self, structure):
+        self._structure = structure
+        self._valences = self._get_valences()
+        self._ionic_radii = self._get_ionic_radii()
+
+    @property
+    def radii(self):
+        return self._ionic_radii
+
+    @property
+    def valences(self):
+        return self._valences
+
+    @property
+    def structure(self):
+        return self._structure
+
+    def _get_ionic_radii(self):
+        rad_dict = {}
+        for el in self._valences.keys():
+            val = self._valences[el]
+            rad_dict[el] = Specie(el, val).ionic_radius
+            if not rad_dict[el]: #get covalent radii later
+                raise LookupError()
+        return rad_dict
+
+    def _get_valences(self):
+        bv = BVAnalyzer()
+        try:
+            valences = bv.get_valences(self._structure)
+        except:
+            err_str = "BVAnalyzer failed. The defect effective charge, and"
+            err_str += " volume and surface area may not work"
+            print err_str
+            raise LookupError()
+
+        valence_dict = {}
+        sites = self._structure.sites
+        for i in range(len(sites)):
+            if sites[i].species_string in valence_dict.keys():
+                continue
+            else:
+                valence_dict[sites[i].species_string] = valences[i]
+                if len(valence_dict) == len(self._structure.composition):
+                    break
+
+        return valence_dict
+
+    
 class Defect:
     """
     Abstract class for point defects
@@ -30,15 +83,72 @@ class Defect:
         Enumerates all the symmetrically distinct defects.
         """
         print 'Not implemented'
+        raise NotImpementedError()
 
-    @abc.abstractproperty
+    @property
     def structure(self):
         """
         Returns the structure without any defects
         Useful for Mott-Littleton calculations.
         """
-        print 'Not implemented'
+        return self._structure
+
+    @property
+    def struct_ionic_radii(self):
+        """
+        Ionic radii of elements in the structure
+        """
+        return self._rad_dict
     
+    @property
+    def struct_valences(self):
+        """
+        Valence of elements in the structure
+        """
+        return self._valence_dict
+
+    def defectsite_count(self):
+        """
+        Returns the number of symmetrically distinct defect sites
+        """
+        return len(self._defect_sites)
+
+    def get_defectsite(self, n):
+        """
+        Returns the defect site at the index.
+        """
+        return self._defect_sites[n]
+
+    def get_defectsite_coordination_number(self, n):
+        """
+        Coordination number of interstitial site.
+        Args:
+            n
+                Index of interstitial list
+        """
+        return self._defectsite_coord_no[n]
+
+    def get_coordinated_sites(self, n):
+        """
+        The sites in structure surrounding the defect site.
+        Args:
+            n
+                Index of defects list
+        """
+        return self._defect_coord_sites[n]
+
+    def get_coordinated_elements(self, n):
+        """
+        Elements of sites in structure surrounding the defect site.
+        Args:
+            n
+                Index of defect list
+        """
+        coordinated_species = []
+        for site in self._defect_coord_sites[n]:
+            coordinated_species.append(site.species_string)
+        return list(set(coordinated_species))
+
     @abc.abstractmethod
     def make_supercells_with_defects(self, scaling_matrix):
         """
@@ -47,101 +157,73 @@ class Defect:
         To create unit cell with defect pass unit matrix.
         """ 
         print 'Not implemented'
-    
+        raise NotImpementedError()
     
 class Vacancy(Defect):
     """
     Subclass of Defect to generate vacancies and their analysis
     """
-    def __init__(self, structure):
+    def __init__(self, structure_with_val_radii):
         """
 
         Args:
-            inp_structure:
-                pymatgen.core.Structure
+            structure_with_val_radii:
+                pymatgen.defects.point_defects.StructureWithValenceIonicRadius
         """
         
-        self._structure = structure
+        self._structure = structure_with_val_radii.structure
+        self._valence_dict = structure_with_val_radii.valences
+        self._rad_dict = structure_with_val_radii.radii
         # Store symmetrically distinct sites, their coordination numbers
         # coordinated_sites, effective charge
         symm_finder = SymmetryFinder(self._structure)
         symm_structure = symm_finder.get_symmetrized_structure()
         equiv_site_seq = symm_structure.equivalent_sites
-        self._vac_sites = []
+
+        self._defect_sites = []
         for equiv_sites in equiv_site_seq:
-            self._vac_sites.append(equiv_sites[0])
+            self._defect_sites.append(equiv_sites[0])
+
         self._vac_site_indices = []
-        for site in self._vac_sites:
+        for site in self._defect_sites:
             for i in range(len(self._structure.sites)):
                 if site == self._structure[i]:
                     self._vac_site_indices.append(i)
-        coord_finder = VoronoiCoordFinder(self._structure)
-        self._vac_coordination_numbers = []
-        self._vac_coordinated_sites = []
-        for i in self._vac_site_indices:
-            self._vac_coordination_numbers.append(
-                    coord_finder.get_coordination_number(i))
-            self._vac_coordinated_sites.append(
-                    coord_finder.get_coordinated_sites(i))
 
-        bv = BVAnalyzer()
-        try:
-            valences = bv.get_valences(self._structure)
-        except:
-            valences = [0]*len(self._structure.sites)
-            err_str = "BVAnalyzer failed. The defect effective charge, and"
-            err_str += " volume and surface area may not work"
-            print err_str
-            raise ValueError()
+        coord_finder = VoronoiCoordFinder(self._structure)
+        self._defectsite_coord_no = []
+        self._defect_coord_sites = []
+        for i in self._vac_site_indices:
+            self._defectsite_coord_no.append(
+                    coord_finder.get_coordination_number(i)
+                    )
+            self._defect_coord_sites.append(
+                    coord_finder.get_coordinated_sites(i)
+                    )
+
         # Store the ionic radii for the elements in the structure
         # (Used to  computing the surface are and volume)
         # Computed based on valence of each element
-        self._valence_dict = {}
-        sites = self._structure.sites
-        for i in range(len(sites)):
-            if sites[i].species_string in self._valence_dict.keys():
-                continue
-            else:
-                self._valence_dict[sites[i].species_string] = valences[i]
-                if len(self._valence_dict) == len(self._structure.composition):
-                    break
-
-        self._rad_dict = {}
-        for el in self._valence_dict.keys():
-            val = self._valence_dict[el]
-            self._rad_dict[el] = Specie(el, val).ionic_radius
-            if not self._rad_dict[el]: #get covalent radii
-                pass
-        assert len(self._rad_dict) == len(self._structure.composition)
 
         self._vac_eff_charges = None
         self._vol = None
         self._sa = None
 
-    def defectsite_count(self):
-        """
-        Returns the number of symmetrically distinct vacancy sites
-        """
-        return len(self._vac_sites)
-        
     def enumerate_defectsites(self):
         """
         Returns symmetrically distinct vacancy sites
         
         """
-        return self._vac_sites
+        return self._defect_sites
     
-    def get_defectsite_indices(self):
+    def get_defectsite_structure_indices(self):
         """
         Returns indices of symmetrically distinct vacancy sites
         
         """
         return self._vac_site_indices
 
-    def get_defectsite(self,n):
-        return self._vac_sites[n]
-
-    def get_defectsite_index(self, n):
+    def get_defectsite_structure_index(self, n):
         """
         index of the vacacy site in the structure.sites list
         Args:
@@ -149,36 +231,6 @@ class Vacancy(Defect):
                 Index of vacancy list
         """
         return self._vac_site_indices[n]
-
-    def get_defectsite_coordination_number(self, n):
-        """
-        Coordination number of vacancy site.
-        Args:
-            n
-                Index of vacancy list
-        """
-        return self._vac_coordination_numbers[n]
-
-    def get_coordinated_sites(self, n):
-        """
-        The sites surrounding the vacancy site.
-        Args:
-            n
-                Index of vacancy list
-        """
-        return self._vac_coordinated_sites[n]
-
-    def get_coordinated_elements(self, n):
-        """
-        Elements of sites surrounding the vacancy site.
-        Args:
-            n
-                Index of vacancy list
-        """
-        coordinated_species = []
-        for site in self._vac_coordinated_sites[n]:
-            coordinated_species.append(site.species_and_occu)
-        return set(coordinated_species)
 
     def get_defectsite_effective_charge(self, n):
         """
@@ -194,12 +246,15 @@ class Vacancy(Defect):
         # Effective charge (In Kroger-Vink notation, cation vacancy has 
         # effectively -ve charge and anion vacancy has +ve charge.) Inverse
         # the BVAnalyzer.get_valences result.
-        if not self._vac_eff_charges:
-            self._vac_eff_charges = []
-            for site in self.enumerate_defectsites():
-                specie = site.species_string
-                self._vac_eff_charges.append(-self._valence_dict[specie])
-        return self._vac_eff_charges[n]
+
+        el = self.get_defectsite(n).species_string
+        return -self._valence_dict[el]
+        #if not self._vac_eff_charges:
+        #    self._vac_eff_charges = []
+        #    for site in self.enumerate_defectsites():
+        #        specie = site.species_string
+        #        self._vac_eff_charges.append(-self._valence_dict[specie])
+        #return self._vac_eff_charges[n]
 
     def get_coordsites_min_max_charge(self,n):
         """
@@ -218,7 +273,7 @@ class Vacancy(Defect):
                     return i
             raise ValueError("Site not found")
 
-        for site in self._vac_coordinated_sites[n]:
+        for site in self._defect_coord_sites[n]:
             ind = _get_index(site)
             coordinated_site_valences.append(struct_valences[ind])
         coordinated_site_valences.sort()
@@ -239,15 +294,14 @@ class Vacancy(Defect):
             self._sa = []
             um = [[1,0,0],[0,1,0],[0,0,1]]
             sc = self.make_supercells_with_defects(um)[1:]
-            rad_dict = self.ionic_radii
+            rad_dict = self.struct_ionic_radii
             for i in range(len(sc)):
-                site_radi = rad_dict[self._vac_sites[i].species_string]
+                site_radi = rad_dict[self._defect_sites[i].species_string]
                 vol,sa = get_void_volume_surfarea(sc[i], rad_dict)
                 self._vol.append(vol)
                 self._sa.append(sa)
 
         return self._vol[n]
-
 
     def get_surface_area(self, n):
         """
@@ -264,34 +318,13 @@ class Vacancy(Defect):
             self._sa = []
             um = [[1,0,0],[0,1,0],[0,0,1]]
             supercells = self.make_supercells_with_defects(um)[1:]
-            rad_dict = self.ionic_radii
+            rad_dict = self.struct_ionic_radii
             for sc in supercells:
                 vol, sa = get_void_volume_surfarea(sc, rad_dict)
                 self._vol.append(vol)
                 self._sa.append(sa)
 
         return self._sa[n]
-
-    @property
-    def structure(self):
-        """
-        Structure without any defects
-        """
-        return self._structure
-
-    @property
-    def ionic_radii(self):
-        """
-        Ionic radii of elements in the structure
-        """
-        return self._rad_dict
-
-    @property
-    def valences(self):
-        """
-        Valence of elements in the structure
-        """
-        return self._valence_dict
 
     def _supercell_with_defect(self, scaling_matrix, defect_site):
         sc = self._structure.copy()
@@ -328,22 +361,23 @@ class Vacancy(Defect):
                                                            defect_site))
         return sc_with_vac
              
-        
 class Interstitial(Defect):
     """
     Subclass of Defect to generate interstitials
     """
-    def __init__(self, structure):
+    def __init__(self, structure_with_val_radii):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
         
         Args:
-            structure:
-                pymatgen.core.Structure
+            structure_with_val_radii:
+                pymatgen.defects.point_defects.StructureWithValenceIonicRadius
         """
         
-        self._structure = structure
-        self._interstitial_sites = []
+        self._structure = structure_with_val_radii.structure
+        self._valence_dict = structure_with_val_radii.valences
+        self._rad_dict = structure_with_val_radii.radii
+        self._defect_sites = []
 
         bv = BVAnalyzer()
         try:
@@ -354,29 +388,6 @@ class Interstitial(Defect):
             print err_str
             raise ValueError()
 
-        self._valence_dict = {}
-        self._rad_dict = {}
-
-        sites = self._structure.sites
-        for i in range(len(sites)):
-            if sites[i].species_string in self._valence_dict.keys():
-                continue
-            else:
-                self._valence_dict[sites[i].species_string] = valences[i]
-                if len(self._valence_dict) == len(self._structure.composition):
-                    break
-
-        #import sys
-        #print >>sys.stderr, self._valence_dict
-        for el in self._valence_dict.keys():
-            val = self._valence_dict[el]
-            self._rad_dict[el] = Specie(el, val).ionic_radius
-            if not self._rad_dict[el]: #get covalent radii
-                raise ValueError(
-                        "No radius for "+el+"with oxidation state "+str(val)
-                        )
-        assert len(self._rad_dict) == len(self._structure.composition)
-        #print >>sys.stderr, self._rad_dict
 
 
         #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
@@ -384,7 +395,7 @@ class Interstitial(Defect):
         #are possible candidates for interstitial sites
         try:
             possible_interstitial_sites = _symmetry_reduced_voronoi_nodes(
-                structure, self._rad_dict
+                self._structure, self._rad_dict
                 )
         except:
             raise ValueError("Symmetry_reduced_voronoi_nodes failed")
@@ -392,90 +403,55 @@ class Interstitial(Defect):
         #print >>sys.stderr, "Interstitial sites evaluated"
         #Do futher processing on possibleInterstitialSites to obtain 
         #interstitial sites
-        self._interstitial_sites = possible_interstitial_sites 
-        self._interstitial_coord_no = []
-        self._interstitial_coord_sites = []
-        self._radius = []
+        self._defect_sites = possible_interstitial_sites 
+        self._defectsite_coord_no = []
+        self._defect_coord_sites = []
+        self._radii = []
 
-        for site in self._interstitial_sites:
-            struct = self._structure.copy()
-            struct.append(site.species_string, site.frac_coords)
-            coord_finder = VoronoiCoordFinder(struct)
-            self._interstitial_coord_no.append(
-                    coord_finder.get_coordination_number(-1))
-            coord_sites = coord_finder.get_coordinated_sites(-1)
+        for site in self._defect_sites:
+            coord_no, coord_sites = self._get_coord_no_sites(site)
+            self._defectsite_coord_no.append(coord_no)
+            self._defect_coord_sites.append(coord_sites)
 
-            # In some cases coordination sites to interstitials include 
-            # interstitials also. 
-            sites_to_be_deleted = []
-            for i in range(len(coord_sites)):
-                # In the future replace voronoi node place holder "H" with 
-                # some thing else
-                if coord_sites[i].species_string == 'H':
-                    sites_to_be_deleted.append(i)
-            sites_to_be_deleted.reverse()
-            for ind in sites_to_be_deleted:
-                del coord_sites[ind]
-            self._interstitial_coord_sites.append(coord_sites)
-
-        #for i in len(self._interstitial_sites):
-        #    for site in self._interstitial_coord_sites[i]:
-        #        if site.species_string == 'H':
-                    
-        for site in self._interstitial_sites:
-            self._radius.append(float(site.properties['voronoi_radius']))
+        for site in self._defect_sites:
+            self._radii.append(float(site.properties['voronoi_radius']))
     
-    def defectsite_count(self):
-        """
-        Returns the number of symmetrically distinct interstitial sites
-        """
-        return len(self._interstitial_sites)
-    
+    def _get_coord_no_sites(self, site):
+        struct = self._structure.copy()
+        struct.append(site.species_string, site.frac_coords)
+        coord_finder = VoronoiCoordFinder(struct)
+        coord_no = coord_finder.get_coordination_number(-1)
+        coord_sites = coord_finder.get_coordinated_sites(-1)
+
+        # In some cases coordination sites to interstitials include 
+        # interstitials also. 
+        sites_to_be_deleted = []
+        for i in range(len(coord_sites)):
+            # In the future replace voronoi node place holder "H" with 
+            # some thing else
+            if coord_sites[i].species_string == 'H':
+                sites_to_be_deleted.append(i)
+        sites_to_be_deleted.reverse() # So index won't change in between
+        for ind in sites_to_be_deleted:
+            del coord_sites[ind]
+
+        return coord_no, coord_sites
+
     def enumerate_defectsites(self):
         """
         Enumerate all the symmetrically distinct interstitial sites.
         The defect site has "Al" as occupied specie.
         """
-        return self._interstitial_sites
+        return self._defect_sites
 
-    def get_defectsite(self, n):
+    def append_defectsite(self, site):
         """
-        Returns the Site position of the interstitial.
+        Append a site to list of possible interstitials
         """
-        return self._interstitial_sites[n]
+        raise NotImplementedError()
 
     def delete_defectsite(self, n):
-        del self._interstitial_sites[n]
-
-    def get_defectsite_coordination_number(self, n):
-        """
-        Coordination number of interstitial site.
-        Args:
-            n
-                Index of interstitial list
-        """
-        return self._interstitial_coord_no[n]
-
-    def get_coordinated_sites(self, n):
-        """
-        The sites surrounding the interstitial site.
-        Args:
-            n
-                Index of interstitial list
-        """
-        return self._interstitial_coord_sites[n]
-
-    def get_coordinated_elements(self, n=None):
-        """
-        Elements of sites surrounding the interstitial site.
-        Args:
-            n
-                Index of interstitial list
-        """
-        coordinated_species = []
-        for site in self._interstitial_coord_sites[n]:
-            coordinated_species.append(site.species_string)
-        return set(coordinated_species)
+        del self._defect_sites[n]
 
     def get_coordsites_charge_sum(self,n):
         """
@@ -486,26 +462,26 @@ class Interstitial(Defect):
         """
         coordsite_valence_sum = 0.0
 
-        for site in self._interstitial_coord_sites[n]:
+        for site in self._defect_coord_sites[n]:
             try:
                 coordsite_valence_sum += self._valence_dict[site.species_string]
             except:
                 print len(self._structure.sites)
                 print '--------'
-                print len(self._interstitial_coord_sites[n])
+                print len(self._defect_coord_sites[n])
                 print '--------'
                 print "Structure "
                 print self._structure
                 print '--------'
                 print "Interstitial coord sites"
-                for site1 in self._interstitial_coord_sites[n]:
+                for site1 in self._defect_coord_sites[n]:
                     print site1.species_string, site1.frac_coords
                 print '--------'
                 print "Interstitial site"
-                print self._interstitial_sites[n].frac_coords
+                print self._defect_sites[n].frac_coords
                 print '--------'
                 print "Interstitial sites"
-                for site1 in self._interstitial_sites:
+                for site1 in self._defect_sites:
                     print site1
                 raise ValueError("Interstitial site as coordination site")
         return coordsite_valence_sum
@@ -519,7 +495,7 @@ class Interstitial(Defect):
         """
         coord_site_valences = []
 
-        for site in self._vac_coordinated_sites[n]:
+        for site in self._defect_coord_sites[n]:
             coord_site_valences.append(self._valence_dict[site.species_string])
         coord_site_valences.sort()
         return coord_site_valences[0], coord_site_valences[-1]
@@ -534,28 +510,28 @@ class Interstitial(Defect):
         Returns:
             floating number representing radius of interstitial sphere
         """
-        return self._radius[n]
+        return self._radii[n]
 
     def get_radii(self):
-        return self._radius
+        return self._radii
 
     def prune_defectsites(self):
         """
         Prunes the defect sites based on voornoi radius
         Useful if the symmetry based pruning of initial sites returned
-        from Zeo++ fails.
+        from Zeo++ is not working properly due to deviations in sites.
         """
-        distinct_radii = list(set(self._radius))
+        distinct_radii = list(set(self._radii))
         no_dstnt_radii = len(distinct_radii)
         flag = [False]*no_dstnt_radii
         for rad in distinct_radii:
-            ind = self._radius.index(rad)
-            for i in range(len(self._radius)-1,ind,-1):
-                if self._radius[i] == rad:
-                    self._radius.pop(i)
-                    self._interstitial_sites.pop(i)
-                    self._interstitial_coord_no.pop(i) 
-                    self._interstitial_coord_sites.pop(i)
+            ind = self._radii.index(rad)
+            for i in range(len(self._radii)-1,ind,-1):
+                if self._radii[i] == rad:
+                    self._radii.pop(i)
+                    self._defect_sites.pop(i)
+                    self._defectsite_coord_no.pop(i) 
+                    self._defect_coord_sites.pop(i)
 
     def get_surface_area(self, n):
         """
@@ -568,28 +544,6 @@ class Interstitial(Defect):
             floating number representing volume of interstitial
         """
         pass
-
-    @property
-    def structure(self):
-        """
-        Returns the structure without any defects
-        Useful for Mott-Littleton calculations.
-        """
-        return self._structure
-
-    @property
-    def struct_ionic_radii(self):
-        """
-        Ionic radii of elements in the structure
-        """
-        return self._rad_dict
-    
-    @property
-    def valences(self):
-        """
-        Valence of elements in the structure
-        """
-        return self._valence_dict
             
     def _supercell_with_defect(self, scaling_matrix, defect_site, element):
         sc = self._structure.copy()

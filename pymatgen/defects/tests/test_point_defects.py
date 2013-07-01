@@ -5,12 +5,36 @@ import sys
 
 import numpy as np
 
+from pymatgen.defects.point_defects import StructWithValenceIonicRadius
 from pymatgen.defects.point_defects import Vacancy, Interstitial
 from pymatgen.core.structure import  Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import  Element
 from pymatgen.symmetry.finder import SymmetryFinder 
 from pymatgen.symmetry.spacegroup import Spacegroup
+
+class StructureWithValenceIonicRadiusTest(unittest.TestCase):
+    def setUp(self):
+        """
+        Setup MgO rocksalt structure for testing Vacancy
+        """
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_withvalrad = StructWithValenceIonicRadius(self._mgo_uc)
+    
+    def test_valences(self):
+        valence_dict = self._mgo_withvalrad.valences
+        for val in valence_dict.values():
+            self.assertTrue(val in  {2,-2})
+
+    def test_radii(self):
+        rad_dict = self._mgo_withvalrad.radii
+        for rad in rad_dict.values():
+            self.assertTrue(rad in {0.86,1.26})
+
 
 class VacancyTest(unittest.TestCase):
     def setUp(self):
@@ -21,7 +45,8 @@ class VacancyTest(unittest.TestCase):
         mgo_specie = ["Mg"]*4 +  ["O"]*4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_uc1 = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_uc = StructWithValenceIonicRadius(self._mgo_uc1)
         self._mgo_vac = Vacancy(self._mgo_uc)
     
     def test_defectsite_count(self):
@@ -34,8 +59,8 @@ class VacancyTest(unittest.TestCase):
         And there should be only two unique vacancy sites for MgO.
         """
         uniq_sites = []
-        uniq_sites.append(self._mgo_uc.sites[3])
-        uniq_sites.append(self._mgo_uc.sites[7])
+        uniq_sites.append(self._mgo_uc1.sites[3])
+        uniq_sites.append(self._mgo_uc1.sites[7])
         uniq_def_sites = self._mgo_vac.enumerate_defectsites()
         #Match uniq_sites iwth uniq_def_sites
         #self.assertTrue(len(uniq_def_sites) == 2, "Vacancy init failed")
@@ -45,8 +70,8 @@ class VacancyTest(unittest.TestCase):
 
     def test_get_defectsite_index(self):
         for i in range(self._mgo_vac.defectsite_count()):
-            self.assertTrue(self._mgo_vac.get_defectsite_index(i) < 
-                    len(self._mgo_uc.sites), "Defect site index beyond range")
+            self.assertTrue(self._mgo_vac.get_defectsite_structure_index(i) < 
+                    len(self._mgo_uc1.sites), "Defect site index beyond range")
 
     def test_gt_defectsite_coordination_number(self):
         for i in range(self._mgo_vac.defectsite_count()):
@@ -55,16 +80,16 @@ class VacancyTest(unittest.TestCase):
 
     def test_get_defectsite_coordinated_elements(self):
         for i in range(self._mgo_vac.defectsite_count()):
-            site_index = self._mgo_vac.get_defectsite_index(i)
-            site_el = self._mgo_uc[site_index].species_and_occu
+            site_index = self._mgo_vac.get_defectsite_structure_index(i)
+            site_el = self._mgo_uc1[site_index].species_string
             self.assertTrue(
                     site_el not in self._mgo_vac.get_coordinated_elements(
                         i), "Coordinated elements are wrong")
 
     def test_get_defectsite_effective_charge(self):
         for i in range(self._mgo_vac.defectsite_count()):
-            site_index = self._mgo_vac.get_defectsite_index(i)
-            site_el = self._mgo_uc[site_index].species_and_occu
+            site_index = self._mgo_vac.get_defectsite_structure_index(i)
+            site_el = self._mgo_uc1[site_index].species_and_occu
             eff_charge = self._mgo_vac.get_defectsite_effective_charge(i)
             if site_el["Mg"] == 1:
                 self.assertEqual(eff_charge, -2)
@@ -98,7 +123,8 @@ class InterstitialTest(unittest.TestCase):
         mgo_specie = ["Mg"]*4 +  ["O"]*4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_uc1 = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_uc = StructWithValenceIonicRadius(self._mgo_uc1)
         self._mgo_interstitial = Interstitial(self._mgo_uc)
     
     def test_enumerate_defectsites(self):
@@ -124,7 +150,7 @@ class InterstitialTest(unittest.TestCase):
             print >>sys.stderr, self._mgo_interstitial.get_coordsites_charge_sum(i)
 
     def test_get_defectsite_coordinated_elements(self):
-        struct_el = self._mgo_uc.composition.elements
+        struct_el = self._mgo_uc1.composition.elements
         for i in range(self._mgo_interstitial.defectsite_count()):
             for el in self._mgo_interstitial.get_coordinated_elements(i):
                 self.assertTrue(
@@ -139,6 +165,7 @@ class InterstitialTest(unittest.TestCase):
 
 if __name__ == "__main__":
     #unittest.main()
+    #suite = unittest.TestLoader().loadTestsFromTestCase(StructureWithValenceIonicRadiusTest)
     suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
     #suite = unittest.TestLoader().loadTestsFromTestCase(VacancyTest)
     unittest.TextTestRunner(verbosity=3).run(suite)
