@@ -377,18 +377,6 @@ class Interstitial(Defect):
         self._structure = structure_with_val_radii.structure
         self._valence_dict = structure_with_val_radii.valences
         self._rad_dict = structure_with_val_radii.radii
-        self._defect_sites = []
-
-        bv = BVAnalyzer()
-        try:
-            valences = bv.get_valences(self._structure)
-        except:
-            valences = [0]*len(self._structure.sites)
-            err_str = "BVAnalyzer failed for ", self._structure.composition
-            print err_str
-            raise ValueError()
-
-
 
         #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
         #the symmetry reduced voronoi nodes
@@ -400,7 +388,6 @@ class Interstitial(Defect):
         except:
             raise ValueError("Symmetry_reduced_voronoi_nodes failed")
         
-        #print >>sys.stderr, "Interstitial sites evaluated"
         #Do futher processing on possibleInterstitialSites to obtain 
         #interstitial sites
         self._defect_sites = possible_interstitial_sites 
