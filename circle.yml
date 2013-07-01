@@ -2,10 +2,10 @@ dependencies:
   override:
     - pip install -q numpy
     - pip install scipy
+    - pip install distribute>=0.6.35 --upgrade
     - pip install -r requirements.txt
     - pip install -Iv https://wiki.fysik.dtu.dk/ase-files/python-ase-3.6.0.2515.tar.gz
     - python setup.py install
-    - virtualenv --system-site-packages venv
 test:
   override:
     - mv pymatgen pmg
