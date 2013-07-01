@@ -724,7 +724,7 @@ class IStructure(SiteCollection, MSONable):
             return self.__class__.from_sites(new_sites)
 
     def interpolate(self, end_structure, nimages=10, 
-                    interpolate_lattices=False):
+                    interpolate_lattices=False, pbc=True):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -734,10 +734,13 @@ class IStructure(SiteCollection, MSONable):
                 structure to interpolate between this structure and end.
             nimages:
                 number of interpolation images. Defaults to 10 images.
-            interpolate_latticse:
+            interpolate_lattices:
                 whether to interpolate the lattices. Interpolates the lengths
                 and angles (rather than the matrix) so orientation may be 
                 affected.
+            pbc:
+                whether to use periodic boundary conditions to find the
+                shortest path between endpoints.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -768,6 +771,8 @@ class IStructure(SiteCollection, MSONable):
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
         vec = end_coords - start_coords
+        if pbc:
+            vec -= np.round(vec)
         sp = self.species_and_occu
         structs = []
         for x in xrange(nimages+1):
