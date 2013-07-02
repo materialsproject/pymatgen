@@ -532,7 +532,7 @@ class MITNEBVaspInputSet(VaspInputSet):
             d = os.path.join(output_dir, str(i).zfill(2))
             if make_dir_if_not_present and not os.path.exists(d):
                 os.makedirs(d)
-            self.get_poscar(s).write_file(os.path.join(d, 'POTCAR'))
+            self.get_poscar(s).write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
                 write_structure(s, os.path.join(d, '{}.cif'.format(i)))
                 
