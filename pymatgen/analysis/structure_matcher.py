@@ -840,8 +840,7 @@ class StructureMatcher(MSONable):
             rms = self.get_rms_dist(transformed_structure, struct2)
             if rms is not None:
 
-                possible_mapping = {k: v for k, v in sp_mapping.items()
-                                    if k != v}
+                possible_mapping = {k: v for k, v in sp_mapping.items()}
 
                 if rms[1] < self.stol:
                     #check if mapping already found
