@@ -65,7 +65,6 @@ class SymmetryFinder(object):
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
-
         #Spglib"s convention for the lattice definition is the transpose of the
         #pymatgen version.
         self._transposed_latt = structure.lattice.matrix.transpose()
@@ -352,7 +351,7 @@ class SymmetryFinder(object):
         species = [self._unique_species[i - 1] for i in zs]
 
         if num_atom_prim > 0:
-            return Structure(lattice.T, species, positions[:num_atom_prim])\
+            return Structure(lattice.T, species, positions[:num_atom_prim],to_unit_cell=True)\
                 .get_reduced_structure()
         else:
             #Not sure if we should return None or just return the full
@@ -763,7 +762,7 @@ class SymmetryFinder(object):
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(latt, struct.species_and_occu, new_coords,
-                               site_properties=struct.site_properties)
+                               site_properties=struct.site_properties,to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
 
