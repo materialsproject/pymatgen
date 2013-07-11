@@ -65,6 +65,14 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`nwchemio` Module
+----------------------
+
+.. automodule:: pymatgen.io.nwchemio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`smartio` Module
 ---------------------
 

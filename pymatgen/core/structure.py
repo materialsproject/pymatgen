@@ -17,6 +17,8 @@ __date__ = "Sep 23, 2011"
 
 
 import math
+import os
+import json
 import collections
 import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
@@ -33,6 +35,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
+from pymatgen.util.decorators import singleton
 
 
 class SiteCollection(collections.Sequence):
@@ -720,7 +723,8 @@ class IStructure(SiteCollection, MSONable):
             new_sites = sorted(new_sites)
             return self.__class__.from_sites(new_sites)
 
-    def interpolate(self, end_structure, nimages=10):
+    def interpolate(self, end_structure, nimages=10, 
+                    interpolate_lattices=False, pbc=True):
         """
         Interpolate between this structure and end_structure. Useful for
         construction of NEB inputs.
@@ -730,6 +734,13 @@ class IStructure(SiteCollection, MSONable):
                 structure to interpolate between this structure and end.
             nimages:
                 number of interpolation images. Defaults to 10 images.
+            interpolate_lattices:
+                whether to interpolate the lattices. Interpolates the lengths
+                and angles (rather than the matrix) so orientation may be 
+                affected.
+            pbc:
+                whether to use periodic boundary conditions to find the
+                shortest path between endpoints.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -739,9 +750,15 @@ class IStructure(SiteCollection, MSONable):
         #Check length of structures
         if len(self) != len(end_structure):
             raise ValueError("Structures have different lengths!")
+        
+        if interpolate_lattices:
+            #interpolate lattices
+            lstart = np.array(self.lattice.lengths_and_angles)
+            lend = np.array(end_structure.lattice.lengths_and_angles)
+            lvec = lend - lstart
 
         #Check that both structures have the same lattice
-        if not np.allclose(self.lattice.matrix, end_structure.lattice.matrix):
+        elif not self.lattice == end_structure.lattice:
             raise ValueError("Structures with different lattices!")
 
         #Check that both structures have the same species
@@ -753,13 +770,20 @@ class IStructure(SiteCollection, MSONable):
 
         start_coords = np.array(self.frac_coords)
         end_coords = np.array(end_structure.frac_coords)
-
         vec = end_coords - start_coords
+        if pbc:
+            vec -= np.round(vec)
         sp = self.species_and_occu
-        structs = [self.__class__(self.lattice,
-                   sp, start_coords + float(x) / float(nimages) * vec,
-                   site_properties=self.site_properties)
-                   for x in range(0, nimages + 1)]
+        structs = []
+        for x in xrange(nimages+1):
+            if interpolate_lattices:
+                l_a = lstart + x / nimages * lvec
+                l = Lattice.from_lengths_and_angles(*l_a)
+            else:
+                l = self.lattice
+            fcoords = start_coords + x / nimages * vec
+            structs.append(self.__class__(l, sp, fcoords, 
+                                site_properties=self.site_properties))
         return structs
 
     def get_primitive_structure(self, tolerance=0.25):
@@ -923,9 +947,13 @@ class IStructure(SiteCollection, MSONable):
         """
         Json-serializable dict representation of Structure
         """
+        latt_dict = self._lattice.to_dict
+        del latt_dict["@module"]
+        del latt_dict["@class"]
+
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
-             "lattice": self._lattice.to_dict, "sites": []}
+             "lattice": latt_dict, "sites": []}
         for site in self:
             site_dict = site.to_dict
             del site_dict["lattice"]
@@ -1203,7 +1231,14 @@ class IMolecule(SiteCollection, MSONable):
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__,
-             "sites": [site.to_dict for site in self]}
+             "charge": self._charge,
+             "spin_multiplicity": self._spin_multiplicity,
+             "sites": []}
+        for site in self:
+            site_dict = site.to_dict
+            del site_dict["@module"]
+            del site_dict["@class"]
+            d["sites"].append(site_dict)
         return d
 
     @classmethod
@@ -1233,7 +1268,9 @@ class IMolecule(SiteCollection, MSONable):
             for k, v in siteprops.items():
                 props[k].append(v)
 
-        return cls(species, coords, site_properties=props)
+        return cls(species, coords, charge=d.get("charge", 0),
+                   spin_multiplicity=d.get("spin_multiplicity"),
+                   site_properties=props)
 
     def get_distance(self, i, j):
         """
@@ -2107,14 +2144,19 @@ class Molecule(IMolecule):
             index:
                 Index of atom to substitute.
             func_grp:
-                Substituent molecule. The first atom must be a DummySpecie
-                X, indicating the position of nearest neighbor. The second
-                atom must be the next nearest atom. For example,
-                for a methyl group substitution, func_grp should be X-CH3,
-                where X is the first site and C is the second site. What the
-                code will do is to remove the index site, and connect the
-                nearest neighbor to the C atom in CH3. The X-C bond
-                indicates the directionality to connect the atoms.
+                Substituent molecule. There are two options:
+
+                1. Providing an actual molecule as the input. The first atom
+                   must be a DummySpecie X, indicating the position of
+                   nearest neighbor. The second atom must be the next
+                   nearest atom. For example, for a methyl group
+                   substitution, func_grp should be X-CH3, where X is the
+                   first site and C is the second site. What the code will
+                   do is to remove the index site, and connect the nearest
+                   neighbor to the C atom in CH3. The X-C bond indicates the
+                   directionality to connect the atoms.
+                2. A string name. The molecule will be obtained from the
+                   relevant template in functional_groups.json.
             bond_order:
                 A specified bond order to calculate the bond length between
                 the attached functional group and the nearest neighbor site.
@@ -2122,6 +2164,7 @@ class Molecule(IMolecule):
         """
 
         # Find the nearest neighbor that is not a terminal atom.
+
         non_terminal_nn = None
         for nn, dist in self.get_neighbors(self[index], 5):
             if len(self.get_neighbors(nn, 1.1 * dist)) > 1:
@@ -2136,6 +2179,19 @@ class Molecule(IMolecule):
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
 
+        # Pass value of functional group--either from user-defined or from
+        # functional.json
+        if isinstance(func_grp, Molecule):
+            func_grp = func_grp
+        else:
+            # Check to see whether the functional group is in database.
+            func_dic = FunctionalGroups()
+            if func_grp not in func_dic:
+                raise RuntimeError("Can't find functional group in list. "
+                                   "Provide explicit coordinate instead")
+            else:
+                func_grp = func_dic[func_grp]
+
         # If a bond length can be found, modify func_grp so that the X-group
         # bond length is equal to the bond length.
         bl = get_bond_length(non_terminal_nn.specie, func_grp[1].specie,
@@ -2143,8 +2199,7 @@ class Molecule(IMolecule):
         if bl is not None:
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
-            func_grp.replace(0, "X",
-                             func_grp[1].coords
+            func_grp.replace(0, "X", func_grp[1].coords
                              + bl / np.linalg.norm(vec) * vec)
 
         # Align X to the origin.
@@ -2183,3 +2238,17 @@ class StructureError(Exception):
     Raised when the structure has problems, e.g., atoms that are too close.
     """
     pass
+
+
+@singleton
+class FunctionalGroups(dict):
+
+    def __init__(self):
+        """
+        Loads functional group data from json file. Return list that can be
+        easily converted into a Molecule object. The .json file, of course,
+        has to be under the same directory of this function"""
+        with open(os.path.join(os.path.dirname(__file__),
+                               "func_groups.json")) as f:
+            for k, v in json.load(f).items():
+                self[k] = Molecule(v["species"], v["coords"])

@@ -230,7 +230,7 @@ class SubstitutionPredictor(object):
                 will be found. If false, substitutions with this as a
                 starting composition will be found (these are slightly
                 different)
-        
+
         Returns:
             List of predictions in the form of dictionaries.
             If to_this_composition is true, the values of the dictionary

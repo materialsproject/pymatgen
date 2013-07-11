@@ -75,8 +75,8 @@ class AbstractComparator(MSONable):
         """
         return
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         for trans_modules in ['structure_matcher']:
             mod = __import__('pymatgen.analysis.' + trans_modules,
                              globals(), locals(), [d['@class']], -1)
@@ -756,8 +756,8 @@ class StructureMatcher(MSONable):
                 "primitive_cell": self._primitive_cell,
                 "scale": self._scale}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         return StructureMatcher(
             ltol=d["ltol"], stol=d["stol"], angle_tol=d["angle_tol"],
             primitive_cell=d["primitive_cell"], scale=d["scale"],
@@ -786,7 +786,7 @@ class StructureMatcher(MSONable):
         sp2 = list(set(struct2.species_and_occu))
 
         if len(sp1) != len(sp2):
-            return None
+            return None, None
 
         latt1 = struct1.lattice
         fcoords1 = struct1.frac_coords
@@ -806,6 +806,51 @@ class StructureMatcher(MSONable):
             return None, None
         else:
             return min_rms, min_mapping
+
+    def fit_anonymous_all_mapping(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. Preferentially pairs together species
+        with closer oxidation states over minimizing rms_distance
+
+        Args:
+            struct1:
+                1st oxidation state decorated structure
+            struct2:
+                2nd oxidation state decorated structure
+
+        Returns:
+            (mappings)
+            mappings is a list of possible species mappings that
+            would map struct1 to struct2.
+        """
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+
+        if len(sp1) != len(sp2):
+            return None
+
+        latt1 = struct1.lattice
+        fcoords1 = struct1.frac_coords
+        mappings = []
+        for perm in itertools.permutations(sp2):
+            sp_mapping = dict(zip(sp1, perm))
+            mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
+            transformed_structure = Structure(latt1, mapped_sp, fcoords1)
+            rms = self.get_rms_dist(transformed_structure, struct2)
+            if rms is not None:
+
+                possible_mapping = {k: v for k, v in sp_mapping.items()}
+
+                if rms[1] < self.stol:
+                    #check if mapping already found
+                    for k, v in possible_mapping.iteritems():
+                        if {k: v} not in mappings:
+                                mappings.append({k: v})
+        if not mappings:
+            return None
+        else:
+            return mappings
 
     def fit_anonymous(self, struct1, struct2):
         """
@@ -831,6 +876,7 @@ class StructureMatcher(MSONable):
             species and occupancy dicts are non-hashable.
         """
         min_rms, min_mapping = self.get_minimax_rms_anonymous(struct1, struct2)
+
         if min_rms is None or min_rms > self.stol:
             return None
         else:

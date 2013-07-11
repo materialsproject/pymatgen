@@ -260,6 +260,7 @@ class GaussianInput(object):
             else:
                 coord_lines.append(lines[i].strip())
         mol = GaussianInput.parse_coords(coord_lines)
+        mol.set_charge_and_spin(charge, spin_mult)
 
         return GaussianInput(mol, charge=charge, spin_multiplicity=spin_mult,
                              title=title, functional=functional,
