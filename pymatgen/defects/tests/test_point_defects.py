@@ -19,9 +19,9 @@ class StructureWithValenceIonicRadiusTest(unittest.TestCase):
         Setup MgO rocksalt structure for testing Vacancy
         """
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 +  ["O"]*4
-        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
-                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        mgo_specie = ["Mg"]*4 + ["O"]*4
+        mgo_frac_cord = [[0,0,0], [0.5,0.5,0], [0.5,0,0.5], [0, 0.5,0.5],
+                         [0.5,0,0], [0,0.5,0], [0,0,0.5], [0.5,0.5,0.5]]
         self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
         self._mgo_withvalrad = StructWithValenceIonicRadius(self._mgo_uc)
     
@@ -164,8 +164,8 @@ class InterstitialTest(unittest.TestCase):
             self.assertTrue(rad, float)
 
 if __name__ == "__main__":
-    #unittest.main()
+    unittest.main()
     #suite = unittest.TestLoader().loadTestsFromTestCase(StructureWithValenceIonicRadiusTest)
-    suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
+    #suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
     #suite = unittest.TestLoader().loadTestsFromTestCase(VacancyTest)
-    unittest.TextTestRunner(verbosity=3).run(suite)
+    #unittest.TextTestRunner(verbosity=3).run(suite)
