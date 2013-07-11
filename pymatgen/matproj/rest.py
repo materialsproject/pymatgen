@@ -140,7 +140,7 @@ class MPRester(object):
                     raise MPRestError(data["error"])
 
             raise MPRestError("REST query returned with error status code {}"
-                              .format(response.status_code))
+            .format(response.status_code))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -349,7 +349,7 @@ class MPRester(object):
                     raise MPRestError(data["error"])
 
             raise MPRestError("REST query returned with error status code {}"
-                              .format(response.status_code))
+            .format(response.status_code))
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -400,13 +400,14 @@ class MPRester(object):
                     raise MPRestError(data["error"])
 
             raise MPRestError("REST query returned with error status code {}"
-                              .format(response.status_code))
+            .format(response.status_code))
 
         except Exception as ex:
             raise MPRestError(str(ex))
 
-    def submit_snl(self, structures, authors, projects=None, references='',
-                   remarks=None, data=None, histories=None, created_at=None):
+    def submit_structures(self, structures, authors, projects=None,
+                             references='', remarks=None, data=None,
+                             histories=None, created_at=None):
         """
         Submits a list of structures to the Materials Project as SNL files.
         The argument list mirrors the arguments for the StructureNL object,
@@ -449,20 +450,32 @@ class MPRester(object):
         Returns:
             A list of inserted submission ids.
         """
+        snl_list = StructureNL.from_structures(structures,
+                    authors, projects, references, remarks, data,
+                    histories, created_at)
+
+        self.submit_snl(snl_list)
+
+    def submit_snl(self, snl):
+        """
+        Submits a list of StructureNL to the Materials Project site.
+
+        .. note::
+
+            As of now, this MP REST feature is open only to a select group of
+            users. Opening up submissions to all users is being planned for
+            the future.
+
+        Args:
+            snl:
+                A single StructureNL, or a list of StructureNL objects
+
+        Returns:
+            A list of inserted submission ids.
+        """
         try:
-            data = [{}] * len(structures) if data is None else data
-            histories = [[]] * len(structures) if histories is None else \
-                histories
-
-            jsondata = []
-            for i, struct in enumerate(structures):
-                snl = StructureNL(struct, authors, projects=projects,
-                                  references=references,
-                                  remarks=remarks, data=data[i],
-                                  history=histories[i],
-                                  created_at=created_at)
-                jsondata.append(snl.to_dict)
-
+            snl = snl if isinstance(snl, list) else [snl]
+            jsondata = [s.to_dict for s in snl]
             payload = {"snl": json.dumps(jsondata, cls=PMGJSONEncoder)}
             response = self.session.post("{}/snl/submit".format(self.preamble),
                                          data=payload)
@@ -476,7 +489,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -510,7 +523,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -546,7 +559,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -618,7 +631,7 @@ class MPRester(object):
         histories = None
         if master_history is not None:
             histories = master_history * len(structures)
-        return self.submit_snl(
+        return self.submit_structures(
             structures, authors, projects=projects, references=references,
             remarks=remarks, data=metadata, histories=histories,
             created_at=created_at)
@@ -640,7 +653,7 @@ class MPRester(object):
                 else:
                     raise MPRestError(resp["error"])
             raise MPRestError("REST error with status code {} and error {}"
-                              .format(response.status_code, response.text))
+            .format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
 

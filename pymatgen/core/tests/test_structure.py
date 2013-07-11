@@ -185,6 +185,7 @@ class IStructureTest(PymatgenTest):
         int_s = struct.interpolate(struct2, 10)
         for s in int_s:
             self.assertIsNotNone(s, "Interpolation Failed!")
+            self.assertEqual(int_s[0].lattice, s.lattice)
         self.assertArrayEqual(int_s[1][1].frac_coords, [0.725, 0.5, 0.725])
 
         badlattice = [[1, 0.00, 0.00], [0, 1, 0.00], [0.00, 0, 1]]
@@ -196,7 +197,31 @@ class IStructureTest(PymatgenTest):
         coords2.append([0.5, 0.5, 0.5])
         struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
-
+    
+    def test_interpolate_lattice(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        struct = IStructure(self.lattice, ["Si"] * 2, coords)
+        coords2 = list()
+        coords2.append([0, 0, 0])
+        coords2.append([0.5, 0.5, 0.5])
+        l2 = Lattice.from_lengths_and_angles([3,4,4], [100,100,70])
+        struct2 = IStructure(l2, ["Si"] * 2, coords2)
+        int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
+        self.assertArrayAlmostEqual(struct.lattice.abc, 
+                                    int_s[0].lattice.abc)
+        self.assertArrayAlmostEqual(struct.lattice.angles, 
+                                    int_s[0].lattice.angles)
+        self.assertArrayAlmostEqual(struct2.lattice.abc, 
+                                    int_s[2].lattice.abc)
+        self.assertArrayAlmostEqual(struct2.lattice.angles, 
+                                    int_s[2].lattice.angles)
+        int_angles = [(a + struct2.lattice.angles[i]) / 2
+                      for i, a in enumerate(struct.lattice.angles)]
+        self.assertArrayAlmostEqual(int_angles,
+                                    int_s[1].lattice.angles)
+    
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
         fcc_ag = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -449,6 +474,7 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
 
     def test_to_from_dict(self):
         propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
+                                  charge=1,
                                   site_properties={'magmom':
                                                    [0.5, -0.5, 1, 2, 3]})
         d = propertied_mol.to_dict
@@ -457,6 +483,8 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(propertied_mol, mol)
         self.assertEqual(mol[0].magmom, 0.5)
         self.assertEqual(mol.formula, "H4 C1")
+        self.assertEqual(mol.charge, 1)
+
 
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)
@@ -614,6 +642,8 @@ class MoleculeTest(PymatgenTest):
                        [0, -.780362, -.456316]])
         self.mol.substitute(1, oh)
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.43)
+        self.mol.substitute(3, "methyl")
+        self.assertEqual(self.mol.formula, "H7 C3 O1 F1")
 
 if __name__ == '__main__':
     import unittest

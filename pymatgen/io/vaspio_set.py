@@ -30,6 +30,7 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.decorators import deprecated
+from pymatgen import write_structure
 import traceback
 import numpy as np
 import shutil
@@ -475,6 +476,85 @@ class MITHSEVaspInputSet(VaspInputSet):
     def from_dict(cls, d):
         return cls(user_incar_settings=d["user_incar_settings"],
                    constrain_total_magmom=d["constrain_total_magmom"])
+
+class MITNEBVaspInputSet(VaspInputSet):
+    """
+    Class for writing NEB inputs.
+    """
+    def __init__(self, user_incar_settings=None, constrain_total_magmom=False,
+                 ggau=True, nimages=8):
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MIT NEB", json.load(f),
+                constrain_total_magmom=constrain_total_magmom)
+        self.user_incar_settings = user_incar_settings
+        #incar settings
+        incar_settings = {'IMAGES':nimages, 'IBRION':1, 'NFREE':2}
+        self.incar_settings.update(incar_settings)
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
+        if not ggau:
+            self.incar_settings['LDAU'] = False
+            if 'LDAUU' in self.incar_settings:
+                # technically not needed, but clarifies INCAR
+                del self.incar_settings['LDAUU']
+                del self.incar_settings['LDAUJ']
+                del self.incar_settings['LDAUL']
+                
+    def write_input(self, structures, output_dir, make_dir_if_not_present=True,
+                    write_cif=False):
+        """
+        Writes a set of VASP input to a directory.
+
+        Args:
+            structures:
+                list of Structure objects. There should be nimages+2 structures
+            output_dir:
+                Directory to output the VASP input files
+            make_dir_if_not_present:
+                Set to True if you want the directory (and the whole path) to
+                be created if it is not present.
+            write_cif:
+                If true, writes a cif along with each POSCAR
+        """
+        if len(structures) != self.incar_settings['IMAGES'] + 2:
+            raise ValueError('incorrect number of structures')
+        if make_dir_if_not_present and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        self.get_incar(structures[0]).write_file(os.path.join(output_dir, 
+                                                              'INCAR'))
+        self.get_kpoints(structures[0]).write_file(os.path.join(output_dir, 
+                                                                'KPOINTS'))
+        self.get_potcar(structures[0]).write_file(os.path.join(output_dir, 
+                                                               'POTCAR'))
+        for i, s in enumerate(structures):
+            d = os.path.join(output_dir, str(i).zfill(2))
+            if make_dir_if_not_present and not os.path.exists(d):
+                os.makedirs(d)
+            self.get_poscar(s).write_file(os.path.join(d, 'POSCAR'))
+            if write_cif:
+                write_structure(s, os.path.join(d, '{}.cif'.format(i)))
+                
+    @property
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "constrain_total_magmom": self.set_nupdown,
+            "user_incar_settings": self.user_incar_settings,
+            "ggau": self.ggau,
+            "nimages": self.nimages,
+            "@class": self.__class__.__name__,
+            "@module": self.__class__.__module__,
+        }
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(user_incar_settings=d["user_incar_settings"],
+                   constrain_total_magmom=d["constrain_total_magmom"],
+                   ggau=d["ggau"],
+                   nimages=d["nimages"])
+    
 
 
 class MITMDVaspInputSet(VaspInputSet):

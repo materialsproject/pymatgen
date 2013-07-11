@@ -15,6 +15,9 @@ from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure, Molecule
+from pymatgen.io.smartio import read_structure
+
+from .netcdf import structure_from_etsf_file
 
 ##########################################################################################
 
@@ -337,11 +340,9 @@ def asabistructure(obj):
         if os.path.isfile(obj):
 
             if obj.endswith(".nc"):
-                from .netcdf import structure_from_etsf_file
                 structure = structure_from_etsf_file(obj)
                 print(structure._sites)
             else:
-                from pymatgen.io.smartio import read_structure
                 structure = read_structure(obj)
 
             # Promote
@@ -470,11 +471,11 @@ class KSampling(AbivarAble):
         requires the flexibility.  For most usage cases, the object be constructed
         far more easily using the convenience static constructors:
 
-            # gamma_only
-            # gamma_centered
-            # monkhorst
-            # monkhorst_automatic
-            # path
+            #. gamma_only
+            #. gamma_centered
+            #. monkhorst
+            #. monkhorst_automatic
+            #. path
 
         and it is recommended that you use those.
 
@@ -615,7 +616,8 @@ class KSampling(AbivarAble):
     #                   )
 
     @classmethod
-    def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, use_time_reversal=True, comment=None):
+    def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, 
+                  use_time_reversal=True, comment=None):
         """
         Convenient static constructor for a Monkhorst-Pack mesh.
 
@@ -813,7 +815,7 @@ class KSampling(AbivarAble):
 
 
 class Constraints(AbivarAble):
-    "Object defining the constraints for structural relaxation"
+    """This object defines the constraints for structural relaxation"""
 
     def to_abivars(self):
         raise NotImplementedError("")
@@ -821,7 +823,7 @@ class Constraints(AbivarAble):
 
 class RelaxationMethod(AbivarAble):
     """
-    Container to store the variables for (constrained) structural optimization
+    Container object  storing the variables for the (constrained) structural optimization
     ionmov and optcell specify the type of relaxation.
     The other variables are optional and their use depend on ionmov and optcell.
     A None value indicates that we use abinit default. Default values can
@@ -1023,6 +1025,13 @@ class HilbertTransform(AbivarAble):
     "Parameters for the Hilbert-transform method (RPA, Screening code)"
 
     def __init__(self, nomegasf, spmeth=1):
+        """
+        Args:
+            nomegasf:
+                Number of points for sampling the spectral function along the real axis.
+            spmeth
+                Algorith for the representation of the delta function.
+        """
         self.spmeth   = spmeth
         self.nomegasf = nomegasf
 
@@ -1049,29 +1058,25 @@ class ModelDielectricFunction(AbivarAble):
 
 class CDFrequencyMesh(AbivarAble):
     "Mesh for the contour-deformation method used for the integration of the self-energy"
-
-    #    #def from_slice
-    #    #def from_linspace
-    #    #FrequencyMesh(real_slice=slice(0,15,1), units="Ha")
     #
     #    def __init__(self, r_slice, nfreqim=10, freqim_alpha=5, units="Ha"):
              #np.arange(start, s.stop, step))
     #        self.r_slice = r_slice
     #        self.units = units
 
-    #
+    #    #def from_slice
+    #    #def from_linspace
+    #    #FrequencyMesh(real_slice=slice(0,15,1), units="Ha")
+
     #    @property
-    #    def num_rpoints(self)
-    #        "Number of points along the real axis"
-    #
+    #    def num_real_points(self)
+    #        """Number of points along the real axis."""
     #    @property
-    #    def num_ipoint(self)
-    #        "Number of points along the imaginary axis"
-    #
+    #    def num_imag_points(self)
+    #        """Number of points along the imaginary axis."""
     #    @property
     #    def r_step(self)
-    #        "Step used to sample the real axis"
-    #
+    #        """Step used to sample the real axis (Ha units)"""
 
     def to_abivars(self):
         "Returns a dictionary with the abinit variables"
@@ -1088,9 +1093,13 @@ class CDFrequencyMesh(AbivarAble):
 
 
 class Screening(AbivarAble):
+    """
+    This object defines the parameters used for the 
+    computation of the screening function.
+    """
     # Approximations used for W
     _WTYPES = {
-        "RPA" : 0,
+        "RPA": 0,
     }
 
     # Self-consistecy modes
@@ -1102,7 +1111,25 @@ class Screening(AbivarAble):
 
     def __init__(self, ecuteps, nband, w_type="RPA", sc_mode="one_shot",
                  freq_mesh=None, hilbert_transform=None, ecutwfn=None, inclvkb=2):
-
+        """
+        Args:
+            ecuteps:
+                Cutoff energy for the screening (Ha units).
+            nband
+                Number of bands for the Green's function
+            w_type:
+                Screening type
+            sc_mode:
+                Self-consistency mode.
+            freq_mesh=None, 
+                Instance of `CDFrequencyMesh` defining the parameters for the contour deformation technique.
+            hilbert_transform:
+                Instance of `HilbertTransform` defining the paramentes for the Hilber transform method.
+            ecutwfn:
+                Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
+            inclvkb=2
+                Option for the treatment of the dipole matrix elements (NC pseudos).
+        """
         if w_type not in self._WTYPES:
             raise ValueError("W_TYPE: %s is not supported" % w_type)
 
@@ -1185,7 +1212,10 @@ class Screening(AbivarAble):
 
 
 class SelfEnergy(AbivarAble):
-
+    """
+    This object defines the parameters used for the 
+    computation of the self-energy.
+    """
     _SIGMA_TYPES = {
         "gw"          : 0,
         "hartree_fock": 5,
@@ -1203,8 +1233,25 @@ class SelfEnergy(AbivarAble):
 
     def __init__(self, se_type, sc_mode, nband, ecutsigx, screening,
                  ppmodel=None, ecuteps=None, ecutwfn=None):
-        """freq_int: cd for contour deformation."""
-
+        """
+        Args:
+            se_type:
+                Type of self-energy (str)
+            sc_mode:
+                Self-consistency mode.
+            nband
+                Number of bands for the Green's function
+            ecutsigx:
+                Cutoff energy for the exchange part of the self-energy (Ha units).
+            screening:
+                `Screening` instance.
+            ppmodel:
+                `PPModel` instance with the parameters used for the plasmon-pole technique.
+            ecuteps:
+                Cutoff energy for the screening (Ha units).
+            ecutwfn:
+                Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
+        """
         if se_type not in self._SIGMA_TYPES:
             raise ValueError("SIGMA_TYPE: %s is not supported" % se_type)
 
@@ -1249,17 +1296,19 @@ class SelfEnergy(AbivarAble):
 
     @property
     def has_ppmodel(self):
+        """True if we are using the plasmon-pole approximation."""
         return hasattr(self, "ppmodel")
 
     @property
     def gwcalctyp(self):
-        "Return the value of the gwcalctyp input variable"
+        "Returns the value of the gwcalctyp input variable"
         dig0 = str(self._SIGMA_TYPES[self.type])
         dig1 = str(self._SC_MODES[self.sc_mode])
         return dig1.strip() + dig0.strip()
 
     @property
     def symsigma(self):
+        """1 if symmetries can be used to reduce the number of q-points."""
         return 1 if self.sc_mode == "one_shot" else 0
 
     def to_abivars(self):
@@ -1288,64 +1337,283 @@ class SelfEnergy(AbivarAble):
 ##########################################################################################
 
 
-class BetheSalpeter(AbivarAble):
-    "Parameters for the solution of the Bethe-Salpeter equation."
-    #types = Enum(_types)
-
-    #_modes = {
-    #    "Tamm_Dandcoff" : 0,
-    #    "Coupling"      : 1,
-    #}
-
-    #scmodes = Enum(_scmodes.keys())
-
-    _algo2var = {
-        "direct_diago" : 1,
-        "haydock"      : 2,
-        "cg"           : 3,
+class ExcHamiltonian(AbivarAble):
+    """This object contains the parameters for the solution of the Bethe-Salpeter equation."""
+    # Types of excitonic Hamiltonian.
+    _EXC_TYPES = {
+        "TDA": 0,          # Tamm-Dancoff approximation.
+        "coupling": 1,     # Calculation with coupling.
     }
 
-    #algorithms = Enum(_algo2var)
+    # Algorithms used to compute the macroscopic dielectric function 
+    # and/or the exciton wavefunctions.
+    _ALGO2VAR = {
+        "direct_diago": 1,
+        "haydock"     : 2,
+        "cg"          : 3,
+    }
 
-    _coulomb_mode = [
+    # Options specifying the treatment of the Coulomb term.
+    _COULOMB_MODES = [
         "diago",
         "full",
         "model_df"
         ]
 
-    def __init__(self):
+    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, bs_freq_mesh, mdf_epsinf=None, 
+                exc_type="TDA", algo="haydock", with_lf=True, zcut=None, **kwargs):
+        """
+        Args:
+            bs_loband: 
+                Lowest band index used in the e-h  basis set.
+            nband: 
+                Max band index used in the e-h  basis set.
+            soenergy: 
+                Scissors energy in Hartree.
+            coulomb_mode: 
+                Treatment of the Coulomb term.
+            ecuteps: 
+                Cutoff energy for W in Hartree.
+            bs_freq_mesh:
+                Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
+            mdf_epsinf: 
+                Macroscopic dielectric function :math:`\espilon_\inf` used in 
+                the model dielectric function.
+            exc_type:
+                Approximation used for the BSE Hamiltonian
+            with_lf:
+                True if local field effects are includes <==> exchange term is included
+            zcut:
+                Broadening parameter in Ha.
+            **kwargs:
+                Extra keywords
+        """
+        self.bs_loband = bs_loband
+        self.nband  = nband
+        self.soenergy = soenergy
+        self.coulomb_mode = coulomb_mode
+        assert coulomb_mode in self._COULOMB_MODES
+        self.ecuteps = ecuteps
+        self.bs_freq_mesh = np.array(bs_freq_mesh)
+        self.mdf_epsinf = mdf_epsinf
+        self.exc_type = exc_type
+        assert exc_type in self._EXC_TYPES
+        self.algo = algo
+        assert algo in self._ALGO2VAR
+        self.with_lf = with_lf
+        self.zcut = zcut
+
+        # TODO
+        #self.chksymbreak = 0
+
+        # Extra options.
+        self.kwargs = kwargs
+
+    @property
+    def inclvkb(self):
+        """Treatment of the dipole matrix element (NC pseudos, default is 2)"""
+        return self.kwargs.get("inclvkb", 2)
+
+    @property
+    def use_haydock(self):
+        """True if we are using the Haydock iterative technique."""
+        return self.algo == "haydock"
+
+    @property
+    def use_cg(self):
+        """True if we are using the conjugate gradient method."""
+        return self.algo == "cg"
+
+    @property
+    def use_direct_diago(self):
+        """True if we are performing the direct diagonalization of the BSE Hamiltonian."""
+        return self.algo == "direct_diago"
+
+    @classmethod
+    def TDA_with_model_df(cls, bs_loband, nband, soenery, mdf_einf, soenergy, **kwargs):
+        """
+        Static constructor used for performing Tamm-Dancoff calculations 
+        with the model dielectric functions and the scissors operator.
+        """
         raise NotImplementedError("")
-        self._comment = comment
+        return cls(bs_loband, nband, soenergy, "model_df", ecuteps, bs_freq_mesh, 
+                   mdf_epsinf=mdf_eing, exc_type="TDA", with_lf=True, **kwargs)
 
-        self.strategy = strategy
+    def to_abivars(self):
+        "Returns a dictionary with the abinit variables"
 
-        self.update({
-            "bs_exchange_term" : 1 if with_lf else 0,
-            "inclvkb"  : 2,
-            "ecuteps"  : ecuteps,
-            "soenergy" : soenergy,
-            "gwmem"    : gwmem,
-            "fftgw"    : fftgw,
-            "bs_freq_mesh" : freq_mesh
-            #bs_haydock_niter5 60      # No. of iterations for Haydock
-            #bs_hayd_term5      0      # No terminator
-            #bs_haydock_tol5 0.05 0
-            #mdf_epsinf         12.0
-            #loband  = None,
-            #nband   = None,
-            #with_lf = True,
-            #gwmem   = None,
-            #fftgw   = None,
-            #comment = None
-        })
+        abivars = dict(
+            bs_loband=self.bs_loband,
+            soenergy=self.soenergy,
+            ecuteps=self.ecuteps,
+            bs_freq_mesh=self.bs_freq_mesh,
+            #bs_algo = self._ALGO2VAR[self.algo],
+            bs_coulomb_term=21,
+            bs_calctype=1,
+            inclvkb=self.inclvkb,
+            bs_exchange_term=1 if self.with_lf else 0,
+            zcut=self.zcut,
+            mdf_epsinf=self.mdf_epsinf,
+            )
 
+        if self.use_haydock:
+            # FIXME
+            abivars.update(
+                bs_haydock_niter=100,      # No. of iterations for Haydock
+                bs_hayd_term=0,            # No terminator
+                bs_haydock_tol=[0.05, 0],  # Stopping criteria
+            )
+
+        elif self.use_direct_diago:
+            raise NotImplementedError("")
+            abivars.update(
+                foo=1,
+            )
+
+        elif self.use_cg:
+            raise NotImplementedError("")
+            abivars.update(
+                foo=1,
+            )
+
+        else:
+            raise ValueError("Unknown algorithm for EXC: %s" % self.algo)
+
+        abivars.update(self.kwargs)
+
+        return abivars
+
+##########################################################################################
+
+
+class Perturbation(AbivarAble):
+    """
+    Base class for perturbations: a base perturbation is essentially defined 
+    by a q-point in reduced coordinates.
+
+    Subclasses should extend the base method `to_abivars` and provide the method `suggested_kptopt` 
+    that returns the value of kptopt that can be used to sample the Brillouin zone.
+    """
+    def __init__(self, qpt):
+        """
+        Args:
+            qpt:
+                reduced coordinates of the q-point associated to the perturbation.
+        """
+        self.qpt = npreshape(qpt, (-1,3))
+        self.nqpt = len(self.qpt)
+
+    @property
+    def qpt_is_gamma(self):
+        """True if the q-point of the perturbation is Gamma."""
+        return np.all(np.abs(self.qpt) < 1.e-6)
+
+    @abc.abstractproperty
+    def suggested_kptopt(self):
+        """Returns the suggested value of kptopt to use for this perturbation."""
+        return 3
+
+    def to_abivars(self):
+        return dict(nqpt=1, qpt=self.qpt)
+
+
+class PhononPerturbation(Perturbation):
+    """
+    A phonon perturbation is specified by the q-point in reduced 
+    coordinates, the index of the displaced atom and the reduced direction.
+    along which the atom is moved.
+    """
+    def __init__(self, qpt, rfatpol, rfdir):
+        super(PhononPerturbation, self).__init__(qpt)
+        self.rfatpol = rfatpol
+        self.rfdir = np.reshape(rfdir, (3,))
+
+    @property
+    def suggested_kptopt(self):
+        if self.qpt_is_gamma:
+            # Automatic generation of k points, taking
+            # into account the time-reversal symmetry only.
+            return 2
+        else:
+            # Don't use symmetries
+            return 3
+
+    def to_abivars(self):
+        #Example::
+        #                                                                     
+        # Response-function calculation, with q=0
+        # rfphon  1        # Will consider phonon-type perturbation
+        # rfatpol 1 2      # All the atoms will be displaced
+        # rfdir   1 1 1    # Along all reduced coordinate axis
+        # nqpt    1        # One wavevector is to be considered
+        # qpt     0 0 0    # This wavevector is q=0 (Gamma)
+        # kptopt  2        # Automatic generation of k points (time-reversal symmetry only)
+
+        abivars = super(PhononPertubation, self).to_abivars()
+
+        abivars.extend(dict(
+            rfphon=1,             
+            rfatpol=self.rfatpol, 
+            rfdir=self.rfdir,
+        ))
+
+        return abivars
+
+
+class DDKPerturbation(Perturbation):
+    """
+    A DDK perturbation is specified by the q-point in reduced 
+    coordinates, and the direction in k-space.
+    """
+    def __init__(self, rfdir):
+        # Calculation at the Gamma point
+        super(DDKPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
+        self.rfdir = np.reshape(rfdir, (3,))
+
+    @property
+    def suggested_kptopt(self):
+        return 2
+
+    def to_abivars(self):
+        abivars = super(DDKPert, self).to_abivars()
+
+        abivars.extend(dict(
+            rfelfd=2,           # Activate the calculation of the d/dk perturbation
+            rfdir=self.rdfdir   # Direction of the perturbation
+        ))
+        return abivars
+
+#class ElectricPertunation(Perturbation):
+#    def __init__(self, rfdir):
+#        # Calculation at the Gamma point
+#        super(ElectricPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
+
+#class ElasticPertubation(Perturbation):
+#    def __init__(self, rfdir):
+#        # Calculation at the Gamma point
+#        super(ElasticPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
+
+
+def irred_perturbations(input, qpoint):
+    """
+    This function returns the list of irreducible perturbations at the given q-point.
+    """
+    # Call abinit to get the irred perturbations.
+    # TODO
+    #pert_info = get_pert_info()
+
+    # Initialize the list of irreducible perturbations.
+    perts = []
+    return perts
+
+##########################################################################################
 
 class IFC(AbivarAble):
     """
-    This object controls the calculation and the Fourier interpolation
-    of the interatomic force constants.
+    This object defines the set of variables used for the
+    Fourier interpolation of the interatomic force constants.
     """
-    def __init__(self, ddb_filename, ngqpt, q1shft=(0.,0.,0.), ifcflag=1, brav=1):
+    def __init__(self, ddb_filename, ngqpt, q1shfts=(0.,0.,0.), ifcflag=1, brav=1):
         """
         For the complete description of the meaning of the variables see anaddb_help.html
 
@@ -1353,17 +1621,17 @@ class IFC(AbivarAble):
             ddb_filename:
                 Path to the DDB file.
             ngqpt:
-                Monkhorst-Pack divisions
-            q1shft:
-                Monkhorst-Pack shift
+                Monkhorst-Pack divisions.
+            q1shfts:
+                Monkhorst-Pack shifts.
             ifcflag:
-                Interatomic force constant flag
+                Interatomic force constant flag.
             brav:
-                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex
+                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex.
         """
         self.ddb_filename = os.path.abspath(ddb_filename)
         if not os.path.exists(self.ddb_filename):
-            raise self.Error("%s: no such file" % self.ddb_filename)
+            raise ValueError("%s: no such file" % self.ddb_filename)
 
         self.ifcflag = ifcflag
         self.brav = brav
@@ -1373,17 +1641,18 @@ class IFC(AbivarAble):
         self.nqshft = len(self.q1shft)
 
     def to_abivars(self):
-        d = {
-            "ifcflag": self.ifcflag,
-            "brav"   : self.brav,
-            "ngqpt"  : "%d %d %d" % tuple(q for q in self.ngqpt),
-            "nqshft" : self.nqshft,
-        }
 
-        s = ""
-        for shift in self.q1shft:
-            s += "%f %f %f\n" % tuple(c for c in shift)
-        d["q1shft"] = s
+        d = dict(
+            ifcflag=self.ifcflag,
+            brav=self.brav,
+            ngqpt="%d %d %d" % tuple(q for q in self.ngqpt),
+            nqshft=self.nqshft,
+            )
+
+        lines = []
+        for shift in self.q1shfts:
+            lines.append("%f %f %f" % tuple(c for c in shift))
+        d["q1shfts"] = "\n".join(lines)
 
         return d
 
@@ -1392,26 +1661,13 @@ class IFC(AbivarAble):
         """
         Args:
             asr:
-                Acoustic Sum Rule. 1 => imposed asymetrically
+                Acoustic Sum Rule. 1 to impose it asymetrically.
             chneut:
                 Charge neutrality requirement for effective charges.
             dipdip:
-                Dipole-dipole interaction treatment
+                Dipole-dipole interaction treatment.
             symdinmat:
-
-            !Wavevector list number 1 (Reduced coordinates and normalization factor)
-            nph1l    71      ! number of phonons in list 1
-            qph1l   0.0000  0.0000  0.0000   1.0    !(gamma point)
-
-            !Wavevector list number 2 (Cartesian directions for non-analytic gamma phonons)
-            !The output for this calculation must be cut-and-pasted into the
-            ! t59_out.freq file to be used as band2eps input to get proper LO-TO
-            ! splitting at gamma.  Note that gamma occurrs twice.
-
-            nph2l    1       ! number of directions in list 2
-            qph2l   1.0  0.0  0.0    0.0
-            # This line added when defaults were changed (v5.3) to keep the previous, old behaviour
-            symdynmat 0
+                TODO
         """
         # Build input for anaddb. Variables are stored in the dict d.
         d = {
@@ -1436,7 +1692,6 @@ class IFC(AbivarAble):
         #        "nph1l": 1,
         #        "qph1l": 1,
         #    })
-
         d.update(self.to_abivars())
 
         from .wrappers import Anaddb

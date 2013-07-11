@@ -32,7 +32,7 @@ class ExecWrapper(object):
             executable:
                 path to the executable.
             verbose:
-                Verbosity level
+                Verbosity level.
         """
         if executable is None: executable = self.name
 
@@ -76,12 +76,11 @@ class ExecWrapper(object):
 
 ##########################################################################################
 
+class MrgscrError(Exception):
+    """Error class for Mrgscr"""
 
 class Mrgscr(ExecWrapper):
     _name = "mrgscr"
-
-    class MrgscrError(Exception):
-        """Error class for Mrgscr"""
 
     Error = MrgscrError
 
@@ -132,12 +131,12 @@ class Mrgscr(ExecWrapper):
 
 ##########################################################################################
 
+class MrggkkError(Exception):
+    """Error class for Mrggkk."""
+
 
 class Mrggkk(ExecWrapper):
     _name = "mrggkk"
-
-    class MrggkkError(Exception):
-        """Error class for Mrggkk."""
 
     Error = MrggkkError
 
@@ -195,12 +194,11 @@ class Mrggkk(ExecWrapper):
 
 ##########################################################################################
 
+class MrgddbError(Exception):
+    """Error class for Mrgddb."""
 
 class Mrgddb(ExecWrapper):
     _name = "mrgddb"
-
-    class MrgddbError(Exception):
-        """Error class for Mrgddb."""
 
     Error = MrgddbError
 
@@ -256,12 +254,11 @@ class Mrgddb(ExecWrapper):
 
 ##########################################################################################
 
+class AnaddbError(Exception):
+    """Error class for Anaddb."""
 
 class Anaddb(ExecWrapper):
     _name = "anaddb"
-
-    class AnaddbError(Exception):
-        """Error class for Anaddb."""
 
     Error = AnaddbError
 

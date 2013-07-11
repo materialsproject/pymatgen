@@ -116,7 +116,10 @@ class SymmetryFinderTest(unittest.TestCase):
 
         symm_struct = self.disordered_sg.get_symmetrized_structure()
         self.assertEqual(len(symm_struct.equivalent_sites), 8)
-
+        self.assertEqual(map(len, symm_struct.equivalent_sites), [16,4,8,4,2,8,8,8])
+        s1 = symm_struct.equivalent_sites[1][1]
+        s2 = symm_struct[symm_struct.equivalent_indices[1][1]]
+        self.assertEqual(s1, s2)
         self.assertEqual(self.sg4.get_symmetrized_structure()[0].magmom, 0.1)
 
     def test_find_primitive(self):

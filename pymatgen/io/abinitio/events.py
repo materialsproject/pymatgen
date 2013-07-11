@@ -15,18 +15,18 @@ from pymatgen.serializers.json_coders import MSONable
 
 class Event(MSONable):
     """
-    Example (JSON)
+    Example (JSON)::
 
-    <Event>
-        "class": "ScfConvergenceWarning",
-        "src_file": "routine name",
-        "src_line": "line number in src_file",
-        "message": "The human-readable message goes here!"
-        "tolname": "tolwfr",
-        "actual_tol": 1.0e-8,
-        "required_tol": 1.0e-10,
-        "nstep": 50,
-    </Event>
+        <Event>
+            "class": "ScfConvergenceWarning",
+            "src_file": "routine name",
+            "src_line": "line number in src_file",
+            "message": "The human-readable message goes here!"
+            "tolname": "tolwfr",
+            "actual_tol": 1.0e-8,
+            "required_tol": 1.0e-10,
+            "nstep": 50,
+        </Event>
     """
     @staticmethod
     def from_string(string, lineno):
@@ -159,13 +159,13 @@ class EventList(collections.Iterable, MSONable):
         return "\n".join(l for l in lines)
 
     def append(self, event):
-        "Add an event to the list."
+        """Add an event to the list."""
         self._events.append(event)
         self._events_by_baseclass[event.baseclass].append(event)
 
     @property
     def critical_events(self):
-        "List of critical events"
+        """List of critical events."""
         return [e for e in self if e.iscritical]
 
     @property
@@ -188,8 +188,9 @@ class EventList(collections.Iterable, MSONable):
         """
         Return list of events that inherits from class base_class
 
-        only_critical:
-            if True, only critical events are returned.
+        Args:
+            only_critical:
+                if True, only critical events are returned.
         """
         if only_critical:
             return [e for e in self._events_by_baseclass[base_class] if e.iscritical]
@@ -219,8 +220,7 @@ class EventParserError(Exception):
 
 class EventParser(object):
     """
-    Parses the output or the log file produced by abinit and extract the list
-    of events.
+    Parses the output or the log file produced by abinit and extract the list of events.
     """
     Error = EventParserError
 
