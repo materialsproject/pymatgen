@@ -237,6 +237,12 @@ class StructureNL(object):
         self.remarks = [remarks] if isinstance(remarks, basestring) \
             else remarks
 
+        # check remarks limit
+        for r in self.remarks:
+            if len(r) > 140:
+                raise ValueError("The remark exceeds the maximum size of"
+                                 "140 characters: {}".format(r))
+
         # check data limit
         self.data = data if data else {}
         if not sys.getsizeof(self.data) < MAX_DATA_SIZE:
@@ -296,6 +302,58 @@ class StructureNL(object):
                    references=a.get("references", ""),
                    remarks=a.get("remarks", None), data=data,
                    history=a.get("history", None), created_at=created_at)
+
+    @classmethod
+    def from_structures(cls, structures, authors, projects=None,
+                                 references='', remarks=None, data=None,
+                                 histories=None, created_at=None):
+
+        """
+        A convenience method for getting a list of StructureNL objects by
+        specifying structures and metadata separately. Some of the metadata
+        is applied to all of the structures for ease of use.
+
+        Args:
+            structures:
+                A list of Structure objects
+            authors:
+                *List* of {"name":'', "email":''} dicts,
+                *list* of Strings as 'John Doe <johndoe@gmail.com>',
+                or a single String with commas separating authors
+            projects:
+                List of Strings ['Project A', 'Project B']. This applies to
+                all structures.
+            references:
+                A String in BibTeX format. Again, this applies to all
+                structures.
+            remarks:
+                List of Strings ['Remark A', 'Remark B']
+            data:
+                A list of free form dict. Namespaced at the root level with an
+                underscore, e.g. {"_materialsproject":<custom data>}. The
+                length of data should be the same as the list of structures
+                if not None.
+            histories:
+                List of list of dicts - [[{'name':'', 'url':'',
+                'description':{}}], ...] The length of histories should be the
+                same as the list of structures if not None.
+            created_at:
+                A datetime object
+        """
+        data = [{}] * len(structures) if data is None else data
+        histories = [[]] * len(structures) if histories is None else \
+            histories
+
+        snl_list = []
+        for i, struct in enumerate(structures):
+            snl = StructureNL(struct, authors, projects=projects,
+                              references=references,
+                              remarks=remarks, data=data[i],
+                              history=histories[i],
+                              created_at=created_at)
+            snl_list.append(snl)
+
+        return snl_list
 
     def __str__(self):
         return "\n".join(["{}\n{}".format(k, getattr(self, k))
