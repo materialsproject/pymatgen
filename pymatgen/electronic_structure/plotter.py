@@ -119,10 +119,8 @@ class DosPlotter(object):
         y = None
         alldensities = []
         allenergies = []
-        """
-        Note that this complicated processing of energies is to allow for
-        stacked plots in matplotlib.
-        """
+        # Note that this complicated processing of energies is to allow for
+        # stacked plots in matplotlib.
         for key, dos in self._doses.items():
             energies = dos['energies']
             densities = dos['densities']
@@ -237,10 +235,11 @@ class BSPlotter(object):
             bs:
                 A BandStructureSymmLine object.
         """
-        if not isinstance(bs,BandStructureSymmLine):
-            raise ValueError("BSPlotter only works with BandStructureSymmLine objects. "
-                             "A BandStructure object (on a uniform grid for instance and "
-                             "not along symmetry lines won't work)")
+        if not isinstance(bs, BandStructureSymmLine):
+            raise ValueError(
+                "BSPlotter only works with BandStructureSymmLine objects. "
+                "A BandStructure object (on a uniform grid for instance and "
+                "not along symmetry lines won't work)")
         self._bs = bs
         #TODO: come with an intelligent way to cut the highest unconverged bands
         self._nb_bands = self._bs._nb_bands
@@ -259,16 +258,14 @@ class BSPlotter(object):
                 uniq_d.append(temp_ticks[i][0])
                 uniq_l.append(temp_ticks[i][1])
                 logger.debug("Adding label {l} at {d}".format(
-                                                    l=temp_ticks[i][0],
-                                                    d=temp_ticks[i][1]))
+                    l=temp_ticks[i][0], d=temp_ticks[i][1]))
             else:
                 if temp_ticks[i][1] == temp_ticks[i - 1][1]:
                     logger.debug("Skipping label {i}".format(
-                                                      i=temp_ticks[i][1]))
+                        i=temp_ticks[i][1]))
                 else:
                     logger.debug("Adding label {l} at {d}".format(
-                                                         l=temp_ticks[i][0],
-                                                         d=temp_ticks[i][1]))
+                        l=temp_ticks[i][0], d=temp_ticks[i][1]))
                     uniq_d.append(temp_ticks[i][0])
                     uniq_l.append(temp_ticks[i][1])
 
@@ -282,18 +279,18 @@ class BSPlotter(object):
                 if i != 0:
                     if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already print label... "
-                        "skipping label {i}".format(i=ticks['label'][i]))
+                                     "skipping label {i}".format(
+                                     i=ticks['label'][i]))
                     else:
                         logger.debug("Adding a line at {d}"
-                        " for label {l}".format(d=ticks['distance'][i],
-                                            l=ticks['label'][i]))
+                                     " for label {l}".format(
+                            d=ticks['distance'][i], l=ticks['label'][i]))
                         plt.axvline(ticks['distance'][i], color='k')
                 else:
                     logger.debug("Adding a line at {d} for label {l}".format(
                             d=ticks['distance'][i], l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
         return plt
-
 
     def bs_plot_data(self, zero_to_efermi=True):
 
@@ -313,8 +310,8 @@ class BSPlotter(object):
                 energy:
                     A dict storing bands for spin up and spin down data
                     [{Spin:[band_index][k_point_index]}] as a list (one element
-                    for each branch) of energy for each kpoint. The data is stored
-                    by branch to facilitate the plotting
+                    for each branch) of energy for each kpoint. The data is
+                    stored by branch to facilitate the plotting
                 vbm:
                     A list of tuples (distance,energy) marking the vbms. The
                     energies are shifted with respect to the fermi level is the
@@ -351,16 +348,19 @@ class BSPlotter(object):
             else:
                 energy.append({str(Spin.up): []})
             distance.append([self._bs._distance[j]
-                             for j in range(b['start_index'],b['end_index']+1)])
+                             for j in range(b['start_index'],
+                                            b['end_index']+1)])
             ticks = self.get_ticks()
 
             for i in range(self._nb_bands):
-                energy[-1][str(Spin.up)].append([self._bs._bands[Spin.up][i][j]
-                                                 - zero_energy for j in range(b['start_index'],b['end_index']+1)])
+                energy[-1][str(Spin.up)].append(
+                    [self._bs._bands[Spin.up][i][j] - zero_energy
+                     for j in range(b['start_index'], b['end_index']+1)])
             if self._bs.is_spin_polarized:
                 for i in range(self._nb_bands):
-                    energy[-1][str(Spin.down)].append([self._bs._bands[Spin.down][i][j]
-                                                       - zero_energy for j in range(b['start_index'],b['end_index']+1)])
+                    energy[-1][str(Spin.down)].append(
+                        [self._bs._bands[Spin.down][i][j] - zero_energy
+                         for j in range(b['start_index'], b['end_index']+1)])
 
         vbm = self._bs.get_vbm()
         cbm = self._bs.get_cbm()
@@ -416,7 +416,7 @@ class BSPlotter(object):
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
         from matplotlib import rc
-        import scipy.interpolate
+        import scipy.interpolate as scint
 
         rc('text', usetex=True)
 
@@ -432,37 +432,47 @@ class BSPlotter(object):
         if not smooth:
             for d in range(len(data['distances'])):
                 for i in range(self._nb_bands):
-                    plt.plot(data['distances'][d], [data['energy'][d][str(Spin.up)][i][j]
-                                                    for j in range(len(data['distances'][d]))], 'b-',
+                    plt.plot(data['distances'][d],
+                             [data['energy'][d][str(Spin.up)][i][j]
+                              for j in range(len(data['distances'][d]))], 'b-',
                              linewidth=band_linewidth)
                     if self._bs.is_spin_polarized:
-                        plt.plot(data['distances'][d], [data['energy'][d][str(Spin.down)][i][j]
-                                                        for j in range(len(data['distances'][d]))], 'r--',
-                                 linewidth=band_linewidth)
+                        plt.plot(data['distances'][d],
+                                 [data['energy'][d][str(Spin.down)][i][j]
+                                  for j in range(len(data['distances'][d]))],
+                                 'r--', linewidth=band_linewidth)
         else:
             for d in range(len(data['distances'])):
                 for i in range(self._nb_bands):
-                    tck = scipy.interpolate.splrep(data['distances'][d],
-                                                   [data['energy'][d][str(Spin.up)][i][j]
-                                                    for j in range(len(data['distances'][d]))])
+                    tck = scint.splrep(
+                        data['distances'][d],
+                        [data['energy'][d][str(Spin.up)][i][j]
+                         for j in range(len(data['distances'][d]))])
                     step = (data['distances'][d][-1]
                             - data['distances'][d][0]) / 1000
 
-                    plt.plot([x * step+data['distances'][d][0] for x in range(1000)],
-                             [scipy.interpolate.splev(x * step+data['distances'][d][0], tck, der=0)
-                              for x in range(1000)], 'b-', linewidth=band_linewidth)
+                    plt.plot([x * step+data['distances'][d][0]
+                              for x in range(1000)],
+                             [scint.splev(x * step+data['distances'][d][0],
+                                          tck, der=0)
+                              for x in range(1000)], 'b-',
+                             linewidth=band_linewidth)
 
                     if self._bs.is_spin_polarized:
 
-                        tck = scipy.interpolate.splrep(data['distances'][d],
-                                                       [data['energy'][d][str(Spin.down)][i][j]
-                                                        for j in range(len(data['distances'][d]))])
+                        tck = scint.splrep(
+                            data['distances'][d],
+                            [data['energy'][d][str(Spin.down)][i][j]
+                             for j in range(len(data['distances'][d]))])
                         step = (data['distances'][d][-1]
                                 - data['distances'][d][0]) / 1000
 
-                        plt.plot([x * step+data['distances'][d][0] for x in range(1000)],
-                                 [scipy.interpolate.splev(x * step+data['distances'][d][0], tck, der=0)
-                                  for x in range(1000)],'r--', linewidth=band_linewidth)
+                        plt.plot([x * step+data['distances'][d][0]
+                                  for x in range(1000)],
+                                 [scint.splev(x * step+data['distances'][d][0],
+                                              tck, der=0)
+                                  for x in range(1000)], 'r--',
+                                 linewidth=band_linewidth)
         self._maketicks(plt)
 
         #Main X and Y Labels
@@ -565,7 +575,7 @@ class BSPlotter(object):
                         this_branch = b['name']
                         break
                 if c.label != previous_label \
-                    and previous_branch != this_branch:
+                        and previous_branch != this_branch:
                     label1 = c.label
                     if label1.startswith("\\") or label1.find("_") != -1:
                         label1 = "$" + label1 + "$"
@@ -609,7 +619,7 @@ class BSPlotter(object):
                          'r-', linewidth=band_linewidth)
                 if other_plotter._bs.is_spin_polarized:
                     plt.plot(data_orig['distances'],
-                            [e for e in data['energy'][str(Spin.down)][i]],
+                             [e for e in data['energy'][str(Spin.down)][i]],
                              'r-', linewidth=band_linewidth)
         return plt
 
@@ -708,10 +718,8 @@ class BSPlotterProjected(BSPlotter):
         """
         if len(bs._projections) == 0:
             raise ValueError("try to plot projections"
-                              + " on a band structure without any")
+                             " on a band structure without any")
         BSPlotter.__init__(self, bs)
-
-
 
     def get_projected_plots_dots(self, dictio, zero_to_efermi=True, ylim=None):
         """
@@ -753,19 +761,21 @@ class BSPlotterProjected(BSPlotter):
                              'b-')
                     if self._bs.is_spin_polarized:
                         plt.plot(data['distances'],
-                            [e for e in data['energy'][str(Spin.down)][i]],
+                                 [e for e in data['energy'][str(Spin.down)][i]],
                                  'r-')
                     for j in range(len(data['energy'][str(Spin.up)][i])):
                         plt.plot(data['distances'][j],
-                        data['energy'][str(Spin.up)][i][j], 'bo',
-                        markersize=proj[Spin.up][i][j][str(el)][o] * 15.0)
+                                 data['energy'][str(Spin.up)][i][j], 'bo',
+                                 markersize=proj[Spin.up][i][j][str(el)][o] *
+                                 15.0)
 
                     if self._bs.is_spin_polarized:
                         for j in range(len(data['energy'][str(Spin.down)][i])):
-                            plt.plot(data['distances'][j],
-                            data['energy'][str(Spin.down)][i][j], 'ro',
-                            markersize=proj[Spin.down][i][j][str(el)][o] \
-                            * 15.0)
+                            plt.plot(
+                                data['distances'][j],
+                                data['energy'][str(Spin.down)][i][j], 'ro',
+                                markersize=proj[Spin.down][i][j][str(el)][o]
+                                * 15.0)
 
                 if ylim is None:
                     if self._bs.is_metal():
@@ -773,7 +783,7 @@ class BSPlotterProjected(BSPlotter):
                         if zero_to_efermi:
                             plt.ylim(e_min, e_max)
                         else:
-                            plt.ylim(self._bs.efermi + e_min, self._bs._efermi\
+                            plt.ylim(self._bs.efermi + e_min, self._bs._efermi
                                      + e_max)
                     else:
 
@@ -785,7 +795,7 @@ class BSPlotterProjected(BSPlotter):
                             plt.scatter(vbm[0], vbm[1], color='g', marker='o',
                                         s=100)
 
-                        plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] \
+                        plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1]
                                  + e_max)
                 else:
                     plt.ylim(ylim)
@@ -823,14 +833,14 @@ class BSPlotterProjected(BSPlotter):
                 uniq_d.append(temp_ticks[i][0])
                 uniq_l.append(temp_ticks[i][1])
                 logger.debug("Adding label {l} at {d}".format(
-                            l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                    l=temp_ticks[i][0], d=temp_ticks[i][1]))
             else:
                 if temp_ticks[i][1] == temp_ticks[i - 1][1]:
                     logger.debug("Skipping label {i}".format(
-                                                i=temp_ticks[i][1]))
+                        i=temp_ticks[i][1]))
                 else:
                     logger.debug("Adding label {l} at {d}".format(
-                            l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                        l=temp_ticks[i][0], d=temp_ticks[i][1]))
                     uniq_d.append(temp_ticks[i][0])
                     uniq_l.append(temp_ticks[i][1])
 
@@ -849,16 +859,15 @@ class BSPlotterProjected(BSPlotter):
                     if ticks['label'][i] == ticks['label'][i - 1]:
                         logger.debug("already print label..."
                                      "skipping label {i}".format(
-                                        i=ticks['label'][i]))
+                                     i=ticks['label'][i]))
                     else:
-                        logger.debug("Adding a line at {d}"
-                        "for label {l}".format(d=ticks['distance'][i],
-                        l=ticks['label'][i]))
+                        logger.debug("Adding line at {d} for label {l}"
+                                     .format(d=ticks['distance'][i],
+                                             l=ticks['label'][i]))
                         plt.axvline(ticks['distance'][i], color='k')
                 else:
-                    logger.debug("Adding a line at {d}"
-                        "for label {l}".format(d=ticks['distance'][i],
-                                               l=ticks['label'][i]))
+                    logger.debug("Adding line at {d} for label {l}".format(
+                        d=ticks['distance'][i], l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
         count = 1
         for el in self._bs._structure.composition.elements:
@@ -867,21 +876,22 @@ class BSPlotterProjected(BSPlotter):
             self._maketicks(plt)
             for i in range(self._nb_bands):
                 plt.plot(data['distances'],
-                             [e for e in data['energy'][str(Spin.up)][i]],
-                             'b-')
+                         [e for e in data['energy'][str(Spin.up)][i]],
+                         'b-')
                 if self._bs.is_spin_polarized:
                     plt.plot(data['distances'],
                              [e for e in data['energy'][str(Spin.down)][i]],
                              'r-')
                 for j in range(len(data['energy'][str(Spin.up)][i])):
                     plt.plot(data['distances'][j],
-                            data['energy'][str(Spin.up)][i][j], 'bo',
-                            markersize=proj[Spin.up][i][j][str(el)] * 15.0)
+                             data['energy'][str(Spin.up)][i][j], 'bo',
+                             markersize=proj[Spin.up][i][j][str(el)] * 15.0)
                 if self._bs.is_spin_polarized:
                     for j in range(len(data['energy'][str(Spin.down)][i])):
                         plt.plot(data['distances'][j],
-                        data['energy'][str(Spin.down)][i][j], 'ro',
-                        markersize=proj[Spin.down][i][j][str(el)] * 15.0)
+                                 data['energy'][str(Spin.down)][i][j], 'ro',
+                                 markersize=proj[Spin.down][i][j][str(el)] *
+                                            15.0)
             if ylim is None:
                 if self._bs.is_metal():
                     # Plot A Metal
@@ -901,7 +911,7 @@ class BSPlotterProjected(BSPlotter):
                                      s=100)
                     """
 
-                    plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1] \
+                    plt.ylim(data['vbm'][0][1] + e_min, data['cbm'][0][1]
                              + e_max)
             else:
                 plt.ylim(ylim)
@@ -938,7 +948,6 @@ class BSPlotterProjected(BSPlotter):
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
-        count = 1
         ticks = self.get_ticks()
         #Sanitize only plot the uniq values
         uniq_d = []
@@ -949,14 +958,14 @@ class BSPlotterProjected(BSPlotter):
                 uniq_d.append(temp_ticks[i][0])
                 uniq_l.append(temp_ticks[i][1])
                 logger.debug("Adding label {l} at {d}".format(
-                            l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                             l=temp_ticks[i][0], d=temp_ticks[i][1]))
             else:
                 if temp_ticks[i][1] == temp_ticks[i - 1][1]:
                     logger.debug("Skipping label {i}".format(
-                                        i=temp_ticks[i][1]))
+                        i=temp_ticks[i][1]))
                 else:
                     logger.debug("Adding label {l} at {d}".format(
-                            l=temp_ticks[i][0], d=temp_ticks[i][1]))
+                        l=temp_ticks[i][0], d=temp_ticks[i][1]))
                     uniq_d.append(temp_ticks[i][0])
                     uniq_l.append(temp_ticks[i][1])
 
@@ -975,17 +984,15 @@ class BSPlotterProjected(BSPlotter):
                 # don't print the same label twice
                 if i != 0:
                     if ticks['label'][i] == ticks['label'][i - 1]:
-                        logger.debug("already print label..."
-                        "skipping label {i}".format(i=ticks['label'][i]))
+                        logger.debug("already print label...skipping label {i}"
+                                     .format(i=ticks['label'][i]))
                     else:
-                        logger.debug("Adding a line at {d}"
-                        "for label {l}".format(d=ticks['distance'][i],
-                                               l=ticks['label'][i]))
+                        logger.debug("Adding line at {d} for label {l}".format(
+                            d=ticks['distance'][i], l=ticks['label'][i]))
                         plt.axvline(ticks['distance'][i], color='k')
                 else:
-                    logger.debug("Adding a line at {d}"
-                    "for label {l}".format(d=ticks['distance'][i],
-                                           l=ticks['label'][i]))
+                    logger.debug("Adding line at {d} for label {l}".format(
+                        d=ticks['distance'][i], l=ticks['label'][i]))
                     plt.axvline(ticks['distance'][i], color='k')
         spins = [Spin.up]
         if self._bs.is_spin_polarized:
@@ -1013,13 +1020,12 @@ class BSPlotterProjected(BSPlotter):
                                   data['distances'][j + 1]],
                                  [data['energy'][str(s)][i][j],
                                   data['energy'][str(s)][i][j + 1]],
-                                  color=color, linewidth=3)
+                                 color=color, linewidth=3)
         else:
             #TODO implement smooth
             print "not implemented yet"
 
         plt.ylim(data['vbm'][0][1] - 4.0, data['cbm'][0][1] + 2.0)
-        count = count + 1
         return plt
 
 
@@ -1057,14 +1063,14 @@ def get_lines_voronoi(data):
                 if i != j and line[0] in facets[j] and line[1] in facets[j]:
                     #check if the two facets i and j are not coplanar
                     vector1 = np.array(list_points[facets[j][0]])\
-                              - np.array(list_points[facets[j][1]])
+                        - np.array(list_points[facets[j][1]])
                     vector2 = np.array(list_points[facets[j][0]])\
-                              - np.array(list_points[facets[j][2]])
+                        - np.array(list_points[facets[j][2]])
                     n1 = np.cross(vector1, vector2)
                     vector1 = np.array(list_points[facets[i][0]])\
-                              - np.array(list_points[facets[i][1]])
+                        - np.array(list_points[facets[i][1]])
                     vector2 = np.array(list_points[facets[i][0]])\
-                              - np.array(list_points[facets[i][2]])
+                        - np.array(list_points[facets[i][2]])
                     n2 = np.cross(vector1, vector2)
 
                     dot = math.fabs(np.dot(n1, n2) / (np.linalg.norm(n1)
