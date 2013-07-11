@@ -20,7 +20,7 @@ import numpy as np
 import json
 
 from pymatgen import Structure, Molecule
-from pymatgen.matproj.snl import StructureNL, HistoryNode
+from pymatgen.matproj.snl import StructureNL, HistoryNode, Author
 
 
 class StructureNLCase(unittest.TestCase):
@@ -51,6 +51,9 @@ class StructureNLCase(unittest.TestCase):
         self.superlong = "@misc{SuperLong,\ntitle = {{" + repeat + "}}}"
         self.unicode_title = u"@misc{Unicode_Title,\ntitle = {{A \u73ab is a rose}}}"
         self.junk = "This is junk text, not a BibTeX reference"
+
+        # set up remarks
+        self.remark_fail = ["This is a really long remark that is clearly invalid and must fail, don't you agree? It would be silly to allow remarks that went on forever and ever."]
 
         # set up some authors
         self.hulk = [{"name": "Hulk", "email": "hulk@avengers.com"}]
@@ -134,6 +137,12 @@ class StructureNLCase(unittest.TestCase):
         self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
                           data={"bad_key": 1})
 
+    def test_remarks(self):
+        a = StructureNL(self.s, self.hulk, remarks="string format")
+        self.assertEqual(a.remarks[0], "string format")
+        self.assertRaises(ValueError, StructureNL, self.s, self.hulk,
+                          remarks=self.remark_fail)
+
     def test_eq(self):
         # test basic equals()
         created_at = datetime.datetime.now()
@@ -180,6 +189,21 @@ class StructureNLCase(unittest.TestCase):
         molnl = StructureNL(self.mol, self.hulk, references=self.pmg)
         b = StructureNL.from_dict(molnl.to_dict)
         self.assertEqual(molnl, b)
+
+    def test_from_structures(self):
+        s1 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
+        s2 = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Mn"], [[0, 0, 0]])
+        remarks = ["unittest"]
+        authors="Test User <test@materialsproject.com>"
+        snl_list = StructureNL.from_structures([s1, s2], authors, remarks=remarks)
+
+        self.assertEqual(len(snl_list), 2)
+        snl1 = snl_list[0]
+        snl2 = snl_list[1]
+        self.assertEqual(snl1.remarks, remarks)
+        self.assertEqual(snl2.remarks, remarks)
+        self.assertEqual(snl1.authors, [Author.parse_author(authors)])
+        self.assertEqual(snl2.authors, [Author.parse_author(authors)])
 
 
 if __name__ == '__main__':

@@ -428,6 +428,7 @@ class Vasprun(object):
                     eigenvals = {Spin.up: up_eigen}
             else:
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
+                labels_dict.pop(None, None)
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new,
                                          efermi, labels_dict,
                                          structure=self.final_structure,

@@ -234,8 +234,7 @@ class BVAnalyzer(object):
             lowest = np.sum(lowest)
             
             if highest < 0 or lowest > 0:
-                if i == len(valences):
-                    self._n += 1
+                self._n += 1
                 return
             
             if i == len(valences):

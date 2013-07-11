@@ -106,17 +106,17 @@ class PDPlotter(object):
 
         return lines, stable_entries, unstable_entries
 
-    def show(self, label_stable=True, label_unstable=True):
+    def show(self, label_stable=True, label_unstable=True, ordering=None):
         """
         Draws the phase diagram using Matplotlib and show it.
         """
         if self._dim < 4:
-            plt = self._get_2d_plot(label_stable, label_unstable)
+            plt = self._get_2d_plot(label_stable, label_unstable, ordering)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
         plt.show()
 
-    def _get_2d_plot(self, label_stable=True, label_unstable=True):
+    def _get_2d_plot(self, label_stable=True, label_unstable=True, ordering=None):
         """
         Shows the plot using pylab.  Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
@@ -125,7 +125,11 @@ class PDPlotter(object):
 
         plt = get_publication_quality_plot(8, 6)
         from matplotlib.font_manager import FontProperties
-        (lines, labels, unstable) = self.pd_plot_data
+        if ordering is None:
+            (lines, labels, unstable) = self.pd_plot_data
+        else:
+            (_lines, _labels, _unstable) = self.pd_plot_data
+            (lines, labels, unstable) = order_phase_diagram(_lines, _labels, _unstable, ordering)
         for x, y in lines:
             plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
                      markerfacecolor="b", markersize=15)
@@ -233,7 +237,7 @@ class PDPlotter(object):
         ax.axis("off")
         return plt
 
-    def write_image(self, stream, image_format="svg"):
+    def write_image(self, stream, image_format="svg", ordering=None):
         """
         Writes the phase diagram to an image in a stream.
 
@@ -245,7 +249,7 @@ class PDPlotter(object):
                 Defaults to svg for best results for vector graphics.
         """
         if self._dim < 4:
-            plt = self._get_2d_plot()
+            plt = self._get_2d_plot(ordering=ordering)
         elif self._dim == 4:
             plt = self._get_3d_plot()
 
@@ -462,3 +466,138 @@ def tet_coord(coord):
                         [0.5, 1.0 / 3.0 * math.sqrt(3) / 2, math.sqrt(6) / 3]])
     result = np.dot(np.array(coord), unitvec)
     return result.transpose()
+
+
+def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
+    """
+    Orders the entries (their coordinates) in a phase diagram plot according to the user specified ordering.
+    Ordering should be given as ['Up','Left','Right'], where Up, Left and Right are the names of the entries
+    in the upper, left and right corners of the triangle respectively.
+
+    Args:
+        lines:
+            list of list of coordinates for lines in the PD.
+        stable_entries:
+            {coordinate : entry} for each stable node in the phase diagram.
+            (Each coordinate can only have one stable phase)
+        unstable_entries:
+            {entry: coordinates} for all unstable nodes in the phase diagram.
+        ordering:
+            Ordering of the phase diagram, given as a list ['Up','Left','Right']
+
+    Returns:
+        (newlines, newstable_entries, newunstable_entries):
+                - newlines is a list of list of coordinates for lines in the PD.
+                - newstable_entries is a {coordinate : entry} for each stable node
+                  in the phase diagram. (Each coordinate can only have one
+                  stable phase)
+                - newunstable_entries is a {entry: coordinates} for all unstable
+                  nodes in the phase diagram.
+    """
+    yup = -1000.0
+    xleft = 1000.0
+    xright = -1000.0
+
+    for coord in stable_entries:
+        if coord[0] > xright:
+            xright = coord[0]
+            nameright = stable_entries[coord].name
+        if coord[0] < xleft:
+            xleft = coord[0]
+            nameleft = stable_entries[coord].name
+        if coord[1] > yup:
+            yup = coord[1]
+            nameup = stable_entries[coord].name
+
+    if (not nameup in ordering) or (not nameright in ordering) or (not nameleft in ordering):
+        raise ValueError('Error in ordering_phase_diagram : \n"{up}", "{left}" and "{right}" '
+                         'should be in ordering : {ord}'.format(up=nameup,
+                                                                left=nameleft,
+                                                                right=nameright,
+                                                                ord=ordering))
+
+    cc = np.array([0.5, np.sqrt(3.0) / 6.0], np.float)
+
+    if nameup == ordering[0]:
+        if nameleft == ordering[1]:
+            # The coordinates were already in the user ordering
+            return lines, stable_entries, unstable_entries
+        else:
+            newlines = [[np.array(1.0 - x), y] for x, y in lines]
+            newstable_entries = {(1.0 - c[0], c[1]): entry for c, entry in stable_entries.iteritems()}
+            newunstable_entries = {entry: (1.0 - c[0], c[1]) for entry, c in unstable_entries.iteritems()}
+            return newlines, newstable_entries, newunstable_entries
+    elif nameup == ordering[1]:
+        if nameleft == ordering[2]:
+            c120 = np.cos(2.0 * np.pi / 3.0)
+            s120 = np.sin(2.0 * np.pi / 3.0)
+            newlines = []
+            for x, y in lines:
+                newx = np.zeros_like(x)
+                newy = np.zeros_like(y)
+                for ii, xx in enumerate(x):
+                    newx[ii] = c120*(xx-cc[0])-s120*(y[ii]-cc[1])+cc[0]
+                    newy[ii] = s120*(xx-cc[0])+c120*(y[ii]-cc[1])+cc[1]
+                newlines.append([newx,newy])
+            newstable_entries = {(c120*(c[0]-cc[0])-s120*(c[1]-cc[1])+cc[0],
+                                  s120*(c[0]-cc[0])+c120*(c[1]-cc[1])+cc[1]): entry
+                                 for c, entry in stable_entries.iteritems()}
+            newunstable_entries = {entry: (c120*(c[0]-cc[0])-s120*(c[1]-cc[1])+cc[0],
+                                           s120*(c[0]-cc[0])+c120*(c[1] - cc[1])+cc[1])
+                                   for entry, c in unstable_entries.iteritems()}
+            return newlines, newstable_entries, newunstable_entries
+        else:
+            c120 = np.cos(2.0 * np.pi / 3.0)
+            s120 = np.sin(2.0 * np.pi / 3.0)
+            newlines = []
+            for x, y in lines:
+                newx = np.zeros_like(x)
+                newy = np.zeros_like(y)
+                for ii, xx in enumerate(x):
+                    newx[ii] = -c120*(xx-1.0)-s120*y[ii]+1.0
+                    newy[ii] = -s120*(xx-1.0)+c120*y[ii]
+                newlines.append([newx,newy])
+            newstable_entries = {(-c120*(c[0]-1.0)-s120*c[1]+1.0,
+                                  -s120*(c[0]-1.0)+c120*c[1]): entry
+                                 for c, entry in stable_entries.iteritems()}
+            newunstable_entries = {entry: (-c120*(c[0]-1.0)-s120*c[1]+1.0,
+                                           -s120*(c[0]-1.0)+c120*c[1])
+                                   for entry, c in unstable_entries.iteritems()}
+            return newlines, newstable_entries, newunstable_entries
+    elif nameup == ordering[2]:
+        if nameleft == ordering[0]:
+            c240 = np.cos(4.0 * np.pi / 3.0)
+            s240 = np.sin(4.0 * np.pi / 3.0)
+            newlines = []
+            for x, y in lines:
+                newx = np.zeros_like(x)
+                newy = np.zeros_like(y)
+                for ii, xx in enumerate(x):
+                    newx[ii] = c240*(xx-cc[0])-s240*(y[ii]-cc[1])+cc[0]
+                    newy[ii] = s240*(xx-cc[0])+c240*(y[ii]-cc[1])+cc[1]
+                newlines.append([newx,newy])
+            newstable_entries = {(c240*(c[0]-cc[0])-s240*(c[1]-cc[1])+cc[0],
+                                  s240*(c[0]-cc[0])+c240*(c[1]-cc[1])+cc[1]): entry
+                                 for c, entry in stable_entries.iteritems()}
+            newunstable_entries = {entry: (c240*(c[0]-cc[0])-s240*(c[1]-cc[1])+cc[0],
+                                           s240*(c[0]-cc[0])+c240*(c[1] - cc[1])+cc[1])
+                                   for entry, c in unstable_entries.iteritems()}
+            return newlines, newstable_entries, newunstable_entries
+        else:
+            c240 = np.cos(4.0 * np.pi / 3.0)
+            s240 = np.sin(4.0 * np.pi / 3.0)
+            newlines = []
+            for x, y in lines:
+                newx = np.zeros_like(x)
+                newy = np.zeros_like(y)
+                for ii, xx in enumerate(x):
+                    newx[ii] = -c240*xx-s240*y[ii]
+                    newy[ii] = -s240*xx+c240*y[ii]
+                newlines.append([newx,newy])
+            newstable_entries = {(-c240*c[0]-s240*c[1],
+                                  -s240*c[0]+c240*c[1]): entry
+                                 for c, entry in stable_entries.iteritems()}
+            newunstable_entries = {entry: (-c240*c[0]-s240*c[1],
+                                           -s240*c[0]+c240*c[1])
+                                   for entry, c in unstable_entries.iteritems()}
+            return newlines, newstable_entries, newunstable_entries
