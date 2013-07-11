@@ -31,8 +31,7 @@ __maintainer__ = "Matteo Giantomassi"
 # Tools and helper functions.
 
 class FrozenDict(dict):
-    "A dictionary that does not permit to redefine its keys"
-
+    """A dictionary that does not permit to redefine its keys."""
     def __init__(self, *args, **kwargs):
         self.update(*args, **kwargs)
 
@@ -72,28 +71,11 @@ _l2str = {
 }
 
 def l2str(l):
-    "Convert the angular momentum l (int) to string."
+    """Convert the angular momentum l (int) to string."""
     try:
         return _l2str[l]
     except KeyError:
         return "Unknown: received l = %s" % l
-
-# TODO
-# Should become an API common for the different codes that requires pseudos
-def get_abinit_psp_dir(code="ABINIT"):
-    import ConfigParser
-    import pymatgen
-
-    if code + "_PSP_DIR" in os.environ:
-        return os.environ[code + "_PSP_DIR"]
-
-    elif os.path.exists(os.path.join(os.path.dirname(pymatgen.__file__), "pymatgen.cfg")):
-        module_dir = os.path.dirname(pymatgen.__file__)
-        config = ConfigParser.SafeConfigParser()
-        config.readfp(open(os.path.join(module_dir, "pymatgen.cfg")))
-        return config.get(code, "pspdir")
-
-    return None
 
 def read_dojo_report(filename):
     """Helper function to read the DOJO_REPORT from file."""
@@ -126,7 +108,8 @@ _PTABLE = PeriodicTable()
 
 class Pseudo(object):
     """
-    Abstract base class defining the methods that must be implemented by the concrete pseudopotential classes.
+    Abstract base class defining the methods that must be 
+    implemented by the concrete pseudopotential classes.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -136,7 +119,7 @@ class Pseudo(object):
         Convert obj into a pseudo. Accepts:
 
             * Pseudo object.
-            * string defining a path.
+            * string defining a valid path.
         """
         if isinstance(obj, cls):
             return obj
@@ -190,7 +173,7 @@ class Pseudo(object):
 
     @abc.abstractproperty
     def Z(self):
-        """The atomic number of the atom."""""""""
+        """The atomic number of the atom."""
 
     @abc.abstractproperty
     def Z_val(self):
@@ -371,7 +354,7 @@ class NcPseudo(object):
 
     @property
     def has_nlcc(self):
-        "True if the pseudo is generated with non-linear core correction."
+        """True if the pseudo is generated with non-linear core correction."""
         return self.nlcc_radius > 0.0
 
 ##########################################################################################
@@ -475,7 +458,7 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
 ##########################################################################################
 
 class PawAbinitPseudo(PawPseudo, AbinitPseudo):
-    "Paw pseudopotential in the Abinit format."
+    """Paw pseudopotential in the Abinit format."""
 
     @property
     def paw_radius(self):
@@ -601,7 +584,6 @@ class NcAbinitHeader(AbinitHeader):
     del _attr_desc
 
     def __init__(self, summary, **kwargs):
-
         super(NcAbinitHeader, self).__init__()
 
         self.summary = summary.strip()
@@ -631,13 +613,12 @@ class NcAbinitHeader(AbinitHeader):
 
     @staticmethod
     def fhi_header(filename, ppdesc):
-        "Parse the FHI abinit header."
+        """Parse the FHI abinit header."""
         # Example:
         # Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994
         #  21.00000   3.00000    940714                zatom, zion, pspdat
         #    1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well
         # 1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
-
         lines = _read_nlines(filename, -1)
 
         header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
@@ -649,12 +630,11 @@ class NcAbinitHeader(AbinitHeader):
 
     @staticmethod
     def hgh_header(filename, ppdesc):
-        "Parse the HGH abinit header."
+        """Parse the HGH abinit header."""
         # Example:
         #Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)
         #   10   8  010605 zatom,zion,pspdat
         # 3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well
-
         lines = _read_nlines(filename, -1)
 
         header = _dict_from_lines(lines[:3], [0, 3, 6])
@@ -666,7 +646,7 @@ class NcAbinitHeader(AbinitHeader):
 
     @staticmethod
     def tm_header(filename, ppdesc):
-        "Parse the TM abinit header."
+        """Parse the TM abinit header."""
         # Example:
         #Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994
         #100.00000  14.00000    940714                zatom, zion, pspdat
@@ -680,17 +660,19 @@ class NcAbinitHeader(AbinitHeader):
         #   3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp
         #   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm
         #   3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg
-
         lines = _read_nlines(filename, -1)
         header = []
 
         for (lineno, line) in enumerate(lines):
             header.append(line)
-            if lineno == 2: # Read lmax.
+            if lineno == 2: 
+                # Read lmax.
                 tokens = line.split()
-                pspcod, pspxc, lmax = map(int, tokens[:3])
-                if tokens[-1].strip() != "pspcod,pspxc,lmax,lloc,mmax,r2well":
-                    raise RuntimeError("%s: Invalid line\n %s"  % (filename, line))
+                pspcod, pspxc, lmax, lloc = map(int, tokens[:4])
+                mmax, r2well = map(float, tokens[4:6])
+                #if tokens[-1].strip() != "pspcod,pspxc,lmax,lloc,mmax,r2well":
+                #    raise RuntimeError("%s: Invalid line\n %s"  % (filename, line))
+
                 lines = lines[3:]
                 break
 
@@ -774,7 +756,7 @@ class PawAbinitHeader(AbinitHeader):
 
     @staticmethod
     def paw_header(filename, ppdesc):
-        "Parse the PAW abinit header."
+        """Parse the PAW abinit header."""
         # Example
         #C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
         #   6.000   4.000 20090106               : zatom,zion,pspdat
@@ -869,6 +851,7 @@ class PseudoParser(object):
                 list of file extensions that should be skipped.
             exclude_fnames:
                 list of file names that should be skipped.
+
         returns: 
             List of pseudopotential objects.
         """
@@ -880,7 +863,7 @@ class PseudoParser(object):
         paths = []
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
-            if ext in exclude_exts or fname in exclude_fnames:
+            if ext in exclude_exts or fname in exclude_fnames or fname.startswith("."):
                 continue
             paths.append(os.path.join(dirname, fname))
 
@@ -958,7 +941,8 @@ class PseudoParser(object):
 
         ppdesc = self.read_ppdesc(path)
 
-        if ppdesc is None: return None
+        if ppdesc is None: 
+            return None
 
         psp_type = ppdesc.psp_type
 
@@ -973,7 +957,7 @@ class PseudoParser(object):
         try:
             header = parsers[ppdesc.name](path, ppdesc)
         except Exception as exc:
-            raise self.Error(str(exc))
+            raise self.Error(filename + ": " + str(exc))
 
         root, ext = os.path.splitext(path)
 
@@ -1074,18 +1058,14 @@ class PseudoTable(collections.Sequence):
             for pseudo in self._pseudos_with_z[z]:
                 yield pseudo
 
-    #def __repr__(self):
-    #    return "<%s at %s, long_name = %s>" % (self.__class__.__name__, id(self), self.long_name)
+    def __repr__(self):
+        return "<%s at %s>" % (self.__class__.__name__, id(self))
 
     #def __str__(self):
     #    strio = StringIO.StringIO()
     #    self.print_table(stream=strio)
     #    strio.seek(0)
     #    return strio.read()
-
-    #@property
-    #def long_name(self):
-    #    return "-".join([getattr(self, key) for key in ["psp_type", "xc_type", "name"]])
 
     @property
     def allnc(self):
@@ -1106,7 +1086,7 @@ class PseudoTable(collections.Sequence):
 
     def iscomplete(self, zmax=118):
         """
-        True if table is complete i.e. all elements with z < zmax
+        True if table is complete i.e. all elements with Z < zmax
         have at least on pseudopotential
         """
         for z in range(1, zmax):
@@ -1180,7 +1160,7 @@ class PseudoTable(collections.Sequence):
 
         Args:
             filter_function:
-                A filtering function taking a Pseudo as input and returns a boolean.
+                A filtering function that take a Pseudo as input and returns a boolean.
                 For example, setting filter_function = lambda el: el.Z_val > 2 will print
                 a periodic table containing only pseudos with Z_val > 2.
         """
@@ -1206,7 +1186,7 @@ class PseudoTable(collections.Sequence):
 
         # Sort attrs, and build new table with sorted pseudos.
         attrs = sorted(attrs, key=lambda t:t[1], reverse=reverse)
-        return self.__class__([self[a[0]] for a in attrs])
+        return PseudoTable([self[a[0]] for a in attrs])
 
     def select(self, condition):
         """

@@ -26,7 +26,7 @@ from pymatgen.io.abinitio.task import task_factory, Task
 from .utils import abinit_output_iscomplete, File
 from .netcdf import GSR_Reader
 from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
-from .pseudos import Pseudo, PseudoTable, get_abinit_psp_dir
+from .pseudos import Pseudo, PseudoTable
 from .strategies import ScfStrategy
 from .task import RunMode
 from .eos import EOS
@@ -157,7 +157,7 @@ class WorkLink(object):
 ################################################################################
 
 class WorkflowError(Exception):
-    "Base class for the exceptions raised by Workflow objects"
+    """Base class for the exceptions raised by Workflow objects."""
 
 class BaseWorkflow(object):
     __metaclass__ = abc.ABCMeta
@@ -224,11 +224,13 @@ class BaseWorkflow(object):
             if (task.status == task.S_READY) and all([link_stat==task.S_DONE for link_stat in task.links_status]):
                 return task
 
-        # All the tasks are done so raise an exception that will be handled by the client code.
+        # All the tasks are done so raise an exception 
+        # that will be handled by the client code.
         if all([task.status == task.S_DONE for task in self]):
             raise StopIteration
 
-        # No task found, this usually happens when we have dependencies. Beware of possible deadlocks here!
+        # No task found, this usually happens when we have dependencies. 
+        # Beware of possible deadlocks here!
         return None
 
     @abc.abstractmethod
@@ -529,7 +531,8 @@ class Workflow(BaseWorkflow, MSONable):
 
 class IterativeWork(Workflow):
     """
-    TODO
+    This object defined a workflow that produces tasks until a particular 
+    condition is satisfied (mainly used for simple convergence studies).
     """
     __metaclass__ = abc.ABCMeta
 
@@ -568,9 +571,11 @@ class IterativeWork(Workflow):
 
     def submit_tasks(self, *args, **kwargs):
         """
-        Run the tasks till self.exit_iteration says to exit or the number of iterations exceeds self.max_niter
+        Run the tasks till self.exit_iteration says to exit 
+        or the number of iterations exceeds self.max_niter
 
-        Return dictionary with the final results
+        Returns: 
+            dictionary with the final results
         """
         self.niter = 1
 
@@ -923,7 +928,7 @@ class PseudoIterativeConvergence(IterativeWork):
             raise NotImplementedError("PAW convergence tests are not supported yet")
 
     def strategy_with_ecut(self, ecut):
-        "Return a Strategy instance with given cutoff energy ecut"
+        """Return a Strategy instance with given cutoff energy ecut."""
 
         # Define the system: one atom in a box of lenghts acell.
         boxed_atom = AbiStructure.boxed_atom(self.pseudo, acell=self.acell)
@@ -984,10 +989,23 @@ class PseudoIterativeConvergence(IterativeWork):
 ################################################################################
 
 class BandStructure(Workflow):
-
+    """Workflow for band structure calculations."""
     def __init__(self, workdir, runmode, scf_strategy, nscf_strategy,
                  dos_strategy=None):
-
+        """
+        Args:
+            workdir:
+                Working directory.
+            runmode:
+                `RunMode` instance.
+            scf_strategy:
+                `SCFStrategy` instance
+            nscf_strategy:
+                `NSCFStrategy` instance defining the band structure calculation.
+            dos_strategy:
+                `NSCFStrategy` instance defining the DOS calculation. 
+                DOS is computed only if dos_strategy is not None.
+        """
         super(BandStructure, self).__init__(workdir, runmode)
 
         # Register the GS-SCF run.
@@ -1006,6 +1024,15 @@ class BandStructure(Workflow):
 class Relaxation(Workflow):
 
     def __init__(self, workdir, runmode, relax_strategy):
+        """
+        Args:
+            workdir:
+                Working directory.
+            runmode:
+                `RunMode` instance.
+            relax_strategy:
+                `RelaxStrategy` instance
+        """
         super(Relaxation, self).__init__(workdir, runmode)
 
         link = self.register_task(relax_strategy)
@@ -1123,11 +1150,11 @@ class GW_Workflow(Workflow):
             workdir:
                 Working directory of the calculation.
             runmode:
-                Run mode.
+                `RunMode` instance.
             scf_strategy:
-                SCFStrategy instance
+                `SCFStrategy` instance
             nscf_strategy:
-                NSCFStrategy instance
+                `NSCFStrategy` instance
             scr_strategy:
                 Strategy for the screening run.
             sigma_strategy:
@@ -1142,7 +1169,7 @@ class GW_Workflow(Workflow):
         nscf_link = self.register_task(nscf_strategy,
                                        links=scf_link.produces_exts("_DEN"))
 
-        # Register the SCR run.
+        # Register the SCREENING run.
         screen_link = self.register_task(scr_strategy,
                                          links=nscf_link.produces_exts("_WFK"))
 
