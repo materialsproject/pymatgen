@@ -16,11 +16,6 @@ class TestPourbaixDiagram(unittest.TestCase):
         
     def test_pourbaix_diagram(self):
         self.assertEqual(len(self._pd.facets), 6, "Incorrect number of facets")
-
-#class TestPourbaixDiagramMultiElement(unittest.TestCase):
-#    
-#    def setUp(self):
-        
             
 if __name__ == '__main__':
     unittest.main()

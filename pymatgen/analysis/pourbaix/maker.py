@@ -48,7 +48,8 @@ class PourbaixDiagram(object):
             elif entry.phase_type == "Ion":
                 self._ion_entries.append(entry)
             else:
-                raise StandardError("Incorrect Phase type - needs to be Ion/Solid")
+                raise StandardError("Incorrect Phase type - needs to be \
+                Pourbaix entry of phase type Ion/Solid")
         self._unprocessed_entries = self._solid_entries + self._ion_entries
         self._elt_comp = comp_dict
         if comp_dict:
@@ -68,7 +69,7 @@ class PourbaixDiagram(object):
         entries_to_process = list()
         for entry in self._all_entries:
             entry.scale(entry.normalization_factor)
-            entry.g0_add(- MU_H2O * entry.nH2O + entry.conc_term)
+            entry.correction += (- MU_H2O * entry.nH2O + entry.conc_term)
             entries_to_process.append(entry)
         self._qhull_entries = entries_to_process
         return self._process_conv_hull_data(entries_to_process)
@@ -109,8 +110,9 @@ class PourbaixDiagram(object):
             else:
                 red_fac = 1.0
             for i in xrange(len(elt_list)):
-                sum_nel += entry0.composition[Element(elt_list[i])]/red_fac
-            b = [entry0.composition[Element(elt_list[i])]/red_fac - composition_list[i] * sum_nel for i in xrange(1, len(elt_list))]
+                sum_nel += entry0.composition[Element(elt_list[i])] / red_fac
+            b = [entry0.composition[Element(elt_list[i])] / red_fac -
+                 composition_list[i] * sum_nel for i in xrange(1, len(elt_list))]
             for j in xrange(1, len(entry_list)):
                 entry = entries[entry_list[j]]
                 if entry.phase_type == "Solid":
@@ -119,7 +121,7 @@ class PourbaixDiagram(object):
                     red_fac = 1.0
                 sum_nel = 0.0
                 for el in self._elt_comp:
-                    sum_nel += entry.composition[Element(el)]/red_fac
+                    sum_nel += entry.composition[Element(el)] / red_fac
                 for i in xrange(1, len(elt_list)):
                     el = elt_list[i]
                     A[i-1][j-1] = composition_list[i] * sum_nel - entry.composition[Element(el)] / red_fac
@@ -137,6 +139,8 @@ class PourbaixDiagram(object):
             super_entry = MultiEntry(multi_entries, weights)
             self._entry_components_dict[super_entry] = entry_list
             processed_entries.append(super_entry)
+        self._entry_components_dict[super_entry] = entry_list
+        processed_entries.append(super_entry)
         return processed_entries
 
     def _make_pourbaixdiagram(self):
@@ -147,13 +151,10 @@ class PourbaixDiagram(object):
         self._qhull_data = self._create_conv_hull_data()
         dim = len(self._qhull_data[0])
         if len(self._qhull_data) < dim:
-            raise StandardError("Can only do elements with atleast 3 entries for now")
+            raise StandardError("Can only do elements with at-least 3 entries for now")
         if len(self._qhull_data) == dim:
             self._facets = [range(dim)]
-            vertices = set()
-            for facet in self._facets:
-                for vertex in facet:
-                    vertices.add(vertex)
+            vertices = set(list(itertools.chain(*self._facets)))
 
         else:
             facets_pyhull = np.array(ConvexHull(self._qhull_data).vertices)
@@ -186,6 +187,7 @@ class PourbaixDiagram(object):
             c[0] = np.average([self._qhull_data[vertex][0] for vertex in vertices])
             c[1] = np.average([self._qhull_data[vertex][1] for vertex in vertices])
             c[2] = np.average([self._qhull_data[vertex][2] for vertex in vertices])
+
             # Shift origin to c
             new_qhull_data = np.array(self._qhull_data)
             for vertex in vertices:
@@ -207,7 +209,7 @@ class PourbaixDiagram(object):
                     logger.debug("Removing UCH facet : {}".format(facet))
             final_facets = np.array(final_facets)
             self._facets = final_facets
-        
+
         stable_vertices = set()
         for facet in self._facets:
             for vertex in facet:
@@ -219,7 +221,7 @@ class PourbaixDiagram(object):
     @property
     def facets(self):
         """
-        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...]
+        Facets of the convex hull in the form of  [[1,2,3],[4,5,6]...]
         """
         return self._facets
 
@@ -258,7 +260,7 @@ class PourbaixDiagram(object):
         Return vertices of the convex hull
         """
         return self._vertices
-    
+
     @property
     def unprocessed_entries(self):
         """

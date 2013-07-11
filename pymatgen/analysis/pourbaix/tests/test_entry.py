@@ -50,6 +50,7 @@ class TestPourbaixEntry(unittest.TestCase):
         ion_entry = self.PxIon.from_dict(d)
         self.assertEquals(ion_entry.entry.name, "MnO4[-]", "Wrong Entry!")
 
+
 class MultiEntryTest(unittest.TestCase):
     """
     Test MultiEntry using fictitious entries

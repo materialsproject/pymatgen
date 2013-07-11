@@ -17,6 +17,7 @@ __date__ = "Jan 26, 2012"
 import numpy as np
 import re
 
+
 from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
 from pymatgen.analysis.pourbaix.maker import PREFAC
 from pymatgen.analysis.pourbaix.entry import MultiEntry
@@ -25,7 +26,8 @@ from pymatgen.phasediagram.plotter import uniquelines
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.coord_utils import in_coord_list
-
+from coord_geom import intersect
+from pyhull.simplex import Simplex
 
 
 class PourbaixPlotter(object):
@@ -106,18 +108,15 @@ class PourbaixPlotter(object):
 #        zlabel = list()
 #        for entry, lines in chempots.items():
 
-    def show(self, label_stable=True, label_unstable=False, filename = ""):
+    def show(self, label_stable=True, label_unstable=False, filename=""):
         """
         Draws the convex hull diagram using Matplotlib and show it.
         """
         plt = self._get_plot(label_stable, label_unstable)
-	if filename == "":
-            print "Showing the figure"
-            print filename
-	    plt.show()
-	else:
-            print "Trying to save convex hull to file", filename
-	    plt.savefig(filename, bbox_inches=0)
+        if filename == "":
+            plt.show()
+        else:
+            plt.savefig(filename, bbox_inches=0)
 
     def _get_plot(self, label_stable=True, label_unstable=False):
         """
@@ -149,9 +148,9 @@ class PourbaixPlotter(object):
             for entry in unstable.keys():
                 label = self.print_name(entry)
                 coords = unstable[entry]
-                ax.plot([coords[0], coords[0]], [coords[1], coords[1]],\
-                         [coords[2], coords[2]], "bo", markerfacecolor="g",\
-                          markersize = 10)
+                ax.plot([coords[0], coords[0]], [coords[1], coords[1]], \
+                         [coords[2], coords[2]], "bo", markerfacecolor="g", \
+                          markersize=10)
                 ax.text(coords[0], coords[1], coords[2], str(count))
                 newlabels.append("{} : {}".format(count, latexify_ion(latexify(label))))
                 count += 1
@@ -191,25 +190,26 @@ class PourbaixPlotter(object):
         plt.ylabel("E (V)")
         plt.show()
 
-    def plot_chempot_range_map(self, limits = None, title="", filename=""):
+    def plot_chempot_range_map(self, limits=None, title="", filename=""):
         self.plot_pourbaix(limits, title, filename)
 
-    def plot_pourbaix(self, limits = None, title="", filename=""):
-        plt = self.get_pourbaix_plot(limits = limits, title = title)
+    def plot_pourbaix(self, limits=None, title="", filename=""):
+        plt = self.get_pourbaix_plot(limits=limits, title=title)
         if filename == "":
             plt.show()
         else:
             plt.savefig(filename, bbox_inches=0)
 
-    def get_pourbaix_plot(self, limits = None, title = ""):
+    def get_pourbaix_plot(self, limits=None, title=""):
         """
         Plot pourbaix diagram
         """
-#        elements = ["H+", 'V']
         plt = get_publication_quality_plot(24, 14.4)
         analyzer = PourbaixAnalyzer(self._pd)
         self.analyzer = analyzer
-        chempot_ranges = analyzer.get_chempot_range_map()
+        if limits:
+            analyzer.chempot_limits = limits
+        chempot_ranges = analyzer.get_chempot_range_map(limits)
         self.chempot_ranges = chempot_ranges
         if (limits):
             xlim = limits[0]
@@ -218,9 +218,9 @@ class PourbaixPlotter(object):
             xlim = analyzer.chempot_limits[0]
             ylim = analyzer.chempot_limits[1]
 
-        h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC],\
+        h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], \
                                 [xlim[1], -xlim[1] * PREFAC]])
-        o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23],\
+        o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], \
                                 [xlim[1], -xlim[1] * PREFAC + 1.23]])
         neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
         V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
@@ -231,8 +231,17 @@ class PourbaixPlotter(object):
         lw = 3
         plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)
         plt.plot(o_line[0], o_line[1], "r--", linewidth=lw)
-        plt.plot(neutral_line[0], neutral_line[1], "k-.",linewidth=lw)
+        plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
         plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
+
+        borders = list()
+        borders.append([[xlim[0], ylim[0]], [xlim[0], ylim[1]]]) 
+        borders.append([[xlim[0], ylim[0]], [xlim[1], ylim[0]]])
+        borders.append([[xlim[1], ylim[1]], [xlim[0], ylim[1]]]) 
+        borders.append([[xlim[1], ylim[1]], [xlim[1], ylim[0]]]) 
+        tol = PourbaixAnalyzer.numerical_tol
+        
+        any_in = lambda a, b: any(j in b for j in a)
         for entry, lines in chempot_ranges.items():
             region = []
             center_x = 0.0
@@ -242,6 +251,7 @@ class PourbaixPlotter(object):
             for line in lines:
                 (x, y) = line.coords.transpose()
                 plt.plot(x, y, "k-", linewidth=lw)
+
                 for coord in line.coords:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
@@ -263,8 +273,8 @@ class PourbaixPlotter(object):
                 count_center = 1.0
             center_x /= count_center
             center_y /= count_center
-            if (((center_x == xlim[0]) | (center_x == xlim[1])) |\
-                 ((center_y == ylim[0]) | (center_y == ylim[1]))):
+            if ((center_x <= xlim[0]) | (center_x >= xlim[1]) | \
+                 (center_y <= ylim[0]) | (center_y >= ylim[1])):
                 continue
             xy = (center_x, center_y)
             plt.annotate(self.print_name(entry), xy, fontsize=30, color="b")
@@ -283,10 +293,6 @@ class PourbaixPlotter(object):
         if isinstance(entry, MultiEntry):
 	    if len(entry.entrylist) > 2:
                 return str(self._pd.qhull_entries.index(entry))
-##            for e in entry.entrylist:
-##                indx = self._pd.unprocessed_entries.index(e)
-##                str_name += str(indx) + " + "
-##            str_name = str_name[:-3]
             for e in entry.entrylist:
                 str_name += latexify_ion(latexify(e.name)) + " + "
             str_name = str_name[:-3]
@@ -294,14 +300,9 @@ class PourbaixPlotter(object):
         else:
             return latexify_ion(latexify(entry.name))
 
-    def legend(self, label_unstable = False, legend_file = ""):
+    def legend(self, label_unstable=False, legend_file=""):
         import matplotlib.pyplot as plt
         if self._pd._multielement:
-#            fig = plt.figure(facecolor='white')
-#            fig.suptitle('Legend', fontsize=14, fontweight='bold')
-#            ax1 = plt.axes(frameon=False)
-#            ax1.get_xaxis().set_visible(False)
-#            ax1.axes.get_yaxis().set_visible(False)
             unprocessed_entries = self._pd.unprocessed_entries
             set_of_entries = set()
             list_of_entries = {}
@@ -330,8 +331,6 @@ class PourbaixPlotter(object):
                 f.write(str_labels)
                 f.close()
             return str_labels
-#            plt.text(0, 0, str_labels, fontsize=15)
-#            plt.show()
 
     def write_image(self, plt, stream, image_format="svg"):
         """
@@ -346,11 +345,6 @@ class PourbaixPlotter(object):
                 format for image. Can be any of matplotlib supported formats.
                 Defaults to svg for best results for vector graphics.
         """
-#        if self._dim < 4:
-#            plt = self._get_2d_plot()
-#        elif self._dim == 4:
-#            plt = self._get_3d_plot()
-
         f = plt.gcf()
         f.set_size_inches((12, 10))
         plt.tight_layout(pad=1.09)

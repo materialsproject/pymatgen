@@ -30,7 +30,7 @@ class Ion(MSONable):
     def __init__(self, composition, charge = 0.0, properties = None):
         """
         Flexible Ion construction, similar to Composition.
-        For more information, please see pymatgen.core.structure.Composition
+        For more information, please see pymatgen.core.Composition
         """
         self._composition = Composition(composition)
         self._charge = charge
@@ -158,8 +158,7 @@ class Ion(MSONable):
         Returns:
             dict with composition, as well as charge
         """
-        d = {}
-        d['composition'] = self._composition.to_dict
+        d = self._composition.to_dict
         d['charge'] = self._charge
         return d
 
