@@ -14,6 +14,7 @@ from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core import Specie
+from pymatgen.command_line.gulp_caller import GulpCaller
 
 #from pymatgen.core.structure import PeriodicSize
 #from pymatgen.core.structure_modifier import SuperCellMaker
@@ -94,9 +95,9 @@ class Defect:
         return self._structure
 
     @property
-    def struct_ionic_radii(self):
+    def struct_radii(self):
         """
-        Ionic radii of elements in the structure
+        Radii of elements in the structure
         """
         return self._rad_dict
     
@@ -294,7 +295,7 @@ class Vacancy(Defect):
             self._sa = []
             um = [[1,0,0],[0,1,0],[0,0,1]]
             sc = self.make_supercells_with_defects(um)[1:]
-            rad_dict = self.struct_ionic_radii
+            rad_dict = self.struct_radii
             for i in range(len(sc)):
                 site_radi = rad_dict[self._defect_sites[i].species_string]
                 vol,sa = get_void_volume_surfarea(sc[i], rad_dict)
@@ -318,7 +319,7 @@ class Vacancy(Defect):
             self._sa = []
             um = [[1,0,0],[0,1,0],[0,0,1]]
             supercells = self.make_supercells_with_defects(um)[1:]
-            rad_dict = self.struct_ionic_radii
+            rad_dict = self.struct_radii
             for sc in supercells:
                 vol, sa = get_void_volume_surfarea(sc, rad_dict)
                 self._vol.append(vol)
@@ -360,6 +361,27 @@ class Vacancy(Defect):
             sc_with_vac.append(self._supercell_with_defect(scaling_matrix, 
                                                            defect_site))
         return sc_with_vac
+
+class VacancyFormationEnergy:
+    """
+    
+    """
+    def __init__(structure):
+        struct_with_val_rad = StructWithValenceIonicRadius(structure)
+        self._vacancy = Vacancy(struct_with_val_rad)
+    def get_energy(self, n):
+        """
+        Formation Energy for nth symmetrically distinct vacancy.
+        GULP is used to obtain the energy.
+        """
+        #generate defect free structure energy
+
+
+        #generate defect structure energy
+
+
+
+
              
 class Interstitial(Defect):
     """
@@ -502,23 +524,64 @@ class Interstitial(Defect):
     def get_radii(self):
         return self._radii
 
-    def prune_defectsites(self):
+    def reduce_defectsites(self):
         """
-        Prunes the defect sites based on voornoi radius
-        Useful if the symmetry based pruning of initial sites returned
-        from Zeo++ is not working properly due to deviations in sites.
+        If multiple defect sites have same voronoi radius, only one is kept.
+        Useful if the symmetry based reduction of initial sites returned
+        from Zeo++ is not working properly due to deviation in ideal lattice
+        coordinates.
         """
         distinct_radii = list(set(self._radii))
         no_dstnt_radii = len(distinct_radii)
         flag = [False]*no_dstnt_radii
         for rad in distinct_radii:
-            ind = self._radii.index(rad)
-            for i in range(len(self._radii)-1,ind,-1):
+            ind = self._radii.index(rad) # Index of first site with 'rad' 
+            for i in range(len(self._radii)-1,ind,-1): 
+                #Backward search for remaining sites so index is not changed
                 if self._radii[i] == rad:
-                    self._radii.pop(i)
                     self._defect_sites.pop(i)
                     self._defectsite_coord_no.pop(i) 
                     self._defect_coord_sites.pop(i)
+                    self._radii.pop(i)
+
+    def radius_prune_defectsites(self, radius):
+        """
+        Remove all the defect sites with voronoi radius less than input radius
+        """
+        for i in range(len(self._radii)-1,0,-1):
+            if self._radii[i] < radius:
+                self._defect_sites.pop(i)
+                self._defectsite_coord_no.pop(i) 
+                self._defect_coord_sites.pop(i)
+                self._radii.pop(i)
+
+    def prune_defectsites(self, el="Li", oxi_state=1):
+        """
+        Prune all the defect sites which can't acoomodate the input elment 
+        with the input oxidation state.
+        """
+        rad = Specie(el, oxi_state).ionic_radius
+        self.radius_prune_defectsites(rad)
+
+    def prune_close_defectsites(self, dist=None):
+        """
+        Prune the sites that are very close.
+        """
+        if not dist:
+            dist = Specie("H",1).ionic_radius# * 2
+        ind = 0
+        while(ind != len(self._defect_sites)):
+            for i in range(ind+1,len(self._defect_sites)):
+                d = self._defect_sites[ind].distance(self._defect_sites[i])
+                if d < dist:
+                    self._defect_sites.pop(i)
+                    self._defectsite_coord_no.pop(i) 
+                    self._defect_coord_sites.pop(i)
+                    self._radii.pop(i)
+            ind += 1
+
+
+
 
     def get_surface_area(self, n):
         """
