@@ -61,7 +61,7 @@ class PourbaixAnalyzer(object):
         """
         return np.array([[entry.npH, entry.nPhi, 1] for entry in entrylist])
 
-    def get_chempot_range_map(self):
+    def get_chempot_range_map(self, limits=[[-2,16], [-4,4]]):
         """
         Returns a chemical potential range map for each stable entry.
 
@@ -110,7 +110,6 @@ class PourbaixAnalyzer(object):
                     continue
                 for facet in facets_of_edge:
                     which_facet = facets.tolist().index(facet.tolist())
-#                    print "WHich facet", which_facet
                     chempot = chempots_np[which_facet]
                     data.append([chempot[0], chempot[1]])
                 sim1 = Simplex(data)
@@ -142,6 +141,13 @@ class PourbaixAnalyzer(object):
         xhi = max(max_pH + 5, 20)
         ylo = min(minV - 3, -10)
         yhi = max(maxV + 3, 10)
+
+#        self.chempot_limits = limits
+#        xlo = limits[0][0]
+#        xhi = limits[0][1]
+#        ylo = limits[1][0]
+#        yhi = limits[1][1]
+        
         max_dist = np.sqrt((yhi - ylo) ** 2 + (xhi - xlo) ** 2)
 
         dist_edge = {}
@@ -206,7 +212,7 @@ class PourbaixAnalyzer(object):
                         coord = bound_coords[i]
                         s = coord - coord_facet
                         q = coord_facet
-                        if np.cross(r, s) < tol:
+                        if abs(np.cross(r, s)) < tol:
                             break
                         else:
                             t = np.cross(q - p, s) / np.cross(r, s)
@@ -301,7 +307,6 @@ class PourbaixAnalyzer(object):
                         sim = Simplex(line)
                         chempot_ranges[entries[vertex]].append(sim)
 
-#        chempot_ranges_cleaned = chempot_ranges
         chempot_ranges_cleaned = {}
         for entry in self._pd.stable_entries:
             chempot_ranges_cleaned[entry] = self.check_regions(entry, chempot_ranges[entry])
@@ -406,7 +411,7 @@ class PourbaixAnalyzer(object):
             s = np.array([line2.coords[1][0] - line2.coords[0][0],\
                           line2.coords[1][1] - line2.coords[0][1]])
             q = np.array([line2.coords[0][0], line2.coords[0][1]])
-            if np.cross(r, s) < tol:
+            if abs(np.cross(r, s)) < tol:
                 continue
             else:
                 t = np.cross(q - p, s) / np.cross(r, s)

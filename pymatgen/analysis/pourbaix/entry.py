@@ -12,7 +12,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.0"
 __maintainer__ = "Sai Jayaraman"
 __email__ = "sjayaram@mit.edu"
-__status__ = "Production"
+__status__ = "Development"
 __date__ = "December 10, 2012"
 
 import re
@@ -31,42 +31,50 @@ class PourbaixEntry(MSONable):
     """
     An object encompassing all data relevant to an ion in a pourbaix diagram.
     Each bulk solid/ion has a free energy g of the form:
-    g = g0_ref + 0.0591 log10(concn) - nO mu_H2O + (nH - 2nO) pH + phi (-nH+2nO+q)
+    g = g0_ref + 0.0591 log10(conc) - nO mu_H2O + (nH - 2nO) pH + phi (-nH + 2nO + q)
     """
-    def __init__(self, entry, g=None, entry_id=None):
+    def __init__(self, entry, correction=0.0, entry_id=None):
         """
         Args:
             entry:
-                An entry object (ComputedEntry/ComputedStructureEntry/PDEntry)
+                An entry object (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry)
             energy:
                 Energy of entry
         """
         if (entry.__class__.__name__ == "IonEntry"):
             self._entry = entry
-            self._concn = 1.0e-6
+            self._conc = 1.0e-6
             self._phase_type = "Ion"
             self._charge = entry.composition.charge
         else:
             self._entry = entry
-            self._concn = 1.0
+            self._conc = 1.0
             self._phase_type = "Solid"
             self._charge = 0.0
         self._npH = None
         self._nPhi = None
         self._nH2O = None
         self._nM = None
-        if g is not None:
-            self._g0 = g
-        else:
-            self._g0 = entry.energy
+#        if g is not None:
+#            self._g0 = g
+#        else:
+#            self._g0 = entry.energy
+        self.uncorrected_energy = entry.energy
+        self.correction = correction
         self._calc_coeff_terms()
         self._name = self._entry.composition.reduced_formula
         try:
             self.entry_id = entry.entry_id
         except AttributeError:
             self.entry_id = entry_id
-#        else:
-#            self.entry_id = entry_id
+
+    @property
+    def _g0(self):
+        return self.energy
+
+    @property
+    def energy(self):
+        return self.uncorrected_energy + self.correction
 
     @property
     def name(self):
@@ -108,6 +116,7 @@ class PourbaixEntry(MSONable):
     def g0(self):
         """
         Return g0 for the entry
+        Legacy function.
         """
         return self._g0
 
@@ -116,14 +125,14 @@ class PourbaixEntry(MSONable):
         """
         Return concentration of the entry. Returns 1 if solid.
         """
-        return self._concn
+        return self._conc
     
     @property
     def conc_term(self):
         """
         Returns the concentration contribution to the free energy
         """
-        return self.normalization_factor * PREFAC * math.log10(self._concn)
+        return self.normalization_factor * PREFAC * math.log10(self._conc)
 
     @property
     def phase_type(self):
@@ -132,14 +141,14 @@ class PourbaixEntry(MSONable):
         """
         return self._phase_type
 
-    def g0_add(self, term):
-        """
-        Add a correction term to g0
-        args: 
-            term: 
-                Correction term to add to g0
-        """
-        self._g0 += term
+#    def g0_add(self, term):
+#        """
+#        Add a correction term to g0
+#        args: 
+#            term: 
+#                Correction term to add to g0
+#        """
+#        self._g0 += term
 
     def g0_replace(self, term):
         """
@@ -167,9 +176,11 @@ class PourbaixEntry(MSONable):
         d["entry"] = self._entry.to_dict
         d["pH factor"] = self._npH
         d["voltage factor"] = self._nPhi
-        d["concentration"] = self._concn
+        d["concentration"] = self._conc
         d["H2O factor"] = self._nH2O
-        d["free energy"] = self._g0
+        d["energy"] = self.energy
+        d["correction"] = self.correction
+        d["entry_id"] = self.entry_id
         return d
 
     @staticmethod
@@ -182,8 +193,9 @@ class PourbaixEntry(MSONable):
             entry = IonEntry.from_dict(d["entry"])
         else:
             entry = PDEntry.from_dict(d["entry"])
-        g = d["free energy"]
-        return PourbaixEntry(entry, g)
+        correction = d["correction"]
+        entry_id = d["entry_id"]
+        return PourbaixEntry(entry, correction, entry_id)
 
     def _calc_coeff_terms(self):
         """
@@ -212,7 +224,7 @@ class PourbaixEntry(MSONable):
         fact = 1.0 / self._nM
         return fact
 
-    def normalize(self, factor):
+    def scale(self, factor):
         """
         Normalize all entries by normalization factor
         args:
@@ -222,11 +234,13 @@ class PourbaixEntry(MSONable):
         self._npH *= factor
         self._nPhi *= factor
         self._nH2O *= factor
-        self._g0 *= factor
-        
-    def scale(self, factor):
-        
-        self.normalize(factor)
+        self.uncorrected_energy *= factor
+        self.correction *= factor
+#        self._g0 *= factor
+
+    def normalize(self, factor):
+
+        self.scale(factor)
 
     @property
     def charge(self):
@@ -241,7 +255,7 @@ class PourbaixEntry(MSONable):
         Returns composition
         """
         return self.entry.composition
-        
+
     @property
     def entry(self):
         """
@@ -251,16 +265,13 @@ class PourbaixEntry(MSONable):
 
     def reduced_entry(self):
         """
-        Phase Diagram returns solids which are not in their most reduced state.
-        This, if called, will divide all relevant value by reduction factor
+        Calculate reduction factor for composition, and reduce parameters by
+        this factor.
         """
         reduction_factor = self.entry.composition.\
                             get_reduced_composition_and_factor()[1]
-        self._g0 /= reduction_factor
-        self._npH /= reduction_factor
-        self._nH2O /= reduction_factor
-        self._nPhi /= reduction_factor
         self._nM /= reduction_factor
+        self.scale(1.0 / reduction_factor)
 
     @property
     def num_atoms(self):
@@ -270,14 +281,14 @@ class PourbaixEntry(MSONable):
         return self.entry.composition.num_atoms\
             / self.entry.composition.get_reduced_composition_and_factor()[1]
 
-    def set_conc(self, concn):
+    def set_conc(self, conc):
         """
         Set concentration manually
         args:
-            concn:
+            conc:
                 Input concentration
         """
-        self._concn = concn
+        self._conc = conc
 
     def __repr__(self):
         return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, nPhi = {},\
@@ -292,7 +303,7 @@ class MultiEntry(PourbaixEntry):
     """
     PourbaixEntry-like object for constructing multi-elemental Pourbaix diagrams
     """
-    def __init__(self, entry_list, weights = None):
+    def __init__(self, entry_list, weights=None):
         """
         Args:
             entry_list:
@@ -305,7 +316,8 @@ class MultiEntry(PourbaixEntry):
         else:
             self._weights = weights
         self._entrylist = entry_list
-        self._g0 = 0.0
+        self.correction = 0.0
+        self.uncorrected_energy = 0.0
         self._npH = 0.0
         self._nPhi = 0.0
         self._nH2O = 0.0
@@ -313,7 +325,8 @@ class MultiEntry(PourbaixEntry):
         self._name = ""
         for i in xrange(len(entry_list)):
             entry = entry_list[i]
-            self._g0 += self._weights[i] * entry.g0
+            self.uncorrected_energy += self._weights[i] * entry.uncorrected_energy
+            self.correction += self._weights[i] * entry.correction
             self._npH += self._weights[i] * entry.npH
             self._nPhi += self._weights[i] * entry.nPhi
             self._nH2O += self._weights[i] * entry.nH2O
@@ -357,14 +370,9 @@ class MultiEntry(PourbaixEntry):
         sum_conc = 0.0
         for i in xrange(len(self._entrylist)):
             entry = self._entrylist[i]
-            sum_nelt = 0.0
-            for el in entry.composition.elements:
-                if (el == Element("O")) | (el == Element("H")):
-                    continue
-                sum_nelt += entry.composition[el]
-            sum_conc += self._weights[i] * PREFAC * math.log10(entry._concn)
+            sum_conc += self._weights[i] * PREFAC * math.log10(entry.conc)
         return sum_conc * self.normalization_factor
-    
+
     @property
     def entrylist(self):
         return self._entrylist
@@ -372,8 +380,8 @@ class MultiEntry(PourbaixEntry):
 
 class IonEntry(PDEntry):
     """
-    Object similar to PDEntry, but contains an Ion object instead of a Composition
-    object.
+    Object similar to PDEntry, but contains an Ion object instead of a
+    Composition object.
     .. attribute:: name
         A name for the entry. This is the string shown in the phase diagrams.
         By default, this is the reduced formula for the composition, but can be
@@ -434,7 +442,7 @@ class IonEntry(PDEntry):
         return self._composition
 
     def __repr__(self):
-        return "PDEntry : {} with energy = {:.4f}".format(self.composition,
+        return "IonEntry : {} with energy = {:.4f}".format(self.composition,
                                                           self.energy)
 
     def __str__(self):
@@ -446,7 +454,7 @@ class PourbaixEntryIO(object):
     Class to import and export Pourbaix entries from a csv file
     """
     @staticmethod
-    def to_csv(filename, entries, latexify_names = False):
+    def to_csv(filename, entries, latexify_names=False):
         """
         Exports Pourbaix entries to a csv
 
@@ -489,10 +497,8 @@ class PourbaixEntryIO(object):
     def from_csv(filename):
         """
         Imports PourbaixEntries from a csv
-
         Args:
             filename - Filename to import from.
-
         Returns:
             List of Entries
         """
