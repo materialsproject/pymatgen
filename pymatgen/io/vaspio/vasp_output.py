@@ -296,7 +296,7 @@ class Vasprun(object):
         """
         True if run is spin-polarized.
         """
-        return True if self.incar.get("ISPIN", 1) == 2 else False
+        return True if self.parameters.get("ISPIN", 1) == 2 else False
 
     def get_band_structure(self, kpoints_filename=None, efermi=None,
                            line_mode=False):
@@ -521,6 +521,7 @@ class Vasprun(object):
         vout['dielectric'] = self.dielectric
 
         peigen = []
+
         if len(self.projected_eigenvalues) != 0:
             for i in range(len(eigen)):
                 peigen.append({})
