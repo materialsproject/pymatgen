@@ -436,7 +436,8 @@ class StructureVis(object):
         actor.GetProperty().SetLineWidth(width)
         self.ren.AddActor(actor)
 
-    def add_polyhedron(self, neighbors, center, color):
+    def add_polyhedron(self, neighbors, center, color, opacity=0.4,
+                       draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2):
         """
         Adds a polyhedron.
 
@@ -467,11 +468,58 @@ class StructureVis(object):
         ac = vtk.vtkActor()
         #ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
-        ac.GetProperty().SetOpacity(0.4)
+        ac.GetProperty().SetOpacity(opacity)
+        if color == 'element':
+            # If partial occupations are involved, the color of the specie with the highest occupation is used
+            myoccu = 0.0
+            for specie, occu in center.species_and_occu.items():
+                if occu > myoccu:
+                    myspecie = specie
+                    myoccu = occu
+            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+            ac.GetProperty().SetColor(color)
+        else:
+            ac.GetProperty().SetColor(color)
+        if draw_edges:
+            ac.GetProperty().SetEdgeColor(edges_color)
+            ac.GetProperty().SetLineWidth(edges_linewidth)
+            ac.GetProperty().EdgeVisibilityOn()
+        self.ren.AddActor(ac)
+
+    def add_triangle(self, atoms, color, opacity=0.4):
+        """
+        Adds a triangular surface between three atoms.
+
+        Args:
+            neighbors:
+                Neighbors of the site.
+            color:
+                Color for triangle as RGB.
+        """
+        points = vtk.vtkPoints()
+        triangle = vtk.vtkTriangle()
+        for ii in range(3):
+            points.InsertNextPoint(atoms[ii].x, atoms[ii].y, atoms[ii].z)
+            triangle.GetPointIds().SetId(ii,ii)
+        triangles = vtk.vtkCellArray()
+        triangles.InsertNextCell(triangle)
+
+        # polydata object
+        trianglePolyData = vtk.vtkPolyData()
+        trianglePolyData.SetPoints( points )
+        trianglePolyData.SetPolys( triangles )
+
+        # mapper
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInput(trianglePolyData)
+
+        ac = vtk.vtkActor()
+        ac.SetMapper(mapper)
+        ac.GetProperty().SetOpacity(opacity)
         ac.GetProperty().SetColor(color)
         self.ren.AddActor(ac)
 
-    def add_bonds(self, neighbors, center):
+    def add_bonds(self, neighbors, center, color=None, opacity=None, radius=0.1):
         """
         Adds bonds for a site.
 
@@ -496,13 +544,17 @@ class StructureVis(object):
 
         tube = vtk.vtkTubeFilter()
         tube.SetInput(pd)
-        tube.SetRadius(0.1)
+        tube.SetRadius(radius)
 
         mapper = vtk.vtkPolyDataMapper()
         mapper.SetInputConnection(tube.GetOutputPort())
 
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
+        if opacity is not None:
+            actor.GetProperty().SetOpacity(opacity)
+        if color is not None:
+            actor.GetProperty().SetColor(color)
         self.ren.AddActor(actor)
 
     def add_picker_fixed(self):
