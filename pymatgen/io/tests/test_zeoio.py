@@ -14,7 +14,7 @@ from pymatgen.io.zeoio import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes
 from pymatgen.io.zeoio import get_void_volume_surfarea
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.defects.point_defects import Vacancy
+from pymatgen.defects.point_defects import Vacancy, StructWithValenceIonicRadius
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie
 
@@ -130,8 +130,9 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         p = Poscar.from_file(filepath)
         filepath1 = os.path.join(test_dir, 'LiMn2O4.cif')
         p1 = CifParser(filepath1).get_structures()[0]
+        p = StructWithValenceIonicRadius(p1)
         #vacancy = Vacancy(p.structure)
-        self._vacancy = Vacancy(p1)
+        self._vacancy = Vacancy(p)
 
         um = [[1,0,0],[0,1,0],[0,0,1]]
         self._vac_struct = self._vacancy.make_supercells_with_defects(um)[1]
@@ -143,13 +144,13 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         #   self.assertIsInstance(vol, float)
         #   self.assertIsInstance(sa, float)
         vol, sa = get_void_volume_surfarea(
-                self._vac_struct, self._vacancy.ionic_radii
+                self._vac_struct, self._vacancy.struct_radii
                 )
         print "vol:  ", vol, "sa:  ", sa
         self.assertIsInstance(vol, float)
         self.assertIsInstance(sa, float)
 
 if __name__ == "__main__":
-    #unittest.main()
-    suite = unittest.TestLoader().loadTestsFromTestCase(GetVoronoiNodesTest)
-    unittest.TextTestRunner().run(suite)
+    unittest.main()
+    #suite = unittest.TestLoader().loadTestsFromTestCase(GetVoronoiNodesTest)
+    #unittest.TextTestRunner().run(suite)

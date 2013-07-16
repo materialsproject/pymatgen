@@ -38,9 +38,15 @@ class ZeoCssr(Cssr):
     def __str__(self):
         output = [
                 "{:.4f} {:.4f} {:.4f}"
-                .format(*self.structure.lattice.abc),
+                #.format(*self.structure.lattice.abc), 
+                .format(self.structure.lattice.c, 
+                        self.structure.lattice.b,
+                        self.structure.lattice.a),
                 "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
-                .format(*self.structure.lattice.angles),
+                #.format(*self.structure.lattice.angles), 
+                .format(self.structure.lattice.beta,
+                        self.structure.lattice.gamma,
+                        self.structure.lattice.alpha),
                 "{} 0".format(len(self.structure)),
                 "0 {}".format(self.structure.formula)
                 ]
@@ -48,13 +54,15 @@ class ZeoCssr(Cssr):
             if not hasattr(site, 'charge'): 
                 output.append(
                     "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(i+1, site.specie, site.a, site.b, site.c, 0.0)
+                    .format(i+1, site.specie, site.c, site.a, site.b, 0.0)
+                    #.format(i+1, site.specie, site.a, site.b, site.c, 0.0)
                     )
             else:
                 output.append(
                     "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
                     .format(
-                            i+1, site.specie, site.a, site.b, site.c, 
+                            i+1, site.specie, site.c, site.a, site.b, 
+                            #i+1, site.specie, site.a, site.b, site.c, 
                             site.charge
                             )
                     )
@@ -78,6 +86,11 @@ class ZeoCssr(Cssr):
         lengths = map(float, toks)
         toks = lines[1].split()
         angles = map(float, toks[0:3])
+        # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
+        a = lengths.pop(-1)
+        lengths.insert(0,a)
+        alpha = angles.pop(-1)
+        angles.insert(0,alpha)
         latt = Lattice.from_lengths_and_angles(lengths, angles)
         sp = []
         coords = []
@@ -87,7 +100,9 @@ class ZeoCssr(Cssr):
                          "([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)", l.strip())
             if m:
                 sp.append(m.group(1))
-                coords.append([float(m.group(i)) for i in xrange(2, 5)])
+                #coords.append([float(m.group(i)) for i in xrange(2, 5)])
+                # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
+                coords.append([float(m.group(i)) for i in [3,4,2]])
                 chrg.append(m.group(5))
         return ZeoCssr(
             Structure(latt, sp, coords, site_properties={'charge':chrg})
@@ -149,7 +164,8 @@ class ZeoVoronoiXYZ(XYZ):
             m = coord_patt.search(lines[i])
             if m:
                 sp.append(m.group(1))  # this is 1-indexed
-                coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
+                #coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
+                coords.append(map(float, [m.group(i) for i in [3,4,2]]))  # this is 0-indexed
                 prop.append(float(m.group(5)))
         return ZeoVoronoiXYZ(
             Molecule(sp, coords, site_properties={'voronoi_radius':prop})
@@ -177,7 +193,8 @@ class ZeoVoronoiXYZ(XYZ):
                 )
         for site in self._mol:
             output.append(fmtstr.format(
-                site.specie, site.x, site.y, site.z,
+                site.specie, site.z, site.x, site.y,
+                #site.specie, site.x, site.y, site.z,
                 site.properties['voronoi_radius']
                 ))
         return "\n".join(output)
@@ -193,8 +210,9 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             pymatgen.core.structure.Structure
         rad_file (optional):
             File containing element and radius values in a table
-            If not given Zeo++ default values are used.
-            For non-covalent materials, its a good idea to provide it.
+            If not given, Zeo++ default values are used.
+            Note: Zeo++ uses atomic radii of elements
+            For ionic structures, generate rad_dict with ionic radii
         probe_rad (optional):
             Sampling probe radius in Angstroms. Default is 0.1 A
 
@@ -221,6 +239,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name+'_voro.xyz'
     voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
+    #print voronoi_node_mol
     species = ["H"]*len(voronoi_node_mol.sites)
     coords = []
     prop = []
@@ -228,11 +247,20 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
+    lattice = Lattice.from_lengths_and_angles(
+            structure.lattice.abc, structure.lattice.angles
+            )
+    #print lattice.abc, lattice.angles
+    #print structure.lattice.abc, structure.lattice.angles
     voronoi_node_struct = Structure(
-            structure.lattice, species, coords, coords_are_cartesian=True, 
+            lattice, species, coords, coords_are_cartesian=True, 
             site_properties={"voronoi_radius": prop}
             )
+    #print structure.lattice
+    #print voronoi_node_struct.lattice
 
+    #print structure.lattice
+    #print voronoi_node_struct
     os.chdir(current_dir)
     shutil.rmtree(temp_dir)
 
