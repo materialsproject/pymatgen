@@ -197,7 +197,21 @@ class GulpIO:
         gin += "\n"
         return gin
 
-    def binaryoxide_buckingham_potential(self, structure):
+    def binaryoxide_buckingham_input(self, structure, keywords, library=None, 
+            uc=True, valence_dict=None):
+        '''
+        Gets a GULP input for an oxide structure and 
+        buckingham potential from library
+        '''
+        gin = self.keyword_line(*keywords)
+        gin += self.structure_lines(structure, symm_flg=not uc)
+        if not library:
+            gin += self.binaryoxide_buckingham_potential(structure, valence_dict)
+        else:
+            gin += self.library_line(library)
+        return gin
+
+    def binaryoxide_buckingham_potential(self, structure, val_dict=None):
         '''
         Generate species, buckingham, and spring options for an oxide structure
         using the parameters in default libraries
@@ -205,33 +219,39 @@ class GulpIO:
                 18, 1149-1161 (1985)
              2) T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  
                 J. Mater Chem., 4, 831-837 (1994)
+        Args:
+            structure:
+                pymatgen.core.structure.Structure
+            val_dict (Needed if structure is not charge neutral)
+                El:valence dictionary, where El is element. 
         '''
-        bv = BVAnalyzer()
-        el = [site.species_string for site in structure.sites]
-        valences = bv.get_valences(structure)
-        el_val_dict = dict(zip(el, valences))
+        if not val_dict:
+            bv = BVAnalyzer()
+            el = [site.species_string for site in structure.sites]
+            valences = bv.get_valences(structure)
+            val_dict = dict(zip(el, valences))
 
         #Try bush library first
         use_bush = True
         bpb = BuckinghamPotBush()
-        for key in el_val_dict.keys():
-            if key != "O" and el_val_dict[key]%1 != 0:
+        for key in val_dict.keys():
+            if key != "O" and val_dict[key]%1 != 0:
                 raise GulpError("Oxide has mixed valence on metal")
             if key not in bpb.species_dict.keys():
                 use_bush = False
                 break
-            if el_val_dict[key] != bpb.species_dict[key]['oxi']:
+            if val_dict[key] != bpb.species_dict[key]['oxi']:
                 use_bush = False
                 break
         if use_bush:
             gin = "species \n"
-            for key in el_val_dict.keys():
+            for key in val_dict.keys():
                 gin += bpb.species_dict[key]['inp_str']
             gin += "buckingham \n"
-            for key in el_val_dict.keys():
+            for key in val_dict.keys():
                 gin += bpb.pot_dict[key]
             gin += "spring \n"
-            for key in el_val_dict.keys():
+            for key in val_dict.keys():
                 gin += bpb.spring_dict[key]
             return gin
             # Or we can use the library option 
@@ -242,17 +262,17 @@ class GulpIO:
         use_lewis = True
         bpl = BuckinghamPotLewis()
         #Check if all elements are in the lewis library
-        for key in el_val_dict.keys():  
+        for key in val_dict.keys():  
             if key != "O":  # For metals the key is "Metal_OxiState+"
-                k = key+'_'+str(int(el_val_dict[key]))+'+'
+                k = key+'_'+str(int(val_dict[key]))+'+'
                 if k not in bpl.species_dict.keys():
                     use_lewis = False
                     raise GulpError("Element not in library")
         if use_lewis:
             gin = "species\n"
-            for key in el_val_dict.keys():  
+            for key in val_dict.keys():  
                 if key != "O":  # For metals the key is "Metal_OxiState+"
-                    k = key+'_'+str(int(el_val_dict[key]))+'+'
+                    k = key+'_'+str(int(val_dict[key]))+'+'
                     gin += bpl.species_dict[k]
                 else:
                     k = "O_core"
@@ -260,37 +280,26 @@ class GulpIO:
                     k = "O_shel"
                     gin += bpl.species_dict[k]
             gin += "buckingham\n"
-            for key in el_val_dict.keys():  
+            for key in val_dict.keys():  
                 if key != "O":  # For metals the key is "Metal_OxiState+"
-                    k = key+'_'+str(int(el_val_dict[key]))+'+'
+                    k = key+'_'+str(int(val_dict[key]))+'+'
                 else:
                     k = key
                 gin += bpl.pot_dict[k]
             gin += bpl.spring_dict["O"]
             return gin
 
-    def binaryoxide_buckingham_nput(structure, library=None, uc=True, *keywords):
-        '''
-        Gets a GULP input for an oxide structure and 
-        buckingham potential from library
-        '''
-        gin = self.keyword_line(*keywords)
-        if uc:
-            gin += self.structure_lines(structure, symm_flg=False)
-        else:       #Primitive cell
-            gin += self.structure_lines(structure)
-        if not library:
-            gin += self.binaryoxide_buckingham_potential(structure)
-        else:
-            gin += self.library_line(library)
-        return gin
-
-    def binaryoxide_tersoff_input(self, structure):
+    def binaryoxide_tersoff_input(self, structure, periodic=False, uc=True, 
+                                  *keywords):
         '''
         Gets a GULP input with Tersoff potential for an oxide structure 
         '''
-        gin="static noelectrostatics \n "
-        gin += self.structure_lines(structure,False,False,False,False,False)
+        #gin="static noelectrostatics \n "
+        gin = self.keyword_line(*keywords)
+        gin += self.structure_lines(
+                structure, cell_flg=periodic, frac_flg=periodic, 
+                anion_shell_flg=False, cation_shell_flg=False, symm_flg=not uc
+                )
         gin += self.binaryoxide_tersoff_potential(structure)
         return gin
 
@@ -492,15 +501,19 @@ def get_binoxi_gulp_energy_tersoff(structure, gulp_cmd='gulp'):
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
     gin = gio.binaryoxide_tersoff_input(structure)
+    #print gin
     gout = gc.run(gin)
     return gio.get_energy(gout)
 
-def get_binoxi_gulp_energy_buckingham(structure, gulp_cmd='gulp'):
+def get_binoxi_gulp_energy_buckingham(structure, gulp_cmd='gulp', 
+        keywords=('optimise', 'conp'), valence_dict=None):
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
-    gin = gio.binaryoxide_buckingham_gulpinput(structure, 'optimise', 'conp' )
+    gin = gio.binaryoxide_buckingham_input(
+            structure, keywords, valence_dict=valence_dict
+            )
     gout = gc.run(gin)
-    return gc.get_energy(gout)
+    return gio.get_energy(gout)
 
 
 class GulpError(Exception):
