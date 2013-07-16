@@ -5,13 +5,13 @@ import sys
 
 import numpy as np
 
-from pymatgen.defects.point_defects import StructWithValenceIonicRadius
-from pymatgen.defects.point_defects import Vacancy, Interstitial
+from pymatgen.defects.point_defects import *
 from pymatgen.core.structure import  Structure
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import  Element
 from pymatgen.symmetry.finder import SymmetryFinder 
 from pymatgen.symmetry.spacegroup import Spacegroup
+
 
 class StructureWithValenceIonicRadiusTest(unittest.TestCase):
     def setUp(self):
@@ -113,7 +113,23 @@ class VacancyTest(unittest.TestCase):
             #Once the zeo++ is properly working, make sure vol is +ve
             self.assertIsInstance(sa, float)
         
+class VacancyFormationEnergyTest(unittest.TestCase):
+    def setUp(self):
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc_valrad = StructWithValenceIonicRadius(self.mgo_uc)
+        self.mgo_vac = Vacancy(mgo_uc_valrad)
+        self.mgo_vfe = VacancyFormationEnergy(self.mgo_vac)
         
+    def test_get_energy(self):
+        for i in range(len(self.mgo_vac.enumerate_defectsites())):
+            vfe = self.mgo_vfe.get_energy(i)
+            print vfe
+            self.assertIsInstance(vfe, float)
+
 class InterstitialTest(unittest.TestCase):
     def setUp(self):
         """
@@ -164,8 +180,9 @@ class InterstitialTest(unittest.TestCase):
             self.assertTrue(rad, float)
 
 if __name__ == "__main__":
-    unittest.main()
+    #unittest.main()
     #suite = unittest.TestLoader().loadTestsFromTestCase(StructureWithValenceIonicRadiusTest)
-    #suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
+    suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
     #suite = unittest.TestLoader().loadTestsFromTestCase(VacancyTest)
-    #unittest.TextTestRunner(verbosity=3).run(suite)
+    #suite = unittest.TestLoader().loadTestsFromTestCase(VacancyFormationEnergyTest)
+    unittest.TextTestRunner(verbosity=3).run(suite)
