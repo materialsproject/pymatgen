@@ -87,19 +87,19 @@ class GulpCallerTest(unittest.TestCase):
         energy = self.gio.get_energy(out_str)
         self.assertEqual(energy, -169.06277218)
 
-class GulpInputFileGenerationTest(unittest.TestCase):
+class GulpIOTest(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         self.structure = p.structure
         self.gio = GulpIO()
 
-    def test_kw_line_with_correct_keywords(self):
+    def test_keyword_line_with_correct_keywords(self):
         kw = ('defect', 'property')
         inp_str = self.gio.keyword_line(*kw)
         for word in kw:
             self.assertIn(word, inp_str)
 
-    def test_kw_line_with_wrong_keywords(self):
+    def test_keyword_line_with_wrong_keywords(self):
         kw = ('defect', 'field')
         with self.assertRaises(GulpError):
             inp_str = self.gio.keyword_line(*kw)
@@ -139,7 +139,7 @@ class GulpInputFileGenerationTest(unittest.TestCase):
         with self.assertRaises(GulpError):
             gin = self.gio.library_line('temp_to_fail.lib')
 
-    def test_binaryoxide_buckingham_pot(self):
+    def test_binaryoxide_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4 
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
@@ -158,17 +158,56 @@ class GulpInputFileGenerationTest(unittest.TestCase):
         self.assertIn('buck', gin)
         self.assertIn('spring', gin)
 
-    @unittest.skip("Test later")
-    def test_binaryoxide_tersoff_gulpinpt(self):
+    def test_binaryoxide_buckingham_input(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4 
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
-        #print self.gc.binaryoxide_tersoff_gulpinput(mgo_uc)
-        #print "--------"
-        #print self.gc.binaryoxide_buckingham_gulpinput(mgo_uc)
+        gin = self.gio.binaryoxide_buckingham_input(mgo_uc, keywords=('optimise', 'conp'))
+        self.assertIn('optimise', gin)
+        self.assertIn('cell', gin)
+        self.assertIn('specie', gin)
+        self.assertIn('buck', gin)
+        self.assertIn('spring', gin)
+        self.assertIn('Mg core', gin)
+        self.assertIn('O  core', gin)
+        self.assertIn('O  shel', gin)
 
+    # Improve the test 
+    def test_binaryoxide_tersoff_potential(self):
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg",'O']*4 
+        mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
+                         [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
+        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        gin = self.gio.binaryoxide_tersoff_potential(mgo_uc)
+        self.assertIn('specie', gin)
+        self.assertIn('Mg core', gin)
+
+    @unittest.skip("Test later")
+    def test_binaryoxide_tersoff_inpt(self):
+        gin =  self.gio.binaryoxide_tersoff_input(self.structure)
+        #print "--------BinaryOxide Tersoff"
+        print gin
+
+class GlobalFunctionsTest(unittest.TestCase):
+    @unittest.skip("Test later")
+    def test_get_binoxi_gulp_energy_tersoff(self):
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        structure = p.structure
+        enrgy = get_binoxi_gulp_energy_tersoff(structure)
+        self.assertIsInstance(enrgy, float)
+        print "tersoff energy", enrgy
+    def test_get_binoxi_gulp_energy_buckingham(self):
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg",'O']*4 
+        mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
+                         [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
+        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        enrgy = get_binoxi_gulp_energy_buckingham(mgo_uc)
+        self.assertIsInstance(enrgy, float)
+        print "Buckingham energy", enrgy
 
 class BuckinghamPotLewisTest(unittest.TestCase):
     def setUp(self):
