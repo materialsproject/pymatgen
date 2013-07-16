@@ -11,10 +11,11 @@ import sys
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea
+from pymatgen.command_line.gulp_caller import get_binoxi_gulp_energy_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core import Specie
-from pymatgen.command_line.gulp_caller import GulpCaller
+from pymatgen.command_line.gulp_caller import GulpCaller, GulpIO
 
 #from pymatgen.core.structure import PeriodicSize
 #from pymatgen.core.structure_modifier import SuperCellMaker
@@ -35,6 +36,7 @@ class StructWithValenceIonicRadius:
     @property
     def valences(self):
         return self._valences
+
 
     @property
     def structure(self):
@@ -160,6 +162,7 @@ class Defect:
         print 'Not implemented'
         raise NotImpementedError()
     
+
 class Vacancy(Defect):
     """
     Subclass of Defect to generate vacancies and their analysis
@@ -209,6 +212,10 @@ class Vacancy(Defect):
         self._vac_eff_charges = None
         self._vol = None
         self._sa = None
+
+    @property
+    def valence_dict(self):
+        return self._valence_dict
 
     def enumerate_defectsites(self):
         """
@@ -362,25 +369,57 @@ class Vacancy(Defect):
                                                            defect_site))
         return sc_with_vac
 
+
 class VacancyFormationEnergy:
     """
-    
+    Using GULP compute the vacancy formation energy.
+    Works only for binary metal oxides due to the use of Buckingham Potentials
     """
-    def __init__(structure):
-        struct_with_val_rad = StructWithValenceIonicRadius(structure)
-        self._vacancy = Vacancy(struct_with_val_rad)
-    def get_energy(self, n):
+    def __init__(self, vacancy):
+        self._vacancy = vacancy
+        self._energies = []
+    def get_energy(self, n, tol=0.1):
         """
         Formation Energy for nth symmetrically distinct vacancy.
-        GULP is used to obtain the energy.
         """
         #generate defect free structure energy
+        if not self._energies:
+            no_vac = len(self._vacancy.enumerate_defectsites())
+            prev_energies = [0.0]*no_vac
+            tol_flg = [False]*no_vac
+            vac_gulp_kw = ('optimise', 'conp', 'qok')
+            val_dict = self._vacancy.valence_dict
+            for sp in range(2,6):
+                if not (False in tol_flg):
+                    #print sp
+                    break
+                scale_mat = [[sp,0,0],[0,sp,0],[0,0,sp]]
+                sc = self._vacancy.make_supercells_with_defects(scale_mat)
+                blk_energy = get_binoxi_gulp_energy_buckingham(sc[0])
+                no = len(sc[0].sites)
+                #print no
+                for i in  range(1,len(self._vacancy.enumerate_defectsites())+1):
+                    if not tol_flg[i-1]:
+                        vac_energy = get_binoxi_gulp_energy_buckingham(
+                                sc[i], keywords=vac_gulp_kw, 
+                                valence_dict=val_dict
+                                )
+                        form_energy = vac_energy - (no-1)/no*blk_energy
+                        if abs(form_energy - prev_energies[i-1]) < tol:
+                            tol_flg[i-1] = True
+                        prev_energies[i-1] = form_energy
+
+            self._energies = prev_energies
+            self._tol_flg = tol_flg
+
+        if not self._tol_flg[n]:
+            print "Caution: tolerance not reached for {0} vacancy".format(n)
+        return self._energies[n]
+
+
 
 
         #generate defect structure energy
-
-
-
 
              
 class Interstitial(Defect):
@@ -536,7 +575,7 @@ class Interstitial(Defect):
         flag = [False]*no_dstnt_radii
         for rad in distinct_radii:
             ind = self._radii.index(rad) # Index of first site with 'rad' 
-            for i in range(len(self._radii)-1,ind,-1): 
+            for i in reversed(range(len(self._radii))): 
                 #Backward search for remaining sites so index is not changed
                 if self._radii[i] == rad:
                     self._defect_sites.pop(i)
@@ -548,19 +587,19 @@ class Interstitial(Defect):
         """
         Remove all the defect sites with voronoi radius less than input radius
         """
-        for i in range(len(self._radii)-1,0,-1):
+        for i in reversed(range(len(self._radii))):
             if self._radii[i] < radius:
                 self._defect_sites.pop(i)
                 self._defectsite_coord_no.pop(i) 
                 self._defect_coord_sites.pop(i)
                 self._radii.pop(i)
 
-    def prune_defectsites(self, el="Li", oxi_state=1):
+    def prune_defectsites(self, el="C", oxi_state=4, dlta=0.1):
         """
         Prune all the defect sites which can't acoomodate the input elment 
         with the input oxidation state.
         """
-        rad = Specie(el, oxi_state).ionic_radius
+        rad = Specie(el, oxi_state).ionic_radius - dlta
         self.radius_prune_defectsites(rad)
 
     def prune_close_defectsites(self, dist=None):
@@ -579,9 +618,6 @@ class Interstitial(Defect):
                     self._defect_coord_sites.pop(i)
                     self._radii.pop(i)
             ind += 1
-
-
-
 
     def get_surface_area(self, n):
         """
@@ -629,6 +665,7 @@ class Interstitial(Defect):
                 sc_list_with_interstitial.append(sc_with_inter)
         return sc_list_with_interstitial
 
+
 def _symmetry_reduced_voronoi_nodes(structure, rad_dict):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and 
@@ -641,8 +678,12 @@ def _symmetry_reduced_voronoi_nodes(structure, rad_dict):
         Symmetrically distinct voronoi nodes as pymatgen Strucutre
     """
     vor_node_struct = get_voronoi_nodes(structure, rad_dict)
-    vor_symmetry_finder = SymmetryFinder(vor_node_struct)
+    vor_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
     vor_symm_struct = vor_symmetry_finder.get_symmetrized_structure()
+    #print vor_symm_struct.lattice
+    #print vor_symm_struct.lattice.abc, vor_symm_struct.lattice.angles
+    #print vor_node_struct.lattice
+    #print vor_node_struct.lattice.abc, vor_node_struct.lattice.angles
     equiv_sites = vor_symm_struct.equivalent_sites
     sites = []
     for equiv_site in vor_symm_struct.equivalent_sites:
