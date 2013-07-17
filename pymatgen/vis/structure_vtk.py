@@ -113,6 +113,7 @@ class StructureVis(object):
 
         style = StructureInteractorStyle(self)
         self.iren.SetInteractorStyle(style)
+        self.ren.parent = self
 
     def rotate_view(self, axis_ind=0, angle=0):
         """
@@ -602,7 +603,7 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         return
 
     def keyPressEvent(self, obj, event):
-        parent = self.parent
+        parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
         #print sym
         if sym in "ABCabc":
