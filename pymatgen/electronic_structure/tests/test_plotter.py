@@ -64,7 +64,11 @@ class BSPlotterTest(unittest.TestCase):
             self.plotter = BSPlotter(self.bs)
 
     def test_bs_plot_data(self):
-        self.assertEqual(len(self.plotter.bs_plot_data()['distances']), 160,
+        self.assertEqual(len(self.plotter.bs_plot_data()['distances'][0]), 16,
+                         "wrong number of distances in the first branch")
+        self.assertEqual(len(self.plotter.bs_plot_data()['distances']), 10,
+                         "wrong number of branches")
+        self.assertEqual(sum([len(e) for e in self.plotter.bs_plot_data()['distances']]), 160,
                          "wrong number of distances")
         self.assertEqual(self.plotter.bs_plot_data()['ticks']['label'][5], "K",
                          "wrong tick label")
