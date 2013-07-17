@@ -593,9 +593,11 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         return
 
     def leftButtonReleaseEvent(self, obj, event):
+        ren = obj.GetCurrentRenderer()
+        iren = obj.GetCurrentRenderer().GetRenderWindow().GetInteractor()
         if self.mouse_motion == 0:
-            pos = self.parent.iren.GetEventPosition()
-            self.parent.picker.Pick(pos[0], pos[1], 0, self.parent.ren)
+            pos = iren.GetEventPosition()
+            iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
         self.OnLeftButtonUp()
         return
 
