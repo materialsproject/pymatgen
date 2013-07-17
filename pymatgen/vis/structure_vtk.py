@@ -358,7 +358,7 @@ class StructureVis(object):
             sphere.SetEndTheta(end)
 
             mapper = vtk.vtkPolyDataMapper()
-            mapper.SetInput(sphere.GetOutput())
+            mapper.SetInputConnection(sphere.GetOutputPort())
             self.mapper_map[mapper] = [site]
             actor = vtk.vtkActor()
             actor.SetMapper(mapper)
@@ -429,7 +429,7 @@ class StructureVis(object):
         source.GetOutput().GetPointData().AddArray(vertexIDs)
 
         mapper = vtk.vtkPolyDataMapper()
-        mapper.SetInput(source.GetOutput())
+        mapper.SetInputConnection(source.GetOutputPort())
         actor = vtk.vtkActor()
         actor.SetMapper(mapper)
         actor.GetProperty().SetColor(color)
@@ -463,7 +463,7 @@ class StructureVis(object):
         polysites = [center]
         polysites.extend(neighbors)
         self.mapper_map[dsm] = polysites
-        dsm.SetInput(grid)
+        dsm.SetInputData(grid)
         ac = vtk.vtkActor()
         #ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
