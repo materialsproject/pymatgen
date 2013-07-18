@@ -94,6 +94,8 @@ class SubstitutionTransformationTest(unittest.TestCase):
     def test_fractional_substitution(self):
         t = SubstitutionTransformation({"Li+": "Na+",
                                         "O2-": {"S2-": 0.5, "Se2-": 0.5}})
+        #test the to and from dict on the nested dictionary
+        t = SubstitutionTransformation.from_dict(t.to_dict)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
