@@ -301,14 +301,17 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         Args:
             species_map:
-                A dict containing the species mapping in string-string pairs.
-                E.g., { "Li":"Na"} or {"Fe2+","Mn2+"}. Multiple substitutions
-                can be done. Overloaded to accept sp_and_occu dictionary
-                E.g. {"Si: {"Ge":0.75, "C":0.25} }, which substitutes a single
-                species with multiple species to generate a disordered
-                structure.
-        """
-        self._species_map = species_map
+                A dict or list of tuples containing the species mapping in 
+                string-string pairs. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")]. 
+                Multiple substitutions can be done. Overloaded to accept 
+                sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}}, 
+                which substitutes a single species with multiple species to 
+                generate a disordered structure.
+        """        
+        self._species_map = dict(species_map)
+        for k, v in self._species_map.iteritems():
+            if isinstance(v, (tuple, list)):
+                self._species_map[k] = dict(v)
 
     def apply_transformation(self, structure):
         species_map = {}
@@ -341,7 +344,15 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def to_dict(self):
-        sp_map = {str(k):str(v) for k, v in self._species_map.iteritems()}
+        #convert sp_map to tuple representation to work with Mongo
+        #which doesn't allow '.' in key names
+        sp_map = []
+        for k, v in self._species_map.iteritems():
+            if isinstance(v, dict):
+                v = [(str(k2), v2) for k2, v2 in v.iteritems()]
+                sp_map.append((str(k), v))
+            else:
+                sp_map.append((str(k), v))
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"species_map": sp_map},
                 "@module": self.__class__.__module__,
