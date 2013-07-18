@@ -37,8 +37,8 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 class MoleculeMatcherTest(unittest.TestCase):
 
     def test_fit(self):
-        self.test_fit_with_mapper(IsomorphismMolAtomMapper())
-        self.test_fit_with_mapper(InchiMolAtomMapper())
+        self.fit_with_mapper(IsomorphismMolAtomMapper())
+        self.fit_with_mapper(InchiMolAtomMapper())
 
     def test_get_rmsd(self):
         mm = MoleculeMatcher()
@@ -72,7 +72,8 @@ class MoleculeMatcherTest(unittest.TestCase):
         mm2 = MoleculeMatcher.from_dict(d)
         self.assertEqual(d, mm2.to_dict)
 
-    def test_fit_with_mapper(self, mapper):
+    
+    def fit_with_mapper(self, mapper):
         coords = [[0.000000, 0.000000, 0.000000],
                   [0.000000, 0.000000, 1.089000],
                   [1.026719, 0.000000, -0.363000],
