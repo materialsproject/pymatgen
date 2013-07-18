@@ -473,7 +473,10 @@ class StructureVis(object):
         polysites = [center]
         polysites.extend(neighbors)
         self.mapper_map[dsm] = polysites
-        dsm.SetInputData(grid)
+        if vtk.VTK_MAJOR_VERSION <= 5:
+            dsm.SetInputConnection(grid.GetProducerPort())
+        else:
+            dsm.SetInputData(grid)
         ac = vtk.vtkActor()
         #ac.SetMapper(mapHull)
         ac.SetMapper(dsm)
