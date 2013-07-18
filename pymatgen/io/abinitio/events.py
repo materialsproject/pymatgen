@@ -12,6 +12,9 @@ import json
 
 from pymatgen.serializers.json_coders import MSONable
 
+__all__ = [
+    "EventParser",
+]
 
 class Event(MSONable):
     """
@@ -28,6 +31,12 @@ class Event(MSONable):
             "nstep": 50,
         </Event>
     """
+    def __init__(self, **kwargs):
+        self._kwargs = kwargs.copy()
+        self.message = kwargs.pop("message")
+        self.lineno  = kwargs.pop("lineno")
+        self.data = kwargs
+
     @staticmethod
     def from_string(string, lineno):
         """Constructs an event given a string and the line number."""
@@ -36,12 +45,6 @@ class Event(MSONable):
         assert "lineno" not in d
         d["lineno"] = lineno
         return cls(d)
-
-    def __init__(self, **kwargs):
-        self._kwargs = kwargs.copy()
-        self.message = kwargs.pop("message")
-        self.lineno  = kwargs.pop("lineno")
-        self.data = kwargs
 
     def __str__(self):
         return "%s:\n%s" % (self.lineno, self.message)
@@ -183,6 +186,18 @@ class EventList(collections.Iterable, MSONable):
     @property
     def warnings(self):
         return self.select(Warning)
+
+    @property
+    def num_warnings(self):
+        return len(self.warnings)
+
+    @property
+    def num_errors(self):
+        return len(self.errors)
+
+    @property
+    def num_comments(self):
+        return len(self.comments)
 
     def select(self, base_class, only_critical=False):
         """

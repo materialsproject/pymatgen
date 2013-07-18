@@ -200,7 +200,6 @@ class Smearing(AbivarAble, MSONable):
 
 class ElectronsAlgorithm(dict, AbivarAble):
     "Variables controlling the SCF/NSCF algorithm."
-
     # None indicates that we use abinit defaults.
     _default_vars = {
         "iprcell"  : None,
@@ -213,10 +212,6 @@ class ElectronsAlgorithm(dict, AbivarAble):
         "dielng"   : None,
         "diecut"   : None,
         "nstep"    : 70,
-        #"ixc"   ??
-        #"toldfe"
-        #"tolwfr"
-        #"nline"
     }
 
     def __init__(self, *args, **kwargs):
@@ -571,7 +566,6 @@ class KSampling(AbivarAble):
 
         self.abivars = abivars
         self.abivars["#comment"] = comment
-        #print(self.abivars)
 
     @property
     def is_homogeneous(self):
@@ -603,17 +597,6 @@ class KSampling(AbivarAble):
                    use_time_reversal = use_time_reversal,
                    comment           = "gamma-centered mode",
                    )
-
-    #@classmethod
-    #def symetry_breaking(cls, kpts, shift, use_symmetries=True, use_time_reversal=True):
-    #    return cls(
-    #                   kpts=[kpts],
-    #                   kpt_shifts=shift,
-    #                   use_symmetries = use_symmetries,
-    #                   use_time_reversal = use_time_reversal,
-    #                   chksymbreak = 0,
-    #                   comment="shifted mode",
-    #                   )
 
     @classmethod
     def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, 
@@ -816,14 +799,13 @@ class KSampling(AbivarAble):
 
 class Constraints(AbivarAble):
     """This object defines the constraints for structural relaxation"""
-
     def to_abivars(self):
         raise NotImplementedError("")
 
 
 class RelaxationMethod(AbivarAble):
     """
-    Container object  storing the variables for the (constrained) structural optimization
+    This object stores the variables for the (constrained) structural optimization
     ionmov and optcell specify the type of relaxation.
     The other variables are optional and their use depend on ionmov and optcell.
     A None value indicates that we use abinit default. Default values can
@@ -839,7 +821,7 @@ class RelaxationMethod(AbivarAble):
         "strfact"          : None,
         "tolmxf"           : None,
         "strtarget"        : None,
-        "atoms_constraints": {}, # Constraints are stored in a dictionary. Empty if no constraint is enforced"
+        "atoms_constraints": {}, # Constraints are stored in a dictionary. {} means if no constraint is enforced.
     }
 
     IONMOV_DEFAULT = 3
@@ -847,10 +829,10 @@ class RelaxationMethod(AbivarAble):
 
     def __init__(self, *args, **kwargs):
 
-        # Initialize abiars with the default values.
+        # Initialize abivars with the default values.
         self.abivars = self._default_vars
 
-        # Overwrite keys with the args and kwargs passed to constructor.
+        # Overwrite the keys with the args and kwargs passed to constructor.
         self.abivars.update(*args, **kwargs)
 
         self.abivars = AttrDict(self.abivars)
@@ -881,16 +863,16 @@ class RelaxationMethod(AbivarAble):
 
     @property
     def move_atoms(self):
-        "True if atoms must be moved"
+        """True if atoms must be moved."""
         return self.vars.ionmov != 0
 
     @property
     def move_cell(self):
-        "True if lattice parameters must be optimized"
+        """True if lattice parameters must be optimized."""
         return self.vars.optcell != 0
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
+        """Returns a dictionary with the abinit variables"""
         vars = self.vars
 
         # These variables are always present.
@@ -906,6 +888,11 @@ class RelaxationMethod(AbivarAble):
                 "tolmxf": vars.tolmxf,
             })
 
+        if vars.atoms_constraints:
+            # Add input variables for constrained relaxation.
+            raise NotImplementedError("")
+            abivars.update(vars.atoms_constraints.to_abivars())
+
         # Cell relaxation.
         if self.move_cell:
             abivars.update({
@@ -914,11 +901,6 @@ class RelaxationMethod(AbivarAble):
                 "strfact"  : vars.strfact,
                 "strtarget": vars.strtarget,
             })
-
-        if vars.atoms_constraints:
-            # Add input variables for constrained relaxation.
-            raise NotImplementedError("")
-            abivars.update(vars.atoms_constraints.to_abivars())
 
         return abivars
 
