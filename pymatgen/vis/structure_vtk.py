@@ -448,6 +448,14 @@ class StructureVis(object):
                 The atom in the center of the polyhedron.
             color:
                 Color for text as RGB.
+            opacity:
+                Opacity of the polyhedron
+            draw_edges:
+                If set to True, the a line will be drawn at each edge
+            edges_color:
+                Color of the line for the edges
+            edges_linewidth:
+                Width of the line drawn for the edges
         """
         points = vtk.vtkPoints()
         conv = vtk.vtkConvexPointSet()
@@ -486,20 +494,31 @@ class StructureVis(object):
             ac.GetProperty().EdgeVisibilityOn()
         self.ren.AddActor(ac)
 
-    def add_triangle(self, atoms, color, opacity=0.4):
+    def add_triangle(self, neighbors, color, center=None, opacity=0.4,
+                     draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2):
         """
         Adds a triangular surface between three atoms.
 
         Args:
-            neighbors:
-                Neighbors of the site.
+            atoms:
+                Atoms between which a triangle will be drawn.
             color:
                 Color for triangle as RGB.
+            center:
+                The "central atom" of the triangle
+            opacity:
+                opacity of the triangle
+            draw_edges:
+                If set to True, the a line will be drawn at each edge
+            edges_color:
+                Color of the line for the edges
+            edges_linewidth:
+                Width of the line drawn for the edges
         """
         points = vtk.vtkPoints()
         triangle = vtk.vtkTriangle()
         for ii in range(3):
-            points.InsertNextPoint(atoms[ii].x, atoms[ii].y, atoms[ii].z)
+            points.InsertNextPoint(neighbors[ii].x, neighbors[ii].y, neighbors[ii].z)
             triangle.GetPointIds().SetId(ii,ii)
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
@@ -516,7 +535,24 @@ class StructureVis(object):
         ac = vtk.vtkActor()
         ac.SetMapper(mapper)
         ac.GetProperty().SetOpacity(opacity)
-        ac.GetProperty().SetColor(color)
+        if color == 'element':
+            if center is None:
+                raise ValueError('Color should be chosen according to the central atom, '
+                                 'and central atom is not provided')
+            # If partial occupations are involved, the color of the specie with the highest occupation is used
+            myoccu = 0.0
+            for specie, occu in center.species_and_occu.items():
+                if occu > myoccu:
+                    myspecie = specie
+                    myoccu = occu
+            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+            ac.GetProperty().SetColor(color)
+        else:
+            ac.GetProperty().SetColor(color)
+        if draw_edges:
+            ac.GetProperty().SetEdgeColor(edges_color)
+            ac.GetProperty().SetLineWidth(edges_linewidth)
+            ac.GetProperty().EdgeVisibilityOn()
         self.ren.AddActor(ac)
 
     def add_bonds(self, neighbors, center, color=None, opacity=None, radius=0.1):
@@ -528,6 +564,12 @@ class StructureVis(object):
                 Neighbors of the site.
             center:
                 The site in the center for all bonds.
+            color:
+                Color of the tubes representing the bonds
+            opacity:
+                Opacity of the tubes representing the bonds
+            radius:
+                radius of tube s representing the bonds
         """
         points = vtk.vtkPoints()
         points.InsertPoint(0, center.x, center.y, center.z)
