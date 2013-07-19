@@ -213,9 +213,9 @@ class Vacancy(Defect):
         self._vol = None
         self._sa = None
 
-    @property
-    def valence_dict(self):
-        return self._valence_dict
+    #@property
+    #def valence_dict(self):
+    #    return self._valence_dict
 
     def enumerate_defectsites(self):
         """
@@ -378,27 +378,27 @@ class VacancyFormationEnergy:
     def __init__(self, vacancy):
         self._vacancy = vacancy
         self._energies = []
-    def get_energy(self, n, tol=0.1):
+    def get_energy(self, n, tol=0.5):
         """
         Formation Energy for nth symmetrically distinct vacancy.
         """
         #generate defect free structure energy
         if not self._energies:
-            no_vac = len(self._vacancy.enumerate_defectsites())
+            no_vac = self._vacancy.defectsite_count()
             prev_energies = [0.0]*no_vac
             tol_flg = [False]*no_vac
             vac_gulp_kw = ('optimise', 'conp', 'qok')
-            val_dict = self._vacancy.valence_dict
+            val_dict = self._vacancy.struct_valences
             for sp in range(2,6):
                 if not (False in tol_flg):
-                    #print sp
+                    print sp
                     break
                 scale_mat = [[sp,0,0],[0,sp,0],[0,0,sp]]
                 sc = self._vacancy.make_supercells_with_defects(scale_mat)
                 blk_energy = get_binoxi_gulp_energy_buckingham(sc[0])
                 no = len(sc[0].sites)
                 #print no
-                for i in  range(1,len(self._vacancy.enumerate_defectsites())+1):
+                for i in  range(1,no_vac+1):
                     if not tol_flg[i-1]:
                         vac_energy = get_binoxi_gulp_energy_buckingham(
                                 sc[i], keywords=vac_gulp_kw, 
@@ -575,7 +575,7 @@ class Interstitial(Defect):
         flag = [False]*no_dstnt_radii
         for rad in distinct_radii:
             ind = self._radii.index(rad) # Index of first site with 'rad' 
-            for i in reversed(range(len(self._radii))): 
+            for i in reversed(range(ind+1,len(self._radii))): 
                 #Backward search for remaining sites so index is not changed
                 if self._radii[i] == rad:
                     self._defect_sites.pop(i)
@@ -602,21 +602,22 @@ class Interstitial(Defect):
         rad = Specie(el, oxi_state).ionic_radius - dlta
         self.radius_prune_defectsites(rad)
 
-    def prune_close_defectsites(self, dist=None):
+    def prune_close_defectsites(self, dist=0.5):
         """
         Prune the sites that are very close.
         """
-        if not dist:
-            dist = Specie("H",1).ionic_radius# * 2
         ind = 0
-        while(ind != len(self._defect_sites)):
-            for i in range(ind+1,len(self._defect_sites)):
+        while(ind < self.defectsite_count()):
+            i = ind+1
+            while(i < self.defectsite_count()):
                 d = self._defect_sites[ind].distance(self._defect_sites[i])
+                print d, dist
                 if d < dist:
                     self._defect_sites.pop(i)
                     self._defectsite_coord_no.pop(i) 
                     self._defect_coord_sites.pop(i)
                     self._radii.pop(i)
+                i += 1
             ind += 1
 
     def get_surface_area(self, n):
@@ -665,6 +666,146 @@ class Interstitial(Defect):
                 sc_list_with_interstitial.append(sc_with_inter)
         return sc_list_with_interstitial
 
+class InterstitialFormationEnergy:
+    """
+    Uses GULP to compute the interstitial formation energy.
+    Works only for metal oxides due to the use of Buckingham Potentials
+    """
+    def __init__(self, inter):
+        self._inter = inter
+        self._relax_energies = []
+        self._norelax_energies = []
+
+    def get_energy(self, n, el, oxi_state, relax=True, tol=1.0):
+        """
+        Formation Energy for nth symmetrically distinct interstitial.
+        """
+        #generate defect free structure energy
+        if relax and not self._relax_energies:
+            no_inter = self._inter.defectsite_count()
+            prev_energies = [0.0]*no_inter
+            tol_flg = [False]*no_inter
+            inter_gulp_kw = ('optimise', 'conp', 'qok')
+            val_dict = self._inter.struct_valences
+            val_dict[el] = oxi_state  # In case the element is not in structure
+            for sp in range(2,6):
+                print sp
+                if not (False in tol_flg):
+                    print sp, "Tolerance reached"
+                    break
+                scale_mat = [[sp,0,0],[0,sp,0],[0,0,sp]]
+                sc = self._inter.make_supercells_with_defects(scale_mat, el)
+                blk_energy = get_binoxi_gulp_energy_buckingham(sc[0])
+                no = len(sc[0].sites)
+                #print no
+                for i in  range(1,no_inter+1):
+                    if not tol_flg[i-1]:
+                        inter_energy = get_binoxi_gulp_energy_buckingham(
+                                sc[i], keywords=inter_gulp_kw, 
+                                valence_dict=val_dict
+                                )
+                        form_energy = inter_energy - (no+1)/no*blk_energy
+                        if abs(form_energy - prev_energies[i-1]) < tol:
+                            tol_flg[i-1] = True
+                        prev_energies[i-1] = form_energy
+            self._relax_energies = prev_energies
+            self._relax_tol_flg = tol_flg
+        #generate defect free structure energy
+        if not relax and not self._norelax_energies:
+            no_inter = self._inter.defectsite_count()
+            prev_energies = [0.0]*no_inter
+            tol_flg = [False]*no_inter
+            inter_gulp_kw = ('qok',)
+            val_dict = self._inter.struct_valences
+            val_dict[el] = oxi_state  # In case the element is not in structure
+            for sp in range(2,6):
+                print sp
+                if not (False in tol_flg):
+                    print sp, "Tolerance reached"
+                    break
+                scale_mat = [[sp,0,0],[0,sp,0],[0,0,sp]]
+                sc = self._inter.make_supercells_with_defects(scale_mat, el)
+                blk_energy = get_binoxi_gulp_energy_buckingham(sc[0])
+                no = len(sc[0].sites)
+                #print no
+                for i in  range(1,no_inter+1):
+                    if not tol_flg[i-1]:
+                        inter_energy = get_binoxi_gulp_energy_buckingham(
+                                sc[i], keywords=inter_gulp_kw, 
+                                valence_dict=val_dict
+                                )
+                        form_energy = inter_energy - (no+1)/no*blk_energy
+                        if abs(form_energy - prev_energies[i-1]) < tol:
+                            tol_flg[i-1] = True
+                        prev_energies[i-1] = form_energy
+            self._norelax_energies = prev_energies
+            self._norelax_tol_flg = tol_flg
+
+
+        if relax:
+            if not self._relax_tol_flg[n]:
+                print "Caution: Convergence not reached for %d interstitial"%(n)
+            return self._relax_energies[n]
+        else:
+            if not self._norelax_tol_flg[n]:
+                print "Caution: Convergence not reached for %d interstitial"%(n)
+            return self._norelax_energies[n]
+
+
+
+
+
+        #generate defect structure energy
+
+    def get_energy_fixsc(self, n, el, oxi_state, scd=2, relax=True):
+        """
+        Formation Energy for nth symmetrically distinct interstitial.
+        """
+        #generate defect free structure energy
+        if relax and not self._relax_energies:
+            no_inter = self._inter.defectsite_count()
+            inter_gulp_kw = ('optimise', 'conp', 'qok')
+            val_dict = self._inter.struct_valences
+            scale_mat = [[scd,0,0],[0,scd,0],[0,0,scd]]
+            sc = self._inter.make_supercells_with_defects(scale_mat, el)
+            blk_energy = get_binoxi_gulp_energy_buckingham(sc[0])
+            no = len(sc[0].sites)
+            #print no
+            val_dict[el] = oxi_state  # In case the element is not in structure
+            for i in  range(1,no_inter+1):
+                inter_energy = get_binoxi_gulp_energy_buckingham(
+                        sc[i], keywords=inter_gulp_kw, valence_dict=val_dict
+                        )
+                form_energy = inter_energy - (no+1)/no*blk_energy
+                self._relax_energies.append(form_energy)
+        #generate defect free structure energy
+        if not relax and not self._norelax_energies:
+            no_inter = self._inter.defectsite_count()
+            inter_gulp_kw = ('qok',)
+            val_dict = self._inter.struct_valences
+            val_dict[el] = oxi_state  # In case the element is not in structure
+            scale_mat = [[scd,0,0],[0,scd,0],[0,0,scd]]
+            sc = self._inter.make_supercells_with_defects(scale_mat, el)
+            blk_energy = get_binoxi_gulp_energy_buckingham(sc[0])
+            no = len(sc[0].sites)
+            #print no
+            for i in  range(1,no_inter+1):
+                inter_energy = get_binoxi_gulp_energy_buckingham(
+                        sc[i], keywords=inter_gulp_kw, valence_dict=val_dict
+                        )
+                form_energy = inter_energy - (no+1)/no*blk_energy
+                self._norelax_energies.append(form_energy)
+
+        if relax:
+            return self._relax_energies[n]
+        else:
+            return self._norelax_energies[n]
+
+
+
+
+
+        #generate defect structure energy
 
 def _symmetry_reduced_voronoi_nodes(structure, rad_dict):
     """

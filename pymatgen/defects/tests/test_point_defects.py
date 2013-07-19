@@ -179,10 +179,38 @@ class InterstitialTest(unittest.TestCase):
             print >> sys.stderr, rad
             self.assertTrue(rad, float)
 
+class InterstitialFormationEnergyTest(unittest.TestCase):
+    def setUp(self):
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_uc_valrad = StructWithValenceIonicRadius(self.mgo_uc)
+        self.mgo_inter = Interstitial(mgo_uc_valrad)
+        self.mgo_ife = InterstitialFormationEnergy(self.mgo_inter)
+        
+    def test_get_relaxedenergy(self):
+        for i in range(len(self.mgo_inter.enumerate_defectsites())):
+            ife = self.mgo_ife.get_energy(i, "Mg", 2, 0.4, True)
+            site_coords = self.mgo_inter.get_defectsite(i).coords
+            site_radius = self.mgo_inter.get_radius(i)
+            print i, site_coords, site_radius, ife
+            self.assertIsInstance(ife, float)
+    def test_get_norelaxedenergy(self):
+        for i in range(len(self.mgo_inter.enumerate_defectsites())):
+            ife = self.mgo_ife.get_energy(i, "Mg", 2, 1, False)
+            site_coords = self.mgo_inter.get_defectsite(i).coords
+            site_radius = self.mgo_inter.get_radius(i)
+            print i, site_coords, site_radius, ife
+            self.assertIsInstance(ife, float)
+
+
 if __name__ == "__main__":
     #unittest.main()
     #suite = unittest.TestLoader().loadTestsFromTestCase(StructureWithValenceIonicRadiusTest)
-    suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
+    #suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialTest)
     #suite = unittest.TestLoader().loadTestsFromTestCase(VacancyTest)
-    #suite = unittest.TestLoader().loadTestsFromTestCase(VacancyFormationEnergyTest)
+    suite = unittest.TestLoader().loadTestsFromTestCase(VacancyFormationEnergyTest)
+    suite = unittest.TestLoader().loadTestsFromTestCase(InterstitialFormationEnergyTest)
     unittest.TextTestRunner(verbosity=3).run(suite)
