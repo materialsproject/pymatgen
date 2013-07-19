@@ -306,6 +306,9 @@ Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
 
 1. Install cmake from http://cmake.org/cmake/resources/software.html.
+   Install pcre-8.33 from ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz.
+   Install pkg-config-0.28 from http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz.
+   Install SWIG from http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz.
 2. Download openbabel 2.3.2 *source code* from
    https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/.
 3. Download Eigen version 3.1.2 from
@@ -320,9 +323,13 @@ Here are the steps that I took to make it work:
    called "eigen3", do the following steps::
 
     mv openbabel-2.3.2 ob-src
+    cd ob-src/scripts/python; rm openbabel.py openbabel-python.cpp; cd ../../..
+
+    Edit ob-src/scripts/CMakeLists.txt, jump to line 70, change “eigen2_define” to “eigen_define”.
+
     mkdir ob-build
     cd ob-build
-    cmake -DPYTHON_BINDINGS=ON -DEIGEN3_INCLUDE_DIR=../eigen3 ../ob-src 2>&1 | tee cmake.out
+    cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DEIGEN3_INCLUDE_DIR=../eigen3 ../ob-src 2>&1 | tee cmake.out
 
 6. Before proceeding further, similar to the VTK installation process in the
    previous section, you may also need to modify the CMakeCache.txt
