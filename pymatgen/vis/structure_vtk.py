@@ -24,7 +24,6 @@ import vtk
 
 from pymatgen.util.coord_utils import in_coord_list
 from pymatgen.core.periodic_table import Specie
-from pymatgen.core.structure_modifier import SupercellMaker
 from pymatgen.core.structure import Structure
 
 
@@ -222,8 +221,14 @@ class StructureVis(object):
                 on the structure.
         """
         self.ren.RemoveAllViewProps()
-        s = Structure.from_sites(structure, to_unit_cell=True)
-        s.make_supercell(self.supercell)
+
+        has_lattice = hasattr(structure, "lattice")
+
+        if has_lattice:
+            s = Structure.from_sites(structure, to_unit_cell=True)
+            s.make_supercell(self.supercell)
+        else:
+            s = structure
 
         inc_coords = []
         for site in s:
@@ -233,9 +238,9 @@ class StructureVis(object):
         count = 0
         labels = ["a", "b", "c"]
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
-        matrix = s.lattice.matrix
 
-        if self.show_unit_cell:
+        if self.show_unit_cell and has_lattice:
+            matrix = s.lattice.matrix
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -295,14 +300,18 @@ class StructureVis(object):
             self.display_help()
 
         camera = self.ren.GetActiveCamera()
-        if reset_camera:
+        if reset_camera and has_lattice:
             #Adjust the camera for best viewing
             lengths = s.lattice.abc
             pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / \
                 lengths[0] * 3.5
             camera.SetPosition(pos)
             camera.SetViewUp(matrix[2])
-        camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
+
+        if has_lattice:
+            camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
+        else:
+            camera.SetFocalPoint(s.center_of_mass)
 
         self.structure = structure
         self.title = s.composition.formula
@@ -594,7 +603,7 @@ class StructureVis(object):
         pd.SetLines(lines)
 
         tube = vtk.vtkTubeFilter()
-        tube.SetInput(pd)
+        tube.SetInputData(pd)
         tube.SetRadius(radius)
 
         mapper = vtk.vtkPolyDataMapper()
