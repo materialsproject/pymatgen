@@ -222,10 +222,8 @@ class StructureVis(object):
                 on the structure.
         """
         self.ren.RemoveAllViewProps()
-        m = SupercellMaker(structure, self.supercell)
-        s = m.modified_structure
-        all_sites = [site.to_unit_cell for site in s]
-        s = Structure.from_sites(all_sites)
+        s = Structure.from_sites(structure, to_unit_cell=True)
+        s.make_supercell(self.supercell)
 
         inc_coords = []
         for site in s:
@@ -699,7 +697,7 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
     def leftButtonReleaseEvent(self, obj, event):
         ren = obj.GetCurrentRenderer()
-        iren = obj.GetCurrentRenderer().GetRenderWindow().GetInteractor()
+        iren = ren.GetRenderWindow().GetInteractor()
         if self.mouse_motion == 0:
             pos = iren.GetEventPosition()
             iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
@@ -709,7 +707,7 @@ class StructureInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     def keyPressEvent(self, obj, event):
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
-        #print sym
+
         if sym in "ABCabc":
             if sym == "A":
                 parent.supercell[0][0] += 1
