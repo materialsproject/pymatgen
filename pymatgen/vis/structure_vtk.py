@@ -254,7 +254,6 @@ class StructureVis(object):
         if self.show_bonds or self.show_polyhedron:
             elements = sorted(s.composition.elements, key=lambda a: a.X)
             anion = elements[-1]
-
             def contains_anion(site):
                 for sp in site.species_and_occu.keys():
                     if sp.symbol == anion.symbol:
@@ -300,18 +299,20 @@ class StructureVis(object):
             self.display_help()
 
         camera = self.ren.GetActiveCamera()
-        if reset_camera and has_lattice:
-            #Adjust the camera for best viewing
-            lengths = s.lattice.abc
-            pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / \
-                lengths[0] * 3.5
-            camera.SetPosition(pos)
-            camera.SetViewUp(matrix[2])
-
-        if has_lattice:
-            camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
-        else:
-            camera.SetFocalPoint(s.center_of_mass)
+        if reset_camera:
+            if has_lattice:
+                #Adjust the camera for best viewing
+                lengths = s.lattice.abc
+                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / \
+                    lengths[0] * 3.5
+                camera.SetPosition(pos)
+                camera.SetViewUp(matrix[2])
+                camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
+            else:
+                origin = s.center_of_mass
+                max_site = max(s, key=lambda site: site.distance_from_point(origin))
+                camera.SetPosition(origin + 5 * (max_site.coords - origin))
+                camera.SetFocalPoint(s.center_of_mass)
 
         self.structure = structure
         self.title = s.composition.formula
