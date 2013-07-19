@@ -237,7 +237,7 @@ class DiffusionAnalyzer(MSONable):
                 proportional to dt)
         """
         structure = vaspruns[0].initial_structure
-        step_skip = vaspruns[0].ionic_step_skip
+        step_skip = vaspruns[0].ionic_step_skip or 1
 
         p = []
         for vr in vaspruns:
