@@ -306,62 +306,74 @@ Openbabel must be compiled with python bindings for integration with pymatgen.
 Here are the steps that I took to make it work:
 
 1. Install cmake from http://cmake.org/cmake/resources/software.html.
-   Install pcre-8.33 from ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz.
-   Install pkg-config-0.28 from http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz.
-   Install SWIG from http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz.
-2. Download openbabel 2.3.2 *source code* from
+
+2. Install pcre-8.33 from
+   ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz.
+
+3. Install pkg-config-0.28 using MacPorts or from
+   http://pkgconfig.freedesktop.org/releases/pkg-config-0.28.tar.gz.
+
+4. Install SWIG from
+   http://prdownloads.sourceforge.net/swig/swig-2.0.10.tar.gz.
+
+5. Download openbabel 2.3.2 *source code* from
    https://sourceforge.net/projects/openbabel/files/openbabel/2.3.2/.
-3. Download Eigen version 3.1.2 from
+
+6. Download Eigen version 3.1.2 from
    http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz.
-4. Extract your Eigen and openbabel source distributions::
+
+7. Extract your Eigen and openbabel source distributions::
 
     tar -zxvf openbabel-2.3.2.tar.gz
     tar -zxvf eigen3.tar.gz
 
-5. Now you should have two directories. Assuming that your openbabel src is in
+8. Now you should have two directories. Assuming that your openbabel src is in
    a directory called "openbabel-2.3.2" and your eigen source is in a directory
    called "eigen3", do the following steps::
 
     mv openbabel-2.3.2 ob-src
     cd ob-src/scripts/python; rm openbabel.py openbabel-python.cpp; cd ../../..
 
-    Edit ob-src/scripts/CMakeLists.txt, jump to line 70, change “eigen2_define” to “eigen_define”.
+9. Edit ob-src/scripts/CMakeLists.txt, jump to line 70, change “eigen2_define”
+   to “eigen_define”.
 
-    mkdir ob-build
-    cd ob-build
-    cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DEIGEN3_INCLUDE_DIR=../eigen3 ../ob-src 2>&1 | tee cmake.out
+10. Let's create a build directory::
 
-6. Before proceeding further, similar to the VTK installation process in the
-   previous section, you may also need to modify the CMakeCache.txt
-   file by hand if your python paths and library paths if they are in
-   non-standard locations. For example, if you have installed the official
-   version of Python instead of using the Mac-provided version,
-   you will probably need to edit the CMakeCache Python links. Example
-   configuration for Python 2.7 is given below (only variables that need to
-   be modified are shown)::
+        mkdir ob-build
+        cd ob-build
+        cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DEIGEN3_INCLUDE_DIR=../eigen3 ../ob-src 2>&1 | tee cmake.out
 
-    //Path to a program.
-    PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
+11. Before proceeding further, similar to the VTK installation process in the
+    previous section, you may also need to modify the CMakeCache.txt
+    file by hand if your python paths and library paths if they are in
+    non-standard locations. For example, if you have installed the official
+    version of Python instead of using the Mac-provided version,
+    you will probably need to edit the CMakeCache Python links. Example
+    configuration for Python 2.7 is given below (only variables that need to
+    be modified are shown)::
 
-    //Path to a file.
-    PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
+        //Path to a program.
+        PYTHON_EXECUTABLE:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/bin/python
 
-    //Path to a library.
-    PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
+        //Path to a file.
+        PYTHON_INCLUDE_DIR:PATH=/Library/Frameworks/Python.framework/Versions/2.7/Headers
 
-7. Run make and install as follows::
+        //Path to a library.
+        PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
 
-    make -j2
-    sudo make install
+12. Run make and install as follows::
 
-8. With any luck, you should have openbabel with python bindings installed. You
-   can test your installation by trying to import openbabel from the python
-   command line. Please note that despite best efforts, openbabel seems to
-   install the python bindings into /usr/local/lib even if your Python is not
-   the standard Mac version. In that case, you may need to add the following
-   into your .bash_profile::
+        make -j2
+        sudo make install
 
-    export PYTHONPATH=/usr/local/lib:$PYTHONPATH
+13. With any luck, you should have openbabel with python bindings installed.
+    You can test your installation by trying to import openbabel from the
+    python command line. Please note that despite best efforts,
+    openbabel seems to install the python bindings into /usr/local/lib even
+    if your Python is not the standard Mac version. In that case,
+    you may need to add the following into your .bash_profile::
+
+        export PYTHONPATH=/usr/local/lib:$PYTHONPATH
 
 Enumlib (tested as of version of Jul 2012)
 ------------------------------------------
