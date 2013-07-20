@@ -192,7 +192,7 @@ class Strategy(object):
         # Check user options first.
         for tolname in self._tolerances:
             try:
-                return {name: self.extra_abivars[tolname]}
+                return {tolname: self.extra_abivars[tolname]}
             except KeyError:
                 pass
 
@@ -382,7 +382,7 @@ class RelaxStrategy(ScfStrategy):
     """Extends ScfStrategy by adding an algorithm for the structural relaxation."""
 
     def __init__(self, structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized", 
-                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
+                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_solver=None, **extra_abivars):
         """
         Args:
             structure:
@@ -390,19 +390,19 @@ class RelaxStrategy(ScfStrategy):
             pseudos:
                 List of pseudopotentials.
             ksampling:
-                Ksampling object defining the sampling of the BZ.
+                `Ksampling` object defining the sampling of the BZ.
             relax_algo:
-                Object defining the algorith for the structural relaxation.
+                Object defining the algorithm for the structural relaxation.
             accuracy:
                 Accuracy of the calculation.
             spin_mode: 
-                Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to "polarized"
+                Flag defining the spin polarization. Defaults to "polarized"
             smearing: 
-                String or Smearing instance. 
+                String or `Smearing` instance. 
             charge:
                 Total charge of the system. Default is 0.
             scf_algorithm:
-                ElectronsAlgorithm instance.
+                `ElectronsAlgorithm` instance.
             extra_abivars:
                 Extra ABINIT variables that will be directly added to the input file
         """
@@ -429,7 +429,7 @@ class RelaxStrategy(ScfStrategy):
 ##########################################################################################
 
 class ScreeningStrategy(Strategy):
-    """Stratefy for Screening calculations."""
+    """Strategy for Screening calculations."""
 
     def __init__(self, scf_strategy, nscf_strategy, screening, **extra_abivars):
         """
@@ -495,7 +495,6 @@ class ScreeningStrategy(Strategy):
 
 class SelfEnergyStrategy(Strategy):
     """Strategy for self-energy calculations."""
-
     def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma, **extra_abivars):
         """
         Args:
@@ -511,7 +510,6 @@ class SelfEnergyStrategy(Strategy):
                 Extra ABINIT variables added directly to the input file
         """
         # TODO Add consistency check between SCR and SIGMA strategies
-
         super(SelfEnergyStrategy, self).__init__()
 
         self.pseudos = scf_strategy.pseudos

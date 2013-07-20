@@ -365,7 +365,8 @@ class IStructure(SiteCollection, MSONable):
                                   "less than 0.01 Angstrom apart!"))
 
     @classmethod
-    def from_sites(cls, sites, validate_proximity=False):
+    def from_sites(cls, sites, validate_proximity=False,
+                   to_unit_cell=False):
         """
         Convenience constructor to make a Structure from a list of sites.
 
@@ -375,7 +376,8 @@ class IStructure(SiteCollection, MSONable):
             validate_proximity:
                 Whether to check if there are sites that are less than 0.01 Ang
                 apart. Defaults to False.
-
+            to_unit_cell:
+                Whether to translate sites into the unit cell.
         """
         props = collections.defaultdict(list)
         lattice = None
@@ -389,7 +391,8 @@ class IStructure(SiteCollection, MSONable):
         return cls(lattice, [site.species_and_occu for site in sites],
                    [site.frac_coords for site in sites],
                    site_properties=props,
-                   validate_proximity=validate_proximity)
+                   validate_proximity=validate_proximity,
+                   to_unit_cell=to_unit_cell)
 
     @property
     def sites(self):
