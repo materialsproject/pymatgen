@@ -55,14 +55,12 @@ class PourbaixEntry(MSONable):
         self._nPhi = None
         self._nH2O = None
         self._nM = None
-#        if g is not None:
-#            self._g0 = g
-#        else:
-#            self._g0 = entry.energy
         self.uncorrected_energy = entry.energy
         self.correction = correction
         self._calc_coeff_terms()
         self._name = self._entry.composition.reduced_formula
+        if self._phase_type == "Solid":
+            self._name += "(s)"
         try:
             self.entry_id = entry.entry_id
         except AttributeError:
@@ -141,14 +139,14 @@ class PourbaixEntry(MSONable):
         """
         return self._phase_type
 
-#    def g0_add(self, term):
-#        """
-#        Add a correction term to g0
-#        args: 
-#            term: 
-#                Correction term to add to g0
-#        """
-#        self._g0 += term
+    def g0_add(self, term):
+        """
+        Add a correction term to g0
+        args:
+            term:
+                Correction term to add to g0
+        """
+        self.correction += term
 
     def g0_replace(self, term):
         """
@@ -157,7 +155,8 @@ class PourbaixEntry(MSONable):
             term: 
                 New value for g0
         """
-        self._g0 = term
+        self.uncorrected_energy = term
+        self.correction = 0.0
 
     @property
     def to_dict(self):
@@ -323,6 +322,7 @@ class MultiEntry(PourbaixEntry):
         self._nH2O = 0.0
         self._nM = 0.0
         self._name = ""
+        self.entry_id = list()
         for i in xrange(len(entry_list)):
             entry = entry_list[i]
             self.uncorrected_energy += self._weights[i] * entry.uncorrected_energy
@@ -332,6 +332,7 @@ class MultiEntry(PourbaixEntry):
             self._nH2O += self._weights[i] * entry.nH2O
             self._nM += self._weights[i] * entry._nM
             self._name += entry.name + " + "
+            self.entry_id.append(entry.entry_id)
         self._name = self._name[:-3]
 
     @property
