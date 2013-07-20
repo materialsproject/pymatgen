@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This module provides classes for plotting PhaseDiagram objects.
+This module provides classes for plotting Pourbaix objects.
 """
 
 from __future__ import division
@@ -16,6 +16,7 @@ __date__ = "Jan 26, 2012"
 
 import numpy as np
 import re
+import collections
 
 
 from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
@@ -26,7 +27,6 @@ from pymatgen.phasediagram.plotter import uniquelines
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.coord_utils import in_coord_list
-from coord_geom import intersect
 from pyhull.simplex import Simplex
 
 
@@ -94,19 +94,6 @@ class PourbaixPlotter(object):
                 unstable_entries[entry] = labelcoord[0]
 
         return (lines, stable_entries, unstable_entries)
-
-#    @property
-#    def pourbaix_plot_data(self):
-#        """
-#        """
-#        pd = self._pd
-#        analyzer = PourbaixAnalyzer(pd)
-#        chempots = analyzer.get_chempot_range_map()
-#        labels = list()
-#        xlabel = list()
-#        ylabel = list()
-#        zlabel = list()
-#        for entry, lines in chempots.items():
 
     def show(self, label_stable=True, label_unstable=False, filename=""):
         """
@@ -200,23 +187,60 @@ class PourbaixPlotter(object):
         else:
             plt.savefig(filename, bbox_inches=0)
 
-    def get_pourbaix_plot(self, limits=None, title=""):
+    def pourbaix_plot_data(self, limits=None):
         """
-        Plot pourbaix diagram
+        Get data required to plot Pourbaix diagram.
+        args:
+            limits:
+                2D list containing limits of the Pourbaix diagram
+                of the form [[xlo, xhi], [ylo, yhi]]
+        returns:
+            stable_entries, unstable_entries 
+            stable_entries: dict of lines. The keys are Pourbaix Entries, and lines are 
+            in the form of a list
+            unstable_entries: dict of decompositions. The keys are PourbaixEntries,
+            and the values are dict of decomposition entries and corresponding amounts 
         """
-        plt = get_publication_quality_plot(24, 14.4)
+        
         analyzer = PourbaixAnalyzer(self._pd)
-        self.analyzer = analyzer
+        self._analyzer = analyzer
         if limits:
             analyzer.chempot_limits = limits
         chempot_ranges = analyzer.get_chempot_range_map(limits)
         self.chempot_ranges = chempot_ranges
+        
+        stable_entries_list = collections.defaultdict(list)
+        
+        for entry in chempot_ranges:
+            for line in chempot_ranges[entry]:
+                x = [line.coords[0][0], line.coords[1][0]]
+                y = [line.coords[0][1], line.coords[1][1]]
+                coords = [x, y]
+                stable_entries_list[entry].append(coords)
+
+        unstable_entries_list = [entry for entry in self._pd.all_entries if entry not in self._pd.stable_entries]
+
+        return stable_entries_list, unstable_entries_list
+
+    def get_pourbaix_plot(self, limits=None, title=""):
+        """
+        Plot Pourbaix diagram.
+        args:
+            limits:
+                2D list containing limits of the Pourbaix diagram
+                of the form [[xlo, xhi], [ylo, yhi]]
+        returns:
+            plt:
+                matplotlib plot object
+        """
+        plt = get_publication_quality_plot(24, 14.4)
+        (stable, unstable) = self.pourbaix_plot_data(limits)
         if (limits):
             xlim = limits[0]
             ylim = limits[1]
         else:
-            xlim = analyzer.chempot_limits[0]
-            ylim = analyzer.chempot_limits[1]
+            xlim = self._analyzer.chempot_limits[0]
+            ylim = self._analyzer.chempot_limits[1]
 
         h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], \
                                 [xlim[1], -xlim[1] * PREFAC]])
@@ -235,24 +259,21 @@ class PourbaixPlotter(object):
         plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
 
         borders = list()
-        borders.append([[xlim[0], ylim[0]], [xlim[0], ylim[1]]]) 
+        borders.append([[xlim[0], ylim[0]], [xlim[0], ylim[1]]])
         borders.append([[xlim[0], ylim[0]], [xlim[1], ylim[0]]])
-        borders.append([[xlim[1], ylim[1]], [xlim[0], ylim[1]]]) 
-        borders.append([[xlim[1], ylim[1]], [xlim[1], ylim[0]]]) 
-        tol = PourbaixAnalyzer.numerical_tol
-        
-        any_in = lambda a, b: any(j in b for j in a)
-        for entry, lines in chempot_ranges.items():
-            region = []
+        borders.append([[xlim[1], ylim[1]], [xlim[0], ylim[1]]])
+        borders.append([[xlim[1], ylim[1]], [xlim[1], ylim[0]]])
+
+        for entry, lines in stable.items():
             center_x = 0.0
             center_y = 0.0
             coords = []
             count_center = 0.0
             for line in lines:
-                (x, y) = line.coords.transpose()
+                (x, y) = line
                 plt.plot(x, y, "k-", linewidth=lw)
 
-                for coord in line.coords:
+                for coord in np.array(line).T:
                     if not in_coord_list(coords, coord):
                         coords.append(coord.tolist())
                         cx = coord[0]
@@ -268,7 +289,6 @@ class PourbaixPlotter(object):
                         center_x += cx
                         center_y += cy
                         count_center += 1.0
-                region.append(line.coords)
             if count_center == 0.0:
                 count_center = 1.0
             center_x /= count_center
@@ -282,7 +302,6 @@ class PourbaixPlotter(object):
         plt.xlabel("pH")
         plt.ylabel("E (V)")
         plt.title(title, fontsize=30, fontweight='bold')
-#        plt.tight_layout()
         return plt
 
     def print_name(self, entry):
@@ -291,7 +310,7 @@ class PourbaixPlotter(object):
         """
         str_name = ""
         if isinstance(entry, MultiEntry):
-	    if len(entry.entrylist) > 2:
+            if len(entry.entrylist) > 1:
                 return str(self._pd.qhull_entries.index(entry))
             for e in entry.entrylist:
                 str_name += latexify_ion(latexify(e.name)) + " + "

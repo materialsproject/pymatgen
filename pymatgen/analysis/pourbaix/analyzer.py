@@ -137,17 +137,11 @@ class PourbaixAnalyzer(object):
         minV = min([chempot[1] for chempot in all_chempots])
         maxV = max([chempot[0] for chempot in all_chempots])
         self.chempot_limits = [[min_pH, max_pH], [minV, maxV]]
-        xlo = min(min_pH - 5, -10)
-        xhi = max(max_pH + 5, 20)
-        ylo = min(minV - 3, -10)
-        yhi = max(maxV + 3, 10)
+        xlo = min(min_pH - 5.0, -10.0)
+        xhi = max(max_pH + 5.0, 20.0)
+        ylo = min(minV - 3.0, -10.0)
+        yhi = max(maxV + 3.0, 10.0)
 
-#        self.chempot_limits = limits
-#        xlo = limits[0][0]
-#        xhi = limits[0][1]
-#        ylo = limits[1][0]
-#        yhi = limits[1][1]
-        
         max_dist = np.sqrt((yhi - ylo) ** 2 + (xhi - xlo) ** 2)
 
         dist_edge = {}
@@ -491,7 +485,7 @@ class PourbaixAnalyzer(object):
                 A composition
 
         Returns:
-            Decomposition as a dict of {PDEntry: amount}
+            Decomposition as a dict of {PourbaixEntry: amount}
         """
         facet = self._get_facet(entry)
         entrylist = [self._pd.qhull_entries[i] for i in facet]
@@ -511,7 +505,7 @@ class PourbaixAnalyzer(object):
 
         Args:
             entry:
-                A PDEntry like object
+                A PourbaixEntry
 
         Returns:
             (decomp, energy above convex hull)  Stable entries should have
@@ -528,7 +522,7 @@ class PourbaixAnalyzer(object):
         Provides the energy above convex hull for an entry
 
         Args:
-            entry - A PDEntry like object
+            entry - A PourbaixEntry object
 
         Returns:
             Energy above convex hull of entry. Stable entries should have

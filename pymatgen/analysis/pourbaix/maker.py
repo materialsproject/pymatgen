@@ -21,9 +21,12 @@ MU_H2O = -2.4583
 import logging
 import numpy as np
 import itertools
+import re
 from pyhull.convex_hull import ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition
+from pymatgen.core.ion import Ion
 
 logger = logging.getLogger(__name__)
 
@@ -54,8 +57,28 @@ class PourbaixDiagram(object):
         self._elt_comp = comp_dict
         if comp_dict:
             self._multielement = True
+            self.pourbaix_elements = [key for key in comp_dict]
+            w = [comp_dict[key] for key in comp_dict]
+            A = []
+            for comp in comp_dict:
+                m = re.search(r"\[([^\[\]]+)\]|\(aq\)", comp)
+                if m:
+                    comp_obj = Ion.from_formula(comp)
+                else:
+                    comp_obj = Composition.from_formula(comp)
+                Ai = []
+                for elt in self.pourbaix_elements:
+                    Ai.append(comp_obj[Element(elt)])
+                A.append(Ai)
+            A = ((np.array(A)).T).astype(float)
+            w = np.array(w)
+            A /= np.dot([A[i].sum() for i in xrange(len(A))], w)
+            x = np.linalg.solve(A, w)
+            self._elt_comp = dict(zip(self.pourbaix_elements, x))
+
         else:
             self._multielement = False
+            self.pourbaix_elements = [el.symbol for el in entries[0].composition.elements if el.symbol not in ["H", "O"]]
         self._make_pourbaixdiagram()
 
     def _create_conv_hull_data(self):
