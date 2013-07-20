@@ -13,7 +13,7 @@ import numpy as np
 
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours
-from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump #, PMGJSONDecoder
+from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
 from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
 from pymatgen.io.abinitio.launcher import TaskLauncher
@@ -26,12 +26,9 @@ __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
-__email__ = "gmatteo at gmail.com"
-__status__ = "Development"
-__date__ = "$Feb 21, 2013M$"
 
 __all__ = [
-"task_factory",
+    "task_factory",
 ]
 
 ##########################################################################################
@@ -60,8 +57,7 @@ class FakeProcess(object):
 ##########################################################################################
 
 def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
-    "Factory function for Task instances."
-
+    """Factory function for Task instances."""
     # TODO
     # Instanciate subclasses depending on the runlevel.
     classes = {
@@ -79,7 +75,7 @@ def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
 ##########################################################################################
 
 class TaskError(Exception):
-    "Base Exception for Task methods"
+    """Base Exception for Task methods"""
 
 class Task(object):
     __metaclass__ = abc.ABCMeta
@@ -106,10 +102,10 @@ class Task(object):
     # Interface modeled after subprocess.Popen
     @abc.abstractproperty
     def process(self):
-        "Return an object that supports the subprocess.Popen protocol."
+        """Return an object that supports the subprocess.Popen protocol."""
 
     def poll(self):
-        "Check if child process has terminated. Set and return returncode attribute."
+        """Check if child process has terminated. Set and return returncode attribute."""
         returncode = self.process.poll()
         #print("In task poll returncode %s" % returncode)
         if returncode is not None:
@@ -118,7 +114,7 @@ class Task(object):
         return returncode
 
     def wait(self):
-        "Wait for child process to terminate. Set and return returncode attribute."
+        """Wait for child process to terminate. Set and return returncode attribute."""
         returncode = self.process.wait()
         self.set_status(Task.S_DONE)
         return returncode
@@ -150,25 +146,25 @@ class Task(object):
 
     @property
     def id(self):
-        "Task identifier"
+        """Task identifier."""
         return self._id
 
     def set_id(self, id):
-        "Set the task identifier"
+        """Set the task identifier."""
         self._id = id
 
     @property
     def tot_ncpus(self):
-        "Total number of CPUs used to run the task."
+        """Total number of CPUs used to run the task."""
         return self.launcher.tot_ncpus
 
     @property
     def status(self):
-        "Gives the status of the task"
+        """Gives the status of the task."""
         return self._status
 
     def set_status(self, status):
-        "Set the status of the task"
+        """Set the status of the task."""
         if status not in Task.status2str:
             raise RunTimeError("Unknown status: %s" % status)
 
@@ -179,7 +175,7 @@ class Task(object):
 
     @property
     def links_status(self):
-        "Returns a list with the status of the links"
+        """Returns a list with the status of the links."""
         if not self._links:
             return [Task.S_DONE,]
         return [l.status for l in self._links]
@@ -207,6 +203,7 @@ class Task(object):
 
     @property
     def events(self):
+        """List of errors or warnings reporte by ABINIT."""
         if self.status != Task.S_DONE:
             raise self.Error(
                 "Task %s is not completed.\n You cannot access its events now, use get_events" % repr(self))
@@ -217,13 +214,13 @@ class Task(object):
             return self._events
 
     def get_events(self):
-        "Analyzes the main output for possible errors or warnings."
+        """Analyzes the main output for possible errors or warnings."""
         # TODO: Handle possible errors in the parser by generating a custom EventList object
         return EventParser().parse(self.output_file.path)
 
     @property
     def results(self):
-        "The results produced by the task. Set by get_results"
+        """The results produced by the task. Set by get_results"""
         try:
             return self._results
         except AttributeError:
@@ -344,7 +341,7 @@ class AbinitTask(Task):
 
     @property
     def jobfile_path(self):
-        "Absolute path of the job file (shell script)."
+        """Absolute path of the job file (shell script)."""
         return os.path.join(self.workdir, self.basename.jobfile)    
 
     @property
@@ -363,23 +360,22 @@ class AbinitTask(Task):
         return os.path.join(self.workdir, head)
 
     def idata_path_from_ext(self, ext):
-        "Returns the path of the input file with extension ext"
+        """Returns the path of the input file with extension ext."""
         return os.path.join(self.workdir, (self.prefix.idata + ext))
 
     def odata_path_from_ext(self, ext):
-        "Returns the path of the output file with extension ext"
+        """Returns the path of the output file with extension ext"""
         return os.path.join(self.workdir, (self.prefix.odata + ext))
 
     @property
     def pseudos(self):
-        "List of pseudos used in the calculation."
+        """List of pseudos used in the calculation."""
         return self.strategy.pseudos
 
     @property
     def filesfile_string(self):
-        "String with the list of files and prefix needed to execute abinit."
-        lines = []
-        app = lines.append
+        """String with the list of files and prefix needed to execute abinit."""
+        lines = []; app = lines.append
         pj = os.path.join
 
         app(self.input_file.path)                 # Path to the input file
@@ -409,24 +405,24 @@ class AbinitTask(Task):
         raise NotimplementedError("")
 
     def isdone(self):
-        "True if the output file is complete."
+        """True if the output file is complete."""
         return abinit_output_iscomplete(self.output_file.path)
 
     @property
     def isnc(self):
-        "True if norm-conserving calculation"
+        """True if norm-conserving calculation."""
         return all(p.isnc for p in self.pseudos)
 
     @property
     def ispaw(self):
-        "True if PAW calculation"
+        """True if PAW calculation"""
         return all(p.ispaw for p in self.pseudos)
 
     def make_input(self):
         return self.strategy.make_input()
 
     def outfiles(self):
-        "Return all the output data files produced."
+        """Return all the output data files produced."""
         files = list()
         for file in os.listdir(self.outdata_dir):
             if file.startswith(os.path.basename(self.prefix.odata)):
@@ -434,7 +430,7 @@ class AbinitTask(Task):
         return files
                                                                   
     def tmpfiles(self):
-        "Return all the input data files produced."
+        """Return all the input data files produced."""
         files = list()
         for file in os.listdir(self.tmpdata_dir):
             if file.startswith(os.path.basename(self.prefix.tdata)):
@@ -442,15 +438,15 @@ class AbinitTask(Task):
         return files
 
     def path_in_workdir(self, filename):
-        "Create the absolute path of filename in the top-level working directory."
+        """Create the absolute path of filename in the top-level working directory."""
         return os.path.join(self.workdir, filename)
 
     def path_in_indatadir(self, filename):
-        "Create the absolute path of filename in the indata directory."
+        """Create the absolute path of filename in the indata directory."""
         return os.path.join(self.indata_dir, filename)
 
     def path_in_outdatadir(self, filename):
-        "Create the absolute path of filename in the outdata directory."
+        """Create the absolute path of filename in the outdata directory."""
         return os.path.join(self.outdata_dir, filename)
 
     def build(self, *args, **kwargs):
@@ -483,7 +479,7 @@ class AbinitTask(Task):
         #            f.write(str(self.jobfile))
 
     def rmtree(self, *args, **kwargs):
-        "Remove all files and directories."
+        """Remove all files and directories."""
         shutil.rmtree(self.workdir)
 
     def get_runhints(self):
@@ -531,7 +527,7 @@ class AbinitTask(Task):
 
         self._setup(*args, **kwargs)
 
-        # Start the calculation in a subprocess and return
+        # Start the calculation in a subprocess and return.
         self._process = self.launcher.launch(self)
 
 ##########################################################################################
@@ -665,7 +661,6 @@ class RunMode(dict, MSONable):
     of the run (submission, coarse- and fine-grained parallelism ...)
     It acts as a factory that produced Launcher instances.
     """
-
     # Default values (correspond to the sequential mode).
     _defaults = {
         "launcher_type": "shell",    # ["shell", "slurm", "slurm", "pbs",]
@@ -774,16 +769,7 @@ class RunMode(dict, MSONable):
                   )
 
     def make_seq_launcher(self, task):
-        "Return a simple launcher for sequential runs."
+        """Return a simple launcher for sequential runs."""
         raise NotImplementedError("")
 
 ##########################################################################################
-
-#class RunParams(dict):
-#    """
-#    Dictionary with the parameters governing the execution of the task.
-#    In contains the parameters passed by the user via RunMode and the 
-#    parameteres suggested by abinit.
-#    """
-#    def __init__(self, *args, **kwargs):
-#        super(RunParams, self).__init__(*args, **kwargs)
