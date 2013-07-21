@@ -4,7 +4,7 @@ import unittest
 
 from pymatgen.core.ion import Ion
 from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Composition
+from pymatgen.core.composition import Composition, CompositionError
 import random
 
 
@@ -37,7 +37,7 @@ class IonTest(unittest.TestCase):
                             'Fe2 P6 C10 O54 -3', 'Ca1 +2', 'Na1 H1 O1']
         all_formulas = [c.formula for c in self.comp]
         self.assertEqual(all_formulas, correct_formulas)
-        self.assertRaises(ValueError, Ion.from_formula, "(co2)(po4)2")
+        self.assertRaises(CompositionError, Ion.from_formula, "(co2)(po4)2")
 
     def test_mixed_valence(self):
         comp = Ion(Composition({"Fe2+": 2, "Fe3+": 4, "Li+": 8}))
@@ -66,20 +66,20 @@ class IonTest(unittest.TestCase):
                              expected_formulas[i])
 
     def test_from_dict(self):
-        sym_dict = {'composition': {"P": 1, "O": 4}, 'charge': -2}
+        sym_dict = {"P": 1, "O": 4, 'charge': -2}
         self.assertEqual(Ion.from_dict(sym_dict).reduced_formula,
                          "PO4[2-]",
                          "Creation form sym_amount dictionary failed!")
 
     def test_to_dict(self):
-        c = Ion.from_dict({'composition': {'Mn': 1, 'O': 4}, 'charge': -1})
+        c = Ion.from_dict({'Mn': 1, 'O': 4, 'charge': -1})
         d = c.to_dict
-        correct_dict = {'composition': {'Mn': 1.0, 'O': 4.0}, 'charge': -1.0}
-        self.assertEqual(d['composition'], correct_dict['composition'])
+        correct_dict = {'Mn': 1.0, 'O': 4.0, 'charge': -1.0}
+        self.assertEqual(d, correct_dict)
         self.assertEqual(d['charge'], correct_dict['charge'])
-        correct_dict = {'composition': {'Mn': 1.0, 'O': 4.0}, 'charge': -1}
+        correct_dict = {'Mn': 1.0, 'O': 4.0, 'charge': -1}
         d = c.to_reduced_dict
-        self.assertEqual(d['composition'], correct_dict['composition'])
+        self.assertEqual(d, correct_dict)
         self.assertEqual(d['charge'], correct_dict['charge'])
 
     def test_equals(self):
