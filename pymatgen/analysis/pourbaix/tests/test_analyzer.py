@@ -12,9 +12,9 @@ class TestPourbaixAnalyzer(unittest.TestCase):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         (elements, entries) = PourbaixEntryIO.from_csv(os.path.join(module_dir,
                                                     "test_entries.csv"))
-        self.num_simplices = {"Zn": 7, "ZnO2": 7, "Zn[2+]": 4, "ZnO2[2-]": 4, "ZnHO2[-]": 4}
+        self.num_simplices = {"Zn(s)": 7, "ZnO2(s)": 7, "Zn[2+]": 4, "ZnO2[2-]": 4, "ZnHO2[-]": 4}
         self.e_above_hull_test = {"ZnHO[+]": 0.0693, "ZnO(aq)": 0.0624}
-        self.decomp_test = {"ZnHO[+]": {"ZnO": 0.5, "Zn[2+]": 0.5}, "ZnO(aq)": {"ZnO": 1.0}}
+        self.decomp_test = {"ZnHO[+]": {"ZnO(s)": 0.5, "Zn[2+]": 0.5}, "ZnO(aq)": {"ZnO(s)": 1.0}}
         self.pd = PourbaixDiagram(entries)
         self.analyzer = PourbaixAnalyzer(self.pd)
 
