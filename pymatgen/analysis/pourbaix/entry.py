@@ -169,7 +169,7 @@ class PourbaixEntry(MSONable):
         """
         d = {"@module": self.__class__.__module__,
              "@class": self.__class__.__name__}
-        if isinstance(self._entry, "IonEntry"):
+        if isinstance(self._entry, IonEntry):
             d["entry type"] = "Ion"
         else:
             d["entry type"] = "Solid"
