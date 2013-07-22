@@ -31,17 +31,19 @@ class PourbaixEntry(MSONable):
     """
     An object encompassing all data relevant to an ion in a pourbaix diagram.
     Each bulk solid/ion has a free energy g of the form:
-    g = g0_ref + 0.0591 log10(conc) - nO mu_H2O + (nH - 2nO) pH + phi (-nH + 2nO + q)
+    g = g0_ref + 0.0591 log10(conc) - nO mu_H2O + (nH - 2nO) pH
+        + phi (-nH + 2nO + q)
     """
     def __init__(self, entry, correction=0.0, entry_id=None):
         """
         Args:
             entry:
-                An entry object (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry)
+                An entry object
+                (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry)
             energy:
                 Energy of entry
         """
-        if (entry.__class__.__name__ == "IonEntry"):
+        if isinstance(entry, IonEntry):
             self._entry = entry
             self._conc = 1.0e-6
             self._phase_type = "Ion"
@@ -165,10 +167,9 @@ class PourbaixEntry(MSONable):
         Note that the pH, voltage, H2O factors are always calculated when
         constructing a PourbaixEntry object.
         """
-        d = {}
-        d["module"] = self.__class__.__module__
-        d["class"] = self.__class__.__name__
-        if (self._entry.__class__.__name__ == "IonEntry"):
+        d = {"@module": self.__class__.__module__,
+             "@class": self.__class__.__name__}
+        if isinstance(self._entry, "IonEntry"):
             d["entry type"] = "Ion"
         else:
             d["entry type"] = "Solid"
@@ -182,13 +183,13 @@ class PourbaixEntry(MSONable):
         d["entry_id"] = self.entry_id
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Returns a PourbaixEntry by reading in an Ion
         """
         entry_type = d["entry type"]
-        if (entry_type == "Ion"):
+        if entry_type == "Ion":
             entry = IonEntry.from_dict(d["entry"])
         else:
             entry = PDEntry.from_dict(d["entry"])
@@ -268,7 +269,7 @@ class PourbaixEntry(MSONable):
         this factor.
         """
         reduction_factor = self.entry.composition.\
-                            get_reduced_composition_and_factor()[1]
+            get_reduced_composition_and_factor()[1]
         self._nM /= reduction_factor
         self.scale(1.0 / reduction_factor)
 
@@ -291,8 +292,8 @@ class PourbaixEntry(MSONable):
 
     def __repr__(self):
         return "Pourbaix Entry : {} with energy = {:.4f}, npH = {}, nPhi = {},\
-             nH2O = {}".format(self._entry.composition, self.g0, self.npH,\
-                                self.nPhi, self.nH2O)
+             nH2O = {}".format(self._entry.composition, self.g0, self.npH,
+                               self.nPhi, self.nH2O)
 
     def __str__(self):
         return self.__repr__()
@@ -311,7 +312,7 @@ class MultiEntry(PourbaixEntry):
                 Weights associated with each entry. Default is None
         """
         if weights is None:
-            self._weights = [1.0 for i in xrange(len(entry_list))]
+            self._weights = [1.0] * len(entry_list)
         else:
             self._weights = weights
         self._entrylist = entry_list
@@ -325,7 +326,8 @@ class MultiEntry(PourbaixEntry):
         self.entry_id = list()
         for i in xrange(len(entry_list)):
             entry = entry_list[i]
-            self.uncorrected_energy += self._weights[i] * entry.uncorrected_energy
+            self.uncorrected_energy += self._weights[i] * \
+                entry.uncorrected_energy
             self.correction += self._weights[i] * entry.correction
             self._npH += self._weights[i] * entry.npH
             self._nPhi += self._weights[i] * entry.nPhi
@@ -347,7 +349,8 @@ class MultiEntry(PourbaixEntry):
                 if (el == Element("O")) | (el == Element("H")):
                     continue
                 if entry._phase_type == 'Solid':
-                    red_fac = entry.composition.get_reduced_composition_and_factor()[1]
+                    red_fac = entry.composition.\
+                        get_reduced_composition_and_factor()[1]
                 else:
                     red_fac = 1.0
                 norm_fac += self._weights[i] * entry.composition[el] / red_fac
@@ -355,9 +358,9 @@ class MultiEntry(PourbaixEntry):
         return fact
 
     def __repr__(self):
-        str =  "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, nPhi = {},\
-             nH2O = {}".format(self.g0, self.npH,\
-                                self.nPhi, self.nH2O)
+        str = "Multiple Pourbaix Entry : with energy = {:.4f}, npH = {}, "\
+            "nPhi = {}, nH2O = {}".format(
+            self.g0, self.npH, self.nPhi, self.nH2O)
         str += ", species: "
         for entry in self._entrylist:
             str += entry.name + " + "
@@ -388,7 +391,6 @@ class IonEntry(PDEntry):
         By default, this is the reduced formula for the composition, but can be
         set to some other string for display purposes.
     """
-
     def __init__(self, ion, energy, name=None):
         """
         Args:
@@ -404,8 +406,8 @@ class IonEntry(PDEntry):
         self._composition = ion
         self.name = name if name else self._composition.reduced_formula
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Returns an IonEntry object from a dict.
         """
@@ -416,9 +418,7 @@ class IonEntry(PDEntry):
         """
         Creates a dict of composition, energy, and ion name
         """
-        d = {}
-        d["composition"] = self._composition.to_dict
-        d["energy"] = self._energy
+        d = {"composition": self._composition.to_dict, "energy": self._energy}
         return d
 
     @property
@@ -444,7 +444,7 @@ class IonEntry(PDEntry):
 
     def __repr__(self):
         return "IonEntry : {} with energy = {:.4f}".format(self.composition,
-                                                          self.energy)
+                                                           self.energy)
 
     def __str__(self):
         return self.__repr__()
@@ -469,23 +469,23 @@ class PourbaixEntryIO(object):
         """
         import csv
         elements = set()
-        map(elements.update, [entry.entry.composition.elements for entry in\
-                               entries])
+        map(elements.update, [entry.entry.composition.elements
+                              for entry in entries])
         elements = sorted(list(elements), key=lambda a: a.X)
         writer = csv.writer(open(filename, "wb"), delimiter=",",
                             quotechar="\"", quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(["Name"] + elements + ["Energy"] + ["Entry Type"]\
-                         + ["Charge"] + ["Concentration"])
+        writer.writerow(["Name"] + elements + ["Energy"] + ["Entry Type"]
+                        + ["Charge"] + ["Concentration"])
         for entry in entries:
             row = [entry.name if not latexify_names
                    else re.sub(r"([0-9]+)", r"_{\1}", entry.name)]
             if entry.phase_type == "Solid":
                 reduction_fac = entry.entry.composition.\
-                                get_reduced_composition_and_factor()[1]
+                    get_reduced_composition_and_factor()[1]
             else:
                 reduction_fac = 1.0
-            row.extend([entry.entry.composition[el] / reduction_fac\
-                            for el in elements])
+            row.extend([entry.entry.composition[el] / reduction_fac
+                        for el in elements])
             if entry.phase_type == "Solid":
                 reduction_fac = 1.0
             row.append(entry.g0 / reduction_fac)
@@ -521,14 +521,14 @@ class PourbaixEntryIO(object):
                     if float(row[ind]) > 0:
                         comp[Element(elements[ind - 1])] = float(row[ind])
                 phase_type = row[-3]
-                if (phase_type == "Ion"):
-                    PoE = PourbaixEntry(IonEntry(Ion.from_formula(name),\
-                                                  energy))
+                if phase_type == "Ion":
+                    PoE = PourbaixEntry(IonEntry(Ion.from_formula(name),
+                                                 energy))
                     PoE.set_conc(conc)
                     PoE.set_name(name)
                     entries.append(PoE)
                 else:
-                    entries.append(PourbaixEntry(PDEntry(Composition(comp),\
-                                                  energy)))
+                    entries.append(PourbaixEntry(PDEntry(Composition(comp),
+                                                         energy)))
         elements = [Element(el) for el in elements]
-        return (elements, entries)
+        return elements, entries
