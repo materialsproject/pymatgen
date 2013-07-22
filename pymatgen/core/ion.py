@@ -27,7 +27,7 @@ class Ion(MSONable):
     The net charge can either be represented as Mn++, or Mn+2, or Mn[2+].
     Note the order of the sign and magnitude in each representation.
     """
-    def __init__(self, composition, charge = 0.0, properties = None):
+    def __init__(self, composition, charge=0.0, properties=None):
         """
         Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition
@@ -54,7 +54,7 @@ class Ion(MSONable):
             if m_chg:
                 if m_chg.group(1) != "":
                     charge += float(m_chg.group(1)) * \
-                    (float(m_chg.group(2) + "1"))
+                        (float(m_chg.group(2) + "1"))
                 else:
                     charge += float(m_chg.group(2) + "1")
             f = f.replace(m.group(), "", 1)
@@ -107,9 +107,8 @@ class Ion(MSONable):
         Returns a reduced formula string with appended charge.
         """
         reduced_formula = self._composition.reduced_formula
-        charge = self._charge / float(self._composition.\
+        charge = self._charge / float(self._composition.
                                       get_reduced_composition_and_factor()[1])
-        chg_str = ""
         if charge > 0:
             if abs(charge) == 1:
                 chg_str = "[+]"
@@ -119,8 +118,8 @@ class Ion(MSONable):
             if abs(charge) == 1:
                 chg_str = "[-]"
             else:
-                chg_str = "[" + formula_double_format(abs(charge), False) +\
-                 "-]"
+                chg_str = "[{}-]".format(formula_double_format(abs(charge),
+                                                               False))
         else:
             chg_str = "(aq)"
         return reduced_formula + chg_str
@@ -162,8 +161,8 @@ class Ion(MSONable):
         d['charge'] = self._charge
         return d
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
         Generates an ion object from a dict created by to_dict.
         Args:
@@ -172,7 +171,7 @@ class Ion(MSONable):
         """
 #        composition = Composition.from_dict(d['composition'])
         charge = d['charge']
-        composition = Composition.from_dict({i: d[i] for i in d if i != 'charge'})
+        composition = Composition({i: d[i] for i in d if i != 'charge'})
         return Ion(composition, charge)
 
     @property
