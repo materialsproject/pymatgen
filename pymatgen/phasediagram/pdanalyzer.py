@@ -209,6 +209,16 @@ class PDAnalyzer(object):
         m = self._make_comp_matrix(complist)
         chempots = np.linalg.solve(m, energylist)
         return dict(zip(self._pd.elements, chempots))
+    
+    def get_composition_chempots(self, comp):
+        #check that the composition is in the PD (it's often easy to use invalid ones
+        #in grand potential phase diagrams)
+        for el in comp.elements:
+            if el not in self._pd.elements and comp[el] > Composition.amount_tolerance:
+                raise ValueError('Composition includes element {} which is '
+                                 'not in the PhaseDiagram'.format(el))
+        facet = self._get_facet(comp)
+        return self.get_facet_chempots(facet)
 
     def get_transition_chempots(self, element):
         """
