@@ -233,7 +233,9 @@ class PourbaixPlotter(object):
             plt:
                 matplotlib plot object
         """
-        plt = get_publication_quality_plot(24, 14.4)
+        width = 10
+        height = 6.4
+        plt = get_publication_quality_plot(width, height)
         (stable, unstable) = self.pourbaix_plot_data(limits)
         if (limits):
             xlim = limits[0]
@@ -297,11 +299,11 @@ class PourbaixPlotter(object):
                  (center_y <= ylim[0]) | (center_y >= ylim[1])):
                 continue
             xy = (center_x, center_y)
-            plt.annotate(self.print_name(entry), xy, fontsize=30, color="b")
+            plt.annotate(self.print_name(entry), xy, fontsize=14, color="b")
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
-        plt.title(title, fontsize=30, fontweight='bold')
+        plt.title(title, fontsize=14, fontweight='bold')
         return plt
 
     def print_name(self, entry):
