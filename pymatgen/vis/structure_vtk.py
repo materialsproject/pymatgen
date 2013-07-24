@@ -604,7 +604,10 @@ class StructureVis(object):
         pd.SetLines(lines)
 
         tube = vtk.vtkTubeFilter()
-        tube.SetInputData(pd)
+        if vtk.VTK_MAJOR_VERSION <= 5:
+            tube.SetInputConnection(pd.GetProducerPort())
+        else:
+            tube.SetInputData(pd)
         tube.SetRadius(radius)
 
         mapper = vtk.vtkPolyDataMapper()
