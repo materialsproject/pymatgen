@@ -13,6 +13,10 @@ __date__ = "Mar 5, 2013"
 import itertools
 from pymatgen.entries.post_processors_abc import EntryPostProcessor
 from pymatgen.analysis.structure_analyzer import contains_peroxide
+from pymatgen.util.coord_utils import pbc_all_distances
+from pymatgen.core.periodic_table import Element
+import numpy as np
+
 import os
 import ConfigParser
 
@@ -78,16 +82,18 @@ class PourbaixCompatibility(EntryPostProcessor):
             if contains_hydroxide(entry.structure):
                 corr_str = "Hydroxide"
                 n_ion = min(comp["O"], comp["H"])
-            elif contains_ozonide(entry.structure, 1.15):
-                return None
-            elif contains_superoxide(entry.structure, 1.15):
-                corr_str = "Superoxide"
-                n_ion = (comp["O"]) / 2
-            elif contains_peroxide(entry.structure, 1.15):
-                corr_str = "Peroxide"
-                n_ion = (comp["O"]) / 2
             else:
-                return entry
+                ox_type = oxide_type(entry.structure, 1.1)
+                if ox_type == "ozonide":
+                    return None
+                elif ox_type == "superoxide":
+                    corr_str = "Superoxide"
+                    n_ion = (comp["O"]) / 2
+                elif ox_type == "peroxide":
+                    corr_str = "Peroxide"
+                    n_ion = (comp["O"]) / 2
+                else:
+                    return entry
             corr_str = self.corr_str + corr_str
             corr = self._config.items(corr_str)
             entry.correction += float(corr[0][1]) * float(n_ion)
@@ -135,7 +141,6 @@ def contains_ozonide(structure, relative_cutoff=1.2):
         if i.distance(j) < max_dist:
             is_ozonide = True
             break
-    from pymatgen.core.periodic_table import Element
     if is_ozonide:
         if (int(structure.composition["O"] / structure.composition.get_reduced_composition_and_factor()[1]) % 3 == 0):
             sum = 0
@@ -177,6 +182,69 @@ def contains_superoxide(structure, relative_cutoff=1.2):
     return False
 
 
+def oxide_type(structure, relative_cutoff=1.2):
+    """
+    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+    
+    Args:
+        structure:
+            Input structure.
+        relative_cutoff:
+            Relative_cutoff * act. cutoff stipulates the max. distance two 
+            O atoms must be from each other. 
+    """
+
+    o_sites_frac_coords = []
+    h_sites_frac_coords = []
+    lattice = structure.lattice
+
+#    Check if H2O/O2/H2O2/non-oxide is being checked
+    el_other_than_OH = [el.symbol for el in structure.composition.elements if el.symbol not in ["H", "O"]]
+    if (not el_other_than_OH) | (len(el_other_than_OH) == len(structure.composition.elements)):
+        return "None"
+
+    for site in structure:
+        syms = [sp. symbol for sp in site.species_and_occu.keys()]
+        if "O" in syms:
+            o_sites_frac_coords.append(site.frac_coords)
+        if "H" in syms:
+            h_sites_frac_coords.append(site.frac_coords)
+
+#   We are not correcting hydrides
+    if not o_sites_frac_coords:
+        return "None"
+
+    if h_sites_frac_coords:
+        dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords, h_sites_frac_coords)
+        if np.any(dist_matrix < relative_cutoff * 0.93):
+            return "hydroxide"
+    dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords, o_sites_frac_coords)
+    np.fill_diagonal(dist_matrix, 1000)
+    is_superoxide = False
+    is_peroxide = False
+    is_ozonide = False
+    if np.any(dist_matrix < relative_cutoff * 1.35):
+        is_superoxide = True
+    elif np.any(dist_matrix < relative_cutoff * 1.49):
+        is_peroxide = True
+    if is_superoxide:
+        if (int(structure.composition["O"] / structure.composition.get_reduced_composition_and_factor()[1]) % 3 == 0):
+            sum = 0
+            for elt in [el for el in structure.composition.elements if el is not Element("O")]:
+                sum += structure.composition[elt.symbol]
+            if sum / structure.composition.get_reduced_composition_and_factor()[1] <= 1:
+                is_superoxide = False
+                is_ozonide = True
+    if is_ozonide: 
+        return "ozonide"
+    elif is_superoxide:
+        return "superoxide"
+    elif is_peroxide:
+        return "peroxide"
+    else:
+        return "oxide"
+
+
 def contains_hydroxide(structure, relative_cutoff=1.2):
     """
     Determines if a structure contains hydroxide anions
@@ -189,20 +257,23 @@ def contains_hydroxide(structure, relative_cutoff=1.2):
             stipulates the maximum distance an O and H must be from each other
             to be considered a hydroxide.
     """
+    if ('O' not in structure.composition.elements) | ('H' not in structure.composition.elements):
+        return False
     max_dist = relative_cutoff * 0.93
+    lattice = structure.lattice
     o_sites = []
     h_sites = []
     for site in structure:
         syms = [sp.symbol for sp in site.species_and_occu.keys()]
         if "O" in syms:
-            o_sites.append(site)
+            o_sites.append(site.frac_coords)
         if "H" in syms:
-            h_sites.append(site)
+            h_sites.append(site.frac_coords)
     maybe_oh = False
-    for i in o_sites:
-        for j in h_sites:
-            if i.distance(j) < max_dist:
-                maybe_oh = True
+
+    dist_matrix = pbc_all_distances(lattice, o_sites, h_sites)
+    if np.any(dist_matrix < max_dist):
+        maybe_oh = True
     if maybe_oh:
         if len([elt.symbol for elt in structure.composition.keys() if elt.symbol not in ["O", "H"]]) == 0.0 :
             maybe_oh = False
