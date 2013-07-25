@@ -195,11 +195,29 @@ def oxide_type(structure, relative_cutoff=1.2):
     """
 
     o_sites_frac_coords = []
+    h_sites_frac_coords = []
     lattice = structure.lattice
+
+#    Check if H2O/O2/H2O2/non-oxide is being checked
+    el_other_than_OH = [el.symbol for el in structure.composition.elements if el.symbol not in ["H", "O"]]
+    if (not el_other_than_OH) | (len(el_other_than_OH) == len(structure.composition.elements)):
+        return "None"
+
     for site in structure:
         syms = [sp. symbol for sp in site.species_and_occu.keys()]
         if "O" in syms:
             o_sites_frac_coords.append(site.frac_coords)
+        if "H" in syms:
+            h_sites_frac_coords.append(site.frac_coords)
+
+#   We are not correcting hydrides
+    if not o_sites_frac_coords:
+        return "None"
+
+    if h_sites_frac_coords:
+        dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords, h_sites_frac_coords)
+        if np.any(dist_matrix < relative_cutoff * 0.93):
+            return "hydroxide"
     dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords, o_sites_frac_coords)
     np.fill_diagonal(dist_matrix, 1000)
     is_superoxide = False

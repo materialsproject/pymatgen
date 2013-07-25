@@ -133,6 +133,34 @@ class PourbaixCompatibilityTest(unittest.TestCase):
                   [0.666665, 0.666684, 0.149189]]
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "peroxide")
+    
+        el_li = Element("Li")
+        el_o = Element("O")
+        el_h = Element("H")
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        elts = [el_h, el_h, el_li, el_li, el_o, el_o]
+        coords = [[0.000000, 0.500000, 0.413969],
+                  [0.500000, 0.000000, 0.586031], 
+                  [0.000000, 0.000000, 0.000000],
+                  [0.500000, 0.500000, 0.000000],
+                  [0.000000, 0.500000, 0.192672],
+                  [0.500000, 0.000000, 0.807328]]
+        struct = Structure(latt, elts, coords)
+        self.assertEqual(oxide_type(struct, 1.1), "hydroxide")
+        
+        el_li = Element("Li")
+        el_n = Element("N")
+        el_h = Element("H")
+        latt = Lattice.from_parameters(3.565276, 3.565276, 4.384277, 90.000000, 90.000000, 90.000000)
+        elts = [el_h, el_h, el_li, el_li, el_n, el_n]
+        coords = [[0.000000, 0.500000, 0.413969],
+                  [0.500000, 0.000000, 0.586031], 
+                  [0.000000, 0.000000, 0.000000],
+                  [0.500000, 0.500000, 0.000000],
+                  [0.000000, 0.500000, 0.192672],
+                  [0.500000, 0.000000, 0.807328]]
+        struct = Structure(latt, elts, coords)
+        self.assertEqual(oxide_type(struct, 1.1), "None")
 
 
 if __name__ == "__main__":
