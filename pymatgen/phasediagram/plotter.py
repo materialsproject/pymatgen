@@ -239,7 +239,7 @@ class PDPlotter(object):
         if energy_colormap is not None and show_colorbar:
             map.set_array(energies)
             cbar = plt.colorbar(map)
-            cbar.set_label('Energy [meV] above hull (in red)\nInverse energy [meV] above hull (in green)',
+            cbar.set_label('Energy [meV/at] above hull (in red)\nInverse energy [meV/at] above hull (in green)',
                            rotation=-90, ha='left', va='center')
             ticks = cbar.ax.get_yticklabels()
             cbar.ax.set_yticklabels(['${v}$'.format(v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
