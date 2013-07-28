@@ -19,6 +19,8 @@ import os
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.command_line.aconvasp_caller import run_aconvasp_command
 from pymatgen.core.periodic_table import Element
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 
@@ -197,7 +199,7 @@ class GulpIO:
         gin += "\n"
         return gin
 
-    def binaryoxide_buckingham_input(self, structure, keywords, library=None, 
+    def buckingham_input(self, structure, keywords, library=None, 
             uc=True, valence_dict=None):
         '''
         Gets a GULP input for an oxide structure and 
@@ -206,12 +208,12 @@ class GulpIO:
         gin = self.keyword_line(*keywords)
         gin += self.structure_lines(structure, symm_flg=not uc)
         if not library:
-            gin += self.binaryoxide_buckingham_potential(structure, valence_dict)
+            gin += self.buckingham_potential(structure, valence_dict)
         else:
             gin += self.library_line(library)
         return gin
 
-    def binaryoxide_buckingham_potential(self, structure, val_dict=None):
+    def buckingham_potential(self, structure, val_dict=None):
         '''
         Generate species, buckingham, and spring options for an oxide structure
         using the parameters in default libraries
@@ -286,10 +288,11 @@ class GulpIO:
                 else:
                     k = key
                 gin += bpl.pot_dict[k]
+            gin += 'spring\n'
             gin += bpl.spring_dict["O"]
             return gin
 
-    def binaryoxide_tersoff_input(self, structure, periodic=False, uc=True, 
+    def tersoff_input(self, structure, periodic=False, uc=True, 
                                   *keywords):
         '''
         Gets a GULP input with Tersoff potential for an oxide structure 
@@ -300,10 +303,10 @@ class GulpIO:
                 structure, cell_flg=periodic, frac_flg=periodic, 
                 anion_shell_flg=False, cation_shell_flg=False, symm_flg=not uc
                 )
-        gin += self.binaryoxide_tersoff_potential(structure)
+        gin += self.tersoff_potential(structure)
         return gin
 
-    def binaryoxide_tersoff_potential(self, structure):
+    def tersoff_potential(self, structure):
         '''
         Generate the species, tersoff potential lines for an oxide structure
         '''
@@ -333,7 +336,7 @@ class GulpIO:
         gin += qerfstring
         return gin
 
-    def binaryoxide_tersoff_potential_without_bv(self, structure):
+    def tersoff_potential_without_bv(self, structure):
         '''
         Gets a GULP Tersoff potential lines for an oxide structure
         CURRENTLY ONLY WORKS FOR BINARY OXIDES WITH A SINGLE OXIDATION STATE
@@ -387,6 +390,59 @@ class GulpIO:
         else:
             #print gout
             raise GulpError("Energy not found in Gulp output")
+
+    def get_relaxed_structure(self, gout):
+        #Find the structure lines
+        structure_lines = []
+        cell_param_lines = []
+        #print gout
+        output_lines = gout.split("\n")
+        no_lines = len(output_lines)
+        i = 0
+        while i < no_lines:
+            line = output_lines[i]
+            if "Final fractional coordinates of atoms" in line:
+                # read the site coordinates in the following lines
+                i += 6
+                line = output_lines[i]
+                while line[0:2] != '--':
+                    structure_lines.append(line)
+                    i += 1
+                    line = output_lines[i]
+                # read the cell parameters 
+                i += 12
+                for del_i in range(6):
+                    line = output_lines[i+del_i]
+                    cell_param_lines.append(line)
+
+                break
+            else:
+                i += 1
+
+        #Process the structure lines
+        if structure_lines:
+            sp = []
+            coords = []
+            for line in structure_lines:
+                fields = line.split()
+                if fields[2] == 'c':
+                    sp.append(fields[1])
+                    coords.append(list(float(x) for x in fields[3:6]))
+        else:
+            raise IOError("No structure found")
+
+        if cell_param_lines:
+            a = float(cell_param_lines[0].split()[1])
+            b = float(cell_param_lines[1].split()[1])
+            c = float(cell_param_lines[2].split()[1])
+            alpha = float(cell_param_lines[3].split()[1])
+            beta = float(cell_param_lines[4].split()[1])
+            gamma = float(cell_param_lines[5].split()[1])
+            latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        else:
+            raise IOError("No structure found")
+
+        return Structure(latt, sp, coords)
 
 
 class GulpCaller:
@@ -497,24 +553,43 @@ Au core Au core 214180.2000 625.482 40.000 0 0"""
     output2=run_gulp_input(ginput)
     return float(_gulp_energy(output2))
 
-def get_binoxi_gulp_energy_tersoff(structure, gulp_cmd='gulp'):
+def get_energy_tersoff(structure, gulp_cmd='gulp'):
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
-    gin = gio.binaryoxide_tersoff_input(structure)
+    gin = gio.tersoff_input(structure)
     #print gin
     gout = gc.run(gin)
     return gio.get_energy(gout)
 
-def get_binoxi_gulp_energy_buckingham(structure, gulp_cmd='gulp', 
+def get_energy_buckingham(structure, gulp_cmd='gulp', 
         keywords=('optimise', 'conp'), valence_dict=None):
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
-    gin = gio.binaryoxide_buckingham_input(
+    gin = gio.buckingham_input(
             structure, keywords, valence_dict=valence_dict
             )
     gout = gc.run(gin)
+    #print gout
     return gio.get_energy(gout)
 
+def get_energy_relax_structure_buckingham(structure, 
+        gulp_cmd='gulp', keywords=('optimise', 'conp'), valence_dict=None):
+    gio = GulpIO()
+    gc = GulpCaller(gulp_cmd)
+    gin = gio.buckingham_input(
+            structure, keywords, valence_dict=valence_dict
+            )
+    gout = gc.run(gin)
+    #print gout
+    energy =  gio.get_energy(gout)
+    #sp, coords = gio.get_relaxed_structure(gout)
+    #print sp
+    #print coords
+    #print len(sp)
+    #print len(coords)
+    #relax_structure = Structure(structure.lattice, sp, coords, to_unit_cell=True)
+    relax_structure = gio.get_relaxed_structure(gout) 
+    return energy, relax_structure
 
 class GulpError(Exception):
     """
