@@ -7,9 +7,7 @@ import unittest
 
 from nose.exc import SkipTest
 
-from pymatgen.command_line.gulp_caller import GulpIO, GulpCaller, GulpError
-from pymatgen.command_line.gulp_caller import get_binoxi_gulp_energy_tersoff,get_binoxi_gulp_energy_buckingham,gulpduplicatecheck
-from pymatgen.command_line.gulp_caller import BuckinghamPotLewis, BuckinghamPotBush, Tersoff_pot
+from pymatgen.command_line.gulp_caller import *
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.io_utils import which
@@ -139,13 +137,13 @@ class GulpIOTest(unittest.TestCase):
         with self.assertRaises(GulpError):
             gin = self.gio.library_line('temp_to_fail.lib')
 
-    def test_binaryoxide_buckingham_potential(self):
+    def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4 
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
-        gin = self.gio.binaryoxide_buckingham_potential(mgo_uc)
+        gin = self.gio.buckingham_potential(mgo_uc)
         self.assertIn('specie', gin)
         self.assertIn('buck', gin)
         self.assertIn('spring', gin)
@@ -153,18 +151,18 @@ class GulpIOTest(unittest.TestCase):
         self.assertIn('O  core', gin)
         self.assertIn('O  shel', gin)
 
-        gin = self.gio.binaryoxide_buckingham_potential(self.structure)
+        gin = self.gio.buckingham_potential(self.structure)
         self.assertIn('specie', gin)
         self.assertIn('buck', gin)
         self.assertIn('spring', gin)
 
-    def test_binaryoxide_buckingham_input(self):
+    def test_buckingham_input(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4 
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
-        gin = self.gio.binaryoxide_buckingham_input(mgo_uc, keywords=('optimise', 'conp'))
+        gin = self.gio.buckingham_input(mgo_uc, keywords=('optimise', 'conp'))
         self.assertIn('optimise', gin)
         self.assertIn('cell', gin)
         self.assertIn('specie', gin)
@@ -175,39 +173,53 @@ class GulpIOTest(unittest.TestCase):
         self.assertIn('O  shel', gin)
 
     # Improve the test 
-    def test_binaryoxide_tersoff_potential(self):
+    def test_tersoff_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4 
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
-        gin = self.gio.binaryoxide_tersoff_potential(mgo_uc)
+        gin = self.gio.tersoff_potential(mgo_uc)
         self.assertIn('specie', gin)
         self.assertIn('Mg core', gin)
 
     @unittest.skip("Test later")
-    def test_binaryoxide_tersoff_inpt(self):
-        gin =  self.gio.binaryoxide_tersoff_input(self.structure)
+    def test_tersoff_inpt(self):
+        gin =  self.gio.tersoff_input(self.structure)
         #print "--------BinaryOxide Tersoff"
         print gin
 
 class GlobalFunctionsTest(unittest.TestCase):
     @unittest.skip("Test later")
-    def test_get_binoxi_gulp_energy_tersoff(self):
+    def test_get_energy_tersoff(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
         structure = p.structure
-        enrgy = get_binoxi_gulp_energy_tersoff(structure)
+        enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)
         print "tersoff energy", enrgy
-    def test_get_binoxi_gulp_energy_buckingham(self):
+    def test_get_energy_buckingham(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg",'O']*4 
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
-        enrgy = get_binoxi_gulp_energy_buckingham(mgo_uc)
+        enrgy = get_energy_buckingham(mgo_uc)
         self.assertIsInstance(enrgy, float)
         print "Buckingham energy", enrgy
+    def test_get_energy_relax_structure_buckingham(self):
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg",'O']*4 
+        mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
+                         [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
+        mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        enrgy, struct = get_energy_relax_structure_buckingham(mgo_uc)
+        self.assertIsInstance(enrgy, float)
+        self.assertIsInstance(struct, Structure)
+        site_len = len(struct.sites)
+        self.assertEqual(site_len, len(mgo_uc.sites))
+        print "Buckingham energy", enrgy
+        print struct
+        print mgo_uc
 
 class BuckinghamPotLewisTest(unittest.TestCase):
     def setUp(self):
