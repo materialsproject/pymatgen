@@ -15,13 +15,23 @@ from pymatgen.entries.pourbaixcompatibility import  MITPourbaixCompatibility, ox
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.entries.computed_entries import ComputedStructureEntry
+from pymatgen.entries.computed_entries import ComputedStructureEntry, ComputedEntry
+from pymatgen.core import Composition
 
 
 class PourbaixCompatibilityTest(unittest.TestCase):
 
     def setUp(self):
         self.compat = MITPourbaixCompatibility()
+
+    def test_no_struct_compat(self):
+        lio2_entry_nostruct = ComputedEntry(Composition("Li2O4"), -29.1943757, data={"oxide_type": "superoxide"})
+        lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
+        self.assertAlmostEqual(lio2_entry_corrected.energy, -28.6743757, 4)
+
+        lio2_entry_nostruct = ComputedEntry(Composition("Li2(OH)2"), -29.85285134, data={"oxide_type": "hydroxide"})
+        lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
+        self.assertAlmostEqual(lio2_entry_corrected.energy, -28.9047, 4)
 
     def test_process_entry_superoxide(self):
         el_li = Element("Li")
@@ -41,6 +51,7 @@ class PourbaixCompatibilityTest(unittest.TestCase):
         lio2_entry = ComputedStructureEntry(struct, -29.1943757)
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
         self.assertAlmostEqual(lio2_entry_corrected.energy, -28.6743757, 4)
+
     
     def test_process_entry_peroxide(self):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
@@ -89,7 +100,7 @@ class PourbaixCompatibilityTest(unittest.TestCase):
         struct = Structure(latt, elts, coords)
         lioh_entry = ComputedStructureEntry(struct, -29.85285134)
         lioh_entry_corrected = self.compat.process_entry(lioh_entry)
-        self.assertAlmostEqual(lioh_entry_corrected.energy, -29.8529, 4)
+        self.assertAlmostEqual(lioh_entry_corrected.energy, -28.9047, 4)
         
     def test_oxide_type(self):
         el_li = Element("Li")
@@ -161,6 +172,7 @@ class PourbaixCompatibilityTest(unittest.TestCase):
                   [0.500000, 0.000000, 0.807328]]
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "None")
+        
 
 
 if __name__ == "__main__":
