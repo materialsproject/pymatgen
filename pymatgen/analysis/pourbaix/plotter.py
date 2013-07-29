@@ -203,9 +203,7 @@ class PourbaixPlotter(object):
             stable_entries, unstable_entries 
             stable_entries: dict of lines. The keys are Pourbaix Entries, and
             lines are in the form of a list
-            unstable_entries: dict of decompositions. The keys are
-            PourbaixEntries, and the values are dict of decomposition entries
-            and corresponding amounts
+            unstable_entries: list of unstable entries
         """
         
         analyzer = PourbaixAnalyzer(self._pd)
@@ -228,6 +226,53 @@ class PourbaixPlotter(object):
                                  if entry not in self._pd.stable_entries]
 
         return stable_entries_list, unstable_entries_list
+
+    def get_center(self, lines, limits=None):
+        """
+        Returns coordinates of center of a domain. Useful
+        for labeling a Pourbaix plot.
+        args:
+            lines:
+                Lines corresponding to a domain
+            limits:
+                Limits of Pourbaix diagram
+        returns:
+            center_x, center_y:
+                x,y coordinate of center of domain. If domain lies
+                outside limits, center will lie on the boundary.
+        """
+        if limits:
+            xlim = limits[0]
+            ylim = limits[1]
+        else:
+            xlim = self._analyzer.chempot_limits[0]
+            ylim = self._analyzer.chempot_limits[1]
+        center_x = 0.0
+        center_y = 0.0
+        coords = []
+        count_center = 0.0
+        for line in lines:
+            for coord in np.array(line).T:
+                if not in_coord_list(coords, coord):
+                    coords.append(coord.tolist())
+                    cx = coord[0]
+                    cy = coord[1]
+                    if cx < xlim[0]:
+                        cx = xlim[0]
+                    if cx > xlim[1]:
+                        cx = xlim[1]
+                    if cy < ylim[0]:
+                        cy = ylim[0]
+                    if cy > ylim[1]:
+                        cy = ylim[1]
+                    center_x += cx
+                    center_y += cy
+                    count_center += 1.0
+        if count_center == 0.0:
+            count_center = 1.0
+        center_x /= count_center
+        center_y /= count_center
+        return center_x, center_y
 
     def get_pourbaix_plot(self, limits=None, title=""):
         """

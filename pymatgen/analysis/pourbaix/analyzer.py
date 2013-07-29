@@ -262,8 +262,9 @@ class PourbaixAnalyzer(object):
                 entry = entries[vertex]
                 chempot_ranges[entry].append(sim)
                 points_on_border[vertex].append(border_coord)
+            
 
-        # Now add vertical and horizontal bounding boxes
+#         Now add vertical and horizontal bounding boxes
         corner_points = [[xlo, ylo], [xhi, ylo], [xhi, yhi], [xlo, yhi]]
         for vertex in edge_vertices:
             corner_pts_add = []
@@ -286,9 +287,7 @@ class PourbaixAnalyzer(object):
             elif len(corner_pts_add) < 1:
                 if len(points_on_border[vertex]) > 2:
                     raise StandardError("Undefined region. More than 2 points lie on same bounding line!")
-                line = []
-                for point in points_on_border[vertex]:
-                    line.append(point)
+                line = [point for point in points_on_border[vertex]]
                 sim = Simplex(line)
                 chempot_ranges[entries[vertex]].append(sim)
                 continue
@@ -300,7 +299,6 @@ class PourbaixAnalyzer(object):
                         line = [point, pt_corner]
                         sim = Simplex(line)
                         chempot_ranges[entries[vertex]].append(sim)
-
         chempot_ranges_cleaned = {}
         for entry in self._pd.stable_entries:
             chempot_ranges_cleaned[entry] = self.check_regions(entry, chempot_ranges[entry])
@@ -360,6 +358,8 @@ class PourbaixAnalyzer(object):
         Checks if a simplex region is enclosed. Computes intersections of each line with the 
         other and clips any extraneous line segments. If not, returns null
         Args:
+            this_entry:
+                Pourbaix entry whose domain needs to be cleaned up
             lines:
                 list of lines
         Returns:
