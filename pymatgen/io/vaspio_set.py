@@ -742,7 +742,8 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             self.incar_settings.update(user_incar_settings)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
-             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ICHARG":0})
+             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ICHARG":0,
+             "EDIFF": 0.000001})
 
     def get_kpoints(self, structure, kpoints_density=90):
         """
@@ -815,7 +816,7 @@ class MPStaticVaspInputSet(MPVaspInputSet):
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
-                               user_incar_settings=None,
+                               user_incar_settings={},
                                make_dir_if_not_present=True):
         """
         Generate a set of Vasp input files for static calculations from a
@@ -837,7 +838,7 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
-            incar = Incar.from_file(os.path.join(previous_vasp_dir, "INCAR"))
+            previous_incar = Incar.from_file(os.path.join(previous_vasp_dir, "INCAR"))
             kpoints = Kpoints.from_file(os.path.join(previous_vasp_dir, "KPOINTS"))
         except:
             traceback.format_exc()
@@ -847,12 +848,22 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             vasp_run, outcar)
         mpsvip = MPStaticVaspInputSet()
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
+        new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
+
+        # Compare ediff between previous and staticinputset values, choose the tigher ediff
+        if previous_incar["EDIFF"] > new_incar["EDIFF"]:
+            ediff = new_incar["EDIFF"]
+            user_incar_settings.update({"EDIFF":ediff})
+
+        # Use previous run INCAR and override necessary parameters
         if user_incar_settings:
-            incar.update(user_incar_settings)
-        incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
+            previous_incar.update(user_incar_settings)
+        previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ICHARG":0})
-        incar.write_file(os.path.join(output_dir, "INCAR"))
-        kpoints_out=Kpoints.from_file(os.path.join(output_dir, "KPOINTS"))
+        previous_incar.write_file(os.path.join(output_dir, "INCAR"))
+
+        # Prefer to use k-point scheme from previous run
+        kpoints_out = Kpoints.from_file(os.path.join(output_dir, "KPOINTS"))
         if kpoints.style != kpoints_out.style:
             if SymmetryFinder(structure, symprec=0.01).get_lattice_type() != "hexagonal":
                 k_div = [kp+1 if kp%2==1 else kp for kp in kpoints_out.kpts[0]]
