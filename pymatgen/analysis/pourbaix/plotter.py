@@ -285,7 +285,8 @@ class PourbaixPlotter(object):
             plt:
                 matplotlib plot object
         """
-        plt = get_publication_quality_plot(24, 14.4)
+#        plt = get_publication_quality_plot(24, 14.4)
+        plt = get_publication_quality_plot(16)
         (stable, unstable) = self.pourbaix_plot_data(limits)
         if limits:
             xlim = limits[0]
@@ -349,11 +350,11 @@ class PourbaixPlotter(object):
                     (center_y <= ylim[0]) | (center_y >= ylim[1])):
                 continue
             xy = (center_x, center_y)
-            plt.annotate(self.print_name(entry), xy, fontsize=30, color="b")
+            plt.annotate(self.print_name(entry), xy, fontsize=20, color="b")
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
-        plt.title(title, fontsize=30, fontweight='bold')
+        plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
     def print_name(self, entry):
@@ -372,7 +373,6 @@ class PourbaixPlotter(object):
             return latexify_ion(latexify(entry.name))
 
     def legend(self, label_unstable=False, legend_file=""):
-        import matplotlib.pyplot as plt
         if self._pd._multielement:
             unprocessed_entries = self._pd.unprocessed_entries
             set_of_entries = set()
@@ -382,7 +382,7 @@ class PourbaixPlotter(object):
                 str_ename = ""
                 for e in entry.entrylist:
                     str_ename += e.name + " + "
-                    for ent in unprocessed_entries: 
+                    for ent in unprocessed_entries:
                         if ent.name == e.name:
                             indx = unprocessed_entries.index(ent)
                             set_of_entries.add(indx)
