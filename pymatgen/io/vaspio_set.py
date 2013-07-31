@@ -850,16 +850,16 @@ class MPStaticVaspInputSet(MPVaspInputSet):
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
         new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
 
-        # Compare ediff between previous and staticinputset values, choose the tigher ediff
-        if previous_incar["EDIFF"] > new_incar["EDIFF"]:
-            ediff = new_incar["EDIFF"]
-            user_incar_settings.update({"EDIFF":ediff})
-
         # Use previous run INCAR and override necessary parameters
-        if user_incar_settings:
-            previous_incar.update(user_incar_settings)
         previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ICHARG":0})
+
+        # Compare ediff between previous and staticinputset values, choose the tigher ediff
+        previous_incar.update({"EDIFF": min(previous_incar["EDIFF"], new_incar["EDIFF"])})
+
+        # add user settings
+        if user_incar_settings:
+            previous_incar.update(user_incar_settings)
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Prefer to use k-point scheme from previous run
