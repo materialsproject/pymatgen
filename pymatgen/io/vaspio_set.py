@@ -866,8 +866,8 @@ class MPStaticVaspInputSet(MPVaspInputSet):
         kpoints_out = Kpoints.from_file(os.path.join(output_dir, "KPOINTS"))
         if kpoints.style != kpoints_out.style:
             if SymmetryFinder(structure, symprec=0.01).get_lattice_type() != "hexagonal":
-                k_div = [kp+1 if kp%2==1 else kp for kp in kpoints_out.kpts[0]]
-                Kpoints.monkhorst_automatic([k_div]).write_file(os.path.join(output_dir, "KPOINTS"))
+                k_div = (kp+1 if kp%2==1 else kp for kp in kpoints_out.kpts[0])
+                Kpoints.monkhorst_automatic(k_div).write_file(os.path.join(output_dir, "KPOINTS"))
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
