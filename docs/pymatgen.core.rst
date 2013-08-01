@@ -33,6 +33,14 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`ion` Module
+-----------------
+
+.. automodule:: pymatgen.core.ion
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`lattice` Module
 ---------------------
 

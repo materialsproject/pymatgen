@@ -72,6 +72,12 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.7.6
+------
+1. Support for VTK 6.x in structure visualization.
+2. Updated install instructions for openbabel.
+3. Preliminary pourbaix analysis (Sai Jayaratnam).
+
 v2.7.5
 ------
 1. Vastly improved Nwchem IO (by Shyue Ping Ong).
