@@ -50,7 +50,8 @@ class PourbaixPlotter(object):
     @property
     def pourbaix_hull_plot_data(self):
         """
-        Pourbaix diagram convex hull data
+        Pourbaix diagram convex hull data.
+
         Returns:
             (lines, stable_entries, unstable_entries):
                 - lines is a list of list of coordinates for lines in the PD.
@@ -194,11 +195,13 @@ class PourbaixPlotter(object):
     def pourbaix_plot_data(self, limits=None):
         """
         Get data required to plot Pourbaix diagram.
-        args:
+
+        Args:
             limits:
                 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
-        returns:
+
+        Returns:
             stable_entries, unstable_entries 
             stable_entries: dict of lines. The keys are Pourbaix Entries, and
             lines are in the form of a list
@@ -230,12 +233,14 @@ class PourbaixPlotter(object):
         """
         Returns coordinates of center of a domain. Useful
         for labeling a Pourbaix plot.
-        args:
+
+        Args:
             lines:
                 Lines corresponding to a domain
             limits:
                 Limits of Pourbaix diagram
-        returns:
+
+        Returns:
             center_x, center_y:
                 x,y coordinate of center of domain. If domain lies
                 outside limits, center will lie on the boundary.
@@ -276,11 +281,12 @@ class PourbaixPlotter(object):
     def get_pourbaix_plot(self, limits=None, title=""):
         """
         Plot Pourbaix diagram.
-        args:
+
+        Args:
             limits:
                 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
-        returns:
+        Returns:
             plt:
                 matplotlib plot object
         """

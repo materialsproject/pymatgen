@@ -32,7 +32,7 @@ class PourbaixEntry(MSONable):
     An object encompassing all data relevant to an ion in a pourbaix diagram.
     Each bulk solid/ion has a free energy g of the form:
     g = g0_ref + 0.0591 log10(conc) - nO mu_H2O + (nH - 2nO) pH
-        + phi (-nH + 2nO + q)
+    + phi (-nH + 2nO + q)
     """
     def __init__(self, entry, correction=0.0, entry_id=None):
         """
@@ -86,7 +86,8 @@ class PourbaixEntry(MSONable):
     def set_name(self, string):
         """
         Set name of entry
-        args:
+
+        Args:
             string: Input string
         """
         self._name = string
@@ -115,8 +116,7 @@ class PourbaixEntry(MSONable):
     @property
     def g0(self):
         """
-        Return g0 for the entry
-        Legacy function.
+        Return g0 for the entry. Legacy function.
         """
         return self._g0
 
@@ -130,21 +130,22 @@ class PourbaixEntry(MSONable):
     @property
     def conc_term(self):
         """
-        Returns the concentration contribution to the free energy
+        Returns the concentration contribution to the free energy.
         """
         return self.normalization_factor * PREFAC * math.log10(self._conc)
 
     @property
     def phase_type(self):
         """
-        Returns whether the entry is a solid/ion
+        Returns whether the entry is a solid/ion.
         """
         return self._phase_type
 
     def g0_add(self, term):
         """
-        Add a correction term to g0
-        args:
+        Add a correction term to g0.
+
+        Args:
             term:
                 Correction term to add to g0
         """
@@ -152,8 +153,9 @@ class PourbaixEntry(MSONable):
 
     def g0_replace(self, term):
         """
-        Replace g0 by a different value
-        args: 
+        Replace g0 by a different value.
+
+        Args:
             term: 
                 New value for g0
         """
@@ -226,8 +228,9 @@ class PourbaixEntry(MSONable):
 
     def scale(self, factor):
         """
-        Normalize all entries by normalization factor
-        args:
+        Normalize all entries by normalization factor.
+
+        Args:
             factor:
                 Normalization factor
         """
@@ -239,7 +242,6 @@ class PourbaixEntry(MSONable):
 #        self._g0 *= factor
 
     def normalize(self, factor):
-
         self.scale(factor)
 
     @property
@@ -283,8 +285,9 @@ class PourbaixEntry(MSONable):
 
     def set_conc(self, conc):
         """
-        Set concentration manually
-        args:
+        Set concentration manually.
+
+        Args:
             conc:
                 Input concentration
         """
@@ -301,7 +304,8 @@ class PourbaixEntry(MSONable):
 
 class MultiEntry(PourbaixEntry):
     """
-    PourbaixEntry-like object for constructing multi-elemental Pourbaix diagrams
+    PourbaixEntry-like object for constructing multi-elemental Pourbaix
+    diagrams.
     """
     def __init__(self, entry_list, weights=None):
         """
@@ -386,7 +390,9 @@ class IonEntry(PDEntry):
     """
     Object similar to PDEntry, but contains an Ion object instead of a
     Composition object.
+
     .. attribute:: name
+
         A name for the entry. This is the string shown in the phase diagrams.
         By default, this is the reduced formula for the composition, but can be
         set to some other string for display purposes.
@@ -497,9 +503,11 @@ class PourbaixEntryIO(object):
     @staticmethod
     def from_csv(filename):
         """
-        Imports PourbaixEntries from a csv
+        Imports PourbaixEntries from a csv.
+
         Args:
             filename - Filename to import from.
+
         Returns:
             List of Entries
         """
