@@ -16,7 +16,6 @@ import numpy as np
 import itertools
 import collections
 
-
 from pyhull.simplex import Simplex
 
 
@@ -79,7 +78,6 @@ class PourbaixAnalyzer(object):
         """
         tol = PourbaixAnalyzer.numerical_tol
         all_chempots = []
-        elements = ["H+", "V"]
         facets = self._pd.facets
         entries = self._pd.qhull_entries
         for facet in facets:
@@ -95,7 +93,8 @@ class PourbaixAnalyzer(object):
         for vertex in sorted(self._pd.vertices):
             entry0 = entries[vertex]
             where_vertex = np.where(facets == vertex)
-            facets_thisvertex = [facets[where_vertex[0][i]] for i in xrange(len(where_vertex[0]))]
+            facets_thisvertex = [facets[where_vertex[0][i]]
+                                 for i in xrange(len(where_vertex[0]))]
             vertices_other = set()
             for facet in facets_thisvertex:
                 for vert in facet:
@@ -103,8 +102,9 @@ class PourbaixAnalyzer(object):
                         vertices_other.add(vert)
             for vert in sorted(vertices_other):
                 entry1 = entries[vert]
-                facets_of_edge = [facet for facet in facets_thisvertex if ((vert in facet) & (vertex in facet))]
-                data  = []
+                facets_of_edge = [facet for facet in facets_thisvertex
+                                  if ((vert in facet) & (vertex in facet))]
+                data = []
                 if len(facets_of_edge) < 2:
                     edges_are.append(facets_of_edge[0])
                     continue
@@ -156,7 +156,7 @@ class PourbaixAnalyzer(object):
             del_npH = (entry1.npH - entry2.npH) * (- 0.0591)
             del_nPhi = (entry1.nPhi - entry2.nPhi) * -1
             del_g0 = self._pd.qhull_data[edge[0]][2] -\
-                     self._pd.qhull_data[edge[1]][2]
+                self._pd.qhull_data[edge[1]][2]
 
             mu_pH_facet = all_chempots[ifacet][0]
             mu_V_facet = all_chempots[ifacet][1]
@@ -181,26 +181,27 @@ class PourbaixAnalyzer(object):
             else:
                 bound_coords.append([-100000000, mu_V_facet])
                 bound_coords.append([100000000, mu_V_facet])
-            dist = [np.linalg.norm(np.array(coord_facet - coord)) for coord in\
-                     bound_coords]
-            dist = (lambda x: [100000000 if x[i] > max_dist else x[i] for i in\
-                                xrange(len(x))])(dist)
+            dist = [np.linalg.norm(np.array(coord_facet - coord))
+                    for coord in bound_coords]
+            dist = (lambda x: [100000000 if x[i] > max_dist else x[i]
+                               for i in xrange(len(x))])(dist)
             for border_line in itertools.combinations(xrange(len(dist)), 2):
-                if (dist[border_line[0]] == 100000000) | (dist[border_line[1]]\
-                                                           == 100000000):
+                if (dist[border_line[0]] == 100000000) | \
+                        (dist[border_line[1]] == 100000000):
                     continue
-                dist_btw_pts = np.linalg.norm(np.array(np.array(bound_coords[border_line[0]]) -\
-                                                        np.array(bound_coords[border_line[1]])))
-                if abs(abs(dist[border_line[0]] - dist[border_line[1]]) \
-                       - dist_btw_pts) < tol:
+                dist_btw_pts = np.linalg.norm(
+                    np.array(bound_coords[border_line[0]]) -
+                    np.array(bound_coords[border_line[1]]))
+                if abs(abs(dist[border_line[0]] - dist[border_line[1]])
+                        - dist_btw_pts) < tol:
                     if dist[border_line[0]] < dist[border_line[1]]:
                         dist[border_line[0]] = 100000000
                     else:
                         dist[border_line[1]] = 100000000
             for entry in self._pd.stable_entries:
                 for line in chempot_ranges[entry]:
-                    r = [line.coords[1][0] - line.coords[0][0],\
-                          line.coords[1][1] - line.coords[0][1]]
+                    r = [line.coords[1][0] - line.coords[0][0],
+                         line.coords[1][1] - line.coords[0][1]]
                     p = [line.coords[0][0], line.coords[0][1]]
                     for i in xrange(len(bound_coords)):
                         coord = bound_coords[i]
@@ -211,19 +212,21 @@ class PourbaixAnalyzer(object):
                         else:
                             t = np.cross(q - p, s) / np.cross(r, s)
                             u = np.cross(q - p, r) / np.cross(r, s)
-                            if ((t > tol) & (t - 1 < tol)) & ((u > tol) & (u - 1 < tol)):
+                            if ((t > tol) & (t - 1 < tol)) & \
+                                    ((u > tol) & (u - 1 < tol)):
                                 dist[i] = 100000000
             bound_coords = np.array(bound_coords)
             dist_edge[edge] = dist
             dist_dof[edge] = len(filter(lambda x: x < 10000, dist))
             bound_coords_edge[edge] = bound_coords
 
-        dist_dof_sorted = collections.OrderedDict(sorted(dist_dof.items(),\
-                                                          key=lambda t: t[1]))
+        dist_dof_sorted = collections.OrderedDict(
+            sorted(dist_dof.items(), key=lambda t: t[1]))
 
-        for edge in [key for key in dist_dof_sorted.keys() \
+        for edge in [key for key in dist_dof_sorted.keys()
                      if dist_dof_sorted[key] == 1]:
-            border_coord = bound_coords_edge[edge][np.argmin(np.array(dist_edge[edge]))]
+            border_coord = bound_coords_edge[edge][
+                np.argmin(np.array(dist_edge[edge]))]
             coord_facet = coord_facet_edge[edge]
             line = np.array([border_coord, coord_facet])
             sim = Simplex(line)
@@ -234,8 +237,8 @@ class PourbaixAnalyzer(object):
                 points_on_border[vertex].append(border_coord)
 
         # And now for all dof == 2
-        for edge in [key for key in dist_dof_sorted.keys()\
-                      if dist_dof_sorted[key] == 2]:
+        for edge in [key for key in dist_dof_sorted.keys()
+                     if dist_dof_sorted[key] == 2]:
             # 1. Evaluate g at all boundary points
             for ic in xrange(len(bound_coords_edge[edge])):
                 coord = bound_coords_edge[edge][ic]
@@ -251,8 +254,9 @@ class PourbaixAnalyzer(object):
                         pH = coord[0]
                         V = coord[1]
                         g_edge.append(g0 - npH * pH - nPhi * V)
-                if len(np.where((np.array(g_edge) - min(g_edge) *\
-                                  np.ones(len(g_edge))) < tol)[0]) == 2:   # For correct boundary coord, there will be 2 min. values 
+                if len(np.where((np.array(g_edge) - min(g_edge) *
+                       np.ones(len(g_edge))) < tol)[0]) == 2:
+                    # For correct boundary coord, there will be 2 min. values
                     border_coord = coord
                     break
             coord_facet = coord_facet_edge[edge]
@@ -262,31 +266,33 @@ class PourbaixAnalyzer(object):
                 entry = entries[vertex]
                 chempot_ranges[entry].append(sim)
                 points_on_border[vertex].append(border_coord)
-            
 
-#         Now add vertical and horizontal bounding boxes
+        # Now add vertical and horizontal bounding boxes
         corner_points = [[xlo, ylo], [xhi, ylo], [xhi, yhi], [xlo, yhi]]
         for vertex in edge_vertices:
             corner_pts_add = []
             for point in corner_points:
-                g_others = [self.g(entry, point[0], point[1]) for entry in \
-                            entries if entry is not entries[vertex]]
+                g_others = [self.g(entry, point[0], point[1])
+                            for entry in entries
+                            if entry is not entries[vertex]]
                 g_this = self.g(entries[vertex], point[0], point[1])
                 if g_this < min(g_others):
                     corner_pts_add.append(point)
             if len(corner_pts_add) > 1:
                 corner_pts_indices = [i for i in xrange(len(corner_pts_add))]
                 for combi in itertools.combinations(corner_pts_indices, 2):
-                    if ((abs(corner_pts_add[combi[0]][0] - \
-                             corner_pts_add[combi[1]][0]) < tol) |\
-                         (abs(corner_pts_add[combi[0]][1] - \
-                              corner_pts_add[combi[1]][1]) < tol)):
-                        line = [corner_pts_add[combi[0]], corner_pts_add[combi[1]]]
+                    if ((abs(corner_pts_add[combi[0]][0] -
+                             corner_pts_add[combi[1]][0]) < tol) |
+                        (abs(corner_pts_add[combi[0]][1] -
+                             corner_pts_add[combi[1]][1]) < tol)):
+                        line = [corner_pts_add[combi[0]],
+                                corner_pts_add[combi[1]]]
                         sim = Simplex(line)
                         chempot_ranges[entries[vertex]].append(sim)
             elif len(corner_pts_add) < 1:
                 if len(points_on_border[vertex]) > 2:
-                    raise StandardError("Undefined region. More than 2 points lie on same bounding line!")
+                    raise StandardError("Undefined region. More than 2 points"
+                                        " lie on same bounding line!")
                 line = [point for point in points_on_border[vertex]]
                 sim = Simplex(line)
                 chempot_ranges[entries[vertex]].append(sim)
@@ -294,14 +300,15 @@ class PourbaixAnalyzer(object):
 
             for point in points_on_border[vertex]:
                 for pt_corner in corner_pts_add:
-                    if ((abs(point[0] - pt_corner[0]) < tol) | \
-                        (abs(point[1] - pt_corner[1]) < tol)):
+                    if ((abs(point[0] - pt_corner[0]) < tol) |
+                            (abs(point[1] - pt_corner[1]) < tol)):
                         line = [point, pt_corner]
                         sim = Simplex(line)
                         chempot_ranges[entries[vertex]].append(sim)
         chempot_ranges_cleaned = {}
         for entry in self._pd.stable_entries:
-            chempot_ranges_cleaned[entry] = self.check_regions(entry, chempot_ranges[entry])
+            chempot_ranges_cleaned[entry] = \
+                self.check_regions(entry, chempot_ranges[entry])
         self.chempot_ranges = chempot_ranges_cleaned
         return chempot_ranges_cleaned
 
@@ -321,7 +328,8 @@ class PourbaixAnalyzer(object):
                       for i in xrange(len(facet))]
             simplex = Simplex(coords)
             comp_point = [entry.npH, entry.nPhi]
-            return simplex.in_simplex(comp_point, PourbaixAnalyzer.numerical_tol)
+            return simplex.in_simplex(comp_point,
+                                      PourbaixAnalyzer.numerical_tol)
         else:
             return True
 
@@ -355,13 +363,16 @@ class PourbaixAnalyzer(object):
 
     def check_regions(self, this_entry, lines):
         """
-        Checks if a simplex region is enclosed. Computes intersections of each line with the 
-        other and clips any extraneous line segments. If not, returns null
+        Checks if a simplex region is enclosed. Computes intersections of each
+        line with the other and clips any extraneous line segments. If not,
+        returns null
+
         Args:
             this_entry:
                 Pourbaix entry whose domain needs to be cleaned up
             lines:
                 list of lines
+
         Returns:
             region:
                 simplex of points
@@ -389,7 +400,7 @@ class PourbaixAnalyzer(object):
         for ic in xrange(len(coords_list)):
             coords_count.append(len(line_coord[ic]))
         line_indices_trunc = []
-        for coord in [coords_list[ic] for ic in xrange(len(coords_list)) \
+        for coord in [coords_list[ic] for ic in xrange(len(coords_list))
                       if coords_count[ic] == 1]:
             coord_indx = coords_list.index(coord)
             line_indices_trunc.append(lines.index(line_coord[coord_indx][0]))
@@ -399,10 +410,10 @@ class PourbaixAnalyzer(object):
         for combi in itertools.combinations(line_indices, 2):
             line1 = lines[combi[0]]
             line2 = lines[combi[1]]
-            r = np.array([line1.coords[1][0] - line1.coords[0][0],\
-                           line1.coords[1][1] - line1.coords[0][1]])
+            r = np.array([line1.coords[1][0] - line1.coords[0][0],
+                          line1.coords[1][1] - line1.coords[0][1]])
             p = np.array([line1.coords[0][0], line1.coords[0][1]])
-            s = np.array([line2.coords[1][0] - line2.coords[0][0],\
+            s = np.array([line2.coords[1][0] - line2.coords[0][0],
                           line2.coords[1][1] - line2.coords[0][1]])
             q = np.array([line2.coords[0][0], line2.coords[0][1]])
             if abs(np.cross(r, s)) < tol:
@@ -410,44 +421,46 @@ class PourbaixAnalyzer(object):
             else:
                 t = np.cross(q - p, s) / np.cross(r, s)
                 u = np.cross(q - p, r) / np.cross(r, s)
-                if ((t >= tol) & (abs(t - 1) <= tol)) & ((u >= tol) & (abs(u - 1) <= tol)):
-                    if ((t < tol) | (abs(t - 1.0) < tol)) &\
-                     ((u > tol) & (abs(u - 1.0) > tol)):
+                if ((t >= tol) & (abs(t - 1) <= tol)) & \
+                        ((u >= tol) & (abs(u - 1) <= tol)):
+                    if ((t < tol) | (abs(t - 1.0) < tol)) & \
+                            ((u > tol) & (abs(u - 1.0) > tol)):
                         intersect_coords = q + u * s
-                        intersect_coords_plus = q + u * (1.1) * s
-                        intersect_coords_minus = q + u * (0.9) * s
+                        intersect_coords_plus = q + u * 1.1 * s
+                        intersect_coords_minus = q + u * 0.9 * s
                         line_to_be_clipped = line2
-                    elif ((u < tol) | (abs(u - 1.0) < tol)) &\
-                     ((t > tol) & (abs(t - 1.0) > tol)):
+                    elif ((u < tol) | (abs(u - 1.0) < tol)) & \
+                            ((t > tol) & (abs(t - 1.0) > tol)):
                         intersect_coords = p + t * r
-                        intersect_coords_plus = p + t * (1.1) * r
-                        intersect_coords_minus = p + t * (0.9) * r
+                        intersect_coords_plus = p + t * 1.1 * r
+                        intersect_coords_minus = p + t * 0.9 * r
                         line_to_be_clipped = line1
                     elif ((u < tol) | (abs(u - 1.0) < tol)) & \
-                     ((t < tol) | (abs(t - 1.0) < tol)):
+                            ((t < tol) | (abs(t - 1.0) < tol)):
                         continue
                     else:
-                        raise StandardError("Lines intersect, domain ill defined")
-                    g_other_plus = [self.g(entry, intersect_coords_plus[0],\
-                                            intersect_coords_plus[1])\
-                                     for entry in self._get_edge_entries()\
-                                      if entry is not this_entry]
-                    g_this_plus = self.g(this_entry, intersect_coords_plus[0],\
-                                          intersect_coords_plus[1])
-                    g_other_minus = [self.g(entry, intersect_coords_minus[0],\
-                                             intersect_coords_minus[1]) \
-                                     for entry in self._get_edge_entries()\
-                                      if entry is not this_entry]
-                    g_this_minus = self.g(this_entry, intersect_coords_minus[0],\
-                                           intersect_coords_minus[1])
+                        raise StandardError("Lines intersect, "
+                                            "domain ill-defined")
+                    g_other_plus = [self.g(entry, intersect_coords_plus[0],
+                                           intersect_coords_plus[1])
+                                    for entry in self._get_edge_entries()
+                                    if entry is not this_entry]
+                    g_this_plus = self.g(this_entry, intersect_coords_plus[0],
+                                         intersect_coords_plus[1])
+                    g_other_minus = [self.g(entry, intersect_coords_minus[0],
+                                            intersect_coords_minus[1])
+                                     for entry in self._get_edge_entries()
+                                     if entry is not this_entry]
+                    g_this_minus = self.g(this_entry, intersect_coords_minus[0],
+                                          intersect_coords_minus[1])
                     line_new = []
                     if g_this_plus < min(g_other_plus):
-                        line_new.append([line_to_be_clipped.coords[1][0],\
-                                          line_to_be_clipped.coords[1][1]])
+                        line_new.append([line_to_be_clipped.coords[1][0],
+                                         line_to_be_clipped.coords[1][1]])
                         line_new.append(intersect_coords)
                     elif g_this_minus < min(g_other_minus):
-                        line_new.append([line_to_be_clipped.coords[0][0],\
-                                          line_to_be_clipped.coords[0][1]])
+                        line_new.append([line_to_be_clipped.coords[0][0],
+                                         line_to_be_clipped.coords[0][1]])
                         line_new.append(intersect_coords)
                     sim = Simplex(line_new)
                     replacement_lines.append(sim)
@@ -465,7 +478,7 @@ class PourbaixAnalyzer(object):
         g0 = entry.g0
         npH = -entry.npH * 0.0591
         nPhi = -entry.nPhi
-        return (g0 - npH * pH - nPhi * V)
+        return g0 - npH * pH - nPhi * V
 
     def _get_edge_entries(self):
         """
@@ -515,7 +528,7 @@ class PourbaixAnalyzer(object):
         decomp = self.get_decomposition(entry)
         hullenergy = sum([entry.g0 * amt
                           for entry, amt in decomp.items()])
-        return (decomp, g0 - hullenergy)
+        return decomp, g0 - hullenergy
 
     def get_e_above_hull(self, entry):
         """
