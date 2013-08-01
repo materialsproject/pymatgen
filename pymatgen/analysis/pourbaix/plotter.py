@@ -27,7 +27,6 @@ from pymatgen.phasediagram.plotter import uniquelines
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.coord_utils import in_coord_list
-from pyhull.simplex import Simplex
 
 
 class PourbaixPlotter(object):
@@ -389,7 +388,7 @@ class PourbaixPlotter(object):
                             continue
                 str_ename = str_ename[:-3]
                 list_of_entries[index_ent] = str_ename
-            if (label_unstable):
+            if label_unstable:
                 for entry in [entry for entry in self._pd.all_entries
                               if entry not in self._pd.stable_entries]:
                     for e in entry.entrylist:
