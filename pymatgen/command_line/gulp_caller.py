@@ -227,6 +227,7 @@ class GulpIO:
             val_dict (Needed if structure is not charge neutral)
                 El:valence dictionary, where El is element. 
         '''
+        print "230", val_dict
         if not val_dict:
             bv = BVAnalyzer()
             el = [site.species_string for site in structure.sites]
@@ -269,7 +270,7 @@ class GulpIO:
                 k = key+'_'+str(int(val_dict[key]))+'+'
                 if k not in bpl.species_dict.keys():
                     use_lewis = False
-                    raise GulpError("Element not in library")
+                    raise GulpError("Element {} not in library".format(k))
         if use_lewis:
             gin = "species\n"
             for key in val_dict.keys():  
