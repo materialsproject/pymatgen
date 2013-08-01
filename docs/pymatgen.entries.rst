@@ -49,3 +49,11 @@ entries Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`pourbaixcompatibility` Module
+-----------------------------------
+
+.. automodule:: pymatgen.entries.pourbaixcompatibility
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

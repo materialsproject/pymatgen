@@ -73,3 +73,10 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+Subpackages
+-----------
+
+.. toctree::
+
+    pymatgen.analysis.pourbaix
+
