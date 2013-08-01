@@ -165,9 +165,10 @@ class Ion(MSONable):
     def from_dict(cls, d):
         """
         Generates an ion object from a dict created by to_dict.
+
         Args:
             d:
-                 {symbol: amount} dict.
+                {symbol: amount} dict.
         """
 #        composition = Composition.from_dict(d['composition'])
         charge = d['charge']
