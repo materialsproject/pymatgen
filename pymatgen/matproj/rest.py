@@ -157,7 +157,7 @@ class MPRester(object):
         Args:
             chemsys_formula_id:
                 A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., 1234).
+                materials_id (e.g., mp-1234).
             final:
                 Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
