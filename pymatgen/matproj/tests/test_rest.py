@@ -47,28 +47,31 @@ class MPResterTest(unittest.TestCase):
                          28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
                          "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
                          {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True,
-                         [540081, 19017], 3.4662026991351147, 56291, 16.0001687]
+                         ['mp-540081', 'mp-601412', 'mp-19017'],
+                         3.4662026991351147, 56291, 16.0001687]
 
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements']:
-                val = self.rester.get_data(540081, prop=prop)[0][prop]
+                val = self.rester.get_data("mp-540081", prop=prop)[0][prop]
+                print val
+                print expected_vals[i]
                 self.assertAlmostEqual(expected_vals[i], val)
             elif prop == "elements":
                 self.assertEqual(set(expected_vals[i]),
-                                 set(self.rester.get_data(540081,
+                                 set(self.rester.get_data("mp-540081",
                                                           prop=prop)[0][prop]))
             else:
                 self.assertEqual(expected_vals[i],
-                                 self.rester.get_data(540081,
+                                 self.rester.get_data("mp-540081",
                                                       prop=prop)[0][prop])
 
         props = ['structure', 'initial_structure', 'final_structure', 'entry']
         for prop in props:
-            obj = self.rester.get_data(540081, prop=prop)[0][prop]
+            obj = self.rester.get_data("mp-540081", prop=prop)[0][prop]
             if prop.endswith("structure"):
                 self.assertIsInstance(obj, Structure)
             elif prop == "entry":
-                obj = self.rester.get_data(540081, prop=prop)[0][prop]
+                obj = self.rester.get_data("mp-540081", prop=prop)[0][prop]
                 self.assertIsInstance(obj, ComputedEntry)
 
         #Test chemsys search
@@ -94,11 +97,11 @@ class MPResterTest(unittest.TestCase):
             self.assertTrue(set(e.composition.elements).issubset(elements))
 
     def test_get_structure_by_material_id(self):
-        s1 = self.rester.get_structure_by_material_id(1)
+        s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
 
     def test_get_entry_by_material_id(self):
-        e = self.rester.get_entry_by_material_id(540081)
+        e = self.rester.get_entry_by_material_id("mp-540081")
         self.assertIsInstance(e, ComputedEntry)
         self.assertTrue(e.composition.reduced_formula, "LiFePO4")
 
@@ -115,11 +118,11 @@ class MPResterTest(unittest.TestCase):
             self.assertEqual(d.formula, "Fe2O3")
 
     def test_get_dos_by_id(self):
-        dos = self.rester.get_dos_by_material_id(2254)
+        dos = self.rester.get_dos_by_material_id("mp-555389")
         self.assertIsInstance(dos, CompleteDos)
 
     def test_get_bandstructure_by_material_id(self):
-        bs = self.rester.get_bandstructure_by_material_id(2254)
+        bs = self.rester.get_bandstructure_by_material_id("mp-555389")
         self.assertIsInstance(bs, BandStructureSymmLine)
 
     def test_get_structures(self):
