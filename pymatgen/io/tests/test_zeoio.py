@@ -5,6 +5,12 @@
 
 from __future__ import division
 
+__author__ = "Bharat Medasani"
+__copyright__ = "Copyright 2013, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "bkmedasani@lbl.gov"
+__date__ = "Aug 2, 2013"
 
 import unittest
 import os
