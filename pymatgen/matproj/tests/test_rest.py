@@ -53,8 +53,6 @@ class MPResterTest(unittest.TestCase):
         for (i, prop) in enumerate(props):
             if prop not in ['hubbards', 'unit_cell_formula', 'elements']:
                 val = self.rester.get_data("mp-540081", prop=prop)[0][prop]
-                print val
-                print expected_vals[i]
                 self.assertAlmostEqual(expected_vals[i], val)
             elif prop == "elements":
                 self.assertEqual(set(expected_vals[i]),
