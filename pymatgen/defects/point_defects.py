@@ -89,7 +89,7 @@ class Defect:
         Enumerates all the symmetrically distinct defects.
         """
         print 'Not implemented'
-        raise NotImpementedError()
+        raise NotImplementedError()
 
     @property
     def structure(self):
