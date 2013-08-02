@@ -201,8 +201,6 @@ class InterstitialAnalyzerTest(unittest.TestCase):
         self.mgo_rad = rad
         self.mgo_inter = Interstitial(self.mgo_uc, val, rad)
         self.mgo_ia = InterstitialAnalyzer(self.mgo_inter, 'Mg', 2)
-        
-    @unittest.skip("Tested. Ignoring for the time being")
     def test_get_relaxedenergy(self):
         for i in range(len(self.mgo_inter.enumerate_defectsites())):
             ife = self.mgo_ia.get_energy(i, True)
@@ -210,7 +208,6 @@ class InterstitialAnalyzerTest(unittest.TestCase):
             site_radius = self.mgo_inter.get_radius(i)
             print i, site_coords, site_radius, ife
             self.assertIsInstance(ife, float)
-    @unittest.skip("Tested. Ignoring for the time being")
     def test_get_norelaxedenergy(self):
         for i in range(self.mgo_inter.defectsite_count()):
             ife = self.mgo_ia.get_energy(i, False)
@@ -218,22 +215,18 @@ class InterstitialAnalyzerTest(unittest.TestCase):
             site_radius = self.mgo_inter.get_radius(i)
             print i, site_coords, site_radius, ife
             self.assertIsInstance(ife, float)
-    @unittest.skip("Tested. Ignoring for the time being")
     def test_get_percentage_volume_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_vol = self.mgo_ia.get_percentage_volume_change(i)
             print i, del_vol
-    @unittest.skip("Tested. Ignoring for the time being")
     def test_get_percentage_lattice_parameter_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_lat = self.mgo_ia.get_percentage_lattice_parameter_change(i)
             print i, del_lat
-    @unittest.skip("Tested. Ignoring for the time being")
     def test_get_percentage_bond_distance_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
             del_bd = self.mgo_ia.get_percentage_bond_distance_change(i)
             print i, del_bd
-    #@unittest.skip("Tested. Ignoring for the time being")
     def test_relaxed_structure_match(self):
         for i in range(self.mgo_inter.defectsite_count()):
             for j in range(self.mgo_inter.defectsite_count()):
@@ -242,6 +235,91 @@ class InterstitialAnalyzerTest(unittest.TestCase):
                 if i == j:
                     self.assertTrue(match)
 
+class InterstitialStructureRelaxerTest(unittest.TestCase):
+    def setUp(self):
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_valrad_eval = ValenceIonicRadiusEvaluator(self.mgo_uc)
+        val = mgo_valrad_eval.valences
+        rad = mgo_valrad_eval.radii
+        self.mgo_val = val
+        self.mgo_rad = rad
+        self.mgo_inter = Interstitial(self.mgo_uc, val, rad)
+        self.isr = InterstitialStructureRelaxer(self.mgo_inter, 'Mg', 2)
+        
+    def test_relaxed_structure_match(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            for j in range(self.mgo_inter.defectsite_count()):
+                match = self.mgo_ia.relaxed_structure_match(i,j)
+                print i, j, match
+                if i == j:
+                    self.assertTrue(match)
+
+    def test_relaxed_energy_match(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            ife = self.mgo_ia.get_energy(i, False)
+            site_coords = self.mgo_inter.get_defectsite(i).coords
+            site_radius = self.mgo_inter.get_radius(i)
+            print i, site_coords, site_radius, ife
+            self.assertIsInstance(ife, float)
+    def test_get_relaxed_structure(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            del_vol = self.mgo_ia.get_percentage_volume_change(i)
+            print i, del_vol
+    def test_get_relaxed_energy(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            del_lat = self.mgo_ia.get_percentage_lattice_parameter_change(i)
+            print i, del_lat
+    def test_get_relaxed_interstitial(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            del_bd = self.mgo_ia.get_percentage_bond_distance_change(i)
+            print i, del_bd
+
+class RelaxedInsterstitialTest(unittest.TestCase):
+    def setUp(self):
+        mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
+        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_valrad_eval = ValenceIonicRadiusEvaluator(self.mgo_uc)
+        val = mgo_valrad_eval.valences
+        rad = mgo_valrad_eval.radii
+        self.mgo_val = val
+        self.mgo_rad = rad
+        self.mgo_inter = Interstitial(self.mgo_uc, val, rad)
+        self.isr = InterstitialStructureRelaxer(self.mgo_inter, 'Mg', 2)
+        
+    def test_relaxed_structure_match(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            for j in range(self.mgo_inter.defectsite_count()):
+                match = self.mgo_ia.relaxed_structure_match(i,j)
+                print i, j, match
+                if i == j:
+                    self.assertTrue(match)
+
+    def test_relaxed_energy_match(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            ife = self.mgo_ia.get_energy(i, False)
+            site_coords = self.mgo_inter.get_defectsite(i).coords
+            site_radius = self.mgo_inter.get_radius(i)
+            print i, site_coords, site_radius, ife
+            self.assertIsInstance(ife, float)
+    def test_get_relaxed_structure(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            del_vol = self.mgo_ia.get_percentage_volume_change(i)
+            print i, del_vol
+    def test_get_relaxed_energy(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            del_lat = self.mgo_ia.get_percentage_lattice_parameter_change(i)
+            print i, del_lat
+    def test_get_relaxed_interstitial(self):
+        for i in range(self.mgo_inter.defectsite_count()):
+            del_bd = self.mgo_ia.get_percentage_bond_distance_change(i)
+            print i, del_bd
 
 if __name__ == "__main__":
     #unittest.main()
