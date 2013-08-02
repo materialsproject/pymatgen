@@ -79,3 +79,9 @@ following:
     G. Henkelman, A. Arnaldsson, and H. Jonsson, "A fast and robust algorithm
     for Bader decomposition of charge density", Comput. Mater. Sci. 36,
     254-360 (2006).
+
+pymatgen.io.feffio
+------------------
+
+This module implements an io interface for FEFF calculations. Please
+acknowledge the contribution of Alan Dozier, UKY.
