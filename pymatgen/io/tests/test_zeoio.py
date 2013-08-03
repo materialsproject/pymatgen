@@ -20,7 +20,7 @@ from pymatgen.io.zeoio import ZeoCssr, ZeoVoronoiXYZ, get_voronoi_nodes
 from pymatgen.io.zeoio import get_void_volume_surfarea
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.defects.point_defects import Vacancy, StructWithValenceIonicRadius
+from pymatgen.analysis.defects.point_defects import Vacancy, ValenceIonicRadiusEvaluator
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie
 

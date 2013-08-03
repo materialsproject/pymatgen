@@ -227,7 +227,6 @@ class GulpIO:
             val_dict (Needed if structure is not charge neutral)
                 El:valence dictionary, where El is element. 
         '''
-        print "230", val_dict
         if not val_dict:
             bv = BVAnalyzer()
             el = [site.species_string for site in structure.sites]
@@ -235,63 +234,48 @@ class GulpIO:
             val_dict = dict(zip(el, valences))
 
         #Try bush library first
-        use_bush = True
         bpb = BuckinghamPotBush()
+        bpl = BuckinghamPotLewis()
+        gin = ""
         for key in val_dict.keys():
-            if key != "O" and val_dict[key]%1 != 0:
-                raise GulpError("Oxide has mixed valence on metal")
+            use_bush = True
+            #if key != "O" and val_dict[key]%1 != 0:
+            #    raise GulpError("Oxide has mixed valence on metal")
             if key not in bpb.species_dict.keys():
                 use_bush = False
-                break
-            if val_dict[key] != bpb.species_dict[key]['oxi']:
+            elif val_dict[key] != bpb.species_dict[key]['oxi']:
                 use_bush = False
-                break
-        if use_bush:
-            gin = "species \n"
-            for key in val_dict.keys():
+            if use_bush:
+                gin += "species \n"
                 gin += bpb.species_dict[key]['inp_str']
-            gin += "buckingham \n"
-            for key in val_dict.keys():
+                gin += "buckingham \n"
                 gin += bpb.pot_dict[key]
-            gin += "spring \n"
-            for key in val_dict.keys():
+                gin += "spring \n"
                 gin += bpb.spring_dict[key]
-            return gin
-            # Or we can use the library option 
-            #gin = self.library_line('bush.lib')
-            #return gin
+                continue
 
-        #Try lewis library next if elements are not in bush
-        use_lewis = True
-        bpl = BuckinghamPotLewis()
-        #Check if all elements are in the lewis library
-        for key in val_dict.keys():  
+            #Try lewis library next if element is not in bush
+            #use_lewis = True
             if key != "O":  # For metals the key is "Metal_OxiState+"
                 k = key+'_'+str(int(val_dict[key]))+'+'
                 if k not in bpl.species_dict.keys():
-                    use_lewis = False
+                    #use_lewis = False
                     raise GulpError("Element {} not in library".format(k))
-        if use_lewis:
-            gin = "species\n"
-            for key in val_dict.keys():  
-                if key != "O":  # For metals the key is "Metal_OxiState+"
-                    k = key+'_'+str(int(val_dict[key]))+'+'
-                    gin += bpl.species_dict[k]
-                else:
-                    k = "O_core"
-                    gin += bpl.species_dict[k]
-                    k = "O_shel"
-                    gin += bpl.species_dict[k]
-            gin += "buckingham\n"
-            for key in val_dict.keys():  
-                if key != "O":  # For metals the key is "Metal_OxiState+"
-                    k = key+'_'+str(int(val_dict[key]))+'+'
-                else:
-                    k = key
+                gin += "species\n"
+                gin += bpl.species_dict[k]
+                gin += "buckingham\n"
                 gin += bpl.pot_dict[k]
-            gin += 'spring\n'
-            gin += bpl.spring_dict["O"]
-            return gin
+            else:
+                gin += "species\n"
+                k = "O_core"
+                gin += bpl.species_dict[k]
+                k = "O_shel"
+                gin += bpl.species_dict[k]
+                gin += "buckingham\n"
+                gin += bpl.pot_dict[key]
+                gin += 'spring\n'
+                gin += bpl.spring_dict[key]
+        return gin
 
     def tersoff_input(self, structure, periodic=False, uc=True, 
                                   *keywords):
