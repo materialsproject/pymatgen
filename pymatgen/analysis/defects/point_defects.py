@@ -49,7 +49,7 @@ class ValenceIonicRadiusEvaluator:
         rad_dict = {}
         for el, val in self._valences.items():
             #val = self._valences[el]
-            print el, val, Specie(el, val).ionic_radius
+            #print el, val, Specie(el, val).ionic_radius
             rad_dict[el] = Specie(el, val).ionic_radius
             if not rad_dict[el]: #get covalent radii later
                 raise LookupError()
@@ -399,7 +399,7 @@ class VacancyFormationEnergy:
             val_dict = self._vacancy.struct_valences
             for sp in range(2,6):
                 if not (False in tol_flg):
-                    print sp
+                    #print sp
                     break
                 scale_mat = [[sp,0,0],[0,sp,0],[0,0,sp]]
                 sc = self._vacancy.make_supercells_with_defects(scale_mat)
