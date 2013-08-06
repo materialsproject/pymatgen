@@ -204,6 +204,17 @@ class GulpIO:
         '''
         Gets a GULP input for an oxide structure and 
         buckingham potential from library
+        Args:
+            structure:
+                pymatgen.core.structure.Structure
+            keywords:
+                GULP first line keywords.
+            library (Default=None):
+                File containing the species and potential.
+            uc (Default=True):
+                Unit Cell Flag.
+            valence_dict:
+                {El: valence}
         '''
         gin = self.keyword_line(*keywords)
         gin += self.structure_lines(structure, symm_flg=not uc)
@@ -281,6 +292,17 @@ class GulpIO:
                                   *keywords):
         '''
         Gets a GULP input with Tersoff potential for an oxide structure 
+        Args:
+            structure:
+                pymatgen.core.structure.Structure
+            periodic (Default=False):
+                Flag denoting whether periodic boundary conditions are used
+            library (Default=None):
+                File containing the species and potential.
+            uc (Default=True):
+                Unit Cell Flag.
+            keywords:
+                GULP first line keywords.
         '''
         #gin="static noelectrostatics \n "
         gin = self.keyword_line(*keywords)
@@ -294,6 +316,9 @@ class GulpIO:
     def tersoff_potential(self, structure):
         '''
         Generate the species, tersoff potential lines for an oxide structure
+        Args:
+            structure:
+                pymatgen.core.structure.Structure
         '''
         bv = BVAnalyzer()
         el = [site.species_string for site in structure.sites]
@@ -319,48 +344,6 @@ class GulpIO:
                 gin += ters_pot_str
         
         gin += qerfstring
-        return gin
-
-    def tersoff_potential_without_bv(self, structure):
-        '''
-        Gets a GULP Tersoff potential lines for an oxide structure
-        CURRENTLY ONLY WORKS FOR BINARY OXIDES WITH A SINGLE OXIDATION STATE
-        Calculates oxidation state from the formula
-        ***Deprecated***
-        '''
-        sites=structure.sites
-        comp=structure.composition.get_el_amt_dict()
-
-        gin = "species \n"
-        
-        lastspecie=[]
-        metaloxi=[]
-        endstring=""
-        for ii in sites:
-            if lastspecie != ii.specie:
-                lastspecie=ii.specie
-                '''ONE DAY UPDATE THIS WITH BVANALYZER'''
-                '''The only challenge is, I don't know how to deal with cation-cation potential'''
-                if str(lastspecie) != "O":
-                    nummet=comp[str(lastspecie)]
-                    numoxi=comp["O"]
-                    oxistate=numoxi*2/nummet
-                    if oxistate%1 != 0:
-                        raise SystemError("Oxide has mixed valence on metal")
-                    oxidationstring=str(lastspecie)+" core "+str(oxistate)
-                    metaloxi.append(lastspecie)
-                else:
-                    oxidationstring=str(lastspecie)+" core -2"
-                    
-                gin=gin+oxidationstring+ "\n"
-                endstring=endstring+"qerfc \n"+str(lastspecie)+" "+str(lastspecie)+"  0.6000 10.0000 \n" 
-        
-        gin=gin+"# noelectrostatics \n Morse \n"
-        for metal in metaloxi:
-            metal=str(metal)+"("+str(int(oxistate))+")"
-            MetOxiTers=Tersoff_pot().data[metal]
-            gin=gin+MetOxiTers
-        gin=gin+endstring
         return gin
 
     def get_energy(self, gout):
@@ -497,82 +480,64 @@ class GulpCaller:
         return gout
 
 
-def gulpduplicatecheck(structure):
-    '''
-    Gets a GULP input for any structure
-    Uses only an Au potential for all atoms.
-    Not to actually get energies - just used to attribute some arbitrary energy to the structure.
-    Identical structures will have the same 'energy', which can be used to pre-screen structurematcher for large structures. 
-    
-    '''
-    
-    #gin=get_gulpinput(structure)
-    #print structure
-    #print '------'
-    gin=_gulp_structure(structure,False,False,False,False)
-    gin="single \n "+gin
-    #print gin
-    #print '------'
-    
-    comp=structure.composition.get_el_amt_dict()
-    #print comp
-
-    ginput=""
-    c=0
-    for line in gin.split("\n"):
-        c=c+1
-        if c != 2 and c != 3:
-            if c==1 or c==4:
-                ginput += line+"\n"
-            elif c>=5 and c < 5+structure.num_sites:
-                splt_line = line.split(" ")
-                splt_line[0] = 'Au'
-                line = " ".join(splt_line)
-                ginput += line+"\n"
-            else:
-                ginput += line + "\n"
-    ginput = ginput + """lennard 12 6
-Au core Au core 214180.2000 625.482 40.000 0 0"""
-    #print ginput
-    #print '-------'
-    output2=run_gulp_input(ginput)
-    return float(_gulp_energy(output2))
-
 def get_energy_tersoff(structure, gulp_cmd='gulp'):
+    """
+    Compute the energy of a structure using Tersoff potential.
+    Args:
+        structure:
+            pymatgen.core.structure.Structure
+        gulp_cmd:
+            GULP command if not in standard place
+    """
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
     gin = gio.tersoff_input(structure)
-    #print gin
     gout = gc.run(gin)
     return gio.get_energy(gout)
 
 def get_energy_buckingham(structure, gulp_cmd='gulp', 
         keywords=('optimise', 'conp'), valence_dict=None):
+    """
+    Compute the energy of a structure using Buckingham potential.
+    Args:
+        structure:
+            pymatgen.core.structure.Structure
+        gulp_cmd:
+            GULP command if not in standard place
+        keywords:
+            GULP first line keywords
+        valence_dict:
+            {El: valence}. Needed if the structure is not charge neutral.
+    """
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
     gin = gio.buckingham_input(
             structure, keywords, valence_dict=valence_dict
             )
     gout = gc.run(gin)
-    #print gout
     return gio.get_energy(gout)
 
 def get_energy_relax_structure_buckingham(structure, 
         gulp_cmd='gulp', keywords=('optimise', 'conp'), valence_dict=None):
+    """
+    Relax a structure and compute the energy using Buckingham potential.
+    Args:
+        structure:
+            pymatgen.core.structure.Structure
+        gulp_cmd:
+            GULP command if not in standard place
+        keywords:
+            GULP first line keywords
+        valence_dict:
+            {El: valence}. Needed if the structure is not charge neutral.
+    """
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
     gin = gio.buckingham_input(
             structure, keywords, valence_dict=valence_dict
             )
     gout = gc.run(gin)
-    #print gout
     energy =  gio.get_energy(gout)
-    #sp, coords = gio.get_relaxed_structure(gout)
-    #print sp
-    #print coords
-    #print len(sp)
-    #print len(coords)
-    #relax_structure = Structure(structure.lattice, sp, coords, to_unit_cell=True)
     relax_structure = gio.get_relaxed_structure(gout) 
     return energy, relax_structure
 
@@ -601,12 +566,11 @@ class GulpConvergenceError(Exception):
 
 class BuckinghamPotLewis(object):
     """
-    Generate the Buckingham Potential Table based on "Lewis & Catlow" and
-    the metal oxidation state
+    Generate the Buckingham Potential Table based on lewis.lib file
     Ref: 1) G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
             1149-1161 (1985)
     """
-    def __init__(self, verbose=False):
+    def __init__(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fid = open(os.path.join(module_dir, 'lewis.lib'), 'rU')
         # In lewis.lib there is no shell for cation
@@ -657,13 +621,12 @@ class BuckinghamPotLewis(object):
 
 class BuckinghamPotBush(object):
     """
-    Generate the Buckingham Potential Table from the bush.lib file included
-    with GULP
+    Generate the Buckingham Potential Table from the bush.lib 
     Ref: 1) T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
             4, 831-837 (1994)
     """
 
-    def __init__(self, verbose=False):
+    def __init__(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fid = open(os.path.join(module_dir, 'bush.lib'), 'rU')
         # In lewis.lib there is no shell for cation
@@ -706,7 +669,10 @@ class BuckinghamPotBush(object):
 
 
 class Tersoff_pot(object):
-    def __init__(self, verbose=False):
+    """
+    Generate Tersoff Potential Table from "OxideTersoffPotentials" file
+    """
+    def __init__(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fid = open(os.path.join(module_dir, "OxideTersoffPotentials"), "rU")
         data = dict()
