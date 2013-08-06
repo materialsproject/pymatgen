@@ -31,30 +31,23 @@ class ValenceIonicRadiusEvaluator:
         self._structure = structure
         self._valences = self._get_valences()
         self._ionic_radii = self._get_ionic_radii()
-
     @property
     def radii(self):
         return self._ionic_radii
-
     @property
     def valences(self):
         return self._valences
-
-
     @property
     def structure(self):
         return self._structure
-
     def _get_ionic_radii(self):
         rad_dict = {}
-        for el, val in self._valences.items():
-            #val = self._valences[el]
-            #print el, val, Specie(el, val).ionic_radius
-            rad_dict[el] = Specie(el, val).ionic_radius
+        for k, val in self._valences.items():
+            el = re.sub('[1-9,+,\-]', '', k)
+            rad_dict[k] = Specie(el, val).ionic_radius
             if not rad_dict[el]: #get covalent radii later
                 raise LookupError()
         return rad_dict
-
     def _get_valences(self):
         bv = BVAnalyzer()
         try:
@@ -65,16 +58,8 @@ class ValenceIonicRadiusEvaluator:
             print err_str
             raise LookupError()
 
-        valence_dict = {}
-        sites = self._structure.sites
-        for i in range(len(sites)):
-            if sites[i].species_string in valence_dict.keys():
-                continue
-            else:
-                valence_dict[sites[i].species_string] = valences[i]
-                if len(valence_dict) == len(self._structure.composition):
-                    break
-
+        el = [site.species_string for site in self.structure.sites]
+        valence_dict = dict(zip(el, valences))
         return valence_dict
 
     
