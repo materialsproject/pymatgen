@@ -279,8 +279,7 @@ class InterstitialStructureRelaxerTest(unittest.TestCase):
     def test_get_relaxed_structure(self):
         for i in range(self.mgo_inter.defectsite_count()):
             relax_struct = self.isr.get_relaxed_structure(i)
-            #print i, del_vol
-            self.assertIsInstance(realx_struct, Structure)
+            self.assertIsInstance(relax_struct, Structure)
 
     def test_get_relaxed_energy(self):
         for i in range(self.mgo_inter.defectsite_count()):
@@ -288,10 +287,8 @@ class InterstitialStructureRelaxerTest(unittest.TestCase):
             self.assertIsInstance(energy, float)
 
     def test_get_relaxed_interstitial(self):
-        for i in range(self.mgo_inter.defectsite_count()):
-            ri = self.isr.get_relaxed_interstitial(i)
-            #print i, del_bd
-            self.assertIsInstance(ri, RelaxedInterstitial)
+        ri = self.isr.get_relaxed_interstitial()
+        self.assertIsInstance(ri, RelaxedInterstitial)
 
 
 class RelaxedInsterstitialTest(unittest.TestCase):
@@ -308,38 +305,34 @@ class RelaxedInsterstitialTest(unittest.TestCase):
         self.mgo_rad = rad
         self.mgo_inter = Interstitial(self.mgo_uc, val, rad)
         isr = InterstitialStructureRelaxer(self.mgo_inter, 'Mg', 2)
-        self.ris = isr.get_relaxed_interstitial()
+        self.ri = isr.get_relaxed_interstitial()
 
     def test_formation_energy(self):
         for i in range(self.mgo_inter.defectsite_count()):
-            ife = self.ris.formation_energy(i)
+            ife = self.ri.formation_energy(i)
             self.assertIsInstance(ife, float)
-
-    def test_relaxed_energy_match(self):
-        for i in range(self.mgo_inter.defectsite_count()):
-            ife = self.isr.get_energy(i, False)
-            site_coords = self.mgo_inter.get_defectsite(i).coords
-            #site_radius = self.mgo_inter.get_radius(i)
-            #print i, site_coords, site_radius, ife
-            self.assertIsInstance(ife, float)
+            print "ife", ife
 
     def test_get_percentage_volume_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
-            del_vol = self.ris.get_percentage_volume_change(i)
-            #print i, del_vol
+            del_vol = self.ri.get_percentage_volume_change(i)
             self.assertIsInstance(del_vol, float)
+            print "del_vol", del_vol
 
     def test_get_percentage_lattice_parameter_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
-            del_lat = self.isr.get_percentage_lattice_parameter_change(i)
-            #print i, del_lat
-            self.assertIsInstance(del_lat, float)
+            del_lat = self.ri.get_percentage_lattice_parameter_change(i)
+            self.assertNotEqual(del_lat['a'], 0)
+            self.assertNotEqual(del_lat['b'], 0)
+            self.assertNotEqual(del_lat['c'], 0)
+            print "del_lat", del_lat
 
     def test_get_percentage_bond_distance_change(self):
         for i in range(self.mgo_inter.defectsite_count()):
-            del_bd = self.isr.get_percentage_bond_distance_change(i)
-            #print i, del_bd
-            self.assertIsInstance(del_bd, float)
+            del_bd = self.ri.get_percentage_bond_distance_change(i)
+            #self.assertIsInstance(del_bd, float)
+            #print del_bd
+
 
 if __name__ == "__main__":
     unittest.main()
