@@ -371,6 +371,38 @@ class GulpIO:
         output_lines = gout.split("\n")
         no_lines = len(output_lines)
         i = 0
+        # Compute the input lattice parameters 
+        while i < no_lines:
+            line = output_lines[i]
+            if "Full cell parameters" in line:
+                i += 2
+                line = output_lines[i]
+                a = float(line.split()[8])
+                alpha = float(line.split()[11])
+                line = output_lines[i+1]
+                b = float(line.split()[8])
+                beta = float(line.split()[11])
+                line = output_lines[i+2]
+                c = float(line.split()[8])
+                gamma = float(line.split()[11])
+                i += 3
+                break
+            elif "Cell parameters" in line:
+                i += 2
+                line = output_lines[i]
+                a = float(line.split()[2])
+                alpha = float(line.split()[5])
+                line = output_lines[i+1]
+                b = float(line.split()[2])
+                beta = float(line.split()[5])
+                line = output_lines[i+2]
+                c = float(line.split()[2])
+                gamma = float(line.split()[5])
+                i += 3
+                break
+            else:
+                i += 1
+
         while i < no_lines:
             line = output_lines[i]
             if "Final fractional coordinates of atoms" in line:
@@ -382,10 +414,13 @@ class GulpIO:
                     i += 1
                     line = output_lines[i]
                 # read the cell parameters 
-                i += 12
-                for del_i in range(6):
-                    line = output_lines[i+del_i]
-                    cell_param_lines.append(line)
+                i += 9
+                line = output_lines[i]
+                if "Final cell parameters" in line:
+                    i += 3
+                    for del_i in range(6):
+                        line = output_lines[i+del_i]
+                        cell_param_lines.append(line)
 
                 break
             else:
@@ -410,9 +445,7 @@ class GulpIO:
             alpha = float(cell_param_lines[3].split()[1])
             beta = float(cell_param_lines[4].split()[1])
             gamma = float(cell_param_lines[5].split()[1])
-            latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
-        else:
-            raise IOError("No structure found")
+        latt = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
 
         return Structure(latt, sp, coords)
 
@@ -545,6 +578,7 @@ def get_energy_relax_structure_buckingham(structure,
     relax_structure = gio.get_relaxed_structure(gout) 
     return energy, relax_structure
 
+
 class GulpError(Exception):
     """
     Exception class for GULP.
@@ -629,7 +663,6 @@ class BuckinghamPotBush(object):
     Ref: 1) T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
             4, 831-837 (1994)
     """
-
     def __init__(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         fid = open(os.path.join(module_dir, 'bush.lib'), 'rU')
