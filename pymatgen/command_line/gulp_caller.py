@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 """
-Interface with command line GULP. http://projects.ivec.org/gulp/help/manuals.html
-WARNING: you need to have GULP in your path for this to work
+Interface with command line GULP. 
+http://projects.ivec.org
+WARNING: you need to have GULP installed on your system.
 """
 
 __author__ = "Bharat Medasani, Wenhao Sun"
@@ -15,6 +16,7 @@ __date__ = "$Jun 22, 2013M$"
 
 import subprocess
 import os
+import re
 
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.command_line.aconvasp_caller import run_aconvasp_command
@@ -69,15 +71,19 @@ _gulp_kw = {
         #Miscellaneous
         "nomodcoord","oldunits","zero_potential"
         }
+
     
 class GulpIO:
     """
-    Class that defines the methods to generate gulp input and process output
+    To generate GULP input and process output
     """
     def keyword_line(self, *args):
         """
         Checks if the input args are proper gulp keywords and
-        generates the 1st line of gulp input. 
+        generates the 1st line of gulp input. Full keywords are expected.
+        Arguments:
+            args:
+                1st line keywords 
         """
         if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
             raise GulpError("Wrong keywords given")
@@ -88,17 +94,17 @@ class GulpIO:
     def structure_lines(self, structure, cell_flg=True, frac_flg=True, 
             anion_shell_flg=True, cation_shell_flg=False, symm_flg=True):
         """
-        Generates GULP input string for pymatgen structure 
+        Generates GULP input string corresponding to pymatgen structure 
         Args:
             structure:
                 pymatgen Structure object
             cell_flg (default = True):
-                If true, unit cell is written. 
+                Option to use lattice parameters. 
             fractional_flg (default = True):
                 If True, fractional coordinates are used.
                 Else, cartesian coodinates in Angstroms are used. 
             ******
-            GULP Convention is to use fractional coordinates for periodic 
+            GULP convention is to use fractional coordinates for periodic 
             structures and cartesian coordinates for non-periodic structures.
             ******
             anion_shell_flg (default = True):
@@ -108,7 +114,7 @@ class GulpIO:
             symm_flg (default = True):
                 If True, symmetry information is also written.
         Returns:
-            string containing structure for gulp input
+            string containing structure for GULP input
         """
         gin = ""
         if cell_flg:
@@ -145,7 +151,7 @@ class GulpIO:
         Generates GULP input specie and potential string for pymatgen structure
         Args:
             structure:
-                pymatgen Structure object
+                pymatgen.core.structure.Structure object
             potential:
                 String specifying the type of potential used
             kwargs:
@@ -162,8 +168,8 @@ class GulpIO:
         Returns:
             string containing specie and potential specification for gulp input
         """
-        raise NotImplementedError("Function gulp_specie_potential not yet implemented"+
-                "\nUse gulp_lib instead")
+        raise NotImplementedError("gulp_specie_potential not yet implemented."+
+                "\nUse library_line instead")
 
     def library_line(self, file_name):
         """
@@ -239,25 +245,24 @@ class GulpIO:
         gin = ""
         for key in val_dict.keys():
             use_bush = True
-            #if key != "O" and val_dict[key]%1 != 0:
-            #    raise GulpError("Oxide has mixed valence on metal")
-            if key not in bpb.species_dict.keys():
+            el = re.sub('[1-9,+,\-]', '', key)
+            if el not in bpb.species_dict.keys():
                 use_bush = False
-            elif val_dict[key] != bpb.species_dict[key]['oxi']:
+            elif val_dict[key] != bpb.species_dict[el]['oxi']:
                 use_bush = False
             if use_bush:
                 gin += "species \n"
-                gin += bpb.species_dict[key]['inp_str']
+                gin += bpb.species_dict[el]['inp_str']
                 gin += "buckingham \n"
-                gin += bpb.pot_dict[key]
+                gin += bpb.pot_dict[el]
                 gin += "spring \n"
-                gin += bpb.spring_dict[key]
+                gin += bpb.spring_dict[el]
                 continue
 
             #Try lewis library next if element is not in bush
             #use_lewis = True
-            if key != "O":  # For metals the key is "Metal_OxiState+"
-                k = key+'_'+str(int(val_dict[key]))+'+'
+            if el != "O":  # For metals the key is "Metal_OxiState+"
+                k = el+'_'+str(int(val_dict[key]))+'+'
                 if k not in bpl.species_dict.keys():
                     #use_lewis = False
                     raise GulpError("Element {} not in library".format(k))
@@ -277,8 +282,7 @@ class GulpIO:
                 gin += bpl.spring_dict[key]
         return gin
 
-    def tersoff_input(self, structure, periodic=False, uc=True, 
-                                  *keywords):
+    def tersoff_input(self, structure, periodic=False, uc=True, *keywords):
         '''
         Gets a GULP input with Tersoff potential for an oxide structure 
         '''
