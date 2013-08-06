@@ -4,6 +4,8 @@ Created on Jan 22, 2013
 @author: wenhao
 '''
 import unittest
+import os
+import sys
 
 from nose.exc import SkipTest
 
@@ -12,8 +14,6 @@ from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
-import os
-import sys
 
 test_dir = os.path.join(os.path.dirname(__file__))
 gulp_present = which('gulp')
