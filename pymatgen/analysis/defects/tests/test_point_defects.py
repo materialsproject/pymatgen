@@ -3,14 +3,13 @@
 import unittest
 import sys
 
-import numpy as np
-
 from pymatgen.analysis.defects.point_defects import *
-from pymatgen.core.structure import  Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import  Element
-from pymatgen.symmetry.finder import SymmetryFinder 
-from pymatgen.symmetry.spacegroup import Spacegroup
+from pymatgen.core.structure import Structure
+from pymatgen.core.periodic_table import Element
+from pymatgen.util.io_utils import which
+
+
+gulp_present = which('gulp')
 
 
 class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
@@ -19,21 +18,22 @@ class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
         Setup MgO rocksalt structure for testing Vacancy
         """
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 + ["O"]*4
-        mgo_frac_cord = [[0,0,0], [0.5,0.5,0], [0.5,0,0.5], [0, 0.5,0.5],
-                         [0.5,0,0], [0,0.5,0], [0,0,0.5], [0.5,0.5,0.5]]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
+        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
+                                 True)
         self._mgo_valrad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
-    
+
     def test_valences(self):
         valence_dict = self._mgo_valrad_evaluator.valences
         for val in valence_dict.values():
-            self.assertTrue(val in  {2,-2})
+            self.assertTrue(val in {2, -2})
 
     def test_radii(self):
         rad_dict = self._mgo_valrad_evaluator.radii
         for rad in rad_dict.values():
-            self.assertTrue(rad in {0.86,1.26})
+            self.assertTrue(rad in {0.86, 1.26})
 
 
 class VacancyTest(unittest.TestCase):
@@ -42,18 +42,19 @@ class VacancyTest(unittest.TestCase):
         Setup MgO rocksalt structure for testing Vacancy
         """
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
+                                 True)
         self._mgo_val_rad_eval = ValenceIonicRadiusEvaluator(self._mgo_uc)
         self._mgo_val = self._mgo_val_rad_eval.valences
         self._mgo_rad = self._mgo_val_rad_eval.radii
         self._mgo_vac = Vacancy(self._mgo_uc, self._mgo_val, self._mgo_rad)
-    
+
     def test_defectsite_count(self):
-        self.assertTrue(self._mgo_vac.defectsite_count() == 2, 
-                "Vacancy count wrong")
+        self.assertTrue(self._mgo_vac.defectsite_count() == 2,
+                        "Vacancy count wrong")
 
     def test_enumerate_defectsites(self):
         """
@@ -72,21 +73,23 @@ class VacancyTest(unittest.TestCase):
 
     def test_get_defectsite_index(self):
         for i in range(self._mgo_vac.defectsite_count()):
-            self.assertTrue(self._mgo_vac.get_defectsite_structure_index(i) < 
-                    len(self._mgo_uc.sites), "Defect site index beyond range")
+            self.assertTrue(self._mgo_vac.get_defectsite_structure_index(i) <
+                            len(self._mgo_uc.sites),
+                            "Defect site index beyond range")
 
     def test_gt_defectsite_coordination_number(self):
         for i in range(self._mgo_vac.defectsite_count()):
-            self.assertTrue(round(self._mgo_vac.get_defectsite_coordination_number(
-                i))==6.0, "Wrong coordination number")
+            self.assertTrue(
+                round(self._mgo_vac.get_defectsite_coordination_number(
+                    i)) == 6.0, "Wrong coordination number")
 
     def test_get_defectsite_coordinated_elements(self):
         for i in range(self._mgo_vac.defectsite_count()):
             site_index = self._mgo_vac.get_defectsite_structure_index(i)
             site_el = self._mgo_uc[site_index].species_string
             self.assertTrue(
-                    site_el not in self._mgo_vac.get_coordinated_elements(
-                        i), "Coordinated elements are wrong")
+                site_el not in self._mgo_vac.get_coordinated_elements(
+                    i), "Coordinated elements are wrong")
 
     def test_get_defectsite_effective_charge(self):
         for i in range(self._mgo_vac.defectsite_count()):
@@ -114,12 +117,13 @@ class VacancyTest(unittest.TestCase):
             sa = self._mgo_vac.get_surface_area(i)
             #Once the zeo++ is properly working, make sure vol is +ve
             self.assertIsInstance(sa, float)
-        
 
+
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class VacancyFormationEnergyTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -128,7 +132,7 @@ class VacancyFormationEnergyTest(unittest.TestCase):
         rad = mgo_valrad_eval.radii
         self.mgo_vac = Vacancy(self.mgo_uc, val, rad)
         self.mgo_vfe = VacancyFormationEnergy(self.mgo_vac)
-        
+
     def test_get_energy(self):
         for i in range(len(self.mgo_vac.enumerate_defectsites())):
             vfe = self.mgo_vfe.get_energy(i)
@@ -136,23 +140,25 @@ class VacancyFormationEnergyTest(unittest.TestCase):
             self.assertIsInstance(vfe, float)
 
 
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class InterstitialTest(unittest.TestCase):
     def setUp(self):
         """
         Setup MgO rocksalt structure for testing Interstitial
         """
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
-        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
+        self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
+                                 True)
         mgo_val_rad_eval = ValenceIonicRadiusEvaluator(self._mgo_uc)
         self._mgo_val = mgo_val_rad_eval.valences
         self._mgo_rad = mgo_val_rad_eval.radii
         self._mgo_interstitial = Interstitial(
-                self._mgo_uc, self._mgo_val, self._mgo_rad
-                )
-    
+            self._mgo_uc, self._mgo_val, self._mgo_rad
+        )
+
     def test_enumerate_defectsites(self):
         """
         The interstitial sites should be within the lattice
@@ -164,24 +170,26 @@ class InterstitialTest(unittest.TestCase):
         #                uniq_def_sites),  "Vacancy init failed")
 
     def test_defectsite_count(self):
-        self.assertTrue(self._mgo_interstitial.defectsite_count() == 2, 
-                "Vacancy count wrong")
-        
+        self.assertTrue(self._mgo_interstitial.defectsite_count() == 2,
+                        "Vacancy count wrong")
+
     def test_get_defectsite_coordination_number(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >>sys.stderr, self._mgo_interstitial.get_defectsite_coordination_number(i)
+            print >> sys.stderr, self._mgo_interstitial.get_defectsite_coordination_number(
+                i)
 
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
-            print >>sys.stderr, self._mgo_interstitial.get_coordsites_charge_sum(i)
+            print >> sys.stderr, self._mgo_interstitial.get_coordsites_charge_sum(
+                i)
 
     def test_get_defectsite_coordinated_elements(self):
         struct_el = self._mgo_uc.composition.elements
         for i in range(self._mgo_interstitial.defectsite_count()):
             for el in self._mgo_interstitial.get_coordinated_elements(i):
                 self.assertTrue(
-                        Element(el) in struct_el, "Coordinated elements are wrong"
-                        )
+                    Element(el) in struct_el, "Coordinated elements are wrong"
+                )
 
     def test_get_radius(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
@@ -190,10 +198,11 @@ class InterstitialTest(unittest.TestCase):
             self.assertTrue(rad, float)
 
 
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class InterstitialAnalyzerTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -239,16 +248,17 @@ class InterstitialAnalyzerTest(unittest.TestCase):
     def test_relaxed_structure_match(self):
         for i in range(self.mgo_inter.defectsite_count()):
             for j in range(self.mgo_inter.defectsite_count()):
-                match = self.mgo_ia.relaxed_structure_match(i,j)
+                match = self.mgo_ia.relaxed_structure_match(i, j)
                 print i, j, match
                 if i == j:
                     self.assertTrue(match)
 
 
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class InterstitialStructureRelaxerTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -259,11 +269,11 @@ class InterstitialStructureRelaxerTest(unittest.TestCase):
         self.mgo_rad = rad
         self.mgo_inter = Interstitial(self.mgo_uc, val, rad)
         self.isr = InterstitialStructureRelaxer(self.mgo_inter, 'Mg', 2)
-        
+
     def test_relaxed_structure_match(self):
         for i in range(self.mgo_inter.defectsite_count()):
             for j in range(self.mgo_inter.defectsite_count()):
-                match = self.isr.relaxed_structure_match(i,j)
+                match = self.isr.relaxed_structure_match(i, j)
                 #print i, j, match
                 if i == j:
                     self.assertTrue(match)
@@ -271,7 +281,7 @@ class InterstitialStructureRelaxerTest(unittest.TestCase):
     def test_relaxed_energy_match(self):
         for i in range(self.mgo_inter.defectsite_count()):
             for j in range(self.mgo_inter.defectsite_count()):
-                match = self.isr.relaxed_energy_match(i,j)
+                match = self.isr.relaxed_energy_match(i, j)
                 #print i, j, match
                 if i == j:
                     self.assertTrue(match)
@@ -291,10 +301,11 @@ class InterstitialStructureRelaxerTest(unittest.TestCase):
         self.assertIsInstance(ri, RelaxedInterstitial)
 
 
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class RelaxedInsterstitialTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg"]*4 +  ["O"]*4
+        mgo_specie = ["Mg"] * 4 + ["O"] * 4
         mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
         self.mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
