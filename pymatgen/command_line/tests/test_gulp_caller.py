@@ -1,23 +1,21 @@
 '''
 Created on Jan 22, 2013
 
-@author: wenhao
+@author: Bharat Medasani
 '''
 import unittest
 import os
-import sys
-
-from nose.exc import SkipTest
 
 from pymatgen.command_line.gulp_caller import *
-from pymatgen.core.structure import Lattice, Structure
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.structure import Structure
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 
 test_dir = os.path.join(os.path.dirname(__file__))
 gulp_present = which('gulp')
 
+
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpCallerInitTest(unittest.TestCase):
     def test_default_init(self):
         gulp_caller = GulpCaller()
@@ -25,7 +23,10 @@ class GulpCallerInitTest(unittest.TestCase):
     def test_explicit_path(self):
         gulp_caller = GulpCaller(gulp_present)
 
+
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpCallerTest(unittest.TestCase):
+
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg"]*4 + ["O"]*4
@@ -49,7 +50,7 @@ class GulpCallerTest(unittest.TestCase):
         gout = self.gc.run(self.gin)
 
 
-
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpIOTest(unittest.TestCase):
     def setUp(self):
         p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
@@ -202,6 +203,8 @@ class GulpIOTest(unittest.TestCase):
         #print "--------BinaryOxide Tersoff"
         print gin
 
+
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class GlobalFunctionsTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -242,6 +245,8 @@ class GlobalFunctionsTest(unittest.TestCase):
         print struct
         print self.mgo_uc
 
+
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class BuckinghamPotLewisTest(unittest.TestCase):
     def setUp(self):
         self.bpl = BuckinghamPotLewis()
@@ -268,28 +273,30 @@ class BuckinghamPotLewisTest(unittest.TestCase):
         self.assertNotIn('Li', self.bpl.spring_dict.keys())
         self.assertNotEqual('', self.bpl.spring_dict['O'])
 
+
+@unittest.skipIf(not gulp_present, "gulp not present.")
 class BuckinghamPotBushTest(unittest.TestCase):
+
     def setUp(self):
         self.bpb = BuckinghamPotBush()
+
     def test_existing_element(self):
         self.assertIn("Li", self.bpb.pot_dict.keys())
         self.assertIn("Li", self.bpb.species_dict.keys())
         self.assertIn("O", self.bpb.pot_dict.keys())
         self.assertIn("O", self.bpb.species_dict.keys())
+
     def test_non_exisitng_element(self):
         self.assertNotIn("Mn", self.bpb.pot_dict.keys())
         self.assertNotIn("Mn", self.bpb.species_dict.keys())
+
     def test_element_different_valence(self):
         self.assertNotEqual(2, self.bpb.species_dict["Li"]['oxi'])
+
     def test_spring(self):
         self.assertEqual('', self.bpb.spring_dict["Li"])
         self.assertNotEqual('', self.bpb.spring_dict['O'])
 
 
 if __name__ == '__main__':
-    #suite = unittest.TestLoader().loadTestsFromTestCase(GlobalFunctionsTest)
-    #suite = unittest.TestLoader().loadTestsFromTestCase(GulpIOTest)
-    #suite = unittest.TestLoader().loadTestsFromTestCase(BuckinghamPotLewisTest)
-    #suite = unittest.TestLoader().loadTestsFromTestCase(BuckinghamPotBushTest)
-    #unittest.TextTestRunner(verbosity=3).run(suite)
     unittest.main()
