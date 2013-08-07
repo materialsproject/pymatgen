@@ -54,13 +54,13 @@ class ZeoCssr(Cssr):
                 "{:.4f} {:.4f} {:.4f}"
                 #.format(*self.structure.lattice.abc), 
                 .format(self.structure.lattice.c, 
-                        self.structure.lattice.b,
-                        self.structure.lattice.a),
+                        self.structure.lattice.a,
+                        self.structure.lattice.b),
                 "{:.2f} {:.2f} {:.2f} SPGR =  1 P 1    OPT = 1"
                 #.format(*self.structure.lattice.angles), 
-                .format(self.structure.lattice.beta,
-                        self.structure.lattice.gamma,
-                        self.structure.lattice.alpha),
+                .format(self.structure.lattice.gamma,
+                        self.structure.lattice.alpha,
+                        self.structure.lattice.beta),
                 "{} 0".format(len(self.structure)),
                 "0 {}".format(self.structure.formula)
                 ]
@@ -254,7 +254,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     voronoi_out_filename = name+'_voro.xyz'
     voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
     #print voronoi_node_mol
-    species = ["H"]*len(voronoi_node_mol.sites)
+    species = ["X"]*len(voronoi_node_mol.sites)
     coords = []
     prop = []
     for site in voronoi_node_mol.sites:
