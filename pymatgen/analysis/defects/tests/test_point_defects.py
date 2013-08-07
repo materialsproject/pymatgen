@@ -8,6 +8,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.io_utils import which
 
+try:
+    import zeo
+except ImportError:
+    zeo = None
 
 gulp_present = which('gulp')
 
@@ -36,6 +40,7 @@ class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
             self.assertTrue(rad in {0.86, 1.26})
 
 
+@unittest.skipIf(not zeo, "zeo not present.")
 class VacancyTest(unittest.TestCase):
     def setUp(self):
         """
