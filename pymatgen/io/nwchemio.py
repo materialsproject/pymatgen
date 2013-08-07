@@ -27,7 +27,8 @@ class NwTask(MSONable):
     Base task for Nwchem.
     """
 
-    theories = {"scf": "Hartree-Fock",
+    theories = {"g3gn": "some description",
+                "scf": "Hartree-Fock",
                 "dft": "DFT",
                 "sodft": "Spin-Orbit DFT",
                 "mp2": "MP2 using a semi-direct algorithm",
@@ -295,7 +296,7 @@ class NwInput(MSONable):
             "mol": self._mol.to_dict,
             "tasks": [t.to_dict for t in self.tasks],
             "directives": [list(t) for t in self.directives],
-            "geometry_options": self.geometry_options
+            "geometry_options": list(self.geometry_options)
         }
 
     @classmethod
