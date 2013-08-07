@@ -81,7 +81,8 @@ class GulpIO:
         """
         Checks if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
-        Arguments:
+
+        Args:
             args:
                 1st line keywords 
         """
@@ -95,7 +96,8 @@ class GulpIO:
                         anion_shell_flg=True, cation_shell_flg=False,
                         symm_flg=True):
         """
-        Generates GULP input string corresponding to pymatgen structure 
+        Generates GULP input string corresponding to pymatgen structure.
+
         Args:
             structure:
                 pymatgen Structure object
@@ -104,10 +106,11 @@ class GulpIO:
             fractional_flg (default = True):
                 If True, fractional coordinates are used.
                 Else, cartesian coodinates in Angstroms are used. 
-            ******
-            GULP convention is to use fractional coordinates for periodic 
-            structures and cartesian coordinates for non-periodic structures.
-            ******
+                ******
+                GULP convention is to use fractional coordinates for periodic
+                structures and cartesian coordinates for non-periodic
+                structures.
+                ******
             anion_shell_flg (default = True):
                 If True, anions are considered polarizable.
             cation_shell_flg (default = False):
@@ -150,14 +153,16 @@ class GulpIO:
 
     def specie_potential_lines(self, structure, potential, **kwargs):
         """
-        Generates GULP input specie and potential string for pymatgen structure
+        Generates GULP input specie and potential string for pymatgen
+        structure.
+
         Args:
             structure:
                 pymatgen.core.structure.Structure object
             potential:
                 String specifying the type of potential used
             kwargs:
-                Additional parameters related to potential
+                Additional parameters related to potential.
                 For potential == "buckingham":
                     anion_shell_flg (default = False):
                         If True, anions are considered polarizable.
@@ -165,8 +170,9 @@ class GulpIO:
                         anion_shell_chrg=float
                     cation_shell_flg (default = False):
                         If True, cations are considered polarizable.
-                        cation_core_chrg=float:
-                        cation_shell_chrg=float:
+                        cation_core_chrg=float
+                        cation_shell_chrg=float
+
         Returns:
             string containing specie and potential specification for gulp input
         """
@@ -179,9 +185,11 @@ class GulpIO:
         If using library don't specify species and potential 
         in the input file and vice versa. Make sure the elements of 
         structure are in the library file.
+
         Args:
             file_name:
                 Name of GULP library file
+
         Returns:
             GULP input string specifying library option
         """
@@ -236,11 +244,13 @@ class GulpIO:
     def buckingham_potential(self, structure, val_dict=None):
         """
         Generate species, buckingham, and spring options for an oxide structure
-        using the parameters in default libraries
-        Ref: 1) G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys.,
-                18, 1149-1161 (1985)
-             2) T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,
-                J. Mater Chem., 4, 831-837 (1994)
+        using the parameters in default libraries.
+
+        Ref:
+            1. G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys.,
+               18, 1149-1161 (1985)
+            2. T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,
+               J. Mater Chem., 4, 831-837 (1994)
 
         Args:
             structure:
@@ -300,6 +310,7 @@ class GulpIO:
     def tersoff_input(self, structure, periodic=False, uc=True, *keywords):
         """
         Gets a GULP input with Tersoff potential for an oxide structure
+
         Args:
             structure:
                 pymatgen.core.structure.Structure
@@ -324,6 +335,7 @@ class GulpIO:
     def tersoff_potential(self, structure):
         """
         Generate the species, tersoff potential lines for an oxide structure
+
         Args:
             structure:
                 pymatgen.core.structure.Structure
@@ -484,9 +496,11 @@ class GulpCaller:
     def run(self, gin):
         """
         Run GULP using the gin as input
+
         Args:
             gin:
                 GULP input string
+
         Returns:
             gout:
                 GULP output string
@@ -544,6 +558,7 @@ def get_energy_buckingham(structure, gulp_cmd='gulp',
                           keywords=('optimise', 'conp'), valence_dict=None):
     """
     Compute the energy of a structure using Buckingham potential.
+
     Args:
         structure:
             pymatgen.core.structure.Structure
@@ -621,8 +636,10 @@ class GulpConvergenceError(Exception):
 class BuckinghamPotLewis(object):
     """
     Generate the Buckingham Potential Table based on lewis.lib file
-    Ref: 1) G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
-            1149-1161 (1985)
+
+    Ref:
+        G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
+        1149-1161 (1985)
     """
 
     def __init__(self):
@@ -679,8 +696,10 @@ class BuckinghamPotLewis(object):
 class BuckinghamPotBush(object):
     """
     Generate the Buckingham Potential Table from the bush.lib 
-    Ref: 1) T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
-            4, 831-837 (1994)
+
+    Ref:
+        T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
+        4, 831-837 (1994).
     """
 
     def __init__(self):

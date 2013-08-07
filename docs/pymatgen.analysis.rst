@@ -78,5 +78,6 @@ Subpackages
 
 .. toctree::
 
+    pymatgen.analysis.defects
     pymatgen.analysis.pourbaix
 

@@ -229,6 +229,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
     Calls Zeo++ for Voronoi decomposition
+
     Args:
         structure:
             pymatgen.core.structure.Structure
