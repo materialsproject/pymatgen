@@ -19,16 +19,24 @@ import tempfile
 import os
 import shutil
 
-from zeo.netstorage import AtomNetwork, VoronoiNetwork
-from zeo.area_volume import volume, surface_area
-
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.io_utils import zopen
+from pymatgen.util.decorators import requires
+
+try:
+    from zeo.netstorage import AtomNetwork, VoronoiNetwork
+    from zeo.area_volume import volume, surface_area
+    zeo_found = True
+except ImportError:
+    zeo_found = False
 
 
+@requires(zeo_found,
+          "ZeoCssr requires Zeo++ cython extension to be installed. Please "
+          "contact developers of Zeo++ to obtain it.")
 class ZeoCssr(Cssr):
     """
     ZeoCssr adds extra fields to CSSR sites to conform with Zeo++ 

@@ -23,10 +23,16 @@ from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie
 
+try:
+    import zeo
+except ImportError:
+    zeo = None
+
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
+@unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -99,6 +105,8 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         vorXYZ = ZeoVoronoiXYZ.from_file(filename)
         self.assertIsInstance(vorXYZ.molecule, Molecule)
 
+
+@unittest.skipIf(not zeo, "zeo not present.")
 class GetVoronoiNodesTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
@@ -118,6 +126,8 @@ class GetVoronoiNodesTest(unittest.TestCase):
         vor_struct = get_voronoi_nodes(self.structure, self.rad_dict)
         self.assertIsInstance(vor_struct, Structure)
 
+
+@unittest.skipIf(not zeo, "zeo not present.")
 class GetVoidVolumeSurfaceTest(unittest.TestCase):
     def setUp(self):
         filepath1 = os.path.join(test_dir, 'Li2O.cif')
