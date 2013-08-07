@@ -48,13 +48,19 @@ class MPResterTest(unittest.TestCase):
                          "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
                          {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True,
                          ['mp-540081', 'mp-601412', 'mp-19017'],
-                         3.4662026991351147, 56291, 16.0001687]
+                         3.4662026991351147,
+                         [159107, 154117, 160776, 99860, 181272, 166815,
+                          260571, 92198, 165000, 155580, 38209, 161479, 153699,
+                          260569, 260570, 200155, 260572, 181341, 181342,
+                          72545, 56291, 97764, 162282, 155635],
+                         16.0002716]
 
         for (i, prop) in enumerate(props):
-            if prop not in ['hubbards', 'unit_cell_formula', 'elements']:
+            if prop not in ['hubbards', 'unit_cell_formula', 'elements',
+                            'icsd_id']:
                 val = self.rester.get_data("mp-540081", prop=prop)[0][prop]
                 self.assertAlmostEqual(expected_vals[i], val)
-            elif prop == "elements":
+            elif prop in ["elements", "icsd_id"]:
                 self.assertEqual(set(expected_vals[i]),
                                  set(self.rester.get_data("mp-540081",
                                                           prop=prop)[0][prop]))
