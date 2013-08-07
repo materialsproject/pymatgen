@@ -75,9 +75,8 @@ Latest Change Log
 v2.7.7b
 -------
 1. New Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
-source
-   software for performing high-throughput geometry-based analysis of porous
-   materials and their voids. Please see
+   source software for performing high-throughput geometry-based analysis of
+   porous materials and their voids. Please see
    http://www.maciejharanczyk.info/Zeopp/about.html.
 
 v2.7.6
