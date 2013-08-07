@@ -22,6 +22,7 @@ import json
 import collections
 import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
+import random
 
 import numpy as np
 
@@ -1350,11 +1351,12 @@ class IMolecule(SiteCollection, MSONable):
         inner = r - dr
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
-    def get_boxed_structure(self, a, b, c):
+    def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
+                            random_rotation=False):
         """
-        Creates a Structure from a Molecule by putting the Molecule in a box.
-        Useful for creating Structure for calculating molecules using periodic
-        codes.
+        Creates a Structure from a Molecule by putting the Molecule in the
+        center of a orthorhombic box. Useful for creating Structure for
+        calculating molecules using periodic codes.
 
         Args:
             a:
@@ -1363,6 +1365,14 @@ class IMolecule(SiteCollection, MSONable):
                 b-lattice parameter.
             c:
                 c-lattice parameter.
+            images:
+                No. of boxed images in each direction. Defaults to (1, 1, 1),
+                meaning single molecule with 1 lattice parameter in each
+                direction.
+            random_rotation:
+                Whether to apply a random rotation to each molecule. This
+                jumbles all the molecules so that they are not exact images
+                of each other.
 
         Returns:
             Structure containing molecule in a box.
@@ -1373,10 +1383,30 @@ class IMolecule(SiteCollection, MSONable):
         z_range = max(coords[:, 2]) - min(coords[:, 2])
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
-        lattice = Lattice.from_parameters(a, b, c, 90, 90, 90)
-        return Structure(lattice, self.species, self.cart_coords,
+        lattice = Lattice.from_parameters(a * images[0], b * images[1],
+                                          c * images[2],
+                                          90, 90, 90)
+        nimages = images[0] * images[1] * images[2]
+        coords = []
+        center = self.center_of_mass
+        cart_coords = self.cart_coords
+        for i, j, k in itertools.product(range(images[0]), range(images[1]),
+                                         range(images[2])):
+            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
+            new_coords = cart_coords - center
+            if random_rotation:
+                op = SymmOp.from_origin_axis_angle(
+                    (0, 0, 0), axis=np.random.rand(3),
+                    angle=random.randint(-180, 180))
+                m = op.rotation_matrix
+                new_coords = np.dot(m, new_coords.T).T
+            coords.extend(new_coords + box_center)
+        sprops = {k: v * nimages for k, v in self.site_properties.items()}
+
+        return Structure(lattice, self.species * nimages, coords,
                          coords_are_cartesian=True,
-                         site_properties=self.site_properties)
+                         site_properties=sprops)\
+            .get_sorted_structure()
 
     def get_centered_molecule(self):
         """
