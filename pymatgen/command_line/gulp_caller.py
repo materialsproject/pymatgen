@@ -27,8 +27,8 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(map(Element, [
-    "Li", "Na", "K", # alkali metals
-    "Be", "Mg", "Ca", # alkaline metals
+    "Li", "Na", "K",  # alkali metals
+    "Be", "Mg", "Ca",  # alkaline metals
     "Al", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ge", "As",
     "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb",
     "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi",
@@ -195,7 +195,7 @@ class GulpIO:
             else:
                 raise GulpError('GULP Library not found')
         else:
-            fpath = os.path.join(os.getcwd(), file_name)  #Check current dir
+            fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
                 gin = 'library ' + fpath
             elif gulplib_set():
