@@ -494,8 +494,9 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertArrayAlmostEqual(s[1].frac_coords,
                                     [0.6140799, 0.5,  0.45966667])
         self.assertRaises(ValueError, self.mol.get_boxed_structure, 1, 1, 1)
-        s2 = self.mol.get_boxed_structure(5, 5, 5, (2, 2, 2))
-        self.assertEqual(len(s2), 8 * 5)
+        s2 = self.mol.get_boxed_structure(5, 5, 5, (2, 3, 4))
+        self.assertEqual(len(s2), 24 * 5)
+        self.assertEqual(s2.lattice.abc, (10, 15, 20))
 
     def test_get_distance(self):
         self.assertAlmostEqual(self.mol.get_distance(0, 1), 1.089)
