@@ -72,6 +72,14 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.7.7b
+-------
+1. New Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
+source
+   software for performing high-throughput geometry-based analysis of porous
+   materials and their voids. Please see
+   http://www.maciejharanczyk.info/Zeopp/about.html.
+
 v2.7.6
 ------
 1. Support for VTK 6.x in structure visualization.
@@ -83,19 +91,7 @@ v2.7.5
 1. Vastly improved Nwchem IO (by Shyue Ping Ong).
 2. Much improved ABINIT support (by Matteo Giantomassi).
 
-v2.7.4
-------
-1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support. (by: Shyue Ping
-   Ong).
-2. New MoleculeMatcher class for comparing molecules by RMS. Requires
-   openbabel with python bindings. (by: Xiaohui Qu)
-3. New functional group substitution capability for molecules (by: Lei Cheng
-   and Shyue Ping Ong).
 
-v2.7.2
-------
-1. Minor bug fix release to fix some rare errors in very high dimensional
-   phase diagrams. **Requires new pyhull version (1.3.8).**
 
 :doc:`Older versions </changelog>`
 
