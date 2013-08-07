@@ -23,7 +23,7 @@ from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie
 
-test_dir = os.path.join('/Users/mbkumar/Research/Defects/pymatgen',
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
