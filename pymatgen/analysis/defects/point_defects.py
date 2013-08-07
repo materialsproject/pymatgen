@@ -138,6 +138,7 @@ class Defect:
     def get_defectsite_coordination_number(self, n):
         """
         Coordination number of interstitial site.
+
         Args:
             n
                 Index of interstitial list
@@ -147,6 +148,7 @@ class Defect:
     def get_coordinated_sites(self, n):
         """
         The sites in structure surrounding the defect site.
+
         Args:
             n
                 Index of defects list
@@ -156,6 +158,7 @@ class Defect:
     def get_coordinated_elements(self, n):
         """
         Elements of sites in structure surrounding the defect site.
+
         Args:
             n
                 Index of defect list
@@ -183,7 +186,6 @@ class Vacancy(Defect):
 
     def __init__(self, structure, valences, radii):
         """
-
         Args:
             structure:
                 pymatgen.core.structure.Structure
@@ -238,22 +240,21 @@ class Vacancy(Defect):
     def enumerate_defectsites(self):
         """
         Returns symmetrically distinct vacancy sites
-        
         """
         return self._defect_sites
 
     def get_defectsite_structure_indices(self):
         """
         Returns indices of symmetrically distinct vacancy sites
-        
         """
         return self._vac_site_indices
 
     def get_defectsite_structure_index(self, n):
         """
         index of the vacacy site in the structure.sites list
+
         Args:
-            n
+            n:
                 Index of vacancy list
         """
         return self._vac_site_indices[n]
@@ -262,8 +263,9 @@ class Vacancy(Defect):
         """
         Effective charge (In Kroger-Vink notation, cation vacancy has 
         effectively -ve charge and anion vacancy has +ve charge.) 
+
         Args:
-            n
+            n:
                 Index of vacancy list
 
         Returns:
@@ -285,8 +287,9 @@ class Vacancy(Defect):
     def get_coordsites_min_max_charge(self, n):
         """
         Minimum and maximum charge of sites surrounding the vacancy site.
+
         Args:
-            n
+            n:
                 Index of vacancy list
         """
         bv = BVAnalyzer()
@@ -310,8 +313,9 @@ class Vacancy(Defect):
         Volume of the nth vacancy
 
         Args:
-            n
+            n:
                 Index of symmetrically distinct vacancies list
+
         Returns:
             floating number representing volume of vacancy
         """
@@ -334,8 +338,9 @@ class Vacancy(Defect):
         Surface area of the nth vacancy
 
         Args:
-            n
+            n:
                 Index of symmetrically distinct vacancies list
+
         Returns:
             floating number representing volume of vacancy
         """
@@ -489,6 +494,7 @@ class Interstitial(Defect):
     def _get_coord_no_sites_chrg(self, site):
         """
         Compute the coordination number and coordination charge
+
         Args:
             site:
                 pymatgen.core.sites.Site
@@ -526,6 +532,7 @@ class Interstitial(Defect):
     def append_defectsite(self, site):
         """
         Append a site to list of possible interstitials
+
         Args:
             site:
                 pymatgen.core.sites.Site
@@ -535,6 +542,7 @@ class Interstitial(Defect):
     def delete_defectsite(self, n):
         """
         Remove a symmetrically distinct interstitial site
+
         Args:
             n:
                 Index of interstitial site
@@ -544,6 +552,7 @@ class Interstitial(Defect):
     def get_coordsites_charge_sum(self, n):
         """
         Total charge of the interstitial coordinated sites.
+
         Args:
             n
                 Index of interstitial list
@@ -553,8 +562,9 @@ class Interstitial(Defect):
     def get_coordsites_min_max_charge(self, n):
         """
         Minimum and maximum charge of sites surrounding the interstitial site.
+
         Args:
-            n
+            n:
                 Index of symmetrical distinct interstitial site
         """
         coord_site_valences = []
@@ -569,8 +579,9 @@ class Interstitial(Defect):
         Volume of the nth interstitial
 
         Args:
-            n
-                Index of symmetrically distinct vacancies list
+            n:
+            Index of symmetrically distinct vacancies list
+
         Returns:
             floating number representing radius of interstitial sphere
         """
@@ -751,6 +762,7 @@ class InterstitialAnalyzer:
     def get_relaxed_structure(self, n):
         """
         Optimized interstitial structure 
+
         Args:
             n:
                 Symmetrically distinct interstitial index
@@ -765,6 +777,7 @@ class InterstitialAnalyzer:
     def get_percentage_volume_change(self, n):
         """
         Volume change after the introduction of interstitial
+
         Args:
             n:
                 Symmetrically distinct interstitial index
@@ -782,6 +795,7 @@ class InterstitialAnalyzer:
     def get_percentage_lattice_parameter_change(self, n):
         """
         Lattice parameter change after the introduction of interstitial
+
         Args:
             n:
                 Symmetrically distinct interstitial index
@@ -797,6 +811,7 @@ class InterstitialAnalyzer:
     def get_percentage_bond_distance_change(self, n):
         """
         Bond distance change after the introduction of interstitial
+
         Args:
             n:
                 Symmetrically distinct interstitial index
@@ -813,6 +828,7 @@ class InterstitialAnalyzer:
     def relaxed_structure_match(self, i, j):
         """
         Check if the relaxed structures of two interstitials match 
+
         Args:
             i:
                 Symmetrically distinct interstitial index
@@ -906,6 +922,7 @@ class InterstitialStructureRelaxer:
     def relaxed_structure_match(self, i, j):
         """
         Check if the relaxed structures of two interstitials match 
+
         Args:
             i:
                 Symmetrically distinct interstitial index
@@ -924,6 +941,7 @@ class InterstitialStructureRelaxer:
     def relaxed_energy_match(self, i, j):
         """
         Check if the relaxed energies of two interstitials match 
+
         Args:
             i:
                 Symmetrically distinct interstitial index
@@ -940,6 +958,7 @@ class InterstitialStructureRelaxer:
     def get_relaxed_structure(self, n):
         """
         Get the relaxed structure of nth symmetrically distinct interstitial.
+
         Args:
             n:
                 Symmetrically distinct interstitial index
@@ -952,6 +971,7 @@ class InterstitialStructureRelaxer:
     def get_relaxed_energy(self, n):
         """
         Get the relaxed structure of nth symmetrically distinct interstitial.
+
         Args:
             n:
                 Symmetrically distinct interstitial index
@@ -964,6 +984,7 @@ class InterstitialStructureRelaxer:
     def get_relaxed_interstitial(self):
         """
         Get the relaxed structure of nth symmetrically distinct interstitial.
+
         Args:
             n:
                 Symmetrically distinct interstitial index
@@ -1022,6 +1043,7 @@ class RelaxedInterstitial:
     def formation_energy(self, n, chem_pot=0):
         """
         Compute the interstitial formation energy
+
         Args:
             n:
                 Index of interstitials
@@ -1035,6 +1057,7 @@ class RelaxedInterstitial:
     def get_percentage_volume_change(self, n):
         """
         Volume change after the introduction of interstitial
+
         Args:
             n:
                 index of interstitials
@@ -1047,6 +1070,7 @@ class RelaxedInterstitial:
     def get_percentage_lattice_parameter_change(self, n):
         """
         Lattice parameter change after the introduction of interstitial
+
         Args:
             n:
                 index of interstitials
@@ -1090,6 +1114,7 @@ class RelaxedInterstitial:
     def get_defectsite(self, n):
         """
         Returns the defect site of nth interstitial.
+
         Args:
             n:
                 Index of interstitial
@@ -1099,9 +1124,10 @@ class RelaxedInterstitial:
     def get_coordination_number(self, n):
         """
         Coordination number for nth interstitial.
+
         Args:
-            n
-                Index of interstitials 
+            n:
+                Index of interstitials
         """
         if not self._coord_no:
             self._coord_find()
@@ -1110,9 +1136,10 @@ class RelaxedInterstitial:
     def get_charge_coordination_number(self, n):
         """
         Charge coordination number for nth interstitial.
+
         Args:
-            n
-                Index of interstitials 
+            n:
+                Index of interstitials
         """
         if not self._coord_charge_no:
             self._coord_find()
@@ -1121,9 +1148,10 @@ class RelaxedInterstitial:
     def get_coordinated_sites(self, n):
         """
         Coordinated sites for nth interstitial.
+
         Args:
-            n
-                Index of interstitials 
+            n:
+                Index of interstitials
         """
         if not self._coord_sites:
             self._coord_find()
@@ -1132,6 +1160,7 @@ class RelaxedInterstitial:
     def get_coordinated_bulk_sites(self, n):
         """
         Bulk sites corresponding to the coordinated sites for nth interstitial.
+
         Args:
             n
                 Index of interstitials 
@@ -1180,6 +1209,7 @@ def _symmetry_reduced_voronoi_nodes(structure, rad_dict):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and 
     pymatgen.symmetry.finder.SymmetryFinder
+
     Args:
         strucutre:
             pymatgen Structure object
