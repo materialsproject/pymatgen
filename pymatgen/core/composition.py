@@ -102,9 +102,12 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             elmap = self._parse_formula(args[0])
         else:
             elmap = dict(*args, **kwargs)
-        if any([e < 0 for e in elmap.values()]):
-            raise CompositionError("Amounts in Composition cannot be "
-                                   "negative!")
+        for k, v in elmap.items():
+            if v < -Composition.amount_tolerance:
+                raise CompositionError("Amounts in Composition cannot be "
+                                       "negative!")
+            elif v < 0:
+                del elmap[k]
         self._elmap = {smart_element_or_specie(k): v for k, v in elmap.items()}
         self._natoms = sum(self._elmap.values())
 
