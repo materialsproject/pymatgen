@@ -72,12 +72,13 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.7.7b
+v2.7.7
 -------
-1. New Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
+1. Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
    source software for performing high-throughput geometry-based analysis of
    porous materials and their voids. Please see
    http://www.maciejharanczyk.info/Zeopp/about.html.
+2. Specify version of distribute to 0.6.34 for better compatibility.
 
 v2.7.6
 ------
