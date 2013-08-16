@@ -31,6 +31,7 @@ class NwTask(MSONable):
     theories = {"g3gn": "some description",
                 "scf": "Hartree-Fock",
                 "dft": "DFT",
+                 "esp": "ESP",
                 "sodft": "Spin-Orbit DFT",
                 "mp2": "MP2 using a semi-direct algorithm",
                 "direct_mp2": "MP2 using a full-direct algorithm",
@@ -64,7 +65,8 @@ class NwTask(MSONable):
                   "dynamics": "Perform classical molecular dynamics.",
                   "thermodynamics": "Perform multi-configuration "
                                     "thermodynamic integration using "
-                                    "classical MD."}
+                                    "classical MD.",
+                  "": "dummy"}
 
     def __init__(self, charge, spin_multiplicity, basis_set,
                  title=None, theory="dft", operation="optimize",
@@ -163,8 +165,8 @@ task $theory $operation""")
                       theory_directives=d["theory_directives"])
 
     @classmethod
-    def from_molecule(cls, mol, charge=None, spin_multiplicity=None,
-                      basis_set="6-31g", title=None, theory="scf",
+    def from_molecule(cls, mol,theory,charge=None, spin_multiplicity=None,
+                      basis_set="6-31g", title=None,
                       operation="optimize", theory_directives=None):
         """
         Very flexible arguments to support many types of potential setups.
@@ -245,6 +247,23 @@ task $theory $operation""")
         t.theory_directives.update({"xc": xc,
                                     "mult": t.spin_multiplicity})
         return t
+
+    @classmethod
+    def esp_task(cls, mol, xc="b3lyp", **kwargs):
+        """
+        A class method for quickly creating ESP tasks.
+
+        Args:
+            mol:
+                Input molecule
+            \*\*kwargs:
+                Any of the other kwargs supported by NwTask. Note the theory
+                is always "dft" for a dft task.
+        """
+        e = NwTask.from_molecule(mol, operation="",theory="esp", **kwargs)
+
+        return e
+
 
 
 class NwInput(MSONable):
