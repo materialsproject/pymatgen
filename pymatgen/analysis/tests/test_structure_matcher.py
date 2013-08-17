@@ -8,8 +8,7 @@ from pymatgen.analysis.structure_matcher import StructureMatcher, \
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.smartio import read_structure
-from pymatgen.core.structure import Structure
-from pymatgen.core.composition import Composition
+from pymatgen.core import Structure, Composition, Lattice
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -153,6 +152,24 @@ class StructureMatcherTest(unittest.TestCase):
         sm = StructureMatcher(attempt_supercell=True)
 
         self.assertTrue(sm.fit(s1, s2))
+        
+    def test_get_lattices(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                              primitive_cell=True, scale=True, 
+                              attempt_supercell=False)
+        l1 = Lattice.from_lengths_and_angles([1, 2.1, 1.9] , [90, 89, 91])
+        l2 = Lattice.from_lengths_and_angles([1.1, 2, 2] , [89, 91, 90])
+        s1 = Structure(l1, [], [])
+        s2 = Structure(l2, [], [])
+        
+        lattices = list(sm._get_lattices(s = s1, target_s = s2))
+        self.assertEqual(len(lattices), 16)
+        
+        l3 = Lattice.from_lengths_and_angles([1.1, 2, 20] , [89, 91, 90])
+        s3 = Structure(l3, [], [])
+        
+        lattices = list(sm._get_lattices(s = s1, target_s = s3))
+        self.assertEqual(len(lattices), 0)
 
 if __name__ == '__main__':
     unittest.main()

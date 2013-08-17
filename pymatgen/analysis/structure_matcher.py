@@ -299,57 +299,69 @@ class StructureMatcher(MSONable):
         self._scale = scale
         self._supercell = attempt_supercell
 
-    def _get_lattices(self, s1, s2, vol_tol):
-        s1_lengths, s1_angles = s1.lattice.lengths_and_angles
-        all_nn = get_points_in_sphere_pbc(
-            s2.lattice, [[0, 0, 0]], [0, 0, 0],
-            (1 + self.ltol) * max(s1_lengths))[:, [0, 1]]
-
-        nv = []
-        for l in s1_lengths:
-            nvi = all_nn[np.where((all_nn[:, 1] < (1 + self.ltol) * l)
-                                  &
-                                  (all_nn[:, 1] > (1 - self.ltol) * l))][:, 0]
-            if not len(nvi):
+    def _get_lattices(self, target_s, s, supercell_size = 1):
+        """
+        Yields lattices for s with lengths and angles close to the 
+        lattice of target_s. If supercell_size is specified, the
+        returned lattice will have that number of primitive cells
+        in it
+        Args:
+            s, target_s: Structure objects
+        """
+        t_l, t_a = target_s.lattice.lengths_and_angles
+        r = (1 + self.ltol) * max(t_l)
+        fpts, dists, i = get_points_in_sphere_pbc(lattice = s.lattice, 
+                                                 frac_points=[[0, 0, 0]], 
+                                                 center = [0, 0, 0],
+                                                 r = r
+                                                 ).T
+        #get possible vectors for a, b, and c
+        new_v = []
+        for l in t_l:
+            max_r = (1 + self.ltol) * l
+            min_r = (1 - self.ltol) * l
+            vi = fpts[np.where((dists < max_r) & (dists > min_r))]
+            if len(vi) == 0:
                 return
-            nvi = [np.array(site) for site in nvi]
-            nvi = np.dot(nvi, s2.lattice.matrix)
-            nv.append(nvi)
-            #The vectors are broadcast into a 5-D array containing
-        #all permutations of the entries in nv[0], nv[1], nv[2]
-        #produces the same result as three nested loops over the
+            cart_vi = np.dot(np.array([i for i in vi]), s.lattice.matrix)
+            new_v.append(cart_vi)
+
+        #The vectors are broadcast into a 5-D array containing
+        #all permutations of the entries in new_v[0], new_v[1], new_v[2]
+        #Produces the same result as three nested loops over the
         #same variables and calculating determinants individually
-        bfl = (np.array(nv[0])[None, None, :, None, :] *
+        bfl = (np.array(new_v[0])[None, None, :, None, :] *
                np.array([1, 0, 0])[None, None, None, :, None] +
-               np.array(nv[1])[None, :, None, None, :] *
+               np.array(new_v[1])[None, :, None, None, :] *
                np.array([0, 1, 0])[None, None, None, :, None] +
-               np.array(nv[2])[:, None, None, None, :] *
+               np.array(new_v[2])[:, None, None, None, :] *
                np.array([0, 0, 1])[None, None, None, :, None])
 
-        #Compute volume of each array
-        vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
-                                                   bfl[:, :, :, 2, :]), 3)
-        #Find valid lattices
-        valid = np.where(abs(vol) >= vol_tol)
-        if not len(valid[0]):
+        #Compute volume of each lattice
+        vol = np.abs(np.sum(bfl[:, :, :, 0, :] * \
+                            np.cross(bfl[:, :, :, 1, :],
+                                     bfl[:, :, :, 2, :]), 3))
+        #valid lattices must not change volume
+        min_vol = s.volume * 0.999 * supercell_size
+        max_vol = s.volume * 1.001 * supercell_size
+        bfl = bfl[np.where((vol > min_vol) & (vol < max_vol))]
+        if len(bfl) == 0:
             return
-            #loop over valid lattices to compute the angles for each
-        lengths = np.sum(bfl[valid] ** 2, axis=2) ** 0.5
-        angles = np.zeros((len(bfl[valid]), 3), float)
+
+        #compute angles
+        lengths = np.sum(bfl ** 2, axis=2) ** 0.5
+        angles = np.zeros((len(bfl), 3), float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
             angles[:, i] = \
-                np.sum(bfl[valid][:, j, :] * bfl[valid][:, k, :], 1) \
+                np.sum(bfl[:, j, :] * bfl[:, k, :], 1) \
                 / (lengths[:, j] * lengths[:, k])
         angles = np.arccos(angles) * 180. / np.pi
         #Check angles are within tolerance
-        valid_angles = np.where(np.all(np.abs(angles - s1_angles) <
+        valid_angles = np.where(np.all(np.abs(angles - t_a) <
                                        self.angle_tol, axis=1))
-        if len(valid_angles[0]) == 0:
-            return
-            #yield valid lattices
-        for lat in bfl[valid][valid_angles]:
+        for lat in bfl[valid_angles]:
             nl = Lattice(lat)
             yield nl
 
@@ -448,9 +460,6 @@ class StructureMatcher(MSONable):
         nl1 = struct1.lattice
         nl2 = struct2.lattice
 
-        #Volume to determine invalid lattices
-        vol_tol = fu * nl2.volume / 2
-
         #fractional tolerance of atomic positions (2x for initial fitting)
         frac_tol = np.array([self.stol / ((1 - self.ltol) * np.pi) * i
                              for i in struct1.lattice.reciprocal_lattice.abc])
@@ -483,7 +492,7 @@ class StructureMatcher(MSONable):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
 
         #do permutations of vectors, check for equality
-        for nl in self._get_lattices(struct1, struct2, vol_tol):
+        for nl in self._get_lattices(struct1, struct2, fu):
 
             s2_cart = [[] for i in s1]
 
@@ -626,9 +635,6 @@ class StructureMatcher(MSONable):
             nl2 = Lattice(nl2.matrix / scale_vol)
             struct2.modify_lattice(nl2)
 
-        #Volume to determine invalid lattices
-        vol_tol = nl2.volume / 2
-
         #fractional tolerance of atomic positions (2x for initial fitting)
         frac_tol = \
             np.array([stol / ((1 - self.ltol) * np.pi) * i for
@@ -677,7 +683,7 @@ class StructureMatcher(MSONable):
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
             #do permutations of vectors, check for equality
-        for nl in self._get_lattices(struct1, struct2, vol_tol):
+        for nl in self._get_lattices(struct1, struct2):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
