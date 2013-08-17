@@ -153,6 +153,7 @@ class StructureMatcherTest(unittest.TestCase):
         sm = StructureMatcher(attempt_supercell=True)
 
         self.assertTrue(sm.fit(s1, s2))
+        self.assertTrue(sm.fit(s2, s1))
         
     def test_get_lattices(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 

@@ -414,103 +414,6 @@ class StructureMatcher(MSONable):
         norm_length = (avg_lattice.volume / nsites) ** (1 / 3)
         return shortest_distances / norm_length, f_translation
 
-    def _supercell_fit(self, struct1, struct2, break_on_match = False,
-                       use_rms = False, niggli = True):
-        """
-        Calculate RMS displacement between two structures
-        where one is a potential supercell of the other
-
-        Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
-            break_on_match:
-                True or False. Will break if the maximum
-                    distance found is less than the
-                    provided stol
-
-        Returns:
-            rms displacement normalized by (Vol / nsites) ** (1/3) and
-            maximum distance found between two paired sites
-        """
-        struct1 = Structure.from_sites(struct1)
-        struct2 = Structure.from_sites(struct2)
-
-        #reset struct1 to supercell
-        if struct2.num_sites > struct1.num_sites:
-            [struct2, struct1] = [struct1, struct2]
-
-        #number of formula units
-        fu = struct1.num_sites / struct2.num_sites
-        if niggli:
-            struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
-            struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
-
-        nl1 = struct1.lattice
-        nl2 = struct2.lattice
-
-        #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = np.array([self.stol / ((1 - self.ltol) * np.pi) * i
-                             for i in struct1.lattice.reciprocal_lattice.abc])
-        frac_tol *= ((nl1.volume + fu * nl2.volume)
-                     / (2 * struct1.num_sites)) ** (1 / 3)
-
-        #generate structure coordinate lists
-        s1, species_list = self._get_fcoords_and_species_list(struct1)
-
-        #translate s1
-        s1_translation = s1[0][0]
-        for i in range(len(species_list)):
-            s1[i] = np.mod(s1[i] - s1_translation, 1)
-        
-        
-        best_match = None
-        #do permutations of vectors, check for equality
-        for nl in self._get_lattices(struct1, struct2, fu):
-
-            s2_cart = [[] for i in s1]
-
-            scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
-
-            supercell = struct2.copy()
-            supercell.make_supercell(scale_matrix.astype('int'))
-
-            for site in supercell:
-                found = False
-                for i, species in enumerate(species_list):
-                    if self._comparator.are_equal(site.species_and_occu,
-                                                  species):
-                        found = True
-                        s2_cart[i].append(site.coords)
-                        break
-                        #if no site match found return None
-                if not found:
-                    return None
-
-            #check that sizes of the site groups are identical
-            for f1, c2 in zip(s1, s2_cart):
-                if len(f1) != len(c2):
-                    return None
-
-            s2 = [nl.get_fractional_coords(c) for c in s2_cart]
-            for s2c in s2[0]:
-                translation = s1[0][0] - s2c
-                t_s2 = [np.mod(coords + translation, 1) for coords in s2]
-                if self._cmp_fractional_struct(s1, t_s2, frac_tol):
-                    distances, t = self._cart_dists(s1, t_s2, nl, nl1)
-                    if use_rms:
-                        val = np.linalg.norm(distances)/len(distances)**0.5
-                    else:
-                        val = max(distances)
-                    if best_match is None or val < best_match[0]:
-                        total_translation = translation + t
-                        total_translation -= np.round(total_translation)
-                        best_match = val, distances, nl, total_translation
-                    if break_on_match and val < self.stol:
-                        return best_match
-        return best_match
-
     def fit(self, struct1, struct2):
         """
         Fit two structures.
@@ -631,17 +534,19 @@ class StructureMatcher(MSONable):
         if self._primitive_cell and struct1.num_sites != struct2.num_sites:
             struct1 = struct1.get_primitive_structure()
             struct2 = struct2.get_primitive_structure()
-
-        # Same number of sites
-        if struct1.num_sites != struct2.num_sites:
-            #if mismatch try to fit a supercell or return None
-            if self._supercell and not (
-                    (struct1.num_sites % struct2.num_sites)
-                    and (struct2.num_sites % struct1.num_sites)):
-                return self._supercell_fit(struct1, struct2, break_on_match,
-                                           use_rms, niggli)
-            else:
-                return None
+        
+        if self._supercell:
+            #reset struct1 to supercell
+            if struct2.num_sites > struct1.num_sites:
+                struct2, struct1 = struct1, struct2
+            #number of formula units
+            fu = struct1.num_sites // struct2.num_sites
+        else:
+            fu = 1
+        
+        # Check that the number of sites is correct
+        if struct1.num_sites != struct2.num_sites * fu:
+            return None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -655,7 +560,7 @@ class StructureMatcher(MSONable):
 
         #rescale lattice to same volume
         if self._scale:
-            scale_vol = (nl2.volume / nl1.volume) ** (1 / 6)
+            scale_vol = (fu * nl2.volume / nl1.volume) ** (1 / 6)
             nl1 = Lattice(nl1.matrix * scale_vol)
             struct1.modify_lattice(nl1)
             nl2 = Lattice(nl2.matrix / scale_vol)
@@ -665,7 +570,7 @@ class StructureMatcher(MSONable):
         frac_tol = \
             np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
                       i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + nl2.volume) /
+            ((nl1.volume + fu * nl2.volume) /
              (2 * struct1.num_sites)) ** (1.0 / 3)
 
         #generate structure coordinate lists
@@ -674,14 +579,19 @@ class StructureMatcher(MSONable):
         if s2_cart is None:
             return None
 
-        #check that sizes of the site groups are identical
+        #check that sizes of the site groups are correct
         for f1, c2 in zip(s1, s2_cart):
-            if len(f1) != len(c2):
+            if len(f1) != len(c2) * fu:
                 return None
         
         best_match = None
         #do permutations of vectors, check for equality
-        for nl in self._get_lattices(struct1, struct2):
+        for nl in self._get_lattices(struct1, struct2, fu):
+            if self._supercell and fu > 1:
+                scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
+                supercell = struct2.copy()
+                supercell.make_supercell(scale_matrix.astype('int'))
+                s2_cart = self._get_ordered_cart_coords(supercell, species_list)
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for s2c in s2[0]:
                 translation = s1[0][0] - s2c
