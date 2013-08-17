@@ -212,7 +212,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
 
     d_2 = np.sum(vectors ** 2, axis=3)
-    a, b = np.indices([len(fcoords1), len(fcoords1)])
+    a, b = np.indices([len(fcoords1), len(fcoords2)])
     return vectors[a, b, np.argmin(d_2, axis=2)]
 
 
