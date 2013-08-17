@@ -536,10 +536,9 @@ class StructureMatcher(MSONable):
             struct2 = struct2.get_primitive_structure()
         
         if self._supercell:
-            #reset struct1 to supercell
+            #force struct1 to be the larger one
             if struct2.num_sites > struct1.num_sites:
                 struct2, struct1 = struct1, struct2
-            #number of formula units
             fu = struct1.num_sites // struct2.num_sites
         else:
             fu = 1
@@ -560,39 +559,38 @@ class StructureMatcher(MSONable):
 
         #rescale lattice to same volume
         if self._scale:
-            scale_vol = (fu * nl2.volume / nl1.volume) ** (1 / 6)
-            nl1 = Lattice(nl1.matrix * scale_vol)
+            ratio = (fu * nl2.volume / nl1.volume) ** (1 / 6)
+            nl1 = Lattice(nl1.matrix * ratio)
             struct1.modify_lattice(nl1)
-            nl2 = Lattice(nl2.matrix / scale_vol)
+            nl2 = Lattice(nl2.matrix / ratio)
             struct2.modify_lattice(nl2)
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = \
-            np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
-                      i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + fu * nl2.volume) /
-             (2 * struct1.num_sites)) ** (1.0 / 3)
+        normalization = ((2 * struct2.num_sites) / (struct1.volume + struct2.volume))\
+                            ** (1.0 / 3)
+        frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * self.stol \
+                    / ((1 - self.ltol) * np.pi) / normalization
 
         #generate structure coordinate lists
         s1, species_list = self._get_fcoords_and_species_list(struct1)
         s2_cart = self._get_ordered_cart_coords(struct2, species_list)
         if s2_cart is None:
             return None
-
         #check that sizes of the site groups are correct
         for f1, c2 in zip(s1, s2_cart):
             if len(f1) != len(c2) * fu:
                 return None
         
         best_match = None
-        #do permutations of vectors, check for equality
         for nl in self._get_lattices(struct1, struct2, fu):
+            #if supercell needs to be created, update s2_cart
             if self._supercell and fu > 1:
                 scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
                 supercell = struct2.copy()
                 supercell.make_supercell(scale_matrix.astype('int'))
                 s2_cart = self._get_ordered_cart_coords(supercell, species_list)
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
+            #loop over possible translations
             for s2c in s2[0]:
                 translation = s1[0][0] - s2c
                 t_s2 = [np.mod(coords + translation, 1) for coords in s2]
@@ -797,3 +795,5 @@ class StructureMatcher(MSONable):
             return None
         else:
             return min_mapping
+        
+        
