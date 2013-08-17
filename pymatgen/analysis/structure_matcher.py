@@ -379,25 +379,20 @@ class StructureMatcher(MSONable):
                 return False
         return True
 
-    def _cmp_cartesian_struct(self, s1, s2, l1, l2):
+    def _cart_dists(self, s1, s2, l1, l2):
         """
-        Once a fit is found, a rms minimizing fit is done to
-        ensure the fit is correct. To do this,
-
-        1) The structures are placed into an average lattice
-        2) All sites are shifted by the mean
-            displacement vector between matched sites.
-        3) calculate distances
-        4) return rms distance normalized by (V/Natom) ^ 1/3
-            and the maximum distance found
+        Finds the cartesian distances normalized by (V/Natom) ^ 1/3
+        between s1 and s2 on the average lattice of l1 and l2
+        s1 and s2 are lists of fractional coordinates. Minimizes the 
+        RMS distance of the matching with an additional translation
+        (but doesn't change the mapping)
+        returns distances, translation
         """
-        nsites = sum(map(len, s1))
-
+        #create the average lattice
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
-
-        avg_lattice = Lattice.from_lengths_and_angles(avg_params[0],
-                                                      avg_params[1])
+        avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
+        nsites = sum(map(len, s1))
         dist = np.zeros([nsites, nsites]) + 100 * nsites
         vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
@@ -412,16 +407,12 @@ class StructureMatcher(MSONable):
         inds = np.arange(nsites)
 
         shortest_vecs = vec_matrix[inds, lin.solution, :]
-        shortest_vec_square = np.sum(
-            (shortest_vecs - np.average(shortest_vecs, axis=0)) ** 2, -1)
-
+        translation = -np.average(shortest_vecs, axis=0)
+        shortest_distances = np.sum((shortest_vecs + \
+                    translation) ** 2, -1) ** 0.5
         norm_length = (avg_lattice.volume / nsites) ** (1 / 3)
-
-        rms = np.average(shortest_vec_square) ** 0.5 / norm_length
-
-        max_dist = np.max(shortest_vec_square) ** 0.5 / norm_length
-
-        return rms, max_dist
+        
+        return shortest_distances / norm_length, translation
 
     def _supercell_fit(self, struct1, struct2, break_on_match):
         """
@@ -522,12 +513,12 @@ class StructureMatcher(MSONable):
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_fractional_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
-                                                               nl1)
-                    if break_on_match and max_dist < self.stol:
-                        return max_dist
+                    distances, t = self._cart_dists(s1, t_s2, nl, nl1)
+                    rms = np.linalg.norm(distances)/len(distances)**0.5
+                    if break_on_match and max(distances) < self.stol:
+                        return max(distances)
                     elif stored_rms is None or rms < stored_rms[0]:
-                        stored_rms = rms, max_dist
+                        stored_rms = rms, max(distances)
 
         if break_on_match:
             return None
@@ -688,12 +679,12 @@ class StructureMatcher(MSONable):
             for coord in s2[0]:
                 t_s2 = [np.mod(coords - coord, 1) for coords in s2]
                 if self._cmp_fractional_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
-                                                               nl1)
-                    if break_on_match and max_dist < stol:
-                        return max_dist
+                    distances, t = self._cart_dists(s1, t_s2, nl, nl1)
+                    rms = np.linalg.norm(distances)/len(distances)**0.5
+                    if break_on_match and max(distances) < self.stol:
+                        return max(distances)
                     elif stored_rms is None or rms < stored_rms[0]:
-                        stored_rms = rms, max_dist
+                        stored_rms = rms, max(distances)
 
         if break_on_match:
             return None
