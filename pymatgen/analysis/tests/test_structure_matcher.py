@@ -209,6 +209,7 @@ class StructureMatcherTest(unittest.TestCase):
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
         fc -= np.round(fc)
+        
         self.assertAlmostEqual(np.sum(fc), 0.3)
         self.assertAlmostEqual(np.sum(fc[:,:2]), 0)
         
@@ -230,6 +231,24 @@ class StructureMatcherTest(unittest.TestCase):
                                                     [0,0,0.125])), 1)
         self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
                                                     [0,0,0.175])), 1)
+        
+        
+    def test_subset(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                              primitive_cell=False, scale=True, 
+                              attempt_supercell=False,
+                              allow_subset=True)
+        l = Lattice.orthorhombic(10, 20, 30)
+        s1 = Structure(l, ['Si', 'Si', 'Ag'], 
+                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s2 = Structure(l, ['Si', 'Ag'], 
+                       [[0,0.1,0],[-.7,.5,.4]])
+        result = sm.get_s2_like_s1(s1, s2)
+        
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
+                                                    [0,0,0.1])), 1)
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
+                                                    [0.7,0.4,0.5])), 1)
         
 
 if __name__ == '__main__':
