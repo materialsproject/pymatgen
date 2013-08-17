@@ -386,36 +386,36 @@ class StructureMatcher(MSONable):
         s1 and s2 are lists of fractional coordinates. Minimizes the 
         RMS distance of the matching with an additional translation
         (but doesn't change the mapping)
-        returns distances, translation
+        returns distances, fractional_translation vector
         """
         #create the average lattice
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
         avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
         nsites = sum(map(len, s1))
-        dist = np.zeros([nsites, nsites]) + 100 * nsites
+        all_d_2 = np.zeros([nsites, nsites]) + 100 * nsites
         vec_matrix = np.zeros([nsites, nsites, 3])
         i = 0
         for s1_coords, s2_coords in zip(s1, s2):
             j = len(s1_coords)
             vecs = pbc_shortest_vectors(avg_lattice, s1_coords, s2_coords)
-            distances = (np.sum(vecs ** 2, axis=-1)) ** 0.5
-            dist[i: i + j, i: i + j] = distances
+            d_2 = (np.sum(vecs ** 2, axis=-1))
+            all_d_2[i: i + j, i: i + j] = d_2
             vec_matrix[i: i + j, i: i + j] = vecs
             i += j
-        lin = LinearAssignment(dist)
+        lin = LinearAssignment(all_d_2)
         inds = np.arange(nsites)
-
         shortest_vecs = vec_matrix[inds, lin.solution, :]
+        #translation applied to s2
         translation = -np.average(shortest_vecs, axis=0)
+        f_translation = avg_lattice.get_fractional_coords(translation)
         shortest_distances = np.sum((shortest_vecs + \
                     translation) ** 2, -1) ** 0.5
         norm_length = (avg_lattice.volume / nsites) ** (1 / 3)
-        
-        return shortest_distances / norm_length, translation
+        return shortest_distances / norm_length, f_translation
 
     def _supercell_fit(self, struct1, struct2, break_on_match = False,
-                       use_rms = False):
+                       use_rms = False, niggli = True):
         """
         Calculate RMS displacement between two structures
         where one is a potential supercell of the other
@@ -443,9 +443,9 @@ class StructureMatcher(MSONable):
 
         #number of formula units
         fu = struct1.num_sites / struct2.num_sites
-
-        struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
-        struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
+        if niggli:
+            struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
+            struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
 
         nl1 = struct1.lattice
         nl2 = struct2.lattice
@@ -503,10 +503,12 @@ class StructureMatcher(MSONable):
                         val = np.linalg.norm(distances)/len(distances)**0.5
                     else:
                         val = max(distances)
+                    if best_match is None or val < best_match[0]:
+                        total_translation = translation + t
+                        total_translation -= np.round(total_translation)
+                        best_match = val, distances, nl, total_translation
                     if break_on_match and val < self.stol:
-                        return val, distances, nl, translation + t
-                    elif best_match is None or val < best_match[0]:
-                        best_match = val, distances, nl, translation + t
+                        return best_match
         return best_match
 
     def fit(self, struct1, struct2):
@@ -594,7 +596,7 @@ class StructureMatcher(MSONable):
         return coords
 
     def _find_match(self, struct1, struct2, break_on_match = False,
-                    use_rms = False):
+                    use_rms = False, niggli=True):
         """
         Finds the best match between two structures.
         Typically, 'best' is determined by minimax
@@ -610,6 +612,9 @@ class StructureMatcher(MSONable):
             use_rms:
                 If True, finds the match that minimizes
                 RMS instead of minimax
+            niggli:
+                whether to compute the niggli cells of the input
+                structures
 
         Returns:
             the value, distances, s2 lattice, and s2 translation 
@@ -634,15 +639,16 @@ class StructureMatcher(MSONable):
                     (struct1.num_sites % struct2.num_sites)
                     and (struct2.num_sites % struct1.num_sites)):
                 return self._supercell_fit(struct1, struct2, break_on_match,
-                                           use_rms)
+                                           use_rms, niggli)
             else:
                 return None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
         # cells considerably.
-        struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
-        struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
+        if niggli:
+            struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
+            struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
 
         nl1 = struct1.lattice
         nl2 = struct2.lattice
@@ -686,10 +692,12 @@ class StructureMatcher(MSONable):
                         val = np.linalg.norm(distances)/len(distances)**0.5
                     else:
                         val = max(distances)
+                    if best_match is None or val < best_match[0]:
+                        total_translation = translation + t
+                        total_translation -= np.round(total_translation)
+                        best_match = val, distances, nl, total_translation
                     if break_on_match and val < self.stol:
-                        return val, distances, nl, translation + t
-                    elif best_match is None or val < best_match[0]:
-                        best_match = val, distances, nl, translation + t
+                        return best_match
         return best_match
 
     def find_indexes(self, s_list, group_list):

@@ -1,3 +1,4 @@
+from __future__ import division
 import unittest
 import os
 import json
@@ -22,7 +23,7 @@ class StructureMatcherTest(unittest.TestCase):
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
                             for fname in ["Li2O.cif", "POSCAR.Li2O"]]
-
+    
     def test_fit(self):
         """
         Take two known matched structures
@@ -170,6 +171,39 @@ class StructureMatcherTest(unittest.TestCase):
         
         lattices = list(sm._get_lattices(s = s1, target_s = s3))
         self.assertEqual(len(lattices), 0)
+        
+    def test_find_match1(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                              primitive_cell=True, scale=True, 
+                              attempt_supercell=False)
+        l = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(l, ['Si', 'Si', 'Ag'], [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s2 = Structure(l, ['Si', 'Si', 'Ag'], [[0,0.1,0],[0,0.1,-0.95],[.7,.5,.375]])
+        val, distances, nl, total_translation = sm._find_match(s1, s2, break_on_match = False, 
+                                                               use_rms = True, niggli = False)
+        scale_matrix = np.round(np.dot(nl.matrix, s2.lattice.inv_matrix)).astype('int')
+        s2.make_supercell(scale_matrix)
+        fc = s2.frac_coords + total_translation
+        fc -= np.round(fc)
+        self.assertAlmostEqual(np.sum(fc), 0.9)
+        self.assertAlmostEqual(np.sum(fc[:,:2]), 0.1)
+        self.assertAlmostEqual(np.sum(distances * (l.volume/3) ** (1/3)), 0.15)
+    
+    def test_find_match2(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                              primitive_cell=True, scale=True, 
+                              attempt_supercell=False)
+        l = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(l, ['Si', 'Si'], [[0,0,0.1],[0,0,0.2]])
+        s2 = Structure(l, ['Si', 'Si'], [[0,0.1,0],[0,0.1,-0.95]])
+        val, distances, nl, total_translation = sm._find_match(s1, s2, break_on_match = False, 
+                                                               use_rms = True, niggli = False)
+        scale_matrix = np.round(np.dot(nl.matrix, s2.lattice.inv_matrix)).astype('int')
+        s2.make_supercell(scale_matrix)
+        fc = s2.frac_coords + total_translation
+        fc -= np.round(fc)
+        self.assertAlmostEqual(np.sum(fc), 0.3)
+        self.assertAlmostEqual(np.sum(fc[:,:2]), 0)
 
 if __name__ == '__main__':
     unittest.main()
