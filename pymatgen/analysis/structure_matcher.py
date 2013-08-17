@@ -414,7 +414,8 @@ class StructureMatcher(MSONable):
         
         return shortest_distances / norm_length, translation
 
-    def _supercell_fit(self, struct1, struct2, break_on_match):
+    def _supercell_fit(self, struct1, struct2, break_on_match = False,
+                       use_rms = False):
         """
         Calculate RMS displacement between two structures
         where one is a potential supercell of the other
@@ -435,8 +436,6 @@ class StructureMatcher(MSONable):
         """
         struct1 = Structure.from_sites(struct1)
         struct2 = Structure.from_sites(struct2)
-
-        stored_rms = None
 
         #reset struct1 to supercell
         if struct2.num_sites > struct1.num_sites:
@@ -464,7 +463,9 @@ class StructureMatcher(MSONable):
         s1_translation = s1[0][0]
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
-
+        
+        
+        best_match = None
         #do permutations of vectors, check for equality
         for nl in self._get_lattices(struct1, struct2, fu):
 
@@ -493,20 +494,20 @@ class StructureMatcher(MSONable):
                     return None
 
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
-            for coord in s2[0]:
-                t_s2 = [np.mod(coords - coord, 1) for coords in s2]
+            for s2c in s2[0]:
+                translation = s1[0][0] - s2c
+                t_s2 = [np.mod(coords + translation, 1) for coords in s2]
                 if self._cmp_fractional_struct(s1, t_s2, frac_tol):
                     distances, t = self._cart_dists(s1, t_s2, nl, nl1)
-                    rms = np.linalg.norm(distances)/len(distances)**0.5
-                    if break_on_match and max(distances) < self.stol:
-                        return max(distances)
-                    elif stored_rms is None or rms < stored_rms[0]:
-                        stored_rms = rms, max(distances)
-
-        if break_on_match:
-            return None
-        else:
-            return stored_rms
+                    if use_rms:
+                        val = np.linalg.norm(distances)/len(distances)**0.5
+                    else:
+                        val = max(distances)
+                    if break_on_match and val < self.stol:
+                        return val, distances, nl, translation + t
+                    elif best_match is None or val < best_match[0]:
+                        best_match = val, distances, nl, translation + t
+        return best_match
 
     def fit(self, struct1, struct2):
         """
@@ -522,12 +523,12 @@ class StructureMatcher(MSONable):
             True or False.
         """
 
-        fit_dist = self._calc_rms(struct1, struct2, break_on_match=True)
+        match = self._find_match(struct1, struct2, break_on_match=True)
 
-        if fit_dist is None:
+        if match is None:
             return False
         else:
-            return fit_dist <= self.stol
+            return match[0] <= self.stol
 
     def get_rms_dist(self, struct1, struct2):
         """
@@ -544,8 +545,12 @@ class StructureMatcher(MSONable):
             and maximum distance between paired sites. If no matching
             lattice is found None is returned.
         """
-
-        return self._calc_rms(struct1, struct2, break_on_match=False)
+        match = self._find_match(struct1, struct2, break_on_match=False, 
+                                use_rms = True)
+        if match is None:
+            return None
+        else:
+            return match[0], max(match[1])
     
     def _get_fcoords_and_species_list(self, struct):
         """
@@ -588,9 +593,11 @@ class StructureMatcher(MSONable):
                 return None
         return coords
 
-    def _calc_rms(self, struct1, struct2, break_on_match):
+    def _find_match(self, struct1, struct2, break_on_match = False,
+                    use_rms = False):
         """
-        Calculate RMS displacement between two structures
+        Finds the best match between two structures.
+        Typically, 'best' is determined by minimax
 
         Args:
             struct1:
@@ -598,24 +605,21 @@ class StructureMatcher(MSONable):
             struct2:
                 2nd structure
             break_on_match:
-                True or False. Will break if the maximum
-                    distance found is less than the
-                    provided stol
+                If true, breaks once the max distance is below
+                the stol (RMS distance if use_rms is true)
+            use_rms:
+                If True, finds the match that minimizes
+                RMS instead of minimax
 
         Returns:
-            rms displacement normalized by (Vol / nsites) ** (1/3) and
-            maximum distance found between two paired sites
+            the value, distances, s2 lattice, and s2 translation 
+            vector for the best match
         """
         struct1 = Structure.from_sites(struct1.sites)
         struct2 = Structure.from_sites(struct2.sites)
-
-        stol = self.stol
-        comparator = self._comparator
-        #initial stored rms
-        stored_rms = None
-
-        if comparator.get_structure_hash(struct1) != \
-                comparator.get_structure_hash(struct2):
+        
+        if self._comparator.get_structure_hash(struct1) != \
+                self._comparator.get_structure_hash(struct2):
             return None
 
         #primitive cell transformation
@@ -629,7 +633,8 @@ class StructureMatcher(MSONable):
             if self._supercell and not (
                     (struct1.num_sites % struct2.num_sites)
                     and (struct2.num_sites % struct1.num_sites)):
-                return self._supercell_fit(struct1, struct2, break_on_match)
+                return self._supercell_fit(struct1, struct2, break_on_match,
+                                           use_rms)
             else:
                 return None
 
@@ -652,7 +657,7 @@ class StructureMatcher(MSONable):
 
         #fractional tolerance of atomic positions (2x for initial fitting)
         frac_tol = \
-            np.array([stol / ((1 - self.ltol) * np.pi) * i for
+            np.array([self.stol / ((1 - self.ltol) * np.pi) * i for
                       i in struct1.lattice.reciprocal_lattice.abc]) * \
             ((nl1.volume + nl2.volume) /
              (2 * struct1.num_sites)) ** (1.0 / 3)
@@ -667,28 +672,25 @@ class StructureMatcher(MSONable):
         for f1, c2 in zip(s1, s2_cart):
             if len(f1) != len(c2):
                 return None
-
-        #translate s1
-        s1_translation = s1[0][0]
-        for i in range(len(species_list)):
-            s1[i] = np.mod(s1[i] - s1_translation, 1)
+        
+        best_match = None
         #do permutations of vectors, check for equality
         for nl in self._get_lattices(struct1, struct2):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
-            for coord in s2[0]:
-                t_s2 = [np.mod(coords - coord, 1) for coords in s2]
+            for s2c in s2[0]:
+                translation = s1[0][0] - s2c
+                t_s2 = [np.mod(coords + translation, 1) for coords in s2]
                 if self._cmp_fractional_struct(s1, t_s2, frac_tol):
                     distances, t = self._cart_dists(s1, t_s2, nl, nl1)
-                    rms = np.linalg.norm(distances)/len(distances)**0.5
-                    if break_on_match and max(distances) < self.stol:
-                        return max(distances)
-                    elif stored_rms is None or rms < stored_rms[0]:
-                        stored_rms = rms, max(distances)
-
-        if break_on_match:
-            return None
-        else:
-            return stored_rms
+                    if use_rms:
+                        val = np.linalg.norm(distances)/len(distances)**0.5
+                    else:
+                        val = max(distances)
+                    if break_on_match and val < self.stol:
+                        return val, distances, nl, translation + t
+                    elif best_match is None or val < best_match[0]:
+                        best_match = val, distances, nl, translation + t
+        return best_match
 
     def find_indexes(self, s_list, group_list):
         """
