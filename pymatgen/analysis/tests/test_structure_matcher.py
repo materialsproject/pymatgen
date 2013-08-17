@@ -10,6 +10,7 @@ from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.smartio import read_structure
 from pymatgen.core import Structure, Composition, Lattice
+from pymatgen.util.coord_utils import find_in_coord_list_pbc
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -178,17 +179,21 @@ class StructureMatcherTest(unittest.TestCase):
                               primitive_cell=True, scale=True, 
                               attempt_supercell=False)
         l = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(l, ['Si', 'Si', 'Ag'], [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
-        s2 = Structure(l, ['Si', 'Si', 'Ag'], [[0,0.1,0],[0,0.1,-0.95],[.7,.5,.375]])
-        val, distances, nl, total_translation = sm._find_match(s1, s2, break_on_match = False, 
-                                                               use_rms = True, niggli = False)
-        scale_matrix = np.round(np.dot(nl.matrix, s2.lattice.inv_matrix)).astype('int')
+        s1 = Structure(l, ['Si', 'Si', 'Ag'], 
+                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s2 = Structure(l, ['Si', 'Si', 'Ag'], 
+                       [[0,0.1,0],[0,0.1,-0.95],[.7,.5,.375]])
+        match = sm._find_match(s1, s2, break_on_match = False, 
+                               use_rms = True, niggli = False)
+        scale_matrix = np.round(np.dot(match[2].matrix, 
+                            s2.lattice.inv_matrix)).astype('int')
         s2.make_supercell(scale_matrix)
-        fc = s2.frac_coords + total_translation
+        fc = s2.frac_coords + match[3]
         fc -= np.round(fc)
         self.assertAlmostEqual(np.sum(fc), 0.9)
         self.assertAlmostEqual(np.sum(fc[:,:2]), 0.1)
-        self.assertAlmostEqual(np.sum(distances * (l.volume/3) ** (1/3)), 0.15)
+        cart_dist = np.sum(match[1] * (l.volume/3) ** (1/3))
+        self.assertAlmostEqual(cart_dist, 0.15)
     
     def test_find_match2(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
@@ -197,14 +202,35 @@ class StructureMatcherTest(unittest.TestCase):
         l = Lattice.orthorhombic(1, 2, 3)
         s1 = Structure(l, ['Si', 'Si'], [[0,0,0.1],[0,0,0.2]])
         s2 = Structure(l, ['Si', 'Si'], [[0,0.1,0],[0,0.1,-0.95]])
-        val, distances, nl, total_translation = sm._find_match(s1, s2, break_on_match = False, 
-                                                               use_rms = True, niggli = False)
-        scale_matrix = np.round(np.dot(nl.matrix, s2.lattice.inv_matrix)).astype('int')
+        match = sm._find_match(s1, s2, break_on_match = False, 
+                               use_rms = True, niggli = False)
+        scale_matrix = np.round(np.dot(match[2].matrix, 
+                                       s2.lattice.inv_matrix)).astype('int')
         s2.make_supercell(scale_matrix)
-        fc = s2.frac_coords + total_translation
+        fc = s2.frac_coords + match[3]
         fc -= np.round(fc)
         self.assertAlmostEqual(np.sum(fc), 0.3)
         self.assertAlmostEqual(np.sum(fc[:,:2]), 0)
+        
+    def test_get_s2_like_s1(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                              primitive_cell=False, scale=True, 
+                              attempt_supercell=True)
+        l = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(l, ['Si', 'Si', 'Ag'], 
+                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s1.make_supercell([2,1,1])
+        s2 = Structure(l, ['Si', 'Si', 'Ag'], 
+                       [[0,0.1,0],[0,0.1,-0.95],[-.7,.5,.375]])
+        result = sm.get_s2_like_s1(s1, s2)
+        
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
+                                                    [0.35,0.4,0.5])), 1)
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
+                                                    [0,0,0.125])), 1)
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
+                                                    [0,0,0.175])), 1)
+        
 
 if __name__ == '__main__':
     unittest.main()

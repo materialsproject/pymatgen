@@ -796,4 +796,26 @@ class StructureMatcher(MSONable):
         else:
             return min_mapping
         
+    def get_s2_like_s1(self, struct1, struct2):
+        """
+        performs transformations on struct2 to put it in a basis similar to 
+        struct1 (without changing any of the inter-site distances)
+        """
+        if self._primitive_cell:
+            raise ValueError("get_s2_like_s1 cannot be used with the primitive"
+                             " cell option")
+        if self._supercell and struct2.num_sites > struct1.num_sites:
+            raise ValueError("The non-supercell must be put onto the basis"
+                             " of the supercell, not the other way around")
+        match = self._find_match(struct1, struct2, break_on_match=False,
+                                 use_rms=True, niggli=False)
+        if match is None:
+            return None
+        scale_matrix = np.round(np.dot(match[2].matrix, 
+                            struct2.lattice.inv_matrix)).astype('int')
+        temp = struct2.copy()
+        temp.make_supercell(scale_matrix)
+        fc = temp.frac_coords + match[3]
+        return Structure(temp.lattice, temp.species_and_occu, fc, to_unit_cell=True)
+        
         
