@@ -458,24 +458,7 @@ class StructureMatcher(MSONable):
                      / (2 * struct1.num_sites)) ** (1 / 3)
 
         #generate structure coordinate lists
-        species_list = []
-        s1 = []
-        for site in struct1:
-            found = False
-            for i, species in enumerate(species_list):
-                if self._comparator.are_equal(site.species_and_occu,
-                                              species):
-                    found = True
-                    s1[i].append(site.frac_coords)
-                    break
-            if not found:
-                s1.append([site.frac_coords])
-                species_list.append(site.species_and_occu)
-
-        zipped = sorted(zip(s1, species_list), key=lambda x: len(x[0]))
-
-        s1 = [x[0] for x in zipped]
-        species_list = [x[1] for x in zipped]
+        s1, species_list = self._get_fcoords_and_species_list(struct1)
 
         #translate s1
         s1_translation = s1[0][0]
@@ -563,6 +546,47 @@ class StructureMatcher(MSONable):
         """
 
         return self._calc_rms(struct1, struct2, break_on_match=False)
+    
+    def _get_fcoords_and_species_list(self, struct):
+        """
+        Gets the fcoords of a structure grouped by the comparator
+        """
+        species_list = []
+        s = []
+        for site in struct:
+            found = False
+            for i, species in enumerate(species_list):
+                if self._comparator.are_equal(site.species_and_occu, species):
+                    found = True
+                    s[i].append(site.frac_coords)
+                    break
+            if not found:
+                s.append([site.frac_coords])
+                species_list.append(site.species_and_occu)
+
+        #sort species list and s1 by number of sites
+        zipped = sorted(zip(s, species_list), key=lambda x: len(x[0]))
+        s = [np.array(x[0]) for x in zipped]
+        species_list = [x[1] for x in zipped]
+        return s, species_list
+    
+    def _get_ordered_cart_coords(self, struct, species_list):
+        """
+        Returns the cartesian_coords of a structure grouped in the same
+        way as the species_list
+        """
+        coords = [[] for i in species_list]
+        for site in struct:
+            found = False
+            for i, species in enumerate(species_list):
+                if self._comparator.are_equal(site.species_and_occu, species):
+                    found = True
+                    coords[i].append(site.coords)
+                    break
+                    #if no site match found return None
+            if not found:
+                return None
+        return coords
 
     def _calc_rms(self, struct1, struct2, break_on_match):
         """
@@ -634,35 +658,10 @@ class StructureMatcher(MSONable):
              (2 * struct1.num_sites)) ** (1.0 / 3)
 
         #generate structure coordinate lists
-        species_list = []
-        s1 = []
-        for site in struct1:
-            found = False
-            for i, species in enumerate(species_list):
-                if comparator.are_equal(site.species_and_occu, species):
-                    found = True
-                    s1[i].append(site.frac_coords)
-                    break
-            if not found:
-                s1.append([site.frac_coords])
-                species_list.append(site.species_and_occu)
-
-        zipped = sorted(zip(s1, species_list), key=lambda x: len(x[0]))
-
-        s1 = [x[0] for x in zipped]
-        species_list = [x[1] for x in zipped]
-        s2_cart = [[] for i in s1]
-
-        for site in struct2:
-            found = False
-            for i, species in enumerate(species_list):
-                if comparator.are_equal(site.species_and_occu, species):
-                    found = True
-                    s2_cart[i].append(site.coords)
-                    break
-                    #if no site match found return None
-            if not found:
-                return None
+        s1, species_list = self._get_fcoords_and_species_list(struct1)
+        s2_cart = self._get_ordered_cart_coords(struct2, species_list)
+        if s2_cart is None:
+            return None
 
         #check that sizes of the site groups are identical
         for f1, c2 in zip(s1, s2_cart):
@@ -673,7 +672,7 @@ class StructureMatcher(MSONable):
         s1_translation = s1[0][0]
         for i in range(len(species_list)):
             s1[i] = np.mod(s1[i] - s1_translation, 1)
-            #do permutations of vectors, check for equality
+        #do permutations of vectors, check for equality
         for nl in self._get_lattices(struct1, struct2):
             s2 = [nl.get_fractional_coords(c) for c in s2_cart]
             for coord in s2[0]:
