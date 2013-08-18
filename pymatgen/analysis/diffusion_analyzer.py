@@ -33,6 +33,7 @@ from pymatgen.core import Structure, smart_element_or_specie
 import pymatgen.core.physical_constants as phyc
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.util.coord_utils import pbc_diff
 
 
 class DiffusionAnalyzer(MSONable):
@@ -240,7 +241,16 @@ class DiffusionAnalyzer(MSONable):
         step_skip = vaspruns[0].ionic_step_skip or 1
 
         p = []
+        final_structure = vaspruns[0].initial_structure
         for vr in vaspruns:
+            #check that the runs are continuous
+            fdist = pbc_diff(vr.initial_structure.frac_coords, 
+                             final_structure.frac_coords)
+            if np.any(fdist > 0.001):
+                raise ValueError('initial and final structures do not '
+                                 'match.')
+            final_structure = vr.initial_structure
+            
             assert vr.ionic_step_skip == step_skip
             p.extend([np.array(s['structure'].frac_coords)[:, None]
                       for s in vr.ionic_steps])
