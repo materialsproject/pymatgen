@@ -232,7 +232,7 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
                                                     [0,0,0.175])), 1)
         
-        
+    
     def test_subset(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
                               primitive_cell=False, scale=True, 
@@ -249,6 +249,26 @@ class StructureMatcherTest(unittest.TestCase):
                                                     [0,0,0.1])), 1)
         self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
                                                     [0.7,0.4,0.5])), 1)
+
+        #test with fewer species in s2
+        s1 = Structure(l, ['Si', 'Ag', 'Si'], 
+                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s2 = Structure(l, ['Si', 'Si'], 
+                       [[0,0.1,0],[-.7,.5,.4]])
+        result = sm.get_s2_like_s1(s1, s2)
+        
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
+                                                    [0,0,0.1])), 1)
+        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
+                                                    [0.7,0.4,0.5])), 1)
+        
+        #test with not enough sites in s1
+        #test with fewer species in s2
+        s1 = Structure(l, ['Si', 'Ag', 'Cl'], 
+                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s2 = Structure(l, ['Si', 'Si'], 
+                       [[0,0.1,0],[-.7,.5,.4]])
+        self.assertEqual(sm.get_s2_like_s1(s1, s2), None)
         
 
 if __name__ == '__main__':
