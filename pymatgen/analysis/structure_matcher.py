@@ -514,7 +514,7 @@ class StructureMatcher(MSONable):
                     coords[i].append(site.frac_coords)
                     break
             #if no site match found return None
-            if not found:
+            if not found and not self._subset:
                 return None
         return [np.array(c) for c in coords]
 
@@ -569,6 +569,7 @@ class StructureMatcher(MSONable):
         if self._subset:
             if struct2.num_sites > struct1.num_sites:
                 struct2, struct1 = struct1, struct2
+            #can't do the check until we group with the comparator
         else:
             if struct1.num_sites != struct2.num_sites * fu:
                 return None
@@ -602,6 +603,7 @@ class StructureMatcher(MSONable):
         s1 = self._get_ordered_fcoords(struct1, species_list)
         if s1 is None:
             return None
+        
         #check that sizes of the site groups are correct
         for f1, c2 in zip(s1, s2_cart):
             if self._subset:
@@ -841,6 +843,9 @@ class StructureMatcher(MSONable):
         if self._supercell and struct2.num_sites > struct1.num_sites:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
+        if self._subset and struct2.num_sites > struct1.num_sites:
+            raise ValueError("The smaller structure must be transformed onto"
+                             " the larger one, not the other way around")
         match = self._find_match(struct1, struct2, break_on_match=False,
                                  use_rms=True, niggli=False)
         if match is None:
