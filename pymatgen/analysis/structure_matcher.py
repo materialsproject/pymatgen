@@ -375,26 +375,28 @@ class StructureMatcher(MSONable):
             nl = Lattice(lat)
             yield nl
 
-    def _cmp_fractional_struct(self, s1, s2, frac_tol):
+    def _cmp_fractional_struct(self, s1, s2, frac_tol, mask):
         #compares the fractional coordinates
-        for s1_coords, s2_coords in zip(s1, s2):
-            dist = s1_coords[:, None] - s2_coords[None, :]
-            dist = abs(dist - np.round(dist))
-            dist[np.where(dist > frac_tol[None, None, :])] = 3 * len(dist)
-            cost = np.sum(dist, axis=-1)
-            if self._subset:
-                n = len(s1_coords)
-                square_cost = np.zeros((n,n))
-                square_cost[:cost.shape[0], :cost.shape[1]] = cost
-                cost = square_cost
-            if np.max(np.min(cost, axis=0)) >= 3 * len(dist):
-                return False
-            lin = LinearAssignment(cost)
-            if lin.min_cost >= 3 * len(dist):
-                return False
+        mask_val = 3 * len(s1)
+        dist = s2[:, None] - s1[None, :]
+        dist = abs(dist - np.round(dist))
+        dist[np.where(dist > frac_tol[None, None, :])] = mask_val
+        cost = np.sum(dist, axis=-1)
+        cost[mask] = mask_val
+        if np.max(np.min(cost, axis=1)) >= mask_val:
+            return False
+        if self._subset:
+            n = len(s1)
+            square_cost = np.zeros((n,n))
+            square_cost[:cost.shape[0], :cost.shape[1]] = cost
+            cost = square_cost
+        lin = LinearAssignment(cost)
+        if lin.min_cost >= mask_val:
+            return False
         return True
 
-    def _cart_dists(self, s1, s2, l1, l2):
+
+    def _cart_dists(self, s1, s2, l1, l2, mask):
         """
         Finds the cartesian distances normalized by (V/Natom) ^ 1/3
         between s1 and s2 on the average lattice of l1 and l2
@@ -407,31 +409,26 @@ class StructureMatcher(MSONable):
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
         avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
-        nsites1 = sum(map(len, s1))
-        nsites2 = sum(map(len, s2))
-        all_d_2 = np.zeros([nsites1, nsites1]) 
-        all_d_2[:nsites2] += 100 * nsites1
-        vec_matrix = np.zeros([nsites1, nsites1, 3])
-        m = 0
-        n = 0
-        for s2_coords, s1_coords in zip(s2, s1):
-            i = len(s2_coords)
-            j = len(s1_coords)
-            #vectors are from s2 to s1
-            vecs = pbc_shortest_vectors(avg_lattice, s2_coords, s1_coords)
-            d_2 = (np.sum(vecs ** 2, axis=-1))
-            all_d_2[m: m + i, n: n + j] = d_2
-            vec_matrix[m: m + i, n: n + j] = vecs
-            m += i
-            n += j
+        norm_length = (avg_lattice.volume / len(s1)) ** (1 / 3)
+        mask_val = 1e20 * norm_length * self.stol
+        
+        all_d_2 = np.zeros([len(s1), len(s1)]) 
+        vec_matrix = np.zeros([len(s1), len(s1), 3])
+        
+        vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
+        vec_matrix[:len(s2)] = vecs
+        vec_matrix[mask] = mask_val
+        d_2 = (np.sum(vecs ** 2, axis=-1))
+        all_d_2[:len(s2)] = d_2
+        all_d_2[mask] = mask_val
+        
         lin = LinearAssignment(all_d_2)
-        inds = np.arange(nsites2)
-        shortest_vecs = vec_matrix[inds, lin.solution[:nsites2], :]
+        inds = np.arange(len(s2))
+        shortest_vecs = vec_matrix[inds, lin.solution[:len(s2)], :]
         translation = np.average(shortest_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
         shortest_distances = np.sum((shortest_vecs - \
                     translation) ** 2, -1) ** 0.5
-        norm_length = (avg_lattice.volume / nsites1) ** (1 / 3)
         return shortest_distances / norm_length, f_translation
 
     def fit(self, struct1, struct2):
@@ -477,47 +474,6 @@ class StructureMatcher(MSONable):
         else:
             return match[0], max(match[1])
     
-    def _get_ccoords_and_species_list(self, struct):
-        """
-        Gets the fcoords of a structure grouped by the comparator
-        """
-        species_list = []
-        s = []
-        for site in struct:
-            found = False
-            for i, species in enumerate(species_list):
-                if self._comparator.are_equal(site.species_and_occu, species):
-                    found = True
-                    s[i].append(site.coords)
-                    break
-            if not found:
-                s.append([site.coords])
-                species_list.append(site.species_and_occu)
-
-        #sort species list and s1 by number of sites
-        zipped = sorted(zip(s, species_list), key=lambda x: len(x[0]))
-        s = [np.array(x[0]) for x in zipped]
-        species_list = [x[1] for x in zipped]
-        return s, species_list
-    
-    def _get_ordered_fcoords(self, struct, species_list):
-        """
-        Returns the cartesian_coords of a structure grouped in the same
-        way as the species_list
-        """
-        coords = [[] for i in species_list]
-        for site in struct:
-            found = False
-            for i, species in enumerate(species_list):
-                if self._comparator.are_equal(site.species_and_occu, species):
-                    found = True
-                    coords[i].append(site.frac_coords)
-                    break
-            #if no site match found return None
-            if not found and not self._subset:
-                return None
-        return [np.array(c) for c in coords]
-
     def _find_match(self, struct1, struct2, break_on_match = False,
                     use_rms = False, niggli=True):
         """
@@ -597,21 +553,26 @@ class StructureMatcher(MSONable):
                             ** (1.0 / 3)
         frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * self.stol \
                     / ((1 - self.ltol) * np.pi) / normalization
-
-        #generate structure coordinate lists
-        s2_cart, species_list = self._get_ccoords_and_species_list(struct2)
-        s1 = self._get_ordered_fcoords(struct1, species_list)
-        if s1 is None:
-            return None
         
-        #check that sizes of the site groups are correct
-        for f1, c2 in zip(s1, s2_cart):
-            if self._subset:
-                if len(f1) < len(c2):
-                    return None
-            else:
-                if len(f1) != len(c2) * fu:
-                    return None
+        #make array mask
+        mask = np.zeros((len(struct2)*fu, len(struct1)), dtype=np.bool)
+        i=0
+        for site2 in struct2:
+            for repeat in range(fu):
+                for j, site1 in enumerate(struct1):
+                    mask[i, j] = not self._comparator.are_equal(site2.species_and_occu,
+                                                                site1.species_and_occu)
+                i += 1
+        
+        
+        #print LinearAssignment(mask).min_cost
+        #find the best sites for the translation vector
+        num_s1_invalid_matches = np.sum(mask, axis = 1)
+        s2_translation_index = np.argmax(num_s1_invalid_matches)
+        s1_translation_indices = np.argwhere(mask[s2_translation_index] == 0).flatten()
+        
+        s1fc = np.array(struct1.frac_coords)
+        s2cc = np.array(struct2.cart_coords)
         
         best_match = None
         for nl in self._get_lattices(struct1, struct2, fu):
@@ -620,15 +581,15 @@ class StructureMatcher(MSONable):
                 scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
                 supercell = struct2.copy()
                 supercell.make_supercell(scale_matrix.astype('int'))
-                s2 = self._get_ordered_fcoords(supercell, species_list)
+                s2fc = np.array(supercell.frac_coords)
             else:
-                s2 = [nl.get_fractional_coords(c) for c in s2_cart]
+                s2fc = nl.get_fractional_coords(s2cc)
             #loop over possible translations
-            for s1c in s1[0]:
-                translation = s1c - s2[0][0]
-                t_s2 = [np.mod(coords + translation, 1) for coords in s2]
-                if self._cmp_fractional_struct(s1, t_s2, frac_tol):
-                    distances, t = self._cart_dists(s1, t_s2, nl, nl1)
+            for s1i in s1_translation_indices:
+                translation = s1fc[s1i] - s2fc[s2_translation_index]
+                t_s2fc = s2fc + translation
+                if self._cmp_fractional_struct(s1fc, t_s2fc, frac_tol, mask):
+                    distances, t = self._cart_dists(s1fc, t_s2fc, nl, nl1, mask)
                     if use_rms:
                         val = np.linalg.norm(distances)/len(distances)**0.5
                     else:
@@ -639,7 +600,8 @@ class StructureMatcher(MSONable):
                         best_match = val, distances, nl, total_translation
                     if break_on_match and val < self.stol:
                         return best_match
-        return best_match
+        if best_match and best_match[0] < self.stol:
+            return best_match
 
     def find_indexes(self, s_list, group_list):
         """
