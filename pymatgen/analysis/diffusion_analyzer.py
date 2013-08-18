@@ -249,7 +249,7 @@ class DiffusionAnalyzer(MSONable):
             if np.any(fdist > 0.001):
                 raise ValueError('initial and final structures do not '
                                  'match.')
-            final_structure = vr.initial_structure
+            final_structure = vr.final_structure
             
             assert vr.ionic_step_skip == step_skip
             p.extend([np.array(s['structure'].frac_coords)[:, None]
