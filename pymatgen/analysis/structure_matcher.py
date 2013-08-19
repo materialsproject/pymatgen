@@ -279,9 +279,9 @@ class StructureMatcher(MSONable):
                 smaller cell which is equivalent to the larger structure.
             allow_subset:
                 Allow one structure to match to the subset of another
-                structure. Eg. Matching of an ordered structure onto a 
+                structure. Eg. Matching of an ordered structure onto a
                 disordered one, or matching a delithiated to a lithiated
-                structure. This option cannot be combined with 
+                structure. This option cannot be combined with
                 attempt_supercell, or with structure grouping.
             comparator:
                 A comparator object implementing an equals method that declares
@@ -309,22 +309,21 @@ class StructureMatcher(MSONable):
             raise ValueError("attempt_supercell cannot be combined with "
                              "allow_subset")
 
-    def _get_lattices(self, target_s, s, supercell_size = 1):
+    def _get_lattices(self, target_s, s, supercell_size=1):
         """
-        Yields lattices for s with lengths and angles close to the 
+        Yields lattices for s with lengths and angles close to the
         lattice of target_s. If supercell_size is specified, the
         returned lattice will have that number of primitive cells
         in it
+
         Args:
             s, target_s: Structure objects
         """
         t_l, t_a = target_s.lattice.lengths_and_angles
         r = (1 + self.ltol) * max(t_l)
-        fpts, dists, i = get_points_in_sphere_pbc(lattice = s.lattice, 
-                                                 frac_points=[[0, 0, 0]], 
-                                                 center = [0, 0, 0],
-                                                 r = r
-                                                 ).T
+        fpts, dists, i = get_points_in_sphere_pbc(
+            lattice=s.lattice, frac_points=[[0, 0, 0]], center=[0, 0, 0],
+            r=r).T
         #get possible vectors for a, b, and c
         new_v = []
         for l in t_l:
@@ -348,7 +347,7 @@ class StructureMatcher(MSONable):
                np.array([0, 0, 1])[None, None, None, :, None])
 
         #Compute volume of each lattice
-        vol = np.abs(np.sum(bfl[:, :, :, 0, :] * \
+        vol = np.abs(np.sum(bfl[:, :, :, 0, :] *
                             np.cross(bfl[:, :, :, 1, :],
                                      bfl[:, :, :, 2, :]), 3))
         #valid lattices must not change volume
@@ -384,7 +383,7 @@ class StructureMatcher(MSONable):
             cost = np.sum(dist, axis=-1)
             if self._subset:
                 n = len(s1_coords)
-                square_cost = np.zeros((n,n))
+                square_cost = np.zeros((n, n))
                 square_cost[:cost.shape[0], :cost.shape[1]] = cost
                 cost = square_cost
             if np.max(np.min(cost, axis=0)) >= 3 * len(dist):
@@ -398,7 +397,7 @@ class StructureMatcher(MSONable):
         """
         Finds the cartesian distances normalized by (V/Natom) ^ 1/3
         between s1 and s2 on the average lattice of l1 and l2
-        s1 and s2 are lists of fractional coordinates. Minimizes the 
+        s1 and s2 are lists of fractional coordinates. Minimizes the
         RMS distance of the matching with an additional translation
         (but doesn't change the mapping)
         returns distances, fractional_translation vector
@@ -409,7 +408,7 @@ class StructureMatcher(MSONable):
         avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
         nsites1 = sum(map(len, s1))
         nsites2 = sum(map(len, s2))
-        all_d_2 = np.zeros([nsites1, nsites1]) 
+        all_d_2 = np.zeros([nsites1, nsites1])
         all_d_2[:nsites2] += 100 * nsites1
         vec_matrix = np.zeros([nsites1, nsites1, 3])
         m = 0
@@ -470,13 +469,13 @@ class StructureMatcher(MSONable):
             and maximum distance between paired sites. If no matching
             lattice is found None is returned.
         """
-        match = self._find_match(struct1, struct2, break_on_match=False, 
-                                use_rms = True)
+        match = self._find_match(struct1, struct2, break_on_match=False,
+                                 use_rms=True)
         if match is None:
             return None
         else:
             return match[0], max(match[1])
-    
+
     def _get_ccoords_and_species_list(self, struct):
         """
         Gets the fcoords of a structure grouped by the comparator
@@ -499,7 +498,7 @@ class StructureMatcher(MSONable):
         s = [np.array(x[0]) for x in zipped]
         species_list = [x[1] for x in zipped]
         return s, species_list
-    
+
     def _get_ordered_fcoords(self, struct, species_list):
         """
         Returns the cartesian_coords of a structure grouped in the same
@@ -518,8 +517,8 @@ class StructureMatcher(MSONable):
                 return None
         return [np.array(c) for c in coords]
 
-    def _find_match(self, struct1, struct2, break_on_match = False,
-                    use_rms = False, niggli=True):
+    def _find_match(self, struct1, struct2, break_on_match=False,
+                    use_rms=False, niggli=True):
         """
         Finds the best match between two structures.
         Typically, 'best' is determined by minimax cartesian distance
@@ -541,12 +540,12 @@ class StructureMatcher(MSONable):
                 structures
 
         Returns:
-            the value, distances, s2 lattice, and s2 translation 
+            the value, distances, s2 lattice, and s2 translation
             vector for the best match
         """
         struct1 = Structure.from_sites(struct1.sites)
         struct2 = Structure.from_sites(struct2.sites)
-        
+
         if self._comparator.get_structure_hash(struct1) != \
                 self._comparator.get_structure_hash(struct2) \
                 and not self._subset:
@@ -556,7 +555,7 @@ class StructureMatcher(MSONable):
         if self._primitive_cell and struct1.num_sites != struct2.num_sites:
             struct1 = struct1.get_primitive_structure()
             struct2 = struct2.get_primitive_structure()
-        
+
         if self._supercell:
             #force struct1 to be the larger one
             if struct2.num_sites > struct1.num_sites:
@@ -564,7 +563,7 @@ class StructureMatcher(MSONable):
             fu = struct1.num_sites // struct2.num_sites
         else:
             fu = 1
-        
+
         # Check that the number of sites is correct
         if self._subset:
             if struct2.num_sites > struct1.num_sites:
@@ -573,7 +572,7 @@ class StructureMatcher(MSONable):
         else:
             if struct1.num_sites != struct2.num_sites * fu:
                 return None
-        
+
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
         # cells considerably.
@@ -593,17 +592,17 @@ class StructureMatcher(MSONable):
             struct2.modify_lattice(nl2)
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        normalization = ((2 * struct2.num_sites) / (struct1.volume + struct2.volume))\
-                            ** (1.0 / 3)
-        frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * self.stol \
-                    / ((1 - self.ltol) * np.pi) / normalization
+        normalization = ((2 * struct2.num_sites) /
+                         (struct1.volume + struct2.volume)) ** (1 / 3)
+        frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * \
+            self.stol / ((1 - self.ltol) * np.pi) / normalization
 
         #generate structure coordinate lists
         s2_cart, species_list = self._get_ccoords_and_species_list(struct2)
         s1 = self._get_ordered_fcoords(struct1, species_list)
         if s1 is None:
             return None
-        
+
         #check that sizes of the site groups are correct
         for f1, c2 in zip(s1, s2_cart):
             if self._subset:
@@ -612,7 +611,7 @@ class StructureMatcher(MSONable):
             else:
                 if len(f1) != len(c2) * fu:
                     return None
-        
+
         best_match = None
         for nl in self._get_lattices(struct1, struct2, fu):
             #if supercell needs to be created, update s2_cart
@@ -630,7 +629,8 @@ class StructureMatcher(MSONable):
                 if self._cmp_fractional_struct(s1, t_s2, frac_tol):
                     distances, t = self._cart_dists(s1, t_s2, nl, nl1)
                     if use_rms:
-                        val = np.linalg.norm(distances)/len(distances)**0.5
+                        val = np.linalg.norm(distances) / len(distances) ** \
+                            0.5
                     else:
                         val = max(distances)
                     if best_match is None or val < best_match[0]:
@@ -831,10 +831,10 @@ class StructureMatcher(MSONable):
             return None
         else:
             return min_mapping
-        
+
     def get_s2_like_s1(self, struct1, struct2):
         """
-        performs transformations on struct2 to put it in a basis similar to 
+        performs transformations on struct2 to put it in a basis similar to
         struct1 (without changing any of the inter-site distances)
         """
         if self._primitive_cell:
@@ -850,11 +850,10 @@ class StructureMatcher(MSONable):
                                  use_rms=True, niggli=False)
         if match is None:
             return None
-        scale_matrix = np.round(np.dot(match[2].matrix, 
-                            struct2.lattice.inv_matrix)).astype('int')
+        scale_matrix = np.round(
+            np.dot(match[2].matrix, struct2.lattice.inv_matrix)).astype('int')
         temp = struct2.copy()
         temp.make_supercell(scale_matrix)
         fc = temp.frac_coords + match[3]
-        return Structure(temp.lattice, temp.species_and_occu, fc, to_unit_cell=True)
-        
-        
+        return Structure(temp.lattice, temp.species_and_occu, fc,
+                         to_unit_cell=True)
