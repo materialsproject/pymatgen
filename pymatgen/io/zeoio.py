@@ -34,9 +34,7 @@ except ImportError:
     zeo_found = False
 
 
-@requires(zeo_found,
-          "ZeoCssr requires Zeo++ cython extension to be installed. Please "
-          "contact developers of Zeo++ to obtain it.")
+
 class ZeoCssr(Cssr):
     """
     ZeoCssr adds extra fields to CSSR sites to conform with Zeo++ 
@@ -45,6 +43,9 @@ class ZeoCssr(Cssr):
     of Zeo++ (x-axis) for structurural modifications.
     """
 
+    @requires(zeo_found,
+              "ZeoCssr requires Zeo++ cython extension to be installed. Please "
+              "contact developers of Zeo++ to obtain it.")
     def __init__(self, structure):
         """
         Args:
