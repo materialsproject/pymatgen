@@ -207,6 +207,46 @@ class FrameworkComparator(AbstractComparator):
         return len(structure)
 
 
+class OrderDisorderElementComparator(AbstractComparator):
+    """
+    A Comparator that matches sites, regardless of species.
+    """
+
+    def are_equal(self, sp1, sp2):
+        """
+        True if there is some overlap in composition between the species
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            True always
+        """
+        set1 = set(sp1.element_composition.keys())
+        set2 = set(sp2.element_composition.keys())
+        if set1.intersection(set2):
+            return True
+        return False
+
+    def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            TODO No good hash yet
+        """
+        return 1
+
+
 class StructureMatcher(MSONable):
     """
     Class to match structures by similarity.
