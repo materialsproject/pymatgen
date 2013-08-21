@@ -20,7 +20,6 @@ import itertools
 import numpy as np
 from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
-from pyhull.voronoi import VoronoiTess
 
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc
@@ -716,7 +715,15 @@ class Lattice(MSONable):
     def scale(self, new_volume):
         """
         Return a new Lattice with volume new_volume by performing a
-        scaling of the lattice vectors so that length proportions and angles are preserved.
+        scaling of the lattice vectors so that length proportions and angles are
+        preserved.
+
+        Args:
+            new_volume:
+                New volume to scale to.
+
+        Returns:
+            New lattice with desired volume.
         """
         versors = self.matrix / self.abc
 
@@ -738,7 +745,7 @@ class Lattice(MSONable):
             Wigner Seitz cell. For instance, a list of four coordinates will
             represent a square facet.
         """
-
+        from pyhull.voronoi import VoronoiTess
         vec1 = self.matrix[0]
         vec2 = self.matrix[1]
         vec3 = self.matrix[2]
