@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.7.8
+------
+1. Minor bug fix release to fix pyhull dependencies to be more friendly.
+2. Improved structure matcher that allows for more flexible matching.
+
 v2.7.7
 -------
 1. Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
