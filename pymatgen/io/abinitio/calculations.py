@@ -1,4 +1,7 @@
-"Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)"
+"""
+Factory functions producing ABINIT workflows. Entry points for client code
+(high-level interface)
+"""
 from __future__ import division, print_function
 
 import os
@@ -22,10 +25,14 @@ __email__ = "gmatteo at gmail.com"
 ################################################################################
 
 class PPConvergenceFactory(object):
-    """Factory object that constructs workflows for analyzing the converge of pseudopotentials."""
+    """
+    Factory object that constructs workflows for analyzing the converge of
+    pseudopotentials.
+    """
     def work_for_pseudo(self, workdir, pseudo, ecut_range, 
-                        runmode="sequential", toldfe=1.e-8, atols_mev=(10, 1, 0.1), 
-                        spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+                        runmode="sequential", toldfe=1.e-8,
+                        atols_mev=(10, 1, 0.1), spin_mode="polarized",
+                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
         """
         Return a Work object given the pseudopotential pseudo.
 
@@ -91,7 +98,8 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
         nscf_nband:
             Number of bands included in the NSCF run.
         ndivs:
-            Number of divisions used to sample the smallest segment of the k-path.
+            Number of divisions used to sample the smallest segment of the
+            k-path.
         accuracy:
             Accuracy of the calculation.
         spin_mode:
