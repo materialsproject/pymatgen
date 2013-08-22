@@ -72,10 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.7.8
+v2.7.9
 ------
 1. Minor bug fix release to fix pyhull dependencies to be more friendly.
-2. Improved structure matcher that allows for more flexible matching.
+2. Improved structure matcher that allows for more flexible matching. New
+   matching between ordered and disordered comparator.
 
 v2.7.7
 -------
