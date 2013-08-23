@@ -56,7 +56,7 @@ from the Materials Project, please cite the following works:
     K. Persson, G. Ceder. *A high-throughput infrastructure for density
     functional theory calculations.* Computational Materials Science, 2011,
     50(8), 2295–2310. `doi:10 .1016/j.commatsci.2011.02.023
-    <http://dx.doi.org/10 .1016/j.commatsci.2011.02.023>`_
+    <http://dx.doi.org/10.1016/j.commatsci.2011.02.023>`_
 
     S. P. Ong, A. Jain, G. Hautier, M. Kocher, S. Cholia, D. Gunter, D. Bailey,
     D. Skinner, K. Persson, G. Ceder. *The Materials Project.*
@@ -85,3 +85,20 @@ pymatgen.io.feffio
 
 This module implements an io interface for FEFF calculations. Please
 acknowledge the contribution of Alan Dozier, UKY.
+
+pymatgen.io.zeoio
+-----------------
+
+This implements an interface to the excellent Zeo++ code base. Please
+consider citing the following publications:
+
+    T.F. Willems, C.H. Rycroft, M. Kazi, J.C. Meza, and M. Haranczyk,
+    Algorithms and tools for high-throughput geometry- based analysis of
+    crystalline porous materials, Microporous and Mesoporous Materials,
+    149 (2012) 134-141, `doi:10.1016/j.micromeso.2011.08.020
+    <http://dx.doi.org/10.1016/j.micromeso.2011.08.020>`_.
+
+    R.L. Martin, B. Smit, and M. Haranczyk, Addressing challenges of
+    identifying geometrically diverse sets of crystalline porous materials,
+    J. Chem. Information and Modelling, `doi:10.1021/ci200386x
+    <http://dx.doi.org/10.1021/ci200386x>`_.

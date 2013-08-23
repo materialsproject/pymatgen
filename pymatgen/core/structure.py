@@ -22,6 +22,7 @@ import json
 import collections
 import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
+import random
 
 import numpy as np
 
@@ -34,7 +35,8 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle
+from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
+    pbc_all_distances
 from pymatgen.util.decorators import singleton
 
 
@@ -726,7 +728,7 @@ class IStructure(SiteCollection, MSONable):
             new_sites = sorted(new_sites)
             return self.__class__.from_sites(new_sites)
 
-    def interpolate(self, end_structure, nimages=10, 
+    def interpolate(self, end_structure, nimages=10,
                     interpolate_lattices=False, pbc=True):
         """
         Interpolate between this structure and end_structure. Useful for
@@ -739,7 +741,7 @@ class IStructure(SiteCollection, MSONable):
                 number of interpolation images. Defaults to 10 images.
             interpolate_lattices:
                 whether to interpolate the lattices. Interpolates the lengths
-                and angles (rather than the matrix) so orientation may be 
+                and angles (rather than the matrix) so orientation may be
                 affected.
             pbc:
                 whether to use periodic boundary conditions to find the
@@ -753,7 +755,7 @@ class IStructure(SiteCollection, MSONable):
         #Check length of structures
         if len(self) != len(end_structure):
             raise ValueError("Structures have different lengths!")
-        
+
         if interpolate_lattices:
             #interpolate lattices
             lstart = np.array(self.lattice.lengths_and_angles)
@@ -785,7 +787,7 @@ class IStructure(SiteCollection, MSONable):
             else:
                 l = self.lattice
             fcoords = start_coords + x / nimages * vec
-            structs.append(self.__class__(l, sp, fcoords, 
+            structs.append(self.__class__(l, sp, fcoords,
                                 site_properties=self.site_properties))
         return structs
 
@@ -1350,11 +1352,12 @@ class IMolecule(SiteCollection, MSONable):
         inner = r - dr
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
-    def get_boxed_structure(self, a, b, c):
+    def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
+                            random_rotation=False, min_dist=1):
         """
-        Creates a Structure from a Molecule by putting the Molecule in a box.
-        Useful for creating Structure for calculating molecules using periodic
-        codes.
+        Creates a Structure from a Molecule by putting the Molecule in the
+        center of a orthorhombic box. Useful for creating Structure for
+        calculating molecules using periodic codes.
 
         Args:
             a:
@@ -1363,6 +1366,19 @@ class IMolecule(SiteCollection, MSONable):
                 b-lattice parameter.
             c:
                 c-lattice parameter.
+            images:
+                No. of boxed images in each direction. Defaults to (1, 1, 1),
+                meaning single molecule with 1 lattice parameter in each
+                direction.
+            random_rotation:
+                Whether to apply a random rotation to each molecule. This
+                jumbles all the molecules so that they are not exact images
+                of each other.
+            min_dist:
+                The minimum distance that atoms should be from each other.
+                This is only used if random_rotation is True. The randomized
+                rotations are searched such that no two atoms are less than
+                min_dist from each other.
 
         Returns:
             Structure containing molecule in a box.
@@ -1373,10 +1389,38 @@ class IMolecule(SiteCollection, MSONable):
         z_range = max(coords[:, 2]) - min(coords[:, 2])
         if a <= x_range or b <= y_range or c <= z_range:
             raise ValueError("Box is not big enough to contain Molecule.")
-        lattice = Lattice.from_parameters(a, b, c, 90, 90, 90)
-        return Structure(lattice, self.species, self.cart_coords,
+        lattice = Lattice.from_parameters(a * images[0], b * images[1],
+                                          c * images[2],
+                                          90, 90, 90)
+        nimages = images[0] * images[1] * images[2]
+        coords = []
+
+        centered_coords = self.cart_coords - self.center_of_mass
+        for i, j, k in itertools.product(range(images[0]), range(images[1]),
+                                         range(images[2])):
+            box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
+            if random_rotation:
+                while True:
+                    op = SymmOp.from_origin_axis_angle(
+                        (0, 0, 0), axis=np.random.rand(3),
+                        angle=random.uniform(-180, 180))
+                    m = op.rotation_matrix
+                    new_coords = np.dot(m, centered_coords.T).T + box_center
+                    if len(coords) == 0:
+                        break
+                    distances = pbc_all_distances(
+                        lattice, lattice.get_fractional_coords(new_coords),
+                        lattice.get_fractional_coords(coords))
+                    if np.amin(distances) > min_dist:
+                        break
+            else:
+                new_coords = centered_coords + box_center
+            coords.extend(new_coords)
+        sprops = {k: v * nimages for k, v in self.site_properties.items()}
+
+        return Structure(lattice, self.species * nimages, coords,
                          coords_are_cartesian=True,
-                         site_properties=self.site_properties)
+                         site_properties=sprops).get_sorted_structure()
 
     def get_centered_molecule(self):
         """
@@ -2167,17 +2211,22 @@ class Molecule(IMolecule):
         """
 
         # Find the nearest neighbor that is not a terminal atom.
+        all_non_terminal_nn = []
+        for nn, dist in self.get_neighbors(self[index], 3):
+            # Check that the nn has neighbors within a sensible distance but
+            # is not the site being substituted.
+            for inn, dist2 in self.get_neighbors(nn, 3):
+                if inn != self[index] and \
+                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                    all_non_terminal_nn.append((nn, dist))
+                    break
 
-        non_terminal_nn = None
-        for nn, dist in self.get_neighbors(self[index], 5):
-            if len(self.get_neighbors(nn, 1.1 * dist)) > 1:
-                non_terminal_nn = nn
-                break
-
-        if non_terminal_nn is None:
+        if len(all_non_terminal_nn) == 0:
             raise RuntimeError("Can't find a non-terminal neighbor to attach"
                                " functional group to.")
 
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
+        
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
