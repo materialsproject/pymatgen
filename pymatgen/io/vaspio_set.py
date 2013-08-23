@@ -172,6 +172,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
 
     """
+
     def __init__(self, name, config_dict, constrain_total_magmom=False):
         """
         Args:
@@ -316,6 +317,7 @@ class VaspInputSet(DictVaspInputSet):
     initialize settings. See DictVaspInputSet for specific details regarding
     how MAGMOM, LDAU settings are set.
     """
+
     def __init__(self, name, config_file, user_incar_settings=None,
                  constrain_total_magmom=False):
         """
@@ -386,6 +388,7 @@ class MITVaspInputSet(VaspInputSet):
     2011, 50(8), 2295-2310.
     doi:10.1016/j.commatsci.2011.02.023 for more information.
     """
+
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
@@ -416,6 +419,7 @@ class MITGGAVaspInputSet(VaspInputSet):
     """
     Typical implementation of input set for a GGA run based on MIT parameters.
     """
+
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
@@ -453,6 +457,7 @@ class MITHSEVaspInputSet(VaspInputSet):
     """
     Typical implementation of input set for a HSE run.
     """
+
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MITHSEVaspInputSet.json")) as f:
@@ -477,10 +482,12 @@ class MITHSEVaspInputSet(VaspInputSet):
         return cls(user_incar_settings=d["user_incar_settings"],
                    constrain_total_magmom=d["constrain_total_magmom"])
 
+
 class MITNEBVaspInputSet(VaspInputSet):
     """
     Class for writing NEB inputs.
     """
+
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False,
                  ggau=True, nimages=8):
         module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -490,7 +497,7 @@ class MITNEBVaspInputSet(VaspInputSet):
                 constrain_total_magmom=constrain_total_magmom)
         self.user_incar_settings = user_incar_settings
         #incar settings
-        incar_settings = {'IMAGES':nimages, 'IBRION':1, 'NFREE':2}
+        incar_settings = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2}
         self.incar_settings.update(incar_settings)
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
@@ -501,7 +508,7 @@ class MITNEBVaspInputSet(VaspInputSet):
                 del self.incar_settings['LDAUU']
                 del self.incar_settings['LDAUJ']
                 del self.incar_settings['LDAUL']
-                
+
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
         """
@@ -522,11 +529,11 @@ class MITNEBVaspInputSet(VaspInputSet):
             raise ValueError('incorrect number of structures')
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        self.get_incar(structures[0]).write_file(os.path.join(output_dir, 
+        self.get_incar(structures[0]).write_file(os.path.join(output_dir,
                                                               'INCAR'))
-        self.get_kpoints(structures[0]).write_file(os.path.join(output_dir, 
+        self.get_kpoints(structures[0]).write_file(os.path.join(output_dir,
                                                                 'KPOINTS'))
-        self.get_potcar(structures[0]).write_file(os.path.join(output_dir, 
+        self.get_potcar(structures[0]).write_file(os.path.join(output_dir,
                                                                'POTCAR'))
         for i, s in enumerate(structures):
             d = os.path.join(output_dir, str(i).zfill(2))
@@ -535,7 +542,7 @@ class MITNEBVaspInputSet(VaspInputSet):
             self.get_poscar(s).write_file(os.path.join(d, 'POSCAR'))
             if write_cif:
                 write_structure(s, os.path.join(d, '{}.cif'.format(i)))
-                
+
     @property
     def to_dict(self):
         return {
@@ -554,7 +561,6 @@ class MITNEBVaspInputSet(VaspInputSet):
                    constrain_total_magmom=d["constrain_total_magmom"],
                    ggau=d["ggau"],
                    nimages=d["nimages"])
-    
 
 
 class MITMDVaspInputSet(VaspInputSet):
@@ -653,6 +659,7 @@ class MPVaspInputSet(DictVaspInputSet):
     which result in different fitted values (even though the methodology of
     fitting is exactly the same as the MIT scheme).
     """
+
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
@@ -684,6 +691,7 @@ class MPGGAVaspInputSet(DictVaspInputSet):
     Same as the MaterialsProjectVaspInput set, but the +U is enforced to be
     turned off.
     """
+
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
@@ -725,6 +733,7 @@ class MPStaticVaspInputSet(MPVaspInputSet):
     It is recommended to use the static from_previous_run method to construct
     the input set to inherit most of the functions.
     """
+
     def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
         """
         Args:
@@ -742,8 +751,8 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             self.incar_settings.update(user_incar_settings)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
-             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ICHARG":0,
-             "EDIFF": 0.000001})
+             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
+             "ICHARG": 0, "EDIFF": 0.000001})
 
     def get_kpoints(self, structure, kpoints_density=90):
         """
@@ -757,8 +766,9 @@ class MPStaticVaspInputSet(MPVaspInputSet):
                 metallic materials.
         """
         kpoints_density = kpoints_density
-        self.kpoints_settings['grid_density'] = kpoints_density * \
-            structure.lattice.reciprocal_lattice.volume * structure.num_sites
+        self.kpoints_settings['grid_density'] = \
+            kpoints_density * structure.lattice.reciprocal_lattice.volume * \
+            structure.num_sites
         return super(MPStaticVaspInputSet, self).get_kpoints(structure)
 
     @staticmethod
@@ -816,7 +826,7 @@ class MPStaticVaspInputSet(MPVaspInputSet):
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
-                               user_incar_settings={},
+                               user_incar_settings=None,
                                make_dir_if_not_present=True):
         """
         Generate a set of Vasp input files for static calculations from a
@@ -838,8 +848,10 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
-            previous_incar = Incar.from_file(os.path.join(previous_vasp_dir, "INCAR"))
-            kpoints = Kpoints.from_file(os.path.join(previous_vasp_dir, "KPOINTS"))
+            previous_incar = Incar.from_file(os.path.join(previous_vasp_dir,
+                                                          "INCAR"))
+            kpoints = Kpoints.from_file(os.path.join(previous_vasp_dir,
+                                                     "KPOINTS"))
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
@@ -851,11 +863,14 @@ class MPStaticVaspInputSet(MPVaspInputSet):
         new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
 
         # Use previous run INCAR and override necessary parameters
-        previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
-             "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0, "ICHARG":0})
+        previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
+                               "LCHARG": True, "LORBIT": 11, "LVHAR": True,
+                               "LWAVE": False, "NSW": 0, "ICHARG": 0})
 
-        # Compare ediff between previous and staticinputset values, choose the tigher ediff
-        previous_incar.update({"EDIFF": min(previous_incar["EDIFF"], new_incar["EDIFF"])})
+        # Compare ediff between previous and staticinputset values,
+        # choose the tigher ediff
+        previous_incar.update({"EDIFF": min(previous_incar["EDIFF"],
+                                            new_incar["EDIFF"])})
 
         # add user settings
         if user_incar_settings:
@@ -864,10 +879,14 @@ class MPStaticVaspInputSet(MPVaspInputSet):
 
         # Prefer to use k-point scheme from previous run
         kpoints_out = Kpoints.from_file(os.path.join(output_dir, "KPOINTS"))
-        if kpoints.style != kpoints_out.style:
-            if SymmetryFinder(structure, symprec=0.01).get_lattice_type() != "hexagonal":
-                k_div = (kp+1 if kp%2==1 else kp for kp in kpoints_out.kpts[0])
-                Kpoints.monkhorst_automatic(k_div).write_file(os.path.join(output_dir, "KPOINTS"))
+        if kpoints.style != kpoints_out.style and \
+                SymmetryFinder(structure, 0.01).get_lattice_type() != \
+                "hexagonal":
+            k_div = (kp + 1 if kp % 2 == 1 else kp
+                     for kp in kpoints_out.kpts[0])
+            Kpoints.monkhorst_automatic(k_div).write_file(
+                os.path.join(output_dir, "KPOINTS"))
+
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
@@ -877,6 +896,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     It is recommended to use the NonSCF from_previous_run method to construct
     the input set to inherit most of the functions.
     """
+
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False):
         """
@@ -932,14 +952,14 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             return Kpoints(comment="Non SCF run along symmetry lines",
                            style="Reciprocal", num_kpts=len(frac_k_points),
                            kpts=frac_k_points, labels=k_points_labels,
-                           kpts_weights=[1]*len(cart_k_points))
+                           kpts_weights=[1] * len(cart_k_points))
         else:
             num_kpoints = kpoints_density * \
                 structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
-            ir_kpts = SymmetryFinder(structure, symprec=0.01)\
+            ir_kpts = SymmetryFinder(structure, symprec=0.01) \
                 .get_ir_reciprocal_mesh(mesh)
             kpts = []
             weights = []
@@ -1013,7 +1033,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                                 os.path.join(output_dir, "CHGCAR"))
             except Exception as e:
                 traceback.format_exc()
-                raise RuntimeError("Can't copy CHGCAR from SC run"+'\n'
+                raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 
 
@@ -1083,6 +1103,7 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
         )
         if include_cif:
             from pymatgen.io.cifio import CifWriter
+
             writer = CifWriter(s)
-            writer.write_file(os.path.join(dirname, "{}_{}.cif"
-                                           .format(formula, i)))
+            writer.write_file(os.path.join(dirname,
+                                           "{}_{}.cif".format(formula, i)))
