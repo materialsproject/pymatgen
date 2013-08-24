@@ -788,7 +788,7 @@ class IStructure(SiteCollection, MSONable):
                 l = self.lattice
             fcoords = start_coords + x / nimages * vec
             structs.append(self.__class__(l, sp, fcoords,
-                                site_properties=self.site_properties))
+                           site_properties=self.site_properties))
         return structs
 
     def get_primitive_structure(self, tolerance=0.25):
@@ -1881,7 +1881,8 @@ class Structure(IStructure):
 
     def scale_lattice(self, volume):
         """
-        Performs a scaling of the lattice vectors so that length proportions and angles are preserved.
+        Performs a scaling of the lattice vectors so that length proportions
+        and angles are preserved.
 
         Args:
             volume:
