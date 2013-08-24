@@ -15,6 +15,7 @@ __date__ = "6/5/13"
 
 
 import re
+from string import Template
 
 from pymatgen.core import Molecule
 import pymatgen.core.physical_constants as phyc
@@ -27,7 +28,8 @@ class NwTask(MSONable):
     Base task for Nwchem.
     """
 
-    theories = {"scf": "Hartree-Fock",
+    theories = {"g3gn": "some description",
+                "scf": "Hartree-Fock",
                 "dft": "DFT",
                 "sodft": "Spin-Orbit DFT",
                 "mp2": "MP2 using a semi-direct algorithm",
@@ -117,19 +119,30 @@ class NwTask(MSONable):
             if theory_directives is not None else {}
 
     def __str__(self):
-        o = ["title \"{}\"".format(self.title),
-             "charge {}".format(self.charge),
-             "basis"]
+        bset_spec = []
         for el, bset in self.basis_set.items():
-            o.append(" {} library \"{}\"".format(el, bset))
-        o.append("end")
+            bset_spec.append(" {} library \"{}\"".format(el, bset))
+
+        theory_spec = []
         if self.theory_directives:
-            o.append("{}".format(self.theory))
+            theory_spec.append("{}".format(self.theory))
             for k, v in self.theory_directives.items():
-                o.append(" {} {}".format(k, v))
-            o.append("end")
-        o.append("task {} {}".format(self.theory, self.operation))
-        return "\n".join(o)
+                theory_spec.append(" {} {}".format(k, v))
+            theory_spec.append("end")
+
+        t = Template("""title "$title"
+charge $charge
+basis
+$bset_spec
+end
+$theory_spec
+task $theory $operation""")
+
+        return t.substitute(
+            title=self.title, charge=self.charge,
+            bset_spec="\n".join(bset_spec),
+            theory_spec="\n".join(theory_spec),
+            theory=self.theory, operation=self.operation)
 
     @property
     def to_dict(self):
@@ -295,7 +308,7 @@ class NwInput(MSONable):
             "mol": self._mol.to_dict,
             "tasks": [t.to_dict for t in self.tasks],
             "directives": [list(t) for t in self.directives],
-            "geometry_options": self.geometry_options
+            "geometry_options": list(self.geometry_options)
         }
 
     @classmethod

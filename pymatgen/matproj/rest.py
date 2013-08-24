@@ -35,10 +35,8 @@ from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.matproj.snl import StructureNL
 from pymatgen.serializers.json_coders import PMGJSONEncoder
-from pymatgen.util.decorators import cached_class
 
 
-@cached_class
 class MPRester(object):
     """
     A class to conveniently interface with the Materials Project REST
@@ -50,6 +48,12 @@ class MPRester(object):
 
     MPRester uses the "requests" package, which provides for HTTP connection
     pooling. All connections are made via https for security.
+
+    .. note::
+
+        The Materials Project recently switched to using string ids with a
+        "mp-" prefix for greater flexibility going forward. The MPRester
+        should still work as intended if you provide the proper string ids.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -112,7 +116,7 @@ class MPRester(object):
         Args:
             chemsys_formula_id:
                 A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., 1234).
+                materials_id (e.g., mp-1234).
             data_type:
                 Type of data to return. Currently can either be "vasp" or
                 "exp".
@@ -140,7 +144,7 @@ class MPRester(object):
                     raise MPRestError(data["error"])
 
             raise MPRestError("REST query returned with error status code {}"
-            .format(response.status_code))
+                              .format(response.status_code))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -153,7 +157,7 @@ class MPRester(object):
         Args:
             chemsys_formula_id:
                 A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., 1234).
+                materials_id (e.g., mp-1234).
             final:
                 Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
@@ -174,7 +178,7 @@ class MPRester(object):
         Args:
             chemsys_formula_id:
                 A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., 1234).
+                materials_id (e.g., mp-1234).
             compatible_only:
                 Whether to return only "compatible" entries. Compatible entries
                 are entries that have been processed using the
@@ -214,7 +218,7 @@ class MPRester(object):
 
         Args:
             material_id:
-                Materials Project material_id (an int).
+                Materials Project material_id (a string, e.g., mp-1234).
             final:
                 Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
@@ -232,7 +236,7 @@ class MPRester(object):
 
         Args:
             material_id:
-                Materials Project material_id (an int).
+                Materials Project material_id (a string, e.g., mp-1234).
 
         Returns:
             ComputedEntry object.
@@ -246,7 +250,7 @@ class MPRester(object):
 
         Args:
             material_id:
-                Materials Project material_id (an int).
+                Materials Project material_id (a string, e.g., mp-1234).
 
         Returns:
             A Dos object.
@@ -349,7 +353,7 @@ class MPRester(object):
                     raise MPRestError(data["error"])
 
             raise MPRestError("REST query returned with error status code {}"
-            .format(response.status_code))
+                              .format(response.status_code))
         except Exception as ex:
             raise MPRestError(str(ex))
 
@@ -400,14 +404,14 @@ class MPRester(object):
                     raise MPRestError(data["error"])
 
             raise MPRestError("REST query returned with error status code {}"
-            .format(response.status_code))
+                              .format(response.status_code))
 
         except Exception as ex:
             raise MPRestError(str(ex))
 
     def submit_structures(self, structures, authors, projects=None,
-                             references='', remarks=None, data=None,
-                             histories=None, created_at=None):
+                          references='', remarks=None, data=None,
+                          histories=None, created_at=None):
         """
         Submits a list of structures to the Materials Project as SNL files.
         The argument list mirrors the arguments for the StructureNL object,
@@ -450,10 +454,9 @@ class MPRester(object):
         Returns:
             A list of inserted submission ids.
         """
-        snl_list = StructureNL.from_structures(structures,
-                    authors, projects, references, remarks, data,
-                    histories, created_at)
-
+        snl_list = StructureNL.from_structures(structures, authors, projects,
+                                               references, remarks, data,
+                                               histories, created_at)
         self.submit_snl(snl_list)
 
     def submit_snl(self, snl):
@@ -489,7 +492,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -523,7 +526,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -559,7 +562,7 @@ class MPRester(object):
                     raise MPRestError(resp["error"])
 
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
 
         except Exception as ex:
             raise MPRestError(str(ex))
@@ -614,7 +617,7 @@ class MPRester(object):
 
         structures = []
         metadata = []
-        #TODO: Get histories from the data.
+        # TODO: Get histories from the data.
         for e in queen.get_data():
             structures.append(e.structure)
             m = {
@@ -653,7 +656,7 @@ class MPRester(object):
                 else:
                     raise MPRestError(resp["error"])
             raise MPRestError("REST error with status code {} and error {}"
-            .format(response.status_code, response.text))
+                              .format(response.status_code, response.text))
         except Exception as ex:
             raise MPRestError(str(ex))
 

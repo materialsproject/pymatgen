@@ -2,10 +2,9 @@ __author__ = ", ".join(["Shyue Ping Ong", "Anubhav Jain", "Geoffroy Hautier",
                         "William Davidson Richard", "Stephen Dacek",
                         "Michael Kocher", "Dan Gunter", "Shreyas Cholia",
                         "Vincent L Chevrier", "Rickard Armiento"])
-__date__ = "Jun 23 2013"
-__version__ = "2.7.5"
+__date__ = "Aug 2 2013"
+__version__ = "2.7.9"
 
-import json
 #Useful aliases for commonly used objects and modules.
 
 from .core import *

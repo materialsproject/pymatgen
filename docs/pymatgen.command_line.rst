@@ -33,3 +33,11 @@ command_line Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`gulp_caller` Module
+-------------------------
+
+.. automodule:: pymatgen.command_line.gulp_caller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
