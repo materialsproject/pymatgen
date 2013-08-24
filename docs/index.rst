@@ -72,6 +72,12 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.7.10
+-------
+1. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
+   terminal atoms properly.
+2. Additional conversion tools for ABINIT (by Matteo Giantomassi).
+
 v2.7.9
 ------
 1. Minor bug fix release to fix pyhull dependencies to be more friendly.
@@ -86,16 +92,6 @@ v2.7.7
    http://www.maciejharanczyk.info/Zeopp/about.html.
 2. Specify version of distribute to 0.6.34 for better compatibility.
 
-v2.7.6
-------
-1. Support for VTK 6.x in structure visualization.
-2. Updated install instructions for openbabel.
-3. Preliminary pourbaix analysis (Sai Jayaratnam).
-
-v2.7.5
-------
-1. Vastly improved Nwchem IO (by Shyue Ping Ong).
-2. Much improved ABINIT support (by Matteo Giantomassi).
 
 
 
