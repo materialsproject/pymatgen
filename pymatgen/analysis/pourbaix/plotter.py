@@ -27,7 +27,6 @@ from pymatgen.phasediagram.plotter import uniquelines
 from pymatgen.util.string_utils import latexify
 from pymatgen.util.plotting_utils import get_publication_quality_plot
 from pymatgen.util.coord_utils import in_coord_list
-from pyhull.simplex import Simplex
 
 
 class PourbaixPlotter(object):
@@ -51,7 +50,8 @@ class PourbaixPlotter(object):
     @property
     def pourbaix_hull_plot_data(self):
         """
-        Pourbaix diagram convex hull data
+        Pourbaix diagram convex hull data.
+
         Returns:
             (lines, stable_entries, unstable_entries):
                 - lines is a list of list of coordinates for lines in the PD.
@@ -83,7 +83,7 @@ class PourbaixPlotter(object):
         alldata = np.array(pd.qhull_data)
         unstable_entries = dict()
         stable = pd.stable_entries
-        for i in xrange(0, len(allentries)):
+        for i in xrange(len(allentries)):
             entry = allentries[i]
             if entry not in stable:
                 x = [alldata[i][0], alldata[i][0]]
@@ -93,7 +93,7 @@ class PourbaixPlotter(object):
                 labelcoord = list(zip(*coord))
                 unstable_entries[entry] = labelcoord[0]
 
-        return (lines, stable_entries, unstable_entries)
+        return lines, stable_entries, unstable_entries
 
     def show(self, label_stable=True, label_unstable=False, filename=""):
         """
@@ -128,18 +128,20 @@ class PourbaixPlotter(object):
             label = self.print_name(entry)
             if label_stable:
                 ax.text(coords[0], coords[1], coords[2], str(count))
-                newlabels.append("{} : {}".format(count, latexify_ion(latexify(label))))
+                newlabels.append("{} : {}".format(
+                    count, latexify_ion(latexify(label))))
                 count += 1
 
         if self.show_unstable:
             for entry in unstable.keys():
                 label = self.print_name(entry)
                 coords = unstable[entry]
-                ax.plot([coords[0], coords[0]], [coords[1], coords[1]], \
-                         [coords[2], coords[2]], "bo", markerfacecolor="g", \
-                          markersize=10)
+                ax.plot([coords[0], coords[0]], [coords[1], coords[1]],
+                        [coords[2], coords[2]], "bo", markerfacecolor="g",
+                        markersize=10)
                 ax.text(coords[0], coords[1], coords[2], str(count))
-                newlabels.append("{} : {}".format(count, latexify_ion(latexify(label))))
+                newlabels.append("{} : {}".format(
+                    count, latexify_ion(latexify(label))))
                 count += 1
 
         plt.figtext(0.01, 0.01, "\n".join(newlabels))
@@ -167,11 +169,14 @@ class PourbaixPlotter(object):
             normal = np.array([-PREFAC * entry.npH, -entry.nPhi, +1])
             d = entry.g0
             color_index += 1
-            pH, V = np.meshgrid(np.linspace(-10, 28, 100), np.linspace(-3, 3, 100))
+            pH, V = np.meshgrid(np.linspace(-10, 28, 100),
+                                np.linspace(-3, 3, 100))
             g = (-normal[0] * pH - normal[1] * V + d) / normal[2]
-            lbl = latexify_ion(latexify(entry._entry.composition.reduced_formula))
+            lbl = latexify_ion(
+                latexify(entry._entry.composition.reduced_formula))
             labels.append(lbl)
-            fig.plot_surface(pH, V, g, color=color_array[color_index], label=lbl)
+            fig.plot_surface(pH, V, g, color=color_array[color_index],
+                             label=lbl)
         plt.legend(labels)
         plt.xlabel("pH")
         plt.ylabel("E (V)")
@@ -190,16 +195,17 @@ class PourbaixPlotter(object):
     def pourbaix_plot_data(self, limits=None):
         """
         Get data required to plot Pourbaix diagram.
-        args:
+
+        Args:
             limits:
                 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
-        returns:
+
+        Returns:
             stable_entries, unstable_entries 
-            stable_entries: dict of lines. The keys are Pourbaix Entries, and lines are 
-            in the form of a list
-            unstable_entries: dict of decompositions. The keys are PourbaixEntries,
-            and the values are dict of decomposition entries and corresponding amounts 
+            stable_entries: dict of lines. The keys are Pourbaix Entries, and
+            lines are in the form of a list
+            unstable_entries: list of unstable entries
         """
         
         analyzer = PourbaixAnalyzer(self._pd)
@@ -218,34 +224,86 @@ class PourbaixPlotter(object):
                 coords = [x, y]
                 stable_entries_list[entry].append(coords)
 
-        unstable_entries_list = [entry for entry in self._pd.all_entries if entry not in self._pd.stable_entries]
+        unstable_entries_list = [entry for entry in self._pd.all_entries
+                                 if entry not in self._pd.stable_entries]
 
         return stable_entries_list, unstable_entries_list
+
+    def get_center(self, lines, limits=None):
+        """
+        Returns coordinates of center of a domain. Useful
+        for labeling a Pourbaix plot.
+
+        Args:
+            lines:
+                Lines corresponding to a domain
+            limits:
+                Limits of Pourbaix diagram
+
+        Returns:
+            center_x, center_y:
+                x,y coordinate of center of domain. If domain lies
+                outside limits, center will lie on the boundary.
+        """
+        if limits:
+            xlim = limits[0]
+            ylim = limits[1]
+        else:
+            xlim = self._analyzer.chempot_limits[0]
+            ylim = self._analyzer.chempot_limits[1]
+        center_x = 0.0
+        center_y = 0.0
+        coords = []
+        count_center = 0.0
+        for line in lines:
+            for coord in np.array(line).T:
+                if not in_coord_list(coords, coord):
+                    coords.append(coord.tolist())
+                    cx = coord[0]
+                    cy = coord[1]
+                    if cx < xlim[0]:
+                        cx = xlim[0]
+                    if cx > xlim[1]:
+                        cx = xlim[1]
+                    if cy < ylim[0]:
+                        cy = ylim[0]
+                    if cy > ylim[1]:
+                        cy = ylim[1]
+                    center_x += cx
+                    center_y += cy
+                    count_center += 1.0
+        if count_center == 0.0:
+            count_center = 1.0
+        center_x /= count_center
+        center_y /= count_center
+        return center_x, center_y
 
     def get_pourbaix_plot(self, limits=None, title=""):
         """
         Plot Pourbaix diagram.
-        args:
+
+        Args:
             limits:
                 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
-        returns:
+        Returns:
             plt:
                 matplotlib plot object
         """
-        plt = get_publication_quality_plot(24, 14.4)
+#        plt = get_publication_quality_plot(24, 14.4)
+        plt = get_publication_quality_plot(16)
         (stable, unstable) = self.pourbaix_plot_data(limits)
-        if (limits):
+        if limits:
             xlim = limits[0]
             ylim = limits[1]
         else:
             xlim = self._analyzer.chempot_limits[0]
             ylim = self._analyzer.chempot_limits[1]
 
-        h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC], \
-                                [xlim[1], -xlim[1] * PREFAC]])
-        o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23], \
-                                [xlim[1], -xlim[1] * PREFAC + 1.23]])
+        h_line = np.transpose([[xlim[0], -xlim[0] * PREFAC],
+                               [xlim[1], -xlim[1] * PREFAC]])
+        o_line = np.transpose([[xlim[0], -xlim[0] * PREFAC + 1.23],
+                               [xlim[1], -xlim[1] * PREFAC + 1.23]])
         neutral_line = np.transpose([[7, ylim[0]], [7, ylim[1]]])
         V0_line = np.transpose([[xlim[0], 0], [xlim[1], 0]])
 
@@ -293,15 +351,15 @@ class PourbaixPlotter(object):
                 count_center = 1.0
             center_x /= count_center
             center_y /= count_center
-            if ((center_x <= xlim[0]) | (center_x >= xlim[1]) | \
-                 (center_y <= ylim[0]) | (center_y >= ylim[1])):
+            if ((center_x <= xlim[0]) | (center_x >= xlim[1]) |
+                    (center_y <= ylim[0]) | (center_y >= ylim[1])):
                 continue
             xy = (center_x, center_y)
-            plt.annotate(self.print_name(entry), xy, fontsize=30, color="b")
+            plt.annotate(self.print_name(entry), xy, fontsize=20, color="b")
 
         plt.xlabel("pH")
         plt.ylabel("E (V)")
-        plt.title(title, fontsize=30, fontweight='bold')
+        plt.title(title, fontsize=20, fontweight='bold')
         return plt
 
     def print_name(self, entry):
@@ -320,7 +378,6 @@ class PourbaixPlotter(object):
             return latexify_ion(latexify(entry.name))
 
     def legend(self, label_unstable=False, legend_file=""):
-        import matplotlib.pyplot as plt
         if self._pd._multielement:
             unprocessed_entries = self._pd.unprocessed_entries
             set_of_entries = set()
@@ -330,15 +387,16 @@ class PourbaixPlotter(object):
                 str_ename = ""
                 for e in entry.entrylist:
                     str_ename += e.name + " + "
-                    for ent in unprocessed_entries: 
+                    for ent in unprocessed_entries:
                         if ent.name == e.name:
                             indx = unprocessed_entries.index(ent)
                             set_of_entries.add(indx)
                             continue
                 str_ename = str_ename[:-3]
                 list_of_entries[index_ent] = str_ename
-            if (label_unstable):
-                for entry in [entry for entry in self._pd.all_entries if entry not in self._pd.stable_entries]:
+            if label_unstable:
+                for entry in [entry for entry in self._pd.all_entries
+                              if entry not in self._pd.stable_entries]:
                     for e in entry.entrylist:
                         indx = unprocessed_entries.index(e)
                         set_of_entries.add(indx)

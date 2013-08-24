@@ -131,7 +131,7 @@ class TestPourbaixEntryIO(unittest.TestCase):
     Test Pourbaix Entry IO class
     """
 
-    def test_write_csv(self):
+    def test_read_write_csv(self):
         Zn_solids = ["Zn", "ZnO", "ZnO2"]
         sol_g = [0.0, -3.338, -1.315]
         Zn_ions = ["Zn[2+]", "ZnOH[+]", "HZnO2[-]", "ZnO2[2-]", "ZnO"]
@@ -151,16 +151,15 @@ class TestPourbaixEntryIO(unittest.TestCase):
             PoE.set_conc(conc)
             ion_entry.append(PoE)
         entries = solid_entry + ion_entry
-        PourbaixEntryIO.to_csv("test_entries.csv", entries)
+        PourbaixEntryIO.to_csv("pourbaix_test_entries.csv", entries)
 
-    def test_read_csv(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        (elements, entries) = PourbaixEntryIO.from_csv(os.path.join(module_dir,
-                                                    "test_entries.csv"))
+        (elements, entries) = PourbaixEntryIO.from_csv(
+            "pourbaix_test_entries.csv")
         self.assertEqual(elements,
                          [Element('Zn'), Element('H'), Element('O')],
                          "Wrong elements!")
         self.assertEqual(len(entries), 8, "Wrong number of entries!")
+        os.remove("pourbaix_test_entries.csv")
 
 
 if __name__ == '__main__':

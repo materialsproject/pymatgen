@@ -97,6 +97,14 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`zeoio` Module
+-------------------
+
+.. automodule:: pymatgen.io.zeoio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 

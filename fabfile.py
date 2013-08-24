@@ -80,7 +80,7 @@ def log_ver():
 
 def release():
     setver()
-    #test()
+    test()
     makedoc()
     publish()
     log_ver()

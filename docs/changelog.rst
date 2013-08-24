@@ -1,6 +1,20 @@
 Change log
 ==========
 
+v2.7.4
+------
+1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support. (by: Shyue Ping
+   Ong).
+2. New MoleculeMatcher class for comparing molecules by RMS. Requires
+   openbabel with python bindings. (by: Xiaohui Qu)
+3. New functional group substitution capability for molecules (by: Lei Cheng
+   and Shyue Ping Ong).
+
+v2.7.2
+------
+1. Minor bug fix release to fix some rare errors in very high dimensional
+   phase diagrams. **Requires new pyhull version (1.3.8).**
+
 v2.7.1
 ------
 1. **Major backwards-incompatible change.** With effect from v2.7.1,

@@ -1,4 +1,10 @@
-"Low-level objects providing an abstraction for the objects involved in the calculation."
+#!/usr/bin/env python
+
+"""
+Low-level objects providing an abstraction for the objects involved in the
+calculation.
+"""
+
 from __future__ import division, print_function
 
 import collections
@@ -19,7 +25,7 @@ from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
 
-##########################################################################################
+###############################################################################
 
 
 class AbivarAble(object):
@@ -31,10 +37,13 @@ class AbivarAble(object):
 
     @abc.abstractmethod
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables."
+        """
+        Returns a dictionary with the abinit variables.
+        """
 
     def __str__(self):
         return pformat(self.to_abivars(), indent=1, width=80, depth=None)
+
 
 @singleton
 class MandatoryVariable(object):
@@ -43,6 +52,7 @@ class MandatoryVariable(object):
     the cool syntax: variable is MANDATORY!
     """
 
+
 @singleton
 class DefaultVariable(object):
     """
@@ -50,16 +60,17 @@ class DefaultVariable(object):
     """
 
 MANDATORY = MandatoryVariable()
-DEFAULT   = DefaultVariable()
+DEFAULT = DefaultVariable()
 
-##########################################################################################
+###############################################################################
 
 
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
+class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
+               AbivarAble):
     """
     Different configurations of the electron density as implemented in abinit:
-    One can use asspinmode to construct the object via SpinMode.asspinmode(string)
-    where string can assume the values:
+    One can use asspinmode to construct the object via SpinMode.asspinmode
+    (string) where string can assume the values:
 
         - polarized
         - unpolarized
@@ -69,7 +80,7 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
     """
     @classmethod
     def asspinmode(cls, obj):
-        "Converts obj into a SpinMode instance"
+        """Converts obj into a SpinMode instance"""
         if isinstance(obj, cls):
             return obj
         else:
@@ -80,10 +91,11 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
                 raise KeyError("Wrong value for spin_mode: %s" % str(obj))
 
     def to_abivars(self):
-        return {"nsppol" : self.nsppol,
-                "nspinor": self.nspinor,
-                "nspden" : self.nspden,
-                }
+        return {
+            "nsppol": self.nsppol,
+            "nspinor": self.nspinor,
+            "nspden": self.nspden,
+        }
 
 # An handy Multiton
 _mode2spinvars = {
@@ -94,7 +106,7 @@ _mode2spinvars = {
     "spinor_nomag": SpinMode("spinor_nomag", 1, 2, 1),
 }
 
-##########################################################################################
+###############################################################################
 
 
 class Smearing(AbivarAble, MSONable):
@@ -117,13 +129,14 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s  = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
+        s = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
         if self.tsmear:
             s += 'tsmear %s' % self.tsmear
         return s
 
     def __eq__(self, other):
-        return (self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear))
+        return (self.occopt == other.occopt and 
+                np.allclose(self.tsmear, other.tsmear))
 
     def __ne__(self, other):
         return not self == other
@@ -187,16 +200,15 @@ class Smearing(AbivarAble, MSONable):
     @property
     def to_dict(self):
         """json friendly dict representation of Smearing"""
-        d = {"occopt": self.occopt, "tsmear": self.tsmear}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"occopt": self.occopt, "tsmear": self.tsmear,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
         return Smearing(d["occopt"], d["tsmear"])
 
-##########################################################################################
+###############################################################################
 
 
 class ElectronsAlgorithm(dict, AbivarAble):
@@ -220,12 +232,13 @@ class ElectronsAlgorithm(dict, AbivarAble):
 
         for k in self:
             if k not in self._default_vars:
-                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
+                raise ValueError("%s: No default value has been provided for "
+                                 "key %s" % (self.__class__.__name__, k))
 
     def to_abivars(self):
         return self.copy()
 
-##########################################################################################
+###############################################################################
 
 
 class Electrons(AbivarAble):
@@ -480,10 +493,12 @@ class KSampling(AbivarAble):
 
         Args:
             mode:
-                Mode for generating k-poits. Use one of the KSampling.modes enum types.
+                Mode for generating k-poits. Use one of the KSampling.modes
+                enum types.
             num_kpts:
                 Number of kpoints if mode is "automatic"
-                Number of division for the sampling of the smallest segment if mode is "path"
+                Number of division for the sampling of the smallest segment if
+                mode is "path".
                 Not used for the other modes
             kpts:
                 Number of divisions. Even when only a single specification is
@@ -492,15 +507,18 @@ class KSampling(AbivarAble):
             kpt_shifts:
                 Shifts for Kpoints.
             use_symmetries:
-                False if spatial symmetries should not be used to reduced the number of independent k-points.
+                False if spatial symmetries should not be used to reduced the
+                number of independent k-points.
             use_time_reversal:
-                False if time-reversal symmetry should not be used to reduced the number of independent k-points.
+                False if time-reversal symmetry should not be used to reduced
+                the number of independent k-points.
             kpts_weights:
                 Optional weights for kpoints. For explicit kpoints.
             labels:
                 In path-mode, this should provide a list of labels for each kpt.
             chksymbreak:
-                Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.
+                Abinit input variable: check whether the BZ sampling preserves
+                the symmetry of the crystal.
             comment:
                 String comment for Kpoints
 
@@ -1486,7 +1504,7 @@ class Perturbation(AbivarAble):
             qpt:
                 reduced coordinates of the q-point associated to the perturbation.
         """
-        self.qpt = npreshape(qpt, (-1,3))
+        self.qpt = np.reshape(qpt, (-1,3))
         self.nqpt = len(self.qpt)
 
     @property

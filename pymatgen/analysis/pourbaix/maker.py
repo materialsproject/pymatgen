@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Module containing analysis classes which compute a pourbaix diagram given a target
-compound/element.
+Module containing analysis classes which compute a pourbaix diagram given a
+target compound/element.
 """
 
 from __future__ import division
@@ -35,7 +35,7 @@ class PourbaixDiagram(object):
     """
     Class to create a Pourbaix diagram from entries
     """
-    def __init__(self, entries, comp_dict = {}):
+    def __init__(self, entries, comp_dict=None):
         """
         Args:
             entries:
@@ -70,7 +70,7 @@ class PourbaixDiagram(object):
                 for elt in self.pourbaix_elements:
                     Ai.append(comp_obj[Element(elt)])
                 A.append(Ai)
-            A = ((np.array(A)).T).astype(float)
+            A = np.array(A).T.astype(float)
             w = np.array(w)
             A /= np.dot([A[i].sum() for i in xrange(len(A))], w)
             x = np.linalg.solve(A, w)
@@ -78,7 +78,9 @@ class PourbaixDiagram(object):
 
         else:
             self._multielement = False
-            self.pourbaix_elements = [el.symbol for el in entries[0].composition.elements if el.symbol not in ["H", "O"]]
+            self.pourbaix_elements = [el.symbol
+                                      for el in entries[0].composition.elements
+                                      if el.symbol not in ["H", "O"]]
         self._make_pourbaixdiagram()
 
     def _create_conv_hull_data(self):
@@ -115,39 +117,45 @@ class PourbaixDiagram(object):
         """
         Create entries for multi-element Pourbaix construction
         """
-        N = len(self._elt_comp) # No. of elements
+        N = len(self._elt_comp)  # No. of elements
         entries = self._unprocessed_entries
         elt_list = self._elt_comp.keys()
         composition_list = [self._elt_comp[el] for el in elt_list]
-        list_of_entries = list(itertools.combinations([i for i in xrange(len(entries))], N))
+        list_of_entries = list(itertools.combinations(
+            [i for i in xrange(len(entries))], N))
         processed_entries = list()
         self._entry_components_list = list_of_entries
         self._entry_components_dict = {}
         for entry_list in list_of_entries:
-            A = [[0.0 for i in xrange(1, len(elt_list))] for j in xrange(1, len(entry_list))]
+            A = [[0.0 for i in xrange(1, len(elt_list))]
+                 for j in xrange(1, len(entry_list))]
             multi_entries = [entries[j] for j in entry_list]
             sum_nel = 0.0
             entry0 = entries[entry_list[0]]
             if entry0.phase_type == "Solid":
-                red_fac = entry0.composition.get_reduced_composition_and_factor()[1]
+                red_fac = \
+                    entry0.composition.get_reduced_composition_and_factor()[1]
             else:
                 red_fac = 1.0
             for i in xrange(len(elt_list)):
                 sum_nel += entry0.composition[Element(elt_list[i])] / red_fac
             b = [entry0.composition[Element(elt_list[i])] / red_fac -
-                 composition_list[i] * sum_nel for i in xrange(1, len(elt_list))]
+                 composition_list[i] * sum_nel for i in xrange(1,
+                                                               len(elt_list))]
             for j in xrange(1, len(entry_list)):
                 entry = entries[entry_list[j]]
+                comp = entry.composition
                 if entry.phase_type == "Solid":
-                    red_fac = entry.composition.get_reduced_composition_and_factor()[1]
+                    red_fac = comp.get_reduced_composition_and_factor()[1]
                 else:
                     red_fac = 1.0
                 sum_nel = 0.0
                 for el in self._elt_comp:
-                    sum_nel += entry.composition[Element(el)] / red_fac
+                    sum_nel += comp[Element(el)] / red_fac
                 for i in xrange(1, len(elt_list)):
                     el = elt_list[i]
-                    A[i-1][j-1] = composition_list[i] * sum_nel - entry.composition[Element(el)] / red_fac
+                    A[i-1][j-1] = composition_list[i] * sum_nel -\
+                        comp[Element(el)] / red_fac
             try:
                 weights = np.linalg.solve(np.array(A), np.array(b))
             except np.linalg.linalg.LinAlgError as err:
@@ -174,11 +182,10 @@ class PourbaixDiagram(object):
         self._qhull_data = self._create_conv_hull_data()
         dim = len(self._qhull_data[0])
         if len(self._qhull_data) < dim:
-            raise StandardError("Can only do elements with at-least 3 entries for now")
+            raise StandardError("Can only do elements with at-least 3 entries"
+                                " for now")
         if len(self._qhull_data) == dim:
             self._facets = [range(dim)]
-            vertices = set(list(itertools.chain(*self._facets)))
-
         else:
             facets_pyhull = np.array(ConvexHull(self._qhull_data).vertices)
             self._facets = np.sort(np.array(facets_pyhull))
@@ -207,16 +214,20 @@ class PourbaixDiagram(object):
                 for vertex in facet:
                     vertices.add(vertex)
             c = [0.0, 0.0, 0.0]
-            c[0] = np.average([self._qhull_data[vertex][0] for vertex in vertices])
-            c[1] = np.average([self._qhull_data[vertex][1] for vertex in vertices])
-            c[2] = np.average([self._qhull_data[vertex][2] for vertex in vertices])
+            c[0] = np.average([self._qhull_data[vertex][0]
+                               for vertex in vertices])
+            c[1] = np.average([self._qhull_data[vertex][1]
+                               for vertex in vertices])
+            c[2] = np.average([self._qhull_data[vertex][2]
+                               for vertex in vertices])
 
             # Shift origin to c
             new_qhull_data = np.array(self._qhull_data)
             for vertex in vertices:
                 new_qhull_data[vertex] -= c
 
-            # For each facet, find normal n, find dot product with P, and check if this is -ve
+            # For each facet, find normal n, find dot product with P, and
+            # check if this is -ve
             final_facets = list()
             for facet in vert_facets_removed:
                 a = new_qhull_data[facet[1]] - new_qhull_data[facet[0]]
