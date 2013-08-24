@@ -168,10 +168,20 @@ class HighSymmKpath(object):
                      for i in range(0, nb + 1)])
         return list_k_points, sym_point_labels
 
-    def get_kpath_plot(self):
+    def get_kpath_plot(self, **kwargs):
         """
         Gives the plot (as a matplotlib object) of the symmetry line path in
         the Brillouin Zone.
+
+        Returns:
+            `matplotlib` figure.
+                                                                                         
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        show              True to show the figure (Default).
+        savefig           'abc.png' or 'abc.eps'* to save the figure to a file.
+        ================  ==============================================================
         """
         import itertools
         import matplotlib.pyplot as plt
@@ -235,7 +245,16 @@ class HighSymmKpath(object):
         _plot_kpath(self.kpath, self._prim_rec)
         _plot_labels(self.kpath, self._prim_rec)
         ax.axis("off")
-        plt.show()
+
+        show = kwargs.pop("show", True)
+        if show:
+            plt.show()
+
+        savefig = kwargs.pop("savefig", None)
+        if savefig:
+            fig.savefig(savefig)
+
+        return fig
 
     def cubic(self):
         self.name = "CUB"

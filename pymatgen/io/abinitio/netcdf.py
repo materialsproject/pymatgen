@@ -22,7 +22,6 @@ __all__ = [
     "as_etsfreader",
     "NetcdfReader",
     "ETSF_Reader",
-    "GSR_Reader",
     "structure_from_etsf_file",
 ]
 
@@ -270,48 +269,6 @@ class ETSF_Reader(NetcdfReader):
 
 
 ################################################################################
-
-
-class GSR_Reader(ETSF_Reader):
-    """
-    This object reads the results stored in the _GSR (Ground-State Results)
-    file. produced by ABINIT. It provides helper function to access the most
-    important quantities.
-    """
-    def read_band_structure(self):
-        raise NotImplementedError("")
-        structure = self.read_structure()
-        from pprint import pprint
-
-        kpoints = self.read_value("reduced_coordinates_of_kpoints")
-        efermi = Ha2eV(self.read_value("fermie"))
-        np_eigvals = Ha2eV(self.read_value("eigenvalues"))
-        # TODO
-        #assert np_eigvals.units == "atomic units"
-        nsppol = np_eigvals.shape[0]
-
-        # FIXME: Here I need the labels
-        labels_dict = {}
-        for (i, kpoint) in enumerate(kpoints):
-            labels_dict[str(i)] = kpoint
-
-        eigenvals = {}
-        for isp in range(nsppol):
-            spin = Spin.up
-            if isp == 1: spin = Spin.down
-            eigenvals[spin] = np_eigvals[isp,:,:].transpose()
-            print(eigenvals[spin].shape)
-            #tmp = np_eigvals[isp,:,:].transpose()
-
-        #bands = BandStructure(kpoints, eigenvals, structure.lattice, efermi,
-        # labels_dict=None, structure=structure)
-
-        bands = BandStructureSymmLine(kpoints, eigenvals, structure.lattice,
-                                      efermi, labels_dict, structure=structure)
-        return bands
-
-##########################################################################################
-
 
 def structure_from_etsf_file(ncdata, site_properties=None):
     """
