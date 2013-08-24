@@ -1,6 +1,17 @@
 Change log
 ==========
 
+v2.7.6
+------
+1. Support for VTK 6.x in structure visualization.
+2. Updated install instructions for openbabel.
+3. Preliminary pourbaix analysis (Sai Jayaratnam).
+
+v2.7.5
+------
+1. Vastly improved Nwchem IO (by Shyue Ping Ong).
+2. Much improved ABINIT support (by Matteo Giantomassi).
+
 v2.7.4
 ------
 1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support. (by: Shyue Ping
