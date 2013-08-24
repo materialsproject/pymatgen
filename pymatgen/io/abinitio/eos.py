@@ -5,6 +5,7 @@ import collections
 import numpy as np
 
 import pymatgen.core.physical_constants as const
+import pymatgen.core.units as units
 
 __all__ = [
     "EOS",
@@ -121,16 +122,16 @@ class EOS(object):
 
     Use::
 
-       eos = EOS(eos='murnaghan')
+       eos = EOS(eos_name='murnaghan')
        fit = eos.fit(volumes, energies)
-       print fit
+       print(fit)
        fit.plot()
 
     """
     Error = EOSError
 
     #: Models available.
-    functions = {
+    MODELS = {
         "murnaghan"        : murnaghan,
         "birch"            : birch,
         "birch_murnaghan"  : birch_murnaghan,
@@ -141,7 +142,7 @@ class EOS(object):
 
     def __init__(self, eos_name='murnaghan'):
         self._eos_name = eos_name
-        self._func = self.functions[eos_name]
+        self._func = self.MODELS[eos_name]
 
     @staticmethod
     def Murnaghan():
@@ -167,7 +168,7 @@ class EOS(object):
     def DeltaFactor():
         return EOS(eos_name='deltafactor')
 
-    def fit(self, volumes, energies):
+    def fit(self, volumes, energies, len_units="Ang", ene_units="eV"):
         """
         Fit energies [eV] as function of volumes [Angstrom^3].
 
@@ -175,6 +176,10 @@ class EOS(object):
         the minumum energy, and the bulk modulus.  
         Notice that the units for the bulk modulus is eV/Angstrom^3.
         """
+        # Convert volumes to Ang**3 and energies to eV (if needed).
+        volumes = units.any2Ang3(len_units)(volumes)
+        energies = units.any2eV(ene_units)(energies)
+
         return EOS_Fit(volumes, energies, self._func, self._eos_name)
 
 ##########################################################################################
@@ -192,6 +197,8 @@ class EOS_Fit(object):
         """
         self.volumes  = np.array(volumes) 
         self.energies = np.array(energies)
+        assert len(self.volumes) == len(self.energies)
+
         self.func     = func
         self.eos_name = eos_name
         self.exceptions = []
@@ -221,7 +228,7 @@ class EOS_Fit(object):
                 return y - self.func(x, *pars)
 
             # Quadratic fit to get an initial guess for the parameters 
-            a,b,c = np.polyfit(volumes, energies, 2) 
+            a,b,c = np.polyfit(self.volumes, self.energies, 2) 
                                                
             v0 = -b/(2*a)
             e0 = a*v0**2 + b*v0 + c
@@ -239,7 +246,7 @@ class EOS_Fit(object):
             self.p0 = [e0, b0, b1, v0] 
 
             from scipy.optimize import leastsq
-            self.eos_params, self.ierr = leastsq(objective, self.p0, args=(volumes, energies)) 
+            self.eos_params, self.ierr = leastsq(objective, self.p0, args=(self.volumes, self.energies)) 
 
             if self.ierr not in [1,2,3,4]:
                 exc = EOSError("Optimal parameters not found")
