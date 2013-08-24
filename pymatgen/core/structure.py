@@ -1835,6 +1835,16 @@ class Structure(IStructure):
         self._sites = new_sites
         self._lattice = new_lattice
 
+    def scale_lattice(self, volume):
+        """
+        Performs a scaling of the lattice vectors so that length proportions and angles are preserved.
+
+        Args:
+            volume:
+                New volume of the unit cell in A^3.
+        """
+        self._lattice = self._lattice.scale(volume)
+
 
 class Molecule(IMolecule):
     """
