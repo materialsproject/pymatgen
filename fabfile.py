@@ -81,6 +81,6 @@ def log_ver():
 def release():
     setver()
     test()
-    makedoc()
     publish()
+    update_dev_doc()
     log_ver()
