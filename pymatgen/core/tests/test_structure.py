@@ -646,8 +646,8 @@ class MoleculeTest(PymatgenTest):
         sub = Molecule(["X", "C", "H", "H", "H"], coords)
         self.mol.substitute(1, sub)
         self.assertAlmostEqual(self.mol.get_distance(0, 4), 1.54)
-        sub = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
-        self.mol.substitute(2, sub)
+        f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
+        self.mol.substitute(2, f)
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.35)
         oh = Molecule(["X", "O", "H"],
                       [[0, 0.780362, -.456316], [0, 0, .114079],
@@ -656,6 +656,24 @@ class MoleculeTest(PymatgenTest):
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.43)
         self.mol.substitute(3, "methyl")
         self.assertEqual(self.mol.formula, "H7 C3 O1 F1")
+        coords = [[0.00000, 1.40272, 0.00000],
+                  [0.00000, 2.49029, 0.00000],
+                  [-1.21479, 0.70136, 0.00000],
+                  [-2.15666, 1.24515, 0.00000],
+                  [-1.21479, -0.70136, 0.00000],
+                  [-2.15666, -1.24515, 0.00000],
+                  [0.00000, -1.40272, 0.00000],
+                  [0.00000, -2.49029, 0.00000],
+                  [1.21479, -0.70136, 0.00000],
+                  [2.15666, -1.24515, 0.00000],
+                  [1.21479, 0.70136, 0.00000],
+                  [2.15666, 1.24515, 0.00000]]
+        benzene = Molecule(["C", "H", "C", "H", "C", "H", "C", "H", "C", "H",
+                            "C", "H"], coords)
+        benzene.substitute(1, sub)
+        self.assertEqual(benzene.formula, "H8 C7")
+        #Carbon attached should be in plane.
+        self.assertAlmostEqual(benzene[11].coords[2], 0)
 
 if __name__ == '__main__':
     import unittest

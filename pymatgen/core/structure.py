@@ -788,7 +788,7 @@ class IStructure(SiteCollection, MSONable):
                 l = self.lattice
             fcoords = start_coords + x / nimages * vec
             structs.append(self.__class__(l, sp, fcoords,
-                                site_properties=self.site_properties))
+                           site_properties=self.site_properties))
         return structs
 
     def get_primitive_structure(self, tolerance=0.25):
@@ -1882,6 +1882,17 @@ class Structure(IStructure):
         self._sites = new_sites
         self._lattice = new_lattice
 
+    def scale_lattice(self, volume):
+        """
+        Performs a scaling of the lattice vectors so that length proportions
+        and angles are preserved.
+
+        Args:
+            volume:
+                New volume of the unit cell in A^3.
+        """
+        self._lattice = self._lattice.scale(volume)
+
 
 class Molecule(IMolecule):
     """
@@ -2214,17 +2225,22 @@ class Molecule(IMolecule):
         """
 
         # Find the nearest neighbor that is not a terminal atom.
+        all_non_terminal_nn = []
+        for nn, dist in self.get_neighbors(self[index], 3):
+            # Check that the nn has neighbors within a sensible distance but
+            # is not the site being substituted.
+            for inn, dist2 in self.get_neighbors(nn, 3):
+                if inn != self[index] and \
+                        dist2 < 1.2 * get_bond_length(nn.specie, inn.specie):
+                    all_non_terminal_nn.append((nn, dist))
+                    break
 
-        non_terminal_nn = None
-        for nn, dist in self.get_neighbors(self[index], 5):
-            if len(self.get_neighbors(nn, 1.1 * dist)) > 1:
-                non_terminal_nn = nn
-                break
-
-        if non_terminal_nn is None:
+        if len(all_non_terminal_nn) == 0:
             raise RuntimeError("Can't find a non-terminal neighbor to attach"
                                " functional group to.")
 
+        non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
+        
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
         origin = non_terminal_nn.coords

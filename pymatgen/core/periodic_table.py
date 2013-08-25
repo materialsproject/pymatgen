@@ -285,30 +285,24 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
-
-    def __getattr__(self, a):
-        if a.lower() in ["name", "atomic_mass", "atomic_radius",
-                         "mendeleev_no", "electrical_resistivity",
-                         "velocity_of_sound", "reflectivity",
-                         "refractive_index", "poissons_ratio", "molar_volume",
-                         "electronic_structure", "thermal_conductivity",
-                         "boiling_point", "melting_point",
-                         "critical_temperature", "superconduction_temperature",
-                         "liquid_range", "bulk_modulus", "youngs_modulus",
-                         "brinell_hardness", "rigidity_modulus",
-                         "mineral_hardness", "vickers_hardness",
-                         "density_of_solid", "atomic_radius_calculated",
-                         "van_der_waals_radius", "ionic_radii",
-                         "coefficient_of_linear_thermal_expansion"]:
+        for a in ["name", "atomic_mass", "atomic_radius",
+                  "mendeleev_no", "electrical_resistivity",
+                  "velocity_of_sound", "reflectivity",
+                  "refractive_index", "poissons_ratio", "molar_volume",
+                  "electronic_structure", "thermal_conductivity",
+                  "boiling_point", "melting_point",
+                  "critical_temperature", "superconduction_temperature",
+                  "liquid_range", "bulk_modulus", "youngs_modulus",
+                  "brinell_hardness", "rigidity_modulus",
+                  "mineral_hardness", "vickers_hardness",
+                  "density_of_solid", "atomic_radius_calculated",
+                  "van_der_waals_radius",
+                  "coefficient_of_linear_thermal_expansion"]:
             kstr = a.capitalize().replace("_", " ")
-            if kstr not in self._data:
-                return None
-            val = self._data[kstr]
+            val = self._data.get(kstr, None)
             if str(val).startswith("no data"):
-                return None
-            else:
-                return val
-        raise AttributeError(a)
+                val = None
+            self.__setattr__(a, val)
 
     def __getnewargs__(self):
         #function used by pickle to recreate object
