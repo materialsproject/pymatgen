@@ -78,23 +78,6 @@ v2.7.10
    terminal atoms properly.
 2. Additional conversion tools for ABINIT (by Matteo Giantomassi).
 
-v2.7.9
-------
-1. Minor bug fix release to fix pyhull dependencies to be more friendly.
-2. Improved structure matcher that allows for more flexible matching. New
-   matching between ordered and disordered comparator.
-
-v2.7.7
--------
-1. Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
-   source software for performing high-throughput geometry-based analysis of
-   porous materials and their voids. Please see
-   http://www.maciejharanczyk.info/Zeopp/about.html.
-2. Specify version of distribute to 0.6.34 for better compatibility.
-
-
-
-
 :doc:`Older versions </changelog>`
 
 Getting pymatgen
