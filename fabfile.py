@@ -66,7 +66,7 @@ def setver():
 
 def update_dev_doc():
     makedoc()
-    with lcd("../docs/pymatgen/html/"):
+    with lcd("../pymatgen-docs/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")

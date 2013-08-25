@@ -75,7 +75,7 @@ or::
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see `pymatgen's documentation
-<http://pythonhosted.org/pymatgen/>`_).
+<http://pymatgen.org/>`_).
 
 **Note**: You may need to install numpy before installing pymatgen as numpy's
 distutils is needed to compile the spglib and pyhull dependencies.
@@ -160,7 +160,7 @@ the moment) required only for certain features:
 Using pymatgen
 ==============
 
-.. figure:: http://pythonhosted.org/pymatgen/_images/overview.jpg
+.. figure:: http://pymatgen.org/images/overview.jpg
    :width: 70%
    :alt: pymatgen overview
    :align: center
@@ -295,8 +295,8 @@ Advanced Usage
 --------------
 
 Users are strongly encouraged to explore the detailed `usage pages
-<http://pythonhosted.org/pymatgen/usage.html>`_ and `api docs
-<http://pythonhosted.org/pymatgen/modules.html>`_.
+<http://pymatgen.org/usage.html>`_ and `api docs
+<http://pymatgen.org/modules.html>`_.
 
 Add-ons
 -------
@@ -324,8 +324,8 @@ work:
 
 In addition, some of pymatgen's functionality is based on scientific advances
 / principles developed by the computational materials scientists in our team.
-Please refer to `pymatgen's documentation
-<http://pythonhosted.org/pymatgen/>`_ on how to cite them.
+Please refer to `pymatgen's documentation <http://pymatgen.org/>`_ on how to
+cite them.
 
 License
 =======
