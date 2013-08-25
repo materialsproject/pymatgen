@@ -60,15 +60,18 @@ setup(
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
-    author_email="shyue@mit.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, "
+    author_email="ongsp@ucsd.edu, anubhavj@mit.edu, mpkocher@lbnl.gov, "
     "geoffroy.hautier@uclouvain.be, wrichard@mit.edu, sdacek@mit.edu, "
     "dkgunter@lbl.gov, scholia@lbl.gov, gmatteo@gmail.com, "
     "vincentchevrier@gmail.com, armiento@mit.edu",
     maintainer="Shyue Ping Ong",
     url="https://github.com/materialsproject/pymatgen/",
     license="MIT",
-    description="pymatgen is the Python materials analysis library powering "
-                "the Materials Project (www.materialsproject.org).",
+    description="Python Materials Genomics is a robust materials "
+                "analysis code that defines core object representations for "
+                "structures and molecules with support for many electronic "
+                "structure codes. It is currently the core analysis code "
+                "powering the Materials Project (www.materialsproject.org).",
     long_description=long_desc,
     keywords=["vasp", "gaussian", "materials", "project",
               "electronic", "structure"],

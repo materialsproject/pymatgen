@@ -451,7 +451,8 @@ class PourbaixAnalyzer(object):
                                             intersect_coords_minus[1])
                                      for entry in self._get_edge_entries()
                                      if entry is not this_entry]
-                    g_this_minus = self.g(this_entry, intersect_coords_minus[0],
+                    g_this_minus = self.g(this_entry,
+                                          intersect_coords_minus[0],
                                           intersect_coords_minus[1])
                     line_new = []
                     if g_this_plus < min(g_other_plus):
