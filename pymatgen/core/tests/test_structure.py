@@ -386,6 +386,11 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.cart_coords[0],
                                     [3.38014845, 1.05428585, 2.06775453])
 
+        self.structure.translate_sites([0], [0.5, 0.5, 0.5],
+                                       frac_coords=True, to_unit_cell=False)
+        self.assertArrayAlmostEqual(self.structure.frac_coords[0],
+                                    [1.00187517, 1.25665291, 1.15946374])
+
     def test_make_supercell(self):
         self.structure.make_supercell([2, 1, 1])
         self.assertEqual(self.structure.formula, "Si4")
