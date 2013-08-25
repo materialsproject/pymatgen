@@ -175,7 +175,7 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
-Basic usage
+Quick start
 -----------
 
 Useful aliases for commonly used objects are now provided. Supported objects
@@ -230,6 +230,26 @@ some quick examples of the core capabilities and objects:
     >>> mg.write_mol(mol, "methane.gjf")
 
 The above illustrates only the most basic capabilities of pymatgen.
+
+Tutorials, Examples and API docs
+--------------------------------
+
+Users are strongly encouraged to explore the :doc:`usage pages </usage>`
+(toc given below).
+
+.. toctree::
+   :maxdepth: 2
+
+   usage
+
+A good way to explore the functionality of pymatgen is to look at examples.
+We have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists performing various kinds of functions with pymatgen.
+Please feel free to check them out and we welcome your contributions as well!
+
+For detailed documentation of all modules and classes, please refer to the
+:doc:`pymatgen API docs </modules>`.
 
 matgenie.py - Command line tool
 -------------------------------
@@ -290,26 +310,6 @@ Upon installing pymatgen in the usual manner, the "ipmg" script will be
 installed. Running ipmg will bring users into a custom ipython environment
 where the most commonly used pymatgen objects (see Aliases below) are
 automatically loaded into the environment.
-
-Tutorials, Examples and API docs
---------------------------------
-
-Users are strongly encouraged to explore the detailed :doc:`usage pages
-</usage>` (toc given below).
-
-.. toctree::
-   :maxdepth: 2
-
-   usage
-
-A good way to explore the functionality of pymatgen is to look at examples.
-We have created a `Github wiki page
-<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
-their Github gists performing various kinds of functions with pymatgen.
-Please feel free to check them out and we welcome your contributions as well!
-
-For detailed documentation of all modules and classes, please refer to the
-:doc:`pymatgen API docs </modules>`.
 
 Add-ons
 -------

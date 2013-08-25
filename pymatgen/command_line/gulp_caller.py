@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Interface with command line GULP. 
+Interface with command line GULP.
 http://projects.ivec.org
 WARNING: you need to have GULP installed on your system.
 """
@@ -84,7 +84,7 @@ class GulpIO:
 
         Args:
             args:
-                1st line keywords 
+                1st line keywords
         """
         if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
             raise GulpError("Wrong keywords given")
@@ -102,10 +102,10 @@ class GulpIO:
             structure:
                 pymatgen Structure object
             cell_flg (default = True):
-                Option to use lattice parameters. 
+                Option to use lattice parameters.
             fractional_flg (default = True):
                 If True, fractional coordinates are used.
-                Else, cartesian coodinates in Angstroms are used. 
+                Else, cartesian coodinates in Angstroms are used.
                 ******
                 GULP convention is to use fractional coordinates for periodic
                 structures and cartesian coordinates for non-periodic
@@ -162,28 +162,29 @@ class GulpIO:
             potential:
                 String specifying the type of potential used
             kwargs:
-                Additional parameters related to potential.
-                For potential == "buckingham":
-                    anion_shell_flg (default = False):
-                        If True, anions are considered polarizable.
-                        anion_core_chrg=float
-                        anion_shell_chrg=float
-                    cation_shell_flg (default = False):
-                        If True, cations are considered polarizable.
-                        cation_core_chrg=float
-                        cation_shell_chrg=float
+                Additional parameters related to potential. For potential ==
+                 "buckingham",
+                anion_shell_flg (default = False):
+                    If True, anions are considered polarizable.
+                    anion_core_chrg=float
+                    anion_shell_chrg=float
+                cation_shell_flg (default = False):
+                    If True, cations are considered polarizable.
+                    cation_core_chrg=float
+                    cation_shell_chrg=float
 
         Returns:
-            string containing specie and potential specification for gulp input
+            string containing specie and potential specification for gulp
+            input.
         """
-        raise NotImplementedError("gulp_specie_potential not yet implemented." +
+        raise NotImplementedError("gulp_specie_potential not yet implemented."
                                   "\nUse library_line instead")
 
     def library_line(self, file_name):
         """
         Specifies GULP library file to read species and potential parameters.
-        If using library don't specify species and potential 
-        in the input file and vice versa. Make sure the elements of 
+        If using library don't specify species and potential
+        in the input file and vice versa. Make sure the elements of
         structure are in the library file.
 
         Args:
@@ -387,7 +388,7 @@ class GulpIO:
         output_lines = gout.split("\n")
         no_lines = len(output_lines)
         i = 0
-        # Compute the input lattice parameters 
+        # Compute the input lattice parameters
         while i < no_lines:
             line = output_lines[i]
             if "Full cell parameters" in line:
@@ -695,7 +696,7 @@ class BuckinghamPotLewis(object):
 
 class BuckinghamPotBush(object):
     """
-    Generate the Buckingham Potential Table from the bush.lib 
+    Generate the Buckingham Potential Table from the bush.lib
 
     Ref:
         T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
