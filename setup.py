@@ -73,8 +73,8 @@ setup(
                 "structure codes. It is currently the core analysis code "
                 "powering the Materials Project (www.materialsproject.org).",
     long_description=long_desc,
-    keywords=["vasp", "gaussian", "materials", "project",
-              "electronic", "structure"],
+    keywords=["VASP", "gaussian", "ABINIT", "nwchem", "materials", "project",
+              "electronic", "structure", "analysis", "phase", "diagrams"],
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Development Status :: 4 - Beta",
