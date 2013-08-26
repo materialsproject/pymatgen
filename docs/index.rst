@@ -72,11 +72,16 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.7.10
--------
-1. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
+v2.8.0
+------
+1. **Minor backwards-incompatible change**. Structures are now sorted by
+   default when generating VASP input files using vaspio_set. Old behavior can
+   be obtained by setting sort_structure = False in the constructor. This is
+   typically the desired behavior and prevents the generation of large
+   POTCARs when atomic species are not grouped together.
+2. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
    terminal atoms properly.
-2. Additional conversion tools for ABINIT (by Matteo Giantomassi).
+3. Additional conversion tools for ABINIT (by Matteo Giantomassi).
 
 :doc:`Older versions </changelog>`
 
