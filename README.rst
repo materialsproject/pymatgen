@@ -76,8 +76,7 @@ or::
     pip install pymatgen
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
-setup (please see `pymatgen's documentation
-<http://pymatgen.org/>`_).
+setup (please see the `official pymatgen page <http://pymatgen.org/>`_).
 
 **Note**: You may need to install numpy before installing pymatgen as numpy's
 distutils is needed to compile the spglib and pyhull dependencies.
