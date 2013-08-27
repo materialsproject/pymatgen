@@ -30,7 +30,7 @@ import os
 import math
 import numpy as np
 import tempfile
-from pymatgen.analysis.symmetry_fitter import SymmetryFinder
+from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.electronic_structure.dos import Dos, Spin
 from pymatgen.electronic_structure.plotter import DosPlotter
 import pylab
