@@ -398,7 +398,6 @@ class PourbaixPlotter(object):
         plt.tight_layout(pad=1.09)
         plt.savefig(stream, format=image_format)
 
-    @property
     def domain_vertices(self, entry):
         """
         Returns the vertices of the Pourbaix domain
