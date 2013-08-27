@@ -192,7 +192,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 False.
             sort_structure:
                 Whether to sort the structure (using the default sort
-                order of electronegavity) before generating input files.
+                order of electronegativity) before generating input files.
                 Defaults to True, the behavior you would want most of the
                 time. This ensures that similar atomic species are grouped
                 together.
@@ -331,10 +331,33 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
 
 class JSONVaspInputSet(DictVaspInputSet):
+    """
+    Loads a DictVaspInputSet from a file, with some other options.
+    """
 
     def __init__(self, name, json_file, user_incar_settings=None,
-                 constrain_total_magmom=False,
-                 sort_structure=True):
+                 constrain_total_magmom=False, sort_structure=True):
+        """
+        Args:
+            name:
+                A name for the input set.
+            json_file:
+                An actual file containing the settings.
+            user_incar_settings:
+                User INCAR settings. This allows a user to override INCAR
+                settings, e.g., setting a different MAGMOM for various elements
+                or species.
+            constrain_total_magmom:
+                Whether to constrain the total magmom (NUPDOWN in INCAR) to be
+                the sum of the expected MAGMOM for all species. Defaults to
+                False.
+            sort_structure:
+                Whether to sort the structure (using the default sort
+                order of electronegativity) before generating input files.
+                Defaults to True, the behavior you would want most of the
+                time. This ensures that similar atomic species are grouped
+                together.
+        """
         with open(json_file) as f:
             DictVaspInputSet.__init__(
                 self, name, json.load(f),
@@ -379,14 +402,14 @@ class MITVaspInputSet(JSONVaspInputSet):
     for more information.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
-        Supports the same args and kwargs as JSONVaspInputSet. Please see
-        :class:JSONVaspInputSet.
+        Supports the same kwargs as JSONVaspInputSet. Please see
+        :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MIT", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            *args, **kwargs)
+            **kwargs)
 
 
 class MITGGAVaspInputSet(JSONVaspInputSet):
@@ -394,14 +417,14 @@ class MITGGAVaspInputSet(JSONVaspInputSet):
     Typical implementation of input set for a GGA run based on MIT parameters.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
-        Supports the same args and kwargs as JSONVaspInputSet. Please see
-        :class:JSONVaspInputSet.
+        Supports the same kwargs as JSONVaspInputSet. Please see
+        :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MIT GGA", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            *args, **kwargs)
+            **kwargs)
         # INCAR settings to override for GGA runs, since we are basing off a
         # GGA+U inputset
         self.incar_settings['LDAU'] = False
@@ -417,15 +440,15 @@ class MITHSEVaspInputSet(JSONVaspInputSet):
     Typical implementation of input set for a HSE run.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
-        Supports the same args and kwargs as JSONVaspInputSet. Please see
-        :class:JSONVaspInputSet.
+        Supports the same kwargs as JSONVaspInputSet. Please see
+        :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MIT HSE",
             os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"),
-            *args, **kwargs)
+            **kwargs)
 
 
 class MITNEBVaspInputSet(DictVaspInputSet):
@@ -514,7 +537,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     """
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
-                 prec="Low", ggau=False, user_incar_settings=None):
+                 prec="Low", ggau=False, **kwargs):
         """
         Args:
             start_temp:
@@ -534,14 +557,14 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                 dictionary of incar settings to override
         """
         JSONVaspInputSet.__init__(
-            self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"))
+            self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
+            **kwargs)
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
         self.time_step = time_step
         self.prec = prec
         self.ggau = ggau
-        self.user_incar_settings = user_incar_settings
 
         #Optimized parameters for MD simulations.
         incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
@@ -555,9 +578,6 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                           "KBLOCK": 100, "SMASS": 0, "POTIM": time_step}
 
         self.incar_settings.update(incar_settings)
-
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
 
         if not ggau:
             self.incar_settings['LDAU'] = False
@@ -602,32 +622,29 @@ class MPVaspInputSet(JSONVaspInputSet):
     fitting is exactly the same as the MIT scheme).
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
-        Supports the same args and kwargs as JSONVaspInputSet. Please see
-        :class:JSONVaspInputSet.
+        Supports the same kwargs as JSONVaspInputSet. Please see
+        :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MP",
-            os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
-            *args, **kwargs)
+            os.path.join(MODULE_DIR, "MPVaspInputSet.json"), **kwargs)
 
 
 class MPGGAVaspInputSet(DictVaspInputSet):
     """
-    Same as the MaterialsProjectVaspInput set, but the +U is enforced to be
-    turned off.
+    Same as the MPVaspInput set, but the +U is enforced to be turned off.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
-        Supports the same args and kwargs as JSONVaspInputSet. Please see
-        :class:JSONVaspInputSet.
+        Supports the same kwargs as JSONVaspInputSet. Please see
+        :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MP GGA",
-            os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
-            *args, **kwargs)
+            os.path.join(MODULE_DIR, "MPVaspInputSet.json"), **kwargs)
         # INCAR settings to override for GGA runs, since we are basing off a
         # GGA+U inputset
         self.incar_settings['LDAU'] = False
@@ -646,15 +663,14 @@ class MPStaticVaspInputSet(MPVaspInputSet):
     the input set to inherit most of the functions.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
-        Supports the same args and kwargs as JSONVaspInputSet. Please see
-        :class:JSONVaspInputSet.
+        Supports the same kwargs as JSONVaspInputSet. Please see
+        :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
-            self, "MP GGA",
-            os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
-            *args, **kwargs)
+            self, "MP GGA", os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
+            **kwargs)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,

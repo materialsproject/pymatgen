@@ -29,7 +29,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MPVaspInputSet()
         self.userparamset = MPVaspInputSet(
-            {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
+            user_incar_settings={'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
         self.mitggaparam = MITGGAVaspInputSet()
         self.mpstaticparamset = MPStaticVaspInputSet()
@@ -184,7 +184,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MPVaspInputSet()
         self.userparamset = MPVaspInputSet(
-            {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
+            user_incar_settings={'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
 
         d = self.mitparamset.to_dict
