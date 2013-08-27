@@ -29,7 +29,6 @@ from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.util.decorators import deprecated
 from pymatgen import write_structure
 import traceback
 import numpy as np
@@ -332,7 +331,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
 class JSONVaspInputSet(DictVaspInputSet):
     """
-    Loads a DictVaspInputSet from a file, with some other options.
+    Loads a DictVaspInputSet from a file, with some other options. This is
+    never initialized by itself. It's for ease of implementing the sub-classes.
     """
 
     def __init__(self, name, json_file, user_incar_settings=None,
@@ -363,6 +363,7 @@ class JSONVaspInputSet(DictVaspInputSet):
                 self, name, json.load(f),
                 constrain_total_magmom=constrain_total_magmom,
                 sort_structure=sort_structure)
+        self.json_file = json_file
         self.user_incar_settings = user_incar_settings
         if user_incar_settings:
             self.incar_settings.update(user_incar_settings)
@@ -371,6 +372,7 @@ class JSONVaspInputSet(DictVaspInputSet):
     def to_dict(self):
         return {
             "name": self.name,
+            "json_file": self.json_file,
             "constrain_total_magmom": self.set_nupdown,
             "user_incar_settings": self.user_incar_settings,
             "sort_structure": self.sort_structure,
@@ -380,9 +382,10 @@ class JSONVaspInputSet(DictVaspInputSet):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(user_incar_settings=d["user_incar_settings"],
-                   constrain_total_magmom=d["constrain_total_magmom"],
-                   sort_structure=d.get("sort_structure", True))
+        return cls(d["name"], d["json_file"],
+            user_incar_settings=d["user_incar_settings"],
+            constrain_total_magmom=d["constrain_total_magmom"],
+            sort_structure=d.get("sort_structure", True))
 
 
 class MITVaspInputSet(JSONVaspInputSet):
@@ -402,7 +405,7 @@ class MITVaspInputSet(JSONVaspInputSet):
     for more information.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Supports the same kwargs as JSONVaspInputSet. Please see
         :class:`JSONVaspInputSet`.
@@ -417,7 +420,7 @@ class MITGGAVaspInputSet(JSONVaspInputSet):
     Typical implementation of input set for a GGA run based on MIT parameters.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Supports the same kwargs as JSONVaspInputSet. Please see
         :class:`JSONVaspInputSet`.
@@ -440,7 +443,7 @@ class MITHSEVaspInputSet(JSONVaspInputSet):
     Typical implementation of input set for a HSE run.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Supports the same kwargs as JSONVaspInputSet. Please see
         :class:`JSONVaspInputSet`.
@@ -622,7 +625,7 @@ class MPVaspInputSet(JSONVaspInputSet):
     fitting is exactly the same as the MIT scheme).
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Supports the same kwargs as JSONVaspInputSet. Please see
         :class:`JSONVaspInputSet`.
@@ -632,12 +635,12 @@ class MPVaspInputSet(JSONVaspInputSet):
             os.path.join(MODULE_DIR, "MPVaspInputSet.json"), **kwargs)
 
 
-class MPGGAVaspInputSet(DictVaspInputSet):
+class MPGGAVaspInputSet(JSONVaspInputSet):
     """
     Same as the MPVaspInput set, but the +U is enforced to be turned off.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Supports the same kwargs as JSONVaspInputSet. Please see
         :class:`JSONVaspInputSet`.
@@ -655,7 +658,7 @@ class MPGGAVaspInputSet(DictVaspInputSet):
             del self.incar_settings['LDAUL']
 
 
-class MPStaticVaspInputSet(MPVaspInputSet):
+class MPStaticVaspInputSet(JSONVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static calculations that typically follow relaxation runs.
@@ -663,7 +666,7 @@ class MPStaticVaspInputSet(MPVaspInputSet):
     the input set to inherit most of the functions.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Supports the same kwargs as JSONVaspInputSet. Please see
         :class:`JSONVaspInputSet`.
@@ -958,30 +961,6 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 traceback.format_exc()
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
-
-
-@deprecated(MPVaspInputSet)
-class MaterialsProjectVaspInputSet(MPVaspInputSet):
-    """
-    A direct subclass of MPVaspInputSet (for backwards compatibility).
-
-    .. deprecated:: v2.6.7
-
-        Use MPVaspInputSet instead.
-    """
-    pass
-
-
-@deprecated(MPGGAVaspInputSet)
-class MaterialsProjectGGAVaspInputSet(MPGGAVaspInputSet):
-    """
-    A direct subclass of MPGGAVaspInputSet (for backwards compatibility).
-
-    .. deprecated:: v2.6.7
-
-        Use MPGGAVaspInputSet instead.
-    """
-    pass
 
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
