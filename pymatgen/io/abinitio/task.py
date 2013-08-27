@@ -286,7 +286,7 @@ class AbinitTask(Task):
             links:
                 List of WorkLink objects specifying the dependencies of the task.
             kwargs:
-                keyword argumens (not used here)
+                keyword arguments (not used here)
         """
         super(AbinitTask, self).__init__()
 
