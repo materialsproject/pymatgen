@@ -94,7 +94,7 @@ class TransformedStructureTest(unittest.TestCase):
 
     def test_get_vasp_input(self):
         vaspis = MPVaspInputSet()
-        self.assertEqual("Na_pv\nO\nP\nFe_pv",
+        self.assertEqual("Na_pv\nFe_pv\nP\nO",
                          self.trans.get_vasp_input(vaspis,
                                                    False)['POTCAR.spec'])
         self.assertEqual(len(self.trans.structures), 2)
@@ -167,8 +167,6 @@ class TransformedStructureTest(unittest.TestCase):
                                                           'notwill@test.com')])
         self.assertEqual(snl.history, [h])
         self.assertEqual(snl.authors, [('notwill', 'notwill@test.com')])
-        
-        
         
 
 if __name__ == "__main__":

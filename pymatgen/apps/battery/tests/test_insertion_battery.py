@@ -31,7 +31,15 @@ class InsertionElectrodeTest(unittest.TestCase):
         with open(os.path.join(test_dir, "LiTiO2_batt.json"), "r") as f:
             self.entries_LTO = json.load(f, cls=PMGJSONDecoder)
 
+        with open(os.path.join(test_dir, "MgVO_batt.json"), "r") as file:
+            self.entries_MVO = json.load(file, cls=PMGJSONDecoder)
+
+        with open(os.path.join(test_dir, "Mg_batt.json"), "r") as file:
+            self.entry_Mg = json.load(file, cls=PMGJSONDecoder)
+
+
         self.ie_LTO = InsertionElectrode(self.entries_LTO, self.entry_Li)
+        self.ie_MVO = InsertionElectrode(self.entries_MVO, self.entry_Mg)
 
     def test_voltage(self):
         #test basic voltage
@@ -48,6 +56,10 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(self.ie_LTO.get_average_voltage(0, 0.1), 0, 3)
         self.assertAlmostEqual(self.ie_LTO.get_average_voltage(4, 5), 0, 3)
 
+        self.assertAlmostEqual(self.ie_MVO.get_average_voltage(), 2.513767,3)
+
+
+
     def test_capacities(self):
         #test basic capacity
         self.assertAlmostEqual(self.ie_LTO.get_capacity_grav(), 308.74865045,
@@ -63,6 +75,11 @@ class InsertionElectrodeTest(unittest.TestCase):
         self.assertAlmostEqual(self.ie_LTO.get_capacity_grav(1, 3, False),
                                160.803169506, 3)
         self.assertIsNotNone(self.ie_LTO.to_dict_summary(True))
+
+        self.assertAlmostEqual(self.ie_MVO.get_capacity_grav(), 281.845548242, 3)
+        self.assertAlmostEqual(self.ie_MVO.get_capacity_vol(), 1145.80087994, 3)
+
+
 
     def test_get_muO2(self):
         self.assertIsNone(self.ie_LTO.get_max_muO2())
