@@ -22,6 +22,7 @@ import os
 import abc
 import json
 import re
+from functools import partial
 
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
@@ -388,31 +389,26 @@ class JSONVaspInputSet(DictVaspInputSet):
             sort_structure=d.get("sort_structure", True))
 
 
-class MITVaspInputSet(JSONVaspInputSet):
-    """
-    Standard implementation of VaspInputSet utilizing parameters in the MIT
-    High-throughput project.
-    The parameters are chosen specifically for a high-throughput project,
-    which means in general pseudopotentials with fewer electrons were chosen.
+MITVaspInputSet = partial(JSONVaspInputSet, "MIT",
+                          os.path.join(MODULE_DIR, "MITVaspInputSet.json"))
+"""
+Standard implementation of VaspInputSet utilizing parameters in the MIT
+High-throughput project.
+The parameters are chosen specifically for a high-throughput project,
+which means in general pseudopotentials with fewer electrons were chosen.
 
-    Please refer::
+Please refer::
 
-        A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
-        K. A. Persson, G. Ceder. A high-throughput infrastructure for density
-        functional theory calculations. Computational Materials Science,
-        2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
+    A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
+    K. A. Persson, G. Ceder. A high-throughput infrastructure for density
+    functional theory calculations. Computational Materials Science,
+    2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
 
-    for more information.
-    """
+for more information.
 
-    def __init__(self, *args, **kwargs):
-        """
-        Supports the same kwargs as JSONVaspInputSet. Please see
-        :class:`JSONVaspInputSet`.
-        """
-        JSONVaspInputSet.__init__(
-            self, "MIT", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            **kwargs)
+Supports the same kwargs as JSONVaspInputSet. Please see
+:class:`JSONVaspInputSet`.
+"""
 
 
 class MITGGAVaspInputSet(JSONVaspInputSet):
@@ -438,20 +434,13 @@ class MITGGAVaspInputSet(JSONVaspInputSet):
             del self.incar_settings['LDAUL']
 
 
-class MITHSEVaspInputSet(JSONVaspInputSet):
-    """
-    Typical implementation of input set for a HSE run.
-    """
-
-    def __init__(self, *args, **kwargs):
-        """
-        Supports the same kwargs as JSONVaspInputSet. Please see
-        :class:`JSONVaspInputSet`.
-        """
-        JSONVaspInputSet.__init__(
-            self, "MIT HSE",
-            os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"),
-            **kwargs)
+MITHSEVaspInputSet = partial(JSONVaspInputSet, "MIT HSE",
+            os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"))
+"""
+Typical implementation of input set for a HSE run using MIT parameters.
+Supports the same kwargs as JSONVaspInputSet. Please see
+:class:`JSONVaspInputSet`.
+"""
 
 
 class MITNEBVaspInputSet(DictVaspInputSet):
@@ -615,24 +604,17 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                    user_incar_settings=d["user_incar_settings"])
 
 
-class MPVaspInputSet(JSONVaspInputSet):
-    """
-    Implementation of VaspInputSet utilizing parameters in the public
-    Materials Project. Typically, the pseudopotentials chosen contain more
-    electrons than the MIT parameters, and the k-point grid is ~50% more dense.
-    The LDAUU parameters are also different due to the different psps used,
-    which result in different fitted values (even though the methodology of
-    fitting is exactly the same as the MIT scheme).
-    """
-
-    def __init__(self, *args, **kwargs):
-        """
-        Supports the same kwargs as JSONVaspInputSet. Please see
-        :class:`JSONVaspInputSet`.
-        """
-        JSONVaspInputSet.__init__(
-            self, "MP",
-            os.path.join(MODULE_DIR, "MPVaspInputSet.json"), **kwargs)
+MPVaspInputSet = partial(JSONVaspInputSet, "MP",
+                         os.path.join(MODULE_DIR, "MPVaspInputSet.json"))
+"""
+Implementation of VaspInputSet utilizing parameters in the public
+Materials Project. Typically, the pseudopotentials chosen contain more
+electrons than the MIT parameters, and the k-point grid is ~50% more dense.
+The LDAUU parameters are also different due to the different psps used,
+which result in different fitted values (even though the methodology of
+fitting is exactly the same as the MIT scheme). Supports the same kwargs as
+:class:`JSONVaspInputSet`.
+"""
 
 
 class MPGGAVaspInputSet(JSONVaspInputSet):
@@ -834,12 +816,11 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 Line: Generate k-points along symmetry lines for bandstructure
                 Uniform: Generate uniform k-points grids for DOS
         """
-        module_dir = os.path.dirname(os.path.abspath(__file__))
         self.mode = mode
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MaterialsProject Static", json.load(f),
                 constrain_total_magmom=constrain_total_magmom,
