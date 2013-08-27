@@ -1141,9 +1141,10 @@ class FeffLdos(MSONable):
     def from_dict(d):
         """
         Returns FeffLdos object from dict representation
-               Arg:
-                   complete_dos:
-                       dict representation of complete_dos
+
+        Args:
+            complete_dos:
+                dict representation of complete_dos
         """
 
         complete_dos = CompleteDos.from_dict(d['complete_dos'])

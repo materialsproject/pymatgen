@@ -16,6 +16,7 @@ __date__ = "March 14, 2012"
 import numpy as np
 import math
 import itertools
+import collections
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
@@ -278,8 +279,7 @@ class BandStructure(object):
             result = {Spin.up: []}
         structure = self._structure
         for spin in result:
-            result[spin] = [[{str(e): 0.0
-                              for e in self._structure.composition.elements}
+            result[spin] = [[collections.defaultdict(float)
                              for i in range(len(self._kpoints))]
                             for j in range(self._nb_bands)]
             for i, j, k in itertools.product(range(self._nb_bands),
@@ -316,7 +316,7 @@ class BandStructure(object):
             result = {Spin.up: []}
         structure = self._structure
         for spin in result:
-            result[spin] = [[{str(e): {o: 0.0 for o in dictio[e]}
+            result[spin] = [[{str(e): collections.defaultdict(float)
                             for e in dictio}
                             for i in range(len(self._kpoints))]
                             for j in range(self._nb_bands)]

@@ -25,6 +25,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.struct = poscar.structure
 
         self.mitparamset = MITVaspInputSet()
+        self.mitparamset_unsorted = MITVaspInputSet(sort_structure=False)
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MPVaspInputSet()
         self.userparamset = MPVaspInputSet(
@@ -108,14 +109,16 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         struct = Structure(lattice, ["Fe", "Mn"], coords,
                            site_properties={'magmom': (5.2, -4.5)})
         incar = self.paramset.get_incar(struct)
-        self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
+        self.assertEqual(incar['MAGMOM'], [-4.5, 5.2])
         incar = self.mpstaticparamset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [-4.5, 5.2])
+        incar = self.mitparamset_unsorted.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
 
         struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"],
                            coords)
         incar = self.paramset.get_incar(struct)
-        self.assertEqual(incar['MAGMOM'], [4.1, 5])
+        self.assertEqual(incar['MAGMOM'], [5, 4.1])
         incar = self.mpnscfparamsetl.get_incar(struct)
         self.assertEqual(incar.get('MAGMOM', None), None)
 
