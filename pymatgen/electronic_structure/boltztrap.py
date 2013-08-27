@@ -391,7 +391,7 @@ class BoltztrapAnalyzer():
             kappa[d[1]].append(tens_kappa)
 
         for d in data_hall:
-            hall_tens = [d[j] for j in range(3, len(d))]
+            hall_tens = d[3:]
             hall[d[1]].append(hall_tens)
 
         for d in data_doping_full:
@@ -580,7 +580,8 @@ class BoltztrapAnalyzer():
             data_full, data_hall, data_dos, sorted([t for t in t_steps]),
             sorted([m*Ry_in_eV for m in m_steps]), efermi, gap * Ry_in_eV,
             doping, data_doping_full, data_doping_hall, warning)
-    
+
+    #TODO: Why is this not a property?
     def to_dict(self):
         from pymatgen.util.io_utils import clean_json
         results = {'gap': self.gap,
