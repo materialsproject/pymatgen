@@ -30,7 +30,6 @@ import os
 import math
 import numpy as np
 import tempfile
-from pymatgen.bolztrap.BoltztrapAnalyzer import eV_in_Ry
 from pymatgen.analysis.symmetry_fitter import SymmetryFinder
 from pymatgen.electronic_structure.dos import Dos, Spin
 from pymatgen.electronic_structure.plotter import DosPlotter
