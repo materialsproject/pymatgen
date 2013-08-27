@@ -4,250 +4,258 @@
 This module provides classes to create phase diagrams.
 """
 
+from __future__ import division
+
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyue@mit.edu"
 __status__ = "Production"
-__date__ = "Sep 23, 2011"
+__date__ = "Nov 25, 2012"
 
+import collections
 import numpy as np
-import logging
-import itertools
 
-from scipy.spatial import Delaunay
+try:
+    # If scipy ConvexHull exists, use it because it is faster for large hulls.
+    # This requires scipy >= 0.12.0.
+    from scipy.spatial import ConvexHull
+    HULL_METHOD = "scipy"
+except ImportError:
+    # Fall back to pyhull if scipy >= 0.12.0 does not exist.
+    from pyhull.convex_hull import ConvexHull
+    HULL_METHOD = "pyhull"
 
-from pymatgen.core.structure import Composition
-from pymatgen.command_line.qhull_caller import qconvex
+from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
-from pymatgen.core.periodic_table import Element
-from pymatgen.analysis.reaction_calculator import Reaction
 
-logger = logging.getLogger(__name__)
+from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
 class PhaseDiagram (object):
-    '''
+    """
     Simple phase diagram class taking in elements and entries as inputs.
-    '''
-    FORMATION_ENERGY_TOLERANCE = 1e-11
+    The algorithm is based on the work in the following papers:
 
-    def __init__(self, entries, elements=None, use_external_qhull=False):
+    1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+       First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
+       doi:10.1021/cm702327g
+
+    2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+       of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
+       doi:10.1016/j.elecom.2010.01.010
+
+    .. attribute: elements:
+
+        Elements in the phase diagram.
+
+    ..attribute: all_entries
+
+        All entries provided for Phase Diagram construction. Note that this
+        does not mean that all these entries are actually used in the phase
+        diagram. For example, this includes the positive formation energy
+        entries that are filtered out before Phase Diagram construction.
+
+    .. attribute: qhull_data
+
+        Data used in the convex hull operation. This is essentially a matrix of
+        composition data and energy per atom values created from qhull_entries.
+
+    .. attribute: dim
+
+        The dimensionality of the phase diagram.
+
+    .. attribute: facets
+
+        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...]
+
+    .. attribute: el_refs:
+
+        List of elemental references for the phase diagrams. These are
+        entries corresponding to the lowest energy element entries for simple
+        compositional phase diagrams.
+
+    .. attribute: qhull_entries:
+
+        Actual entries used in convex hull. Excludes all positive formation
+        energy entries.
+    """
+
+    # Tolerance for determining if formation energy is positive.
+    formation_energy_tol = 1e-11
+
+    def __init__(self, entries, elements=None):
         """
         Standard constructor for phase diagram.
-        
+
         Args:
             entries:
-                A list of PDEntry-like objects having an energy, energy_per_atom and composition.
+                A list of PDEntry-like objects having an energy,
+                energy_per_atom and composition.
             elements:
-                Optional list of elements in the phase diagram. If set to None, the elements are determined from the
-                the entries themselves.
+                Optional list of elements in the phase diagram. If set to None,
+                the elements are determined from the the entries themselves.
         """
-        if elements == None:
+        if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements for entry in entries])
-        self._all_entries = entries
-        self._elements = tuple(elements)
-        self._qhull_data = None
-        self._facets = None
-        self._qhull_entries = None
-        self._stable_entries = None
-        self._all_entries_hulldata = None
-        self._use_external_qhull = use_external_qhull
-        self._make_phasediagram()
+            map(elements.update, [entry.composition.elements
+                                  for entry in entries])
+        elements = list(elements)
+        # Qhull seems to be sensitive to choice of independent composition
+        # components due to numerical issues in higher dimensions. The
+        # code permutes the element sequence until one that works is found.
+        dim = len(elements)
+        el_refs = {}
+        for el in elements:
+            el_entries = filter(lambda e: e.composition.is_element and
+                                e.composition.elements[0] == el, entries)
+            if len(el_entries) == 0:
+                raise PhaseDiagramError(
+                    "There are no entries associated with terminal {}."
+                    .format(el))
+            el_refs[el] = min(el_entries, key=lambda e: e.energy_per_atom)
 
-    @property
-    def all_entries(self):
-        """
-        All entries submitted to construct the PhaseDiagram.
-        Note that this does not mean that all these entries are actually used in the phase diagram.
-        """
-        return self._all_entries
+        data = []
+        for entry in entries:
+            comp = entry.composition
+            row = map(comp.get_atomic_fraction, elements)
+            row.append(entry.energy_per_atom)
+            data.append(row)
 
-    @property
-    def dim(self):
-        return len(self._elements)
+        data = np.array(data)
+        self.all_entries_hulldata = data[:, 1:]
 
-    @property
-    def elements(self):
-        """
-        Elements in the phase diagram.
-        """
-        return self._elements
+        # Calculate formation energies and remove positive formation energy
+        # entries
+        vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
+        form_e = -np.dot(data, vec)
+        ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
+        ind.extend(map(entries.index, el_refs.values()))
+        qhull_entries = [entries[i] for i in ind]
+        qhull_data = data[ind][:, 1:]
 
-    @property
-    def facets(self):
-        """
-        Facets of the phase diagram in the form of  [[1,2,3],[4,5,6]...]
-        """
-        return self._facets
+        if len(qhull_data) == dim:
+            self.facets = [range(dim)]
+        else:
+            if HULL_METHOD == "scipy":
+                facets = ConvexHull(qhull_data, qhull_options="QJ i").simplices
+            else:
+                facets = ConvexHull(qhull_data, joggle=True).vertices
+            finalfacets = []
+            for facet in facets:
+                is_non_element_facet = any(
+                    (len(qhull_entries[i].composition) > 1 for i in facet))
+                if is_non_element_facet:
+                    m = qhull_data[facet]
+                    m[:, -1] = 1
+                    if abs(np.linalg.det(m)) > 1e-8:
+                        finalfacets.append(facet)
+            self.facets = finalfacets
 
-    @property
-    def qhull_data(self):
-        """
-        Data used in the convex hull operation. This is essentially a matrix of
-        composition data and energy per atom values created from the qhull_entries.
-        """
-        return self._qhull_data
-
-    @property
-    def qhull_entries(self):
-        """
-        Actual entries used in convex hull. Excludes all positive formation energy entries.
-        """
-        return self._qhull_entries
+        self.all_entries = entries
+        self.qhull_data = qhull_data
+        self.dim = dim
+        self.el_refs = el_refs
+        self.elements = elements
+        self.qhull_entries = qhull_entries
 
     @property
     def unstable_entries(self):
         """
-        Entries that are unstable in the phase diagram. Includes positive formation energy entries.
+        Entries that are unstable in the phase diagram. Includes positive
+        formation energy entries.
         """
         return [e for e in self.all_entries if e not in self.stable_entries]
 
     @property
     def stable_entries(self):
-        '''
-        Returns the stable entries.
-        '''
-        return self._stable_entries
-
-    @property
-    def all_entries_hulldata(self):
         """
-        Same as qhull_data, but for all entries rather than just positive formation energy ones.
+        Returns the stable entries in the phase diagram.
         """
-        return self._all_entries_hulldata
-
-    @property
-    def el_refs(self):
-        """
-        List of elemental references for the phase diagrams. 
-        These are typically entries corresponding to the lowest energy element entries.
-        """
-        return self._el_refs
+        stable_entries = set()
+        for facet in self.facets:
+            for vertex in facet:
+                stable_entries.add(self.qhull_entries[vertex])
+        return stable_entries
 
     def get_form_energy(self, entry):
-        '''
+        """
         Returns the formation energy for an entry (NOT normalized) from the
         elemental references.
-        
+
         Args:
             entry:
-                A PDEntry
-        
+                A PDEntry-like object.
+
         Returns:
-            Formation energy from the elementals references.
-        '''
+            Formation energy from the elemental references.
+        """
         comp = entry.composition
-        energy = entry.energy - sum([comp[el] * self._el_refs[el].energy_per_atom for el in comp.elements])
+        energy = entry.energy - sum([comp[el] *
+                                     self.el_refs[el].energy_per_atom
+                                     for el in comp.elements])
         return energy
 
     def get_form_energy_per_atom(self, entry):
-        '''
+        """
         Returns the formation energy per atom for an entry from the
         elemental references.
-        '''
+
+        Args:
+            entry:
+                An PDEntry-like object
+
+        Returns:
+            Formation energy **per atom** from the elemental references.
+        """
         comp = entry.composition
         return self.get_form_energy(entry) / comp.num_atoms
 
-    def _process_entries_qhulldata(self, entries_to_process):
-        data = list()
-        for entry in entries_to_process:
-            comp = entry.composition
-            energy_per_atom = entry.energy_per_atom
-            row = list()
-            for i in xrange(1, len(self._elements)):
-                row.append(comp.get_atomic_fraction(self._elements[i]))
-            row.append(energy_per_atom)
-            data.append(row)
-        return data
+    def __repr__(self):
+        return self.__str__()
 
-    def _create_convhull_data(self):
-        '''
-        Make data suitable for convex hull procedure from the list of entries.
-        '''
-        logger.debug("Creating convex hull data...")
-        #Determine the elemental references based on lowest energy for each.
-        self._el_refs = dict()
-        for entry in self._all_entries:
-            if entry.composition.is_element:
-                for el in entry.composition.elements:
-                    if entry.composition[el] > Composition.amount_tolerance:
-                        break
-                e_per_atom = entry.energy_per_atom
-                if el not in self._el_refs:
-                    self._el_refs[el] = entry
-                elif self._el_refs[el].energy_per_atom > e_per_atom:
-                    self._el_refs[el] = entry
-        # Remove positive formation energy entries
-        entries_to_process = list()
-        for entry in self._all_entries:
-            if self.get_form_energy(entry) <= self.FORMATION_ENERGY_TOLERANCE:
-                entries_to_process.append(entry)
-            else:
-                logger.debug("Removing positive formation energy entry {}".format(entry))
-
-        self._qhull_entries = entries_to_process
-        return self._process_entries_qhulldata(entries_to_process)
-
-    def _make_phasediagram(self):
-        """
-        Make the phase diagram.
-        """
-        stable_entries = set()
-        dim = len(self._elements)
-        self._qhull_data = self._create_convhull_data()
-        if len(self._qhull_data) == dim:
-            self._facets = [range(len(self._elements))]
-        else:
-            if self._use_external_qhull:
-                logger.debug("> 4D hull encountered. Computing hull using external qconvex call.")
-                self._facets = qconvex(self._qhull_data)
-            else:
-                logger.debug("Computing hull using scipy.spatial.delaunay")
-                delau = Delaunay(self._qhull_data)
-                self._facets = delau.convex_hull
-            logger.debug("Final facets are\n{}".format(self._facets))
-
-            logger.debug("Removing vertical facets...")
-            finalfacets = list()
-            for facet in self._facets:
-                facetmatrix = np.zeros((len(facet), len(facet)))
-                count = 0
-                is_element_facet = True
-                for vertex in facet:
-                    facetmatrix[count] = np.array(self._qhull_data[vertex])
-                    facetmatrix[count, dim - 1] = 1
-                    count += 1
-                    if len(self._qhull_entries[vertex].composition) > 1:
-                        is_element_facet = False
-                if abs(np.linalg.det(facetmatrix)) > 1e-8 and (not is_element_facet):
-                    finalfacets.append(facet)
-                else:
-                    logger.debug("Removing vertical facet : {}".format(facet))
-            self._facets = finalfacets
-
-        for facet in self._facets:
-            for vertex in facet:
-                stable_entries.add(self._qhull_entries[vertex])
-        self._stable_entries = stable_entries
-        self._all_entries_hulldata = self._process_entries_qhulldata(self._all_entries)
+    def __str__(self):
+        symbols = [el.symbol for el in self.elements]
+        output = ["{} phase diagram".format("-".join(symbols)),
+                  "{} stable phases: ".format(len(self.stable_entries)),
+                  ", ".join([entry.name
+                             for entry in self.stable_entries])]
+        return "\n".join(output)
 
 
-class GrandPotentialPhaseDiagram (PhaseDiagram):
-    '''
-    Grand potential phase diagram class taking in elements and entries as inputs.
-    '''
+class GrandPotentialPhaseDiagram(PhaseDiagram):
+    """
+    A class representing a Grand potential phase diagram. Grand potential phase
+    diagrams are essentially phase diagrams that are open to one or more
+    components. To construct such phase diagrams, the relevant free energy is
+    the grand potential, which can be written as the Legendre transform of the
+    Gibbs free energy as follows
 
-    def __init__(self, entries, chempots, elements=None, use_external_qhull=False):
+    Grand potential = G - u\ :sub:`X` N\ :sub:`X`\
+
+    The algorithm is based on the work in the following papers:
+
+    1. S. P. Ong, L. Wang, B. Kang, and G. Ceder, Li-Fe-P-O2 Phase Diagram from
+       First Principles Calculations. Chem. Mater., 2008, 20(5), 1798-1807.
+       doi:10.1021/cm702327g
+
+    2. S. P. Ong, A. Jain, G. Hautier, B. Kang, G. Ceder, Thermal stabilities
+       of delithiated olivine MPO4 (M=Fe, Mn) cathodes investigated using first
+       principles calculations. Electrochem. Comm., 2010, 12(3), 427-430.
+       doi:10.1016/j.elecom.2010.01.010
+    """
+
+    def __init__(self, entries, chempots, elements=None):
         """
         Standard constructor for grand potential phase diagram.
-        
+
         Args:
             entries:
-                A list of PDEntry-like objects having an energy, energy_per_atom
-                and composition.
+                A list of PDEntry-like objects having an energy,
+                energy_per_atom and composition.
             chempots:
                 A dict of {element: float} to specify the chemical potentials
                 of the open elements.
@@ -255,99 +263,119 @@ class GrandPotentialPhaseDiagram (PhaseDiagram):
                 Optional list of elements in the phase diagram. If set to None,
                 the elements are determined from the entries themselves.
         """
-        if elements == None:
+        if elements is None:
             elements = set()
-            map(elements.update, [entry.composition.elements for entry in entries])
-        allentries = list()
-        for entry in entries:
-            if not (entry.is_element and (entry.composition.elements[0] in chempots)):
-                allentries.append(GrandPotPDEntry(entry, chempots))
+            map(elements.update, [entry.composition.elements
+                                  for entry in entries])
+
+        elements = set(elements).difference(chempots.keys())
+        all_entries = [GrandPotPDEntry(e, chempots)
+                       for e in entries
+                       if (not e.is_element) or
+                       e.composition.elements[0] in elements]
         self.chempots = chempots
-        filteredels = list()
-        for el in elements:
-            if el not in chempots:
-                filteredels.append(el)
-        elements = sorted(filteredels)
-        super(GrandPotentialPhaseDiagram, self).__init__(allentries, elements, use_external_qhull)
+
+        super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
+
+    def __str__(self):
+        output = []
+        chemsys = "-".join([el.symbol for el in self.elements])
+        output.append("{} grand potential phase diagram with ".format(chemsys))
+        output[-1] += ", ".join(["u{}={}".format(el, v)
+                                 for el, v in self.chempots.items()])
+        output.append("{} stable phases: ".format(len(self.stable_entries)))
+        output.append(", ".join([entry.name
+                                 for entry in self.stable_entries]))
+        return "\n".join(output)
 
 
 class CompoundPhaseDiagram(PhaseDiagram):
     """
-    Experimental feature. Generates phase diagrams from compounds as termninations
-    instead of elements.
+    Generates phase diagrams from compounds as terminations instead of
+    elements.
     """
 
-    def __init__(self, entries, terminal_compositions, use_external_qhull=False):
-        entries = get_entries_within_compositional_space(entries, terminal_compositions)
-        elset = get_non_coplanar_element_set(entries)
-        els = list(elset)
-        pentries = get_transformed_entries(entries, els)
-        super(CompoundPhaseDiagram, self).__init__(pentries, use_external_qhull=use_external_qhull)
+    # Tolerance for determining if amount of a composition is positive.
+    amount_tol = 1e-5
+
+    def __init__(self, entries, terminal_compositions,
+                 normalize_terminal_compositions=True):
+        """
+        Args:
+            entries:
+                Sequence of input entries. For example, if you want a Li2O-P2O5
+                phase diagram, you might have all Li-P-O entries as an input.
+            terminal_compositions:
+                Terminal compositions of phase space. In the Li2O-P2O5 example,
+                these will be the Li2O and P2O5 compositions.
+            normalize_terminal_compositions:
+                Whether to normalize the terminal compositions to a per atom
+                basis. If normalized, the energy above hulls will be consistent
+                for comparison across systems. Non-normalized terminals are
+                more intuitive in terms of compositional breakdowns.
+        """
+        self.original_entries = entries
+        self.terminal_compositions = terminal_compositions
+        self.normalize_terminals = normalize_terminal_compositions
+        (pentries, species_mapping) = \
+            self.transform_entries(entries, terminal_compositions)
+        self.species_mapping = species_mapping
+        PhaseDiagram.__init__(self, pentries,
+                              elements=species_mapping.values())
+
+    def transform_entries(self, entries, terminal_compositions):
+        """
+        Method to transform all entries to the composition coordinate in the
+        terminal compositions. If the entry does not fall within the space
+        defined by the terminal compositions, they are excluded. For example,
+        Li3PO4 is mapped into a Li2O:1.5, P2O5:0.5 composition. The terminal
+        compositions are represented by DummySpecies.
+
+        Args:
+            entries:
+                Sequence of all input entries
+            terminal_compositions:
+                Terminal compositions of phase space.
+
+        Returns:
+            Sequence of TransformedPDEntries falling within the phase space.
+        """
+        new_entries = []
+        if self.normalize_terminals:
+            fractional_comp = [c.get_fractional_composition()
+                               for c in terminal_compositions]
+        else:
+            fractional_comp = terminal_compositions
+
+        #Map terminal compositions to unique dummy species.
+        sp_mapping = collections.OrderedDict()
+        for i, comp in enumerate(fractional_comp):
+            sp_mapping[comp] = DummySpecie("X" + chr(102 + i))
+
+        for entry in entries:
+            try:
+                rxn = Reaction(fractional_comp, [entry.composition])
+                rxn.normalize_to(entry.composition)
+                #We only allow reactions that have positive amounts of
+                #reactants.
+                if all([rxn.get_coeff(comp) <= CompoundPhaseDiagram.amount_tol
+                        for comp in fractional_comp]):
+                    newcomp = {sp_mapping[comp]: -rxn.get_coeff(comp)
+                               for comp in fractional_comp}
+                    newcomp = {k: v for k, v in newcomp.items()
+                               if v > CompoundPhaseDiagram.amount_tol}
+                    transformed_entry = \
+                        TransformedPDEntry(Composition(newcomp), entry)
+                    new_entries.append(transformed_entry)
+            except ReactionError:
+                #If the reaction can't be balanced, the entry does not fall
+                #into the phase space. We ignore them.
+                pass
+        return new_entries, sp_mapping
 
 
-def get_comp_matrix_from_comp(compositions, elements, normalize_row=True):
+class PhaseDiagramError(Exception):
     """
-    Helper function to generates a normalized composition matrix from a list of 
-    composition.
+    An exception class for Phase Diagram generation.
     """
-    comp_matrix = np.array([[comp.get_atomic_fraction(el) for el in elements] for comp in compositions])
-    if not normalize_row:
-        return comp_matrix
-    factor = np.tile(np.sum(comp_matrix, 1), (len(elements), 1)).transpose()
-    return comp_matrix / factor
-
-def get_comp_matrix(entries, elements, normalize_row=True):
-    """
-    Helper function to generates a normalized composition matrix from a list of 
-    composition.
-    """
-    return get_comp_matrix_from_comp([entry.composition for entry in entries], elements, normalize_row)
-
-def is_coplanar(entries, elements):
-    comp_matrix = get_comp_matrix(entries, elements)
-    for submatrix in itertools.combinations(comp_matrix, min(len(elements), len(entries))):
-        if abs(np.linalg.det(submatrix)) > 1e-5:
-            return False
-    return True
-
-def get_non_coplanar_element_set(entries):
-    elements = set()
-    map(elements.update, [entry.composition.elements for entry in entries])
-    for i in xrange(len(elements), 1, -1):
-        for elset in itertools.combinations(elements, i):
-            if not is_coplanar(entries, elset):
-                return elset
-    return None
-
-def get_transformed_entries(entries, elements):
-    comp_matrix = get_comp_matrix(entries, elements)
-    newmat = []
-    energies = []
-    for i in xrange(len(elements)):
-        col = comp_matrix[:, i]
-        maxval = max(col)
-        maxind = list(col).index(maxval)
-        newmat.append(comp_matrix[maxind])
-        energies.append(entries[i].energy_per_atom)
-    invm = np.linalg.inv(np.array(newmat).transpose())
-    newentries = []
-    for i in xrange(len(entries)):
-        entry = entries[i]
-        lincomp = np.dot(invm, comp_matrix[i])
-        lincomp = np.around(lincomp, 5)
-        comp = Composition({Element.from_Z(j + 1):lincomp[j] for j in xrange(len(elements))})
-        scaled_energy = entry.energy_per_atom - sum(lincomp * energies)
-        newentries.append(TransformedPDEntry(comp, scaled_energy, entry))
-    return newentries
-
-def get_entries_within_compositional_space(entries, terminal_compositions):
-    newentries = []
-    for entry in entries:
-        try:
-            rxn = Reaction(terminal_compositions, [entry.composition])
-            newentries.append(entry)
-        except:
-            pass
-    return newentries
-
-
+    pass

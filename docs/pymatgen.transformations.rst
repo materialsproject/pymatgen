@@ -9,6 +9,14 @@ transformations Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`advanced_transformations` Module
+--------------------------------------
+
+.. automodule:: pymatgen.transformations.advanced_transformations
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`site_transformations` Module
 ----------------------------------
 

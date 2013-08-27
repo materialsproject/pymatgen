@@ -41,6 +41,22 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`feffio` Module
+--------------------
+
+.. automodule:: pymatgen.io.feffio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`feffio_set` Module
+------------------------
+
+.. automodule:: pymatgen.io.feffio_set
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`gaussianio` Module
 ------------------------
 
@@ -49,18 +65,18 @@ io Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`io_abc` Module
---------------------
+:mod:`nwchemio` Module
+----------------------
 
-.. automodule:: pymatgen.io.io_abc
+.. automodule:: pymatgen.io.nwchemio
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`vaspio` Module
---------------------
+:mod:`smartio` Module
+---------------------
 
-.. automodule:: pymatgen.io.vaspio
+.. automodule:: pymatgen.io.smartio
     :members:
     :undoc-members:
     :show-inheritance:
@@ -80,4 +96,20 @@ io Package
     :members:
     :undoc-members:
     :show-inheritance:
+
+:mod:`zeoio` Module
+-------------------
+
+.. automodule:: pymatgen.io.zeoio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    pymatgen.io.abinitio
+    pymatgen.io.vaspio
 

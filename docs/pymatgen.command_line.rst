@@ -17,10 +17,26 @@ command_line Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`qhull_caller` Module
+:mod:`bader_caller` Module
 --------------------------
 
-.. automodule:: pymatgen.command_line.qhull_caller
+.. automodule:: pymatgen.command_line.bader_caller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`enumlib_caller` Module
+----------------------------
+
+.. automodule:: pymatgen.command_line.enumlib_caller
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`gulp_caller` Module
+-------------------------
+
+.. automodule:: pymatgen.command_line.gulp_caller
     :members:
     :undoc-members:
     :show-inheritance:

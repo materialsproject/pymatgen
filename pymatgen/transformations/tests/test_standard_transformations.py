@@ -13,15 +13,19 @@ __email__ = "shyue@mit.edu"
 __date__ = "Sep 23, 2011"
 
 import os
-import unittest
 import random
+import unittest
 
+from pymatgen.core.lattice import Lattice
+from pymatgen.core import PeriodicSite
+from pymatgen.io.cifio import CifParser
+from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.io.vaspio import Poscar
+from pymatgen.symmetry.structure import SymmetrizedStructure
 
-import pymatgen
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
 
 class TransformationsTest(unittest.TestCase):
 
@@ -29,8 +33,10 @@ class TransformationsTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        self.struct = Structure(lattice, ["Si"] * 2 , coords)
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        self.struct = Structure(lattice, ["Si"] * 2, coords)
 
     def test_identity_transformation(self):
         t = IdentityTransformation()
@@ -41,13 +47,15 @@ class TransformationsTest(unittest.TestCase):
         d = t.to_dict
         self.assertIn("version", t.to_dict)
         self.assertIn("init_args", t.to_dict)
-        self.assertEqual(type(IdentityTransformation.from_dict(d)), IdentityTransformation)
+        self.assertEqual(type(IdentityTransformation.from_dict(d)),
+                         IdentityTransformation)
 
     def test_rotation_transformation(self):
         t = RotationTransformation([0, 1, 0], 30, False)
         s2 = t.apply_transformation(self.struct)
         s1 = t.inverse.apply_transformation(s2)
-        self.assertTrue((abs(s1.lattice.matrix - self.struct.lattice.matrix) < 1e-8).all())
+        self.assertTrue((abs(s1.lattice.matrix - self.struct.lattice.matrix)
+                         < 1e-8).all())
 
 
 class RemoveSpeciesTransformationTest(unittest.TestCase):
@@ -59,7 +67,9 @@ class RemoveSpeciesTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "O2")
@@ -68,28 +78,36 @@ class RemoveSpeciesTransformationTest(unittest.TestCase):
 class SubstitutionTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = SubstitutionTransformation({"Li+":"Na+", "O2-":"S2-"})
+        t = SubstitutionTransformation({"Li+": "Na+", "O2-": "S2-"})
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Na2 S2")
 
     def test_fractional_substitution(self):
-        t = SubstitutionTransformation({"Li+":"Na+", "O2-":{"S2-":0.5, "Se2-":0.5}})
+        t = SubstitutionTransformation({"Li+": "Na+",
+                                        "O2-": {"S2-": 0.5, "Se2-": 0.5}})
+        #test the to and from dict on the nested dictionary
+        t = SubstitutionTransformation.from_dict(t.to_dict)
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
         s = t.apply_transformation(struct)
         self.assertEqual(s.composition.formula, "Na2 Se1 S1")
+
 
 class SupercellTransformationTest(unittest.TestCase):
 
@@ -99,7 +117,9 @@ class SupercellTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         self.struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
@@ -111,22 +131,63 @@ class SupercellTransformationTest(unittest.TestCase):
         scale_factors = [random.randint(1, 5) for i in xrange(3)]
         t = SupercellTransformation.from_scaling_factors(*scale_factors)
         s = t.apply_transformation(self.struct)
-        self.assertEqual(s.num_sites, 4 * reduce(lambda a, b: a * b, scale_factors))
+        self.assertEqual(s.num_sites, 4 * reduce(lambda a, b: a * b,
+                                                 scale_factors))
+
 
 class OxidationStateDecorationTransformationTest(unittest.TestCase):
 
     def test_apply_transformation(self):
-        t = OxidationStateDecorationTransformation({"Li":1, "O":-2})
+        t = OxidationStateDecorationTransformation({"Li": 1, "O":-2})
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li", "Li", "O", "O"], coords)
         s = t.apply_transformation(struct)
-        self.assertEqual(str(s[0].specie), "Li+")
-        self.assertEqual(str(s[2].specie), "O2-")
+        self.assertEqual(s[0].species_string, "Li+")
+        self.assertEqual(s[2].species_string, "O2-")
+
+
+class AutoOxiStateDecorationTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        t = AutoOxiStateDecorationTransformation()
+        s = t.apply_transformation(p.structure)
+        expected_oxi = {"Li": 1, "P": 5, "O":-2, "Fe": 2}
+        for site in s:
+            self.assertEqual(site.specie.oxi_state,
+                             expected_oxi[site.specie.symbol])
+
+    def to_from_dict(self):
+        t = AutoOxiStateDecorationTransformation()
+        d = t.to_dict
+        t = AutoOxiStateDecorationTransformation.from_dict(d)
+        self.assertEqual(t.analyzer.dist_scale_factor, 1.015)
+
+
+class OxidationStateRemovalTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        t = OxidationStateRemovalTransformation()
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.75, 0.75])
+        coords.append([0.5, 0.5, 0.5])
+        coords.append([0.25, 0.25, 0.25])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
+        s = t.apply_transformation(struct)
+        self.assertEqual(s[0].species_string, "Li")
+        self.assertEqual(s[2].species_string, "O")
 
 
 class PartialRemoveSpecieTransformationTest(unittest.TestCase):
@@ -138,7 +199,9 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "O2-"], coords)
         self.assertEqual(len(t.apply_transformation(struct, 100)), 2)
 
@@ -151,28 +214,36 @@ class PartialRemoveSpecieTransformationTest(unittest.TestCase):
         coords.append([0.25, 0.25, 0.25])
         coords.append([0.1, 0.1, 0.1])
         coords.append([0.3, 0.75, 0.3])
-        lattice = Lattice([[ 10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
+        lattice = Lattice([[10, 0.00, 0.00], [0, 10, 0.00], [0.00, 0, 10]])
         struct = Structure(lattice, ["Li+"] * 6, coords)
         fast_opt_s = t.apply_transformation(struct)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5,
+                                              PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = t.apply_transformation(struct)
-        self.assertAlmostEqual(EwaldSummation(fast_opt_s).total_energy, EwaldSummation(slow_opt_s).total_energy, 4)
+        self.assertAlmostEqual(EwaldSummation(fast_opt_s).total_energy,
+                               EwaldSummation(slow_opt_s).total_energy, 4)
         self.assertEqual(fast_opt_s, slow_opt_s)
 
     def test_apply_transformations_complete_ranking(self):
 
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
-        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5,
+                                                     "O":-2})
         s = t1.apply_transformation(p.structure)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5,
+                                              PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         self.assertEqual(len(t.apply_transformation(s, 10)), 6)
 
     def test_apply_transformations_best_first(self):
 
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'), check_for_POTCAR=False)
-        t1 = OxidationStateDecorationTransformation({"Li":1, "Fe":2, "P":5, "O":-2})
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        t1 = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5,
+                                                     "O":-2})
         s = t1.apply_transformation(p.structure)
-        t = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
+        t = PartialRemoveSpecieTransformation("Li+", 0.5,
+                                              PartialRemoveSpecieTransformation.ALGO_BEST_FIRST)
         self.assertEqual(len(t.apply_transformation(s)), 26)
 
 
@@ -185,33 +256,68 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
 
-        struct = Structure(lattice, [{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}] , coords)
+        struct = Structure(lattice, [{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25},
+                                     {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25},
+                                     {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25},
+                                     {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}],
+                           coords)
         output = t.apply_transformation(struct, return_ranked_list=50)
         self.assertEqual(len(output), 12)
         self.assertIsInstance(output[0]['structure'], Structure)
 
-        struct = Structure(lattice, [{"Si4+":0.5}, {"Si4+":0.5}, {"P5+":0.5, "O2-": 0.5}, {"P5+":0.5, "O2-": 0.5}] , coords)
+        struct = Structure(lattice, [{"Si4+": 0.5}, {"Si4+": 0.5},
+                                     {"P5+": 0.5, "O2-": 0.5},
+                                     {"P5+": 0.5, "O2-": 0.5}],
+                           coords)
         output = t.apply_transformation(struct, return_ranked_list=50)
         self.assertIsInstance(output, list)
         self.assertEqual(len(output), 4)
         self.assertEqual(t.lowest_energy_structure, output[0]['structure'])
 
-        struct = Structure(lattice, [{"Si4+":0.5}, {"Si4+":0.5}, {"O2-": 0.5}, {"O2-": 0.5}] , coords)
+        struct = Structure(lattice, [{"Si4+":0.5}, {"Si4+":0.5}, {"O2-": 0.5},
+                                     {"O2-": 0.5}], coords)
         allstructs = t.apply_transformation(struct, 50)
         self.assertEqual(len(allstructs), 4)
 
-        struct = Structure(lattice, [{"Si4+":0.333}, {"Si4+":0.333}, {"Si4+":0.333}, "O2-"] , coords)
+        struct = Structure(lattice, [{"Si4+": 0.333}, {"Si4+": 0.333},
+                                     {"Si4+": 0.333}, "O2-"], coords)
         allstructs = t.apply_transformation(struct, 50)
         self.assertEqual(len(allstructs), 3)
+        
+    def test_symmetrized_structure(self):
+        t = OrderDisorderedStructureTransformation(symmetrized_structures=True)
+        c = []
+        sp = []
+        c.append([0.5, 0.5, 0.5])
+        sp.append('Si4+')
+        c.append([0.45, 0.45, 0.45])
+        sp.append({"Si4+": 0.5})
+        c.append([0.56, 0.56, 0.56])
+        sp.append({"Si4+": 0.5})
+        c.append([0.25, 0.75, 0.75])
+        sp.append({"Si4+": 0.5})
+        c.append([0.75, 0.25, 0.25])
+        sp.append({"Si4+": 0.5})
+        l = Lattice.cubic(5)
+        s = Structure(l, sp, c)
+        test_site = PeriodicSite("Si4+", c[2], l)
+        s = SymmetrizedStructure(s, 'not_real', [0,1,1,2,2])
+        output = t.apply_transformation(s)
+        self.assertTrue(test_site in output.sites)
 
     def test_too_small_cell(self):
         t = OrderDisorderedStructureTransformation()
         coords = list()
         coords.append([0.5, 0.5, 0.5])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, [{"X4+":0.33, "O2-": 0.33, "P5+": 0.33}] , coords)
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, [{"X4+":0.33, "O2-": 0.33, "P5+": 0.33}],
+                           coords)
         self.assertRaises(ValueError, t.apply_transformation, struct)
 
     def test_best_first(self):
@@ -221,11 +327,18 @@ class OrderDisorderedStructureTransformationTest(unittest.TestCase):
         coords.append([0.75, 0.75, 0.75])
         coords.append([0.5, 0.5, 0.5])
         coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
 
-        struct = Structure(lattice, [{"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}, {"Si4+":0.5, "O2-": 0.25, "P5+": 0.25}] , coords)
+        struct = Structure(lattice, [{"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                                     {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                                     {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25},
+                                     {"Si4+": 0.5, "O2-": 0.25, "P5+": 0.25}],
+                           coords)
         output = t.apply_transformation(struct, return_ranked_list=3)
-        self.assertAlmostEqual(output[0]['energy'], -175.0599307, 4, 'got incorrect energy')
+        self.assertAlmostEqual(output[0]['energy'], -175.0599307, 4,
+                               'got incorrect energy')
 
 
 class PrimitiveCellTransformationTest(unittest.TestCase):
@@ -242,10 +355,19 @@ class PrimitiveCellTransformationTest(unittest.TestCase):
         coords.append([0.625, 0.625, 0.625])
         coords.append([0.75, 0.75, 0.75])
 
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+",
+                                     "O2-", "O2-", "O2-", "O2-"],
+                           coords)
         s = t.apply_transformation(struct)
         self.assertEqual(len(s), 4)
+
+        parser = CifParser(os.path.join(test_dir, "TiO2_super.cif"))
+        s = parser.get_structures()[0]
+        prim = t.apply_transformation(s)
+        self.assertEqual(prim.formula, "Ti4 O8")
 
 
 class PerturbStructureTransformationTest(unittest.TestCase):
@@ -262,69 +384,14 @@ class PerturbStructureTransformationTest(unittest.TestCase):
         coords.append([0.625, 0.625, 0.625])
         coords.append([0.75, 0.75, 0.75])
 
-        lattice = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
+        lattice = [[3.8401979337, 0.00, 0.00],
+                   [1.9200989668, 3.3257101909, 0.00],
+                   [0.00, -2.2171384943, 3.1355090603]]
+        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+",
+                                     "O2-", "O2-", "O2-", "O2-"], coords)
         transformed_s = t.apply_transformation(struct)
         for i, site in enumerate(transformed_s):
             self.assertAlmostEqual(site.distance(struct[i]), 0.05)
-
-
-class ChargeBalanceTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        t = ChargeBalanceTransformation('Li+')
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([.5, .5, .5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
-
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
-        s = t.apply_transformation(struct)
-
-        self.assertAlmostEqual(s.charge, 0, 5)
-
-class SuperTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        tl = [SubstitutionTransformation({"Li+":"Na+"}),
-              SubstitutionTransformation({"Li+":"K+"})]
-        t = SuperTransformation(tl)
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.375, 0.375, 0.375])
-        coords.append([.5, .5, .5])
-        coords.append([0.875, 0.875, 0.875])
-        coords.append([0.125, 0.125, 0.125])
-        coords.append([0.25, 0.25, 0.25])
-        coords.append([0.625, 0.625, 0.625])
-        coords.append([0.75, 0.75, 0.75])
-
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
-        s = t.apply_transformation(struct, return_ranked_list=True)
-
-        for s_and_t in s:
-            self.assertEqual(s_and_t['transformation'].apply_transformation(struct), s_and_t['structure'])
-
-class MultipleSubstitutionTransformationTest(unittest.TestCase):
-
-    def test_apply_transformation(self):
-        sub_dict = {1: ["Na", "K"]}
-        t = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
-        coords = list()
-        coords.append([0, 0, 0])
-        coords.append([0.75, 0.75, 0.75])
-        coords.append([0.5, 0.5, 0.5])
-        coords.append([0.25, 0.25, 0.25])
-        lattice = Lattice([[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]])
-        struct = Structure(lattice, ["Li+", "Li+", "O2-", "O2-"], coords)
-        self.assertEqual(len(t.apply_transformation(struct, return_ranked_list=True)), 2)
 
 
 if __name__ == "__main__":

@@ -15,4 +15,5 @@ Subpackages
 .. toctree::
 
     pymatgen.apps.battery
+    pymatgen.apps.borg
 

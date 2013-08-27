@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Mar 18, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -16,13 +16,16 @@ __date__ = "Mar 18, 2012"
 import unittest
 import os
 
-from pymatgen.io.vaspio import Vasprun
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-import pymatgen
+from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
+
 filepath = os.path.join(test_dir, 'vasprun.xml')
 vasprun = Vasprun(filepath)
+
 
 class ComputedEntryTest(unittest.TestCase):
 
@@ -30,8 +33,9 @@ class ComputedEntryTest(unittest.TestCase):
         self.entry = ComputedEntry(vasprun.final_structure.composition,
                                    vasprun.final_energy,
                                    parameters=vasprun.incar)
-        self.entry2 = ComputedEntry({"Fe":2, "O":3}, 2.3)
+        self.entry2 = ComputedEntry({"Fe": 2, "O": 3}, 2.3)
         self.entry3 = ComputedEntry("Fe2O3", 2.3)
+        self.entry4 = ComputedEntry("Fe2O3", 2.3, entry_id=1)
 
     def test_energy(self):
         self.assertAlmostEqual(self.entry.energy, -269.38319884)
@@ -47,6 +51,13 @@ class ComputedEntryTest(unittest.TestCase):
         d = self.entry.to_dict
         e = ComputedEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -269.38319884)
+
+    def test_entry_id(self):
+        self.assertEqual(self.entry4.entry_id, 1)
+        self.assertEqual(self.entry2.entry_id, None)
+
+    def test_str(self):
+        self.assertIsNotNone(str(self.entry))
 
 
 class ComputedStructureEntryTest(unittest.TestCase):
@@ -68,6 +79,9 @@ class ComputedStructureEntryTest(unittest.TestCase):
         d = self.entry.to_dict
         e = ComputedStructureEntry.from_dict(d)
         self.assertAlmostEqual(e.energy, -269.38319884)
+
+    def test_str(self):
+        self.assertIsNotNone(str(self.entry))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

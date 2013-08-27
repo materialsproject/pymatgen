@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 .. versionadded:: 1.9.0
 
 This module implements the abstract base class for msonable pymatgen objects,
@@ -23,11 +23,11 @@ objects are supported as well.
     PMGJSONEncoder will add these keys if they are not present, but for better
     long term stability, the easiest way is to add the following to any to_dict
     property::
-    
-        d['module'] = self.__class__.__module__
-        d['class'] = self.__class__.__name__
-    
-'''
+
+        d["module"] = self.__class__.__module__
+        d["class"] = self.__class__.__name__
+
+"""
 
 from __future__ import division
 
@@ -39,9 +39,10 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 30, 2012"
 
 import json
-import abc
+from abc import ABCMeta, abstractproperty
+import datetime
 
-from pymatgen.util.io_utils import file_open_zip_aware
+from pymatgen.util.io_utils import zopen
 
 
 class MSONable(object):
@@ -50,23 +51,26 @@ class MSONable(object):
     is Materials JSON. Essentially, MSONable objects must implement a to_dict
     property and a from_dict static method.
     """
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = ABCMeta
 
-    @abc.abstractproperty
+    @abstractproperty
     def to_dict(self):
         """
         A JSON serializable dict representation of an object.
         """
         pass
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, d):
         """
-        This simply raises a NotImplementedError to force subclasses to
-        implement this static method. Abstract static methods are not
-        implemented until Python 3+.
+        This implements a default from_dict method which supports all
+        classes that simply saves all init arguments in a "init_args"
+        key. Otherwise, the MSONAble class must override this class method.
         """
-        raise NotImplementedError("MSONable objects must implement a from_dict static method.")
+        if "init_args" in d:
+            return cls(**d['init_args'])
+        raise MSONError("Invalid dict for default from_dict. Please "
+                        "override from_dict for ".format(cls))
 
     @property
     def to_json(self):
@@ -76,47 +80,66 @@ class MSONable(object):
         return json.dumps(self, cls=PMGJSONEncoder)
 
     def write_to_json_file(self, filename):
-        '''
-        Writes the mson representation to a file. 
-        
+        """
+        Writes the mson representation to a file.
+
         Args:
             filename:
                 filename to write to. It is recommended that the file extension
                 be ".mson".
-        '''
-        with file_open_zip_aware(filename, "wb") as f:
+        """
+        with zopen(filename, "wb") as f:
             json.dump(self, f, cls=PMGJSONEncoder)
 
 
 class PMGJSONEncoder(json.JSONEncoder):
     """
     A Pymatgen Json Encoder which supports the to_dict API.
-    
+
     Usage:
         Add it as a *cls* keyword when using json.dump
         json.dumps(object, cls=PMGJSONEncoder)
     """
 
     def default(self, o):
+        """
+        Overriding default method for JSON encoding. This method does two
+        things: (a) If an object has a to_dict property, return the to_dict
+        output. (b) If the @module and @class keys are not in the to_dict,
+        add them to the output automatically. If the object has no to_dict
+        property, the default Python json encoder default method is called.
+
+        Args:
+            o:
+                Python object.
+
+        Return:
+            Python dict representation.
+        """
         try:
+            if isinstance(o, datetime.datetime):
+                return {"@module": "datetime",
+                        "@class": "datetime",
+                        "string": str(o)}
             d = o.to_dict
-            if "module" not in d:
-                d["module"] = o.__class__.__module__
-            if "class" not in d:
-                d['class'] = o.__class__.__name__
+            if "@module" not in d:
+                d["@module"] = o.__class__.__module__
+            if "@class" not in d:
+                d["@class"] = o.__class__.__name__
             return d
-        except:
+        except AttributeError:
             return json.JSONEncoder.default(self, o)
 
 
 class PMGJSONDecoder(json.JSONDecoder):
     """
     A Pymatgen Json Decoder which supports the from_dict API. By default, the
-    decoder attempts to find a module and name associated with a dict. If found,
-    the decoder will generate a Pymatgen as a priority.  If that fails, the
-    original decoded dictionary from the string is returned. Note that nested
-    lists and dicts containing pymatgen object will be decoded correctly as well.
-    
+    decoder attempts to find a module and name associated with a dict. If
+    found, the decoder will generate a Pymatgen as a priority.  If that fails,
+    the original decoded dictionary from the string is returned. Note that
+    nested lists and dicts containing pymatgen object will be decoded correctly
+    as well.
+
     Usage:
         Add it as a *cls* keyword when using json.load
         json.loads(json_string, cls=PMGJSONDecoder)
@@ -128,15 +151,34 @@ class PMGJSONDecoder(json.JSONDecoder):
         pymatgen objects.
         """
         if isinstance(d, dict):
-            if 'module' in d and 'class' in d:
-
-                mod = __import__(d['module'], globals(), locals(), [d['class']], -1)
-                if hasattr(mod, d['class']):
-                    cls = getattr(mod, d['class'])
-                    data = {k:v for k, v in d.items() if k not in ["module", "class"]}
-                    return cls.from_dict(data)
+            if "@module" in d and "@class" in d:
+                modname = d["@module"]
+                classname = d["@class"]
+            elif "module" in d and "class" in d:
+                modname = d["module"]
+                classname = d["class"]
             else:
-                return {self.process_decoded(k):self.process_decoded(v) for k, v in d.items()}
+                modname = None
+                classname = None
+            if modname:
+                if modname == "datetime" and classname == "datetime":
+                    try:
+                        dt = datetime.datetime.strptime(d["string"],
+                                                        "%Y-%m-%d %H:%M:%S.%f")
+                    except ValueError:
+                        dt = datetime.datetime.strptime(d["string"],
+                                                        "%Y-%m-%d %H:%M:%S")
+                    return dt
+                mod = __import__(modname, globals(), locals(), [classname], -1)
+                if hasattr(mod, classname):
+                    cls_ = getattr(mod, classname)
+                    data = {k: v for k, v in d.items()
+                            if k not in ["module", "class",
+                                         "@module", "@class"]}
+                    if hasattr(cls_, "from_dict"):
+                        return cls_.from_dict(data)
+            return {self.process_decoded(k): self.process_decoded(v)
+                    for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]
         return d
@@ -145,3 +187,61 @@ class PMGJSONDecoder(json.JSONDecoder):
         d = json.JSONDecoder.decode(self, s)
         return self.process_decoded(d)
 
+
+class MSONError(Exception):
+    """
+    Exception class for serialization errors.
+    """
+    pass
+
+
+def json_pretty_dump(obj, filename):
+    """
+    Serialize obj as a JSON formatted stream to the given filename (
+    pretty printing version)
+    """
+    with open(filename, "w") as fh:
+        json.dump(obj, fh, indent=4, sort_keys=4)
+
+
+def json_load(filename):
+    """
+    Deserialize a file containing a JSON document to a Python object.
+    """
+    with open(filename, "r") as fh:
+        return json.load(fh)
+
+
+def pmg_load(filename, **kwargs):
+    """
+    Loads a json file and deserialize it with PMGJSONDecoder.
+
+    Args:
+        filename:
+            Filename of file to open. Can be gzipped or bzipped.
+        \*\*kwargs:
+            Any of the keyword arguments supported by the json.load method.
+
+    Returns:
+        Deserialized pymatgen object. Note that these objects can be lists,
+        dicts or otherwise nested pymatgen objects that support the to_dict
+        and from_dict MSONAble protocol.
+    """
+    return json.load(zopen(filename), cls=PMGJSONDecoder, **kwargs)
+
+
+def pmg_dump(obj, filename, **kwargs):
+    """
+    Dump an object to a json file using PMGJSONEncoder. Note that these
+    objects can be lists, dicts or otherwise nested pymatgen objects that
+    support the to_dict and from_dict MSONAble protocol.
+
+    Args:
+        obj:
+            Object to dump.
+        filename:
+            Filename of file to open. Can be gzipped or bzipped.
+        \*\*kwargs:
+            Any of the keyword arguments supported by the json.load method.
+    """
+    return json.dump(obj, zopen(filename, "w"), cls=PMGJSONEncoder, **kwargs)

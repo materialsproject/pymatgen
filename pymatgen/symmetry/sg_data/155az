@@ -1,7 +1,0 @@
-R32
-x,            y,            z
-z,            x,            y
-y,            z,            x
--x,           -z,           -y
--z,           -y,           -x
--y,           -x,           -z

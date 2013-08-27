@@ -13,8 +13,7 @@ from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 import os
-
-__author__="Maarten de Jong"
+uthor__="Maarten de Jong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Mark Asta, Anubhav Jain"
 __version__ = "1.0"
@@ -29,7 +28,7 @@ class Strain(object):
     #TODO: AJ says much of this class should be reimplemented from the standpoint of subclassing SQTensor
     #TODO: AJ says there should be a static from_strain(matrix) method that constructs the object from a strain matrix rather than deformation matrix
     #For an example of the above, see the various 'from_xxxxx' methods in pymatgen.core.structure.Composition
-    
+
     def __init__(self, deformation_matrix):
         self._dfm = deformation_matrix
         #TODO: AJ says the above needs to be handled by a super() call
@@ -81,10 +80,10 @@ class Strain(object):
 
 class IndependentStrain(Strain):
    # todo: add polar decomposition method
-   # 
+   #
 
     def __init__(self, deformation,tol=0.00000001):
-        
+
         super(IndependentStrain, self).__init__(deformation)
         (self._i, self._j) = self.check_F(tol)
 
@@ -98,7 +97,7 @@ class IndependentStrain(Strain):
         df1 = self.deformation_matrix
         counter = 0
         checkmatrix = np.zeros((3,3))
-        
+
         for c1 in range(0,3):
             for c2 in range(0,3):
                 if c1 != c2:
@@ -133,6 +132,7 @@ if __name__ == "__main__":
 
     my_strain = IndependentStrain(mat)
     my_strain.check_F()
+
 
 #    print my_strain._strain
     

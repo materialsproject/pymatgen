@@ -33,3 +33,11 @@ battery Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`plotter` Module
+---------------------
+
+.. automodule:: pymatgen.apps.battery.plotter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

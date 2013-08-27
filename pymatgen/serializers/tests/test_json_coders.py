@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Apr 30, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -17,9 +17,12 @@ import unittest
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.transformations.standard_transformations import IdentityTransformation
+from pymatgen.transformations.standard_transformations import \
+    IdentityTransformation
 import json
-from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder, MSONable
+from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder,\
+    MSONable, MSONError
+import datetime
 
 
 class MSONableTest(unittest.TestCase):
@@ -33,11 +36,11 @@ class MSONableTest(unittest.TestCase):
 
             @property
             def to_dict(self):
-                d = {'a':self.a, 'b':self.b}
+                d = {'a': self.a, 'b': self.b}
                 return d
 
-            @staticmethod
-            def from_dict(d):
+            @classmethod
+            def from_dict(cls, d):
                 return GoodMSONClass(d['a'], d['b'])
 
         self.good_cls = GoodMSONClass
@@ -50,7 +53,7 @@ class MSONableTest(unittest.TestCase):
 
             @property
             def to_dict(self):
-                d = {'a':self.a, 'b':self.b}
+                d = {'a': self.a, 'b': self.b}
                 return d
 
         self.bad_cls = BadMSONClass
@@ -63,7 +66,7 @@ class MSONableTest(unittest.TestCase):
         obj = self.bad_cls("Hello", "World")
         d = obj.to_dict
         self.assertIsNotNone(d)
-        self.assertRaises(NotImplementedError, self.bad_cls.from_dict, d)
+        self.assertRaises(MSONError, self.bad_cls.from_dict, d)
 
     def test_to_json(self):
         obj = self.good_cls("Hello", "World")
@@ -76,23 +79,26 @@ class PMGJSONTest(unittest.TestCase):
         coords = list()
         coords.append([0, 0, 0])
         coords.append([0.75, 0.5, 0.75])
-        lattice = [[ 3.8401979337, 0.00, 0.00], [1.9200989668, 3.3257101909, 0.00], [0.00, -2.2171384943, 3.1355090603]]
+        lattice = [[3.8401979337, 0.00, 0.00],
+                   [1.9200989668, 3.3257101909, 0.00],
+                   [0.00, -2.2171384943, 3.1355090603]]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
-        objs = [struct, struct[0], struct.lattice, struct[0].specie, struct.composition]
-        for o in  objs:
+        objs = [struct, struct[0], struct.lattice, struct[0].species_and_occu,
+                struct.composition]
+        for o in objs:
             jsonstr = json.dumps(o, cls=PMGJSONEncoder)
             d = json.loads(jsonstr, cls=PMGJSONDecoder)
             self.assertEqual(type(d), type(o))
 
         mol = Molecule(["O", "O"], coords)
         objs = [mol, mol[0]]
-        for o in  objs:
+        for o in objs:
             jsonstr = json.dumps(o, cls=PMGJSONEncoder)
             d = json.loads(jsonstr, cls=PMGJSONDecoder)
             self.assertEqual(type(d), type(o))
 
         #Check dict of things
-        o = {'structure':struct, "molecule":mol}
+        o = {'structure': struct, "molecule": mol}
         jsonstr = json.dumps(o, cls=PMGJSONEncoder)
         d = json.loads(jsonstr, cls=PMGJSONDecoder)
         self.assertEqual(type(d['structure']), Structure)
@@ -120,6 +126,19 @@ class PMGJSONTest(unittest.TestCase):
         jsonstr = json.dumps(trans, cls=PMGJSONEncoder)
         d = json.loads(jsonstr, cls=PMGJSONDecoder)
         self.assertEqual(type(d), IdentityTransformation)
+
+    def test_datetime(self):
+        dt = datetime.datetime.now()
+        jsonstr = json.dumps(dt, cls=PMGJSONEncoder)
+        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        self.assertEqual(type(d), datetime.datetime)
+        self.assertEqual(dt, d)
+        #Test a nested datetime.
+        a = {'dt': dt, "a": 1}
+        jsonstr = json.dumps(a, cls=PMGJSONEncoder)
+        d = json.loads(jsonstr, cls=PMGJSONDecoder)
+        self.assertEqual(type(d["dt"]), datetime.datetime)
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
