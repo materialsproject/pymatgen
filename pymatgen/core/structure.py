@@ -788,7 +788,7 @@ class IStructure(SiteCollection, MSONable):
                 l = self.lattice
             fcoords = start_coords + x / nimages * vec
             structs.append(self.__class__(l, sp, fcoords,
-                                site_properties=self.site_properties))
+                           site_properties=self.site_properties))
         return structs
 
     def get_primitive_structure(self, tolerance=0.25):
@@ -1716,7 +1716,8 @@ class Structure(IStructure):
         """
         self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
 
-    def translate_sites(self, indices, vector, frac_coords=True):
+    def translate_sites(self, indices, vector, frac_coords=True, 
+                        to_unit_cell=True):
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
@@ -1729,6 +1730,8 @@ class Structure(IStructure):
             frac_coords:
                 Boolean stating whether the vector corresponds to fractional or
                 cartesian coordinates.
+            to_unit_cell:
+                Boolean stating whether new sites are transformed to unit cell
         """
         for i in indices:
             site = self._sites[i]
@@ -1738,7 +1741,7 @@ class Structure(IStructure):
                 fcoords = self._lattice.get_fractional_coords(site.coords
                                                               + vector)
             new_site = PeriodicSite(site.species_and_occu, fcoords,
-                                    self._lattice, to_unit_cell=True,
+                                    self._lattice, to_unit_cell=to_unit_cell,
                                     coords_are_cartesian=False,
                                     properties=site.properties)
             self._sites[i] = new_site
@@ -1878,6 +1881,17 @@ class Structure(IStructure):
                     new_sites.append(new_site)
         self._sites = new_sites
         self._lattice = new_lattice
+
+    def scale_lattice(self, volume):
+        """
+        Performs a scaling of the lattice vectors so that length proportions
+        and angles are preserved.
+
+        Args:
+            volume:
+                New volume of the unit cell in A^3.
+        """
+        self._lattice = self._lattice.scale(volume)
 
 
 class Molecule(IMolecule):
