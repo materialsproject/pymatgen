@@ -251,7 +251,7 @@ class DiffusionAnalyzer(MSONable):
                                  'match.')
             final_structure = vr.final_structure
             
-            assert vr.ionic_step_skip == step_skip
+            assert (vr.ionic_step_skip or 1) == step_skip
             p.extend([np.array(s['structure'].frac_coords)[:, None]
                       for s in vr.ionic_steps])
         p = np.concatenate(p, axis=1)
