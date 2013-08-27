@@ -5,14 +5,11 @@ from __future__ import division, print_function
 
 import sys
 import os
-import os.path
 import shutil
 import abc
 import collections
 import functools
 import numpy as np
-
-from pprint import pprint
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -23,10 +20,10 @@ from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.io.abinitio.task import task_factory, Task
 
-from .utils import abinit_output_iscomplete, File
-from .netcdf import GSR_Reader
+from .utils import File
+from .netcdf import ETSF_Reader
 from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
-from .pseudos import Pseudo, PseudoTable
+from .pseudos import Pseudo
 from .strategies import ScfStrategy
 from .task import RunMode
 from .eos import EOS
@@ -39,8 +36,9 @@ __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
-#__all__ = [
-#]
+__all__ = [
+
+]
 
 ################################################################################
 
@@ -72,6 +70,7 @@ class Product(object):
         "_SCR": {"irdscr": 1},
         "_QPS": {"irdqps": 1},
     }
+
     def __init__(self, ext, path):
         self.ext = ext
         self.file = File(path)
@@ -457,20 +456,46 @@ class Workflow(BaseWorkflow, MSONable):
     def processes(self):
         return [task.process for task in self]
 
-    def rmtree(self, *args, **kwargs):
+    def rmtree(self, exclude_wildcard=""):
         """
         Remove all calculation files and directories.
 
-        Keyword arguments:
-            force: (False)
-                Do not ask confirmation.
-            verbose: (0)
-                Print message if verbose is not zero.
-        """
-        if kwargs.pop('verbose', 0):
-            print('Removing directory tree: %s' % self.workdir)
+        Args:
+            exclude_wildcard:
+                Optional string with regular expressions separated by |.
+                Files matching one of the regular expressions will be preserved.
+                ex: exclude_wildar="*.nc|*.txt" preserves all the files
+                whose extension is in ["nc", "txt"].
 
-        shutil.rmtree(self.workdir)
+        """
+        if not exclude_wildcard:
+            shutil.rmtree(self.workdir)
+
+        else:
+            pats = exclude_wildcard.split("|")
+
+            import fnmatch
+            def keep(fname):
+                for pat in pats:
+                    if fnmatch.fnmatch(fname, pat):
+                        return True
+                return False
+
+            for dirpath, dirnames, filenames in os.walk(self.workdir):
+                for fname in filenames:
+                    path = os.path.join(dirpath, fname)
+                    if not keep(fname):
+                        os.remove(path)
+
+    def rm_tmpdatadir(self):
+        """Remove all the tmpdata directories."""
+        for task in self:
+            task.rm_tmpdatadir()
+
+    def rm_indatadir(self):
+        """Remove all the indata directories."""
+        for task in self:
+            task.rm_indatadir()
 
     def move(self, dst, isabspath=False):
         """
@@ -522,7 +547,7 @@ class Workflow(BaseWorkflow, MSONable):
         etotal = []
         for task in self:
             # Open the GSR file and read etotal (Hartree)
-            with GSR_Reader(task.odata_path_from_ext("_GSR")) as ncdata:
+            with ETSF_Reader(task.odata_path_from_ext("_GSR")) as ncdata:
                 etotal.append(ncdata.read_value("etotal"))
 
         return etotal
@@ -1187,7 +1212,7 @@ class BSEMDF_Workflow(Workflow):
         """
         Workflow for simple BSE calculations in which the self-energy corrections 
         are approximated by the scissors operator and the screening in modeled 
-        with model dielectric function.
+        with the model dielectric function.
 
         Args:
             workdir:
