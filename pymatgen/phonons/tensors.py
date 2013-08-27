@@ -93,6 +93,10 @@ class SQTensor(object):
         I = [I1, I2, I3]
         return I
 
+    @property
+    def KG_average(self):
+        # method for K, G calculation
+
 #    def rotate(self, rotation):
 #        super(StressOps, self).__init__(rotation)
 #        super(StressOps, self).is_rotation_matrix()
@@ -107,7 +111,7 @@ if __name__ == "__main__":
 
     eye = np.identity(3)
     sigma = SQTensor(np.random.randn(3,3))
-    sigma.PrincipalInvariants
+    print sigma.PrincipalInvariants
 
     
 
