@@ -74,11 +74,10 @@ class PDAnalyzer(object):
         els = self._pd.elements
         dim = len(els)
         if dim > 1:
-            coords = [np.array(self._pd.qhull_data[facet[i]][0:dim - 1])
-                      for i in xrange(len(facet))]
+            coords = [np.array(self._pd.qhull_data[f][0:dim - 1])
+                      for f in facet]
             simplex = Simplex(coords)
-            comp_point = [comp.get_atomic_fraction(els[i])
-                          for i in xrange(1, len(els))]
+            comp_point = [comp.get_atomic_fraction(e) for e in els[1:]]
             return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
         else:
             return True
@@ -114,9 +113,9 @@ class PDAnalyzer(object):
         m = self._make_comp_matrix(comp_list)
         compm = self._make_comp_matrix([comp])
         decomp_amts = np.linalg.solve(m.T, compm.T)
-        return {self._pd.qhull_entries[facet[i]]: decomp_amts[i][0]
-                for i in xrange(len(decomp_amts))
-                if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
+        return {self._pd.qhull_entries[f]: amt[0]
+                for f, amt in zip(facet, decomp_amts)
+                if abs(amt[0]) > PDAnalyzer.numerical_tol}
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
@@ -209,12 +208,13 @@ class PDAnalyzer(object):
         m = self._make_comp_matrix(complist)
         chempots = np.linalg.solve(m, energylist)
         return dict(zip(self._pd.elements, chempots))
-    
+
     def get_composition_chempots(self, comp):
-        #check that the composition is in the PD (it's often easy to use invalid ones
-        #in grand potential phase diagrams)
+        # Check that the composition is in the PD (it's often easy to use
+        # invalid ones in grand potential phase diagrams)
         for el in comp.elements:
-            if el not in self._pd.elements and comp[el] > Composition.amount_tolerance:
+            if el not in self._pd.elements and \
+                    comp[el] > Composition.amount_tolerance:
                 raise ValueError('Composition includes element {} which is '
                                  'not in the PhaseDiagram'.format(el))
         facet = self._get_facet(comp)
@@ -282,7 +282,7 @@ class PDAnalyzer(object):
         gccomp = Composition({el: amt for el, amt in comp.items()
                               if el != element})
         elref = self._pd.el_refs[element]
-        elcomp = Composition.from_formula(element.symbol)
+        elcomp = Composition(element.symbol)
         prev_decomp = []
         evolution = []
 
@@ -316,7 +316,6 @@ class PDAnalyzer(object):
                                   'evolution': amt,
                                   'element_reference': elref,
                                   'reaction': rxn, 'entries': decomp_entries})
-
         return evolution
 
     def get_chempot_range_map(self, elements):

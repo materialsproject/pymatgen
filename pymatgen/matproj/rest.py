@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 """
-This module provides classes to interface with the Materials Project http REST
-interface to enable the creation of data structures and pymatgen objects using
+This module provides classes to interface with the Materials Project REST
+API to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
-To make use of the Materials Project REST application programming interface (
-Materials API), you need to be a registered user of the MaterialsProject,
-and obtain an API key by going to your profile at
+To make use of the Materials API, you need to be a registered user of the
+Materials Project, and obtain an API key by going to your profile at
 https://www.materialsproject.org/profile.
 """
 

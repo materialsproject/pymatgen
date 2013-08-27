@@ -61,7 +61,8 @@ class TransformedStructure(MSONable):
         if len(self.history) == 0:
             raise IndexError("Can't undo. Already at oldest change.")
         if 'input_structure' not in self.history[-1]:
-            raise IndexError("Can't undo. Latest history has no input_structure")
+            raise IndexError("Can't undo. Latest history has no "
+                             "input_structure")
         h = self.history.pop()
         self._undone.append((h, self.final_structure))
         s = h["input_structure"]
@@ -235,8 +236,8 @@ class TransformedStructure(MSONable):
         Returns a copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
-        hstructs = [Structure.from_dict(s['input_structure']) for s in self.history \
-                    if 'input_structure' in s]
+        hstructs = [Structure.from_dict(s['input_structure'])
+                    for s in self.history if 'input_structure' in s]
         return hstructs + [self.final_structure]
             
     @staticmethod
@@ -342,6 +343,8 @@ class TransformedStructure(MSONable):
     @classmethod
     def from_snl(cls, snl):
         """
+        Create TransformedStructure from SNL.
+
         Args:
             snl:
                 Starting snl
@@ -352,6 +355,9 @@ class TransformedStructure(MSONable):
             copy_data:
                 copy the contents of snl.data into the last history
                 node
+
+        Returns:
+            TransformedStructure.
         """
         hist = []
         for h in snl.history:
