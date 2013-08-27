@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-This module provides core classes needed by all define electronic structure, 
+This module provides core classes needed by all define electronic structure,
 such as the Spin, Orbital, etc.
 """
 
@@ -15,8 +15,7 @@ __email__ = "shyue@mit.edu"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
-
-from pymatgen.util.decorators import cached_class
+import collections
 
 
 class Spin(object):
@@ -24,39 +23,13 @@ class Spin(object):
     Enum type for Spin.  Only up and down.
     Usage: Spin.up, Spin.down.
     """
-
-    @cached_class
-    class _SpinImpl(object):
-        """
-        Internal representation for Spin. Not to be instantiated directly.
-        Use Spin enum types. Class is implemented as a cached class for 
-        memory efficiency.
-        """
-        def __init__(self, name):
-            self._name = name
-
-        def __int__(self):
-            return 1 if self._name == "up" else -1
-
-        def __repr__(self):
-            return self._name
-
-        def __eq__(self, other):
-            if other == None:
-                return False
-            return self._name == other._name
-
-        def __hash__(self):
-            return self.__int__()
-
-        def __str__(self):
-            return self._name
+    up, down = (1, -1)
 
     @staticmethod
     def from_int(i):
         """
         Provides the spin from an int. +1 == Spin.up, -1 == Spin.down.
-        
+
         Args:
             i:
                 integer representing direction of spin.
@@ -68,49 +41,47 @@ class Spin(object):
         else:
             raise ValueError("Spin integers must be 1 or -1")
 
-    up = _SpinImpl("up")
-    down = _SpinImpl("down")
     all_spins = (up, down)
+
+
+class _OrbitalImpl(collections.namedtuple('_Orbital', 'name vasp_index')):
+    """
+    Internal representation of an orbital.  Do not use directly.
+    Use the Orbital class enum types.
+    """
+    __slots__ = ()
+
+    def __int__(self):
+        return self.vasp_index
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        return self.vasp_index == other.vasp_index
+
+    def __hash__(self):
+        return self.vasp_index
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def orbital_type(self):
+        """
+        String indicating the type of orbital. Is always uppercase. E.g.,
+        S, P, D, F, etc.
+        """
+        return self.name[0].upper()
 
 
 class Orbital(object):
     """
-    Enum type for OrbitalType. Indices are basically the azimutal quantum number, l.
-    Design follows somewhat the familiar Java syntax.
+    Enum type for OrbitalType. Indices are basically the azimutal quantum
+    number, l.
     """
-
-    @cached_class
-    class _OrbitalImpl(object):
-        """
-        Internal representation of an orbital.  Do not use directly. 
-        Use the Orbital class enum types.  Class is implemented as a cached 
-        class for memory efficiency.
-        """
-
-        def __init__(self, name, vasp_index):
-            self._name = name
-            self._vasp_index = vasp_index
-
-        def __int__(self):
-            return self._vasp_index
-
-        def __repr__(self):
-            return self._name
-
-        def __eq__(self, other):
-            if other == None:
-                return False
-            return self._name == other._name
-
-        def __hash__(self):
-            return self.__int__()
-
-        @property
-        def orbital_type(self):
-            return self._name[0].upper()
-
-        def __str__(self):
-            return self._name
 
     s = _OrbitalImpl("s", 0)
     py = _OrbitalImpl("py", 1)
@@ -136,15 +107,17 @@ class Orbital(object):
 
     @staticmethod
     def from_vasp_index(i):
-        for orb in Orbital.all_orbitals:
-            if int(orb) == i:
-                return orb
-        raise IndexError("Illegal exceeds supported orbital set")
+        """
+        Returns an orbital based on the index of the orbital in VASP runs.
+        """
+        return Orbital.all_orbitals[i]
 
     @staticmethod
     def from_string(orb_str):
+        """
+        Returns an orbital from a string representation, e.g., "s", "px".
+        """
         for orb in Orbital.all_orbitals:
             if str(orb) == orb_str:
                 return orb
         raise ValueError("Illegal orbital definition!")
-

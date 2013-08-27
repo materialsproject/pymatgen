@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-'''
+"""
 This module provides conversion between the Atomic Simulation Environment
 Atoms object and pymatgen Structure objects.
-'''
+"""
 
 from __future__ import division
 
@@ -24,15 +24,15 @@ except ImportError:
 
 
 class AseAtomsAdaptor(object):
-    '''
+    """
     Adaptor serves as a bridge between ASE Atoms and pymatgen structure.
-    '''
+    """
 
     @staticmethod
     def get_atoms(structure):
         """
         Returns ASE Atoms object from pymatgen structure.
-        
+
         Args:
             structure:
                 pymatgen.core.structure.Structure
@@ -41,7 +41,7 @@ class AseAtomsAdaptor(object):
             ASE Atoms object
         """
         if not structure.is_ordered:
-            raise ValueError('ASE Atoms only supports ordered structures')
+            raise ValueError("ASE Atoms only supports ordered structures")
         symbols = [str(site.specie.symbol) for site in structure]
         positions = [site.coords for site in structure]
         cell = structure.lattice.matrix
@@ -51,15 +51,16 @@ class AseAtomsAdaptor(object):
     def get_structure(atoms):
         """
         Returns pymatgen structure from ASE Atoms.
-        
+
         Args:
             atoms:
                 ASE Atoms object
-                
+
         Returns:
             Equivalent pymatgen.core.structure.Structure
         """
         symbols = atoms.get_chemical_symbols()
         positions = atoms.get_positions()
         lattice = atoms.get_cell()
-        return Structure(lattice, symbols, positions, coords_are_cartesian=True)
+        return Structure(lattice, symbols, positions,
+                         coords_are_cartesian=True)

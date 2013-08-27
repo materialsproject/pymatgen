@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
-'''
-Interface class with OpenBabel
-'''
+"""
+OpenBabel interface module, which opens up access to the hundreds of file
+formats supported by OpenBabel. Requires openbabel with python bindings to be
+installed. Please consult the
+`openbabel documentation <http://openbabel.org/wiki/Main_Page>`_.
+"""
 
 from __future__ import division
 
@@ -14,60 +17,106 @@ __email__ = "shyue@mit.edu"
 __date__ = "Apr 28, 2012"
 
 from pymatgen.core.structure import Molecule
+from pymatgen.util.decorators import requires
 
 try:
     import openbabel as ob
     import pybel as pb
-    babel_loaded = True
 except ImportError:
-    babel_loaded = False
+    pb = None
+    ob = None
 
 
 class BabelMolAdaptor(object):
-    '''
+    """
     Adaptor serves as a bridge between OpenBabel's Molecule and pymatgen's
     Molecule.
-    '''
+    """
 
+    @requires(pb and ob,
+              "BabelMolAdaptor requires openbabel to be installed with "
+              "Python bindings. Please get it at http://openbabel.org.")
     def __init__(self, mol):
         """
-        Initializes with pymatgen Molecule or OpenBabel's OBMol.
-        
+        Initializes with pymatgen Molecule or OpenBabel"s OBMol.
+
         Args:
             mol:
-                pymatgen's Molecule or OpenBabel Molecule
+                pymatgen"s Molecule or OpenBabel OBMol
         """
         if isinstance(mol, Molecule):
             if not mol.is_ordered:
-                raise ValueError('OpenBabel Molecule only supports ordered molecules.')
+                raise ValueError("OpenBabel Molecule only supports ordered "
+                                 "molecules.")
+
+            # For some reason, manually adding atoms does not seem to create
+            # the correct OBMol representation to do things like force field
+            # optimization. So we go through the indirect route of creating
+            # an XYZ file and reading in that file.
+            obmol = ob.OBMol()
+
             obmol = ob.OBMol()
             for site in mol:
-                a = obmol.NewAtom()
-                a.SetAtomicNum(site.specie.Z)
-                a.SetVector(site.x, site.y, site.z)
-            self._mol = mol
+                coords = [c for c in site.coords]
+                atomno = site.specie.Z
+                obatom = ob.OBAtom()
+                obatom.SetAtomicNum(atomno)
+                obatom.SetVector(*coords)
+                obmol.AddAtom(obatom)
+            obmol.ConnectTheDots()
+            obmol.PerceiveBondOrders()
+            obmol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
+            obmol.SetTotalCharge(mol.charge)
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
-            sp = []
-            coords = []
-            for atom in ob.OBMolAtomIter(mol):
-                sp.append(atom.GetAtomicNum())
-                coords.append([atom.GetX(), atom.GetY(), atom.GetZ()])
-            self._mol = Molecule(sp, coords)
+
             self._obmol = mol
 
     @property
     def pymatgen_mol(self):
-        return self._mol
+        """
+        Returns pymatgen Molecule object.
+        """
+        sp = []
+        coords = []
+        for atom in ob.OBMolAtomIter(self._obmol):
+            sp.append(atom.GetAtomicNum())
+            coords.append([atom.GetX(), atom.GetY(), atom.GetZ()])
+        return Molecule(sp, coords)
 
     @property
     def openbabel_mol(self):
+        """
+        Returns OpenBabel's OBMol.
+        """
         return self._obmol
+
+    def localopt(self, forcefield='mmff94', steps=500):
+        """
+        A wrapper to pybel's localopt method to optimize a Molecule.
+
+        Args:
+            forcefield:
+                Default is mmff94. Options are 'gaff', 'ghemical', 'mmff94',
+                'mmff94s', and 'uff'.
+            steps:
+                Default is 500.
+        """
+        pbmol = pb.Molecule(self._obmol)
+        pbmol.localopt(forcefield=forcefield, steps=steps)
+        self._obmol = pbmol.OBMol
+
+    @property
+    def pybel_mol(self):
+        """
+        Returns Pybel's Molecule object.
+        """
+        return pb.Molecule(self._obmol)
 
     def write_file(self, filename, file_format="xyz"):
         """
         Uses OpenBabel to output all supported formats.
-        
+
         Args:
             filename:
                 Filename of file to output
@@ -79,6 +128,35 @@ class BabelMolAdaptor(object):
 
     @staticmethod
     def from_file(filename, file_format="xyz"):
-        mol = pb.readfile(file_format, filename).next()
-        return BabelMolAdaptor(mol.OBMol)
+        """
+        Uses OpenBabel to read a molecule from a file in all supported formats.
 
+        Args:
+            filename:
+                Filename of input file
+            file_format:
+                String specifying any OpenBabel supported formats.
+
+        Returns:
+            BabelMolAdaptor object
+        """
+        mols = list(pb.readfile(file_format, filename))
+        return BabelMolAdaptor(mols[0].OBMol)
+
+    @staticmethod
+    def from_string(string_data, file_format="xyz"):
+        """
+        Uses OpenBabel to read a molecule from a string in all supported
+        formats.
+
+        Args:
+            string_data:
+                String containing molecule data.
+            file_format:
+                String specifying any OpenBabel supported formats.
+
+        Returns:
+            BabelMolAdaptor object
+        """
+        mols = pb.readstring(file_format, string_data)
+        return BabelMolAdaptor(mols.OBMol)

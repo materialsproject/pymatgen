@@ -1,0 +1,6 @@
+numpy>=1.6
+pyhull>=1.3.8
+PyCifRW>=3.3
+requests>=1.0
+pybtex>=0.16
+matplotlib>1.1

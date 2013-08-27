@@ -17,15 +17,16 @@ Subpackages
     pymatgen.alchemy
     pymatgen.analysis
     pymatgen.apps
-    pymatgen.borg
     pymatgen.command_line
-    pymatgen.comp_geometry
     pymatgen.core
     pymatgen.electronic_structure
     pymatgen.entries
     pymatgen.io
+    pymatgen.matproj
+    pymatgen.optimization
     pymatgen.phasediagram
     pymatgen.serializers
+    pymatgen.structure_prediction
     pymatgen.symmetry
     pymatgen.transformations
     pymatgen.util

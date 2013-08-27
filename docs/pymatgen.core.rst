@@ -9,10 +9,34 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`bonds` Module
+-------------------
+
+.. automodule:: pymatgen.core.bonds
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`composition` Module
+-------------------------
+
+.. automodule:: pymatgen.core.composition
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`design_patterns` Module
 -----------------------------
 
 .. automodule:: pymatgen.core.design_patterns
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`ion` Module
+-----------------
+
+.. automodule:: pymatgen.core.ion
     :members:
     :undoc-members:
     :show-inheritance:
@@ -49,6 +73,14 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`sites` Module
+-------------------
+
+.. automodule:: pymatgen.core.sites
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`structure` Module
 -----------------------
 
@@ -61,6 +93,14 @@ core Package
 --------------------------------
 
 .. automodule:: pymatgen.core.structure_modifier
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`units` Module
+-------------------
+
+.. automodule:: pymatgen.core.units
     :members:
     :undoc-members:
     :show-inheritance:

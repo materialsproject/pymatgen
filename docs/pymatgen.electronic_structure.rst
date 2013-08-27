@@ -9,6 +9,14 @@ electronic_structure Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`bandstructure` Module
+---------------------------
+
+.. automodule:: pymatgen.electronic_structure.bandstructure
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`core` Module
 ------------------
 
@@ -32,11 +40,4 @@ electronic_structure Package
     :members:
     :undoc-members:
     :show-inheritance:
-
-Subpackages
------------
-
-.. toctree::
-
-    pymatgen.electronic_structure.band_structure
 

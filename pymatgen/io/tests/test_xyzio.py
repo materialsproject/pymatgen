@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on Apr 17, 2012
-'''
+"""
 
 from __future__ import division
 
@@ -18,10 +18,10 @@ import os
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xyzio import XYZ
-from pymatgen.io.vaspio import Poscar
-import pymatgen
+from pymatgen.io.vaspio.vasp_input import Poscar
 
-test_dir = os.path.join(os.path.dirname(os.path.abspath(pymatgen.__file__)), '..', 'test_files')
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 
 
 class XYZTest(unittest.TestCase):
@@ -31,7 +31,7 @@ class XYZTest(unittest.TestCase):
               [0.000000, 0.000000, 1.089000],
               [1.026719, 0.000000, -0.363000],
               [-0.513360, -0.889165, -0.363000],
-              [-0.513360 , 0.889165 , -0.363000]]
+              [-0.513360, 0.889165, -0.363000]]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
         self.xyz = XYZ(self.mol)
 
@@ -57,8 +57,10 @@ H -0.513360 0.889165 -0.363000"""
         mol = xyz.molecule
         sp = ["C", "H", "H", "H", "H"]
         for i, site in enumerate(mol):
-            self.assertEqual(site.specie.symbol, sp[i])
-
+            self.assertEqual(site.species_string, sp[i])
+            self.assertEqual(len(site.coords), 3)
+            if i == 0:
+                self.assertTrue(all([c == 0 for c in site.coords]))
 
     def test_init_from_structure(self):
         filepath = os.path.join(test_dir, 'POSCAR')

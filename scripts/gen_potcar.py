@@ -3,12 +3,14 @@ import os
 
 from pymatgen.io.vaspio import Potcar
 
+
 def proc_dir(dirname, procfilefunction):
     for f in os.listdir(dirname):
         if os.path.isdir(os.path.join(dirname, f)):
             proc_dir(os.path.join(dirname, f), procfilefunction)
         else:
             procfilefunction(dirname, f)
+
 
 def gen_potcar(dirname, filename):
     if filename == "POTCAR.spec":
@@ -23,4 +25,3 @@ def gen_potcar(dirname, filename):
 
 if __name__ == "__main__":
     proc_dir(os.getcwd(), gen_potcar)
-

@@ -9,18 +9,34 @@ symmetry Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`spacegroup` Module
-------------------------
+:mod:`bandstructure` Module
+---------------------------
 
-.. automodule:: pymatgen.symmetry.spacegroup
+.. automodule:: pymatgen.symmetry.bandstructure
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`spglib_adaptor` Module
-----------------------------
+:mod:`finder` Module
+--------------------
 
-.. automodule:: pymatgen.symmetry.spglib_adaptor
+.. automodule:: pymatgen.symmetry.finder
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`pointgroup` Module
+------------------------
+
+.. automodule:: pymatgen.symmetry.pointgroup
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`spacegroup` Module
+------------------------
+
+.. automodule:: pymatgen.symmetry.spacegroup
     :members:
     :undoc-members:
     :show-inheritance:
