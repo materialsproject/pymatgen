@@ -618,7 +618,7 @@ fitting is exactly the same as the MIT scheme). Supports the same kwargs as
 
 MPGGAVaspInputSet = partial(JSONVaspInputSet, "MP GGA",
                             os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
-                            hubbards_off=True)
+                            hubbard_off=True)
 """
 Same as the MPVaspInput set, but the +U is enforced to be turned off.
 """
