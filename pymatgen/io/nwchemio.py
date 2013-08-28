@@ -283,7 +283,8 @@ task $theory $operation""")
                 Any of the other kwargs supported by NwTask. Note the theory
                 is always "dft" for a dft task.
         """
-        e = NwTask.from_molecule(mol, operation="", theory="esp", **kwargs)
+        kwargs.update({"operation":""})
+        e = NwTask.from_molecule(mol, theory="esp", **kwargs)
         e.theory_directives.update({"restrain": "harmonic 0.001"})
 
         return e
