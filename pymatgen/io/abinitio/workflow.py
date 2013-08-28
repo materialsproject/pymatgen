@@ -458,13 +458,13 @@ class Workflow(BaseWorkflow, MSONable):
 
     def rmtree(self, exclude_wildcard=""):
         """
-        Remove all calculation files and directories.
+        Remove all files and directories in the working directory
 
         Args:
             exclude_wildcard:
                 Optional string with regular expressions separated by |.
                 Files matching one of the regular expressions will be preserved.
-                ex: exclude_wildar="*.nc|*.txt" preserves all the files
+                example: exclude_wildard="*.nc|*.txt" preserves all the files
                 whose extension is in ["nc", "txt"].
 
         """
