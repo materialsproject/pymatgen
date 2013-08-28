@@ -25,10 +25,11 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.struct = poscar.structure
 
         self.mitparamset = MITVaspInputSet()
+        self.mitparamset_unsorted = MITVaspInputSet(sort_structure=False)
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MPVaspInputSet()
         self.userparamset = MPVaspInputSet(
-            {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
+            user_incar_settings={'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
         self.mitggaparam = MITGGAVaspInputSet()
         self.mpstaticparamset = MPStaticVaspInputSet()
@@ -108,14 +109,16 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         struct = Structure(lattice, ["Fe", "Mn"], coords,
                            site_properties={'magmom': (5.2, -4.5)})
         incar = self.paramset.get_incar(struct)
-        self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
+        self.assertEqual(incar['MAGMOM'], [-4.5, 5.2])
         incar = self.mpstaticparamset.get_incar(struct)
+        self.assertEqual(incar['MAGMOM'], [-4.5, 5.2])
+        incar = self.mitparamset_unsorted.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
 
         struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"],
                            coords)
         incar = self.paramset.get_incar(struct)
-        self.assertEqual(incar['MAGMOM'], [4.1, 5])
+        self.assertEqual(incar['MAGMOM'], [5, 4.1])
         incar = self.mpnscfparamsetl.get_incar(struct)
         self.assertEqual(incar.get('MAGMOM', None), None)
 
@@ -181,12 +184,12 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mithseparamset = MITHSEVaspInputSet()
         self.paramset = MPVaspInputSet()
         self.userparamset = MPVaspInputSet(
-            {'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
+            user_incar_settings={'MAGMOM': {"Fe": 10, "S": -5, "Mn3+": 100}}
         )
 
         d = self.mitparamset.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MITVaspInputSet)
+        self.assertEqual(v.incar_settings["LDAUU"]["O"]["Fe"], 4)
 
         d = self.mitggaparam.to_dict
         v = dec.process_decoded(d)
@@ -194,15 +197,15 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         d = self.mithseparamset.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MITHSEVaspInputSet)
+        self.assertEqual(v.incar_settings["LHFCALC"], True)
 
         d = self.paramset.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MPVaspInputSet)
+        self.assertEqual(v.incar_settings["LDAUU"]["O"]["Fe"], 5.3)
 
         d = self.userparamset.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MPVaspInputSet)
+        #self.assertEqual(type(v), MPVaspInputSet)
         self.assertEqual(v.incar_settings["MAGMOM"],
                          {"Fe": 10, "S": -5, "Mn3+": 100})
 

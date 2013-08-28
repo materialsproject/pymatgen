@@ -72,26 +72,16 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.7.7
--------
-1. Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
-   source software for performing high-throughput geometry-based analysis of
-   porous materials and their voids. Please see
-   http://www.maciejharanczyk.info/Zeopp/about.html.
-2. Specify version of distribute to 0.6.34 for better compatibility.
-
-v2.7.6
+v2.8.0
 ------
-1. Support for VTK 6.x in structure visualization.
-2. Updated install instructions for openbabel.
-3. Preliminary pourbaix analysis (Sai Jayaratnam).
-
-v2.7.5
-------
-1. Vastly improved Nwchem IO (by Shyue Ping Ong).
-2. Much improved ABINIT support (by Matteo Giantomassi).
-
-
+1. **Minor backwards-incompatible change**. Structures are now sorted by
+   default when generating VASP input files using vaspio_set. Old behavior can
+   be obtained by setting sort_structure = False in the constructor. This is
+   typically the desired behavior and prevents the generation of large
+   POTCARs when atomic species are not grouped together.
+2. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
+   terminal atoms properly.
+3. Additional conversion tools for ABINIT (by Matteo Giantomassi).
 
 :doc:`Older versions </changelog>`
 
@@ -190,7 +180,7 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
-Basic usage
+Quick start
 -----------
 
 Useful aliases for commonly used objects are now provided. Supported objects
@@ -245,6 +235,26 @@ some quick examples of the core capabilities and objects:
     >>> mg.write_mol(mol, "methane.gjf")
 
 The above illustrates only the most basic capabilities of pymatgen.
+
+Tutorials, Examples and API docs
+--------------------------------
+
+Users are strongly encouraged to explore the :doc:`usage pages </usage>`
+(toc given below).
+
+.. toctree::
+   :maxdepth: 2
+
+   usage
+
+A good way to explore the functionality of pymatgen is to look at examples.
+We have created a `Github wiki page
+<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
+their Github gists performing various kinds of functions with pymatgen.
+Please feel free to check them out and we welcome your contributions as well!
+
+For detailed documentation of all modules and classes, please refer to the
+:doc:`pymatgen API docs </modules>`.
 
 matgenie.py - Command line tool
 -------------------------------
@@ -305,26 +315,6 @@ Upon installing pymatgen in the usual manner, the "ipmg" script will be
 installed. Running ipmg will bring users into a custom ipython environment
 where the most commonly used pymatgen objects (see Aliases below) are
 automatically loaded into the environment.
-
-Tutorials, Examples and API docs
---------------------------------
-
-Users are strongly encouraged to explore the detailed :doc:`usage pages
-</usage>` (toc given below).
-
-.. toctree::
-   :maxdepth: 2
-
-   usage
-
-A good way to explore the functionality of pymatgen is to look at examples.
-We have created a `Github wiki page
-<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
-their Github gists performing various kinds of functions with pymatgen.
-Please feel free to check them out and we welcome your contributions as well!
-
-For detailed documentation of all modules and classes, please refer to the
-:doc:`pymatgen API docs </modules>`.
 
 Add-ons
 -------

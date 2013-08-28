@@ -191,13 +191,20 @@ class Task(object):
             filepaths, exts = link.get_filepaths_and_exts()
             for (path, ext) in zip(filepaths, exts):
                 dst = self.idata_path_from_ext(ext)
-                #print("Will make %s point to %s" % (dst, path))
+
+                if not os.path.exists(path): 
+                    # Try netcdf file.
+                    # TODO: this case should be treated in a cleaner way.
+                    path = path + "-etsf.nc"
+                    if os.path.exists(path): 
+                        dst =  dst + "-etsf.nc"
 
                 if not os.path.exists(path):
                     raise self.Error("%s is needed by this task but it does not exist" % path)
-                else:
-                    # Link path to dst
-                    os.symlink(path, dst)
+
+                # Link path to dst
+                #print("Linking ", path," --> ",dst)
+                os.symlink(path, dst)
 
         self.setup(*args, **kwargs)
 
@@ -259,12 +266,12 @@ class AbinitTask(Task):
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
     pj = os.path.join
 
-    prefix = Prefix(pj("indata", "in"), pj("outdata","out"), pj("tmpdata","tmp"))
+    prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
     # Basenames for Abinit input and output files.
     Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
-    basename = Basename("run.in", "run.out", "run.files", "log", "stderr", "job.sh", "__lock__")
+    basename = Basename("run.abi", "run.abo", "run.files", "run.abl", "stderr", "job.sh", "__abi_lock__")
     del Basename
 
     def __init__(self, strategy, workdir, runmode, task_id=1, links=None, **kwargs):
@@ -449,6 +456,30 @@ class AbinitTask(Task):
         """Create the absolute path of filename in the outdata directory."""
         return os.path.join(self.outdata_dir, filename)
 
+    def path_in_tmpdatadir(self, filename):
+        """Create the absolute path of filename in the tmp directory."""
+        return os.path.join(self.tmpdata_dir, filename)
+
+    def rename(self, src_basename, dest_basename, datadir="outdir"):
+        """
+        Rename a file located in datadir.
+
+        src_basename and dest_basename are the basename of the source file
+        and of the destination file, respectively.
+        """
+        if datadir == "outdir":
+            src = self.path_in_outdatadir(src_basename)
+            dest = self.path_in_outdatadir(dest_basename)
+
+        elif datadir == "tmpdir":
+            src = self.path_in_tmpdatadir(src_basename)
+            dest = self.path_in_tmpdatadir(dest_basename)
+
+        else:
+            raise ValueError("Wrong datadir %s" % datadir)
+
+        os.rename(src, dest)
+
     def build(self, *args, **kwargs):
         """
         Writes Abinit input files and directory. It does not overwrite files if they already exist.
@@ -478,9 +509,17 @@ class AbinitTask(Task):
         #    with open(self.jobfile_path, "w") as f:
         #            f.write(str(self.jobfile))
 
-    def rmtree(self, *args, **kwargs):
+    def rmtree(self):
         """Remove all files and directories."""
         shutil.rmtree(self.workdir)
+
+    def rm_tmpdatadir(self):
+        """Remove the directory with the temporary files."""
+        shutil.rmtree(self.tmpdata_dir)
+
+    def rm_indatadir(self):
+        """Remove the directory with the input files (indata dir)."""
+        shutil.rmtree(self.indata_dir)
 
     def get_runhints(self):
         """
@@ -584,8 +623,7 @@ class TaskResults(dict, MSONable):
                                                                                 
     @classmethod
     def from_dict(cls, d):
-        mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
-        return cls(mydict)
+        return cls({k: v for k,v in d.items() if k not in ["@module", "@class",]})
 
     def json_dump(self, filename):
         json_pretty_dump(self.to_dict, filename) 

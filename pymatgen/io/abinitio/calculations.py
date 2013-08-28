@@ -1,4 +1,7 @@
-"Factory functions producing ABINIT workflows. Entry points for client code (high-level interface)"
+"""
+Factory functions producing ABINIT workflows. Entry points for client code
+(high-level interface)
+"""
 from __future__ import division, print_function
 
 import os
@@ -22,10 +25,14 @@ __email__ = "gmatteo at gmail.com"
 ################################################################################
 
 class PPConvergenceFactory(object):
-    """Factory object that constructs workflows for analyzing the converge of pseudopotentials."""
+    """
+    Factory object that constructs workflows for analyzing the converge of
+    pseudopotentials.
+    """
     def work_for_pseudo(self, workdir, pseudo, ecut_range, 
-                        runmode="sequential", toldfe=1.e-8, atols_mev=(10, 1, 0.1), 
-                        spin_mode="polarized", acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+                        runmode="sequential", toldfe=1.e-8,
+                        atols_mev=(10, 1, 0.1), spin_mode="polarized",
+                        acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
         """
         Return a Work object given the pseudopotential pseudo.
 
@@ -72,8 +79,8 @@ class PPConvergenceFactory(object):
 
 def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
                   ndivsm, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_solver=None,
-                  dos_kppa=None):
+                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
+                  dos_kppa=None, **extra_abivars):
     """
     Returns a Work object that computes that bandstructure of the material.
 
@@ -91,7 +98,8 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
         nscf_nband:
             Number of bands included in the NSCF run.
         ndivs:
-            Number of divisions used to sample the smallest segment of the k-path.
+            Number of divisions used to sample the smallest segment of the
+            k-path.
         accuracy:
             Accuracy of the calculation.
         spin_mode:
@@ -100,47 +108,46 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
             Smearing technique.
         charge:
             Electronic charge added to the unit cell.
-        scf_solver:
+        scf_algorithm:
             Algorithm used for solving of the SCF cycle.
-        dos_kppa
+        dos_kppa:
             Defines the k-point sampling used for the computation of the DOS 
             (None if DOS is not wanted).
+        **extra_abivars:
+            Dictionary with extra variables passed to ABINIT.
     """
     # SCF calculation.
-    scf_ksampling = KSampling.automatic_density(structure, scf_kppa,
-                                                chksymbreak=0)
+    scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
-                               scf_solver=scf_solver)
+                               scf_algorithm=scf_algorithm, **extra_abivars)
 
     # Band structure calculation.
     nscf_ksampling = KSampling.path_from_structure(ndivsm, structure)
 
-    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband)
+    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
     # DOS calculation.
     dos_strategy = None
     if dos_kppa is not None:
         raise NotImplementedError("DOS must be tested")
         dos_ksampling = KSampling.automatic_density(structure, dos_kppa, chksymbreak=0)
-        #dos__ksampling = KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
+        #dos_ksampling = KSampling.monkhorst(dos_ngkpt, shiftk=dos_shiftk, chksymbreak=0)
 
-        dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband,
-                                    nscf_solver=None)
+        dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 
-    return BandStructure(workdir, runmode, scf_strategy, nscf_strategy,
-                         dos_strategy=dos_strategy)
+    return BandStructure(workdir, runmode, scf_strategy, nscf_strategy, dos_strategy=dos_strategy)
 
 ################################################################################
 
 
 #def relaxation(workdir, runmode, structure, pseudos, scf_kppa,
 #               accuracy="normal", spin_mode="polarized",
-#               smearing="fermi_dirac:0.1 eV", charge=0.0, scf_solver=None):
+#               smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
 #    """
-#    Returns a Work object that computes that bandstructure of the material.
+#    Returns a Work object that performs structural relaxations.
 #
 #    Args:
 #        workdir:
@@ -161,7 +168,7 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
 #            Smearing technique.
 #        charge:
 #            Electronic charge added to the unit cell.
-#        scf_solver:
+#        scf_algorithm:
 #            Algorithm used for solving the SCF cycle.
 #    """
 #    # SCF calculation.
@@ -170,7 +177,7 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
 #
 #    relax_strategy = RelaxStrategy(structure, pseudos, scf_ksampling, relax_algo, 
 #                                   accuracy=accuracy, spin_mode=spin_mode, smearing=smearing, 
-#                                   charge=charge, scf_solver=scf_solver)
+#                                   charge=charge, scf_algorithm=scf_algorithm)
 #
 #    #return Relaxation(workdir, runmode, relax_strategy)
 
@@ -179,8 +186,8 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
 def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
                       nscf_nband, ecuteps, ecutsigx, accuracy="normal",
                       spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_solver=None,
-                      inclvkb=2, scr_nband=None, sigma_nband=None):
+                      ppmodel="godby", charge=0.0, scf_algorithm=None,
+                      inclvkb=2, scr_nband=None, sigma_nband=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -211,7 +218,7 @@ def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
             Plasmonpole technique.
         charge:
             Electronic charge added to the unit cell.
-        scf_solver:
+        scf_algorithm:
             Algorithm used for solving of the SCF cycle.
         inclvkb:
             Treatment of the dipole matrix elements (see abinit variable).
@@ -219,16 +226,19 @@ def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
             Number of bands used to compute the screening (default is nscf_nband)
         sigma_nband:
             Number of bands used to compute the self-energy (default is nscf_nband)
+        **extra_abivars
+            Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
-    extra_abivars = {"istwfk": "*1"}
+    if "istwfk" not in extra_abivars:
+        extra_abivars["istwfk"] = "*1"
 
     scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
-                               scf_solver=None, **extra_abivars)
+                               scf_algorithm=None, **extra_abivars)
 
     nscf_ksampling = KSampling.automatic_density(structure, 1, chksymbreak=0)
 
@@ -260,7 +270,7 @@ def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
 def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband, 
                  nscf_ngkpt, nscf_shiftk, ecuteps, bs_loband, soenergy, mdf_epsinf, 
                  accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                 charge=0.0, scf_solver=None):
+                 charge=0.0, scf_algorithm=None, **extra_abivars):
     """
     Returns a Work object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
@@ -286,7 +296,8 @@ def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
         ecuteps:
             Cutoff energy [Ha] for the screening matrix.
         bs_loband:
-            Index of the first occupied band included the e-h basis set (ABINIT convention i.e. first band starts at 1).
+            Index of the first occupied band included the e-h basis set
+            (ABINIT convention i.e. first band starts at 1).
         soenergy:
             Scissor energy in Hartree
         mdf_epsinf:
@@ -299,20 +310,26 @@ def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
             Smearing technique.
         charge:
             Electronic charge added to the unit cell.
-        scf_solver:
+        scf_algorithm:
             Algorithm used for solving of the SCF cycle.
+        **extra_abivars
+            Dictionary with extra variables passed to ABINIT.
     """
+    # TODO: Cannot use istwfk != 1.
+    if "istwfk" not in extra_abivars:
+        extra_abivars["istwfk"] = "*1"
+
     # Ground-state strategy.
     scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
-                               smearing=smearing, charge=charge, scf_solver=None)
+                               smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
 
     # NSCF calculation on the randomly-shifted k-mesh.
     nscf_ksampling = KSampling.monkhorst(nscf_ngkpt, shiftk=nscf_shiftk, chksymbreak=0)
 
-    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband)
+    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
     # Strategy for the BSE calculation.
     raise NotImplementedError("")
@@ -325,8 +342,7 @@ def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
                              mdf_epsinf=mdf_epsinf, exc_type="TDA", algo="haydock", with_lf=True, 
                              zcut=None)
 
-    # TODO: Cannot use istwfk != 1.
-    extra_abivars = {"istwfk": "*1"}
+
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 
     return BSEMDF_Workflow(workdir, runmode, scf_strategy, nscf_strategy, bse_strategy)
