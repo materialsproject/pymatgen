@@ -509,9 +509,34 @@ class AbinitTask(Task):
         #    with open(self.jobfile_path, "w") as f:
         #            f.write(str(self.jobfile))
 
-    def rmtree(self):
-        """Remove all files and directories."""
-        shutil.rmtree(self.workdir)
+    def rmtree(self, exclude_wildcard=""):
+        """
+        Remove all files and directories in the working directory
+
+        Args:
+            exclude_wildcard:
+                Optional string with regular expressions separated by |.
+                Files matching one of the regular expressions will be preserved.
+                example: exclude_wildard="*.nc|*.txt" preserves all the files
+                whose extension is in ["nc", "txt"].
+        """
+        if not exclude_wildcard:
+            shutil.rmtree(self.workdir)
+        else:
+            pats = exclude_wildcard.split("|")
+
+            import fnmatch
+            def keep(fname):
+                for pat in pats:
+                    if fnmatch.fnmatch(fname, pat):
+                        return True
+                return False
+
+            for dirpath, dirnames, filenames in os.walk(self.workdir):
+                for fname in filenames:
+                    path = os.path.join(dirpath, fname)
+                    if not keep(fname):
+                        os.remove(path)
 
     def rm_tmpdatadir(self):
         """Remove the directory with the temporary files."""
@@ -559,7 +584,7 @@ class AbinitTask(Task):
                 Print message if verbose is not zero.
 
         .. warning::
-             This method must be thread safe since we may want to run several indipendent
+             This method must be thread safe since we may want to run several independent
              calculations with different python threads. 
         """
         self.build(*args, **kwargs)
@@ -568,6 +593,11 @@ class AbinitTask(Task):
 
         # Start the calculation in a subprocess and return.
         self._process = self.launcher.launch(self)
+
+    def start_and_wait(self, *args, **kwargs):
+        """Helper method to start the task and wait."""
+        self.start(*args, **kwargs)
+        return self.wait()
 
 ##########################################################################################
 
