@@ -12,10 +12,10 @@ from pymatgen.io.cifio import CifParser
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
-from pymatgen.core.structure_modifier import StructureEditor
+#from pymatgen.core.structure_modifier import StructureEditor
 import numpy as np
 import random
-from scipy import stats
+#from scipy import stats
 import math
 from genstrain import DeformGeometry
 from pymatgen.phonons.stress import Stress
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     stress_dict = {}
 
-    struct = CifParser('aluminum.cif').get_structures()[0]
+    struct = CifParser('aluminum.cif').get_structures(primitive=False)[0]
     
     D = DeformGeometry(struct, 0.01, 0.004, 4, 4)
 
@@ -121,16 +121,19 @@ if __name__ == "__main__":
                 count+=1
 
 
-print D
 
-#for c in D:
+
+#print stress_dict
+
+for c in D:
 
 #    print c
+#    print dir(stress_dict[c])
+#    print stress_dict[c].MeanStress
 #    print stress_dict[c].stress_matrix
 
-
-#    Cij = CijTensor(stress_dict).fitCij()
-#    print Cij
+    Cij = CijTensor(stress_dict).fitCij()
+    print Cij
 
 
 
