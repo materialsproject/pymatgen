@@ -1716,6 +1716,39 @@ class Structure(IStructure):
         """
         self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
 
+
+    def apply_strain_transformation(self, F):
+        """
+        Apply a  deformation gradient tensor F to a lattice. Defaults to identity tensor.
+        Note: fractional ionic coordinates should not change upon applying this transformation, but
+        Cartesian coordinates do!
+
+        Args:
+            F:
+                deformation gradient tensor (3x3 numpy matrix)
+        """
+#        print np.matrix(self._lattice._matrix * F)
+        F=np.matrix(F)
+#        print 'called'
+#        print type(self._lattice._matrix), type(F)
+#        print F
+#        print F
+#        print type(self._lattice._matrix*F)
+
+        Fd = self._lattice._matrix*F
+#        print Fd
+#        print F
+#        print Fd[0,0]
+
+#        self.modify_lattice(Lattice([Fd[0,0], Fd[0,1], Fd[0,2], Fd[1,0], Fd[1,1], Fd[1,2], Fd[2,0], Fd[2,1], Fd[2,2]]))
+
+        m=Lattice([Fd[0,0], Fd[0,1], Fd[0,2], Fd[1,0], Fd[1,1], Fd[1,2], Fd[2,0], Fd[2,1], Fd[2,2]])
+        self.modify_lattice(m)
+ #       self.modify_lattice(Lattice([4.15,0.1,0,0,4.04,0,0,0,4.04]))
+
+
+
+
     def translate_sites(self, indices, vector, frac_coords=True):
         """
         Translate specific sites by some vector, keeping the sites within the

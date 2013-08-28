@@ -22,12 +22,6 @@ __status__ = "Development"
 __date__ ="March 22, 2012"
 
 
-
-
-
-
-
-
 class SQTensor(object):
     """
     Class for doing useful general operation on *square* matrices, without 
@@ -80,7 +74,7 @@ class SQTensor(object):
         return self._matrix[i, j]
 
     @property
-    def PrincipalInvariants(self):
+    def principal_invariants(self):
         #TODO: AJ says this should be named principal_invariants according to PEP8
         if np.shape(self._matrix)[0] != 3:
             raise NotImplementedError("Principal Invariants are currently only supported for 3x3 matrices.")
@@ -95,7 +89,39 @@ class SQTensor(object):
 
     @property
     def KG_average(self):
-        # method for K, G calculation
+        if np.shape(self._matrix)[0] != 6 or np.shape(self._matrix)[1] != 6:
+            raise ValueError("This method only makes sense for 6x6 elastic tensors")
+        if self.is_symmetric()==False:
+            raise ValueError("This method takes only symmetric tensors")
+
+        K_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2])*1.0/9 + (self._matrix[0,1]+self._matrix[0,2]+self._matrix[1,2])*2.0/9
+        G_Voigt = (self._matrix[0,0]+self._matrix[1,1]+self._matrix[2,2]-self._matrix[0,1]-self._matrix[0,2]-self._matrix[1,2])*1.0/15 + (self._matrix[3,3]+self._matrix[4,4] + self._matrix[5,5])*1.0/5
+
+        S = np.linalg.inv(self._matrix)
+
+        K_Reuss = 1.0/(S[0,0]+S[1,1]+S[2,2]+2*S[0,1]+2*S[0,2]+2*S[1,2])
+        G_Reuss = 15.0/(4*(S[0,0]+S[1,1]+S[2,2]-S[0,1]-S[0,2]-S[1,2])+3*(S[3,3]+S[4,4]+S[5,5]))
+
+        K_Voigt_Reuss_Hill = 0.5*(K_Voigt+K_Reuss)
+        G_Voigt_Reuss_Hill = 0.5*(G_Voigt+G_Reuss)
+
+        average_Cij = [K_Voigt, G_Voigt, K_Reuss, G_Reuss, K_Voigt_Reuss_Hill, G_Voigt_Reuss_Hill]
+
+        return average_Cij
+
+
+    @property
+    def universal_anisotropy(self):
+        if self.is_symmetric()==False:
+            raise ValueError("This method takes only symmetric tensors")
+        average_Cij = self.KG_average
+        if self.is_symmetric()==False:
+            print 'yay'
+
+
+
+
+
 
 #    def rotate(self, rotation):
 #        super(StressOps, self).__init__(rotation)
@@ -111,9 +137,12 @@ if __name__ == "__main__":
 
     eye = np.identity(3)
     sigma = SQTensor(np.random.randn(3,3))
-    print sigma.PrincipalInvariants
+#    print sigma.PrincipalInvariants
 
-    
+    sigma2 = SQTensor(np.random.randn(6,6))
+
+    sigma2.universal_anisotropy
+
 
 #    print sigma.is_rotation_matrix(np.matrix(eye))
 #    print np.linalg.inv(eye)
