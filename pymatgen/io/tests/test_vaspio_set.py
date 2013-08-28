@@ -193,7 +193,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         d = self.mitggaparam.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MITGGAVaspInputSet)
+        self.assertNotIn("LDAUU", v.incar_settings)
 
         d = self.mithseparamset.to_dict
         v = dec.process_decoded(d)
