@@ -437,8 +437,9 @@ GGA (no U) version of MITVaspInputSet.
 Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
-MITHSEVaspInputSet = partial(JSONVaspInputSet, "MIT HSE",
-            os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"))
+MITHSEVaspInputSet = partial(
+    JSONVaspInputSet, "MIT HSE",
+    os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"))
 """
 Typical implementation of input set for a HSE run using MIT parameters.
 Supports the same kwargs as :class:`JSONVaspInputSet`.
@@ -449,28 +450,21 @@ class MITNEBVaspInputSet(JSONVaspInputSet):
     """
     Class for writing NEB inputs.
     """
-    def __init__(self, ggau=True, nimages=8, **kwargs):
+    def __init__(self, nimages=8, **kwargs):
         with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
             JSONVaspInputSet.__init__(
                 self, "MIT NEB",
                 os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
                 **kwargs)
-
-        #incar settings
-        incar_settings = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2}
-        self.incar_settings.update(incar_settings)
-        if not ggau:
-            self.incar_settings['LDAU'] = False
-            if 'LDAUU' in self.incar_settings:
-                # technically not needed, but clarifies INCAR
-                del self.incar_settings['LDAUU']
-                del self.incar_settings['LDAUJ']
-                del self.incar_settings['LDAUL']
+        self.nimages = nimages
+        # NEB settings
+        self.incar_settings.update(
+            {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2})
 
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
         """
-        Writes a set of VASP input to a directory.
+        NEB inputs has a special directory structure.
 
         Args:
             structures:
@@ -501,23 +495,16 @@ class MITNEBVaspInputSet(JSONVaspInputSet):
 
     @property
     def to_dict(self):
-        return {
-            "name": self.name,
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "sort_structure": self.sort_structure,
-            "ggau": self.ggau,
-            "nimages": self.nimages,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
+        d = super(MITNEBVaspInputSet, self).to_dict
+        d["nimages"] = self.nimages
+        return d
 
     @classmethod
     def from_dict(cls, d):
         return cls(user_incar_settings=d["user_incar_settings"],
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True),
-                   ggau=d["ggau"],
+                   hubbard_off=d.get("hubbard_off", False),
                    nimages=d["nimages"])
 
 
@@ -610,8 +597,7 @@ Implementation of VaspInputSet utilizing parameters in the public
 Materials Project. Typically, the pseudopotentials chosen contain more
 electrons than the MIT parameters, and the k-point grid is ~50% more dense.
 The LDAUU parameters are also different due to the different psps used,
-which result in different fitted values (even though the methodology of
-fitting is exactly the same as the MIT scheme). Supports the same kwargs as
+which result in different fitted values. Supports the same kwargs as
 :class:`JSONVaspInputSet`.
 """
 
