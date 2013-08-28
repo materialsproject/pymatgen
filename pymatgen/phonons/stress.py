@@ -43,6 +43,10 @@ class Stress(SQTensor):
         return J
 
     @property
+    def stress_matrix(self):
+        return self._sigma
+
+    @property
     def VonMises(self):
         if self.is_symmetric() == False:
             raise ValueError("The stress tensor is not symmetric, VM stress is based on a symmetric stress tensor.")
@@ -52,8 +56,8 @@ class Stress(SQTensor):
 
     @property
     def MeanStress(self):
-        if self.is_symmetric() == False:
-            raise ValueError("The stress tensor is not symmetric, mean stress is based on a symmetric stress tensor.")
+#        if self.is_symmetric() == False:
+#            raise ValueError("The stress tensor is not symmetric, mean stress is based on a symmetric stress tensor.")
         return 1.0/3*(self._sigma[0,0] + self._sigma[1,1] + self._sigma[2,2])
 
     @property
