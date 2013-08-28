@@ -265,7 +265,7 @@ class StructureEditor(StructureModifier):
                                           properties=site.properties))
         self._sites = new_sites
 
-<<<<<<< HEAD
+
     def apply_strain_transformation(self, F=np.identity(3)):
         """
         Apply a  deformation gradient tensor F to a lattice. Defaults to identity tensor.
@@ -276,8 +276,10 @@ class StructureEditor(StructureModifier):
             F:
                 deformation gradient tensor (3x3 numpy matrix)
         """
-        self._lattice = np.matrix(self._lattice._matrix) * F
-=======
+        #self._lattice = np.matrix(self._lattice._matrix) * F
+        print 'called'
+        self.modify_lattice(Lattice(np.matrix(self._lattice._matrix) * F))
+
     def apply_strain(self, strain):
         """
         Apply an isotropic strain to the lattice.
@@ -290,7 +292,7 @@ class StructureEditor(StructureModifier):
                 that are 1% larger.
         """
         self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
->>>>>>> master
+
 
     def translate_sites(self, indices, vector, frac_coords=True):
         """
