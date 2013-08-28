@@ -76,7 +76,7 @@ def DeformGeometry(rlxd_str, nd=0.01, ns=0.01, m=4, n=4):
         for j2 in range(0, len(sheardef)):
 
 #            s = StructureEditor(rlxd_str)
-            s=strcopy
+            s=rlxd_str.copy()
             F = np.identity(3)
             F[F_index[j1][0], F_index[j1][1]] = F[F_index[j1][0], F_index[j1][1]] + sheardef[j2]
 #           F = np.matrix(F)   # this needs to be checked carefully, might give problems in certain cases
