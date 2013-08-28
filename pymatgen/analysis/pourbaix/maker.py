@@ -20,6 +20,7 @@ import logging
 import numpy as np
 import itertools
 import re
+from itertools import chain
 from pyhull.convex_hull import ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from pymatgen.core.periodic_table import Element
@@ -128,8 +129,13 @@ class PourbaixDiagram(object):
         processed_entries = list()
         self._entry_components_list = list_of_entries
         self._entry_components_dict = {}
+        count = 0
         for entry_list in list_of_entries:
-            A = [[0.0] * (len(el_list) - 1)] * (len(entry_list) - 1)
+            # Check if all elements in composition list are present in entry_list
+            if not (set([Element(el) for el in el_list]).issubset(set(list(chain.from_iterable([entries[i].composition.keys() for i in entry_list]))))):
+                continue
+            count += 1
+            A = [[0.0] * (len(el_list) - 1) for _ in range(len(entry_list) - 1)]
             multi_entries = [entries[j] for j in entry_list]
             entry0 = entries[entry_list[0]]
             comp0 = entry0.composition
@@ -147,9 +153,7 @@ class PourbaixDiagram(object):
                     red_fac = comp.get_reduced_composition_and_factor()[1]
                 else:
                     red_fac = 1.0
-                sum_nel = 0.0
-                for el in self._elt_comp:
-                    sum_nel += comp[Element(el)] / red_fac
+                sum_nel = sum([comp[el] / red_fac for el in el_list])
                 for i in xrange(1, len(el_list)):
                     el = el_list[i]
                     A[i-1][j-1] = comp_list[i] * sum_nel -\
@@ -168,8 +172,6 @@ class PourbaixDiagram(object):
             super_entry = MultiEntry(multi_entries, weights)
             self._entry_components_dict[super_entry] = entry_list
             processed_entries.append(super_entry)
-        self._entry_components_dict[super_entry] = entry_list
-        processed_entries.append(super_entry)
         return processed_entries
 
     def _make_pourbaixdiagram(self):

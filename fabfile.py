@@ -48,7 +48,7 @@ def makedoc():
                     fid.write("".join(newoutput))
 
         local("make html")
-        local("cp _static/* _build/html/_static")
+        local("cp _static/* ../../pymatgen-docs/html/static")
 
 
 def publish():
