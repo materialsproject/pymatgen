@@ -12,7 +12,7 @@ __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 30, 2012"
 
