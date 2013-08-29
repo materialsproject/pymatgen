@@ -11,7 +11,7 @@ __copyright__ = "Copyright 2011, The Materials Project"
 __credits__ = "Christopher Fischer"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 1 2012"
 
