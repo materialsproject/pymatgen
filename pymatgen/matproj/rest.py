@@ -363,7 +363,7 @@ class MPRester(object):
         Please refer to the Materials Project REST wiki
         https://materialsproject.org/wiki/index.php/The_Materials_API#mpquery
         on the mpquery language and supported criteria and properties.
-        Essentially, any supported properties within MPRestAdaptor should be
+        Essentially, any supported properties within MPRester should be
         supported in mpquery.
 
         Mpquery allows an advanced developer to perform queries which are
