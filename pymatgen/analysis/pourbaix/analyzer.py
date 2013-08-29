@@ -13,12 +13,9 @@ __status__ = "Development"
 __date__ = "Nov 7, 2012"
 
 import numpy as np
-import itertools
-import collections
 
 from pyhull.simplex import Simplex
-import copy
-import math
+from functools import cmp_to_key
 from pyhull.halfspace import Halfspace, HalfspaceIntersection
 from pyhull.convex_hull import ConvexHull
 
@@ -157,10 +154,11 @@ class PourbaixAnalyzer(object):
             # Need to order vertices for highcharts area plot
             cx = sum([vert[0] for vert in vertices]) / len(vertices)
             cy = sum([vert[1] for vert in vertices]) / len(vertices)
-            point_comp = lambda x: (math.atan2(x[0] - cx, x[1] - cy) +
-                                     2 * math.pi) % 2 * math.pi
-            vertices.sort(key=point_comp)
-            self.pourbaix_domain_vertices[self._pd._qhull_entries[i]] = vertices
+            point_comp = lambda x, y: x[0]*y[1] - x[1]*y[0]
+            vert_center = [[v[0] - cx, v[1] - cy] for v in vertices]
+            vert_center.sort(key=cmp_to_key(point_comp))
+            self.pourbaix_domain_vertices[self._pd._qhull_entries[i]] =\
+             [[v[0] + cx, v[1] + cy] for v in vert_center]
 
         self.pourbaix_domains = pourbaix_domains
         return pourbaix_domains
