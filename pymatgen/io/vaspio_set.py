@@ -524,7 +524,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     """
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
-                 prec="Low", **kwargs):
+                 prec="Low", hubbard_off=True, **kwargs):
         """
         Args:
             start_temp:
@@ -537,13 +537,16 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                 The time step for the simulation. The POTIM parameter.
                 Defaults to 2fs.
             prec:
-                precision - Normal or LOW. Defaults to Low.
-            user_incar_settings:
-                dictionary of incar settings to override
+                precision - Normal or LOW. Defaults to Low for MD runs.
+            hubbard_off:
+                Whether to turn off Hubbard U. Defaults to *True* (different
+                behavior from standard input sets) for MD runs.
+            **kwargs:
+                Other kwargs supported by :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            **kwargs)
+            hubbard_off=hubbard_off, **kwargs)
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
@@ -582,11 +585,10 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     def from_dict(cls, d):
         return cls(start_temp=d["start_temp"], end_temp=d["end_temp"],
                    nsteps=d["nsteps"], time_step=d["time_step"],
-                   prec=d["prec"],
+                   prec=d["prec"], hubbard_off=d.get("hubbard_off", False),
                    user_incar_settings=d["user_incar_settings"],
                    constrain_total_magmom=d["constrain_total_magmom"],
-                   sort_structure=d.get("sort_structure", True),
-                   hubbard_off=d.get("hubbard_off", False))
+                   sort_structure=d.get("sort_structure", True))
 
 
 MPVaspInputSet = partial(JSONVaspInputSet, "MP",
@@ -730,8 +732,7 @@ class MPStaticVaspInputSet(JSONVaspInputSet):
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
 
-        structure = MPStaticVaspInputSet.get_structure(
-            vasp_run, outcar)
+        structure = MPStaticVaspInputSet.get_structure(vasp_run, outcar)
         mpsvip = MPStaticVaspInputSet()
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
         new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))

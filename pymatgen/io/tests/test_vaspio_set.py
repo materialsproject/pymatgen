@@ -215,8 +215,7 @@ class MITMDVaspInputSetTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         self.struct = poscar.structure
-        self.mitmdparam = MITMDVaspInputSet(300, 1200, 10000,
-                                            hubbard_off=True)
+        self.mitmdparam = MITMDVaspInputSet(300, 1200, 10000)
 
     def test_get_potcar_symbols(self):
         syms = self.mitmdparam.get_potcar_symbols(self.struct)
