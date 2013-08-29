@@ -593,6 +593,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                    nsteps=d["nsteps"], time_step=d["time_step"],
                    prec=d["prec"], hubbard_off=d.get("hubbard_off", False),
                    user_incar_settings=d["user_incar_settings"],
+                   spin_polarized=d.get("spin_polarized", False),
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True))
 
