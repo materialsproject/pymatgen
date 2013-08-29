@@ -451,6 +451,13 @@ class MITNEBVaspInputSet(JSONVaspInputSet):
     Class for writing NEB inputs.
     """
     def __init__(self, nimages=8, **kwargs):
+        """
+        Args:
+            nimages:
+                Number of NEB images (excluding start and ending structures).
+            **kwargs:
+                Other kwargs supported by :class:`JSONVaspInputSet`.
+        """
         with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
             JSONVaspInputSet.__init__(
                 self, "MIT NEB",
@@ -464,11 +471,13 @@ class MITNEBVaspInputSet(JSONVaspInputSet):
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
         """
-        NEB inputs has a special directory structure.
+        NEB inputs has a special directory structure where inputs are in 00,
+        01, 02, ....
 
         Args:
             structures:
-                list of Structure objects. There should be nimages+2 structures
+                list of Structure objects. There should be nimages + 2
+                structures (including start and end structures).
             output_dir:
                 Directory to output the VASP input files
             make_dir_if_not_present:
