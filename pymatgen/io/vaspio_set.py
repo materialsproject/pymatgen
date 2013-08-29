@@ -422,10 +422,7 @@ Please refer::
     functional theory calculations. Computational Materials Science,
     2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
 
-for more information.
-
-Supports the same kwargs as JSONVaspInputSet. Please see
-:class:`JSONVaspInputSet`.
+for more information. Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
 
