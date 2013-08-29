@@ -374,7 +374,9 @@ class MPRester(object):
             criteria:
                 Criteria of the query as a mongo-style dict. For example,
                 {"elements":{"$in":["Li", "Na", "K"], "$all": ["O"]},
-                "nelements":2} selects all Li, Na and K oxides
+                "nelements":2} selects all Li, Na and K oxides.
+                {"band_gap": {"$gt": 1}} selects all materials with band gaps
+                greater than 1 eV.
             properties:
                 Properties to request for as a list. For example,
                 ["formula", "formation_energy_per_atom"] returns the formula
