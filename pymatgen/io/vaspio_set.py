@@ -553,6 +553,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
         self.nsteps = nsteps
         self.time_step = time_step
         self.prec = prec
+        self.spin_polarized = spin_polarized
 
         #Optimized parameters for MD simulations.
         incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
@@ -582,6 +583,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             "nsteps": self.nsteps,
             "time_step": self.time_step,
             "prec": self.prec,
+            "spin_polarized": self.spin_polarized
         })
         return d
 
