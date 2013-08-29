@@ -40,22 +40,6 @@ class CijTensor(object):
             s.append(el[ind1,ind2])
         return s
 
-    def rsquared(self, yi, fi):
-        ybar = 1.0/len(yi)*sum(yi)
-        v1 = yi-fi
-        v2 = yi-ybar
-        
-        sum1 = 0
-        sum2 = 0
-
-        for n in v1:
-            sum1 = sum1 + n**2
-
-        for n in v2:
-            sum2 = sum2 + n**2
-
-        r2 = 1.0-sum1/sum2
-        return r2
 
     def fitCij(self, tol=0.1):
         stress_dict = self._sig_eps
@@ -82,8 +66,7 @@ class CijTensor(object):
                 f1 = np.polyval(p1, strain)
                 f2 = np.polyval(p2, strain)
                 f3 = np.polyval(p3, strain)
-                
-                r2 = self.rsquared(true_data, f1)
+
                 Cij[count1, n1] = -0.10*p1[0]
                 count1 += 1                
 
@@ -95,6 +78,5 @@ class CijTensor(object):
                 if n2 > 2:
                     Cij[n1, n2] = Cij[n1, n2]*0.50
 
-        #TODO: consider returning an SqTensor object
         return Cij
 
