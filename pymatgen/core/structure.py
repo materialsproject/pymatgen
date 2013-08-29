@@ -1850,35 +1850,50 @@ class Structure(IStructure):
                    c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
-
         """
         scale_matrix = np.array(scaling_matrix, np.int16)
         if scale_matrix.shape != (3, 3):
             scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
         old_lattice = self._lattice
         new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
-        new_sites = []
 
         def range_vec(i):
-            return range(max(scale_matrix[:][:, i])
-                         - min(scale_matrix[:][:, i]) + 1)
+            low = 0
+            high = 0
+            for z in scale_matrix[:, i]:
+                if z > 0:
+                    high += z
+                else:
+                    low += z
+            return np.arange(low, high+1)
 
+        arange = range_vec(0)[:, None] * np.array([1, 0, 0])[None, :]
+        brange = range_vec(1)[:, None] * np.array([0, 1, 0])[None, :]
+        crange = range_vec(2)[:, None] * np.array([0, 0, 1])[None, :]
+        all_points = arange[:, None, None] + brange[None, :, None] +\
+                    crange[None, None, :]
+        all_points = all_points.reshape((-1, 3))
+
+        #find the translation vectors (in terms of the initial lattice vectors)
+        #that are inside the unit cell defined by the scale matrix
+        #we're using a slightly offset interval from 0 to 1 to avoid numerical
+        #precision issues
+        frac_points = np.dot(all_points, np.linalg.inv(scale_matrix))
+        tvects = all_points[np.where(np.all(frac_points < 1-1e-10, axis = 1) \
+                                & np.all(frac_points >=-1e-10, axis = 1))]
+        assert len(tvects) == np.round(abs(np.linalg.det(scale_matrix)))
+
+        new_sites = []
         for site in self:
-            for (i, j, k) in itertools.product(range_vec(0), range_vec(1),
-                                               range_vec(2)):
-                fcoords = site.frac_coords + np.array([i, j, k])
+            for t in tvects:
+                fcoords = site.frac_coords + t
                 coords = old_lattice.get_cartesian_coords(fcoords)
                 new_coords = new_lattice.get_fractional_coords(coords)
                 new_site = PeriodicSite(site.species_and_occu, new_coords,
                                         new_lattice,
-                                        properties=site.properties)
-                contains_site = False
-                for s in new_sites:
-                    if s.is_periodic_image(new_site):
-                        contains_site = True
-                        break
-                if not contains_site:
-                    new_sites.append(new_site)
+                                        properties=site.properties,
+                                        to_unit_cell=True)
+                new_sites.append(new_site)
         self._sites = new_sites
         self._lattice = new_lattice
 
