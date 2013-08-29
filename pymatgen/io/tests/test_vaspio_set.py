@@ -5,7 +5,7 @@ import os
 from numpy import array
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
-    MPVaspInputSet, MITGGAVaspInputSet, \
+    MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
     MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Specie, Lattice, Structure
@@ -34,9 +34,9 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.mitggaparam = MITGGAVaspInputSet()
         self.mpstaticparamset = MPStaticVaspInputSet()
         self.mpnscfparamsetu = MPNonSCFVaspInputSet(
-            {"NBANDS":50}, mode="Uniform")
+            {"NBANDS": 50}, mode="Uniform")
         self.mpnscfparamsetl = MPNonSCFVaspInputSet(
-            {"NBANDS":60}, mode="Line")
+            {"NBANDS": 60}, mode="Line")
 
     def test_get_potcar_symbols(self):
         syms = self.paramset.get_potcar_symbols(self.struct)
@@ -115,7 +115,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         incar = self.mitparamset_unsorted.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [5.2, -4.5])
 
-        struct = Structure(lattice, [Specie("Fe", 2, {'spin':4.1}), "Mn"],
+        struct = Structure(lattice, [Specie("Fe", 2, {'spin': 4.1}), "Mn"],
                            coords)
         incar = self.paramset.get_incar(struct)
         self.assertEqual(incar['MAGMOM'], [5, 4.1])
@@ -158,7 +158,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEqual(self.userparamset.get_incar(struct)['MAGMOM'],
                          [10, -5, 0.6])
 
-
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
         self.assertEquals(kpoints.kpts, [[2, 4, 5]])
@@ -193,7 +192,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         d = self.mitggaparam.to_dict
         v = dec.process_decoded(d)
-        self.assertEqual(type(v), MITGGAVaspInputSet)
+        self.assertNotIn("LDAUU", v.incar_settings)
 
         d = self.mithseparamset.to_dict
         v = dec.process_decoded(d)
@@ -237,6 +236,35 @@ class MITMDVaspInputSetTest(unittest.TestCase):
         v = dec.process_decoded(d)
         self.assertEqual(type(v), MITMDVaspInputSet)
         self.assertEqual(v.incar_settings["TEBEG"], 300)
+
+
+class MITNEBVaspInputSetTest(unittest.TestCase):
+
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        poscar = Poscar.from_file(filepath)
+        self.struct = poscar.structure
+        self.vis = MITNEBVaspInputSet(nimages=10, hubbard_off=True)
+
+    def test_get_potcar_symbols(self):
+        syms = self.vis.get_potcar_symbols(self.struct)
+        self.assertEquals(syms, ['Fe', 'P', 'O'])
+
+    def test_get_incar(self):
+        incar = self.vis.get_incar(self.struct)
+        self.assertNotIn("LDAUU", incar)
+        self.assertAlmostEqual(incar['EDIFF'], 0.0012)
+
+    def test_get_kpoints(self):
+        kpoints = self.vis.get_kpoints(self.struct)
+        self.assertEquals(kpoints.kpts, [[2, 4, 5]])
+        self.assertEquals(kpoints.style, 'Monkhorst')
+
+    def test_to_from_dict(self):
+        d = self.vis.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(v.incar_settings["IMAGES"], 10)
+
 
 if __name__ == '__main__':
     unittest.main()
