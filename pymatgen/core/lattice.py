@@ -773,3 +773,49 @@ class Lattice(MSONable):
             represent a square facet.
         """
         return self.reciprocal_lattice.get_wigner_seitz_cell()
+
+    def dot(self, coords_a, coords_b, frac_coords=False):
+        """
+        Compute the scalar product of vector(s).
+                                                                                                
+        Args:
+            coords_a, coords_b:
+                Array-like objects with the coordinates.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+
+        Returns:
+            one-dimensional `numpy` array.
+        """
+        coords_a, coords_b = np.reshape(coords_a, (-1,3)), np.reshape(coords_b, (-1,3))
+
+        if len(coords_a) != len(coords_b):
+            raise ValueError("")
+
+        if np.iscomplexobj(coords_a) or np.iscomplexobj(coords_b):
+            raise TypeError("Complex array!")
+
+        if not frac_coords:
+            cart_a, cart_b = coords_a, coords_b
+        else:
+            cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1,3))
+            cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1,3))
+
+        return np.array([np.dot(a,b) for a,b in zip(cart_a, cart_b)])
+
+    def norm(self, coords, frac_coords=True):
+        """
+        Compute the norm of vector(s).
+                                                                                
+        Args:
+            coords:
+                Array-like object with the coordinates.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+
+        Returns:
+            one-dimensional `numpy` array.
+        """
+        return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))
