@@ -27,9 +27,6 @@ class SQTensor(object):
     Class for doing useful general operation on *square* matrices, without 
     restrictions on what type of matrix (stress, elastic, strain etc.).
     An error is thrown when the class is initialized with non-square matrix.
-    TODO: change class names
-    TODO: AJ asks if there is an existing matrix implementation to subclass instead of object, that for instance already implements 'rotate'
-    TODO: AJ suggests changing name of this class to SqTensor
     """
     def __init__(self, matrix):
         self._matrix = matrix
@@ -52,10 +49,7 @@ class SQTensor(object):
         else:
             return False
 
-    def get_scaled(self, scale_factor):
-        #TODO: AJ says this method is pointless
-        return self._matrix*scale_factor
-        
+    @property
     def symmetrize(self):
         return 0.5*(self._matrix + np.transpose(self._matrix))
 
@@ -65,17 +59,12 @@ class SQTensor(object):
             raise ValueError("Specified rotation matrix is invalid")
         raise NotImplementedError("matrix rotations are not yet supported")
 
-    def returntensor(self):
-        #TODO: AJ says this method should be an @property, and simply be called 'matrix' or 'tensor' instead of returntensor.
+    @property
+    def tensor(self):
         return self._matrix
-
-    def value(self, i, j):
-        #TODO: AJ says this method is pretty pointless
-        return self._matrix[i, j]
 
     @property
     def principal_invariants(self):
-        #TODO: AJ says this should be named principal_invariants according to PEP8
         if np.shape(self._matrix)[0] != 3:
             raise NotImplementedError("Principal Invariants are currently only supported for 3x3 matrices.")
         I1 = self._matrix[0,0] + self._matrix[1,1] + self._matrix[2,2]
@@ -109,14 +98,20 @@ class SQTensor(object):
 
         return average_Cij
 
-
     @property
     def universal_anisotropy(self):
         if self.is_symmetric()==False:
             raise ValueError("This method takes only symmetric tensors")
         average_Cij = self.KG_average
+        ua = 5*average_Cij[1]/average_Cij[3]+average_Cij[0]/average_Cij[2]-6
+        return ua
+
+    @property
+    def homogeneous_poisson(self):
         if self.is_symmetric()==False:
-            print 'yay'
+            raise ValueError("This method takes only symmetric tensors")
+        average_Cij = self.KG_average
+        nu = (1-2.0/3*average_Cij[1]/average_Cij[0])/(2+2.0/3*average_Cij[1]/average_Cij[0])
 
 
 
@@ -139,7 +134,10 @@ if __name__ == "__main__":
     sigma = SQTensor(np.random.randn(3,3))
 #    print sigma.PrincipalInvariants
 
-    sigma2 = SQTensor(np.random.randn(6,6))
+    mat1 = np.random.randn(6,6)
+    mat1 = mat1 + np.transpose(mat1)
+
+    sigma2 = SQTensor(mat1)
 
     sigma2.universal_anisotropy
 

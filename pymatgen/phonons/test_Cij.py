@@ -25,6 +25,8 @@ from pymatgen.phonons.Cij import CijTensor
 
 np.set_printoptions(precision=3)
 
+# example for rhenium, not aluminum!!
+
 if __name__ == "__main__":
 
     f = open('stresses', 'r') 
@@ -125,15 +127,16 @@ if __name__ == "__main__":
 
 #print stress_dict
 
-for c in D:
+#for c in D:
 
 #    print c
 #    print dir(stress_dict[c])
 #    print stress_dict[c].MeanStress
 #    print stress_dict[c].stress_matrix
 
-    Cij = CijTensor(stress_dict).fitCij()
-    print Cij
+Cij = CijTensor(stress_dict).fitCij()
+
+print Cij
 
 
 
