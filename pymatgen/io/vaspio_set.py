@@ -4,7 +4,7 @@
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT
 high throughput project.  The basic concept behind an input set is to specify
-a scheme to generate a consistent set of Vasp inputs from a structure
+a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.
 """
@@ -15,7 +15,7 @@ __author__ = "Shyue Ping Ong, Wei Chen, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Nov 16, 2011"
 
 import os
@@ -565,7 +565,6 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                           "ISPIN": 2 if spin_polarized else 1}
         #use VASP default ENCUT
         del self.incar_settings['ENCUT']
-        
         self.incar_settings.update(incar_settings)
 
     def get_kpoints(self, structure):
