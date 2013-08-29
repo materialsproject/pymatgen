@@ -323,6 +323,24 @@ class AbinitTask(Task):
 
     #def __str__(self):
 
+    @classmethod
+    def from_input(cls, abinit_input, workdir, runmode, task_id=1, links=None, **kwargs):
+
+        # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+        class StrategyWithInput(object):
+            def __init__(self, abinit_input):
+                self.abinit_input = abinit_input
+                                                 
+            @property
+            def pseudos(self):
+                return self.abinit_input.pseudos
+                                                 
+            def make_input(self):
+                return str(self.abinit_input)
+
+        strategy = StrategyWithInput(abinit_input)
+        return cls(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
+
     def __repr__(self):
         return "<%s at %s, workdir = %s>" % (
             self.__class__.__name__, id(self), os.path.basename(self.workdir))
