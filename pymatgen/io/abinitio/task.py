@@ -255,6 +255,21 @@ class Task(object):
             "task_events"    : self.events.to_dict
         })
 
+    def move(self, dst, isabspath=False):
+        """
+        Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
+        The destination path must not already exist. If the destination already exists
+        but is not a directory, it may be overwritten depending on os.rename() semantics.
+
+        Be default, dst is located in the parent directory of self.workdir, use isabspath=True
+        to specify an absolute path.
+        """
+        if not isabspath:
+            dst = os.path.join(os.path.dirname(self.workdir), dst)
+
+        shutil.move(self.workdir, dst)
+
+
 ##########################################################################################
 
 
@@ -552,9 +567,20 @@ class AbinitTask(Task):
 
             for dirpath, dirnames, filenames in os.walk(self.workdir):
                 for fname in filenames:
-                    path = os.path.join(dirpath, fname)
+                    filepath = os.path.join(dirpath, fname)
                     if not keep(fname):
-                        os.remove(path)
+                        os.remove(filepath)
+
+    def remove_files(self, *filenames):
+        """Remove all the files listed in filenames."""
+        if isinstance(filenames, str):
+            filenames = [filenames]
+
+        for dirpath, dirnames, fnames in os.walk(self.workdir):
+            for fname in fnames:
+                if fname in filenames:
+                    filepath = os.path.join(dirpath, fname)
+                    os.remove(filepath)
 
     def rm_tmpdatadir(self):
         """Remove the directory with the temporary files."""

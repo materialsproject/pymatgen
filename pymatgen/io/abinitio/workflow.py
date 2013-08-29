@@ -314,13 +314,13 @@ class Workflow(BaseWorkflow, MSONable):
     """
     Error = WorkflowError
 
-    #@classmethod
-    #def from_task(cls, task):
-    #    "Build a Work instance from a task object"
-    #    workdir, tail = os.path.dirname(task.workdir)
-    #    new = cls(workdir, taks.runmode)
-    #    new.register_task(task.input)
-    #    return new
+    @classmethod
+    def from_task(cls, task):
+        """Build a Work instance from a task object."""
+        workdir = os.path.dirname(task.workdir)
+        new = cls(workdir, task.runmode)
+        new.register_task(task)
+        return new
 
     def __init__(self, workdir, runmode, **kwargs):
         """
@@ -411,12 +411,15 @@ class Workflow(BaseWorkflow, MSONable):
 
     def register_task(self, strategy, links=()):
         """
-        Registers a new task:
+        Registers a new task and add it to the internal list, taking into account possible dependencies.
 
-            - creates a new AbinitTask from the input strategy.
-            - adds the new task to the internal list, taking into account possible dependencies.
+        Args:
+            strategy:
+                Strategy object or AbinitTask instance.
+                if Strategy object, we create a new AbinitTask from the input strategy and add it to the list.
 
-        Returns: WorkLink object
+        Returns:   
+            WorkLink object
         """
         task_id = len(self) + 1
 
@@ -427,8 +430,12 @@ class Workflow(BaseWorkflow, MSONable):
             if not isinstance(links, collections.Iterable):
                 links = [links,]
 
-        # Create the new task (note the factory so that we create subclasses easily).
-        task = task_factory(strategy, task_workdir, self.runmode, task_id=task_id, links=links)
+        if isinstance(strategy, Task):
+            task = strategy
+
+        else:
+            # Create the new task (note the factory so that we create subclasses easily).
+            task = task_factory(strategy, task_workdir, self.runmode, task_id=task_id, links=links)
 
         self._tasks.append(task)
 
