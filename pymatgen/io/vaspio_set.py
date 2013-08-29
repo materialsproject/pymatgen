@@ -524,7 +524,8 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     """
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
-                 prec="Low", hubbard_off=True, **kwargs):
+                 prec="Normal", hubbard_off=True, spin_polarized=False,
+                **kwargs):
         """
         Args:
             start_temp:
@@ -563,7 +564,10 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                           "BMIX": 1, "MAXMIX": 20, "NELM": 500, "NSIM": 4,
                           "ISYM": 0, "ISIF": 0, "IBRION": 0, "NBLOCK": 1,
                           "KBLOCK": 100, "SMASS": 0, "POTIM": time_step}
-
+        incar_settings["ISPIN"] = 2 if spin_polarized else 1
+        #use VASP default ENCUT
+        del self.incar_settings['ENCUT']
+        
         self.incar_settings.update(incar_settings)
 
     def get_kpoints(self, structure):
