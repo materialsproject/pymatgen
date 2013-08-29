@@ -46,28 +46,17 @@ def DeformGeometry(rlxd_str, nd=0.01, ns=0.01, m=4, n=4):
 
     strcopy = rlxd_str.copy()
 
-#    print rlxd_str.lattice
     # First apply normal deformations
     for i1 in range(0, 3):
 
         for i2 in range(0, len(defs)):
 
-#            s = StructureEditor(rlxd_str)
-#            print s.original_structure.lattice
             s=rlxd_str.copy()
             F = np.identity(3)
             F[i1, i1] = F[i1, i1] + defs[i2] 
             StrainObject = IndependentStrain(F)
-#            print F
-#            s.apply_strain_transformation(F)
-#            print "old"
-#            print s.lattice
             s.apply_strain_transformation(F)
-#            print "new"
-#            print s.lattice
             defstructures[StrainObject] = s
-
-
 
     # Now apply shear deformations #		
     F_index = [[0, 1], [0, 2], [1, 2]]
@@ -75,13 +64,11 @@ def DeformGeometry(rlxd_str, nd=0.01, ns=0.01, m=4, n=4):
 		
         for j2 in range(0, len(sheardef)):
 
-#            s = StructureEditor(rlxd_str)
             s=rlxd_str.copy()
             F = np.identity(3)
             F[F_index[j1][0], F_index[j1][1]] = F[F_index[j1][0], F_index[j1][1]] + sheardef[j2]
 #           F = np.matrix(F)   # this needs to be checked carefully, might give problems in certain cases
             StrainObject = IndependentStrain(F)
-#            s.apply_strain_transformation(F)
             s.apply_strain_transformation(F)
             defstructures[StrainObject] = s
 
