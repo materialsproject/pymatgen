@@ -524,7 +524,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     """
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
-                 prec="Low", ggau=False, **kwargs):
+                 prec="Low", **kwargs):
         """
         Args:
             start_temp:
@@ -538,8 +538,6 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                 Defaults to 2fs.
             prec:
                 precision - Normal or LOW. Defaults to Low.
-            ggau:
-                whether to use +U or not. Defaults to False.
             user_incar_settings:
                 dictionary of incar settings to override
         """
@@ -551,7 +549,6 @@ class MITMDVaspInputSet(JSONVaspInputSet):
         self.nsteps = nsteps
         self.time_step = time_step
         self.prec = prec
-        self.ggau = ggau
 
         #Optimized parameters for MD simulations.
         incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
@@ -566,37 +563,30 @@ class MITMDVaspInputSet(JSONVaspInputSet):
 
         self.incar_settings.update(incar_settings)
 
-        if not ggau:
-            self.incar_settings['LDAU'] = False
-            if 'LDAUU' in self.incar_settings:
-                # technically not needed, but clarifies INCAR
-                del self.incar_settings['LDAUU']
-                del self.incar_settings['LDAUJ']
-                del self.incar_settings['LDAUL']
-
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
 
     @property
     def to_dict(self):
-        return {
+        d = super(MITMDVaspInputSet, self).to_dict
+        d.update({
             "start_temp": self.start_temp,
             "end_temp": self.end_temp,
             "nsteps": self.nsteps,
             "time_step": self.time_step,
-            "ggau": self.ggau,
             "prec": self.prec,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
+        })
+        return d
 
     @classmethod
     def from_dict(cls, d):
         return cls(start_temp=d["start_temp"], end_temp=d["end_temp"],
                    nsteps=d["nsteps"], time_step=d["time_step"],
-                   prec=d["prec"], ggau=d["ggau"],
-                   user_incar_settings=d["user_incar_settings"])
+                   prec=d["prec"],
+                   user_incar_settings=d["user_incar_settings"],
+                   constrain_total_magmom=d["constrain_total_magmom"],
+                   sort_structure=d.get("sort_structure", True),
+                   hubbard_off=d.get("hubbard_off", False))
 
 
 MPVaspInputSet = partial(JSONVaspInputSet, "MP",
