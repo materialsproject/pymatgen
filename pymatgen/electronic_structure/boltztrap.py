@@ -111,45 +111,43 @@ class BoltztrapRunner():
     
     def _make_struc_file(self, file_name):
         sym = SymmetryFinder(self._bs._structure, symprec=0.01)
-        f = open(file_name, 'w')
-        f.write(self._bs._structure.composition.formula+" " +
-                str(sym.get_spacegroup_symbol())+"\n")
-        for i in range(3):
-            line = ''
-            for j in range(3):
-                line += "%12.5f" % (self._bs._structure.lattice.matrix[i][j] / bohr_in_A)
-            f.write(line+'\n')
-        ops = sym.get_symmetry_dataset()['rotations']
-        f.write(str(len(ops))+"\n")
-        for c in ops:
-            f.write('\n'.join([' '.join([str(int(i)) for i in row])
-                               for row in c]))
-            f.write('\n')
-        f.close()
+        with open(file_name, 'w') as f:
+            f.write(self._bs._structure.composition.formula+" " +
+                    str(sym.get_spacegroup_symbol())+"\n")
+            for i in range(3):
+                line = ''
+                for j in range(3):
+                    line += "%12.5f" % (self._bs._structure.lattice.matrix[i][j] /
+                                        bohr_in_A)
+                f.write(line+'\n')
+            ops = sym.get_symmetry_dataset()['rotations']
+            f.write(str(len(ops))+"\n")
+            for c in ops:
+                f.write('\n'.join([' '.join([str(int(i)) for i in row])
+                                   for row in c]))
+                f.write('\n')
         
     def _make_intrans_file(self, file_name,
                            doping=[1e15, 1e16, 1e17, 1e18, 1e19, 1e20]):
-        #TODO: Use with context. Also string templates is much better.
-        fout = open(file_name, 'w')
-        fout.write("GENE          # use generic interface\n")
-        fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
-        fout.write(
-            "0.0 %f 0.1 %6.1f     # Fermilevel (Ry), energygrid, energy span around Fermilevel, number of electrons\n"
-            % (self.energy_grid*eV_in_Ry, self._nelec))
-        fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
-        fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
-        fout.write("BOLTZ                     # run mode (only BOLTZ is supported)\n")
-        fout.write(".15                       # (efcut) energy range of chemical potential\n")
-        fout.write("800. 100.                  # Tmax, temperature grid\n")
-        fout.write("-1.  # energyrange of bands given individual DOS output sig_xxx and dos_xxx (xxx is band number)\n")
-        fout.write(self.dos_type+"\n")
-        fout.write("1 0 0 -1\n")
-        fout.write(str(2*len(doping))+"\n")
-        for d in doping:
-            fout.write(str(d)+"\n")
-        for d in doping:
-            fout.write(str(-d)+"\n")
-        fout.close()
+        with open(file_name, 'w') as fout:
+            fout.write("GENE          # use generic interface\n")
+            fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
+            fout.write(
+                "0.0 %f 0.1 %6.1f     # Fermilevel (Ry), energygrid, energy span around Fermilevel, number of electrons\n"
+                % (self.energy_grid*eV_in_Ry, self._nelec))
+            fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
+            fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
+            fout.write("BOLTZ                     # run mode (only BOLTZ is supported)\n")
+            fout.write(".15                       # (efcut) energy range of chemical potential\n")
+            fout.write("800. 100.                  # Tmax, temperature grid\n")
+            fout.write("-1.  # energyrange of bands given individual DOS output sig_xxx and dos_xxx (xxx is band number)\n")
+            fout.write(self.dos_type+"\n")
+            fout.write("1 0 0 -1\n")
+            fout.write(str(2*len(doping))+"\n")
+            for d in doping:
+                fout.write(str(d)+"\n")
+            for d in doping:
+                fout.write(str(-d)+"\n")
     
     def _make_all_files(self, path):
         if self._bs.is_spin_polarized:
@@ -162,10 +160,10 @@ class BoltztrapRunner():
     def run(self, prev_sigma=None):
         temp_dir = tempfile.mkdtemp()
         dir_bz_name = "boltztrap"
-        os.mkdir(temp_dir+"/"+dir_bz_name)
-        path_dir = temp_dir+"/"+dir_bz_name
+        path_dir = os.path.join(temp_dir, dir_bz_name)
+        os.mkdir(path_dir)
         os.chdir(path_dir)
-        self._make_all_files(temp_dir+"/"+dir_bz_name)
+        self._make_all_files(path_dir)
         if self._bs.is_spin_polarized:
             p = subprocess.Popen(["x_trans", "BoltzTraP", "-so"],
                                  stdout=subprocess.PIPE,
@@ -180,7 +178,14 @@ class BoltztrapRunner():
             if "STOP error in factorization" in c:
                 raise BoltztrapError("STOP error in factorization")
 
-        f = open(path_dir+"/"+dir_bz_name+".outputtrans", 'r')
+        # TODO: There is a memory leak here. f is never closed! You should use
+        # with open(....) as f:
+        #     .....
+        # Also, NEVER use / as a directory separator. This precludes people
+        # from using this on Windows. You need to use os.path.join(a, b, ...).
+        # See examples below.
+
+        f = open(os.path.join(path_dir, dir_bz_name+".outputtrans"), 'r')
         warning = False
         for l in f:
             if "WARNING" in l:
@@ -189,7 +194,8 @@ class BoltztrapRunner():
         if warning:
             print "There was a warning! Increase lpfac to "+str(self.lpfac*2)
             self.lpfac *= 2
-            self._make_intrans_file(path_dir+"/"+dir_bz_name+".intrans")
+            self._make_intrans_file(os.path.join(path_dir,
+                                                 dir_bz_name + ".intrans"))
             if self.lpfac > 100:
                 raise BoltztrapError("lpfac higher than 100 and still a warning")
             self.run()
@@ -216,7 +222,7 @@ class BoltztrapRunner():
                 abs(sum(analyzer.get_eig_average_eff_mass_tensor()['n'])/3
                     - prev_sigma) / prev_sigma, \
                 self.lpfac, analyzer.get_average_eff_mass_tensor(300, 1e18)
-        return temp_dir+"/boltztrap"
+        return path_dir
 
 
 class BoltztrapError(Exception):
