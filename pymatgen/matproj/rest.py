@@ -17,7 +17,7 @@ __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
 import os
