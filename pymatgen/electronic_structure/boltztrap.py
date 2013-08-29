@@ -35,15 +35,16 @@ import tempfile
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.electronic_structure.dos import Dos, Spin
 from pymatgen.electronic_structure.plotter import DosPlotter
-import pylab
 from pymatgen.util.io_utils import which
 from pymatgen.util.decorators import requires
 import subprocess
+import pylab
 
 #some conversion factors and constants
 
 Ry_in_eV = 13.605698066
 eV_in_Ry = 1.0 / Ry_in_eV
+bohr_in_A = 0.5291772083
 e = 1.6e-19
 me = 9.1e-31
 
@@ -116,9 +117,7 @@ class BoltztrapRunner():
         for i in range(3):
             line = ''
             for j in range(3):
-                # TODO: Why is the 0.529 hard-coded here? If this is the
-                # constant, it should be in core.physical_constants
-                line += "%12.5f" % self._bs._structure.lattice._matrix[i][j] / 0.5291772083
+                line += "%12.5f" % (self._bs._structure.lattice.matrix[i][j] / bohr_in_A)
             f.write(line+'\n')
         ops = sym.get_symmetry_dataset()['rotations']
         f.write(str(len(ops))+"\n")
@@ -173,8 +172,7 @@ class BoltztrapRunner():
                                  stdin=subprocess.PIPE, stderr=subprocess.PIPE)
             p.wait()
         else:
-            # TODO: Why this is hard-coded? No one else has the directory /home/geoffroy.
-            p = subprocess.Popen(["/home/geoffroy/Softwares/boltztrap-1.2.2/src/x_trans", "BoltzTraP"],
+            p = subprocess.Popen(["x_trans", "BoltzTraP"],
                                  stdout=subprocess.PIPE, stdin=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
             p.wait()
@@ -344,9 +342,8 @@ class BoltztrapAnalyzer():
     @staticmethod
     def _make_boltztrap_analyzer_from_data(
             data_full, data_hall, data_dos, temperature_steps, mu_steps,
-            efermi, gap, doping=[], data_doping_full=[], data_doping_hall=[],
+            efermi, gap, doping, data_doping_full, data_doping_hall,
             warning=False):
-        #TODO: Shouldn't have mutable default args like [].
         """
         Make a BoltztrapAnalyzer object from raw data typically parse from
         files.
@@ -569,19 +566,19 @@ class BoltztrapAnalyzer():
         if len(doping) != 0:
             f = open(path_dir + "/fort.26", 'r')
             for line in f:
-                if not line.startswith("#") and len(line) > 1:
+                if not line.startswith("#") and len(line) > 2:
                     data_doping_full.append([float(c) for c in line.split()])
 
             f = open(path_dir + "/fort.27", 'r')
             for line in f:
-                if not line.startswith("#") and len(line) > 1:
+                if not line.startswith("#") and len(line) > 2:
                     data_doping_hall.append([float(c) for c in line.split()])
         return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
             data_full, data_hall, data_dos, sorted([t for t in t_steps]),
             sorted([m*Ry_in_eV for m in m_steps]), efermi, gap * Ry_in_eV,
             doping, data_doping_full, data_doping_hall, warning)
 
-    #TODO: Why is this not a property?
+    @property
     def to_dict(self):
         from pymatgen.util.io_utils import clean_json
         results = {'gap': self.gap,
@@ -600,9 +597,7 @@ class BoltztrapAnalyzer():
         return clean_json(results)
 
     @staticmethod
-    def from_dict(dict):
-        #TODO: dict is a reserved keyword. Please do not use it as a variable
-        #name.
+    def from_dict(data):
         def _make_float_array(a):
             res = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
             for i in range(3):
@@ -614,46 +609,46 @@ class BoltztrapAnalyzer():
             return [i for i in a[:27]]
 
         return BoltztrapAnalyzer(
-            float(dict['gap']), [float(d) for d in dict['mu_steps']],
-            {float(d): [_make_float_array(v) for v in dict['cond'][d]]
-             for d in dict['cond']},
-            {float(d): [_make_float_array(v) for v in dict['seebeck'][d]]
-             for d in dict['seebeck']},
-            {float(d): [_make_float_array(v) for v in dict['kappa'][d]]
-             for d in dict['kappa']},
-            {float(d): [_make_float_hall(v) for v in dict['hall'][d]]
-             for d in dict['hall']},
-            {'p': [float(d) for d in dict['doping']['p']],
-             'n': [float(d) for d in dict['doping']['n']]},
-            {'p': {float(d): [float(v) for v in dict['mu_doping']['p'][d]]
-                   for d in dict['mu_doping']['p']},
-             'n': {float(d): [float(v) for v in dict['mu_doping']['n'][d]]
-                   for d in dict['mu_doping']['n']}},
+            float(data['gap']), [float(d) for d in data['mu_steps']],
+            {float(d): [_make_float_array(v) for v in data['cond'][d]]
+             for d in data['cond']},
+            {float(d): [_make_float_array(v) for v in data['seebeck'][d]]
+             for d in data['seebeck']},
+            {float(d): [_make_float_array(v) for v in data['kappa'][d]]
+             for d in data['kappa']},
+            {float(d): [_make_float_hall(v) for v in data['hall'][d]]
+             for d in data['hall']},
+            {'p': [float(d) for d in data['doping']['p']],
+             'n': [float(d) for d in data['doping']['n']]},
+            {'p': {float(d): [float(v) for v in data['mu_doping']['p'][d]]
+                   for d in data['mu_doping']['p']},
+             'n': {float(d): [float(v) for v in data['mu_doping']['n'][d]]
+                   for d in data['mu_doping']['n']}},
             {'p': {float(d): [_make_float_array(v)
-                              for v in dict['seebeck_doping']['p'][d]]
-                   for d in dict['seebeck_doping']['p']},
+                              for v in data['seebeck_doping']['p'][d]]
+                   for d in data['seebeck_doping']['p']},
              'n': {float(d): [_make_float_array(v)
-                              for v in dict['seebeck_doping']['n'][d]]
-                   for d in dict['seebeck_doping']['n']}},
+                              for v in data['seebeck_doping']['n'][d]]
+                   for d in data['seebeck_doping']['n']}},
             {'p': {float(d): [_make_float_array(v)
-                              for v in dict['cond_doping']['p'][d]]
-                   for d in dict['cond_doping']['p']},
+                              for v in data['cond_doping']['p'][d]]
+                   for d in data['cond_doping']['p']},
              'n': {float(d): [_make_float_array(v)
-                              for v in dict['cond_doping']['n'][d]]
-                   for d in dict['cond_doping']['n']}},
+                              for v in data['cond_doping']['n'][d]]
+                   for d in data['cond_doping']['n']}},
             {'p': {float(d): [_make_float_array(v)
-                              for v in dict['kappa_doping']['p'][d]]
-                   for d in dict['kappa_doping']['p']},
+                              for v in data['kappa_doping']['p'][d]]
+                   for d in data['kappa_doping']['p']},
              'n': {float(d): [_make_float_array(v)
-                              for v in dict['kappa_doping']['n'][d]]
-                   for d in dict['kappa_doping']['n']}},
+                              for v in data['kappa_doping']['n'][d]]
+                   for d in data['kappa_doping']['n']}},
             {'p': {float(d): [_make_float_hall(v)
-                              for v in dict['hall_doping']['p'][d]]
-                   for d in dict['hall_doping']['p']},
+                              for v in data['hall_doping']['p'][d]]
+                   for d in data['hall_doping']['p']},
              'n': {float(d): [_make_float_hall(v)
-                              for v in dict['hall_doping']['n'][d]]
-                   for d in dict['hall_doping']['n']}},
-            Dos.from_dict(dict['dos']), str(dict['warning']))
+                              for v in data['hall_doping']['n'][d]]
+                   for d in data['hall_doping']['n']}},
+            Dos.from_dict(data['dos']), str(data['warning']))
 
 
 class BoltztrapPlotter():
