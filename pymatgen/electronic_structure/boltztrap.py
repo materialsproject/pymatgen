@@ -566,12 +566,12 @@ class BoltztrapAnalyzer():
         if len(doping) != 0:
             f = open(path_dir + "/fort.26", 'r')
             for line in f:
-                if not line.startswith("#") and len(line) > 1:
+                if not line.startswith("#") and len(line) > 2:
                     data_doping_full.append([float(c) for c in line.split()])
 
             f = open(path_dir + "/fort.27", 'r')
             for line in f:
-                if not line.startswith("#") and len(line) > 1:
+                if not line.startswith("#") and len(line) > 2:
                     data_doping_hall.append([float(c) for c in line.split()])
         return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
             data_full, data_hall, data_dos, sorted([t for t in t_steps]),
