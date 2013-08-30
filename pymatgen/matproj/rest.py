@@ -620,7 +620,6 @@ class MPRester(object):
 
         structures = []
         metadata = []
-        # TODO: Get histories from the data.
         histories = []
         for e in queen.get_data():
             structures.append(e.structure)
