@@ -15,6 +15,7 @@ class UnitTest(PymatgenTest):
         c = Energy(3.14, "J")
         self.assertAlmostEqual(c.to("eV"), 1.95983393276e+19)
         self.assertRaises(ValueError, Energy, 1, "m")
+        print a * c
 
 
 if __name__ == '__main__':
