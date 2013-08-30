@@ -68,6 +68,8 @@ class Unit(float):
         return "{} {}".format(self.val, self.unit)
 
     def __add__(self, other):
+        if not hasattr(other, "unit_type"):
+            return super(Unit, self).__add__(other)
         if other.unit_type != self.unit_type:
             raise ValueError("Adding different types of units is not allowed")
         val = other.val
@@ -77,8 +79,10 @@ class Unit(float):
                     unit=self.unit)
 
     def __sub__(self, other):
+        if not hasattr(other, "unit_type"):
+            return super(Unit, self).__sub__(other)
         if other.unit_type != self.unit_type:
-            raise ValueError("Adding different types of units is not allowed")
+            raise ValueError("Subtracting different units is not allowed")
         val = other.val
         if other.unit != self.unit:
             val = other.to(self.unit)
@@ -99,6 +103,9 @@ class Unit(float):
             self.val / conversion[new_unit] * conversion[self.unit],
             unit_type=self.unit_type, unit=new_unit)
 
+    @property
+    def supported_units(self):
+        return SUPPORTED_UNITS[self.unit_type]
 
 Energy = partial(Unit, unit_type="energy")
 
