@@ -174,7 +174,7 @@ task $theory $operation""")
                       title=d["title"], theory=d["theory"],
                       operation=d["operation"], basis_set=d["basis_set"],
                       theory_directives=d["theory_directives"],
-                      alternate_directives=d["alternate_directives"]
+                      alternate_directive=d["alternate_directives"]
                      )
 
     @classmethod
