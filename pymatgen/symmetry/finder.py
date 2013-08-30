@@ -328,8 +328,7 @@ class SymmetryFinder(object):
         species = [self._unique_species[i - 1] for i in zs]
         s = Structure(lattice.T.copy(), 
                       species,
-                      pos[:num_atom_bravais],
-                      site_properties=self._structure.site_properties)
+                      pos[:num_atom_bravais])
         return s.get_sorted_structure()
 
     def find_primitive(self):
