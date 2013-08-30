@@ -33,11 +33,11 @@ from pymatgen.core.periodic_table import Element, Specie, \
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
-from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
     pbc_all_distances
 from pymatgen.util.decorators import singleton
+from pymatgen.core.units import Mass, Length
 
 
 class SiteCollection(collections.Sequence):
@@ -437,8 +437,8 @@ class IStructure(SiteCollection, MSONable):
         """
         Returns the density in units of g/cc
         """
-        constant = AMU_TO_KG * 1000 / 1e-24
-        return self.composition.weight / self.volume * constant
+        m = Mass(self.composition.weight, "amu")
+        return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     def __eq__(self, other):
         if other is None:
