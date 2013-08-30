@@ -94,11 +94,6 @@ Ha_eV = 27.21138386
 
 eV_Ha = 1./Ha_eV
 
-#: 1 Bohr, in Angstrom
-Bohr_Ang = 0.52917720859
-
-Ang_Bohr = 1./Bohr_Ang
-
 # Conversion factor eV/A**3 --> GPa
 eVA3_GPa = 160.21773
 
@@ -162,7 +157,7 @@ def Bohr2Ang(Bohr):
     >>> Bohr2Ang([1, 2])
     array([ 0.52917721,  1.05835442])
     """
-    return _np.asanyarray(Bohr) * Bohr_Ang
+    return _np.asanyarray(Bohr) * BOHR_TO_ANGS
 
 
 def Ang2Bohr(Ang):
@@ -179,4 +174,4 @@ def Ang2Bohr(Ang):
     >>> Ang2Bohr(Bohr2Ang([1, 2]))
     array([ 1.,  2.])
     """
-    return _np.asanyarray(Ang) / Bohr_Ang
+    return _np.asanyarray(Ang) / BOHR_TO_ANGS
