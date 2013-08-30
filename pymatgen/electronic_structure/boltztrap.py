@@ -41,7 +41,7 @@ from pymatgen.core.physical_constants import RY_TO_EV, e, BOHR_TO_ANGS, \
     ELECTRON_MASS
 
 import subprocess
-import pylab
+import matplotlib.pyplot as plt
 
 
 class BoltztrapRunner():
@@ -663,50 +663,48 @@ class BoltztrapPlotter():
 
     def _plot_doping(self, temp):
         limit = 2.21e15
-        pylab.axvline(self._bz.mu_doping['n'][temp][1], linewidth=3.0,
-                      linestyle="--")
-        pylab.text(self._bz.mu_doping['n'][temp][1] + 0.01,
-                   limit,
-                   "$n$=10$^{" + str(math.log10(self._bz.doping['n'][1]))
-                   + "}$",
-                   color='b')
-        pylab.axvline(self._bz.mu_doping['n'][temp][-1], linewidth=3.0,
-                      linestyle="--")
-        pylab.text(self._bz.mu_doping['n'][temp][-1] + 0.01,
-                   limit,
-                   "$n$=10$^{" + str(math.log10(self._bz.doping['n'][
-                       -1])) + "}$",
-                   color='b')
-        pylab.axvline(self._bz.mu_doping['p'][temp][1], linewidth=3.0,
-                      linestyle="--")
-        pylab.text(self._bz.mu_doping['p'][temp][1] + 0.01,
-                   limit,
-                   "$p$=10$^{" + str(math.log10(self._bz.doping['p'][1]))
-                   + "}$", color='b')
-        pylab.axvline(self._bz.mu_doping['p'][temp][-1], linewidth=3.0,
-                      linestyle="--")
-        pylab.text(self._bz.mu_doping['p'][temp][-1] + 0.01,
-                   limit, "$p$=10$^{" +
-                          str(math.log10(self._bz.doping['p'][-1])) + "}$",
-                   color='b')
+        plt.axvline(self._bz.mu_doping['n'][temp][1], linewidth=3.0,
+                    linestyle="--")
+        plt.text(self._bz.mu_doping['n'][temp][1] + 0.01,
+                 limit,
+                 "$n$=10$^{" + str(math.log10(self._bz.doping['n'][1])) + "}$",
+                 color='b')
+        plt.axvline(self._bz.mu_doping['n'][temp][-1], linewidth=3.0,
+                    linestyle="--")
+        plt.text(self._bz.mu_doping['n'][temp][-1] + 0.01,
+                 limit,
+                 "$n$=10$^{" + str(math.log10(self._bz.doping['n'][-1])) + "}$",
+                 color='b')
+        plt.axvline(self._bz.mu_doping['p'][temp][1], linewidth=3.0,
+                    linestyle="--")
+        plt.text(self._bz.mu_doping['p'][temp][1] + 0.01,
+                 limit,
+                 "$p$=10$^{" + str(math.log10(self._bz.doping['p'][1])) + "}$",
+                 color='b')
+        plt.axvline(self._bz.mu_doping['p'][temp][-1], linewidth=3.0,
+                    linestyle="--")
+        plt.text(self._bz.mu_doping['p'][temp][-1] + 0.01,
+                 limit, "$p$=10$^{" +
+                        str(math.log10(self._bz.doping['p'][-1])) + "}$",
+                 color='b')
 
     def _plot_BG_limits(self):
-        pylab.axvline(0.0, color='k', linewidth=3.0)
-        pylab.axvline(self._bz.gap, color='k', linewidth=3.0)
+        plt.axvline(0.0, color='k', linewidth=3.0)
+        plt.axvline(self._bz.gap, color='k', linewidth=3.0)
 
     def plot_seebeck(self, temp=300):
-        pylab.plot(self._bz.mu_steps, [np.linalg.eig(c)[0]*1e6
-                                       for c in self._bz.seebeck[temp]],
-                   linewidth=3.0)
+        plt.plot(self._bz.mu_steps, [np.linalg.eig(c)[0] * 1e6
+                                     for c in self._bz.seebeck[temp]],
+                 linewidth=3.0)
         self._plot_BG_limits()
         self._plot_doping(temp)
-        pylab.legend(['S$_1$', 'S$_2$', 'S$_3$'])
-        pylab.xlim(-0.5, self._bz.gap+0.5)
-        pylab.ylabel("Seebeck coefficient ($\mu$V/K)", fontsize=30.0)
-        pylab.xlabel("E-E$_f$ (eV)", fontsize=30)
-        pylab.xticks(fontsize=25)
-        pylab.yticks(fontsize=25)
-        pylab.show()
+        plt.legend(['S$_1$', 'S$_2$', 'S$_3$'])
+        plt.xlim(-0.5, self._bz.gap+0.5)
+        plt.ylabel("Seebeck coefficient ($\mu$V/K)", fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        plt.show()
 
     def plot_power_factor(self, temp=300):
         matrix = []
@@ -714,34 +712,33 @@ class BoltztrapPlotter():
             matrix.append(np.dot(np.dot(self._bz.seebeck[temp][i],
                                         self._bz.seebeck[temp][i]),
                                  self._bz.cond[temp][i]))
-        pylab.plot(self._bz.mu_steps,
-                   [sorted(np.linalg.eig(c)[0] * 1e6 * 0.01)
-                    for c in matrix], linewidth=3.0)
+        plt.plot(self._bz.mu_steps, [sorted(np.linalg.eig(c)[0] * 1e6 * 0.01)
+                                     for c in matrix],
+                 linewidth=3.0)
         self._plot_BG_limits()
         self._plot_doping(temp)
-        pylab.xlim(-0.5, self._bz.gap + 0.5)
-        pylab.ylabel("power factor (S$^2$ * $\sigma$/${\\tau}$)", fontsize=30)
-        pylab.xlabel("E-E$_f$ (eV)", fontsize=30)
-        pylab.xticks(fontsize=25)
-        pylab.yticks(fontsize=25)
-        pylab.show()
+        plt.xlim(-0.5, self._bz.gap + 0.5)
+        plt.ylabel("power factor (S$^2$ * $\sigma$/${\\tau}$)", fontsize=30)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        plt.show()
 
     def plot_conductivity(self, temp=300):
-        pylab.semilogy(self._bz.mu_steps,
-                       [sorted(np.linalg.eig(c)[0] * 0.01)
-                        for c in self._bz.cond[temp]],
-                       linewidth=3.0)
+        plt.semilogy(self._bz.mu_steps, [sorted(np.linalg.eig(c)[0] * 0.01)
+                                         for c in self._bz.cond[temp]],
+                     linewidth=3.0)
         self._plot_BG_limits()
         self._plot_doping(temp)
-        pylab.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
-        pylab.xlim(-0.5, self._bz.gap + 0.5)
-        pylab.ylim([1e13, 1e20])
-        pylab.ylabel("conductivity, $\sigma$/${\\tau}$ (1/($\Omega$ m s))",
-                     fontsize=30.0)
-        pylab.xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        pylab.xticks(fontsize=25)
-        pylab.yticks(fontsize=25)
-        pylab.show()
+        plt.legend(['$\sigma_1$', '$\sigma_2$', '$\sigma_3$'])
+        plt.xlim(-0.5, self._bz.gap + 0.5)
+        plt.ylim([1e13, 1e20])
+        plt.ylabel("conductivity, $\sigma$/${\\tau}$ (1/($\Omega$ m s))",
+                   fontsize=30.0)
+        plt.xlabel("E-E$_f$ (eV)", fontsize=30.0)
+        plt.xticks(fontsize=25)
+        plt.yticks(fontsize=25)
+        plt.show()
 
     def plot_dos(self):
         plotter = DosPlotter(sigma=0.05)
