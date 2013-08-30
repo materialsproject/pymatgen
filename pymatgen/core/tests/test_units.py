@@ -3,7 +3,7 @@
 from __future__ import division
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import Unit, Energy
+from pymatgen.core.units import Energy, Time
 
 
 class UnitTest(PymatgenTest):
@@ -21,6 +21,11 @@ class UnitTest(PymatgenTest):
         self.assertAlmostEqual(a - d, -26.11138386)
 
         print a + 1
+
+    def test_time(self):
+        a = Time(20, "h")
+        self.assertAlmostEqual(a.to("s"), 3600 * 20)
+
 
 if __name__ == '__main__':
     import unittest
