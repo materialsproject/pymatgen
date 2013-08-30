@@ -1,15 +1,31 @@
+#!/usr/bin/env python
+
 """
-Unit conversion tools. These functions are defined here instead of
-core.physical_constants because we have to import and inspect the attributes
-of the module.
+This module implements a Unit, which is a subclass of float. It also defines
+supported units for some commonly used units for energy, length, temperature,
+time and charge. Units also support conversion to one another,
+and additions and subtractions perform automatic conversion if units are
+detected.
 """
+
 from __future__ import division
+
+__author__ = "Shyue Ping Ong"
+__copyright__ = "Copyright 2011, The Materials Project"
+__version__ = "1.0"
+__maintainer__ = "Shyue Ping Ong"
+__email__ = "shyuep@gmail.com"
+__status__ = "Production"
+__date__ = "Aug 30, 2013"
+
 
 from functools import partial
 
-# The values below are essentially scaling and conversion factors. What matters
-# is the relative values, not the absolute.
 
+"""
+Definitions of supported units. Values below are essentially scaling and
+conversion factors. What matters is the relative values, not the absolute.
+"""
 SUPPORTED_UNITS = {
     "energy": {
         "eV": 1,
@@ -33,7 +49,8 @@ SUPPORTED_UNITS = {
     },
     "time": {
         "s": 1,
-        "min": 1 / 60
+        "min": 60,
+        "h": 3600
     },
     "charge": {
         "C": 1,
@@ -105,6 +122,7 @@ class Unit(float):
     def supported_units(self):
         return SUPPORTED_UNITS[self.unit_type]
 
+
 Energy = partial(Unit, unit_type="energy")
 
 Length = partial(Unit, unit_type="length")
@@ -114,4 +132,6 @@ Mass = partial(Unit, unit_type="mass")
 Temp = partial(Unit, unit_type="temperature")
 
 Time = partial(Unit, unit_type="time")
+
+Charge = partial(Unit, unit_type="charge")
 
