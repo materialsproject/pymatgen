@@ -1,13 +1,14 @@
 import unittest
 import json
 import os
+import numpy.testing as nptest
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class BoltztrapAnalyzer_test(unittest.TestCase):
+class BoltztrapAnalyzerTest(unittest.TestCase):
 
     def setUp(self):
         with open(os.path.join(test_dir, "mp-22630_bz.json"), "rb") as f:
@@ -41,27 +42,23 @@ class BoltztrapAnalyzer_test(unittest.TestCase):
 
     def test_get_average_eff_mass_tensor(self):
         arrayp = self.bz.get_average_eff_mass_tensor()['p']
-        refp = [[9.67252848e-01, -7.41621352e-20, 1.81431663e-19],
-                [-7.41621352e-20, 2.93967184e+00, -5.22926942e-18],
-                [1.81431663e-19, -5.22926942e-18, 7.43551739e-01]]
-        for i in range(0, 3):
-            for j in range(0, 3):
-                self.assertAlmostEqual(arrayp[i][j], refp[i][j])
+        refp = [[9.68887240e-01, -7.42874488e-20, 1.81738232e-19],
+                [-7.42874488e-20, 2.94463908, -5.23810545e-18],
+                [1.81738232e-19, -5.23810545e-18, 7.44808138e-01]]
+        nptest.assert_allclose(arrayp, refp)
         arrayn = self.bz.get_average_eff_mass_tensor()['n']
-        refn = [[1.01597485e+00, 5.26593684e-18, -5.07526263e-18],
-                [5.26593684e-18, 1.00860922e+00, 4.16736724e-18],
-                [-5.07526263e-18, 4.16736724e-18, 2.62490451e+00]]
-        for i in range(0, 3):
-            for j in range(0, 3):
-                self.assertAlmostEqual(arrayn[i][j], refn[i][j])
+        refn = [[1.01769157e+00, 5.27483483e-18, -5.08383843e-18],
+                [5.27483483e-18, 1.01031349e+00, 4.17440894e-18],
+                [-5.08383843e-18, 4.17440894e-18, 2.62933988e+00]]
+        nptest.assert_allclose(arrayn, refn)
 
     def test_get_eig_average_eff_mass_tensor(self):
         list_p = self.bz.get_eig_average_eff_mass_tensor()['p']
-        ref_p = [0.74355173938236407, 0.96725284778659004, 2.9396718381950864]
+        ref_p = [0.74480813774834398, 0.96888723962925827, 2.9446390767857635]
         for i in range(0, 3):
             self.assertAlmostEqual(list_p[i], ref_p[i])
         list_n = self.bz.get_eig_average_eff_mass_tensor()['n']
-        ref_n = [1.0086092195986951, 1.0159748504188562, 2.6249045124335639]
+        ref_n = [1.0103134923591464, 1.0176915690738393, 2.6293398806340513]
         for i in range(0, 3):
             self.assertAlmostEqual(list_n[i], ref_n[i])
 
