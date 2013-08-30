@@ -4,7 +4,6 @@ from __future__ import division, print_function
 import unittest
 import os.path
 
-import numpy as np
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.physical_constants import Ha_eV
