@@ -1887,11 +1887,10 @@ class Structure(IStructure):
             for t in tvects:
                 fcoords = site.frac_coords + t
                 coords = old_lattice.get_cartesian_coords(fcoords)
-                new_coords = new_lattice.get_fractional_coords(coords)
-                new_site = PeriodicSite(site.species_and_occu, new_coords,
-                                        new_lattice,
-                                        properties=site.properties,
-                                        to_unit_cell=True)
+                new_site = PeriodicSite(
+                    site.species_and_occu, coords, new_lattice,
+                    coords_are_cartesian=True, properties=site.properties,
+                    to_unit_cell=True)
                 new_sites.append(new_site)
         self._sites = new_sites
         self._lattice = new_lattice
