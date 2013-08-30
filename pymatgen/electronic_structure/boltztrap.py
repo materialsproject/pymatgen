@@ -91,24 +91,23 @@ class BoltztrapRunner():
         self.error = []
         
     def _make_energy_file(self, file_name):
-        f = open(file_name, 'w')
-        f.write("test\n")
-        f.write(str(len(self._bs.kpoints))+"\n")
-        for i in range(len(self._bs.kpoints)):
-            tmp_eigs = []
-            for spin in self._bs._bands:
-                for j in range(int(math.floor(self._bs._nb_bands * 0.9))):
-                    tmp_eigs.append((self._bs._bands[spin][j][i] -
-                                     self._bs.efermi)*eV_in_Ry)
-            tmp_eigs.sort()
-            f.write("%12.8f %12.8f %12.8f %d\n"
-                    % (self._bs.kpoints[i].frac_coords[0],
-                       self._bs.kpoints[i].frac_coords[1],
-                       self._bs.kpoints[i].frac_coords[2], len(tmp_eigs)))
-            for j in range(len(tmp_eigs)):
-                f.write("%18.8f\n" % float(tmp_eigs[j]))
-        f.close()
-    
+        with open(file_name, 'w') as f:
+            f.write("test\n")
+            f.write(str(len(self._bs.kpoints))+"\n")
+            for i in range(len(self._bs.kpoints)):
+                tmp_eigs = []
+                for spin in self._bs._bands:
+                    for j in range(int(math.floor(self._bs._nb_bands * 0.9))):
+                        tmp_eigs.append((self._bs._bands[spin][j][i] -
+                                         self._bs.efermi)*eV_in_Ry)
+                tmp_eigs.sort()
+                f.write("%12.8f %12.8f %12.8f %d\n"
+                        % (self._bs.kpoints[i].frac_coords[0],
+                           self._bs.kpoints[i].frac_coords[1],
+                           self._bs.kpoints[i].frac_coords[2], len(tmp_eigs)))
+                for j in range(len(tmp_eigs)):
+                    f.write("%18.8f\n" % float(tmp_eigs[j]))
+
     def _make_struc_file(self, file_name):
         sym = SymmetryFinder(self._bs._structure, symprec=0.01)
         with open(file_name, 'w') as f:
@@ -133,14 +132,14 @@ class BoltztrapRunner():
             fout.write("GENE          # use generic interface\n")
             fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
             fout.write(
-                "0.0 %f 0.1 %6.1f     # Fermilevel (Ry), energygrid, energy span around Fermilevel, number of electrons\n"
+                "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons\n"
                 % (self.energy_grid*eV_in_Ry, self._nelec))
             fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
             fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
             fout.write("BOLTZ                     # run mode (only BOLTZ is supported)\n")
             fout.write(".15                       # (efcut) energy range of chemical potential\n")
             fout.write("800. 100.                  # Tmax, temperature grid\n")
-            fout.write("-1.  # energyrange of bands given individual DOS output sig_xxx and dos_xxx (xxx is band number)\n")
+            fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
             fout.write(self.dos_type+"\n")
             fout.write("1 0 0 -1\n")
             fout.write(str(2*len(doping))+"\n")
@@ -151,11 +150,11 @@ class BoltztrapRunner():
     
     def _make_all_files(self, path):
         if self._bs.is_spin_polarized:
-            self._make_energy_file(path+"/boltztrap"+".energyso")
+            self._make_energy_file(os.path.join(path,"boltztrap.energyso"))
         else:
-            self._make_energy_file(path+"/boltztrap"+".energy")
-        self._make_struc_file(path+"/boltztrap"+".struct")
-        self._make_intrans_file(path+"/boltztrap"+".intrans")
+            self._make_energy_file(os.path.join(path, "boltztrap.energy"))
+        self._make_struc_file(os.path.join(path, "boltztrap.struct"))
+        self._make_intrans_file(os.path.join(path, "boltztrap.intrans"))
     
     def run(self, prev_sigma=None):
         temp_dir = tempfile.mkdtemp()
@@ -178,27 +177,20 @@ class BoltztrapRunner():
             if "STOP error in factorization" in c:
                 raise BoltztrapError("STOP error in factorization")
 
-        # TODO: There is a memory leak here. f is never closed! You should use
-        # with open(....) as f:
-        #     .....
-        # Also, NEVER use / as a directory separator. This precludes people
-        # from using this on Windows. You need to use os.path.join(a, b, ...).
-        # See examples below.
-
-        f = open(os.path.join(path_dir, dir_bz_name+".outputtrans"), 'r')
-        warning = False
-        for l in f:
-            if "WARNING" in l:
-                warning = True
-                break
-        if warning:
-            print "There was a warning! Increase lpfac to "+str(self.lpfac*2)
-            self.lpfac *= 2
-            self._make_intrans_file(os.path.join(path_dir,
-                                                 dir_bz_name + ".intrans"))
-            if self.lpfac > 100:
-                raise BoltztrapError("lpfac higher than 100 and still a warning")
-            self.run()
+        with open(os.path.join(path_dir, dir_bz_name+".outputtrans"), 'r') as f:
+            warning = False
+            for l in f:
+                if "WARNING" in l:
+                    warning = True
+                    break
+            if warning:
+                print "There was a warning! Increase lpfac to "+str(self.lpfac*2)
+                self.lpfac *= 2
+                self._make_intrans_file(os.path.join(path_dir,
+                                                     dir_bz_name + ".intrans"))
+                if self.lpfac > 100:
+                    raise BoltztrapError("lpfac higher than 100 and still a warning")
+                self.run()
 
         analyzer = BoltztrapAnalyzer.from_files(path_dir)
         #here, we test if a property (eff_mass tensor) converges
@@ -442,7 +434,7 @@ class BoltztrapAnalyzer():
     def get_mu_bounds(self, temp=300):
         return min(self.mu_doping['p'][temp]), max(self.mu_doping['n'][temp])
 
-    def get_average_eff_mass_tensor(self, temperature=300.0, doping=1e18):
+    def get_average_eff_mass_tensor(self, temperature=300, doping=1e18):
         """
         Gives the average effective mass tensor at a given temperature and
         doping level.
@@ -477,7 +469,7 @@ class BoltztrapAnalyzer():
                 * 10 ** 6 * e ** 2 / me
         return results
     
-    def get_eig_average_eff_mass_tensor(self, temperature=300.0, doping=1e18):
+    def get_eig_average_eff_mass_tensor(self, temperature=300, doping=1e18):
         """
         Gives the eigenvalues of the average effective mass tensor at a given
         temperature and doping level. The average effective mass tensor is
@@ -525,61 +517,61 @@ class BoltztrapAnalyzer():
         doping = []
         data_doping_full = []
         data_doping_hall = []
-        f = open(path_dir + "/boltztrap" + ".condtens", 'r')
-        data_full = []
-        for line in f:
-            if not line.startswith("#"):
-                t_steps.add(float(line.split()[1]))
-                m_steps.add(float(line.split()[0]))
-                data_full.append([float(c) for c in line.split()])
+        with open(os.path.join(path_dir,"boltztrap.condtens"), 'r') as f:
+            data_full = []
+            for line in f:
+                if not line.startswith("#"):
+                    t_steps.add(int(float(line.split()[1])))
+                    m_steps.add(float(line.split()[0]))
+                    data_full.append([float(c) for c in line.split()])
 
-        f = open(path_dir + "/boltztrap" + ".halltens", 'r')
-        data_hall = []
-        for line in f:
-            if not line.startswith("#"):
-                data_hall.append([float(c) for c in line.split()])
+        with open(os.path.join(path_dir, "boltztrap.halltens"), 'r') as f:
+            data_hall = []
+            for line in f:
+                if not line.startswith("#"):
+                    data_hall.append([float(c) for c in line.split()])
                 
         data_dos = []
-        f = open(path_dir + "/boltztrap" + ".transdos", 'r')
-        for line in f:
-            if not line.startswith(" #"):
-                data_dos.append([float(line.split()[0]) * Ry_in_eV,
-                                 2.0 * float(line.split()[1])/Ry_in_eV])
+        with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
+            for line in f:
+                if not line.startswith(" #"):
+                    data_dos.append([float(line.split()[0]) * Ry_in_eV,
+                                     2.0 * float(line.split()[1])/Ry_in_eV])
         
-        f = open(path_dir + "/boltztrap" + ".outputtrans", 'r')
-        warning = False
-        step = 0
-        for line in f:
-            if "WARNING" in line:
-                warning = True
-            if line.startswith("VBM"):
-                efermi = float(line.split()[1])*Ry_in_eV
+        with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
+            warning = False
+            step = 0
+            for line in f:
+                if "WARNING" in line:
+                    warning = True
+                if line.startswith("VBM"):
+                    efermi = float(line.split()[1])*Ry_in_eV
 
-            if step == 2:
-                l_tmp = line.split("-")[1:]
-                doping.extend([-float(d) for d in l_tmp])
-                step = 0
+                if step == 2:
+                    l_tmp = line.split("-")[1:]
+                    doping.extend([-float(d) for d in l_tmp])
+                    step = 0
 
-            if step == 1:
-                doping.extend([float(d) for d in line.split()])
-                step = 2
+                if step == 1:
+                    doping.extend([float(d) for d in line.split()])
+                    step = 2
 
-            if line.startswith("Doping levels to be output for") or \
-                    line.startswith(" Doping levels to be output for"):
-                step = 1
+                if line.startswith("Doping levels to be output for") or \
+                        line.startswith(" Doping levels to be output for"):
+                    step = 1
 
-            if line.startswith("Egap:"):
-                gap = float(line.split()[1])
+                if line.startswith("Egap:"):
+                    gap = float(line.split()[1])
         if len(doping) != 0:
-            f = open(path_dir + "/fort.26", 'r')
-            for line in f:
-                if not line.startswith("#") and len(line) > 2:
-                    data_doping_full.append([float(c) for c in line.split()])
+            with open(os.path.join(path_dir, "fort.26"), 'r') as f:
+                for line in f:
+                    if not line.startswith("#") and len(line) > 2:
+                        data_doping_full.append([float(c) for c in line.split()])
 
-            f = open(path_dir + "/fort.27", 'r')
-            for line in f:
-                if not line.startswith("#") and len(line) > 2:
-                    data_doping_hall.append([float(c) for c in line.split()])
+            with open(os.path.join(path_dir,"fort.27"), 'r') as f:
+                for line in f:
+                    if not line.startswith("#") and len(line) > 2:
+                        data_doping_hall.append([float(c) for c in line.split()])
         return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
             data_full, data_hall, data_dos, sorted([t for t in t_steps]),
             sorted([m*Ry_in_eV for m in m_steps]), efermi, gap * Ry_in_eV,
@@ -617,42 +609,42 @@ class BoltztrapAnalyzer():
 
         return BoltztrapAnalyzer(
             float(data['gap']), [float(d) for d in data['mu_steps']],
-            {float(d): [_make_float_array(v) for v in data['cond'][d]]
+            {int(d): [_make_float_array(v) for v in data['cond'][d]]
              for d in data['cond']},
-            {float(d): [_make_float_array(v) for v in data['seebeck'][d]]
+            {int(d): [_make_float_array(v) for v in data['seebeck'][d]]
              for d in data['seebeck']},
-            {float(d): [_make_float_array(v) for v in data['kappa'][d]]
+            {int(d): [_make_float_array(v) for v in data['kappa'][d]]
              for d in data['kappa']},
-            {float(d): [_make_float_hall(v) for v in data['hall'][d]]
+            {int(d): [_make_float_hall(v) for v in data['hall'][d]]
              for d in data['hall']},
             {'p': [float(d) for d in data['doping']['p']],
              'n': [float(d) for d in data['doping']['n']]},
-            {'p': {float(d): [float(v) for v in data['mu_doping']['p'][d]]
+            {'p': {int(d): [float(v) for v in data['mu_doping']['p'][d]]
                    for d in data['mu_doping']['p']},
-             'n': {float(d): [float(v) for v in data['mu_doping']['n'][d]]
+             'n': {int(d): [float(v) for v in data['mu_doping']['n'][d]]
                    for d in data['mu_doping']['n']}},
-            {'p': {float(d): [_make_float_array(v)
+            {'p': {int(d): [_make_float_array(v)
                               for v in data['seebeck_doping']['p'][d]]
                    for d in data['seebeck_doping']['p']},
-             'n': {float(d): [_make_float_array(v)
+             'n': {int(d): [_make_float_array(v)
                               for v in data['seebeck_doping']['n'][d]]
                    for d in data['seebeck_doping']['n']}},
-            {'p': {float(d): [_make_float_array(v)
+            {'p': {int(d): [_make_float_array(v)
                               for v in data['cond_doping']['p'][d]]
                    for d in data['cond_doping']['p']},
-             'n': {float(d): [_make_float_array(v)
+             'n': {int(d): [_make_float_array(v)
                               for v in data['cond_doping']['n'][d]]
                    for d in data['cond_doping']['n']}},
-            {'p': {float(d): [_make_float_array(v)
+            {'p': {int(d): [_make_float_array(v)
                               for v in data['kappa_doping']['p'][d]]
                    for d in data['kappa_doping']['p']},
-             'n': {float(d): [_make_float_array(v)
+             'n': {int(d): [_make_float_array(v)
                               for v in data['kappa_doping']['n'][d]]
                    for d in data['kappa_doping']['n']}},
-            {'p': {float(d): [_make_float_hall(v)
+            {'p': {int(d): [_make_float_hall(v)
                               for v in data['hall_doping']['p'][d]]
                    for d in data['hall_doping']['p']},
-             'n': {float(d): [_make_float_hall(v)
+             'n': {int(d): [_make_float_hall(v)
                               for v in data['hall_doping']['n'][d]]
                    for d in data['hall_doping']['n']}},
             Dos.from_dict(data['dos']), str(data['warning']))
@@ -704,7 +696,7 @@ class BoltztrapPlotter():
         pylab.axvline(0.0, color='k', linewidth=3.0)
         pylab.axvline(self._bz.gap, color='k', linewidth=3.0)
 
-    def plot_seebeck(self, temp=300.0):
+    def plot_seebeck(self, temp=300):
         pylab.plot(self._bz.mu_steps, [np.linalg.eig(c)[0]*1e6
                                        for c in self._bz.seebeck[temp]],
                    linewidth=3.0)
@@ -718,7 +710,7 @@ class BoltztrapPlotter():
         pylab.yticks(fontsize=25)
         pylab.show()
 
-    def plot_power_factor(self, temp=300.0):
+    def plot_power_factor(self, temp=300):
         matrix = []
         for i in range(len(self._bz.mu_steps)):
             matrix.append(np.dot(np.dot(self._bz.seebeck[temp][i],
@@ -736,7 +728,7 @@ class BoltztrapPlotter():
         pylab.yticks(fontsize=25)
         pylab.show()
 
-    def plot_conductivity(self, temp=300.0):
+    def plot_conductivity(self, temp=300):
         pylab.semilogy(self._bz.mu_steps,
                        [sorted(np.linalg.eig(c)[0] * 0.01)
                         for c in self._bz.cond[temp]],
