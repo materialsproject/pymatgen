@@ -285,7 +285,7 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
-        for a in ["name", "atomic_radius", "atomic_mass"
+        for a in ["name", "atomic_radius", "atomic_mass",
                   "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
