@@ -1716,7 +1716,7 @@ class Structure(IStructure):
         """
         self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
 
-    def translate_sites(self, indices, vector, frac_coords=True, 
+    def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):
         """
         Translate specific sites by some vector, keeping the sites within the
@@ -1866,12 +1866,11 @@ class Structure(IStructure):
                 else:
                     low += z
             return np.arange(low, high+1)
-
         arange = range_vec(0)[:, None] * np.array([1, 0, 0])[None, :]
         brange = range_vec(1)[:, None] * np.array([0, 1, 0])[None, :]
         crange = range_vec(2)[:, None] * np.array([0, 0, 1])[None, :]
         all_points = arange[:, None, None] + brange[None, :, None] +\
-                    crange[None, None, :]
+            crange[None, None, :]
         all_points = all_points.reshape((-1, 3))
 
         #find the translation vectors (in terms of the initial lattice vectors)
@@ -1879,8 +1878,8 @@ class Structure(IStructure):
         #we're using a slightly offset interval from 0 to 1 to avoid numerical
         #precision issues
         frac_points = np.dot(all_points, np.linalg.inv(scale_matrix))
-        tvects = all_points[np.where(np.all(frac_points < 1-1e-10, axis = 1) \
-                                & np.all(frac_points >=-1e-10, axis = 1))]
+        tvects = all_points[np.where(np.all(frac_points < 1-1e-10, axis=1)
+                                     & np.all(frac_points >= -1e-10, axis=1))]
         assert len(tvects) == np.round(abs(np.linalg.det(scale_matrix)))
 
         new_sites = []
@@ -2255,7 +2254,7 @@ class Molecule(IMolecule):
                                " functional group to.")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
-        
+
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
         origin = non_terminal_nn.coords
