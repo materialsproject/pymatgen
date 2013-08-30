@@ -20,6 +20,7 @@ class UnitTest(PymatgenTest):
         self.assertAlmostEqual(a + d, 28.31138386)
         self.assertAlmostEqual(a - d, -26.11138386)
 
+        print a + 1
 
 if __name__ == '__main__':
     import unittest
