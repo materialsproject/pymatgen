@@ -27,6 +27,13 @@ SUPPORTED_UNITS = {
     "mass": {
         "kg": 1,
         "u": 1.660538921e-27
+    },
+    "temperature": {
+        "K": 1
+    },
+    "time": {
+        "s": 1,
+        "min": 1 / 60
     }
 }
 
@@ -70,6 +77,10 @@ Energy = partial(Unit, unit_type="energy")
 Length = partial(Unit, unit_type="length")
 
 Mass = partial(Unit, unit_type="mass")
+
+Temp = partial(Unit, unit_type="temperature")
+
+Time = partial(Unit, unit_type="time")
 
 
 def _nop(values):
