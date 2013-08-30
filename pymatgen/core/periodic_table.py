@@ -20,7 +20,6 @@ import json
 from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.core.units import Mass, Length
 from functools import total_ordering
 
 #Loads element data from json file
@@ -286,7 +285,7 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
-        for a in ["name", "atomic_radius",
+        for a in ["name", "atomic_radius", "atomic_mass"
                   "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
@@ -304,8 +303,6 @@ class Element(object):
             if str(val).startswith("no data"):
                 val = None
             self.__setattr__(a, val)
-        self.__setattr__("atomic_mass",
-                         Mass(self._data["Atomic mass"], "amu"))
 
     def __getnewargs__(self):
         #function used by pickle to recreate object
