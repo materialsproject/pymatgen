@@ -211,9 +211,10 @@ objects:
     >>> finder.get_spacegroup_symbol()
     'Pm-3m'
     >>>
-    >>> #Writing out a POSCAR file for VASP calculations.
-    >>> poscar = Poscar(structure)
+    >>> # Convenient IO to various formats. Format is intelligently determined
+    >>> # from file name and extension.
     >>> mg.write_structure(structure, "POSCAR")
+    >>> mg.write_structure(structure, "CsCl.cif")
     >>>
     >>> #Reading a structure from a file.
     >>> structure = mg.read_structure("POSCAR")

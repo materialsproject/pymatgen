@@ -57,7 +57,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
@@ -67,6 +67,7 @@ __date__ = "Sep 23, 2011"
 #systems, the replication of these constants minimizes scipy dependency.
 
 ELECTRON_CHARGE = 1.602176565e-19
+ELECTRON_MASS = 9.10938291e-31
 EPSILON_0 = 8.85418781762e-12
 BOLTZMANN_CONST = 1.3806488e-23
 ELECTRON_VOLT = 1.602176565e-19
@@ -85,17 +86,13 @@ EV_PER_ATOM_TO_J_PER_MOL = ELECTRON_VOLT * AVOGADROS_CONST
 EV_PER_ATOM_TO_KJ_PER_MOL = EV_PER_ATOM_TO_J_PER_MOL / 1000
 ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 AMU_TO_KG = 1.660538921e-27
-
+RY_TO_EV = 13.605698066
+BOHR_TO_ANGS = 0.5291772083
 
 #: 1 Hartree, in eV
 Ha_eV = 27.21138386
 
 eV_Ha = 1./Ha_eV
-
-#: 1 Bohr, in Angstrom
-Bohr_Ang = 0.52917720859
-
-Ang_Bohr = 1./Bohr_Ang
 
 # Conversion factor eV/A**3 --> GPa
 eVA3_GPa = 160.21773
@@ -160,7 +157,7 @@ def Bohr2Ang(Bohr):
     >>> Bohr2Ang([1, 2])
     array([ 0.52917721,  1.05835442])
     """
-    return _np.asanyarray(Bohr) * Bohr_Ang
+    return _np.asanyarray(Bohr) * BOHR_TO_ANGS
 
 
 def Ang2Bohr(Ang):
@@ -177,4 +174,4 @@ def Ang2Bohr(Ang):
     >>> Ang2Bohr(Bohr2Ang([1, 2]))
     array([ 1.,  2.])
     """
-    return _np.asanyarray(Ang) / Bohr_Ang
+    return _np.asanyarray(Ang) / BOHR_TO_ANGS

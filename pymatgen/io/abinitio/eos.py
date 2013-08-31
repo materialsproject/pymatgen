@@ -5,7 +5,7 @@ import collections
 import numpy as np
 
 import pymatgen.core.physical_constants as const
-import pymatgen.core.units as units
+import pymatgen.core.units_deprecated as units
 
 __all__ = [
     "EOS",

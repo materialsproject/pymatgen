@@ -4,7 +4,7 @@
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT
 high throughput project.  The basic concept behind an input set is to specify
-a scheme to generate a consistent set of Vasp inputs from a structure
+a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.
 """
@@ -15,7 +15,7 @@ __author__ = "Shyue Ping Ong, Wei Chen, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Nov 16, 2011"
 
 import os
@@ -422,10 +422,7 @@ Please refer::
     functional theory calculations. Computational Materials Science,
     2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
 
-for more information.
-
-Supports the same kwargs as JSONVaspInputSet. Please see
-:class:`JSONVaspInputSet`.
+for more information. Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
 
@@ -458,11 +455,9 @@ class MITNEBVaspInputSet(JSONVaspInputSet):
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
-        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
-            JSONVaspInputSet.__init__(
-                self, "MIT NEB",
-                os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-                **kwargs)
+        JSONVaspInputSet.__init__(
+            self, "MIT NEB",
+            os.path.join(MODULE_DIR, "MITVaspInputSet.json"), **kwargs)
         self.nimages = nimages
         # NEB settings
         self.incar_settings.update(
@@ -524,7 +519,8 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     """
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
-                 prec="Low", hubbard_off=True, **kwargs):
+                 prec="Normal", hubbard_off=True, spin_polarized=False,
+                 **kwargs):
         """
         Args:
             start_temp:
@@ -552,18 +548,20 @@ class MITMDVaspInputSet(JSONVaspInputSet):
         self.nsteps = nsteps
         self.time_step = time_step
         self.prec = prec
+        self.spin_polarized = spin_polarized
 
         #Optimized parameters for MD simulations.
-        incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
-                          'NSW': nsteps, 'PREC': prec,
-                          'EDIFF': 0.000001, 'LSCALU': False,
-                          'LCHARG': False, 'LPLANE': False,
-                          'LWAVE': False, "ICHARG": 1, "ISMEAR": 0,
-                          "SIGMA": 0.05, "NELMIN": 4, "LREAL": True,
-                          "BMIX": 1, "MAXMIX": 20, "NELM": 500, "NSIM": 4,
-                          "ISYM": 0, "ISIF": 0, "IBRION": 0, "NBLOCK": 1,
-                          "KBLOCK": 100, "SMASS": 0, "POTIM": time_step}
-
+        incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
+                          'PREC': prec, 'EDIFF': 0.000001, 'LSCALU': False,
+                          'LCHARG': False, 'LPLANE': False, 'LWAVE': False,
+                          "ICHARG": 1, "ISMEAR": 0, "SIGMA": 0.05, "NELMIN": 4,
+                          "LREAL": True, "BMIX": 1, "MAXMIX": 20, "NELM": 500,
+                          "NSIM": 4, "ISYM": 0, "ISIF": 0, "IBRION": 0,
+                          "NBLOCK": 1, "KBLOCK": 100, "SMASS": 0,
+                          "POTIM": time_step,
+                          "ISPIN": 2 if spin_polarized else 1}
+        #use VASP default ENCUT
+        del self.incar_settings['ENCUT']
         self.incar_settings.update(incar_settings)
 
     def get_kpoints(self, structure):
@@ -578,6 +576,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             "nsteps": self.nsteps,
             "time_step": self.time_step,
             "prec": self.prec,
+            "spin_polarized": self.spin_polarized
         })
         return d
 
@@ -587,6 +586,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                    nsteps=d["nsteps"], time_step=d["time_step"],
                    prec=d["prec"], hubbard_off=d.get("hubbard_off", False),
                    user_incar_settings=d["user_incar_settings"],
+                   spin_polarized=d.get("spin_polarized", False),
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True))
 

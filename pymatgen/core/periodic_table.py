@@ -9,7 +9,7 @@ __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
@@ -285,7 +285,7 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
-        for a in ["name", "atomic_mass", "atomic_radius",
+        for a in ["name", "atomic_radius", "atomic_mass",
                   "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",

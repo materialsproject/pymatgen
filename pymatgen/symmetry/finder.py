@@ -16,7 +16,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
 
 import re
@@ -328,8 +328,7 @@ class SymmetryFinder(object):
         species = [self._unique_species[i - 1] for i in zs]
         s = Structure(lattice.T.copy(), 
                       species,
-                      pos[:num_atom_bravais],
-                      site_properties=self._structure.site_properties)
+                      pos[:num_atom_bravais])
         return s.get_sorted_structure()
 
     def find_primitive(self):
