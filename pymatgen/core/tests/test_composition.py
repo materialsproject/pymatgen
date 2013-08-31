@@ -144,7 +144,7 @@ class CompositionTest(unittest.TestCase):
                            612.3258, 1302.430172, 24.454250000000002, 82.41634]
         all_weights = [c.weight for c in self.comp]
         self.assertAlmostEqual(all_weights, correct_weights, 5)
-        
+
     def test_get_atomic_fraction(self):
         correct_at_frac = {"Li": 0.15, "Fe": 0.1, "P": 0.15, "O": 0.6}
         for el in ["Li", "Fe", "P", "O"]:

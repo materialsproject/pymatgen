@@ -55,7 +55,6 @@ class VasprunTest(unittest.TestCase):
                                "Wrong final energy")
         self.assertAlmostEqual(vasprun.tdos.get_gap(), 2.0589, 4,
                                "Wrong gap from dos!")
-
         expectedans = (2.539, 4.0906, 1.5516, False)
         (gap, cbm, vbm, direct) = vasprun.eigenvalue_band_properties
         self.assertAlmostEqual(gap, expectedans[0])
