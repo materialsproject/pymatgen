@@ -25,8 +25,8 @@ class UnitTest(PymatgenTest):
         a = Time(20, "h")
         self.assertAlmostEqual(a.to("s"), 3600 * 20)
         #Test left and right multiplication.
-        self.assertEqual(str(a * 3), "60 h")
-        self.assertEqual(str(3 * a), "60 h")
+        self.assertEqual(str(a * 3), "60.0 h")
+        self.assertEqual(str(3 * a), "60.0 h")
 
     def test_length(self):
         x = Length(4.2, "ang")

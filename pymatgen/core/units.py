@@ -84,7 +84,6 @@ class Unit(float):
         return float.__new__(cls, val)
 
     def __init__(self, val, unit, unit_type):
-        self.val = val
         self.unit_type = unit_type
         if unit not in SUPPORTED_UNITS[unit_type]:
             raise ValueError(
@@ -93,20 +92,21 @@ class Unit(float):
         super(Unit, self).__init__(val)
 
     def __repr__(self):
-        return "{} {}".format(self.val, self.unit)
+        s = super(Unit, self).__repr__()
+        return "{} {}".format(s, self.unit)
 
     def __str__(self):
-        return "{} {}".format(self.val, self.unit)
+        return self.__repr__()
 
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
             return super(Unit, self).__add__(other)
         if other.unit_type != self.unit_type:
             raise ValueError("Adding different types of units is not allowed")
-        val = other.val
+        val = other
         if other.unit != self.unit:
             val = other.to(self.unit)
-        return Unit(self.val + val, unit_type=self.unit_type,
+        return Unit(float(self) + val, unit_type=self.unit_type,
                     unit=self.unit)
 
     def __sub__(self, other):
@@ -114,26 +114,26 @@ class Unit(float):
             return super(Unit, self).__sub__(other)
         if other.unit_type != self.unit_type:
             raise ValueError("Subtracting different units is not allowed")
-        val = other.val
+        val = other
         if other.unit != self.unit:
             val = other.to(self.unit)
-        return Unit(self.val - val, unit_type=self.unit_type,
+        return Unit(float(self) - val, unit_type=self.unit_type,
                     unit=self.unit)
 
     def __mul__(self, other):
         if isinstance(other, (float, int)):
-            return Unit(self.val * other, unit_type=self.unit_type,
+            return Unit(float(self) * other, unit_type=self.unit_type,
                         unit=self.unit)
         return super(Unit, self).__mul__(other)
 
     def __rmul__(self, other):
         if isinstance(other, (float, int)):
-            return Unit(self.val * other, unit_type=self.unit_type,
+            return Unit(float(self) * other, unit_type=self.unit_type,
                         unit=self.unit)
         return super(Unit, self).__mul__(other)
 
     def __neg__(self):
-        return Unit(-self.val, unit_type=self.unit_type,
+        return Unit(-float(self), unit_type=self.unit_type,
                     unit=self.unit)
 
     def to(self, new_unit):
@@ -159,7 +159,7 @@ class Unit(float):
                                                            self.unit_type))
         conversion = SUPPORTED_UNITS[self.unit_type]
         return Unit(
-            self.val / conversion[new_unit] * conversion[self.unit],
+            self / conversion[new_unit] * conversion[self.unit],
             unit_type=self.unit_type, unit=new_unit)
 
     @property
@@ -181,6 +181,27 @@ Temp = partial(Unit, unit_type="temperature")
 Time = partial(Unit, unit_type="time")
 
 Charge = partial(Unit, unit_type="charge")
+
+
+def unitized(unit_type, unit):
+    """
+    Useful decorator to assign units to the output of a function.
+
+    Args:
+        unit_type:
+            Type of units (energy, length, mass, etc.).
+        units:
+            Specific units (eV, Ha, m, ang, etc.).
+    """
+    def wrap(f):
+        def wrapped_f(*args, **kwargs):
+            val = f(*args, **kwargs)
+            if val is not None:
+                return Unit(val, unit_type=unit_type, unit=unit)
+            return val
+        return wrapped_f
+    return wrap
+
 
 if __name__ == "__main__":
     import doctest
