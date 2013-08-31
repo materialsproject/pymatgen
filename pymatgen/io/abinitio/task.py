@@ -581,7 +581,7 @@ class AbinitTask(Task):
             exclude_wildcard:
                 Optional string with regular expressions separated by |.
                 Files matching one of the regular expressions will be preserved.
-                example: exclude_wildard="*.nc|*.txt" preserves all the files
+                example: exclude_wildcard="*.nc|*.txt" preserves all the files
                 whose extension is in ["nc", "txt"].
         """
         if not exclude_wildcard:
