@@ -122,7 +122,7 @@ class PointGroupAnalyzer(object):
             total_inertia = 0
             for site in self.mol:
                 c = site.coords
-                wt = site.species_and_occu.weight
+                wt = float(site.species_and_occu.weight)
                 for i in xrange(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 +
                                                   c[(i + 2) % 3] ** 2)
