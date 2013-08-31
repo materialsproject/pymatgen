@@ -438,6 +438,9 @@ class Workflow(BaseWorkflow, MSONable):
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
 
+        #for task in self:
+        #    task.build(*args, **kwargs)
+
     def get_status(self, only_highest_rank=False):
         """Get the status of the tasks in self."""
         status_list = [task.status for task in self]
@@ -1217,12 +1220,9 @@ class GW_Workflow(Workflow):
         screen_link = self.register(scr_strategy, links=nscf_link.produces_exts("_WFK"))
 
         # Register the SIGMA run.
-        sigma_links = [nscf_link.produces_exts("_WFK"),
-                       screen_link.produces_exts("_SCR"),]
+        self.register(sigma_strategy, links=[nscf_link.produces_exts("_WFK"),
+                                             screen_link.produces_exts("_SCR")])
 
-        self.register(sigma_strategy, links=sigma_links)
-
-################################################################################
 
 class BSEMDF_Workflow(Workflow):
 
