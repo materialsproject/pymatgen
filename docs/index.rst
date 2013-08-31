@@ -74,14 +74,22 @@ Latest Change Log
 
 v2.8.0
 ------
-1. **Minor backwards-incompatible change**. Structures are now sorted by
+1. **Units**. Pymatgen now has a new system of managing units,
+   defined in pymatgen.core.units. Typical energy, length, time,
+   temperature and charge units are supported. Units subclass float,
+   which makes the usage transparent in all functions. The value that they
+   being are in terms of conversions between different units and addition and
+   subtraction of different units of the same type. Some basic quantities
+   like ionic radii and atomic masses are now returned in unitized forms for
+   easy conversion. Please see :mod:`pymatgen.core.units`.
+2. **Minor backwards-incompatible change**. Structures are now sorted by
    default when generating VASP input files using vaspio_set. Old behavior can
    be obtained by setting sort_structure = False in the constructor. This is
    typically the desired behavior and prevents the generation of large
    POTCARs when atomic species are not grouped together.
-2. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
+3. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
    terminal atoms properly.
-3. Additional conversion tools for ABINIT (by Matteo Giantomassi).
+4. Additional conversion tools for ABINIT (by Matteo Giantomassi).
 
 :doc:`Older versions </changelog>`
 
