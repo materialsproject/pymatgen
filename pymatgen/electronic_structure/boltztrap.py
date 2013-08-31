@@ -531,9 +531,8 @@ class BoltztrapAnalyzer():
         with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
             for line in f:
                 if not line.startswith(" #"):
-                    data_dos.append([Energy(float(line.split()[0]),
-                                            "Ry").to("eV"),
-                                     2 * Energy(float(line.split()[1]),
+                    data_dos.append([Energy(line.split()[0], "Ry").to("eV"),
+                                     2 * Energy(line.split()[1],
                                                 "eV").to("Ry")])
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
@@ -543,7 +542,7 @@ class BoltztrapAnalyzer():
                 if "WARNING" in line:
                     warning = True
                 if line.startswith("VBM"):
-                    efermi = Energy(float(line.split()[1]), "Ry").to("eV")
+                    efermi = Energy(line.split()[1], "Ry").to("eV")
 
                 if step == 2:
                     l_tmp = line.split("-")[1:]
