@@ -37,6 +37,7 @@ SUPPORTED_UNITS = {
         "ang": 1,
         "m": 1e10,
         "cm": 1e8,
+        "pm": 1e-2,
         "bohr": 0.5291772083
     },
     "mass": {
@@ -61,7 +62,22 @@ SUPPORTED_UNITS = {
 
 class Unit(float):
     """
-    Subclasses float to attach a unit type.
+    Subclasses float to attach a unit type. Typically, you should use the
+    pre-defined unit type subclasses such as Energy, Length, etc. instead of
+    using Unit directly.
+
+    Supports conversion, addition and subtraction of the same unit type. E.g.,
+    1 m + 20 cm will be automatically converted to 1.2 m (units follow the
+    leftmost quantity.
+
+    >>> e = Energy(1.1, "Ha")
+    >>> a = Energy(1.1, "Ha")
+    >>> b = Energy(3, "eV")
+    >>> c = a + b
+    >>> print c
+    1.21024797619 Ha
+    >>> c.to("eV")
+    32.932522246 eV
     """
 
     def __new__(cls, val, unit, unit_type):
@@ -121,6 +137,22 @@ class Unit(float):
                     unit=self.unit)
 
     def to(self, new_unit):
+        """
+        Conversion to a new_unit.
+
+        Args:
+            new_unit:
+                New unit type.
+
+        Returns:
+            A Unit object in the new units.
+
+        Example usage:
+        >>> e = Energy(1.1, "eV")
+        >>> e = Energy(1.1, "Ha")
+        >>> e.to("eV")
+        29.932522246 eV
+        """
         if new_unit not in SUPPORTED_UNITS[self.unit_type]:
             raise ValueError(
                 "{} is not a supported unit for {}".format(new_unit,
@@ -132,6 +164,9 @@ class Unit(float):
 
     @property
     def supported_units(self):
+        """
+        Supported units for specific unit type.
+        """
         return SUPPORTED_UNITS[self.unit_type]
 
 
@@ -147,3 +182,6 @@ Time = partial(Unit, unit_type="time")
 
 Charge = partial(Unit, unit_type="charge")
 
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

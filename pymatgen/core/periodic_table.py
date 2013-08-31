@@ -287,8 +287,7 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
-        for a in ["name", "atomic_radius",
-                  "mendeleev_no", "electrical_resistivity",
+        for a in ["name", "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
                   "electronic_structure", "thermal_conductivity",
@@ -305,6 +304,11 @@ class Element(object):
             if str(val).startswith("no data"):
                 val = None
             self.__setattr__(a, val)
+        if str(self._data.get("Atomic radius",
+                              "no data")).startswith("no data"):
+            self.atomic_radius = None
+        else:
+            self.atomic_radius = Length(self._data["Atomic radius"], "ang")
         self.atomic_mass = Mass(self._data["Atomic mass"], "amu")
 
     def __getnewargs__(self):
