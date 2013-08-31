@@ -245,7 +245,8 @@ class BoltztrapAnalyzer():
             gap:
                 The gap after interpolation in eV
             mu_steps:
-                The steps of electron chemical potential (or Fermi level) in eV
+                The steps of electron chemical potential (or Fermi level) in
+                 eV.
             cond:
                 The electronic conductivity tensor divided by a constant
                 relaxation time (sigma/tau) at different temperature and
@@ -259,14 +260,13 @@ class BoltztrapAnalyzer():
             kappa:
                 The electronic thermal conductivity tensor divided by a
                 constant relaxation time (kappa/tau) at different temperature
-                 and fermi levels
-                The format is {temperature: [array of 3x3 tensors at each
-                fermi level in mu_steps]}
+                and fermi levels. The format is {temperature: [array of 3x3
+                tensors at each fermi level in mu_steps]}
                 The units are W/(m*K*s)
             hall:
                 The hall tensor at different temperature and fermi levels
                 The format is {temperature: [array of 27 coefficients list at
-                 each fermi level in mu_steps]}
+                each fermi level in mu_steps]}
                 The units are m^3/C
             doping:
                 The different doping levels that have been given to Boltztrap
@@ -276,7 +276,7 @@ class BoltztrapAnalyzer():
                 Gives the electron chemical potential (or Fermi level) for a
                 given set of doping.
                 Format is {'p':{temperature: [fermi levels],'n':{temperature:
-                 [fermi levels]}}
+                [fermi levels]}}
                 the fermi level array is ordered according to the doping
                 levels in doping units for doping are in cm^-3 and for Fermi
                 level in eV
@@ -286,7 +286,7 @@ class BoltztrapAnalyzer():
                 'n':{temperature: [Seebeck tensors]}}
                 The [Seebeck tensors] array is ordered according to the
                 doping levels in doping units for doping are in cm^-3 and for
-                 Seebeck in V/K
+                Seebeck in V/K
             cond_doping:
                 The electronic conductivity tensor divided by a constant
                 relaxation time (sigma/tau) at different temperatures and
@@ -314,8 +314,7 @@ class BoltztrapAnalyzer():
                 coefficients list.
                 The units are m^3/C
             dos:
-                The dos computed by Boltztrap
-                given as a pymatgen Dos object
+                The dos computed by Boltztrap given as a pymatgen Dos object
             warning:
                 True if Boltztrap spitted out a warning
         """
