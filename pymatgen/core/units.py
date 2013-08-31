@@ -18,6 +18,7 @@ __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Aug 30, 2013"
 
+import numpy as np
 
 from functools import partial
 
@@ -135,3 +136,75 @@ Time = partial(Unit, unit_type="time")
 
 Charge = partial(Unit, unit_type="charge")
 
+
+
+
+class ArrayWithUnit(np.ndarray):
+    """See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html."""
+
+    def __new__(cls, input_array, unit, unit_type):
+        # Input array is an already formed ndarray instance
+        # We first cast to be our class type
+        obj = np.asarray(input_array).view(cls)
+        # add the new attributes to the created instance
+        obj.unit = unit
+        obj.unit_type = unit_type
+        # Finally, we must return the newly created object:
+        return obj
+
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None: return
+        self.unit = getattr(obj, "unit", None)
+        self.unit_type = getattr(obj, "unit_type", None)
+
+    def __repr__(self):
+        return "{} {}".format(super(ArrayWithUnit, self).__repr__(), self.unit)
+
+    def __str__(self):
+        return "{} {}".format(super(ArrayWithUnit, self).__str__(), self.unit)
+
+    def __add__(self, other):
+        if not hasattr(other, "unit_type"):
+            return super(ArrayWithUnit, self).__add__(other)
+
+        if other.unit_type != self.unit_type:
+            raise ValueError("Adding different types of units is not allowed")
+
+        if other.unit != self.unit:
+            other = other.to(self.unit)
+
+        return self.__class__(np.array(self) + np.array(other), unit_type=self.unit_type,
+                    unit=self.unit)
+
+    def __sub__(self, other):
+        if not hasattr(other, "unit_type"):
+            return super(ArrayWithUnit, self).__sub__(other)
+
+        if other.unit_type != self.unit_type:
+            raise ValueError("Subtracting different units is not allowed")
+
+        if other.unit != self.unit:
+            other = other.to(self.unit)
+
+        return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type,
+                              unit=self.unit)
+
+    def __neg__(self):
+        return self.__class__(-np.array(self), unit_type=self.unit_type,
+                              unit=self.unit)
+
+    def to(self, new_unit):
+        if new_unit not in SUPPORTED_UNITS[self.unit_type]:
+            raise ValueError(
+                "{} is not a supported unit for {}".format(new_unit,
+                                                           self.unit_type))
+        conversion = SUPPORTED_UNITS[self.unit_type]
+
+        return self.__class__(
+            np.array(self) / conversion[new_unit] * conversion[self.unit],
+            unit_type=self.unit_type, unit=new_unit)
+
+    @property
+    def supported_units(self):
+        return SUPPORTED_UNITS[self.unit_type]

@@ -350,7 +350,7 @@ def asabistructure(obj):
 
             if obj.endswith(".nc"):
                 structure = structure_from_etsf_file(obj)
-                print(structure._sites)
+                #print(structure._sites)
             else:
                 structure = read_structure(obj)
 
@@ -558,7 +558,7 @@ class KSampling(AbivarAble):
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
             kptbounds = np.reshape(kpts, (-1,3,))
-            print("in path with kptbound: %s " % kptbounds)
+            #print("in path with kptbound: %s " % kptbounds)
 
             abivars.update({
                 "ndivsm"   : num_kpts,
@@ -716,7 +716,7 @@ class KSampling(AbivarAble):
             kpath_bounds = []
             for label in kpath_labels:
                 red_coord = sp.kpath["kpoints"][label]
-                print("label %s, red_coord %s" % (label, red_coord))
+                #print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
         return cls(mode     = KSampling.modes.path,
