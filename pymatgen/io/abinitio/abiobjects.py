@@ -16,7 +16,7 @@ from pprint import pformat
 
 from pymatgen.util.decorators import singleton
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.core.units import any2Ha
+from pymatgen.core.units_deprecated import any2Ha
 from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder

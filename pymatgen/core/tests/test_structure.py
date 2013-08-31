@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from __future__ import division
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
@@ -400,6 +400,15 @@ class StructureTest(PymatgenTest):
         self.assertEqual(self.structure.formula, "Si32")
         self.assertArrayAlmostEqual(self.structure.lattice.abc,
                                     [15.360792, 35.195996, 7.680396], 5)
+
+    def test_another_supercell(self):
+        #this is included b/c for some reason the old algo was failing on it
+        s = self.structure.copy()
+        s.make_supercell([[0, 2, 2], [2, 0, 2], [2, 2, 0]])
+        self.assertEqual(s.formula, "Si32")
+        s = self.structure.copy()
+        s.make_supercell([[0, 2, 0], [1, 0, 0], [0, 0, 1]])
+        self.assertEqual(s.formula, "Si4")
 
     def test_to_from_dict(self):
         d = self.structure.to_dict

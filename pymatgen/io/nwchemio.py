@@ -69,7 +69,7 @@ class NwTask(MSONable):
 
     def __init__(self, charge, spin_multiplicity, basis_set,
                  title=None, theory="dft", operation="optimize",
-                 theory_directives=None, alternate_directives=None):
+                 theory_directives=None):
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -101,11 +101,6 @@ class NwTask(MSONable):
                 A dict of theory directives. For example,
                 if you are running dft calculations, you may specify the
                 exchange correlation functional using {"xc": "b3lyp"}.
-
-            alternate_directives:
-                A dict of alternate directives. To perform cosmo calculation
-                under dft task
-
         """
         #Basic checks.
         if theory.lower() not in NwTask.theories.keys():
@@ -123,8 +118,6 @@ class NwTask(MSONable):
         self.operation = operation
         self.theory_directives = theory_directives \
             if theory_directives is not None else {}
-        self.alternate_directives = alternate_directives \
-            if alternate_directives is not None else {}
 
     def __str__(self):
         bset_spec = []
@@ -136,10 +129,6 @@ class NwTask(MSONable):
         for k, v in self.theory_directives.items():
             theory_spec.append(" {} {}".format(k, v))
         theory_spec.append("end")
-        for c, d in self.alternate_directives.items():
-            theory_spec.append(" {} {}".format(c, d))
-        if "cosmo" in self.alternate_directives:
-            theory_spec.append("end")
 
         t = Template("""title "$title"
 charge $charge
@@ -164,8 +153,7 @@ task $theory $operation""")
                 "spin_multiplicity": self.spin_multiplicity,
                 "title": self.title, "theory": self.theory,
                 "operation": self.operation, "basis_set": self.basis_set,
-                "theory_directives": self.theory_directives,
-                "alternate_directives": self.alternate_directives}
+                "theory_directives": self.theory_directives}
 
     @classmethod
     def from_dict(cls, d):
@@ -173,14 +161,12 @@ task $theory $operation""")
                       spin_multiplicity=d["spin_multiplicity"],
                       title=d["title"], theory=d["theory"],
                       operation=d["operation"], basis_set=d["basis_set"],
-                      theory_directives=d["theory_directives"],
-                      alternate_directives=d["alternate_directives"]
-                     )
+                      theory_directives=d["theory_directives"])
 
     @classmethod
     def from_molecule(cls, mol, theory, charge=None, spin_multiplicity=None,
                       basis_set="6-31g", title=None,
-                      operation="optimize", theory_directives=None, alternate_directives=None):
+                      operation="optimize", theory_directives=None):
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -239,8 +225,7 @@ task $theory $operation""")
 
         return NwTask(charge, spin_multiplicity, basis_set,
                       title=title, theory=theory, operation=operation,
-                      theory_directives=theory_directives,
-                      alternate_directives=alternate_directives)
+                      theory_directives=theory_directives)
 
 
     @classmethod
@@ -265,9 +250,6 @@ task $theory $operation""")
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
         t.theory_directives.update({"xc": xc,
                                     "mult": t.spin_multiplicity})
-        if "cosmo" in t.alternate_directives:
-            t.alternate_directives.update({"cosmo": "",
-                                           "dielectric": dielectric})
         return t
 
     @classmethod
