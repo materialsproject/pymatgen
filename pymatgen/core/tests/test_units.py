@@ -3,7 +3,7 @@
 from __future__ import division
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import Energy, Time, Length
+from pymatgen.core.units import Energy, Time, Length, unitized
 
 
 class UnitTest(PymatgenTest):
@@ -33,6 +33,22 @@ class UnitTest(PymatgenTest):
         self.assertEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
+
+    def test_unitized(self):
+
+        @unitized("energy", "eV")
+        def f():
+            return [1, 2, 3]
+
+        self.assertEqual(str(f()[0]), "1.0 eV")
+        self.assertIsInstance(f(), list)
+
+        @unitized("energy", "eV")
+        def f():
+            return 2, 3, 4
+
+        self.assertEqual(str(f()[0]), "2.0 eV")
+        self.assertIsInstance(f(), tuple)
 
 if __name__ == '__main__':
     import unittest

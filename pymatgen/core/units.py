@@ -19,6 +19,8 @@ __status__ = "Production"
 __date__ = "Aug 30, 2013"
 
 
+import collections
+import numbers
 from functools import partial
 
 
@@ -197,7 +199,8 @@ Charge = partial(Unit, unit_type="charge")
 
 def unitized(unit_type, unit):
     """
-    Useful decorator to assign units to the output of a function.
+    Useful decorator to assign units to the output of a function. For
+    sequences, all values in the sequences are assigned the same unit.
 
     Args:
         unit_type:
@@ -208,7 +211,12 @@ def unitized(unit_type, unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
-            if val is not None:
+            if isinstance(val, collections.Sequence):
+                # This complicated way is to ensure the sequence type is
+                # preserved (list or tuple).
+                return val.__class__([Unit(i, unit_type=unit_type,
+                                           unit=unit) for i in val])
+            elif isinstance(val, numbers.Number):
                 return Unit(val, unit_type=unit_type, unit=unit)
             return val
         return wrapped_f
