@@ -18,7 +18,7 @@ from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, H
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
-from pymatgen.io.abinitio.task import task_factory, Task
+from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 
 from .utils import File
 from .netcdf import ETSF_Reader
@@ -44,7 +44,7 @@ __all__ = [
 
 
 def map_method(method):
-    "Decorator that calls item.method for all items in a iterable object."
+    """Decorator that calls item.method for all items in a iterable object."""
     @functools.wraps(method)
     def wrapped(iter_obj, *args, **kwargs):
         return [getattr(item, method.__name__)(*args, **kwargs)
@@ -52,7 +52,6 @@ def map_method(method):
     return wrapped
 
 
-################################################################################
 
 class Product(object):
     """
@@ -137,7 +136,7 @@ class WorkLink(object):
         Returns a dictionary with the abinit variables that must
         be added to the input file in order to connect the two tasks.
         """
-        abivars =  {}
+        abivars = {}
         for prod in self._products:
             abivars.update(prod.get_abivars())
         return abivars
@@ -205,7 +204,7 @@ class BaseWorkflow(object):
 
     @property
     def ncpus_reserved(self):
-        "Returns the number of CPUs reserved in this moment."
+        """Returns the number of CPUs reserved in this moment."""
         ncpus = 0
         for task in self:
             if task.status in [task.S_SUB, task.S_RUN]:
@@ -216,7 +215,7 @@ class BaseWorkflow(object):
         """
         Returns the first task that is ready to run or None if no task can be submitted at present"
 
-        Raises StopIteration if all tasks are done.
+        Raises `StopIteration` if all tasks are done.
         """
         for task in self:
             # The task is ready to run if its status is S_READY and all the other links (if any) are done!
@@ -316,7 +315,7 @@ class Workflow(BaseWorkflow, MSONable):
 
     @classmethod
     def from_task(cls, task):
-        """Build a Work instance from a task object."""
+        """Build a `Workflow` instance from a single task object."""
         workdir = os.path.dirname(task.workdir)
         new = cls(workdir, task.runmode)
         new.register_task(task)
@@ -360,10 +359,11 @@ class Workflow(BaseWorkflow, MSONable):
 
     @property
     def to_dict(self):
-        d = {"workdir": self.workdir,
-             "runmode": self.runmode.to_dict,
-             "kwargs" : self._kwargs,
-            }
+        d = dict(
+            workdir=self.workdir,
+            runmode=self.runmode.to_dict,
+            kwargs=self._kwargs
+        )
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
         return d
@@ -374,6 +374,7 @@ class Workflow(BaseWorkflow, MSONable):
 
     @property
     def alldone(self):
+        """True if all the Task in the `Workflow` are completed."""
         return all([task.status == Task.S_DONE for task in self])
 
     @property
@@ -415,23 +416,25 @@ class Workflow(BaseWorkflow, MSONable):
 
         Args:
             strategy:
-                Strategy object or AbinitTask instance.
-                if Strategy object, we create a new AbinitTask from the input strategy and add it to the list.
+                `Strategy` object or `AbinitTask` instance.
+                if Strategy object, we create a new `AbinitTas`k from the input strategy and add it to the list.
 
         Returns:   
-            WorkLink object
+            `WorkLink` object
         """
-        task_id = len(self) + 1
-
-        task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
-
         # Handle possible dependencies.
-        if links:
-            if not isinstance(links, collections.Iterable):
-                links = [links,]
+        if links and not isinstance(links, collections.Iterable):
+            links = [links,]
+
+        task_id = len(self) + 1
+        task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
 
         if isinstance(strategy, Task):
             task = strategy
+            print(task.workdir, task_workdir)
+            assert task.workdir == task_workdir
+            # TODO
+            #task.add_links(links)
 
         else:
             # Create the new task (note the factory so that we create subclasses easily).
@@ -444,6 +447,25 @@ class Workflow(BaseWorkflow, MSONable):
             print("task_id %s neeeds\n %s" % (task_id, [str(l) for l in links]))
 
         return WorkLink(task)
+
+    def register_input(self, abinit_input, links=()):
+        """
+        This method receives an `AbinitInput`, creates a new task and adds it
+        to the internal list taking into account possible dependencies.
+
+        Args:
+            abinit_input:
+                `AbinitInput` object.
+
+        Returns:   
+            `WorkLink` object
+        """
+        task_id = len(self) + 1
+        task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
+
+        new_task = AbinitTask.from_input(abinit_input, task_workdir, self.runmode, task_id=task_id, links=links)
+
+        return self.register_task(new_task, links=links)
 
     def build(self, *args, **kwargs):
         """Creates the top level directory."""
@@ -482,6 +504,7 @@ class Workflow(BaseWorkflow, MSONable):
             pats = exclude_wildcard.split("|")
 
             import fnmatch
+
             def keep(fname):
                 for pat in pats:
                     if fnmatch.fnmatch(fname, pat):
@@ -573,6 +596,8 @@ class IterativeWork(Workflow):
         Args:
             workdir:
                 Working directory.
+            runmode:
+                `RunMode` object.
             strategy_generator:
                 Strategy generator.
             max_niter:
@@ -612,7 +637,7 @@ class IterativeWork(Workflow):
         self.niter = 1
 
         while True:
-            if self.max_niter > 0 and self.niter > self.max_niter:
+            if self.niter > self.max_niter > 0:
                 print("niter %d > max_niter %d" % (self.niter, self.max_niter))
                 break
 
@@ -643,16 +668,20 @@ class IterativeWork(Workflow):
 ##########################################################################################
 
 def strictly_increasing(values):
-    return all(x<y for x, y in zip(values, values[1:]))
+    return all(x < y for x, y in zip(values, values[1:]))
+
 
 def strictly_decreasing(values):
-    return all(x>y for x, y in zip(values, values[1:]))
+    return all(x > y for x, y in zip(values, values[1:]))
+
 
 def non_increasing(values):
-    return all(x>=y for x, y in zip(values, values[1:]))
+    return all(x >= y for x, y in zip(values, values[1:]))
+
 
 def non_decreasing(values):
-    return all(x<=y for x, y in zip(values, values[1:]))
+    return all(x <= y for x, y in zip(values, values[1:]))
+
 
 def monotonic(values, mode="<", atol=1.e-8):
     """
@@ -685,9 +714,10 @@ def monotonic(values, mode="<", atol=1.e-8):
                 return False
 
     else:
-        raise ValueError("Wrong mode %s" % mode)
+        raise ValueError("Wrong mode %s" % str(mode))
 
     return True
+
 
 def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
     """
@@ -730,6 +760,7 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
         if (numpts - i -1) < min_numpts: i = -2
 
     return i + 1
+
 
 def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys.stdout):
     de_low, de_normal, de_high = [a / (1000 * Ha_eV) for a in atols_mev]
