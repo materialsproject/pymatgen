@@ -19,6 +19,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
+from pymatgen.io.abinitio.strategies import Strategy
 
 from .utils import File
 from .netcdf import ETSF_Reader
@@ -90,14 +91,14 @@ class WorkLink(object):
 
     A WorkLink is a task that produces a list of products (files) that are
     reused by the other tasks belonging to a Work instance.
-    One usually instantiates the object by calling work.register_task and produces_exts.
+    One usually instantiates the object by calling work.register and produces_exts.
     Example:
 
         # Register the SCF task in work and get the link.
-        scf_link = work.register_task(scf_strategy)
+        scf_link = work.register(scf_strategy)
 
         # Register the NSCF calculation and its dependency on the SCF run.
-        nscf_link = work.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        nscf_link = work.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
     """
     def __init__(self, task, exts=None):
         """
@@ -313,14 +314,6 @@ class Workflow(BaseWorkflow, MSONable):
     """
     Error = WorkflowError
 
-    @classmethod
-    def from_task(cls, task):
-        """Build a `Workflow` instance from a single task object."""
-        workdir = os.path.dirname(task.workdir)
-        new = cls(workdir, task.runmode)
-        new.register_task(task)
-        return new
-
     def __init__(self, workdir, runmode, **kwargs):
         """
         Args:
@@ -358,19 +351,8 @@ class Workflow(BaseWorkflow, MSONable):
         return "<%s at %s, workdir = %s>" % (self.__class__.__name__, id(self), str(self.workdir))
 
     @property
-    def to_dict(self):
-        d = dict(
-            workdir=self.workdir,
-            runmode=self.runmode.to_dict,
-            kwargs=self._kwargs
-        )
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        return Work(d["workdir"], d["runmode"], **d["kwargs"])
+    def processes(self):
+        return [task.process for task in self]
 
     @property
     def alldone(self):
@@ -387,37 +369,29 @@ class Workflow(BaseWorkflow, MSONable):
         """True if PAW calculation."""
         return all(task.ispaw for task in self)
 
-    def path_in_workdir(self, filename):
-        """Create the absolute path of filename in the workind directory."""
-        return os.path.join(self.workdir, filename)
+    @property
+    def to_dict(self):
+        d = dict(
+            workdir=self.workdir,
+            runmode=self.runmode.to_dict,
+            kwargs=self._kwargs
+        )
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
 
-    def setup(self, *args, **kwargs):
-        """
-        Method called before running the calculations.
-        The default implementation is empty.
-        """
+    @staticmethod
+    def from_dict(d):
+        return Work(d["workdir"], d["runmode"], **d["kwargs"])
 
-    #def show_inputs(self, stream=sys.stdout):
-    #    lines = []
-    #    app = lines.append
-    #    width = 120
-    #    for task in self:
-    #        app("\n")
-    #        app(repr(task))
-    #        app("\ninput: %s" % task.input_file.path)
-    #        app("\n")
-    #        app(str(task.input))
-    #        app(width*"=" + "\n")
-    #    stream.write("\n".join(lines))
-
-    def register_task(self, strategy, links=()):
+    def register(self, obj, links=()):
         """
         Registers a new task and add it to the internal list, taking into account possible dependencies.
 
         Args:
-            strategy:
-                `Strategy` object or `AbinitTask` instance.
-                if Strategy object, we create a new `AbinitTas`k from the input strategy and add it to the list.
+            obj:
+                `Strategy` object or `AbinitInput` instance.
+                if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
 
         Returns:   
             `WorkLink` object
@@ -429,16 +403,17 @@ class Workflow(BaseWorkflow, MSONable):
         task_id = len(self) + 1
         task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
 
-        if isinstance(strategy, Task):
-            task = strategy
-            print(task.workdir, task_workdir)
-            assert task.workdir == task_workdir
-            # TODO
-            #task.add_links(links)
+        if isinstance(obj, Strategy):
+            # Create the new task (note the factory so that we create subclasses easily).
+            task = task_factory(obj, task_workdir, self.runmode, task_id=task_id, links=links)
 
         else:
-            # Create the new task (note the factory so that we create subclasses easily).
-            task = task_factory(strategy, task_workdir, self.runmode, task_id=task_id, links=links)
+            # Create the new task from the input. Note that no subclasses are instanciated here.
+            try:
+                task = AbinitTask.from_input(obj, task_workdir, self.runmode, task_id=task_id, links=links)
+
+            except:
+                raise TypeError("Don't know how to create a Task from object type %s" % str(type(obj)))
 
         self._tasks.append(task)
 
@@ -448,24 +423,15 @@ class Workflow(BaseWorkflow, MSONable):
 
         return WorkLink(task)
 
-    def register_input(self, abinit_input, links=()):
+    def path_in_workdir(self, filename):
+        """Create the absolute path of filename in the workind directory."""
+        return os.path.join(self.workdir, filename)
+
+    def setup(self, *args, **kwargs):
         """
-        This method receives an `AbinitInput`, creates a new task and adds it
-        to the internal list taking into account possible dependencies.
-
-        Args:
-            abinit_input:
-                `AbinitInput` object.
-
-        Returns:   
-            `WorkLink` object
+        Method called before running the calculations.
+        The default implementation is empty.
         """
-        task_id = len(self) + 1
-        task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
-
-        new_task = AbinitTask.from_input(abinit_input, task_workdir, self.runmode, task_id=task_id, links=links)
-
-        return self.register_task(new_task, links=links)
 
     def build(self, *args, **kwargs):
         """Creates the top level directory."""
@@ -481,9 +447,26 @@ class Workflow(BaseWorkflow, MSONable):
         else:
             return status_list
 
-    @property
-    def processes(self):
-        return [task.process for task in self]
+    def show_inputs(self, stream=sys.stdout):
+        lines = []
+        app = lines.append
+
+        width = 120
+        for task in self:
+            app("\n")
+            app(repr(task)+"\n")
+            app("Input file: %s\n" % task.input_file.path)
+            app(str(task.make_input()))
+            app(width*"=" + "\n")
+
+        stream.write("\n".join(lines))
+
+        #from abipy.gui.wxapps import wxapp_showfiles
+        #wxapp_showfiles(dirpath=self.workdir, walk=True, wildcard="*.abi").MainLoop()
+
+    #def show_outputs(self):
+        #from abipy.gui.wxapps import wxapp_showfiles
+        #wxapp_showfiles(dirpath=self.workdir, walk=True, wildcard="*.abo").MainLoop()
 
     def rmtree(self, exclude_wildcard=""):
         """
@@ -920,7 +903,7 @@ class PseudoConvergence(Workflow):
         for ecut in ecut_list:
             strategy = generator.strategy_with_ecut(ecut)
             self.ecut_list.append(ecut)
-            self.register_task(strategy)
+            self.register(strategy)
 
     def get_results(self, *args, **kwargs):
 
@@ -1072,15 +1055,14 @@ class BandStructure(Workflow):
         super(BandStructure, self).__init__(workdir, runmode)
 
         # Register the GS-SCF run.
-        scf_link = self.register_task(scf_strategy)
+        scf_link = self.register(scf_strategy)
 
         # Register the NSCF run and its dependency
-        self.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Add DOS computation
         if dos_strategy is not None:
-            self.register_task(dos_strategy,
-                               links=scf_link.produces_exts("_DEN"))
+            self.register(dos_strategy, links=scf_link.produces_exts("_DEN"))
 
 ################################################################################
 
@@ -1098,7 +1080,7 @@ class Relaxation(Workflow):
         """
         super(Relaxation, self).__init__(workdir, runmode)
 
-        link = self.register_task(relax_strategy)
+        link = self.register(relax_strategy)
 
 ################################################################################
 
@@ -1151,7 +1133,7 @@ class DeltaTest(Workflow):
                                        accuracy=accuracy, spin_mode=spin_mode,
                                        smearing=smearing, **extra_abivars)
 
-            self.register_task(scf_strategy)
+            self.register(scf_strategy)
 
     def get_results(self, *args, **kwargs):
 
@@ -1226,21 +1208,19 @@ class GW_Workflow(Workflow):
         super(GW_Workflow, self).__init__(workdir, runmode)
 
         # Register the GS-SCF run.
-        scf_link = self.register_task(scf_strategy)
+        scf_link = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_link = self.register_task(nscf_strategy,
-                                       links=scf_link.produces_exts("_DEN"))
+        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Register the SCREENING run.
-        screen_link = self.register_task(scr_strategy,
-                                         links=nscf_link.produces_exts("_WFK"))
+        screen_link = self.register(scr_strategy, links=nscf_link.produces_exts("_WFK"))
 
         # Register the SIGMA run.
         sigma_links = [nscf_link.produces_exts("_WFK"),
                        screen_link.produces_exts("_SCR"),]
 
-        self.register_task(sigma_strategy, links=sigma_links)
+        self.register(sigma_strategy, links=sigma_links)
 
 ################################################################################
 
@@ -1267,13 +1247,11 @@ class BSEMDF_Workflow(Workflow):
         super(BSEMDF_Workflow, self).__init__(workdir, runmode)
 
         # Register the GS-SCF run.
-        scf_link = self.register_task(scf_strategy)
+        scf_link = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_link = self.register_task(nscf_strategy,
-                                       links=scf_link.produces_exts("_DEN"))
+        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Construct the input for the BSE run.
-        bse_link = self.register_task(bse_strategy,
-                                      links=nscf_link.produces_exts("_WFK"))
+        bse_link = self.register(bse_strategy, links=nscf_link.produces_exts("_WFK"))
 
