@@ -68,7 +68,7 @@ class Unit(float):
 
     Supports conversion, addition and subtraction of the same unit type. E.g.,
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
-    leftmost quantity.
+    leftmost quantity).
 
     >>> e = Energy(1.1, "Ha")
     >>> a = Energy(1.1, "Ha")
@@ -145,7 +145,7 @@ class Unit(float):
         return val
 
     def __neg__(self):
-        return Unit(-float(self), unit_type=self.unit_type,
+        return Unit(super(Unit, self).__neg__(), unit_type=self.unit_type,
                     unit=self.unit)
 
     def to(self, new_unit):
