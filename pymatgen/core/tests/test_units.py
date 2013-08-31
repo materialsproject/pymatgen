@@ -50,6 +50,7 @@ class UnitTest(PymatgenTest):
         self.assertEqual(str(f()[0]), "2.0 eV")
         self.assertIsInstance(f(), tuple)
 
+
 if __name__ == '__main__':
     import unittest
     unittest.main()

@@ -200,7 +200,9 @@ Charge = partial(Unit, unit_type="charge")
 def unitized(unit_type, unit):
     """
     Useful decorator to assign units to the output of a function. For
-    sequences, all values in the sequences are assigned the same unit.
+    sequences, all values in the sequences are assigned the same unit. It
+    works with Python sequences only. The creation of numpy arrays loses all
+    unit information.
 
     Args:
         unit_type:
