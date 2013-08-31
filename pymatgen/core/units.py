@@ -121,16 +121,28 @@ class Unit(float):
                     unit=self.unit)
 
     def __mul__(self, other):
+        val = super(Unit, self).__mul__(other)
         if isinstance(other, (float, int)):
-            return Unit(float(self) * other, unit_type=self.unit_type,
-                        unit=self.unit)
-        return super(Unit, self).__mul__(other)
+            return Unit(val, unit_type=self.unit_type, unit=self.unit)
+        return val
 
     def __rmul__(self, other):
+        val = super(Unit, self).__rmul__(other)
         if isinstance(other, (float, int)):
-            return Unit(float(self) * other, unit_type=self.unit_type,
-                        unit=self.unit)
-        return super(Unit, self).__mul__(other)
+            return Unit(val, unit_type=self.unit_type, unit=self.unit)
+        return val
+
+    def __div__(self, other):
+        val = super(Unit, self).__div__(other)
+        if isinstance(other, (float, int)):
+            return Unit(val, unit_type=self.unit_type, unit=self.unit)
+        return val
+
+    def __truediv__(self, other):
+        val = super(Unit, self).__truediv__(other)
+        if isinstance(other, (float, int)):
+            return Unit(val, unit_type=self.unit_type, unit=self.unit)
+        return val
 
     def __neg__(self):
         return Unit(-float(self), unit_type=self.unit_type,
