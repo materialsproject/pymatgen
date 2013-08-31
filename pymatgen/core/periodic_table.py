@@ -325,14 +325,14 @@ class Element(object):
     @property
     def average_ionic_radius(self):
         """
-        Average ionic radius for element in pm. The average is taken over all
-        oxidation states of the element for which data is present.
+        Average ionic radius for element (with units). The average is taken
+        over all oxidation states of the element for which data is present.
         """
         if "Ionic radii" in self._data:
             radii = self._data["Ionic radii"]
-            return sum(radii.values()) / len(radii)
+            return Length(sum(radii.values()) / len(radii), "pm")
         else:
-            return 0
+            return Length(0, "pm")
 
     @property
     def ionic_radii(self):
@@ -341,7 +341,8 @@ class Element(object):
         {oxidation state: ionic radii}. Radii are given in pm.
         """
         if "Ionic radii" in self._data:
-            return {int(k): v for k, v in self._data["Ionic radii"].items()}
+            return {int(k): Length(v, "pm")
+                    for k, v in self._data["Ionic radii"].items()}
         else:
             return {}
 
