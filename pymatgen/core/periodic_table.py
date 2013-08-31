@@ -17,7 +17,7 @@ import os
 import re
 import json
 
-from pymatgen.core.units import Mass, Length
+from pymatgen.core.units import Mass, Length, unitized
 from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
@@ -323,6 +323,7 @@ class Element(object):
         return self._data.copy()
 
     @property
+    @unitized("length", "pm")
     def average_ionic_radius(self):
         """
         Average ionic radius for element (with units). The average is taken
@@ -330,9 +331,9 @@ class Element(object):
         """
         if "Ionic radii" in self._data:
             radii = self._data["Ionic radii"]
-            return Length(sum(radii.values()) / len(radii), "pm")
+            return sum(radii.values()) / len(radii)
         else:
-            return Length(0, "pm")
+            return 0
 
     @property
     def ionic_radii(self):
