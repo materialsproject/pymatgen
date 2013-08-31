@@ -32,6 +32,7 @@ class UnitTest(PymatgenTest):
         x = Length(4.2, "ang")
         self.assertEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
+        self.assertEqual(str(x / 2), "2.1 ang")
 
 if __name__ == '__main__':
     import unittest
