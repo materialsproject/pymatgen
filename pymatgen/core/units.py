@@ -104,6 +104,18 @@ class Unit(float):
         return Unit(self.val - val, unit_type=self.unit_type,
                     unit=self.unit)
 
+    def __mul__(self, other):
+        if isinstance(other, (float, int)):
+            return Unit(self.val * other, unit_type=self.unit_type,
+                        unit=self.unit)
+        return super(Unit, self).__mul__(other)
+
+    def __rmul__(self, other):
+        if isinstance(other, (float, int)):
+            return Unit(self.val * other, unit_type=self.unit_type,
+                        unit=self.unit)
+        return super(Unit, self).__mul__(other)
+
     def __neg__(self):
         return Unit(-self.val, unit_type=self.unit_type,
                     unit=self.unit)

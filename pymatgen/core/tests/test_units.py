@@ -19,13 +19,13 @@ class UnitTest(PymatgenTest):
         d = Energy(1, "Ha")
         self.assertAlmostEqual(a + d, 28.31138386)
         self.assertAlmostEqual(a - d, -26.11138386)
-
-        print a + 1
+        self.assertEqual(a + 1, 2.1)
 
     def test_time(self):
         a = Time(20, "h")
         self.assertAlmostEqual(a.to("s"), 3600 * 20)
-
+        self.assertEqual(str(a * 3), "60 h")
+        self.assertEqual(str(3 * a), "60 h")
 
 if __name__ == '__main__':
     import unittest
