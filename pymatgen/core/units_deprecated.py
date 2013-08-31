@@ -56,7 +56,7 @@ def any2Bohr(units):
     array(5)
 
     >>> any2Bohr("Ang")(1.0)
-    1.8897261328856432
+    1.8897261339212517
     """
     return _any2Bohr[units]
 
