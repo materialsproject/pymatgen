@@ -336,14 +336,14 @@ class Element(object):
             return 0
 
     @property
+    @unitized("length", "pm")
     def ionic_radii(self):
         """
         All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in pm.
         """
         if "Ionic radii" in self._data:
-            return {int(k): Length(v, "pm")
-                    for k, v in self._data["Ionic radii"].items()}
+            return {int(k): v for k, v in self._data["Ionic radii"].items()}
         else:
             return {}
 

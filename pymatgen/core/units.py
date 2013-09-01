@@ -210,7 +210,7 @@ def unitized(unit_type, unit):
     Useful decorator to assign units to the output of a function. For
     sequences, all values in the sequences are assigned the same unit. It
     works with Python sequences only. The creation of numpy arrays loses all
-    unit information.
+    unit information. For mapping types, the values are assigned units.
 
     Args:
         unit_type:
@@ -226,6 +226,9 @@ def unitized(unit_type, unit):
                 # preserved (list or tuple).
                 return val.__class__([Unit(i, unit_type=unit_type,
                                            unit=unit) for i in val])
+            elif isinstance(val, collections.Mapping):
+                for k, v in val.items():
+                    val[k] = Unit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
                 return Unit(val, unit_type=unit_type, unit=unit)
             return val
