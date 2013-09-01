@@ -22,6 +22,7 @@ from itertools import chain
 from pymatgen.core.periodic_table import smart_element_or_specie, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.units import unitized
 
 
 class Composition(collections.Mapping, collections.Hashable, MSONable):
@@ -359,6 +360,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return self._natoms
 
     @property
+    @unitized("mass", "amu")
     def weight(self):
         """
         Total molecular weight of Composition

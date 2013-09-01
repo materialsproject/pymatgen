@@ -37,9 +37,8 @@ from pymatgen.electronic_structure.dos import Dos, Spin
 from pymatgen.electronic_structure.plotter import DosPlotter
 from pymatgen.util.io_utils import which
 from pymatgen.util.decorators import requires
-from pymatgen.core.physical_constants import RY_TO_EV, e, BOHR_TO_ANGS, \
-    ELECTRON_MASS
-
+from pymatgen.core.units import Energy, Length
+from pymatgen.core.physical_constants import e, ELECTRON_MASS
 import subprocess
 import matplotlib.pyplot as plt
 
@@ -93,8 +92,8 @@ class BoltztrapRunner():
                 tmp_eigs = []
                 for spin in self._bs._bands:
                     for j in range(int(math.floor(self._bs._nb_bands * 0.9))):
-                        tmp_eigs.append((self._bs._bands[spin][j][i] -
-                                         self._bs.efermi) / RY_TO_EV)
+                        tmp_eigs.append(Energy(self._bs._bands[spin][j][i] -
+                                        self._bs.efermi, "eV").to("Ry"))
                 tmp_eigs.sort()
                 f.write("%12.8f %12.8f %12.8f %d\n"
                         % (self._bs.kpoints[i].frac_coords[0],
@@ -112,8 +111,8 @@ class BoltztrapRunner():
                 line = ''
                 for j in range(3):
                     line += "%12.5f" % (
-                        self._bs._structure.lattice.matrix[i][j] /
-                        BOHR_TO_ANGS)
+                        Length(self._bs._structure.lattice.matrix[i][j],
+                               "ang").to("bohr"))
                 f.write(line+'\n')
             ops = sym.get_symmetry_dataset()['rotations']
             f.write(str(len(ops))+"\n")
@@ -129,7 +128,7 @@ class BoltztrapRunner():
             fout.write("1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap \n")
             fout.write(
                 "0.0 %f 0.1 %6.1f     # Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons\n"
-                % (self.energy_grid / RY_TO_EV, self._nelec))
+                % (Energy(self.energy_grid, "eV").to("Ry"), self._nelec))
             fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
             fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
             fout.write("BOLTZ                     # run mode (only BOLTZ is supported)\n")
@@ -146,7 +145,7 @@ class BoltztrapRunner():
 
     def _make_all_files(self, path):
         if self._bs.is_spin_polarized:
-            self._make_energy_file(os.path.join(path,"boltztrap.energyso"))
+            self._make_energy_file(os.path.join(path, "boltztrap.energyso"))
         else:
             self._make_energy_file(os.path.join(path, "boltztrap.energy"))
         self._make_struc_file(os.path.join(path, "boltztrap.struct"))
@@ -173,19 +172,21 @@ class BoltztrapRunner():
             if "STOP error in factorization" in c:
                 raise BoltztrapError("STOP error in factorization")
 
-        with open(os.path.join(path_dir, dir_bz_name+".outputtrans"), 'r') as f:
+        with open(os.path.join(path_dir, dir_bz_name+".outputtrans")) as f:
             warning = False
             for l in f:
                 if "WARNING" in l:
                     warning = True
                     break
             if warning:
-                print "There was a warning! Increase lpfac to "+str(self.lpfac*2)
+                print "There was a warning! Increase lpfac to " + \
+                      str(self.lpfac * 2)
                 self.lpfac *= 2
                 self._make_intrans_file(os.path.join(path_dir,
                                                      dir_bz_name + ".intrans"))
                 if self.lpfac > 100:
-                    raise BoltztrapError("lpfac higher than 100 and still a warning")
+                    raise BoltztrapError(
+                        "lpfac higher than 100 and still a warning")
                 self.run()
 
         analyzer = BoltztrapAnalyzer.from_files(path_dir)
@@ -244,7 +245,8 @@ class BoltztrapAnalyzer():
             gap:
                 The gap after interpolation in eV
             mu_steps:
-                The steps of electron chemical potential (or Fermi level) in eV
+                The steps of electron chemical potential (or Fermi level) in
+                 eV.
             cond:
                 The electronic conductivity tensor divided by a constant
                 relaxation time (sigma/tau) at different temperature and
@@ -258,14 +260,13 @@ class BoltztrapAnalyzer():
             kappa:
                 The electronic thermal conductivity tensor divided by a
                 constant relaxation time (kappa/tau) at different temperature
-                 and fermi levels
-                The format is {temperature: [array of 3x3 tensors at each
-                fermi level in mu_steps]}
+                and fermi levels. The format is {temperature: [array of 3x3
+                tensors at each fermi level in mu_steps]}
                 The units are W/(m*K*s)
             hall:
                 The hall tensor at different temperature and fermi levels
                 The format is {temperature: [array of 27 coefficients list at
-                 each fermi level in mu_steps]}
+                each fermi level in mu_steps]}
                 The units are m^3/C
             doping:
                 The different doping levels that have been given to Boltztrap
@@ -275,7 +276,7 @@ class BoltztrapAnalyzer():
                 Gives the electron chemical potential (or Fermi level) for a
                 given set of doping.
                 Format is {'p':{temperature: [fermi levels],'n':{temperature:
-                 [fermi levels]}}
+                [fermi levels]}}
                 the fermi level array is ordered according to the doping
                 levels in doping units for doping are in cm^-3 and for Fermi
                 level in eV
@@ -285,7 +286,7 @@ class BoltztrapAnalyzer():
                 'n':{temperature: [Seebeck tensors]}}
                 The [Seebeck tensors] array is ordered according to the
                 doping levels in doping units for doping are in cm^-3 and for
-                 Seebeck in V/K
+                Seebeck in V/K
             cond_doping:
                 The electronic conductivity tensor divided by a constant
                 relaxation time (sigma/tau) at different temperatures and
@@ -313,8 +314,7 @@ class BoltztrapAnalyzer():
                 coefficients list.
                 The units are m^3/C
             dos:
-                The dos computed by Boltztrap
-                given as a pymatgen Dos object
+                The dos computed by Boltztrap given as a pymatgen Dos object
             warning:
                 True if Boltztrap spitted out a warning
         """
@@ -398,12 +398,12 @@ class BoltztrapAnalyzer():
                           [d[26], d[27], d[28]]]
 
             if d[1] < 0:
-                mu_doping['n'][d[0]].append(d[-1] * RY_TO_EV)
+                mu_doping['n'][d[0]].append(Energy(d[-1], "Ry").to("eV"))
                 cond_doping['n'][d[0]].append(tens_cond)
                 seebeck_doping['n'][d[0]].append(tens_seebeck)
                 kappa_doping['n'][d[0]].append(tens_kappa)
             else:
-                mu_doping['p'][d[0]].append(d[-1] * RY_TO_EV)
+                mu_doping['p'][d[0]].append(Energy(d[-1], "Ry").to("eV"))
                 cond_doping['p'][d[0]].append(tens_cond)
                 seebeck_doping['p'][d[0]].append(tens_seebeck)
                 kappa_doping['p'][d[0]].append(tens_kappa)
@@ -531,8 +531,9 @@ class BoltztrapAnalyzer():
         with open(os.path.join(path_dir, "boltztrap.transdos"), 'r') as f:
             for line in f:
                 if not line.startswith(" #"):
-                    data_dos.append([float(line.split()[0]) * RY_TO_EV,
-                                     2 * float(line.split()[1]) / RY_TO_EV])
+                    data_dos.append([Energy(line.split()[0], "Ry").to("eV"),
+                                     2 * Energy(line.split()[1],
+                                                "eV").to("Ry")])
 
         with open(os.path.join(path_dir, "boltztrap.outputtrans"), 'r') as f:
             warning = False
@@ -541,7 +542,7 @@ class BoltztrapAnalyzer():
                 if "WARNING" in line:
                     warning = True
                 if line.startswith("VBM"):
-                    efermi = float(line.split()[1]) * RY_TO_EV
+                    efermi = Energy(line.split()[1], "Ry").to("eV")
 
                 if step == 2:
                     l_tmp = line.split("-")[1:]
@@ -572,8 +573,9 @@ class BoltztrapAnalyzer():
                                                  for c in line.split()])
         return BoltztrapAnalyzer._make_boltztrap_analyzer_from_data(
             data_full, data_hall, data_dos, sorted([t for t in t_steps]),
-            sorted([m * RY_TO_EV for m in m_steps]), efermi, gap * RY_TO_EV,
-            doping, data_doping_full, data_doping_hall, warning)
+            sorted([Energy(m, "Ry").to("eV") for m in m_steps]), efermi,
+            Energy(gap, "Ry").to("eV"), doping, data_doping_full,
+            data_doping_hall, warning)
 
     @property
     def to_dict(self):
@@ -673,8 +675,8 @@ class BoltztrapPlotter():
                     linestyle="--")
         plt.text(self._bz.mu_doping['n'][temp][-1] + 0.01,
                  limit,
-                 "$n$=10$^{" + str(math.log10(self._bz.doping['n'][-1])) + "}$",
-                 color='b')
+                 "$n$=10$^{" + str(math.log10(self._bz.doping['n'][-1]))
+                 + "}$", color='b')
         plt.axvline(self._bz.mu_doping['p'][temp][1], linewidth=3.0,
                     linestyle="--")
         plt.text(self._bz.mu_doping['p'][temp][1] + 0.01,
