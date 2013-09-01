@@ -4,11 +4,13 @@ from __future__ import division
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import (Energy, Time, Length, unitized,
+from pymatgen.core.units import (Energy, Time, Length, unitized, Angle,
                                  EnergyArray, TimeArray, LengthArray,
                                  Unit, SUPPORTED_UNITS,
                                  )
 
+import collections
+import math
 
 class UnitTest(PymatgenTest):
 
@@ -38,6 +40,10 @@ class UnitTest(PymatgenTest):
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
 
+    def test_angle(self):
+        a = Angle(90, "deg")
+        self.assertEqual(a.to("rad"), math.pi / 2)
+
     def test_unitized(self):
 
         @unitized("energy", "eV")
@@ -48,11 +54,21 @@ class UnitTest(PymatgenTest):
         self.assertIsInstance(f(), list)
 
         @unitized("energy", "eV")
-        def f():
+        def g():
             return 2, 3, 4
 
-        self.assertEqual(str(f()[0]), "2.0 eV")
-        self.assertIsInstance(f(), tuple)
+        self.assertEqual(str(g()[0]), "2.0 eV")
+        self.assertIsInstance(g(), tuple)
+
+        @unitized("length", "pm")
+        def h():
+            d = collections.OrderedDict()
+            for i in range(3):
+                d[i] = i * 20
+            return d
+
+        self.assertEqual(str(h()[1]), "20.0 pm")
+        self.assertIsInstance(h(), collections.OrderedDict)
 
     def test_conversion_factors(self):
         for unit_type in SUPPORTED_UNITS:
@@ -148,10 +164,10 @@ class ArrayWithUnitTest(PymatgenTest):
         objects_without_unit = [
             ene_ha * time_s,
             ene_ha / ene_ev,
-            3 / ene_ha,
+            #3 / ene_ha,
             #ene_ha // ene_ev,
             # Here we could return a Unit object but I prefer this since Unit extends float while we could have an int.
-            ene_ha[0],  
+            #ene_ha[0],  
         ]
 
         for obj in objects_without_unit:
