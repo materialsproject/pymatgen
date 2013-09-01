@@ -3,8 +3,9 @@
 from __future__ import division
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import Energy, Time, Length, unitized
+from pymatgen.core.units import Energy, Time, Length, unitized, Angle
 import collections
+import math
 
 class UnitTest(PymatgenTest):
 
@@ -33,6 +34,10 @@ class UnitTest(PymatgenTest):
         self.assertEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
+
+    def test_angle(self):
+        a = Angle(90, "deg")
+        self.assertEqual(a.to("rad"), math.pi / 2)
 
     def test_unitized(self):
 
