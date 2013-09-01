@@ -17,9 +17,10 @@ import re
 from string import Template
 
 from pymatgen.core import Molecule
-import pymatgen.core.physical_constants as phyc
 from pymatgen.util.io_utils import zopen
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.units import Energy
+import pymatgen.core.physical_constants as phyc
 
 
 class NwTask(MSONable):
@@ -526,7 +527,7 @@ class NwOutput(object):
             else:
                 m = energy_patt.search(l)
                 if m:
-                    energies.append(float(m.group(1)) * phyc.Ha_eV)
+                    energies.append(Energy(m.group(1), "Ha").to("eV"))
                     continue
 
                 m = preamble_patt.search(l)

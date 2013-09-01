@@ -105,3 +105,11 @@ core Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`units_deprecated` Module
+------------------------------
+
+.. automodule:: pymatgen.core.units_deprecated
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

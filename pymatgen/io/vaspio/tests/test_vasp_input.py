@@ -17,7 +17,7 @@ import unittest
 import os
 import numpy as np
 
-from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
+from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
 from pymatgen import Composition, Structure, zopen
@@ -155,7 +155,7 @@ direct
             self.assertAlmostEqual(
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
-        temperature = struct[0].specie.atomic_mass * AMU_TO_KG * \
+        temperature = struct[0].specie.atomic_mass.to("kg") * \
             np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
