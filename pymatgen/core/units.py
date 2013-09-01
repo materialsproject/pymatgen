@@ -34,33 +34,45 @@ SUPPORTED_UNITS = {
         "eV": 1,
         "Ha": 27.21138386,
         "Ry": 13.605698066,
-        "J": 6.24150934e18
+        "J": 6.24150934e18,
     },
     "length": {
         "ang": 1,
         "m": 1e10,
         "cm": 1e8,
         "pm": 1e-2,
-        "bohr": 0.5291772083
+        "bohr": 0.5291772083,
     },
     "mass": {
         "kg": 1,
         "g": 1e-3,
-        "amu": 1.660538921e-27
+        "amu": 1.660538921e-27,
     },
     "temperature": {
-        "K": 1
+        "K": 1,
     },
     "time": {
         "s": 1,
         "min": 60,
-        "h": 3600
+        "h": 3600,
     },
     "charge": {
         "C": 1,
-        "e": 1.602176565e-19
+        "e": 1.602176565e-19,
     }
 }
+
+_UNAME2UTYPE = {}
+for utype, d in SUPPORTED_UNITS.items():
+    assert not set(d.keys()).intersection(_UNAME2UTYPE.keys())
+    _UNAME2UTYPE.update({uname: utype for uname in d})
+del utype, d
+
+# TODO
+# One can use unit_type_from_unit_name to reduce the number of arguments passed to the decorator.
+def unit_type_from_unit_name(uname):
+    """Return the unit type from the unit name."""
+    return _UNAME2UTYPE[uname]
 
 
 class Unit(float):
@@ -194,61 +206,127 @@ class Unit(float):
 
 
 class ArrayWithUnit(np.ndarray):
-    """See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html."""
+    """
+    Subclasses `numpy.ndarray` to attach a unit type. Typically, you should use the
+    pre-defined unit type subclasses such as EnergyArray, LengthArray, etc. instead of
+    using ArrayWithUnit directly.
 
+    Supports conversion, addition and subtraction of the same unit type. E.g.,
+    1 m + 20 cm will be automatically converted to 1.2 m (units follow the
+    leftmost quantity).
+
+    >>> a = EnergyArray([1, 2], "Ha")
+    >>> b = EnergyArray([1, 2], "eV")
+    >>> c = a + b
+    >>> print c
+    [ 1.03674933  2.07349865] Ha
+    >>> c.to("eV")
+    array([ 28.21138386,  56.42276772]) eV
+    """
     def __new__(cls, input_array, unit, unit_type):
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
         # add the new attributes to the created instance
-        obj.unit = unit
-        obj.unit_type = unit_type
-        # Finally, we must return the newly created object:
+        obj._unit = unit
+        obj._unit_type = unit_type
         return obj
 
     def __array_finalize__(self, obj):
-        # see InfoArray.__array_finalize__ for comments
+        """See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html for comments."""
         if obj is None: return
-        self.unit = getattr(obj, "unit", None)
-        self.unit_type = getattr(obj, "unit_type", None)
+        self._unit = getattr(obj, "_unit", None)
+        self._unit_type = getattr(obj, "_unit_type", None)
+        #print("in finalize: self %s, type(self) %s, obj %s, type(obj) %s" % (self, type(self), obj, type(obj)))
+
+    #TODO abstract base class property?
+    @property
+    def unit_type(self):
+        return self._unit_type
+
+    #TODO abstract base class property?
+    @property
+    def unit(self):
+        return self._unit
 
     def __repr__(self):
-        return "{} {}".format(super(ArrayWithUnit, self).__repr__(), self.unit)
+        return "{} {}".format(np.array(self).__repr__(), self.unit)
 
     def __str__(self):
-        return "{} {}".format(super(ArrayWithUnit, self).__str__(), self.unit)
+        return "{} {}".format(np.array(self).__str__(), self.unit)
 
     def __add__(self, other):
-        if not hasattr(other, "unit_type"):
-            return super(ArrayWithUnit, self).__add__(other)
+        if hasattr(other, "unit_type"):
+            if other.unit_type != self.unit_type:
+                raise ValueError("Adding different types of units is not allowed")
 
-        if other.unit_type != self.unit_type:
-            raise ValueError("Adding different types of units is not allowed")
+            if other.unit != self.unit:
+                other = other.to(self.unit)
 
-        if other.unit != self.unit:
-            other = other.to(self.unit)
-
-        return self.__class__(np.array(self) + np.array(other), unit_type=self.unit_type,
-                    unit=self.unit)
+        return self.__class__(np.array(self) + np.array(other), 
+                              unit_type=self.unit_type, unit=self.unit)
 
     def __sub__(self, other):
+        if hasattr(other, "unit_type"):
+            if other.unit_type != self.unit_type:
+                raise ValueError("Subtracting different units is not allowed")
+
+            if other.unit != self.unit:
+                other = other.to(self.unit)
+
+        return self.__class__(np.array(self) - np.array(other), 
+                              unit_type=self.unit_type, unit=self.unit)
+
+    def __mul__(self, other):
         if not hasattr(other, "unit_type"):
-            return super(ArrayWithUnit, self).__sub__(other)
+            return self.__class__(np.array(self).__mul__(np.array(other)), 
+                                  unit_type=self._unit_type, unit=self._unit)
+        else:
+            # Cannot use super since it returns an instance of self.__class__ 
+            # while here we want a bare numpy array.
+            return np.array(self).__mul__(np.array(other))
 
-        if other.unit_type != self.unit_type:
-            raise ValueError("Subtracting different units is not allowed")
+    def __rmul__(self, other):
+        if not hasattr(other, "unit_type"):
+            return self.__class__(np.array(self).__rmul__(np.array(other)), 
+                                  unit_type=self._unit_type, unit=self._unit)
+        else:
+            return np.array(self).__rmul__(np.array(other))
 
-        if other.unit != self.unit:
-            other = other.to(self.unit)
+    def __div__(self, other):
+        if not hasattr(other, "unit_type"):
+            return self.__class__(np.array(self).__div__(np.array(other)), 
+                                  unit_type=self._unit_type, unit=self._unit)
+        else:
+            return np.array(self).__div__(np.array(other))
 
-        return self.__class__(np.array(self) - np.array(other), unit_type=self.unit_type,
-                              unit=self.unit)
+    def __truediv__(self, other):
+        if not hasattr(other, "unit_type"):
+            return self.__class__(np.array(self).__truediv__(np.array(other)), 
+                                  unit_type=self._unit_type, unit=self._unit)
+        else:
+            return np.array(self).__truediv__(np.array(other))
 
     def __neg__(self):
-        return self.__class__(-np.array(self), unit_type=self.unit_type,
-                              unit=self.unit)
+        return self.__class__(np.array(self).__neg__(), 
+                              unit_type=self.unit_type, unit=self.unit)
 
     def to(self, new_unit):
+        """
+        Conversion to a new_unit.
+
+        Args:
+            new_unit:
+                New unit type.
+
+        Returns:
+            A ArrayWithUnit object in the new units.
+
+        Example usage:
+        >>> e = EnergyArray([1, 1.1], "Ha")
+        >>> e.to("eV")
+        array([ 27.21138386,  29.93252225]) eV
+        """
         if new_unit not in SUPPORTED_UNITS[self.unit_type]:
             raise ValueError(
                 "{} is not a supported unit for {}".format(new_unit,
@@ -259,23 +337,56 @@ class ArrayWithUnit(np.ndarray):
             np.array(self) / conversion[new_unit] * conversion[self.unit],
             unit_type=self.unit_type, unit=new_unit)
 
+    #TODO abstract base class property?
     @property
     def supported_units(self):
+        """
+        Supported units for specific unit type.
+        """
         return SUPPORTED_UNITS[self.unit_type]
 
+    #TODO abstract base class method?
+    def conversions(self):
+        """
+        Returns a string showing the available conversions.
+        Useful in interactive mode.
+        """
+        return "\n".join(str(self.to(unit)) for unit in self.supported_units)
 
 
 Energy = partial(Unit, unit_type="energy")
+EnergyArray = partial(ArrayWithUnit, unit_type="energy")
 
 Length = partial(Unit, unit_type="length")
+LengthArray = partial(ArrayWithUnit, unit_type="length")
 
 Mass = partial(Unit, unit_type="mass")
+MassArray = partial(ArrayWithUnit, unit_type="mass")
 
 Temp = partial(Unit, unit_type="temperature")
+TempArray = partial(ArrayWithUnit, unit_type="temperature")
 
 Time = partial(Unit, unit_type="time")
+TimeArray = partial(ArrayWithUnit, unit_type="time")
 
 Charge = partial(Unit, unit_type="charge")
+ChargeArray = partial(ArrayWithUnit, unit_type="charge")
+
+
+def obj_with_unit(obj, unit):
+    """
+    Returns a `Unit` instance if obj is scalar else an instance of `ArrayWithUnit`.
+
+    Args:
+        unit:
+            Specific units (eV, Ha, m, ang, etc.).
+    """
+    unit_type = unit_type_from_unit_name(unit)
+
+    if isinstance(obj, numbers.Number):
+        return Unit(obj, unit=unit, unit_type=unit_type)
+    else:
+        return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
 def unitized(unit_type, unit):
@@ -309,4 +420,3 @@ def unitized(unit_type, unit):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
->>>>>>> mpmaster/master
