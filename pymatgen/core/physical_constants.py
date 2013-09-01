@@ -45,10 +45,6 @@ The following are conversion factors.
 .. attribute:: ELECTRON_TO_AMPERE_HOURS
 
     Conversion from electron charge to Amphere-hours
-
-.. attribute:: AMU_TO_KG
-
-    Conversion from atomic mass unit to kg
 """
 
 import numpy as _np
