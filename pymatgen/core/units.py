@@ -123,16 +123,16 @@ class Unit(float):
                     unit=self._unit)
 
     def __mul__(self, other):
-        val = super(Unit, self).__mul__(other)
         if isinstance(other, (float, int)):
-            return Unit(val, unit_type=self._unit_type, unit=self._unit)
-        return val
+            return Unit(float(self) * other, unit_type=self._unit_type,
+                              unit=self._unit)
+        return super(Unit, self).__mul__(other)
 
     def __rmul__(self, other):
-        val = super(Unit, self).__rmul__(other)
         if isinstance(other, (float, int)):
-            return Unit(val, unit_type=self._unit_type, unit=self._unit)
-        return val
+            return Unit(float(self) * other, unit_type=self._unit_type,
+                              unit=self._unit)
+        return super(Unit, self).__rmul__(other)
 
     def __div__(self, other):
         val = super(Unit, self).__div__(other)
@@ -157,7 +157,7 @@ class Unit(float):
     @property
     def unit(self):
         return self._unit
-    
+
     def to(self, new_unit):
         """
         Conversion to a new_unit.
