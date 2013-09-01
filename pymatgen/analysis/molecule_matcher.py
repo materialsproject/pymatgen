@@ -116,7 +116,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         h1 = self.get_molecule_hash(obmol1)
         h2 = self.get_molecule_hash(obmol2)
         if h1 != h2:
-            return (None, None)
+            return None, None
 
         query = ob.CompileMoleculeQuery(obmol1)
         isomapper = ob.OBIsomorphismMapper.GetInstance(query)
@@ -124,7 +124,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         isomapper.MapAll(obmol2, isomorph)
 
         sorted_isomorph = [sorted(x, key=lambda p: p[0]) for x in isomorph]
-        label2_list = tuple([tuple([p[1] + 1 for p in x]) for x in sorted_isomorph])
+        label2_list = tuple([tuple([p[1] + 1 for p in x])
+                             for x in sorted_isomorph])
 
         vmol1 = obmol1
         aligner = ob.OBAlign(True, False)
@@ -141,11 +142,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             if rmsd < least_rmsd:
                 least_rmsd = rmsd
                 best_label2 = copy.copy(label2)
-
         label1 = range(1, obmol1.NumAtoms() + 1)
-
-        return (label1, best_label2)
-
+        return label1, best_label2
 
     def get_molecule_hash(self, mol):
         """
@@ -156,7 +154,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         obConv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obConv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
-        inchi = match.group("inchi")
+        return match.group("inchi")
 
     @property
     def to_dict(self):
@@ -289,7 +287,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 min_distance = float("inf")
                 for i in range(1, vmol.NumAtoms()+1):
                     va = vmol.GetAtom(i)
-                    distance = math.sqrt((c1x - va.x())**2 + (c1y - va.y())**2 + (c1z - va.z())**2)
+                    distance = math.sqrt((c1x - va.x())**2 + (c1y - va.y())**2
+                                         + (c1z - va.z())**2)
                     if distance < min_distance:
                         min_distance = distance
                 if min_distance > 0.2:
@@ -299,7 +298,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         return vmol
 
-    def _align_heavy_atoms(self, mol1, mol2, vmol1, vmol2, ilabel1, ilabel2, eq_atoms):
+    def _align_heavy_atoms(self, mol1, mol2, vmol1, vmol2, ilabel1, ilabel2,
+                           eq_atoms):
         """
         Align the label of topologically identical atoms of second molecule
         towards first molecule
@@ -310,9 +310,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             mol2:
                 Second molecule. OpenBabel OBMol object
             vmol1:
-                First virtual molecule constructed by centroids. OpenBabel OBMol object
+                First virtual molecule constructed by centroids. OpenBabel
+                OBMol object
             vmol2:
-                First virtual molecule constructed by centroids. OpenBabel OBMol object
+                First virtual molecule constructed by centroids. OpenBabel
+                OBMol object
             ilabel1:
                 inchi label map of the first molecule
             ilabel2:
@@ -475,7 +477,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         return elements
 
     def _is_molecule_linear(self, mol):
-        '''
+        """
         Is the molecule a linear one
 
         Args:
@@ -484,7 +486,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         Returns:
             Boolean value.
-        '''
+        """
         if mol.NumAtoms() < 3:
             return True
         a1 = mol.GetAtom(1)
@@ -512,13 +514,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         if iequal_atom1 != iequal_atom2:
             raise Exception("Design Error! Equavilent atoms are inconsistent")
 
-
         vmol1 = self._virtual_molecule(obmol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(obmol2, ilabel2, iequal_atom2)
 
-        clabel1, clabel2 = None, None
         if vmol1.NumAtoms() < 3 or self._is_molecule_linear(vmol1) \
-        or self._is_molecule_linear(vmol2):
+                or self._is_molecule_linear(vmol2):
             # using isomorphism for difficult (actually simple) molecules
             clabel1, clabel2 = self._assistant_mapper.uniform_labels(mol1, mol2)
         else:
@@ -528,7 +528,6 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2,
                                                           ilabel1,
                                                           heavy_atom_indices2)
-
 
         elements1 = self._get_elements(obmol1, clabel1)
         elements2 = self._get_elements(obmol2, clabel2)
@@ -677,7 +676,8 @@ class MoleculeMatcher(MSONable):
                     mutual_pairs = candidate_pairs & mol_eq
                     if len(mutual_pairs) == 0:
                         break
-                    mutual_mols = set(itertools.chain.from_iterable(mutual_pairs))
+                    mutual_mols = set(itertools.chain
+                                      .from_iterable(mutual_pairs))
                     current_group |= mutual_mols
                     not_alone_mols -= mutual_mols
                 group_indices.append(sorted(current_group))
@@ -697,4 +697,3 @@ class MoleculeMatcher(MSONable):
         return MoleculeMatcher(
             tolerance=d["tolerance"],
             mapper=AbstractMolAtomMapper.from_dict(d["mapper"]))
-
