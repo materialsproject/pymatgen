@@ -4,7 +4,7 @@ from __future__ import division
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.units import Energy, Time, Length, unitized
-
+import collections
 
 class UnitTest(PymatgenTest):
 
@@ -44,12 +44,21 @@ class UnitTest(PymatgenTest):
         self.assertIsInstance(f(), list)
 
         @unitized("energy", "eV")
-        def f():
+        def g():
             return 2, 3, 4
 
-        self.assertEqual(str(f()[0]), "2.0 eV")
-        self.assertIsInstance(f(), tuple)
+        self.assertEqual(str(g()[0]), "2.0 eV")
+        self.assertIsInstance(g(), tuple)
 
+        @unitized("length", "pm")
+        def h():
+            d = collections.OrderedDict()
+            for i in range(3):
+                d[i] = i * 20
+            return d
+
+        self.assertEqual(str(h()[1]), "20.0 pm")
+        self.assertIsInstance(h(), collections.OrderedDict)
 
 if __name__ == '__main__':
     import unittest
