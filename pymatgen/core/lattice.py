@@ -313,21 +313,21 @@ class Lattice(MSONable):
     @property
     def alpha(self):
         """
-        Angle alpha of lattice.
+        Angle alpha of lattice in degrees.
         """
         return self._angles[0]
 
     @property
     def beta(self):
         """
-        Angle beta of lattice.
+        Angle beta of lattice in degrees.
         """
         return self._angles[1]
 
     @property
     def gamma(self):
         """
-        Angle gamma of lattice.
+        Angle gamma of lattice in degrees.
         """
         return self._angles[2]
 
@@ -715,8 +715,8 @@ class Lattice(MSONable):
     def scale(self, new_volume):
         """
         Return a new Lattice with volume new_volume by performing a
-        scaling of the lattice vectors so that length proportions and angles are
-        preserved.
+        scaling of the lattice vectors so that length proportions and angles
+        are preserved.
 
         Args:
             new_volume:
