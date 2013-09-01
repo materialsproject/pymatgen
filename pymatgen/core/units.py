@@ -22,7 +22,7 @@ __date__ = "Aug 30, 2013"
 import collections
 import numbers
 from functools import partial
-
+import math
 
 """
 Definitions of supported units. Values below are essentially scaling and
@@ -58,6 +58,10 @@ SUPPORTED_UNITS = {
     "charge": {
         "C": 1,
         "e": 1.602176565e-19
+    },
+    "angle":{
+        "rad": 180,
+        "deg": math.pi
     }
 }
 
@@ -203,6 +207,8 @@ Temp = partial(Unit, unit_type="temperature")
 Time = partial(Unit, unit_type="time")
 
 Charge = partial(Unit, unit_type="charge")
+
+Angle = partial(Unit, unit_type="angle")
 
 
 def unitized(unit_type, unit):
