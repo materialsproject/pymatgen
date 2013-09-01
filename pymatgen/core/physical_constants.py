@@ -45,10 +45,6 @@ The following are conversion factors.
 .. attribute:: ELECTRON_TO_AMPERE_HOURS
 
     Conversion from electron charge to Amphere-hours
-
-.. attribute:: AMU_TO_KG
-
-    Conversion from atomic mass unit to kg
 """
 
 import numpy as _np
@@ -85,7 +81,6 @@ F = AVOGADROS_CONST * ELECTRON_CHARGE
 EV_PER_ATOM_TO_J_PER_MOL = ELECTRON_VOLT * AVOGADROS_CONST
 EV_PER_ATOM_TO_KJ_PER_MOL = EV_PER_ATOM_TO_J_PER_MOL / 1000
 ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
-AMU_TO_KG = 1.660538921e-27
 RY_TO_EV = 13.605698066
 BOHR_TO_ANGS = 0.5291772083
 
