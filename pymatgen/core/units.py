@@ -94,9 +94,9 @@ class Unit(float):
     >>> b = Energy(3, "eV")
     >>> c = a + b
     >>> print c
-    1.21024797619 Ha
+    1.2102479761938871 Ha
     >>> c.to("eV")
-    32.932522246 eV
+    32.932522246000005 eV
     """
 
     def __new__(cls, val, unit, unit_type):
@@ -190,7 +190,7 @@ class Unit(float):
         >>> e = Energy(1.1, "eV")
         >>> e = Energy(1.1, "Ha")
         >>> e.to("eV")
-        29.932522246 eV
+        29.932522246000005 eV
         """
         if new_unit not in SUPPORTED_UNITS[self._unit_type]:
             raise ValueError(
@@ -282,6 +282,14 @@ class ArrayWithUnit(np.ndarray):
                               unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
+        # FIXME
+        # Here we have the most important difference between Unit and ArrayWithUnit:
+        # If other does not have units, I return an object with the same units as self.
+        # if other *has* units, I return an object *without* units since taking into
+        # account all the possible derived quantities would be too difficult.
+        # Moreover Energy(1.0)  * Time(1.0, "s") returns 1.0 Ha
+        # that is a bit misleading.
+        # Same protocol for __div__
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__mul__(np.array(other)), 
                                   unit_type=self._unit_type, unit=self._unit)
@@ -353,7 +361,7 @@ class ArrayWithUnit(np.ndarray):
     def conversions(self):
         """
         Returns a string showing the available conversions.
-        Useful in interactive mode.
+        Useful tool in interactive mode.
         """
         return "\n".join(str(self.to(unit)) for unit in self.supported_units)
 
@@ -382,7 +390,8 @@ AngleArray = partial(ArrayWithUnit, unit_type="angle")
 
 def obj_with_unit(obj, unit):
     """
-    Returns a `Unit` instance if obj is scalar else an instance of `ArrayWithUnit`.
+    Returns a `Unit` instance if obj is scalar, a dictionary of objects with units
+    if obj is a dict, else an instance of `ArrayWithUnit`.
 
     Args:
         unit:
@@ -392,6 +401,8 @@ def obj_with_unit(obj, unit):
 
     if isinstance(obj, numbers.Number):
         return Unit(obj, unit=unit, unit_type=unit_type)
+    elif isinstance(val, collections.Mapping):
+        return {k: obj_with_unit(v) for k,v in val.items()}
     else:
         return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
@@ -413,6 +424,7 @@ def unitized(unit_type, unit):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
             if isinstance(val, collections.Sequence):
+                # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
                 return val.__class__([Unit(i, unit_type=unit_type,
