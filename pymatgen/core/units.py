@@ -79,11 +79,15 @@ SUPPORTED_UNITS = {
     "amount": {
         "atom": 1,
         "mol": 6.02214129e23
+    },
+    "force": {
+        "N": 1
     }
 }
 
 DERIVED_UNITS = {
     "J": {"kg": 1, "m": 2, "s": -2},
+    "N": {"kg": 1, "m": 1, "s": -2}
 }
 
 
@@ -110,13 +114,13 @@ class Unit(collections.Mapping):
     """
     def __init__(self, unit_def):
         """
-        Constructs a unit from a dict of powers. E.g.,
-        {"m": 2, "s": -1} represents "m^2 s^-1", or simply as a string
-        "kg m^2 s^-1".
+        Constructs a unit.
 
         Args:
             unit_def:
-                A definition for the unit.
+                A definition for the unit. Either a mapping of unit to
+                powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",
+                or simply as a string "kg m^2 s^-1".
         """
 
         if isinstance(unit_def, basestring):
@@ -128,6 +132,15 @@ class Unit(collections.Mapping):
         else:
             unit = dict(unit_def)
 
+        #Convert to base units
+        base_units = collections.defaultdict(int)
+        for u, p in unit.items():
+            if u in DERIVED_UNITS:
+                for k, v in DERIVED_UNITS[u].items():
+                    base_units[k] += v * p
+            else:
+                base_units[u] += p
+
         def check_mappings(u):
             for k, v in DERIVED_UNITS.items():
                 if u == v:
@@ -135,7 +148,7 @@ class Unit(collections.Mapping):
                     return
             self._unit = u
 
-        check_mappings(unit)
+        check_mappings(base_units)
 
     def __mul__(self, other):
         new_units = collections.defaultdict(int)
@@ -181,7 +194,27 @@ class Unit(collections.Mapping):
     def __str__(self):
         return self.__repr__()
 
+    @property
+    def as_base_units_dict(self):
+        b = collections.defaultdict(int)
+        for k, v in self.items():
+            if k in DERIVED_UNITS:
+                for k2, v2 in DERIVED_UNITS[k].items():
+                    b[k2] += v2
+            else:
+                b[k] += v
+        return b
+
     def get_conversion_factor(self, new_unit):
+        """
+        Returns a conversion factor between this unit and a new unit.
+        Compound units are supported, but must have the same powers in each
+        unit type.
+
+        Args:
+            new_unit:
+                The new unit.
+        """
         units_new = sorted(((k, v) for k, v in Unit(new_unit).items()),
                            key=lambda d: _UNAME2UTYPE[d[0]])
         units_old = sorted(((k, v) for k, v in self.items()),
