@@ -5,13 +5,12 @@ import collections
 import numpy as np
 
 import pymatgen.core.physical_constants as const
-import pymatgen.core.units_deprecated as units
+import pymatgen.core.units_deprecated as units_deprecated
+import pymatgen.core.units as units
 
 __all__ = [
     "EOS",
 ]
-
-__version__ = "1.0"
 
 ##########################################################################################
 
@@ -177,8 +176,9 @@ class EOS(object):
         Notice that the units for the bulk modulus is eV/Angstrom^3.
         """
         # Convert volumes to Ang**3 and energies to eV (if needed).
-        volumes = units.any2Ang3(len_units)(volumes)
-        energies = units.any2eV(ene_units)(energies)
+        volumes = units_deprecated.any2Ang3(len_units)(volumes)
+        #volumes = units.VolumeArray(volumes, len_units).to("Ang")
+        energies = units.EnergyArray(energies, ene_units).to("eV")
 
         return EOS_Fit(volumes, energies, self._func, self._eos_name)
 
@@ -273,7 +273,7 @@ class EOS_Fit(object):
 
     @property
     def b0_GPa(self):
-        return self.b0 * const.eVA3_GPa
+        return self.b0 * const.EV_ANGS3_TO_GPA
 
     def plot(self, **kwargs):
         """
