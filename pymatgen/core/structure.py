@@ -984,10 +984,10 @@ class IStructure(SiteCollection, MSONable):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         return cls.from_sites(sites)
 
-
     def dot(self, coords_a, coords_b, space="r", frac_coords=False):
         """
-        Compute the scalar producr of vector(s) either in real space or reciprocal space.
+        Compute the scalar producr of vector(s) either in real space or
+        reciprocal space.
                                                                                                 
         Args:
             coords:
@@ -997,10 +997,12 @@ class IStructure(SiteCollection, MSONable):
             frac_coords:
                 Boolean stating whether the vector corresponds to fractional or
                 cartesian coordinates.
+
        Returns:
            one-dimensional `numpy` array.
         """
-        lattice = {"r": self.lattice, "g": self.reciprocal_lattice}[space.lower()]
+        lattice = {"r": self.lattice,
+                   "g": self.reciprocal_lattice}[space.lower()]
         return lattice.dot(coords_a, coords_b, frac_coords=frac_coords)
 
     def norm(self, coords, space="r", frac_coords=True):
@@ -1015,10 +1017,12 @@ class IStructure(SiteCollection, MSONable):
             frac_coords:
                 Boolean stating whether the vector corresponds to fractional or
                 cartesian coordinates.
-       Returns:
-           one-dimensional `numpy` array.
+
+        Returns:
+            one-dimensional `numpy` array.
         """
-        return np.sqrt(self.dot(coords, coords, space=space, frac_coords=frac_coords))
+        return np.sqrt(self.dot(coords, coords, space=space,
+                                frac_coords=frac_coords))
 
 
 class IMolecule(SiteCollection, MSONable):
@@ -1760,7 +1764,8 @@ class Structure(IStructure):
 
         Args:
             indices:
-                Integer or List of site indices on which to perform the translation.
+                Integer or List of site indices on which to perform the
+                translation.
             vector:
                 Translation vector for sites.
             frac_coords:
