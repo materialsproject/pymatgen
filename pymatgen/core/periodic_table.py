@@ -323,7 +323,7 @@ class Element(object):
         return self._data.copy()
 
     @property
-    @unitized("length", "pm")
+    @unitized("pm")
     def average_ionic_radius(self):
         """
         Average ionic radius for element (with units). The average is taken
@@ -336,7 +336,7 @@ class Element(object):
             return 0
 
     @property
-    @unitized("length", "pm")
+    @unitized("pm")
     def ionic_radii(self):
         """
         All ionic radii of the element as a dict of
