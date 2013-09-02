@@ -65,6 +65,11 @@ SUPPORTED_UNITS = {
     }
 }
 
+# Add derived units.
+SUPPORTED_UNITS["volume"] = {k+"**3": v**3 for k,v in SUPPORTED_UNITS["length"].items()}
+
+
+# Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}
 for utype, d in SUPPORTED_UNITS.items():
     assert not set(d.keys()).intersection(_UNAME2UTYPE.keys())
@@ -379,6 +384,9 @@ EnergyArray = partial(ArrayWithUnit, unit_type="energy")
 
 Length = partial(Unit, unit_type="length")
 LengthArray = partial(ArrayWithUnit, unit_type="length")
+
+Volume = partial(Unit, unit_type="volume")
+VolumeArray = partial(ArrayWithUnit, unit_type="volume")
 
 Mass = partial(Unit, unit_type="mass")
 MassArray = partial(ArrayWithUnit, unit_type="mass")

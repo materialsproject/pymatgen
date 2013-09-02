@@ -5,7 +5,6 @@ import collections
 import numpy as np
 
 import pymatgen.core.physical_constants as const
-import pymatgen.core.units_deprecated as units_deprecated
 import pymatgen.core.units as units
 
 __all__ = [
@@ -167,18 +166,17 @@ class EOS(object):
     def DeltaFactor():
         return EOS(eos_name='deltafactor')
 
-    def fit(self, volumes, energies, len_units="Ang", ene_units="eV"):
+    def fit(self, volumes, energies, vol_unit="ang**3", ene_unit="eV"):
         """
-        Fit energies [eV] as function of volumes [Angstrom^3].
+        Fit energies [eV] as function of volumes [Angstrom**3].
 
-        Returns EosFit instance that gives access to the optimal volume, 
+        Returns `EosFit` instance that gives access to the optimal volume, 
         the minumum energy, and the bulk modulus.  
         Notice that the units for the bulk modulus is eV/Angstrom^3.
         """
         # Convert volumes to Ang**3 and energies to eV (if needed).
-        volumes = units_deprecated.any2Ang3(len_units)(volumes)
-        #volumes = units.VolumeArray(volumes, len_units).to("Ang")
-        energies = units.EnergyArray(energies, ene_units).to("eV")
+        volumes = units.VolumeArray(volumes, vol_unit).to("ang**3")
+        energies = units.EnergyArray(energies, ene_unit).to("eV")
 
         return EOS_Fit(volumes, energies, self._func, self._eos_name)
 

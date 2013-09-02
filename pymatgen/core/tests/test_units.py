@@ -5,7 +5,7 @@ import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.units import (Energy, Time, Length, unitized, Angle,
-                                 EnergyArray, TimeArray, LengthArray,
+                                 EnergyArray, TimeArray, LengthArray, VolumeArray,
                                  Unit, SUPPORTED_UNITS,
                                  )
 
@@ -71,15 +71,12 @@ class UnitTest(PymatgenTest):
         self.assertEqual(str(h()[1]), "20.0 pm")
         self.assertIsInstance(h(), collections.OrderedDict)
 
-    def test_conversion_factors(self):
+    def test_consistency_of_the_conversion_factors(self):
         for unit_type in SUPPORTED_UNITS:
             for unit1 in SUPPORTED_UNITS[unit_type]:
                 a = Unit(1.0, unit1, unit_type)
                 for unit2 in SUPPORTED_UNITS[unit_type]:
-                    if unit1 == unit2:
-                        self.assertEqual(a.to(unit2).to(unit1), 1.0)
-                    else:
-                        self.assert_almost_equal(a.to(unit2).to(unit1), 1.0, decimal=12)
+                    self.assert_almost_equal(a.to(unit2).to(unit1), 1.0, decimal=12)
 
 
 class ArrayWithUnitTest(PymatgenTest):
@@ -177,6 +174,15 @@ class ArrayWithUnitTest(PymatgenTest):
 
         with self.assertRaises(ValueError):
             ene_ha + time_s
+
+    def test_factors(self):
+        e = EnergyArray([27.21138386, 1], "eV").to("Ha")
+        self.assertTrue(str(e) == "[ 1.          0.03674933] Ha")
+        l = LengthArray([1.0], "ang").to("bohr")
+        self.assertTrue(str(l) == "[ 1.88972613] bohr")
+        v = VolumeArray([1,2,3], "bohr**3").to("ang**3")
+        self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] ang**3')
+
 
 if __name__ == '__main__':
     import unittest
