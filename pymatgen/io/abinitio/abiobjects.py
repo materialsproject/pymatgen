@@ -11,12 +11,11 @@ import collections
 import numpy as np
 import os.path
 import abc
+import pymatgen.core.units as units
 
 from pprint import pformat
-
 from pymatgen.util.decorators import singleton
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.core.units_deprecated import any2Ha
 from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -174,8 +173,8 @@ class Smearing(AbivarAble, MSONable):
             try:
                 tsmear = float(tsmear)
             except ValueError:
-                tsmear, units = tsmear.split()
-                tsmear = any2Ha(units)(float(tsmear))
+                tsmear, unit = tsmear.split()
+                tsmear = units.Energy(float(tsmear), unit).to("Ha")
 
             return cls(occopt, tsmear)
 
@@ -966,8 +965,8 @@ class PPModel(AbivarAble, MSONable):
             try:
                 plasmon_freq = float(plasmon_freq)
             except ValueError:
-                plasmon_freq, units = plasmon_freq.split()
-                plasmon_freq = any2Ha(units)(float(plasmon_freq))
+                plasmon_freq, unit = plasmon_freq.split()
+                plasmon_freq = units.Energy(float(plasmon_freq), unit).to("Ha")
 
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
