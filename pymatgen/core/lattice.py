@@ -349,7 +349,7 @@ class Lattice(MSONable):
     @property
     def reciprocal_lattice(self):
         """
-        Return the reciprocal lattice. The property is lazily generated for efficiency. 
+        Return the reciprocal lattice. The property is lazily generated for efficiency.
         This implies that Lattice is an immutable object.
         """
         try:
@@ -782,7 +782,7 @@ class Lattice(MSONable):
     def dot(self, coords_a, coords_b, frac_coords=False):
         """
         Compute the scalar product of vector(s).
-                                                                                                
+
         Args:
             coords_a, coords_b:
                 Array-like objects with the coordinates.
@@ -793,7 +793,8 @@ class Lattice(MSONable):
         Returns:
             one-dimensional `numpy` array.
         """
-        coords_a, coords_b = np.reshape(coords_a, (-1,3)), np.reshape(coords_b, (-1,3))
+        coords_a, coords_b = np.reshape(coords_a, (-1,3)), \
+                             np.reshape(coords_b, (-1,3))
 
         if len(coords_a) != len(coords_b):
             raise ValueError("")
@@ -804,15 +805,17 @@ class Lattice(MSONable):
         if not frac_coords:
             cart_a, cart_b = coords_a, coords_b
         else:
-            cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1,3))
-            cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1,3))
+            cart_a = np.reshape([self.get_cartesian_coords(vec)
+                                 for vec in coords_a], (-1,3))
+            cart_b = np.reshape([self.get_cartesian_coords(vec)
+                                 for vec in coords_b], (-1,3))
 
         return np.array([np.dot(a,b) for a,b in zip(cart_a, cart_b)])
 
     def norm(self, coords, frac_coords=True):
         """
         Compute the norm of vector(s).
-                                                                                
+
         Args:
             coords:
                 Array-like object with the coordinates.

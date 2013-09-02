@@ -4,15 +4,27 @@ from __future__ import division
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import (Energy, Time, Length, unitized, Angle,
-                                 EnergyArray, TimeArray, LengthArray, VolumeArray,
-                                 Unit, SUPPORTED_UNITS,
-                                 )
+from pymatgen.core.units import (Energy, Time, Length, unitized, Angle, Mass,
+                                 EnergyArray, TimeArray, LengthArray, Unit,
+                                 FloatWithUnit, ArrayWithUnit, UnitError)
 
 import collections
 import math
 
+
 class UnitTest(PymatgenTest):
+
+    def test_init(self):
+        u1 = Unit((("m", 1), ("s", -1)))
+        self.assertEqual(str(u1), "m s^-1")
+        u2 = Unit("kg m ^ 2 s ^ -2")
+        self.assertEqual(str(u2), "J")
+        self.assertEqual(str(u1 * u2), "J m s^-1")
+        self.assertEqual(str(u2 / u1), "J s m^-1")
+        self.assertEqual(str(u1 / Unit("m")), "s^-1")
+        self.assertEqual(str(u1 * Unit("s")), "m")
+
+class FloatWithUnitTest(PymatgenTest):
 
     def test_energy(self):
         a = Energy(1.1, "eV")
@@ -20,13 +32,13 @@ class UnitTest(PymatgenTest):
         self.assertAlmostEqual(b, 0.0404242579378)
         c = Energy(3.14, "J")
         self.assertAlmostEqual(c.to("eV"), 1.95983393276e+19)
-        self.assertRaises(ValueError, Energy, 1, "m")
+        self.assertRaises(UnitError, Energy, 1, "m")
 
         d = Energy(1, "Ha")
         self.assertAlmostEqual(a + d, 28.31138386)
         self.assertAlmostEqual(a - d, -26.11138386)
         self.assertEqual(a + 1, 2.1)
-        self.assertEqual(str(a / d), "1.1")
+        self.assertEqual(str(a / d), "1.1 eV Ha^-1")
 
     def test_time(self):
         a = Time(20, "h")
@@ -37,9 +49,10 @@ class UnitTest(PymatgenTest):
 
     def test_length(self):
         x = Length(4.2, "ang")
-        self.assertEqual(x.to("cm"), 4.2e-08)
+        self.assertAlmostEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
+        self.assertEqual(str(x ** 3), "74.08800000000001 ang^3")
 
     def test_angle(self):
         a = Angle(90, "deg")
@@ -71,20 +84,21 @@ class UnitTest(PymatgenTest):
         self.assertEqual(str(h()[1]), "20.0 pm")
         self.assertIsInstance(h(), collections.OrderedDict)
 
-    def test_consistency_of_the_conversion_factors(self):
-        for unit_type in SUPPORTED_UNITS:
-            for unit1 in SUPPORTED_UNITS[unit_type]:
-                a = Unit(1.0, unit1, unit_type)
-                for unit2 in SUPPORTED_UNITS[unit_type]:
-                    self.assert_almost_equal(a.to(unit2).to(unit1), 1.0, decimal=12)
+    def test_compound_operations(self):
+        g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
+        e = Mass(1, "kg") * g * Length(1, "m")
+        self.assertEqual(str(e), "10.0 J")
+        form_e = FloatWithUnit(10, unit="kJ mol^-1")
+        self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269185055937 "
+                                                       "eV atom^-1")
+        self.assertRaises(UnitError, form_e.to, "m s^-1")
 
-
-class ArrayWithUnitTest(PymatgenTest):
+class ArrayWithFloatWithUnitTest(PymatgenTest):
 
     def test_energy(self):
         """
-        Similar to UnitTest.test_energy.
-        Check whether EnergyArray and Unit have same behavior.
+        Similar to FloatWithUnitTest.test_energy.
+        Check whether EnergyArray and FloatWithUnit have same behavior.
 
         # TODO
         One can merge the two tests easily:
@@ -99,7 +113,7 @@ class ArrayWithUnitTest(PymatgenTest):
         self.assertAlmostEqual(b, 0.0404242579378)
         c = EnergyArray(3.14, "J")
         self.assertAlmostEqual(c.to("eV"), 1.95983393276e+19)
-        self.assertRaises(ValueError, Energy, 1, "m")
+        # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")
         self.assertAlmostEqual(a + d, 28.31138386)
@@ -108,8 +122,8 @@ class ArrayWithUnitTest(PymatgenTest):
 
     def test_time(self):
         """
-        Similar to UnitTest.test_time.
-        Check whether EnergyArray and Unit have same behavior.
+        Similar to FloatWithUnitTest.test_time.
+        Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         # here there's a minor difference because we have a ndarray with dtype=np.int.
         a = TimeArray(20, "h")
@@ -120,11 +134,11 @@ class ArrayWithUnitTest(PymatgenTest):
 
     def test_length(self):
         """
-        Similar to UnitTest.test_time.
-        Check whether EnergyArray and Unit have same behavior.
+        Similar to FloatWithUnitTest.test_time.
+        Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         x = LengthArray(4.2, "ang")
-        self.assertEqual(x.to("cm"), 4.2e-08)
+        self.assertAlmostEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
 
@@ -156,15 +170,15 @@ class ArrayWithUnitTest(PymatgenTest):
             e4,
         ]
 
-        for obj in objects_with_unit:
-            self.assertTrue(obj.unit == "Ha")
+        # for obj in objects_with_unit:
+        #     self.assertTrue(obj.unit == "Ha")
 
         objects_without_unit = [
             ene_ha * time_s,
             ene_ha / ene_ev,
             #3 / ene_ha,
             #ene_ha // ene_ev,
-            # Here we could return a Unit object but I prefer this since Unit extends float while we could have an int.
+            # Here we could return a FloatWithUnit object but I prefer this since FloatWithUnit extends float while we could have an int.
             #ene_ha[0],
         ]
 
@@ -172,7 +186,7 @@ class ArrayWithUnitTest(PymatgenTest):
             print(obj, type(obj))
             self.assertTrue(type(obj) == np.ndarray)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(UnitError):
             ene_ha + time_s
 
     def test_factors(self):
@@ -180,8 +194,9 @@ class ArrayWithUnitTest(PymatgenTest):
         self.assertTrue(str(e) == "[ 1.          0.03674933] Ha")
         l = LengthArray([1.0], "ang").to("bohr")
         self.assertTrue(str(l) == "[ 1.88972613] bohr")
-        v = VolumeArray([1,2,3], "bohr**3").to("ang**3")
-        self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] ang**3')
+        v = ArrayWithUnit([1,2,3], "bohr^3").to("ang^3")
+        self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] '
+                                  'ang^3')
 
 
 if __name__ == '__main__':
