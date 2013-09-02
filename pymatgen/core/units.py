@@ -141,26 +141,26 @@ class Unit(float):
                     unit=self._unit)
 
     def __mul__(self, other):
-        if isinstance(other, (float, int)):
+        if not isinstance(other, Unit):
             return Unit(float(self) * other, unit_type=self._unit_type,
                         unit=self._unit)
         return super(Unit, self).__mul__(other)
 
     def __rmul__(self, other):
-        if isinstance(other, (float, int)):
+        if not isinstance(other, Unit):
             return Unit(float(self) * other, unit_type=self._unit_type,
                         unit=self._unit)
         return super(Unit, self).__rmul__(other)
 
     def __div__(self, other):
         val = super(Unit, self).__div__(other)
-        if isinstance(other, (float, int)):
+        if not isinstance(other, Unit):
             return Unit(val, unit_type=self._unit_type, unit=self._unit)
         return val
 
     def __truediv__(self, other):
         val = super(Unit, self).__truediv__(other)
-        if isinstance(other, (float, int)):
+        if not isinstance(other, Unit):
             return Unit(val, unit_type=self._unit_type, unit=self._unit)
         return val
 

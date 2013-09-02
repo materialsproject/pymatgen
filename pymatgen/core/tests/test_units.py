@@ -26,6 +26,7 @@ class UnitTest(PymatgenTest):
         self.assertAlmostEqual(a + d, 28.31138386)
         self.assertAlmostEqual(a - d, -26.11138386)
         self.assertEqual(a + 1, 2.1)
+        self.assertEqual(str(a / d), "1.1")
 
     def test_time(self):
         a = Time(20, "h")
