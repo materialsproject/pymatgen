@@ -60,7 +60,7 @@ SUPPORTED_UNITS = {
         "C": 1,
         "e": 1.602176565e-19,
     },
-    "angle":{
+    "angle": {
         "rad": 180,
         "deg": math.pi
     }
@@ -72,8 +72,10 @@ for utype, d in SUPPORTED_UNITS.items():
     _UNAME2UTYPE.update({uname: utype for uname in d})
 del utype, d
 
+
 # TODO
-# One can use unit_type_from_unit_name to reduce the number of arguments passed to the decorator.
+# One can use unit_type_from_unit_name to reduce the number of arguments
+# passed to the decorator.
 def unit_type_from_unit_name(uname):
     """Return the unit type from the unit name."""
     return _UNAME2UTYPE[uname]
@@ -142,13 +144,13 @@ class Unit(float):
     def __mul__(self, other):
         if isinstance(other, (float, int)):
             return Unit(float(self) * other, unit_type=self._unit_type,
-                              unit=self._unit)
+                        unit=self._unit)
         return super(Unit, self).__mul__(other)
 
     def __rmul__(self, other):
         if isinstance(other, (float, int)):
             return Unit(float(self) * other, unit_type=self._unit_type,
-                              unit=self._unit)
+                        unit=self._unit)
         return super(Unit, self).__rmul__(other)
 
     def __div__(self, other):
@@ -211,9 +213,9 @@ class Unit(float):
 
 class ArrayWithUnit(np.ndarray):
     """
-    Subclasses `numpy.ndarray` to attach a unit type. Typically, you should use the
-    pre-defined unit type subclasses such as EnergyArray, LengthArray, etc. instead of
-    using ArrayWithUnit directly.
+    Subclasses `numpy.ndarray` to attach a unit type. Typically, you should
+    use the pre-defined unit type subclasses such as EnergyArray,
+    LengthArray, etc. instead of using ArrayWithUnit directly.
 
     Supports conversion, addition and subtraction of the same unit type. E.g.,
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
@@ -237,11 +239,14 @@ class ArrayWithUnit(np.ndarray):
         return obj
 
     def __array_finalize__(self, obj):
-        """See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html for comments."""
-        if obj is None: return
+        """
+        See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html for
+        comments.
+        """
+        if obj is None:
+            return
         self._unit = getattr(obj, "_unit", None)
         self._unit_type = getattr(obj, "_unit_type", None)
-        #print("in finalize: self %s, type(self) %s, obj %s, type(obj) %s" % (self, type(self), obj, type(obj)))
 
     #TODO abstract base class property?
     @property
@@ -262,7 +267,8 @@ class ArrayWithUnit(np.ndarray):
     def __add__(self, other):
         if hasattr(other, "unit_type"):
             if other.unit_type != self.unit_type:
-                raise ValueError("Adding different types of units is not allowed")
+                raise ValueError("Adding different types of units is"
+                                 " not allowed")
 
             if other.unit != self.unit:
                 other = other.to(self.unit)
@@ -283,12 +289,15 @@ class ArrayWithUnit(np.ndarray):
 
     def __mul__(self, other):
         # FIXME
-        # Here we have the most important difference between Unit and ArrayWithUnit:
-        # If other does not have units, I return an object with the same units as self.
-        # if other *has* units, I return an object *without* units since taking into
-        # account all the possible derived quantities would be too difficult.
-        # Moreover Energy(1.0)  * Time(1.0, "s") returns 1.0 Ha
-        # that is a bit misleading.
+        # Here we have the most important difference between Unit and
+        # ArrayWithUnit:
+        # If other does not have units, I return an object with the same units
+        # as self.
+        # if other *has* units, I return an object *without* units since
+        # taking into account all the possible derived quantities would be
+        # too difficult.
+        # Moreover Energy(1.0) * Time(1.0, "s") returns 1.0 Ha that is a
+        # bit misleading.
         # Same protocol for __div__
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__mul__(np.array(other)),
@@ -390,8 +399,8 @@ AngleArray = partial(ArrayWithUnit, unit_type="angle")
 
 def obj_with_unit(obj, unit):
     """
-    Returns a `Unit` instance if obj is scalar, a dictionary of objects with units
-    if obj is a dict, else an instance of `ArrayWithUnit`.
+    Returns a `Unit` instance if obj is scalar, a dictionary of objects with
+    units if obj is a dict, else an instance of `ArrayWithUnit`.
 
     Args:
         unit:
