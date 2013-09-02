@@ -360,7 +360,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return self._natoms
 
     @property
-    @unitized("mass", "amu")
+    @unitized("amu")
     def weight(self):
         """
         Total molecular weight of Composition

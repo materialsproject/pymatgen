@@ -220,7 +220,7 @@ class Vasprun(object):
         return len(self.ionic_steps) < nsw or nsw < 1
 
     @property
-    @unitized("energy", "eV")
+    @unitized("eV")
     def final_energy(self):
         """
         Final energy from the vasp run.
@@ -2024,7 +2024,7 @@ class Oszicar(object):
         return tuple(all_energies)
 
     @property
-    @unitized("energy", "eV")
+    @unitized("eV")
     def final_energy(self):
         """
         Final energy from run.

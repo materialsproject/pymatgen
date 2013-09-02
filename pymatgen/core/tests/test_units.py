@@ -46,21 +46,21 @@ class UnitTest(PymatgenTest):
 
     def test_unitized(self):
 
-        @unitized("energy", "eV")
+        @unitized("eV")
         def f():
             return [1, 2, 3]
 
         self.assertEqual(str(f()[0]), "1.0 eV")
         self.assertIsInstance(f(), list)
 
-        @unitized("energy", "eV")
+        @unitized("eV")
         def g():
             return 2, 3, 4
 
         self.assertEqual(str(g()[0]), "2.0 eV")
         self.assertIsInstance(g(), tuple)
 
-        @unitized("length", "pm")
+        @unitized("pm")
         def h():
             d = collections.OrderedDict()
             for i in range(3):
@@ -85,7 +85,7 @@ class ArrayWithUnitTest(PymatgenTest):
 
     def test_energy(self):
         """
-        Similar to UnitTest.test_energy. 
+        Similar to UnitTest.test_energy.
         Check whether EnergyArray and Unit have same behavior.
 
         # TODO
@@ -94,7 +94,7 @@ class ArrayWithUnitTest(PymatgenTest):
         for obj in [Energy, EnergyArray]:
             a = obj(...)
             self.assert(...)
-            
+
         """
         a = EnergyArray(1.1, "eV")
         b = a.to("Ha")
@@ -110,7 +110,7 @@ class ArrayWithUnitTest(PymatgenTest):
 
     def test_time(self):
         """
-        Similar to UnitTest.test_time. 
+        Similar to UnitTest.test_time.
         Check whether EnergyArray and Unit have same behavior.
         """
         # here there's a minor difference because we have a ndarray with dtype=np.int.
@@ -122,7 +122,7 @@ class ArrayWithUnitTest(PymatgenTest):
 
     def test_length(self):
         """
-        Similar to UnitTest.test_time. 
+        Similar to UnitTest.test_time.
         Check whether EnergyArray and Unit have same behavior.
         """
         x = LengthArray(4.2, "ang")
@@ -167,7 +167,7 @@ class ArrayWithUnitTest(PymatgenTest):
             #3 / ene_ha,
             #ene_ha // ene_ev,
             # Here we could return a Unit object but I prefer this since Unit extends float while we could have an int.
-            #ene_ha[0],  
+            #ene_ha[0],
         ]
 
         for obj in objects_without_unit:

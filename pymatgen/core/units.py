@@ -415,7 +415,7 @@ def obj_with_unit(obj, unit):
         return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
 
-def unitized(unit_type, unit):
+def unitized(unit):
     """
     Useful decorator to assign units to the output of a function. For
     sequences, all values in the sequences are assigned the same unit. It
@@ -431,6 +431,7 @@ def unitized(unit_type, unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
+            unit_type = unit_type_from_unit_name(unit)
             if isinstance(val, collections.Sequence):
                 # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
