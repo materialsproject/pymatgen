@@ -4,12 +4,11 @@ from __future__ import division
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import (Energy, Time, Length, unitized, Angle, Mass,
+from pymatgen.core.units import (Energy, Time, Length, unitized, Mass,
                                  EnergyArray, TimeArray, LengthArray, Unit,
                                  FloatWithUnit, ArrayWithUnit, UnitError)
 
 import collections
-import math
 
 
 class UnitTest(PymatgenTest):
@@ -35,7 +34,7 @@ class FloatWithUnitTest(PymatgenTest):
         b = a.to("Ha")
         self.assertAlmostEqual(b, 0.0404242579378)
         c = Energy(3.14, "J")
-        self.assertAlmostEqual(c.to("eV"), 1.95983393276e+19)
+        self.assertAlmostEqual(c.to("eV"), 1.9598339337836966e+19)
         self.assertRaises(UnitError, Energy, 1, "m")
 
         d = Energy(1, "Ha")
@@ -57,10 +56,6 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
         self.assertEqual(str(x ** 3), "74.08800000000001 ang^3")
-
-    def test_angle(self):
-        a = Angle(90, "deg")
-        self.assertEqual(a.to("rad"), math.pi / 2)
 
     def test_unitized(self):
 
@@ -93,11 +88,11 @@ class FloatWithUnitTest(PymatgenTest):
         e = Mass(1, "kg") * g * Length(1, "m")
         self.assertEqual(str(e), "10.0 N m")
         form_e = FloatWithUnit(10, unit="kJ mol^-1")
-        self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269185055937 "
-                                                       "eV atom^-1")
+        self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269190469591 eV atom^-1")
         self.assertRaises(UnitError, form_e.to, "m s^-1")
         a = FloatWithUnit(1.0, "Ha^3")
-        self.assertEqual(str(a.to("J^3")), "8.286726629136622e-53 J^3")
+        self.assertEqual(str(a.to("J^3")), "8.286726616151194e-53 J^3")
+
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
 
@@ -118,7 +113,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         b = a.to("Ha")
         self.assertAlmostEqual(b, 0.0404242579378)
         c = EnergyArray(3.14, "J")
-        self.assertAlmostEqual(c.to("eV"), 1.95983393276e+19)
+        self.assertAlmostEqual(c.to("eV"), 1.9598339337836966e+19)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")

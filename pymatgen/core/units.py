@@ -22,89 +22,79 @@ import numpy as np
 import collections
 import numbers
 from functools import partial
-import math
+from pymatgen.core.physical_constants import AVOGADROS_CONST, \
+    ELECTRON_CHARGE, EV_TO_HA
 import re
 
 """
 Definitions of supported units. Values below are essentially scaling and
 conversion factors. What matters is the relative values, not the absolute.
 """
-
-#TODO: Define base units vs dervived units.
-#length	meter	m
-#mass	kilogram      	kg
-#time	second	s
-#electric current	ampere	A
-#thermodynamic temperature      	kelvin	K
-#amount of substance	mole	mol
-#luminous intensity	candela	cd
-
-#This current list is a mix of base and derived units.
-SUPPORTED_UNITS = {
-    "energy": {
-        "eV": 1,
-        "Ha": 27.21138386,
-        "Ry": 13.605698066,
-        "J": 6.24150934e18,
-        "kJ": 6.24150934e21,
-    },
+BASE_UNITS = {
     "length": {
-        "ang": 1,
-        "m": 1e10,
-        "cm": 1e8,
-        "pm": 1e-2,
-        "bohr": 0.5291772083,
+        "m": 1,
+        "ang": 1e-10,
+        "cm": 1e-2,
+        "pm": 1e-12,
+        "bohr": 0.5291772083e-10,
     },
     "mass": {
         "kg": 1,
         "g": 1e-3,
         "amu": 1.660538921e-27,
     },
-    "temperature": {
-        "K": 1,
-    },
     "time": {
         "s": 1,
         "min": 60,
         "h": 3600,
     },
-    "charge": {
-        "C": 1,
-        "e": 1.602176565e-19,
+    "current": {
+        "A": 1
     },
-    "angle": {
-        "rad": 180,
-        "deg": math.pi
+    "temperature": {
+        "K": 1,
     },
     "amount": {
         "atom": 1,
-        "mol": 6.02214129e23
+        "mol": AVOGADROS_CONST
     },
-    "force": {
-        "N": 1
+    "intensity": {
+        "cd": 1
     }
 }
 
+
+#This current list are supported derived units defined in terms of powers of
+#SI units. The None key is a constant scaling factor, not a power.
 DERIVED_UNITS = {
-    "J": {"kg": 1, "m": 2, "s": -2},
-    "N": {"kg": 1, "m": 1, "s": -2}
+    "energy": {
+        "eV": {"kg": 1, "m": 2, "s": -2,
+               None: ELECTRON_CHARGE},
+        "Ha": {"kg": 1, "m": 2, "s": -2,
+               None: ELECTRON_CHARGE / EV_TO_HA},
+        "Ry": {"kg": 1, "m": 2, "s": -2,
+               None: ELECTRON_CHARGE / EV_TO_HA / 2},
+        "J": {"kg": 1, "m": 2, "s": -2},
+        "kJ": {"kg": 1, "m": 2, "s": -2, None: 1000}
+    },
+    "charge": {
+        "C": {"A": 1, "s": 1},
+        "e": {"A": 1, "s": 1, None: ELECTRON_CHARGE},
+    },
+    "force": {
+        "N": {"kg": 1, "m": 1, "s": -2}
+    }
 }
 
 
+ALL_UNITS = dict(BASE_UNITS.items() + DERIVED_UNITS.items())
+
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}
-for utype, d in SUPPORTED_UNITS.items():
+for utype, d in ALL_UNITS.items():
     assert not set(d.keys()).intersection(_UNAME2UTYPE.keys())
     _UNAME2UTYPE.update({uname: utype for uname in d})
 del utype, d
-
-
-# TODO
-# One can use unit_type_from_unit_name to reduce the number of arguments
-# passed to the decorator.
-def unit_type_from_unit_name(uname):
-    """Return the unit type from the unit name."""
-    return _UNAME2UTYPE[uname]
 
 
 class Unit(collections.Mapping):
@@ -132,20 +122,11 @@ class Unit(collections.Mapping):
         else:
             unit = dict(unit_def)
 
-        #Convert to base units
-        #
-        # base_units = collections.defaultdict(int)
-        # for u, p in unit.items():
-        #     if u in DERIVED_UNITS:
-        #         for k, v in DERIVED_UNITS[u].items():
-        #             base_units[k] += v * p
-        #     else:
-        #         base_units[u] += p
-
         def check_mappings(u):
             for k, v in DERIVED_UNITS.items():
-                if u == v:
-                    return {k: 1}
+                for k2, v2 in v.items():
+                    if u == v2:
+                        return {k2: 1}
             return u
 
         self._unit = check_mappings(unit)
@@ -197,11 +178,18 @@ class Unit(collections.Mapping):
     @property
     def as_base_units_dict(self):
         b = collections.defaultdict(int)
+        b[None] = 1
         for k, v in self.items():
-            if k in DERIVED_UNITS:
-                for k2, v2 in DERIVED_UNITS[k].items():
-                    b[k2] += v2
-            else:
+            derived = False
+            for u, d in DERIVED_UNITS.items():
+                if k in d:
+                    for k2, v2 in d[k].items():
+                        if k2 is not None:
+                            b[k2] += v2 * v
+                        else:
+                            b[k2] *= v2 ** v
+                    derived = True
+            if not derived:
                 b[k] += v
         return b
 
@@ -215,16 +203,22 @@ class Unit(collections.Mapping):
             new_unit:
                 The new unit.
         """
-        units_new = sorted(((k, v) for k, v in Unit(new_unit).items()),
-                           key=lambda d: _UNAME2UTYPE[d[0]])
-        units_old = sorted(((k, v) for k, v in self.items()),
-                           key=lambda d: _UNAME2UTYPE[d[0]])
-        factor = 1
+        uo_base = self.as_base_units_dict
+        un_base = Unit(new_unit).as_base_units_dict
+
+        units_new = sorted(((k, v) for k, v in un_base.items()
+                            if k is not None),
+                           key=lambda d: _UNAME2UTYPE.get(d[0]))
+        units_old = sorted(((k, v) for k, v in uo_base.items()
+                            if k is not None),
+                           key=lambda d: _UNAME2UTYPE.get(d[0]))
+        factor = uo_base.get(None, 1) / un_base.get(None, 1)
         for uo, un in zip(units_old, units_new):
             if uo[1] != un[1]:
                 raise UnitError("Units are not compatible!")
-            c = SUPPORTED_UNITS[_UNAME2UTYPE[uo[0]]]
+            c = ALL_UNITS[_UNAME2UTYPE[uo[0]]]
             factor *= (c[uo[0]] / c[un[0]]) ** uo[1]
+
         return factor
 
 
@@ -253,7 +247,7 @@ class FloatWithUnit(float):
 
     def __init__(self, val, unit, unit_type=None):
         self._unit_type = unit_type
-        if unit_type is not None and str(unit) not in SUPPORTED_UNITS[unit_type]:
+        if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(
                 "{} is not a supported unit for {}".format(unit, unit_type))
         self._unit = Unit(unit)
@@ -352,7 +346,7 @@ class FloatWithUnit(float):
         >>> e = Energy(1.1, "eV")
         >>> e = Energy(1.1, "Ha")
         >>> e.to("eV")
-        29.932522246000005 eV
+        29.932522246 eV
         """
         return FloatWithUnit(
             self * self.unit.get_conversion_factor(new_unit),
@@ -364,7 +358,7 @@ class FloatWithUnit(float):
         """
         Supported units for specific unit type.
         """
-        return SUPPORTED_UNITS[self._unit_type]
+        return ALL_UNITS[self._unit_type]
 
 
 class ArrayWithUnit(np.ndarray):
@@ -514,7 +508,7 @@ class ArrayWithUnit(np.ndarray):
         """
         Supported units for specific unit type.
         """
-        return SUPPORTED_UNITS[self.unit_type]
+        return ALL_UNITS[self.unit_type]
 
     #TODO abstract base class method?
     def conversions(self):
@@ -543,9 +537,6 @@ TimeArray = partial(ArrayWithUnit, unit_type="time")
 Charge = partial(FloatWithUnit, unit_type="charge")
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
 
-Angle = partial(FloatWithUnit, unit_type="angle")
-AngleArray = partial(ArrayWithUnit, unit_type="angle")
-
 
 def obj_with_unit(obj, unit):
     """
@@ -557,7 +548,7 @@ def obj_with_unit(obj, unit):
         unit:
             Specific units (eV, Ha, m, ang, etc.).
     """
-    unit_type = unit_type_from_unit_name(unit)
+    unit_type = _UNAME2UTYPE[unit]
 
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
@@ -581,7 +572,7 @@ def unitized(unit):
     def wrap(f):
         def wrapped_f(*args, **kwargs):
             val = f(*args, **kwargs)
-            unit_type = unit_type_from_unit_name(unit)
+            unit_type = _UNAME2UTYPE[unit]
             if isinstance(val, collections.Sequence):
                 # TODO: why don't we return a ArrayWithFloatWithUnit?
                 # This complicated way is to ensure the sequence type is
