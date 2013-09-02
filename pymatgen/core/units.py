@@ -267,7 +267,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) + np.array(other), 
+        return self.__class__(np.array(self) + np.array(other),
                               unit_type=self.unit_type, unit=self.unit)
 
     def __sub__(self, other):
@@ -278,7 +278,7 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return self.__class__(np.array(self) - np.array(other), 
+        return self.__class__(np.array(self) - np.array(other),
                               unit_type=self.unit_type, unit=self.unit)
 
     def __mul__(self, other):
@@ -291,36 +291,36 @@ class ArrayWithUnit(np.ndarray):
         # that is a bit misleading.
         # Same protocol for __div__
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__mul__(np.array(other)), 
+            return self.__class__(np.array(self).__mul__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
         else:
-            # Cannot use super since it returns an instance of self.__class__ 
+            # Cannot use super since it returns an instance of self.__class__
             # while here we want a bare numpy array.
             return np.array(self).__mul__(np.array(other))
 
     def __rmul__(self, other):
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__rmul__(np.array(other)), 
+            return self.__class__(np.array(self).__rmul__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
         else:
             return np.array(self).__rmul__(np.array(other))
 
     def __div__(self, other):
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__div__(np.array(other)), 
+            return self.__class__(np.array(self).__div__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
         else:
             return np.array(self).__div__(np.array(other))
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
-            return self.__class__(np.array(self).__truediv__(np.array(other)), 
+            return self.__class__(np.array(self).__truediv__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
         else:
             return np.array(self).__truediv__(np.array(other))
 
     def __neg__(self):
-        return self.__class__(np.array(self).__neg__(), 
+        return self.__class__(np.array(self).__neg__(),
                               unit_type=self.unit_type, unit=self.unit)
 
     def to(self, new_unit):
@@ -401,8 +401,8 @@ def obj_with_unit(obj, unit):
 
     if isinstance(obj, numbers.Number):
         return Unit(obj, unit=unit, unit_type=unit_type)
-    elif isinstance(val, collections.Mapping):
-        return {k: obj_with_unit(v) for k,v in val.items()}
+    elif isinstance(obj, collections.Mapping):
+        return {k: obj_with_unit(v) for k,v in obj.items()}
     else:
         return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
