@@ -110,7 +110,7 @@ def Ha2eV(Ha):
     >>> Ha2eV([1, 2])
     array([ 27.21138386,  54.42276772])
     """
-    return _np.asanyarray(Ha) * HA_TO_EV
+    return _np.array(Ha) * HA_TO_EV
 
 
 def Ha2meV(Ha):
@@ -134,7 +134,7 @@ def eV2Ha(eV):
     >>> eV2Ha([ 27.21138386, 1])
     array([ 1.        ,  0.03674933])
     """
-    return _np.asanyarray(eV) / HA_TO_EV
+    return _np.array(eV) / HA_TO_EV
 
 
 def Bohr2Ang(Bohr):
@@ -151,7 +151,7 @@ def Bohr2Ang(Bohr):
     >>> Bohr2Ang([1, 2])
     array([ 0.52917721,  1.05835442])
     """
-    return _np.asanyarray(Bohr) * BOHR_TO_ANGS
+    return _np.array(Bohr) * BOHR_TO_ANGS
 
 
 def Ang2Bohr(Ang):
@@ -168,4 +168,4 @@ def Ang2Bohr(Ang):
     >>> Ang2Bohr(Bohr2Ang([1, 2]))
     array([ 1.,  2.])
     """
-    return _np.asanyarray(Ang) / BOHR_TO_ANGS
+    return _np.array(Ang) / BOHR_TO_ANGS
