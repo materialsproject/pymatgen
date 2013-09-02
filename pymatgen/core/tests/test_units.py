@@ -19,15 +19,14 @@ class UnitTest(PymatgenTest):
         self.assertEqual(str(u1), "m s^-1")
         u2 = Unit("kg m ^ 2 s ^ -2")
         self.assertEqual(str(u2), "J")
-        self.assertEqual(str(u1 * u2), "m^3 kg s^-3")
-        self.assertEqual(str(u2 / u1), "kg m s^-1")
+        self.assertEqual(str(u1 * u2), "J m s^-1")
+        self.assertEqual(str(u2 / u1), "J s m^-1")
         self.assertEqual(str(u1 / Unit("m")), "s^-1")
         self.assertEqual(str(u1 * Unit("s")), "m")
 
         acc = u1 / Unit("s")
         newton = Unit("kg") * acc
-        self.assertEqual(str(newton * Unit("m")), "J")
-
+        self.assertEqual(str(newton * Unit("m")), "N m")
 
 class FloatWithUnitTest(PymatgenTest):
 
@@ -92,11 +91,13 @@ class FloatWithUnitTest(PymatgenTest):
     def test_compound_operations(self):
         g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
         e = Mass(1, "kg") * g * Length(1, "m")
-        self.assertEqual(str(e), "10.0 J")
+        self.assertEqual(str(e), "10.0 N m")
         form_e = FloatWithUnit(10, unit="kJ mol^-1")
         self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269185055937 "
                                                        "eV atom^-1")
         self.assertRaises(UnitError, form_e.to, "m s^-1")
+        a = FloatWithUnit(1.0, "Ha^3")
+        self.assertEqual(str(a.to("J^3")), "8.286726629136622e-53 J^3")
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
 
