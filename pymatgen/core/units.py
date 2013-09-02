@@ -133,22 +133,22 @@ class Unit(collections.Mapping):
             unit = dict(unit_def)
 
         #Convert to base units
-        base_units = collections.defaultdict(int)
-        for u, p in unit.items():
-            if u in DERIVED_UNITS:
-                for k, v in DERIVED_UNITS[u].items():
-                    base_units[k] += v * p
-            else:
-                base_units[u] += p
+        #
+        # base_units = collections.defaultdict(int)
+        # for u, p in unit.items():
+        #     if u in DERIVED_UNITS:
+        #         for k, v in DERIVED_UNITS[u].items():
+        #             base_units[k] += v * p
+        #     else:
+        #         base_units[u] += p
 
         def check_mappings(u):
             for k, v in DERIVED_UNITS.items():
                 if u == v:
-                    self._unit = {k: 1}
-                    return
-            self._unit = u
+                    return {k: 1}
+            return u
 
-        check_mappings(base_units)
+        self._unit = check_mappings(unit)
 
     def __mul__(self, other):
         new_units = collections.defaultdict(int)
