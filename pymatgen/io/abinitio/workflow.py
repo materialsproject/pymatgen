@@ -14,7 +14,7 @@ import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
+import pymatgen.core.physical_constants as const 
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
@@ -749,7 +749,7 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
 
 
 def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys.stdout):
-    de_low, de_normal, de_high = [a / (1000 * Ha_eV) for a in atols_mev]
+    de_low, de_normal, de_high = [a / (1000 * const.HA_TO_EV) for a in atols_mev]
 
     num_ene = len(etotal)
     etotal_inf = etotal[-1]
@@ -764,7 +764,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
 
     app(["iter", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
     for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf) * const.HA_TO_EV * 1.e+3)
         row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
         app(row)
 
@@ -848,7 +848,7 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
     emax = -np.inf
     for (aratio, etot) in zip(aug_ratios, etotals):
-        emev = Ha2meV(etot)
+        emev = const.Ha2meV(etot)
         emev_inf = npts * [emev[-1]]
         yy = emev - emev_inf
 
@@ -1142,7 +1142,7 @@ class DeltaTest(Workflow):
 
         num_sites = self._input_structure.num_sites
 
-        etotal = Ha2eV(self.read_etotal())
+        etotal = const.Ha2eV(self.read_etotal())
 
         wf_results = super(DeltaTest, self).get_results()
 

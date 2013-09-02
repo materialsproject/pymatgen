@@ -84,13 +84,12 @@ ELECTRON_TO_AMPERE_HOURS = EV_PER_ATOM_TO_J_PER_MOL / 3600
 RY_TO_EV = 13.605698066
 BOHR_TO_ANGS = 0.5291772083
 
-#: 1 Hartree, in eV
-Ha_eV = 27.21138386
-
-eV_Ha = 1./Ha_eV
+# 1 Hartree in eV
+HA_TO_EV = 27.21138386
+EV_TO_HA = 1./HA_TO_EV
 
 # Conversion factor eV/A**3 --> GPa
-eVA3_GPa = 160.21773
+EV_ANGS3_TO_GPA = 160.21773
 
 ###############################################################################
 # Conversion tools.
@@ -111,7 +110,7 @@ def Ha2eV(Ha):
     >>> Ha2eV([1, 2])
     array([ 27.21138386,  54.42276772])
     """
-    return _np.asanyarray(Ha) * Ha_eV
+    return _np.asanyarray(Ha) * HA_TO_EV
 
 
 def Ha2meV(Ha):
@@ -135,7 +134,7 @@ def eV2Ha(eV):
     >>> eV2Ha([ 27.21138386, 1])
     array([ 1.        ,  0.03674933])
     """
-    return _np.asanyarray(eV) / Ha_eV
+    return _np.asanyarray(eV) / HA_TO_EV
 
 
 def Bohr2Ang(Bohr):
