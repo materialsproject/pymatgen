@@ -20,15 +20,17 @@ __date__ = "Aug 30, 2013"
 import numpy as np
 
 import collections
+from numbers import Number
 import numbers
 from functools import partial
 from pymatgen.core.physical_constants import AVOGADROS_CONST, \
-    ELECTRON_CHARGE, EV_TO_HA
+    e, EV_TO_HA
 import re
 
 """
 Definitions of supported units. Values below are essentially scaling and
 conversion factors. What matters is the relative values, not the absolute.
+The SI units must have factor 1.
 """
 BASE_UNITS = {
     "length": {
@@ -65,21 +67,18 @@ BASE_UNITS = {
 
 
 #This current list are supported derived units defined in terms of powers of
-#SI units. The None key is a constant scaling factor, not a power.
+#SI units and constants.
 DERIVED_UNITS = {
     "energy": {
-        "eV": {"kg": 1, "m": 2, "s": -2,
-               None: ELECTRON_CHARGE},
-        "Ha": {"kg": 1, "m": 2, "s": -2,
-               None: ELECTRON_CHARGE / EV_TO_HA},
-        "Ry": {"kg": 1, "m": 2, "s": -2,
-               None: ELECTRON_CHARGE / EV_TO_HA / 2},
+        "eV": {"kg": 1, "m": 2, "s": -2, e: 1},
+        "Ha": {"kg": 1, "m": 2, "s": -2, e / EV_TO_HA: 1},
+        "Ry": {"kg": 1, "m": 2, "s": -2, e / EV_TO_HA / 2: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
-        "kJ": {"kg": 1, "m": 2, "s": -2, None: 1000}
+        "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1}
     },
     "charge": {
         "C": {"A": 1, "s": 1},
-        "e": {"A": 1, "s": 1, None: ELECTRON_CHARGE},
+        "e": {"A": 1, "s": 1, e: 1},
     },
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2}
@@ -95,6 +94,13 @@ for utype, d in ALL_UNITS.items():
     assert not set(d.keys()).intersection(_UNAME2UTYPE.keys())
     _UNAME2UTYPE.update({uname: utype for uname in d})
 del utype, d
+
+
+def _get_si_unit(unit):
+    unit_type = _UNAME2UTYPE[unit]
+    si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1,
+                     BASE_UNITS[unit_type].keys())
+    return si_unit[0], BASE_UNITS[unit_type][unit]
 
 
 class Unit(collections.Mapping):
@@ -176,22 +182,30 @@ class Unit(collections.Mapping):
         return self.__repr__()
 
     @property
-    def as_base_units_dict(self):
+    def as_base_units(self):
+        """
+        Converts all units to base units, including derived units.
+
+        Returns:
+            (base units dict, scaling factor)
+        """
         b = collections.defaultdict(int)
-        b[None] = 1
+        factor = 1
         for k, v in self.items():
             derived = False
             for u, d in DERIVED_UNITS.items():
                 if k in d:
                     for k2, v2 in d[k].items():
-                        if k2 is not None:
-                            b[k2] += v2 * v
+                        if isinstance(k2, Number):
+                            factor *= k2 ** (v2 * v)
                         else:
-                            b[k2] *= v2 ** v
+                            b[k2] += v2 * v
                     derived = True
             if not derived:
-                b[k] += v
-        return b
+                si, f = _get_si_unit(k)
+                b[si] += v
+                factor *= f ** v
+        return b, factor
 
     def get_conversion_factor(self, new_unit):
         """
@@ -203,22 +217,18 @@ class Unit(collections.Mapping):
             new_unit:
                 The new unit.
         """
-        uo_base = self.as_base_units_dict
-        un_base = Unit(new_unit).as_base_units_dict
-
-        units_new = sorted(((k, v) for k, v in un_base.items()
-                            if k is not None),
-                           key=lambda d: _UNAME2UTYPE.get(d[0]))
-        units_old = sorted(((k, v) for k, v in uo_base.items()
-                            if k is not None),
-                           key=lambda d: _UNAME2UTYPE.get(d[0]))
-        factor = uo_base.get(None, 1) / un_base.get(None, 1)
+        uo_base, ofactor = self.as_base_units
+        un_base, nfactor = Unit(new_unit).as_base_units
+        units_new = sorted(un_base.items(),
+                           key=lambda d: _UNAME2UTYPE[d[0]])
+        units_old = sorted(uo_base.items(),
+                           key=lambda d: _UNAME2UTYPE[d[0]])
+        factor = ofactor / nfactor
         for uo, un in zip(units_old, units_new):
             if uo[1] != un[1]:
                 raise UnitError("Units are not compatible!")
             c = ALL_UNITS[_UNAME2UTYPE[uo[0]]]
             factor *= (c[uo[0]] / c[un[0]]) ** uo[1]
-
         return factor
 
 
