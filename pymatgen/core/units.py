@@ -562,7 +562,7 @@ def obj_with_unit(obj, unit):
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
     elif isinstance(obj, collections.Mapping):
-        return {k: obj_with_unit(v) for k,v in obj.items()}
+        return {k: obj_with_unit(v, unit) for k,v in obj.items()}
     else:
         return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
