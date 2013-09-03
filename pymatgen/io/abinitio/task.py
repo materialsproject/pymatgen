@@ -174,18 +174,11 @@ class Task(object):
         """Returns a list with the status of the links."""
         if not self._links:
             return [Task.S_DONE,]
+
         return [l.status for l in self._links]
 
-    @abc.abstractmethod
-    def setup(self, *args, **kwargs):
-        """Public method called before submitting the task."""
-
-    def _setup(self, *args, **kwargs):
-        """
-        This method calls self.setup after having performed additional operations
-        such as the creation of the symbolic links needed to connect different tasks.
-        """
-        # Create symbolic links to the output files produced by the other tasks
+    def connect(self):
+        """Create symbolic links to the output files produced by the other tasks."""
         for link in self._links:
             filepaths, exts = link.get_filepaths_and_exts()
             for (path, ext) in zip(filepaths, exts):
@@ -202,9 +195,19 @@ class Task(object):
                     raise self.Error("%s is needed by this task but it does not exist" % path)
 
                 # Link path to dst
-                #print("Linking ", path," --> ",dst)
+                print("Linking ", path," --> ",dst)
                 os.symlink(path, dst)
 
+    @abc.abstractmethod
+    def setup(self, *args, **kwargs):
+        """Public method called before submitting the task."""
+
+    def _setup(self, *args, **kwargs):
+        """
+        This method calls self.setup after having performed additional operations
+        such as the creation of the symbolic links needed to connect different tasks.
+        """
+        self.connect()
         self.setup(*args, **kwargs)
 
     @property
@@ -342,7 +345,16 @@ class AbinitTask(Task):
         return "<%s at %s, workdir = %s>" % (
             self.__class__.__name__, id(self), os.path.basename(self.workdir))
 
-    #def __str__(self):
+    def __str__(self):
+        return self.__repr__()
+
+    def __getstate__(self):
+        """
+        Return state is pickled as the contents for the instance.
+
+        In this case we just remove the process since file objects cannot be pickled.
+        """
+        return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
     @classmethod
     def from_input(cls, abinit_input, workdir, runmode, task_id=1, links=None, **kwargs):
@@ -365,21 +377,7 @@ class AbinitTask(Task):
                 keyword arguments (not used here)
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        class StrategyWithInput(object):
-            def __init__(self, abinit_input):
-                self.abinit_input = abinit_input
-                                                 
-            @property
-            def pseudos(self):
-                return self.abinit_input.pseudos
-
-            def add_extra_abivars(self, abivars):
-                """Add variables (dict) to extra_abivars."""
-                self.abinit_input.set_variables(**abivars)
-                                                 
-            def make_input(self):
-                return str(self.abinit_input)
-
+        from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
         return cls(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
 
@@ -678,7 +676,7 @@ class TaskResults(dict, MSONable):
     """
     Dictionary used to store the most important results produced by a Task.
     """
-    _mandatory_keys = [
+    _MANDATORY_KEYS = [
         "task_name",
         "task_returncode",
         "task_status",
@@ -910,4 +908,3 @@ class RunMode(dict, MSONable):
         """Return a simple launcher for sequential runs."""
         raise NotImplementedError("")
 
-##########################################################################################
