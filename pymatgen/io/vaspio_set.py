@@ -553,7 +553,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
         #Optimized parameters for MD simulations.
         incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
                           'PREC': prec, 'EDIFF': 0.000001, 'LSCALU': False,
-                          'LCHARG': True, 'LPLANE': False, 'LWAVE': False,
+                          'LCHARG': False, 'LPLANE': False, 'LWAVE': True,
                           "ICHARG": 1, "ISMEAR": 0, "SIGMA": 0.05, "NELMIN": 4,
                           "LREAL": True, "BMIX": 1, "MAXMIX": 20, "NELM": 500,
                           "NSIM": 4, "ISYM": 0, "ISIF": 0, "IBRION": 0,
