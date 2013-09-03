@@ -3,9 +3,7 @@ Classes defining Abinit calculations and workflows
 """
 from __future__ import division, print_function
 
-import sys
 import os
-import os.path
 import shutil
 import collections
 import abc
@@ -31,11 +29,10 @@ __all__ = [
     "task_factory",
 ]
 
-##########################################################################################
 
 class FakeProcess(object):
     """
-    This object is attached to a Task instance if the task has not beed submitted
+    This object is attached to a Task instance if the task has not been submitted
     This trick allows us to simulate a process that is still running so that we can safely poll task.process.
     """
     def poll(self):
@@ -54,28 +51,27 @@ class FakeProcess(object):
     def returncode(self):
         return None
 
-##########################################################################################
 
 def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
     """Factory function for Task instances."""
     # TODO
     # Instanciate subclasses depending on the runlevel.
     classes = {
-       "scf"      : AbinitTask, 
-       "nscf"     : AbinitTask,
-       "relax"    : AbinitTask,
-       "dfpt"     : AbinitTask,
+       "scf": AbinitTask,
+       "nscf": AbinitTask,
+       "relax": AbinitTask,
+       "dfpt": AbinitTask,
        "screening": AbinitTask,
-       "sigma"    : AbinitTask,
-       "bse"      : AbinitTask,
+       "sigma": AbinitTask,
+       "bse": AbinitTask,
     }
 
     return classes[strategy.runlevel](strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
 
-##########################################################################################
 
 class TaskError(Exception):
     """Base Exception for Task methods"""
+
 
 class Task(object):
     __metaclass__ = abc.ABCMeta
@@ -83,16 +79,16 @@ class Task(object):
     Error = TaskError
 
     # Possible status of the task.
-    S_DONE  = 1  # Task completed, note that this does not imply that results are ok or that the calculation completed succesfully
+    S_DONE = 1   # Task completed, This does not imply that results are ok or that the calculation completed successfully
     S_READY = 2  # Task is ready for submission.
-    S_SUB   = 4  # Task has been submitted.
-    S_RUN   = 8  # Task is running.
+    S_SUB = 4    # Task has been submitted.
+    S_RUN = 8    # Task is running.
 
     status2str = {
-      S_DONE : "done",
-      S_READY: "ready",
-      S_SUB  : "submitted", 
-      S_RUN  : "running", 
+        S_DONE: "done",
+        S_READY: "ready",
+        S_SUB: "submitted",
+        S_RUN: "running",
     }
 
     def __init__(self):
@@ -102,21 +98,21 @@ class Task(object):
     # Interface modeled after subprocess.Popen
     @abc.abstractproperty
     def process(self):
-        """Return an object that supports the subprocess.Popen protocol."""
+        """Return an object that supports the `subprocess.Popen` protocol."""
 
     def poll(self):
         """Check if child process has terminated. Set and return returncode attribute."""
         returncode = self.process.poll()
-        #print("In task poll returncode %s" % returncode)
         if returncode is not None:
-            #print("setting status for task %s" % self)
             self.set_status(Task.S_DONE)
+
         return returncode
 
     def wait(self):
         """Wait for child process to terminate. Set and return returncode attribute."""
         returncode = self.process.wait()
         self.set_status(Task.S_DONE)
+
         return returncode
 
     def communicate(self, input=None):
@@ -132,7 +128,7 @@ class Task(object):
         return stdoutdata, stderrdata 
 
     def kill(self):
-        "Kill the child"
+        """Kill the child."""
         self.process.kill()
 
     @property
@@ -166,7 +162,7 @@ class Task(object):
     def set_status(self, status):
         """Set the status of the task."""
         if status not in Task.status2str:
-            raise RunTimeError("Unknown status: %s" % status)
+            raise RuntimeError("Unknown status: %s" % status)
 
         self._status = status
 
@@ -182,10 +178,13 @@ class Task(object):
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
-        "Public method called before submitting the task."
+        """Public method called before submitting the task."""
 
     def _setup(self, *args, **kwargs):
-        #
+        """
+        This method calls self.setup after having performed additional operations
+        such as the creation of the symbolic links needed to connect different tasks.
+        """
         # Create symbolic links to the output files produced by the other tasks
         for link in self._links:
             filepaths, exts = link.get_filepaths_and_exts()
@@ -195,9 +194,9 @@ class Task(object):
                 if not os.path.exists(path): 
                     # Try netcdf file.
                     # TODO: this case should be treated in a cleaner way.
-                    path = path + "-etsf.nc"
-                    if os.path.exists(path): 
-                        dst =  dst + "-etsf.nc"
+                    path += "-etsf.nc"
+                    if os.path.exists(path):
+                        dst += "-etsf.nc"
 
                 if not os.path.exists(path):
                     raise self.Error("%s is needed by this task but it does not exist" % path)
@@ -210,7 +209,7 @@ class Task(object):
 
     @property
     def events(self):
-        """List of errors or warnings reporte by ABINIT."""
+        """List of errors or warnings reported by ABINIT."""
         if self.status != Task.S_DONE:
             raise self.Error(
                 "Task %s is not completed.\n You cannot access its events now, use get_events" % repr(self))
@@ -255,12 +254,24 @@ class Task(object):
             "task_events"    : self.events.to_dict
         })
 
-##########################################################################################
+    def move(self, dst, isabspath=False):
+        """
+        Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
+        The destination path must not already exist. If the destination already exists
+        but is not a directory, it may be overwritten depending on os.rename() semantics.
+
+        Be default, dst is located in the parent directory of self.workdir, use isabspath=True
+        to specify an absolute path.
+        """
+        if not isabspath:
+            dst = os.path.join(os.path.dirname(self.workdir), dst)
+
+        shutil.move(self.workdir, dst)
 
 
 class AbinitTask(Task):
     """
-    Base class defining an abinit calculation
+    Base class defining an ABINIT calculation
     """
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
@@ -271,22 +282,25 @@ class AbinitTask(Task):
 
     # Basenames for Abinit input and output files.
     Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
-    basename = Basename("run.abi", "run.abo", "run.files", "run.abl", "stderr", "job.sh", "__abi_lock__")
+    basename = Basename("run.abi", "run.abo", "run.files", "run.log", "stderr", "job.sh", "__abilock__")
     del Basename
 
     def __init__(self, strategy, workdir, runmode, task_id=1, links=None, **kwargs):
         """
         Args:
             strategy: 
-                Strategy instance descring the calculation.
+                `Strategy` instance describing the calculation.
             workdir:
                 Path to the working directory.
             runmode:
-                RunMode instance or string "sequential"
+                `RunMode` instance or string "sequential"
+            task_id:
+                Task identifier (must be unique if self belongs to a `Workflow`).
             links:
-                List of WorkLink objects specifying the dependencies of the task.
+                List of `WorkLink` objects specifying the dependencies of the task.
+                Used for tasks belonging to a `Workflow`.
             kwargs:
-                keyword argumens (not used here)
+                keyword arguments (not used here)
         """
         super(AbinitTask, self).__init__()
 
@@ -302,16 +316,19 @@ class AbinitTask(Task):
         # (needed if are creating a Work instance with dependencies
         self._links = []
         if links is not None: 
+            if not isinstance(links, collections.Iterable):
+                links = [links,]
+
             self._links = links
             for link in links:
                 print("Adding ", link.get_abivars())
                 self.strategy.add_extra_abivars(link.get_abivars())
 
         # Files required for the execution.
-        self.input_file  = File(os.path.join(self.workdir, AbinitTask.basename.input))
+        self.input_file = File(os.path.join(self.workdir, AbinitTask.basename.input))
         self.output_file = File(os.path.join(self.workdir, AbinitTask.basename.output))
-        self.files_file  = File(os.path.join(self.workdir, AbinitTask.basename.files_file))
-        self.log_file    = File(os.path.join(self.workdir, AbinitTask.basename.log_file))
+        self.files_file = File(os.path.join(self.workdir, AbinitTask.basename.files_file))
+        self.log_file = File(os.path.join(self.workdir, AbinitTask.basename.log_file))
         self.stderr_file = File(os.path.join(self.workdir, AbinitTask.basename.stderr_file))
 
         # Find number of processors ....
@@ -321,11 +338,50 @@ class AbinitTask(Task):
         # Build the launcher and store it.
         self.set_launcher(self.runmode.make_launcher(self))
 
-    #def __str__(self):
-
     def __repr__(self):
         return "<%s at %s, workdir = %s>" % (
             self.__class__.__name__, id(self), os.path.basename(self.workdir))
+
+    #def __str__(self):
+
+    @classmethod
+    def from_input(cls, abinit_input, workdir, runmode, task_id=1, links=None, **kwargs):
+        """
+        Create an instance of `AbinitTask` from an ABINIT input.
+
+        Args:
+            abinit_input:
+                `AbinitInput` object.
+            workdir:
+                Path to the working directory.
+            runmode:
+                `RunMode` instance or string "sequential"
+            task_id:
+                Task identifier (must be unique if self belongs to a `Workflow`).
+            links:
+                List of `WorkLink` objects specifying the dependencies of the task.
+                Used for tasks belonging to a `Workflow`.
+            kwargs:
+                keyword arguments (not used here)
+        """
+        # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+        class StrategyWithInput(object):
+            def __init__(self, abinit_input):
+                self.abinit_input = abinit_input
+                                                 
+            @property
+            def pseudos(self):
+                return self.abinit_input.pseudos
+
+            def add_extra_abivars(self, abivars):
+                """Add variables (dict) to extra_abivars."""
+                self.abinit_input.set_variables(**abivars)
+                                                 
+            def make_input(self):
+                return str(self.abinit_input)
+
+        strategy = StrategyWithInput(abinit_input)
+        return cls(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
 
     @property
     def name(self):
@@ -353,26 +409,29 @@ class AbinitTask(Task):
 
     @property
     def indata_dir(self):
+        """Directory with the input data."""
         head, tail = os.path.split(self.prefix.idata)
         return os.path.join(self.workdir, head)
 
     @property
     def outdata_dir(self):
+        """Directory with the output data."""
         head, tail = os.path.split(self.prefix.odata)
         return os.path.join(self.workdir, head)
 
     @property
     def tmpdata_dir(self):
+        """Directory with the temporary data."""
         head, tail = os.path.split(self.prefix.tdata)
         return os.path.join(self.workdir, head)
 
     def idata_path_from_ext(self, ext):
         """Returns the path of the input file with extension ext."""
-        return os.path.join(self.workdir, (self.prefix.idata + ext))
+        return os.path.join(self.workdir, self.prefix.idata + ext)
 
     def odata_path_from_ext(self, ext):
         """Returns the path of the output file with extension ext"""
-        return os.path.join(self.workdir, (self.prefix.odata + ext))
+        return os.path.join(self.workdir, self.prefix.odata + ext)
 
     @property
     def pseudos(self):
@@ -381,8 +440,9 @@ class AbinitTask(Task):
 
     @property
     def filesfile_string(self):
-        """String with the list of files and prefix needed to execute abinit."""
-        lines = []; app = lines.append
+        """String with the list of files and prefixex needed to execute ABINIT."""
+        lines = []
+        app = lines.append
         pj = os.path.join
 
         app(self.input_file.path)                 # Path to the input file
@@ -399,7 +459,7 @@ class AbinitTask(Task):
 
     @property
     def to_dict(self):
-        raise NotimplementedError("")
+        raise NotImplementedError("")
         d = {k: v.to_dict for k, v in self.items()}
         d["@module"] = self.__class__.__module__
         d["@class"] = self.__class__.__name__
@@ -409,7 +469,7 @@ class AbinitTask(Task):
                                                                     
     @staticmethod
     def from_dict(d):
-        raise NotimplementedError("")
+        raise NotImplementedError("")
 
     def isdone(self):
         """True if the output file is complete."""
@@ -426,22 +486,25 @@ class AbinitTask(Task):
         return all(p.ispaw for p in self.pseudos)
 
     def make_input(self):
+        """Construct and write the input file of the calculation."""
         return self.strategy.make_input()
 
     def outfiles(self):
         """Return all the output data files produced."""
-        files = list()
-        for file in os.listdir(self.outdata_dir):
-            if file.startswith(os.path.basename(self.prefix.odata)):
-                files.append(os.path.join(self.outdata_dir, file))
+        files = []
+        for fname in os.listdir(self.outdata_dir):
+            if fname.startswith(os.path.basename(self.prefix.odata)):
+                files.append(os.path.join(self.outdata_dir, fname))
+
         return files
                                                                   
     def tmpfiles(self):
         """Return all the input data files produced."""
-        files = list()
-        for file in os.listdir(self.tmpdata_dir):
+        files = []
+        for fname in os.listdir(self.tmpdata_dir):
             if file.startswith(os.path.basename(self.prefix.tdata)):
-                files.append(os.path.join(self.tmpdata_dir, file))
+                files.append(os.path.join(self.tmpdata_dir, fname))
+
         return files
 
     def path_in_workdir(self, filename):
@@ -482,7 +545,8 @@ class AbinitTask(Task):
 
     def build(self, *args, **kwargs):
         """
-        Writes Abinit input files and directory. It does not overwrite files if they already exist.
+        Creates the working directory and the input files of the `Task`.
+        It does not overwrite files if they already exist.
         """
         # Top-level dir
         if not os.path.exists(self.workdir):
@@ -509,9 +573,46 @@ class AbinitTask(Task):
         #    with open(self.jobfile_path, "w") as f:
         #            f.write(str(self.jobfile))
 
-    def rmtree(self):
-        """Remove all files and directories."""
-        shutil.rmtree(self.workdir)
+    def rmtree(self, exclude_wildcard=""):
+        """
+        Remove all files and directories in the working directory
+
+        Args:
+            exclude_wildcard:
+                Optional string with regular expressions separated by |.
+                Files matching one of the regular expressions will be preserved.
+                example: exclude_wildcard="*.nc|*.txt" preserves all the files
+                whose extension is in ["nc", "txt"].
+        """
+        if not exclude_wildcard:
+            shutil.rmtree(self.workdir)
+        else:
+            pats = exclude_wildcard.split("|")
+
+            import fnmatch
+
+            def keep(fname):
+                for pat in pats:
+                    if fnmatch.fnmatch(fname, pat):
+                        return True
+                return False
+
+            for dirpath, dirnames, filenames in os.walk(self.workdir):
+                for fname in filenames:
+                    filepath = os.path.join(dirpath, fname)
+                    if not keep(fname):
+                        os.remove(filepath)
+
+    def remove_files(self, *filenames):
+        """Remove all the files listed in filenames."""
+        if isinstance(filenames, str):
+            filenames = [filenames]
+
+        for dirpath, dirnames, fnames in os.walk(self.workdir):
+            for fname in fnames:
+                if fname in filenames:
+                    filepath = os.path.join(dirpath, fname)
+                    os.remove(filepath)
 
     def rm_tmpdatadir(self):
         """Remove the directory with the temporary files."""
@@ -523,7 +624,7 @@ class AbinitTask(Task):
 
     def get_runhints(self):
         """
-        Run abinit in sequential to obtain a set of possible
+        Run ABINIT in sequential to obtain a set of possible
         configurations for the number of processors.
         RunMode is used to select the paramenters of the run.
         """
@@ -548,18 +649,15 @@ class AbinitTask(Task):
 
     def start(self, *args, **kwargs):
         """
-        Starts the calculation by performing the following steps: 
+        Starts the calculation by performing the following steps:
+
             - build dirs and files
             - call the _setup method
             - execute the job file via the shell or other means.
             - return Results object
 
-        Keyword arguments:
-            verbose: (0)
-                Print message if verbose is not zero.
-
         .. warning::
-             This method must be thread safe since we may want to run several indipendent
+             This method must be thread safe since we may want to run several independent
              calculations with different python threads. 
         """
         self.build(*args, **kwargs)
@@ -568,6 +666,11 @@ class AbinitTask(Task):
 
         # Start the calculation in a subprocess and return.
         self._process = self.launcher.launch(self)
+
+    def start_and_wait(self, *args, **kwargs):
+        """Helper method to start the task and wait."""
+        self.start(*args, **kwargs)
+        return self.wait()
 
 ##########################################################################################
 
@@ -632,7 +735,6 @@ class TaskResults(dict, MSONable):
     def json_load(cls, filename):
         return cls.from_dict(json_load(filename))    
 
-##########################################################################################
 
 class RunHints(collections.OrderedDict):
     """
@@ -660,7 +762,7 @@ class RunHints(collections.OrderedDict):
         84       1         1        12         7         2        0.25
     """
     @classmethod
-    def from_filename(cls, filename):
+    def from_file(cls, filename):
         """
         Read the <RUN_HINTS> section from file filename
         Assumes the file contains only one section.
@@ -689,8 +791,6 @@ class RunHints(collections.OrderedDict):
         #odict = self[okey].copy()
         #odict["_policy"] = policy
         #return AttrDict(odict)
-
-##########################################################################################
 
 
 class RunMode(dict, MSONable):
@@ -743,12 +843,11 @@ class RunMode(dict, MSONable):
             return cls.from_filename(path)
         else:
             raise NotImplementedError("Trying in the pymatgen dir")
-
-        raise RuntimeError("Cannot find configuration file for initializing RunMode instance")
+            #raise RuntimeError("Cannot find configuration file for initializing RunMode instance")
 
     @classmethod
-    def from_filename(cls, filename):
-        "Initialize an instance of RunMode from the configuration file (JSON format)"
+    def from_file(cls, filename):
+        """Initialize an instance of RunMode from the configuration file (JSON format)."""
         defaults = cls._defaults.copy() 
         d = json_load(filename) 
 
@@ -763,6 +862,7 @@ class RunMode(dict, MSONable):
         d = cls._defaults.copy()
         if launcher_type is not None:
             d["launcher_type"] = launcher_type
+
         return cls(d)
 
     @classmethod
@@ -789,10 +889,10 @@ class RunMode(dict, MSONable):
                                                  
     @classmethod
     def from_dict(cls, d):
-        return cls({k:v for (k, v) in d.items() if k not in ("@module", "@class")})
+        return cls({k: v for (k, v) in d.items() if k not in ("@module", "@class")})
 
     def make_launcher(self, task):
-        "Factory function returning a launcher instance."
+        """Factory function returning a launcher instance."""
         #if have_fw:
         #   raise ValueError("Firework not yet supported")
                                                        

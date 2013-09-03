@@ -8,6 +8,7 @@ from subprocess import Popen, PIPE
 
 from pymatgen.io.abinitio.utils import File
 
+
 __all__ = [
     "ScriptEditor",
     "ShellLauncher",
@@ -394,7 +395,12 @@ class SimpleResourceManager(object):
                 sleep_time:
                     Time delay (seconds) before trying to start a new task.
         """
+        from pymatgen.io.abinitio.workflow import Workflow
+        if not isinstance(work, Workflow):
+            work = Workflow.from_task(work)
+
         self.work = work
+
         self.max_ncpus = max_ncpus 
         self.sleep_time = sleep_time
         self.verbose = verbose
