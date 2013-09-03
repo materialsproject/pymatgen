@@ -228,8 +228,8 @@ class Poscar(MSONable):
         Returns:
             Poscar object.
         """
-
-        chunks = re.split("^\s*$", data.rstrip(), flags=re.MULTILINE)
+        #"^\s*$" doesn't match lines with no whitespace
+        chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         if chunks[0] == "":
             chunks.pop(0)
             chunks[0] = "\n" + chunks[0]
