@@ -11,8 +11,6 @@ __all__ = [
     "EOS",
 ]
 
-__version__ = "1.0"
-
 ##########################################################################################
 
 def murnaghan(V, E0, B0, B1, V0):
@@ -83,7 +81,7 @@ def deltafactor_polyfit(volumes, energies):
             break
     else:
         raise EOSError("No minimum could be found")
-    
+
     derivV2 = 4./9. * x**5. * deriv2(x)
     derivV3 = (-20./9. * x**(13./2.) * deriv2(x) - 8./27. * x**(15./2.) * deriv3(x))
     b0 = derivV2 / x**(3./2.)
@@ -168,17 +166,17 @@ class EOS(object):
     def DeltaFactor():
         return EOS(eos_name='deltafactor')
 
-    def fit(self, volumes, energies, len_units="Ang", ene_units="eV"):
+    def fit(self, volumes, energies, vol_unit="ang^3", ene_unit="eV"):
         """
-        Fit energies [eV] as function of volumes [Angstrom^3].
+        Fit energies [eV] as function of volumes [Angstrom**3].
 
-        Returns EosFit instance that gives access to the optimal volume, 
-        the minumum energy, and the bulk modulus.  
+        Returns `EosFit` instance that gives access to the optimal volume,
+        the minumum energy, and the bulk modulus.
         Notice that the units for the bulk modulus is eV/Angstrom^3.
         """
         # Convert volumes to Ang**3 and energies to eV (if needed).
-        volumes = units.any2Ang3(len_units)(volumes)
-        energies = units.any2eV(ene_units)(energies)
+        volumes = units.ArrayWithUnit(volumes, vol_unit).to("ang^3")
+        energies = units.EnergyArray(energies, ene_unit).to("eV")
 
         return EOS_Fit(volumes, energies, self._func, self._eos_name)
 
@@ -189,13 +187,13 @@ class EOS_Fit(object):
     """Performs the fit of E(V) and provides method to access the results of the fit."""
 
     def __init__(self, volumes, energies, func, eos_name):
-        """ 
-        args:
-            energies: list of energies in eV 
-            volumes: list of volumes in Angstrom^3
-            func: callable function 
         """
-        self.volumes  = np.array(volumes) 
+        args:
+            energies: list of energies in eV
+            volumes: list of volumes in Angstrom^3
+            func: callable function
+        """
+        self.volumes  = np.array(volumes)
         self.energies = np.array(energies)
         assert len(self.volumes) == len(self.energies)
 
@@ -220,16 +218,16 @@ class EOS_Fit(object):
                 self.ierr = 1
                 print(str(exc))
                 self.exceptions.append(exc)
-                raise 
+                raise
 
         else:
             # Objective function that will be minimized
             def objective(pars, x, y):
                 return y - self.func(x, *pars)
 
-            # Quadratic fit to get an initial guess for the parameters 
-            a,b,c = np.polyfit(self.volumes, self.energies, 2) 
-                                               
+            # Quadratic fit to get an initial guess for the parameters
+            a,b,c = np.polyfit(self.volumes, self.energies, 2)
+
             v0 = -b/(2*a)
             e0 = a*v0**2 + b*v0 + c
             b0 = 2*a*v0
@@ -243,10 +241,10 @@ class EOS_Fit(object):
                 self.exceptions.append(exc)
 
             # Initial guesses for the parameters
-            self.p0 = [e0, b0, b1, v0] 
+            self.p0 = [e0, b0, b1, v0]
 
             from scipy.optimize import leastsq
-            self.eos_params, self.ierr = leastsq(objective, self.p0, args=(self.volumes, self.energies)) 
+            self.eos_params, self.ierr = leastsq(objective, self.p0, args=(self.volumes, self.energies))
 
             if self.ierr not in [1,2,3,4]:
                 exc = EOSError("Optimal parameters not found")
@@ -273,15 +271,15 @@ class EOS_Fit(object):
 
     @property
     def b0_GPa(self):
-        return self.b0 * const.eVA3_GPa
+        return self.b0 * const.EV_ANGS3_TO_GPA
 
     def plot(self, **kwargs):
         """
-        Uses Matplotlib to plot the energy curve.  
+        Uses Matplotlib to plot the energy curve.
 
         Args:
-            show: 
-                True to show the figure 
+            show:
+                True to show the figure
             savefig:
                 'abc.png' or 'abc.eps' to save the figure to a file.
 
@@ -289,13 +287,13 @@ class EOS_Fit(object):
             Matplotlib figure.
         """
         import matplotlib.pyplot as plt
-                                                                                                                                         
+
         vmin, vmax = self.volumes.min(), self.volumes.max()
         emin, emax = self.energies.min(), self.energies.max()
-                                                                        
+
         vmin, vmax = (vmin - 0.01 * abs(vmin), vmax + 0.01 * abs(vmax))
         emin, emax = (emin - 0.01 * abs(emin), emax + 0.01 * abs(emax))
-                                                                                                                                         
+
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
 
@@ -317,7 +315,7 @@ class EOS_Fit(object):
 
         lines.append(line)
         legends.append(self.name + ' fit')
-                                                                                                                                         
+
         # Set xticks and labels.
         ax.grid(True)
         ax.set_xlabel("Volume $\AA^3$")

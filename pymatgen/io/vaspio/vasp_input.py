@@ -26,7 +26,7 @@ import logging
 import numpy as np
 from numpy.linalg import det
 
-from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
+from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
@@ -443,9 +443,8 @@ class Poscar(MSONable):
         velocities = np.random.randn(len(self.structure), 3)
 
         #in AMU, (N,1) array
-        atomic_masses = np.array([site.specie.atomic_mass
+        atomic_masses = np.array([site.specie.atomic_mass.to("kg")
                                   for site in self.structure])
-        atomic_masses *= AMU_TO_KG  # in Kg
         dof = 3 * len(self.structure) - 3
 
         #scale velocities due to atomic masses
