@@ -244,22 +244,22 @@ some quick examples of the core capabilities and objects:
 
 The above illustrates only the most basic capabilities of pymatgen.
 
-Tutorials, Examples and API docs
---------------------------------
+Examples
+--------
 
-Users are strongly encouraged to explore the :doc:`usage pages </usage>`
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+
+Usage and API Documentation
+---------------------------
+
+Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
 (toc given below).
 
 .. toctree::
    :maxdepth: 2
 
    usage
-
-A good way to explore the functionality of pymatgen is to look at examples.
-We have created a `Github wiki page
-<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
-their Github gists performing various kinds of functions with pymatgen.
-Please feel free to check them out and we welcome your contributions as well!
 
 For detailed documentation of all modules and classes, please refer to the
 :doc:`pymatgen API docs </modules>`.
