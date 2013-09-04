@@ -407,6 +407,8 @@ class PourbaixPlotter(object):
         Returns:
             list of vertices
         """
+        if entry not in self._analyzer.pourbaix_domain_vertices.keys():
+            return []
         return self._analyzer.pourbaix_domain_vertices[entry]
 
 
