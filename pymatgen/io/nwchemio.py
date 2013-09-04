@@ -137,7 +137,7 @@ class NwTask(MSONable):
             theory_spec.append(" {} {}".format(k, v))
         theory_spec.append("end")
         for c, d in self.alternate_directives.items():
-            theory_spec.append(" {} {}".format(c, d))
+            theory_spec.append("{}{}".format(c, d))
         if "cosmo" in self.alternate_directives:
             theory_spec.append("end")
 
@@ -174,7 +174,7 @@ task $theory $operation""")
                       title=d["title"], theory=d["theory"],
                       operation=d["operation"], basis_set=d["basis_set"],
                       theory_directives=d["theory_directives"],
-                      alternate_directive=d["alternate_directives"]
+                      alternate_directives=d["alternate_directives"]
                      )
 
     @classmethod
@@ -266,7 +266,7 @@ task $theory $operation""")
         t.theory_directives.update({"xc": xc,
                                     "mult": t.spin_multiplicity})
         if "cosmo" in t.alternate_directives:
-            t.alternate_directives.update({"cosmo": "",
+            t.alternate_directives.update({"cosmo":"",
                                            "dielectric": dielectric})
         return t
 
