@@ -309,6 +309,7 @@ class FloatWithUnit(float):
                                  unit=self._unit)
         return FloatWithUnit(float(self) * other, unit_type=None,
                              unit=self._unit * other._unit)
+    
     def __pow__(self, i):
         return FloatWithUnit(float(self) ** i, unit_type=None,
                              unit=self._unit ** i)
