@@ -120,7 +120,7 @@ class Unit(collections.Mapping):
                 powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",
                 or simply as a string "kg m^2 s^-1". Note that the supported
                 format uses "^" as the power operator and all units must be
-                space-separated. 
+                space-separated.
         """
 
         if isinstance(unit_def, basestring):
@@ -130,10 +130,10 @@ class Unit(collections.Mapping):
                 p = 1 if not p else int(p)
                 unit[m.group(1)] += p
         else:
-            unit = dict(unit_def)
+            unit = {k: v for k, v in dict(unit_def).items() if v != 0}
 
         def check_mappings(u):
-            for k, v in DERIVED_UNITS.items():
+            for v in DERIVED_UNITS.values():
                 for k2, v2 in v.items():
                     if u == v2:
                         return {k2: 1}
