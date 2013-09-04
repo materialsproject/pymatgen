@@ -138,7 +138,7 @@ class NwTask(MSONable):
         theory_spec.append("end")
         for c, d in self.alternate_directives.items():
             if len(d)>0:
-                theory_spec.append("{} {}".format(c, d))
+                theory_spec.append(" {} {}".format(c, d))
             else:
                 theory_spec.append("{}".format(c))
         if "cosmo" in self.alternate_directives:
@@ -247,7 +247,7 @@ task $theory $operation""")
 
 
     @classmethod
-    def dft_task(cls, mol, xc="b3lyp", dielectric="78", **kwargs):
+    def dft_task(cls, mol, xc="b3lyp", dielectric="78.0", **kwargs):
         """
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
@@ -270,7 +270,7 @@ task $theory $operation""")
                                     "mult": t.spin_multiplicity})
         if "cosmo" in t.alternate_directives:
             t.alternate_directives.update({"cosmo":"",
-                                           "dielectric": dielectric})
+                                           "dielec": dielectric})
         return t
 
     @classmethod
