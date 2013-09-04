@@ -165,6 +165,9 @@ class BaseWorkflow(object):
 
     Error = WorkflowError
 
+    # Basename of the pickle database.
+    _PICKLE_FNAME = "__workflow__.pickle"
+
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
     def processes(self):
@@ -210,8 +213,9 @@ class BaseWorkflow(object):
         """Returns the number of CPUs reserved in this moment."""
         ncpus = 0
         for task in self:
-            if task.status in [task.S_SUB, task.S_RUN]:
+            if task.is_allocated:
                 ncpus += task.tot_ncpus
+
         return ncpus
 
     def fetch_task_to_run(self):
@@ -221,14 +225,13 @@ class BaseWorkflow(object):
         Raises `StopIteration` if all tasks are done.
         """
         for task in self:
-            # The task is ready to run if its status is S_READY and all the other links (if any) are done!
-            if (task.status == task.S_READY) and all([link_stat==task.S_DONE for link_stat in task.links_status]):
+            if task.can_run:
                 return task
 
         # All the tasks are done so raise an exception 
         # that will be handled by the client code.
-        if all([task.status == task.S_DONE for task in self]):
-            raise StopIteration("All tasks done.")
+        if all([task.is_completed for task in self]):
+            raise StopIteration("All tasks completed.")
 
         # No task found, this usually happens when we have dependencies. 
         # Beware of possible deadlocks here!
@@ -251,7 +254,7 @@ class BaseWorkflow(object):
 
     def pickle_dump(self, protocol=0):
         """Save the status of the object in pickle format."""
-        filepath = os.path.join(self.workdir, "__workflow__.pickle")
+        filepath = os.path.join(self.workdir, self._PICKLE_FNAME)
 
         with open(filepath, "w") as fh:
             pickle.dump(self, fh, protocol=protocol)
@@ -266,8 +269,9 @@ class BaseWorkflow(object):
                 filepath or directory name.
         """
         if os.path.isdir(path):
-            path = os.path.join(path, "__workflow__.pickle")
+            path = os.path.join(path, cls._PICKLE_FNAME)
 
+        # TODO atomic transaction.
         with open(path, "rb") as fh:
             new = pickle.load(fh)
 
@@ -282,23 +286,23 @@ class WorkFlowResults(dict, MSONable):
     _MANDATORY_KEYS = [
         "task_results",
     ]
-    EXC_KEY = "_exceptions"
+    _EXC_KEY = "_exceptions"
 
     def __init__(self, *args, **kwargs):
         super(WorkFlowResults, self).__init__(*args, **kwargs)
 
-        if self.EXC_KEY not in self:
-            self[self.EXC_KEY] = []
+        if self._EXC_KEY not in self:
+            self[self._EXC_KEY] = []
 
     @property
     def exceptions(self):
-        return self[self.EXC_KEY]
+        return self[self._EXC_KEY]
 
     def push_exceptions(self, *exceptions):
         for exc in exceptions:
             newstr = str(exc)
             if newstr not in self.exceptions:
-                self[self.EXC_KEY] += [newstr,]
+                self[self._EXC_KEY] += [newstr,]
 
     def assert_valid(self):
         """
@@ -309,9 +313,9 @@ class WorkFlowResults(dict, MSONable):
         """
         # Validate tasks.
         for tres in self.task_results:
-            self[self.EXC_KEY] += tres.assert_valid()
+            self[self._EXC_KEY] += tres.assert_valid()
 
-        return self[self.EXC_KEY]
+        return self[self._EXC_KEY]
 
     @property
     def to_dict(self):
