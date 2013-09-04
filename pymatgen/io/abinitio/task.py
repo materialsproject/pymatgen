@@ -83,16 +83,16 @@ class Task(object):
     S_SUB = 2      # Task has been submitted.
     S_RUN = 4      # Task is running.
     S_DONE = 8     # Task completed, This does not imply that results are ok or that the calculation completed successfully
-    #S_ERROR = 16  # Task raised some kind of Error 
-    #S_OK = 32
+    S_ERROR = 16   # Task raised some kind of Error (either the process or ABINIT).
+    S_OK = 32      # Task completed successfully.
 
     STATUS2STR = {
         S_READY: "ready",
         S_SUB: "submitted",
         S_RUN: "running",
         S_DONE: "done",
-        #S_ERROR: "error",
-        #S_OK: "completed",
+        S_ERROR: "error",
+        S_OK: "completed",
     }
 
     def __init__(self):
@@ -103,7 +103,9 @@ class Task(object):
         """
         Return state is pickled as the contents for the instance.
                                                                                       
-        In this case we just remove the process since file objects cannot be pickled.
+        In this case we just remove the process since Subprocess objects cannot be pickled.
+        This is the reason why we have to store the returncode in self_returncode instead
+        of using self.process.returncode.
         """
         return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
@@ -114,19 +116,19 @@ class Task(object):
 
     def poll(self):
         """Check if child process has terminated. Set and return returncode attribute."""
-        returncode = self.process.poll()
+        self._returncode = self.process.poll()
 
-        if returncode is not None:
+        if self._returncode is not None:
             self.set_status(Task.S_DONE)
 
-        return returncode
+        return self._returncode
 
     def wait(self):
         """Wait for child process to terminate. Set and return returncode attribute."""
-        returncode = self.process.wait()
+        self._returncode = self.process.wait()
         self.set_status(Task.S_DONE)
 
-        return returncode
+        return self._returncode
 
     def communicate(self, input=None):
         """
@@ -137,12 +139,15 @@ class Task(object):
         communicate() returns a tuple (stdoutdata, stderrdata).
         """
         stdoutdata, stderrdata = self.process.communicate(input=input)
+        self._returncode = self.process.returncode
         self.set_status(Task.S_DONE)
+
         return stdoutdata, stderrdata 
 
     def kill(self):
         """Kill the child."""
         self.process.kill()
+        self._returncode = self.process.returncode
 
     @property
     def returncode(self):
@@ -151,7 +156,10 @@ class Task(object):
         A None value indicates that the process hasn't terminated yet.
         A negative value -N indicates that the child was terminated by signal N (Unix only).
         """
-        return self.process.returncode
+        try: 
+            return self._returncode
+        except AttributeError:
+            return None
 
     @property
     def id(self):
@@ -174,29 +182,55 @@ class Task(object):
 
     def set_status(self, status):
         """Set the status of the task."""
-        if status not in Task.STATUS2STR:
+        if status not in self.STATUS2STR:
             raise RuntimeError("Unknown status: %s" % status)
 
         self._status = status
 
-        # TODO
-        #if status == self.S_DONE:
-            # Check log file and stderr for possible errors.
+        if status == self.S_DONE:
+            # Check the returncode of the process first.
+            if self.returncode != 0:
+                self._status = self.S_ERROR
+            else:
+                # TODO
+                # 1) Search the ABINIT log file for possible errors.
+                # 2) Analyze the stderr file.
+                self._status = self.S_OK
 
         # Notify the observers
         #self.subject.notify_observers(self)
 
     @property
+    def links(self):
+        return self._links
+
+    @property
     def links_status(self):
         """Returns a list with the status of the links."""
-        if not self._links:
+        if not self.links:
             return [Task.S_DONE,]
 
-        return [l.status for l in self._links]
+        return [l.status for l in self.links]
+
+    @property
+    def is_allocated(self):
+        """True if the task has been allocated, i.e. if it has been submitted or if it's running."""
+        return self.status in [Task.S_SUB, Task.S_RUN]
+
+    @property
+    def is_completed(self):
+        """True if the task has been executed."""
+        return self.status >= Task.S_DONE
+
+    @property
+    def can_run(self):
+        """The task can run if its status is S_READY and all the other links (if any) are done!"""
+        #return (self.status == Task.S_READY) and all([link_stat==Task.S_DONE for link_stat in task.links_status])
+        return (self.status == Task.S_READY) and all([stat >= Task.S_DONE for stat in self.links_status])
 
     def connect(self):
         """Create symbolic links to the output files produced by the other tasks."""
-        for link in self._links:
+        for link in self.links:
             filepaths, exts = link.get_filepaths_and_exts()
             for (path, ext) in zip(filepaths, exts):
                 dst = self.idata_path_from_ext(ext)
@@ -227,22 +261,29 @@ class Task(object):
         self.connect()
         self.setup(*args, **kwargs)
 
+    def _get_events(self):
+        """Analyzes the main output for possible errors or warnings."""
+        parser = EventParser()
+        try:
+            return parser.parse(self.output_file.path)
+        except parser.Error as exc:
+            raise
+            # TODO: Handle possible errors in the parser by generating a custom EventList object
+            #return EventList(self.output_file.path, events=[Error(str(exc))])
+
     @property
     def events(self):
         """List of errors or warnings reported by ABINIT."""
-        if self.status != Task.S_DONE:
+        if self.status is None or self.status < self.S_DONE:
             raise self.Error(
-                "Task %s is not completed.\n You cannot access its events now, use get_events" % repr(self))
+                "Task %s is not completed.\n You cannot access its events now, use _get_events" % repr(self))
+
         try:
             return self._events
-        except AttributeError:
-            self._events = self.get_events()
-            return self._events
 
-    def get_events(self):
-        """Analyzes the main output for possible errors or warnings."""
-        # TODO: Handle possible errors in the parser by generating a custom EventList object
-        return EventParser().parse(self.output_file.path)
+        except AttributeError:
+            self._events = self._get_events()
+            return self._events
 
     @property
     def results(self):
@@ -264,7 +305,7 @@ class Task(object):
         if self.returncode is None:
             raise self.Error("return code is None, you should call wait, communitate or poll")
 
-        if self.status != self.S_DONE:
+        if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
 
         return TaskResults({
