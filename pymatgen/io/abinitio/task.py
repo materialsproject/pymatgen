@@ -79,21 +79,33 @@ class Task(object):
     Error = TaskError
 
     # Possible status of the task.
-    S_DONE = 1   # Task completed, This does not imply that results are ok or that the calculation completed successfully
-    S_READY = 2  # Task is ready for submission.
-    S_SUB = 4    # Task has been submitted.
-    S_RUN = 8    # Task is running.
+    S_READY = 1    # Task is ready for submission.
+    S_SUB = 2      # Task has been submitted.
+    S_RUN = 4      # Task is running.
+    S_DONE = 8     # Task completed, This does not imply that results are ok or that the calculation completed successfully
+    #S_ERROR = 16  # Task raised some kind of Error 
+    #S_OK = 32
 
-    status2str = {
-        S_DONE: "done",
+    STATUS2STR = {
         S_READY: "ready",
         S_SUB: "submitted",
         S_RUN: "running",
+        S_DONE: "done",
+        #S_ERROR: "error",
+        #S_OK: "completed",
     }
 
     def __init__(self):
         # Set the initial status.
         self.set_status(Task.S_READY)
+
+    def __getstate__(self):
+        """
+        Return state is pickled as the contents for the instance.
+                                                                                      
+        In this case we just remove the process since file objects cannot be pickled.
+        """
+        return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
     # Interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -103,6 +115,7 @@ class Task(object):
     def poll(self):
         """Check if child process has terminated. Set and return returncode attribute."""
         returncode = self.process.poll()
+
         if returncode is not None:
             self.set_status(Task.S_DONE)
 
@@ -161,13 +174,17 @@ class Task(object):
 
     def set_status(self, status):
         """Set the status of the task."""
-        if status not in Task.status2str:
+        if status not in Task.STATUS2STR:
             raise RuntimeError("Unknown status: %s" % status)
 
         self._status = status
 
+        # TODO
+        #if status == self.S_DONE:
+            # Check log file and stderr for possible errors.
+
         # Notify the observers
-        #self.subject.notify_observers(status)
+        #self.subject.notify_observers(self)
 
     @property
     def links_status(self):
@@ -247,7 +264,7 @@ class Task(object):
         if self.returncode is None:
             raise self.Error("return code is None, you should call wait, communitate or poll")
 
-        if self.status != Task.S_DONE:
+        if self.status != self.S_DONE:
             raise self.Error("Task is not completed")
 
         return TaskResults({
@@ -347,14 +364,6 @@ class AbinitTask(Task):
 
     def __str__(self):
         return self.__repr__()
-
-    def __getstate__(self):
-        """
-        Return state is pickled as the contents for the instance.
-
-        In this case we just remove the process since file objects cannot be pickled.
-        """
-        return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
     @classmethod
     def from_input(cls, abinit_input, workdir, runmode, task_id=1, links=None, **kwargs):
@@ -584,12 +593,14 @@ class AbinitTask(Task):
         """
         if not exclude_wildcard:
             shutil.rmtree(self.workdir)
+
         else:
             pats = exclude_wildcard.split("|")
 
             import fnmatch
 
             def keep(fname):
+                """True if fname must be preserved."""
                 for pat in pats:
                     if fnmatch.fnmatch(fname, pat):
                         return True
@@ -709,7 +720,7 @@ class TaskResults(dict, MSONable):
         """
         # TODO Better treatment of events.
         try:
-            assert (self["task_returncode"] == 0 and self["task_status"] == Task.S_DONE)
+            assert (self["task_returncode"] == 0 and self["task_status"] == self.S_DONE)
         except AssertionError as exc:
             self.push_exceptions(exc)
 
@@ -891,7 +902,7 @@ class RunMode(dict, MSONable):
 
     def make_launcher(self, task):
         """Factory function returning a launcher instance."""
-        #if have_fw:
+        #if self.has_fw:
         #   raise ValueError("Firework not yet supported")
                                                        
         # Find the subclass to instanciate.
