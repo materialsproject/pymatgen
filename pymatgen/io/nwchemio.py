@@ -137,7 +137,10 @@ class NwTask(MSONable):
             theory_spec.append(" {} {}".format(k, v))
         theory_spec.append("end")
         for c, d in self.alternate_directives.items():
-            theory_spec.append("{}{}".format(c, d))
+            if len(d)>0:
+                theory_spec.append("{} {}".format(c, d))
+            else:
+                theory_spec.append("{}".format(c))
         if "cosmo" in self.alternate_directives:
             theory_spec.append("end")
 

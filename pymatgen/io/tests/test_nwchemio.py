@@ -115,7 +115,7 @@ dft
  mult 1
 end
 cosmo
-dielectric78
+dielectric 78
 end
 task dft energy"""
         self.assertEqual(str(task), ans)
