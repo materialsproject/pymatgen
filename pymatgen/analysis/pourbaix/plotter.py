@@ -202,7 +202,7 @@ class PourbaixPlotter(object):
                 of the form [[xlo, xhi], [ylo, yhi]]
 
         Returns:
-            stable_entries, unstable_entries 
+            stable_entries, unstable_entries
             stable_entries: dict of lines. The keys are Pourbaix Entries, and
             lines are in the form of a list
             unstable_entries: list of unstable entries
@@ -271,6 +271,7 @@ class PourbaixPlotter(object):
             limits:
                 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
+
         Returns:
             plt:
                 matplotlib plot object
@@ -400,10 +401,12 @@ class PourbaixPlotter(object):
 
     def domain_vertices(self, entry):
         """
-        Returns the vertices of the Pourbaix domain
+        Returns the vertices of the Pourbaix domain.
+
         Args:
             entry:
                 Entry for which domain vertices are desired
+
         Returns:
             list of vertices
         """
