@@ -35,6 +35,8 @@ The SI units must have factor 1.
 BASE_UNITS = {
     "length": {
         "m": 1,
+        "km": 1000,
+        "mile": 1609.34,
         "ang": 1e-10,
         "cm": 1e-2,
         "pm": 1e-12,
@@ -368,7 +370,7 @@ class FloatWithUnit(float):
         """
         Supported units for specific unit type.
         """
-        return ALL_UNITS[self._unit_type]
+        return tuple(ALL_UNITS[self._unit_type].keys())
 
 
 class ArrayWithUnit(np.ndarray):
@@ -465,28 +467,36 @@ class ArrayWithUnit(np.ndarray):
         else:
             # Cannot use super since it returns an instance of self.__class__
             # while here we want a bare numpy array.
-            return np.array(self).__mul__(np.array(other))
+            return self.__class__(
+                np.array(self).__mul__(np.array(other)),
+                unit=self.unit * other.unit)
 
     def __rmul__(self, other):
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__rmul__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
         else:
-            return np.array(self).__rmul__(np.array(other))
+            return self.__class__(
+                np.array(self).__rmul__(np.array(other)),
+                unit=self.unit * other.unit)
 
     def __div__(self, other):
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__div__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
         else:
-            return np.array(self).__div__(np.array(other))
+            return self.__class__(
+                np.array(self).__div__(np.array(other)),
+                unit=self.unit/other.unit)
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
             return self.__class__(np.array(self).__truediv__(np.array(other)),
                                   unit_type=self._unit_type, unit=self._unit)
         else:
-            return np.array(self).__truediv__(np.array(other))
+            return self.__class__(
+                np.array(self).__truediv__(np.array(other)),
+                unit=self.unit / other.unit)
 
     def __neg__(self):
         return self.__class__(np.array(self).__neg__(),
