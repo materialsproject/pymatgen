@@ -923,7 +923,7 @@ class IStructure(SiteCollection, MSONable):
             # even more primitive structure again.
             return new_structure.get_primitive_structure(tolerance=tolerance)
         else:
-            return self.get_reduced_structure('niggli')
+            return self
 
     def __repr__(self):
         outs = ["Structure Summary", repr(self.lattice)]
