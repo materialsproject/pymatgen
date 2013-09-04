@@ -229,6 +229,32 @@ class LatticeTestCase(PymatgenTest):
         self.assertEqual(ws_cell[3], [[-5.0, -2.5, -0.5], [-5.0, 2.5, -0.5],
                                       [-5.0, 2.5, 0.5], [-5.0, -2.5, 0.5]])
 
+    def test_dot_and_norm(self):
+        frac_basis = [[1,0,0], [0,1,0], [0,0,1]]
+
+        for family_name, lattice in self.families.items():
+            #print(family_name)
+            self.assert_equal(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc)
+            self.assert_equal(lattice.norm(frac_basis), lattice.abc)
+            for (i, vec) in enumerate(frac_basis):
+                length = lattice.norm(vec)
+                self.assert_equal(length[0], lattice.abc[i])
+                # We always get a ndarray.
+                self.assertTrue(hasattr(length, "shape"))
+
+        # Passing complex arrays should raise TypeError
+        with self.assertRaises(TypeError):
+            lattice.norm(np.zeros(3, dtype=np.complex))
+
+        # Cannot reshape the second argument.
+        with self.assertRaises(ValueError):
+            lattice.dot(np.zeros(6), np.zeros(8))
+
+        # Passing vectors of different length is invalid.
+        with self.assertRaises(ValueError):
+            lattice.dot(np.zeros(3), np.zeros(6))
+
+
 if __name__ == '__main__':
     import unittest
     unittest.main()

@@ -33,6 +33,7 @@ from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, \
     clean_json, reverse_readline
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
@@ -219,6 +220,7 @@ class Vasprun(object):
         return len(self.ionic_steps) < nsw or nsw < 1
 
     @property
+    @unitized("eV")
     def final_energy(self):
         """
         Final energy from the vasp run.
@@ -2022,6 +2024,7 @@ class Oszicar(object):
         return tuple(all_energies)
 
     @property
+    @unitized("eV")
     def final_energy(self):
         """
         Final energy from run.

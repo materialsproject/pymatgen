@@ -520,7 +520,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
                  prec="Normal", hubbard_off=True, spin_polarized=False,
-                 **kwargs):
+                 sort_structure=False, **kwargs):
         """
         Args:
             start_temp:
@@ -537,12 +537,15 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             hubbard_off:
                 Whether to turn off Hubbard U. Defaults to *True* (different
                 behavior from standard input sets) for MD runs.
+            sort_structure:
+                Whether to sort structure. Defaults to False (different
+                behavior from standard input sets).
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            hubbard_off=hubbard_off, **kwargs)
+            hubbard_off=hubbard_off, sort_structure=sort_structure, **kwargs)
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
@@ -553,7 +556,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
         #Optimized parameters for MD simulations.
         incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
                           'PREC': prec, 'EDIFF': 0.000001, 'LSCALU': False,
-                          'LCHARG': False, 'LPLANE': False, 'LWAVE': False,
+                          'LCHARG': False, 'LPLANE': False, 'LWAVE': True,
                           "ICHARG": 1, "ISMEAR": 0, "SIGMA": 0.05, "NELMIN": 4,
                           "LREAL": True, "BMIX": 1, "MAXMIX": 20, "NELM": 500,
                           "NSIM": 4, "ISYM": 0, "ISIF": 0, "IBRION": 0,
@@ -724,18 +727,17 @@ class MPStaticVaspInputSet(JSONVaspInputSet):
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
-            previous_incar = Incar.from_file(os.path.join(previous_vasp_dir,
-                                                          "INCAR"))
-            kpoints = Kpoints.from_file(os.path.join(previous_vasp_dir,
-                                                     "KPOINTS"))
+            previous_incar = vasp_run.incar
+            previous_kpoints = vasp_run.kpoints
+            previous_final_structure = vasp_run.final_structure
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
-
         structure = MPStaticVaspInputSet.get_structure(vasp_run, outcar)
         mpsvip = MPStaticVaspInputSet()
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
-        new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
+        #new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
+        new_incar = mpsvip.get_incar(structure)
 
         # Use previous run INCAR and override necessary parameters
         previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
@@ -753,14 +755,19 @@ class MPStaticVaspInputSet(JSONVaspInputSet):
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Prefer to use k-point scheme from previous run
-        kpoints_out = Kpoints.from_file(os.path.join(output_dir, "KPOINTS"))
-        if kpoints.style != kpoints_out.style and \
-                SymmetryFinder(structure, 0.01).get_lattice_type() != \
-                "hexagonal":
-            k_div = (kp + 1 if kp % 2 == 1 else kp
-                     for kp in kpoints_out.kpts[0])
-            Kpoints.monkhorst_automatic(k_div).write_file(
-                os.path.join(output_dir, "KPOINTS"))
+        previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
+                                   previous_final_structure.lattice.reciprocal_lattice.volume
+        new_kpoints_density = max(previous_kpoints_density,90)
+        new_kpoints = mpsvip.get_kpoints(structure, kpoints_density=new_kpoints_density)
+        if previous_kpoints.style[0] != new_kpoints.style[0]:
+            if previous_kpoints.style[0]=="M" and \
+                SymmetryFinder(structure, 0.01).get_lattice_type() != "hexagonal":
+                k_div = (kp + 1 if kp % 2 == 1 else kp for kp in new_kpoints.kpts[0])
+                Kpoints.monkhorst_automatic(k_div).\
+                    write_file(os.path.join(output_dir, "KPOINTS"))
+            else:
+                Kpoints.gamma_automatic(new_kpoints.kpts[0]).\
+                    write_file(os.path.join(output_dir, "KPOINTS"))
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):

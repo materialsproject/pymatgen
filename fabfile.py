@@ -21,6 +21,9 @@ from pymatgen import __version__ as ver
 
 
 def makedoc():
+    with lcd("examples"):
+        local("ipython nbconvert --to html *.ipynb")
+        local("mv *.html ../docs/_static")
     with lcd("docs"):
         local("sphinx-apidoc -o . -f ../pymatgen")
         local("rm pymatgen.*.tests.rst")
@@ -46,7 +49,6 @@ def makedoc():
 
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
-
         local("make html")
         local("cp _static/* ../../pymatgen-docs/html/static")
 
