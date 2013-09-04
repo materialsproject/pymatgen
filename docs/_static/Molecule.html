@@ -1695,32 +1695,57 @@ init_mathjax();
 <body>
 
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2>
+<h3 id="This-notebook-demonstrates-pymatgen's-functionality-in-terms-of-creating-and-editing-molecules,-as-well-as-its-integration-with-OpenBabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">This notebook demonstrates pymatgen's functionality in terms of creating and editing molecules, as well as its integration with OpenBabel. For the latter, please note that you will need to have openbabel with python bindings installed. Please refer to pymatgen's documentation for installation details.<a class="anchor-link" href="#This-notebook-demonstrates-pymatgen's-functionality-in-terms-of-creating-and-editing-molecules,-as-well-as-its-integration-with-OpenBabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">&#182;</a></h3>
 </div>
 
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This notebook demostrates the core functionality of pymatgen, including the core objects representing Elements, Species, Lattices, and Structures.</p>
-<p>By convention, we import pymatgen as mg.</p>
+<h2 id="Creating-molecules-manually-and-various-analyses">Creating molecules manually and various analyses<a class="anchor-link" href="#Creating-molecules-manually-and-various-analyses">&#182;</a></h2>
 </div>
+
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
 In&nbsp;[1]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="kn">import</span> <span class="nn">pymatgen</span> <span class="kn">as</span> <span class="nn">mg</span>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">Molecule</span>
+<span class="c"># Create a methane molecule.</span>
+<span class="n">coords</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">],</span>
+          <span class="p">[</span><span class="mf">0.000000</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="mf">1.089000</span><span class="p">],</span>
+          <span class="p">[</span><span class="mf">1.026719</span><span class="p">,</span> <span class="mf">0.000000</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
+          <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">],</span>
+          <span class="p">[</span><span class="o">-</span><span class="mf">0.513360</span><span class="p">,</span> <span class="mf">0.889165</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.363000</span><span class="p">]]</span>
+<span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="s">&quot;C&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">,</span> <span class="s">&quot;H&quot;</span><span class="p">],</span> <span class="n">coords</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">mol</span>
 </pre></div>
 
 </div>
 </div>
 
+<div class="vbox output_wrapper">
+<div class="output vbox">
+
+
+<div class="hbox output_area"><div class="prompt"></div>
+<div class="box-flex1 output_subarea output_stream output_stdout">
+<pre>
+Molecule Summary (H4 C1)
+Reduced Formula: H4C
+Charge = 0, Spin Mult = 1
+Sites (5)
+1 C     0.000000     0.000000     0.000000
+2 H     0.000000     0.000000     1.089000
+3 H     1.026719     0.000000    -0.363000
+4 H    -0.513360    -0.889165    -0.363000
+5 H    -0.513360     0.889165    -0.363000
+
+</pre>
 </div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Basic-Element,-Specie-and-Composition-objects">Basic Element, Specie and Composition objects<a class="anchor-link" href="#Basic-Element,-Specie-and-Composition-objects">&#182;</a></h2>
 </div>
 
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Pymatgen contains a set of core classes to represent an Element, Specie and Composition. These objects contains useful properties such as atomic mass, ionic radii, etc. These core classes are loaded by default with pymatgen. An Element can be created as follows:</p>
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1728,10 +1753,9 @@ In&nbsp;[1]:
 In&nbsp;[2]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">si</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s">&quot;Si&quot;</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;Atomic mass of Si is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;Si has a melting point of {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">melting_point</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;Ionic radii for Si: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">ionic_radii</span><span class="p">)</span>
+<div class="highlight"><pre><span class="c"># A Molecule is simply a list of Sites.</span>
+<span class="k">print</span> <span class="n">mol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span> <span class="n">mol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -1744,9 +1768,8 @@ In&nbsp;[2]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-Atomic mass of Si is 28.0855 amu
-Si has a melting point of 1687 K
-Ionic radii for Si: {4: 0.54 pm}
+[0.0, 0.0, 0.0] C
+[0.0, 0.0, 1.089] H
 
 </pre>
 </div>
@@ -1755,9 +1778,6 @@ Ionic radii for Si: {4: 0.54 pm}
 </div>
 </div>
 
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>You can see that units are printed for atomic masses and ionic radii. Pymatgen comes with a complete system of managing units in pymatgen.core.unit. A Unit is a subclass of float that attaches units and handles conversions. For example,</p>
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1765,7 +1785,9 @@ Ionic radii for Si: {4: 0.54 pm}
 In&nbsp;[3]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="k">print</span> <span class="s">&quot;Atomic mass of Si in kg: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">atomic_mass</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;kg&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span class="c"># Break a Molecule into two by breaking a bond.</span>
+<span class="k">for</span> <span class="n">frag</span> <span class="ow">in</span> <span class="n">mol</span><span class="o">.</span><span class="n">break_bond</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="k">print</span> <span class="n">frag</span>
 </pre></div>
 
 </div>
@@ -1778,7 +1800,19 @@ In&nbsp;[3]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-Atomic mass of Si in kg: 4.66370658657455e-26 kg
+Molecule Summary (H3 C1)
+Reduced Formula: H3C
+Charge = 0, Spin Mult = 2
+Sites (4)
+1 C     0.000000     0.000000     0.000000
+2 H     1.026719     0.000000    -0.363000
+3 H    -0.513360    -0.889165    -0.363000
+4 H    -0.513360     0.889165    -0.363000
+Molecule Summary (H1)
+Reduced Formula: H2
+Charge = 0, Spin Mult = 2
+Sites (1)
+1 H     0.000000     0.000000     1.089000
 
 </pre>
 </div>
@@ -1787,9 +1821,6 @@ Atomic mass of Si in kg: 4.66370658657455e-26 kg
 </div>
 </div>
 
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Please refer to the Units example for more information on units. Species are like Elements, except they have an explicit oxidation state. They can be used wherever Element is used for the most part.</p>
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1797,9 +1828,8 @@ Atomic mass of Si in kg: 4.66370658657455e-26 kg
 In&nbsp;[4]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">fe2</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Specie</span><span class="p">(</span><span class="s">&quot;Fe&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="k">print</span> <span class="n">fe2</span><span class="o">.</span><span class="n">atomic_mass</span>
-<span class="k">print</span> <span class="n">fe2</span><span class="o">.</span><span class="n">ionic_radius</span>
+<div class="highlight"><pre><span class="c"># Getting neighbors that are within 3 angstroms from C atom.</span>
+<span class="k">print</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">mol</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -1812,8 +1842,7 @@ In&nbsp;[4]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-55.845 amu
-0.92 pm
+[(Site: H (0.0000, 0.0000, 1.0890), 1.089), (Site: H (1.0267, 0.0000, -0.3630), 1.0889999563640946), (Site: H (-0.5134, -0.8892, -0.3630), 1.0890004071739368), (Site: H (-0.5134, 0.8892, -0.3630), 1.0890004071739368)]
 
 </pre>
 </div>
@@ -1822,9 +1851,6 @@ In&nbsp;[4]:
 </div>
 </div>
 
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>A Composition is essentially an <strong>immutable</strong> mapping of Elements/Species with amounts, and useful properties like molecular weight, get_atomic_fraction, etc. Note that you can conveniently either use an Element/Specie object or a string as keys (this is a feature).</p>
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1832,11 +1858,8 @@ In&nbsp;[4]:
 In&nbsp;[5]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">comp</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Composition</span><span class="p">(</span><span class="s">&quot;Fe2O3&quot;</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;Weight of Fe2O3 is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;Amount of Fe in Fe2O3 is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="p">[</span><span class="s">&quot;Fe&quot;</span><span class="p">])</span>
-<span class="k">print</span> <span class="s">&quot;Atomic fraction of Fe is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">get_atomic_fraction</span><span class="p">(</span><span class="s">&quot;Fe&quot;</span><span class="p">))</span>
-<span class="k">print</span> <span class="s">&quot;Weight fraction of Fe is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">get_wt_fraction</span><span class="p">(</span><span class="s">&quot;Fe&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span class="c">#Detecting bonds</span>
+<span class="k">print</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_covalent_bonds</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -1849,10 +1872,7 @@ In&nbsp;[5]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-Weight of Fe2O3 is 159.6882 amu
-Amount of Fe in Fe2O3 is 2.0
-Atomic fraction of Fe is 0.4
-Weight fraction of Fe is 0.699425505453753 
+[Covalent bond between [0.0, 0.0, 0.0] C and [0.0, 0.0, 1.089] H, Covalent bond between [0.0, 0.0, 0.0] C and [1.026719, 0.0, -0.363] H, Covalent bond between [0.0, 0.0, 0.0] C and [-0.51336, -0.889165, -0.363] H, Covalent bond between [0.0, 0.0, 0.0] C and [-0.51336, 0.889165, -0.363] H]
 
 </pre>
 </div>
@@ -1861,13 +1881,6 @@ Weight fraction of Fe is 0.699425505453753
 </div>
 </div>
 
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Lattice-&amp;-Structure-objects">Lattice &amp; Structure objects<a class="anchor-link" href="#Lattice-&amp;-Structure-objects">&#182;</a></h2>
-</div>
-
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>A Lattice represents a Bravais lattice. Convenience static functions are provided for the creation of common lattice types from a minimum number of arguments.</p>
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1875,9 +1888,10 @@ Weight fraction of Fe is 0.699425505453753
 In&nbsp;[6]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="c"># Creates cubic Lattice with lattice parameter 4.2</span>
-<span class="n">lattice</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mf">4.2</span><span class="p">)</span>
-<span class="k">print</span> <span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span>
+<div class="highlight"><pre><span class="c"># If you need to run the molecule in a box with a periodic boundary condition</span>
+<span class="c"># code, you can generate the boxed structure as follows (in a 10Ax10Ax10A box)</span>
+<span class="n">structure</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">structure</span>
 </pre></div>
 
 </div>
@@ -1890,7 +1904,16 @@ In&nbsp;[6]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-((4.2000000000000002, 4.2000000000000002, 4.2000000000000002), (90.0, 90.0, 90.0))
+Structure Summary (H4 C1)
+Reduced Formula: H4C
+abc   :  10.000000  10.000000  10.000000
+angles:  90.000000  90.000000  90.000000
+Sites (5)
+1 H     0.500000     0.500000     0.608900
+2 H     0.602672     0.500000     0.463700
+3 H     0.448664     0.411083     0.463700
+4 H     0.448664     0.588917     0.463700
+5 C     0.500000     0.500000     0.500000
 
 </pre>
 </div>
@@ -1899,9 +1922,6 @@ In&nbsp;[6]:
 </div>
 </div>
 
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>A Structure object represents a crystal structure (lattice + basis). A Structure is essentially a list of PeriodicSites with the same Lattice. Let us now create a CsCl structure.</p>
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1909,46 +1929,42 @@ In&nbsp;[6]:
 In&nbsp;[7]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;Cs&quot;</span><span class="p">,</span> <span class="s">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
-<span class="k">print</span> <span class="s">&quot;Unit cell vol = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;First site of the structure is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="highlight"><pre><span class="c"># Writing to XYZ files (easy to open with many molecule file viewers)</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.xyzio</span> <span class="kn">import</span> <span class="n">XYZ</span>
+<span class="n">xyz</span> <span class="o">=</span> <span class="n">XYZ</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="n">xyz</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="s">&quot;methane.xyz&quot;</span><span class="p">)</span>
 </pre></div>
-
-</div>
-</div>
-
-<div class="vbox output_wrapper">
-<div class="output vbox">
-
-
-<div class="hbox output_area"><div class="prompt"></div>
-<div class="box-flex1 output_subarea output_stream output_stdout">
-<pre>
-Unit cell vol = 74.088
-First site of the structure is [ 0.  0.  0.] Cs
-
-</pre>
-</div>
-</div>
 
 </div>
 </div>
 
 </div>
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The Structure object contains many useful manipulation functions. Some examples are given below. Please note that there is an immutable version of Structure known as IStructure, for the use case where you really need to enforce that the structure does not change. Conversion between these forms of Structure can be performed using from_sites().</p>
+<h2 id="Openbabel-interface">Openbabel interface<a class="anchor-link" href="#Openbabel-interface">&#182;</a></h2>
 </div>
+
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="This-section-demonstrates-pymatgen's-integration-with-openbabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">This section demonstrates pymatgen's integration with openbabel. For the latter, please note that you will need to have openbabel with python bindings installed. Please refer to pymatgen's documentation for installation details.<a class="anchor-link" href="#This-section-demonstrates-pymatgen's-integration-with-openbabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">&#182;</a></h3>
+</div>
+
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
 In&nbsp;[8]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="c">#Make a 3 x 2 x 1 supercell of the structure</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c">#Remove the first site</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Na&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">#Append a Na atom.</span>
-<span class="n">immutable_structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">IStructure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="c">#Create an immutable structure (cannot be modified).</span>
-<span class="k">print</span> <span class="n">immutable_structure</span>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.babelio</span> <span class="kn">import</span> <span class="n">BabelMolAdaptor</span>
+<span class="kn">import</span> <span class="nn">pybel</span> <span class="kn">as</span> <span class="nn">pb</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">BabelMolAdaptor</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+<span class="c"># Create a pybel.Molecule, which simplifies a lot of access</span>
+<span class="n">pm</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">openbabel_mol</span><span class="p">)</span>
+<span class="c"># Print canonical SMILES representation (unique and comparable).</span>
+<span class="k">print</span> <span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;can&quot;</span><span class="p">)</span>
+<span class="c"># Print Inchi representation</span>
+<span class="k">print</span> <span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;inchi&quot;</span><span class="p">)</span>
+<span class="c"># pb.outformats provides a listing of available formats. </span>
+<span class="c"># Let&#39;s do a write to the commonly used PDB file.</span>
+<span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;pdb&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -1961,19 +1977,10 @@ In&nbsp;[8]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-Structure Summary (Cs3 Na1 Cl4)
-Reduced Formula: Cs3NaCl4
-abc   :   8.400000   8.400000   4.200000
-angles:  90.000000  90.000000  90.000000
-Sites (8)
-1 Cs     0.000000     0.500000     0.000000
-2 Cs     0.500000     0.000000     0.000000
-3 Cs     0.500000     0.500000     0.000000
-4 Cl     0.250000     0.250000     0.500000
-5 Cl     0.250000     0.750000     0.500000
-6 Cl     0.750000     0.250000     0.500000
-7 Cl     0.750000     0.750000     0.500000
-8 Na     0.000000     0.000000     0.000000
+C	
+
+InChI=1S/CH4/h1H4
+
 
 </pre>
 </div>
@@ -1982,13 +1989,6 @@ Sites (8)
 </div>
 </div>
 
-</div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Basic-analyses">Basic analyses<a class="anchor-link" href="#Basic-analyses">&#182;</a></h2>
-</div>
-
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Pymatgen provides many analyses functions for Structures. Some common ones are given below.</p>
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1996,10 +1996,13 @@ Sites (8)
 In&nbsp;[9]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="c">#Determining the symmetry</span>
-<span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
-<span class="n">finder</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
-<span class="k">print</span> <span class="s">&quot;The spacegroup is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">finder</span><span class="o">.</span><span class="n">get_spacegroup_symbol</span><span class="p">())</span>
+<div class="highlight"><pre><span class="c"># Generating ethylene carbonate (SMILES obtained from Wikipedia)</span>
+<span class="c"># And displaying the svg.</span>
+<span class="n">ec</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">readstring</span><span class="p">(</span><span class="s">&quot;smi&quot;</span><span class="p">,</span> <span class="s">&quot;C1COC(=O)O1&quot;</span><span class="p">)</span>
+<span class="n">ec</span><span class="o">.</span><span class="n">make3D</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">SVG</span><span class="p">,</span> <span class="n">display_svg</span>
+<span class="n">svg</span> <span class="o">=</span> <span class="n">SVG</span><span class="p">(</span><span class="n">ec</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;svg&quot;</span><span class="p">))</span>
+<span class="n">display_svg</span><span class="p">(</span><span class="n">svg</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -2010,11 +2013,36 @@ In&nbsp;[9]:
 
 
 <div class="hbox output_area"><div class="prompt"></div>
-<div class="box-flex1 output_subarea output_stream output_stdout">
-<pre>
-The spacegroup is P4/mmm
+<div class="box-flex1 output_subarea output_display_data">
 
-</pre>
+<svg height="200px" id="topsvg" version="1.1" viewBox="0 0 100 100" width="200px" x="0" xmlns="http://www.w3.org/2000/svg" xmlns:cml="http://www.xml-cml.org/schema" xmlns:xlink="http://www.w3.org/1999/xlink" y="0">
+<title>OBDepict</title>
+<rect fill="white" height="100" width="100" x="0" y="0"/>
+<text fill="black" font-family="sans-serif" font-size="6" text-anchor="middle" x="50" y="98"/>
+<g transform="translate(0,0)">
+<svg font-family="sans-serif" height="100" stroke="rgb(0,0,0)" stroke-linecap="round" stroke-width="2" viewBox="0 0 221.89 187.549" width="100" x="0" y="0">
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="79.0" x2="53.3" y1="120.7" y2="129.0"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="77.1" x2="51.4" y1="115.0" y2="123.3"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="155.1" y1="79.8" y2="68.8"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="133.2" y1="79.8" y2="52.9"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="160.8" y1="117.8" y2="137.9"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="169.2" y1="117.8" y2="112.2"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="130.4" x2="142.8" y1="79.8" y2="117.8"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="142.8" x2="120.9" y1="117.8" y2="133.7"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="99.9" x2="78.0" y1="133.7" y2="117.8"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="78.0" x2="86.4" y1="117.8" y2="92.1"/>
+<line stroke="rgb(0,0,0)" stroke-width="2.0" x1="103.4" x2="130.4" y1="79.8" y2="79.8"/>
+<text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="104.402940" y="149.334547">O</text>
+<text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="34.000000" y="138.183816">O</text>
+<text fill="rgb(255,12,12)" font-size="16" stroke="rgb(255,12,12)" stroke-width="1" x="84.402940" y="87.780876">O</text>
+<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="160.944759" y="71.511410">H</text>
+<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="128.584079" y="48.000000">H</text>
+<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="163.528844" y="155.548929">H</text>
+<text fill="rgb(191,191,191)" font-size="16" stroke="rgb(191,191,191)" stroke-width="1" x="175.889524" y="117.506669">H</text>
+</svg>
+</g>
+</svg>
+
 </div>
 </div>
 
@@ -2023,20 +2051,21 @@ The spacegroup is P4/mmm
 
 </div>
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We also have an extremely powerful structure matching tool.</p>
+<h2 id="Generating-Gaussian-input-files">Generating Gaussian input files<a class="anchor-link" href="#Generating-Gaussian-input-files">&#182;</a></h2>
 </div>
+
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
 In&nbsp;[10]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
-<span class="c">#Let&#39;s create two structures which are the same topologically, but with different elements, and one lattice is larger.</span>
-<span class="n">s1</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;Cs&quot;</span><span class="p">,</span> <span class="s">&quot;Cl&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
-<span class="n">s2</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Structure</span><span class="p">(</span><span class="n">mg</span><span class="o">.</span><span class="n">Lattice</span><span class="o">.</span><span class="n">cubic</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="p">[</span><span class="s">&quot;Rb&quot;</span><span class="p">,</span> <span class="s">&quot;F&quot;</span><span class="p">],</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
-<span class="n">m</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
-<span class="k">print</span> <span class="n">m</span><span class="o">.</span><span class="n">fit_anonymous</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span> <span class="c">#Returns a mapping which maps s1 and s2 onto each other. Strict element fitting is also available.</span>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.gaussianio</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
+<span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;methane&quot;</span><span class="p">,</span> 
+                    <span class="n">functional</span><span class="o">=</span><span class="s">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G+(d)&quot;</span><span class="p">,</span> 
+                    <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Opt&#39;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;SCF&quot;</span><span class="p">:</span> <span class="s">&quot;Tight&quot;</span><span class="p">},</span>
+                    <span class="n">link0_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;%mem&quot;</span><span class="p">:</span> <span class="s">&quot;1000MW&quot;</span><span class="p">})</span>
+<span class="k">print</span> <span class="n">gau</span>
 </pre></div>
 
 </div>
@@ -2049,7 +2078,30 @@ In&nbsp;[10]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-{Comp: Cl1: Comp: F1, Comp: Cs1: Comp: Rb1}
+%mem=1000MW
+#P B3LYP/6-31G+(d) Opt SCF=Tight Test
+
+methane
+
+0 1
+C
+H 1 B1
+H 1 B2 2 A2
+H 1 B3 2 A3 3 D3
+H 1 B4 2 A4 4 D4
+
+B1=1.089000
+B2=1.089000
+A2=109.471221
+B3=1.089000
+A3=109.471213
+D3=120.000017
+B4=1.089000
+A4=109.471213
+D4=119.999966
+
+
+
 
 </pre>
 </div>
@@ -2060,51 +2112,90 @@ In&nbsp;[10]:
 
 </div>
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Input/output">Input/output<a class="anchor-link" href="#Input/output">&#182;</a></h2>
+<h2 id="Generating-Nwchem-Input-Files">Generating Nwchem Input Files<a class="anchor-link" href="#Generating-Nwchem-Input-Files">&#182;</a></h2>
 </div>
 
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Pymatgen also provides IO support for various file formats in the pymatgen.io package. A convenient set of read_structure and write_structure functions are also provided which auto-detects several well-known formats.</p>
-</div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
 In&nbsp;[11]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="c">#Convenient IO to various formats. Format is intelligently determined from file name and extension.</span>
-<span class="n">mg</span><span class="o">.</span><span class="n">write_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="s">&quot;POSCAR&quot;</span><span class="p">)</span>
-<span class="n">mg</span><span class="o">.</span><span class="n">write_structure</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="s">&quot;CsCl.cif&quot;</span><span class="p">)</span>
-
-<span class="c">#Reading a structure from a file.</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">read_structure</span><span class="p">(</span><span class="s">&quot;POSCAR&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.nwchemio</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
+<span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31++G*&quot;</span><span class="p">),</span>
+    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;freq&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31++G*&quot;</span><span class="p">),</span>
+    <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;energy&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-311++G**&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">nwi</span> <span class="o">=</span> <span class="n">NwInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">geometry_options</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;units&quot;</span><span class="p">,</span> <span class="s">&quot;angstroms&quot;</span><span class="p">])</span>
+<span class="k">print</span> <span class="n">nwi</span>
 </pre></div>
 
 </div>
 </div>
 
+<div class="vbox output_wrapper">
+<div class="output vbox">
+
+
+<div class="hbox output_area"><div class="prompt"></div>
+<div class="box-flex1 output_subarea output_stream output_stdout">
+<pre>
+geometry units angstroms
+ C 0.0 0.0 0.0
+ H 0.0 0.0 1.089
+ H 1.026719 0.0 -0.363
+ H -0.51336 -0.889165 -0.363
+ H -0.51336 0.889165 -0.363
+end
+
+title &quot;H4C1 dft optimize&quot;
+charge 0
+basis
+ H library &quot;6-31++G*&quot;
+ C library &quot;6-31++G*&quot;
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft optimize
+
+title &quot;H4C1 dft freq&quot;
+charge 0
+basis
+ H library &quot;6-31++G*&quot;
+ C library &quot;6-31++G*&quot;
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft freq
+
+title &quot;H4C1 dft energy&quot;
+charge 0
+basis
+ H library &quot;6-311++G**&quot;
+ C library &quot;6-311++G**&quot;
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft energy
+
+
+</pre>
 </div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The vaspio_set module provides a means o obtain a complete set of VASP input files for performing calculations. Several useful presets based on the parameters used in the Materials Project are provided.</p>
 </div>
-<div class="cell border-box-sizing code_cell vbox">
-<div class="input hbox">
-<div class="prompt input_prompt">
-In&nbsp;[12]:
-</div>
-<div class="input_area box-flex1">
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.vaspio_set</span> <span class="kn">import</span> <span class="n">MPVaspInputSet</span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">MPVaspInputSet</span><span class="p">()</span>
-<span class="n">v</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="s">&quot;MyInputFiles&quot;</span><span class="p">)</span> <span class="c">#Writes a complete set of input files for structure to the directory MyInputFiles</span>
-</pre></div>
 
 </div>
 </div>
 
 </div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="This-concludes-this-pymatgen-tutorial.-Please-explore-the-usage-pages-on-pymatgen.org-for-more-information.">This concludes this pymatgen tutorial. Please explore the usage pages on pymatgen.org for more information.<a class="anchor-link" href="#This-concludes-this-pymatgen-tutorial.-Please-explore-the-usage-pages-on-pymatgen.org-for-more-information.">&#182;</a></h3>
-</div>
-
 </body>
 </html>
