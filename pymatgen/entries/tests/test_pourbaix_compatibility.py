@@ -27,7 +27,7 @@ class PourbaixCompatibilityTest(unittest.TestCase):
     def test_no_struct_compat(self):
         lio2_entry_nostruct = ComputedEntry(Composition("Li2O4"), -29.1943757, data={"oxide_type": "superoxide"})
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
-        self.assertAlmostEqual(lio2_entry_corrected.energy, -28.6743757, 4)
+        self.assertAlmostEqual(lio2_entry_corrected.energy, -27.0367157, 4)
 
         lio2_entry_nostruct = ComputedEntry(Composition("Li2(OH)2"), -29.85285134, data={"oxide_type": "hydroxide"})
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
@@ -50,7 +50,7 @@ class PourbaixCompatibilityTest(unittest.TestCase):
         struct = Structure(latt, elts, coords)
         lio2_entry = ComputedStructureEntry(struct, -29.1943757)
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
-        self.assertAlmostEqual(lio2_entry_corrected.energy, -28.6743757, 4)
+        self.assertAlmostEqual(lio2_entry_corrected.energy, -27.0367157, 4)
 
     
     def test_process_entry_peroxide(self):
