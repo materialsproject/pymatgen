@@ -176,19 +176,6 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         # for obj in objects_with_unit:
         #     self.assertTrue(obj.unit == "Ha")
 
-        objects_without_unit = [
-            ene_ha * time_s,
-            ene_ha / ene_ev,
-            #3 / ene_ha,
-            #ene_ha // ene_ev,
-            # Here we could return a FloatWithUnit object but I prefer this since FloatWithUnit extends float while we could have an int.
-            #ene_ha[0],
-        ]
-
-        for obj in objects_without_unit:
-            print(obj, type(obj))
-            self.assertTrue(type(obj) == np.ndarray)
-
         with self.assertRaises(UnitError):
             ene_ha + time_s
 
