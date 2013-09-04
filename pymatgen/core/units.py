@@ -118,7 +118,9 @@ class Unit(collections.Mapping):
             unit_def:
                 A definition for the unit. Either a mapping of unit to
                 powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",
-                or simply as a string "kg m^2 s^-1".
+                or simply as a string "kg m^2 s^-1". Note that the supported
+                format uses "^" as the power operator and all units must be
+                space-separated. 
         """
 
         if isinstance(unit_def, basestring):
@@ -148,7 +150,7 @@ class Unit(collections.Mapping):
         return Unit(new_units)
 
     def __rmul__(self, other):
-        return self.__mult__(other)
+        return self.__mul__(other)
 
     def __div__(self, other):
         new_units = collections.defaultdict(int)
@@ -186,16 +188,17 @@ class Unit(collections.Mapping):
     @property
     def as_base_units(self):
         """
-        Converts all units to base units, including derived units.
+        Converts all units to base SI units, including derived units.
 
         Returns:
-            (base units dict, scaling factor)
+            (base_units_dict, scaling factor). base_units_dict will not
+            contain any constants, which are gathered in the scaling factor.
         """
         b = collections.defaultdict(int)
         factor = 1
         for k, v in self.items():
             derived = False
-            for u, d in DERIVED_UNITS.items():
+            for d in DERIVED_UNITS.values():
                 if k in d:
                     for k2, v2 in d[k].items():
                         if isinstance(k2, Number):
@@ -203,6 +206,7 @@ class Unit(collections.Mapping):
                         else:
                             b[k2] += v2 * v
                     derived = True
+                    break
             if not derived:
                 si, f = _get_si_unit(k)
                 b[si] += v
@@ -242,7 +246,10 @@ class FloatWithUnit(float):
 
     Supports conversion, addition and subtraction of the same unit type. E.g.,
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
-    leftmost quantity).
+    leftmost quantity). Note that FloatWithUnit does not override the eq
+    method for float, i.e., units are not checked when testing for equality.
+    The reason is to allow this class to be used transparently wherever floats
+    are expected.
 
     >>> e = Energy(1.1, "Ha")
     >>> a = Energy(1.1, "Ha")
@@ -595,11 +602,11 @@ def unitized(unit):
             val = f(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
             if isinstance(val, collections.Sequence):
-                # TODO: why don't we return a ArrayWithFloatWithUnit?
+                # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
                 return val.__class__([FloatWithUnit(i, unit_type=unit_type,
-                                           unit=unit) for i in val])
+                                                    unit=unit) for i in val])
             elif isinstance(val, collections.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
