@@ -4,12 +4,11 @@ from __future__ import division
 import numpy as np
 
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.core.units import (Energy, Time, Length, unitized, Angle, Mass,
+from pymatgen.core.units import (Energy, Time, Length, unitized, Mass,
                                  EnergyArray, TimeArray, LengthArray, Unit,
                                  FloatWithUnit, ArrayWithUnit, UnitError)
 
 import collections
-import math
 
 
 class UnitTest(PymatgenTest):
@@ -19,15 +18,14 @@ class UnitTest(PymatgenTest):
         self.assertEqual(str(u1), "m s^-1")
         u2 = Unit("kg m ^ 2 s ^ -2")
         self.assertEqual(str(u2), "J")
-        self.assertEqual(str(u1 * u2), "m^3 kg s^-3")
-        self.assertEqual(str(u2 / u1), "kg m s^-1")
+        self.assertEqual(str(u1 * u2), "J m s^-1")
+        self.assertEqual(str(u2 / u1), "J s m^-1")
         self.assertEqual(str(u1 / Unit("m")), "s^-1")
         self.assertEqual(str(u1 * Unit("s")), "m")
 
         acc = u1 / Unit("s")
         newton = Unit("kg") * acc
-        self.assertEqual(str(newton * Unit("m")), "J")
-
+        self.assertEqual(str(newton * Unit("m")), "N m")
 
 class FloatWithUnitTest(PymatgenTest):
 
@@ -36,7 +34,7 @@ class FloatWithUnitTest(PymatgenTest):
         b = a.to("Ha")
         self.assertAlmostEqual(b, 0.0404242579378)
         c = Energy(3.14, "J")
-        self.assertAlmostEqual(c.to("eV"), 1.95983393276e+19)
+        self.assertAlmostEqual(c.to("eV"), 1.9598339337836966e+19)
         self.assertRaises(UnitError, Energy, 1, "m")
 
         d = Energy(1, "Ha")
@@ -58,10 +56,6 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
         self.assertEqual(str(x ** 3), "74.08800000000001 ang^3")
-
-    def test_angle(self):
-        a = Angle(90, "deg")
-        self.assertEqual(a.to("rad"), math.pi / 2)
 
     def test_unitized(self):
 
@@ -92,11 +86,15 @@ class FloatWithUnitTest(PymatgenTest):
     def test_compound_operations(self):
         g = 10 * Length(1, "m") / (Time(1, "s") ** 2)
         e = Mass(1, "kg") * g * Length(1, "m")
-        self.assertEqual(str(e), "10.0 J")
+        self.assertEqual(str(e), "10.0 N m")
         form_e = FloatWithUnit(10, unit="kJ mol^-1")
-        self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269185055937 "
-                                                       "eV atom^-1")
+        self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269190469588 eV atom^-1")
         self.assertRaises(UnitError, form_e.to, "m s^-1")
+        a = FloatWithUnit(1.0, "Ha^3")
+        self.assertEqual(str(a.to("J^3")), "8.286726616151194e-53 J^3")
+        a = FloatWithUnit(1.0, "Ha bohr^-2")
+        self.assertEqual(str(a.to("J m^-2")), "1556.8929145749312 J m^-2")
+
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
 
@@ -117,7 +115,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         b = a.to("Ha")
         self.assertAlmostEqual(b, 0.0404242579378)
         c = EnergyArray(3.14, "J")
-        self.assertAlmostEqual(c.to("eV"), 1.95983393276e+19)
+        self.assertAlmostEqual(c.to("eV"), 1.9598339337836966e+19)
         # self.assertRaises(ValueError, Energy, 1, "m")
 
         d = EnergyArray(1, "Ha")
@@ -177,19 +175,6 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
         # for obj in objects_with_unit:
         #     self.assertTrue(obj.unit == "Ha")
-
-        objects_without_unit = [
-            ene_ha * time_s,
-            ene_ha / ene_ev,
-            #3 / ene_ha,
-            #ene_ha // ene_ev,
-            # Here we could return a FloatWithUnit object but I prefer this since FloatWithUnit extends float while we could have an int.
-            #ene_ha[0],
-        ]
-
-        for obj in objects_without_unit:
-            print(obj, type(obj))
-            self.assertTrue(type(obj) == np.ndarray)
 
         with self.assertRaises(UnitError):
             ene_ha + time_s
