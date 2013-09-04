@@ -18,3 +18,4 @@ build
 .idea
 distribute*.egg
 distribute*.tar.gz
+.ipynb_checkpoints
