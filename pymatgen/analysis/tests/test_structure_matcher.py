@@ -269,7 +269,14 @@ class StructureMatcherTest(unittest.TestCase):
         s2 = Structure(l, ['Si', 'Si'], 
                        [[0,0.1,0],[-.7,.5,.4]])
         self.assertEqual(sm.get_s2_like_s1(s1, s2), None)
-        
+
+    def test_electronegativity(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
+
+        s1 = read_structure(os.path.join(test_dir, "Na2Fe2PAsO4S4.cif"))
+        s2 = read_structure(os.path.join(test_dir, "Na2Fe2PNO4Se4.cif"))
+        self.assertAlmostEqual(sm.fit_with_electronegativity(s1, s2),
+                               {Composition('S'): Composition('Se'), Composition('As'): Composition('N')})
 
 if __name__ == '__main__':
     unittest.main()
