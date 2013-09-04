@@ -795,7 +795,7 @@ class StructureMatcher(MSONable):
             transformed_structure = Structure(latt1, mapped_sp, fcoords1)
             if self.fit(transformed_structure, struct2):
                 #Calculate electronegativity difference
-                X_diff = np.sum(
+                X_diff = np.average(
                     [(host_sp.elements[0].X - map_sp.elements[0].X) *
                      struct1.composition.get(host_sp.elements[0]) for
                      host_sp, map_sp in sp_mapping.iteritems()])
