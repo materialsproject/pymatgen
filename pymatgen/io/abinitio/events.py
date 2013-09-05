@@ -166,6 +166,19 @@ class EventList(collections.Iterable, MSONable):
         self._events.append(event)
         self._events_by_baseclass[event.baseclass].append(event)
 
+    #@property
+    #def run_completed(self):
+    #    """Returns True if the calculation terminated."""
+    #    try:
+    #        return self._run_completed
+    #    except AttributeError:
+    #        return False
+
+    #@property
+    #def set_run_completed(self, bool_value):
+    #    """Set the value of _run_completed."""
+    #    self._run_completed = bool_value
+
     @property
     def critical_events(self):
         """List of critical events."""
@@ -256,8 +269,8 @@ class EventParser(object):
         filename = os.path.abspath(filename)
 
         # TODO
-        # we have to standardize the abinit WARNING, COMMENT and ERROR  so that we can parse them easily
-        # without having to use nafter.
+        # we have to standardize the abinit WARNING, COMMENT and ERROR  
+        # so that we can parse them easily without having to use nafter.
 
         # Note the space after the name.
         exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
@@ -265,10 +278,10 @@ class EventParser(object):
         errors, bugs, warnings, comments = [], [], [], []
 
         handlers = {
-            "ERROR "   : errors.append,
-            "BUG "     : bugs.append,
-            "WARNING " : warnings.append,
-            "COMMENT " : comments.append,
+            "ERROR "  : errors.append,
+            "BUG "    : bugs.append,
+            "WARNING ": warnings.append,
+            "COMMENT ": comments.append,
         }
 
         def exc_case(line):
