@@ -59,8 +59,8 @@ BASE_UNITS = {
         "K": 1,
     },
     "amount": {
-        "atom": 1,
-        "mol": AVOGADROS_CONST
+        "mol": 1,
+        "atom": 1 / AVOGADROS_CONST
     },
     "intensity": {
         "cd": 1
@@ -69,7 +69,7 @@ BASE_UNITS = {
 
 
 #This current list are supported derived units defined in terms of powers of
-#SI units and constants.
+#SI base units and constants.
 DERIVED_UNITS = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, e: 1},
