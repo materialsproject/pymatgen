@@ -88,6 +88,24 @@ DERIVED_UNITS = {
     "pressure": {
         "Pa": {"kg": 1, "m": -1, "s": -2},
         "kPa": {"kg": 1, "m": -1, "s": -2, 1000: 1}
+    },
+    "power": {
+        "W": {"m": 2, "kg": 1, "s": -3}
+    },
+    "emf": {
+        "V": {"m": 2, "kg": 1, "s": -3, "A": -1}
+    },
+    "capacitance": {
+        "F": {"m": -2, "kg": -1, "s": 4, "A": 2}
+    },
+    "resistance": {
+        "ohm": {"m": 2, "kg": 1, "s": -3, "A": -2}
+    },
+    "conductance": {
+        "S": {"m": -2, "kg": -1, "s": 3, "A": 2}
+    },
+    "magnetic_flux": {
+        "Wb": {"m": 2, "kg": 1, "s": -2, "A": -1}
     }
 }
 
@@ -215,7 +233,7 @@ class Unit(collections.Mapping):
                 si, f = _get_si_unit(k)
                 b[si] += v
                 factor *= f ** v
-        return b, factor
+        return {k: v for k, v in b.items() if v != 0}, factor
 
     def get_conversion_factor(self, new_unit):
         """
@@ -320,7 +338,7 @@ class FloatWithUnit(float):
                                  unit=self._unit)
         return FloatWithUnit(float(self) * other, unit_type=None,
                              unit=self._unit * other._unit)
-    
+
     def __pow__(self, i):
         return FloatWithUnit(float(self) ** i, unit_type=None,
                              unit=self._unit ** i)
