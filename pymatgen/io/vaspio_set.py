@@ -520,7 +520,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
                  prec="Normal", hubbard_off=True, spin_polarized=False,
-                 **kwargs):
+                 sort_structure=False, **kwargs):
         """
         Args:
             start_temp:
@@ -537,12 +537,15 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             hubbard_off:
                 Whether to turn off Hubbard U. Defaults to *True* (different
                 behavior from standard input sets) for MD runs.
+            sort_structure:
+                Whether to sort structure. Defaults to False (different
+                behavior from standard input sets).
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
         JSONVaspInputSet.__init__(
             self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            hubbard_off=hubbard_off, **kwargs)
+            hubbard_off=hubbard_off, sort_structure=sort_structure, **kwargs)
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
