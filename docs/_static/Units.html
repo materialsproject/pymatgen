@@ -1792,7 +1792,9 @@ In&nbsp;[3]:
 <div class="input_area box-flex1">
 <div class="highlight"><pre><span class="n">g</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">FloatWithUnit</span><span class="p">(</span><span class="mf">9.81</span><span class="p">,</span> <span class="s">&quot;m s^-2&quot;</span><span class="p">)</span> <span class="c">#Acceleration due to gravity</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Mass</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;kg&quot;</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">Length</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s">&quot;m&quot;</span><span class="p">)</span>
 <span class="k">print</span> <span class="s">&quot;The force is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">g</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;The potential energy is force is {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">m</span> <span class="o">*</span> <span class="n">g</span> <span class="o">*</span> <span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;J&quot;</span><span class="p">))</span>
 </pre></div>
 
 </div>
@@ -1806,6 +1808,7 @@ In&nbsp;[3]:
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
 The force is 19.62 N
+The potential energy is force is 196.20000000000002 J
 
 </pre>
 </div>

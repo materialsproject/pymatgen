@@ -1695,11 +1695,14 @@ init_mathjax();
 <body>
 
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="This-notebook-demonstrates-pymatgen's-functionality-in-terms-of-creating-and-editing-molecules,-as-well-as-its-integration-with-OpenBabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">This notebook demonstrates pymatgen's functionality in terms of creating and editing molecules, as well as its integration with OpenBabel. For the latter, please note that you will need to have openbabel with python bindings installed. Please refer to pymatgen's documentation for installation details.<a class="anchor-link" href="#This-notebook-demonstrates-pymatgen's-functionality-in-terms-of-creating-and-editing-molecules,-as-well-as-its-integration-with-OpenBabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">&#182;</a></h3>
+<h2 id="Introduction">Introduction<a class="anchor-link" href="#Introduction">&#182;</a></h2>
 </div>
 
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Creating-molecules-manually-and-various-analyses">Creating molecules manually and various analyses<a class="anchor-link" href="#Creating-molecules-manually-and-various-analyses">&#182;</a></h2>
+<p>This notebook demonstrates pymatgen's functionality in terms of creating and editing molecules, as well as its integration with OpenBabel. For the latter, please note that you will need to have openbabel with python bindings installed. Please refer to pymatgen's documentation for installation details.</p>
+</div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Molecules">Molecules<a class="anchor-link" href="#Molecules">&#182;</a></h2>
 </div>
 
 <div class="cell border-box-sizing code_cell vbox">
@@ -1944,9 +1947,8 @@ In&nbsp;[7]:
 </div>
 
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="This-section-demonstrates-pymatgen's-integration-with-openbabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">This section demonstrates pymatgen's integration with openbabel. For the latter, please note that you will need to have openbabel with python bindings installed. Please refer to pymatgen's documentation for installation details.<a class="anchor-link" href="#This-section-demonstrates-pymatgen's-integration-with-openbabel.-For-the-latter,-please-note-that-you-will-need-to-have-openbabel-with-python-bindings-installed.-Please-refer-to-pymatgen's-documentation-for-installation-details.">&#182;</a></h3>
+<p>This section demonstrates pymatgen's integration with openbabel.</p>
 </div>
-
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
@@ -1959,9 +1961,9 @@ In&nbsp;[8]:
 <span class="c"># Create a pybel.Molecule, which simplifies a lot of access</span>
 <span class="n">pm</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">openbabel_mol</span><span class="p">)</span>
 <span class="c"># Print canonical SMILES representation (unique and comparable).</span>
-<span class="k">print</span> <span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;can&quot;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Canonical SMILES = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;can&quot;</span><span class="p">))</span>
 <span class="c"># Print Inchi representation</span>
-<span class="k">print</span> <span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;inchi&quot;</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&quot;Inchi= {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;inchi&quot;</span><span class="p">))</span>
 <span class="c"># pb.outformats provides a listing of available formats. </span>
 <span class="c"># Let&#39;s do a write to the commonly used PDB file.</span>
 <span class="n">pm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;pdb&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&quot;methane.pdb&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -1977,9 +1979,9 @@ In&nbsp;[8]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-C	
+Canonical SMILES = C	
 
-InChI=1S/CH4/h1H4
+Inchi= InChI=1S/CH4/h1H4
 
 
 </pre>
@@ -2051,9 +2053,12 @@ In&nbsp;[9]:
 
 </div>
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Generating-Gaussian-input-files">Generating Gaussian input files<a class="anchor-link" href="#Generating-Gaussian-input-files">&#182;</a></h2>
+<h2 id="Input/Output">Input/Output<a class="anchor-link" href="#Input/Output">&#182;</a></h2>
 </div>
 
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Pymatgen has built-in support for Gaussian and Nwchem, two commonly used computational chemistry programs.</p>
+</div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
@@ -2062,7 +2067,7 @@ In&nbsp;[10]:
 <div class="input_area box-flex1">
 <div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.gaussianio</span> <span class="kn">import</span> <span class="n">GaussianInput</span>
 <span class="n">gau</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;methane&quot;</span><span class="p">,</span> 
-                    <span class="n">functional</span><span class="o">=</span><span class="s">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G+(d)&quot;</span><span class="p">,</span> 
+                    <span class="n">functional</span><span class="o">=</span><span class="s">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G(d)&quot;</span><span class="p">,</span> 
                     <span class="n">route_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;Opt&#39;</span><span class="p">:</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;SCF&quot;</span><span class="p">:</span> <span class="s">&quot;Tight&quot;</span><span class="p">},</span>
                     <span class="n">link0_parameters</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;%mem&quot;</span><span class="p">:</span> <span class="s">&quot;1000MW&quot;</span><span class="p">})</span>
 <span class="k">print</span> <span class="n">gau</span>
@@ -2079,7 +2084,7 @@ In&nbsp;[10]:
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
 %mem=1000MW
-#P B3LYP/6-31G+(d) Opt SCF=Tight Test
+#P B3LYP/6-31G(d) Opt SCF=Tight Test
 
 methane
 
@@ -2111,24 +2116,21 @@ D4=119.999966
 </div>
 
 </div>
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Generating-Nwchem-Input-Files">Generating Nwchem Input Files<a class="anchor-link" href="#Generating-Nwchem-Input-Files">&#182;</a></h2>
-</div>
-
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
 <div class="prompt input_prompt">
 In&nbsp;[11]:
 </div>
 <div class="input_area box-flex1">
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pymatgen.io.nwchemio</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
+<div class="highlight"><pre><span class="c"># A standard relaxation + SCF energy nwchem calculation input file for methane.</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.nwchemio</span> <span class="kn">import</span> <span class="n">NwTask</span><span class="p">,</span> <span class="n">NwInput</span>
 <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;optimize&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31++G*&quot;</span><span class="p">),</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G&quot;</span><span class="p">),</span>
     <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;freq&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31++G*&quot;</span><span class="p">),</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G&quot;</span><span class="p">),</span>
     <span class="n">NwTask</span><span class="o">.</span><span class="n">dft_task</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s">&quot;energy&quot;</span><span class="p">,</span> <span class="n">xc</span><span class="o">=</span><span class="s">&quot;b3lyp&quot;</span><span class="p">,</span>
-                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-311++G**&quot;</span><span class="p">),</span>
+                    <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-311G&quot;</span><span class="p">),</span>
 <span class="p">]</span>
 <span class="n">nwi</span> <span class="o">=</span> <span class="n">NwInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">geometry_options</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;units&quot;</span><span class="p">,</span> <span class="s">&quot;angstroms&quot;</span><span class="p">])</span>
 <span class="k">print</span> <span class="n">nwi</span>
@@ -2155,8 +2157,8 @@ end
 title &quot;H4C1 dft optimize&quot;
 charge 0
 basis
- H library &quot;6-31++G*&quot;
- C library &quot;6-31++G*&quot;
+ H library &quot;6-31G&quot;
+ C library &quot;6-31G&quot;
 end
 dft
  xc b3lyp
@@ -2167,8 +2169,8 @@ task dft optimize
 title &quot;H4C1 dft freq&quot;
 charge 0
 basis
- H library &quot;6-31++G*&quot;
- C library &quot;6-31++G*&quot;
+ H library &quot;6-31G&quot;
+ C library &quot;6-31G&quot;
 end
 dft
  xc b3lyp
@@ -2179,8 +2181,8 @@ task dft freq
 title &quot;H4C1 dft energy&quot;
 charge 0
 basis
- H library &quot;6-311++G**&quot;
- C library &quot;6-311++G**&quot;
+ H library &quot;6-311G&quot;
+ C library &quot;6-311G&quot;
 end
 dft
  xc b3lyp
@@ -2197,5 +2199,9 @@ task dft energy
 </div>
 
 </div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="This-concludes-the-demo-on-pymatgen's-basic-capabilities-for-molecules.">This concludes the demo on pymatgen's basic capabilities for molecules.<a class="anchor-link" href="#This-concludes-the-demo-on-pymatgen's-basic-capabilities-for-molecules.">&#182;</a></h2>
+</div>
+
 </body>
 </html>
