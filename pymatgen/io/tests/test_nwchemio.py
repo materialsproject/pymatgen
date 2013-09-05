@@ -121,18 +121,15 @@ task dft energy"""
         self.assertEqual(str(task), ans)
 
     def test_esp_task(self):
-        task = NwTask.esp_task(mol, charge=mol.charge + 1, operation="",
+        task = NwTask.esp_task(mol, charge=mol.charge, operation="",
                          basis_set="6-311++G**")
         ans = """title "H4C1 esp "
-charge 1
+charge 0
 basis
  H library "6-311++G**"
  C library "6-311++G**"
 end
-esp
- restrain harmonic 0.001
-end
-task esp """
+task esp"""
         self.assertEqual(str(task), ans)
 
 

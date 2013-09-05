@@ -143,14 +143,31 @@ class NwTask(MSONable):
                 theory_spec.append("{}".format(c))
         if "cosmo" in self.alternate_directives:
             theory_spec.append("end")
-
-        t = Template("""title "$title"
+        if "esp" in self.theory:
+            if "esp" in self.theory_directives:
+                t = Template("""title "$title"
+charge $charge
+basis
+$bset_spec
+end
+$theory_spec
+task $theory""")
+            else:
+                t = Template("""title "$title"
+charge $charge
+basis
+$bset_spec
+end
+task $theory""")
+        else:
+            t = Template("""title "$title"
 charge $charge
 basis
 $bset_spec
 end
 $theory_spec
 task $theory $operation""")
+
 
         return t.substitute(
             title=self.title, charge=self.charge,
@@ -288,7 +305,7 @@ task $theory $operation""")
         """
         kwargs.update({"operation":""})
         e = NwTask.from_molecule(mol, theory="esp", **kwargs)
-        e.theory_directives.update({"restrain": "harmonic 0.001"})
+        #e.theory_directives.update({"restrain": "harmonic 0.001"})
 
         return e
 
