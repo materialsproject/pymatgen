@@ -287,11 +287,11 @@ class FloatWithUnit(float):
         return float.__new__(cls, val)
 
     def __init__(self, val, unit, unit_type=None):
-        self._unit_type = unit_type
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(
                 "{} is not a supported unit for {}".format(unit, unit_type))
         self._unit = Unit(unit)
+        self._unit_type = unit_type
         super(FloatWithUnit, self).__init__(val)
 
     def __repr__(self):
@@ -460,7 +460,7 @@ class ArrayWithUnit(np.ndarray):
         if hasattr(other, "unit_type"):
             if other.unit_type != self.unit_type:
                 raise UnitError("Adding different types of units is"
-                                 " not allowed")
+                                " not allowed")
 
             if other.unit != self.unit:
                 other = other.to(self.unit)
