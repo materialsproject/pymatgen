@@ -261,11 +261,12 @@ class Task(object):
         self.connect()
         self.setup(*args, **kwargs)
 
-    def _get_events(self):
+    def _parse_events(self):
         """Analyzes the main output for possible errors or warnings."""
         parser = EventParser()
         try:
             return parser.parse(self.output_file.path)
+
         except parser.Error as exc:
             raise
             # TODO: Handle possible errors in the parser by generating a custom EventList object
@@ -276,13 +277,13 @@ class Task(object):
         """List of errors or warnings reported by ABINIT."""
         if self.status is None or self.status < self.S_DONE:
             raise self.Error(
-                "Task %s is not completed.\n You cannot access its events now, use _get_events" % repr(self))
+                "Task %s is not completed.\nYou cannot access its events now, use _parse_events" % repr(self))
 
         try:
             return self._events
 
         except AttributeError:
-            self._events = self._get_events()
+            self._events = self._parse_events()
             return self._events
 
     @property
