@@ -36,7 +36,7 @@ BASE_UNITS = {
     "length": {
         "m": 1,
         "km": 1000,
-        "mile": 1609.34,
+        "mile": 1609.347219,
         "ang": 1e-10,
         "cm": 1e-2,
         "pm": 1e-12,
@@ -84,6 +84,28 @@ DERIVED_UNITS = {
     },
     "force": {
         "N": {"kg": 1, "m": 1, "s": -2}
+    },
+    "pressure": {
+        "Pa": {"kg": 1, "m": -1, "s": -2},
+        "kPa": {"kg": 1, "m": -1, "s": -2, 1000: 1}
+    },
+    "power": {
+        "W": {"m": 2, "kg": 1, "s": -3}
+    },
+    "emf": {
+        "V": {"m": 2, "kg": 1, "s": -3, "A": -1}
+    },
+    "capacitance": {
+        "F": {"m": -2, "kg": -1, "s": 4, "A": 2}
+    },
+    "resistance": {
+        "ohm": {"m": 2, "kg": 1, "s": -3, "A": -2}
+    },
+    "conductance": {
+        "S": {"m": -2, "kg": -1, "s": 3, "A": 2}
+    },
+    "magnetic_flux": {
+        "Wb": {"m": 2, "kg": 1, "s": -2, "A": -1}
     }
 }
 
@@ -126,7 +148,9 @@ class Unit(collections.Mapping):
             unit_def:
                 A definition for the unit. Either a mapping of unit to
                 powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",
-                or simply as a string "kg m^2 s^-1".
+                or simply as a string "kg m^2 s^-1". Note that the supported
+                format uses "^" as the power operator and all units must be
+                space-separated.
         """
 
         if isinstance(unit_def, basestring):
@@ -136,10 +160,10 @@ class Unit(collections.Mapping):
                 p = 1 if not p else int(p)
                 unit[m.group(1)] += p
         else:
-            unit = dict(unit_def)
+            unit = {k: v for k, v in dict(unit_def).items() if v != 0}
 
         def check_mappings(u):
-            for k, v in DERIVED_UNITS.items():
+            for v in DERIVED_UNITS.values():
                 for k2, v2 in v.items():
                     if u == v2:
                         return {k2: 1}
@@ -156,7 +180,7 @@ class Unit(collections.Mapping):
         return Unit(new_units)
 
     def __rmul__(self, other):
-        return self.__mult__(other)
+        return self.__mul__(other)
 
     def __div__(self, other):
         new_units = collections.defaultdict(int)
@@ -194,16 +218,17 @@ class Unit(collections.Mapping):
     @property
     def as_base_units(self):
         """
-        Converts all units to base units, including derived units.
+        Converts all units to base SI units, including derived units.
 
         Returns:
-            (base units dict, scaling factor)
+            (base_units_dict, scaling factor). base_units_dict will not
+            contain any constants, which are gathered in the scaling factor.
         """
         b = collections.defaultdict(int)
         factor = 1
         for k, v in self.items():
             derived = False
-            for u, d in DERIVED_UNITS.items():
+            for d in DERIVED_UNITS.values():
                 if k in d:
                     for k2, v2 in d[k].items():
                         if isinstance(k2, Number):
@@ -211,11 +236,12 @@ class Unit(collections.Mapping):
                         else:
                             b[k2] += v2 * v
                     derived = True
+                    break
             if not derived:
                 si, f = _get_si_unit(k)
                 b[si] += v
                 factor *= f ** v
-        return b, factor
+        return {k: v for k, v in b.items() if v != 0}, factor
 
     def get_conversion_factor(self, new_unit):
         """
@@ -250,7 +276,10 @@ class FloatWithUnit(float):
 
     Supports conversion, addition and subtraction of the same unit type. E.g.,
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
-    leftmost quantity).
+    leftmost quantity). Note that FloatWithUnit does not override the eq
+    method for float, i.e., units are not checked when testing for equality.
+    The reason is to allow this class to be used transparently wherever floats
+    are expected.
 
     >>> e = Energy(1.1, "Ha")
     >>> a = Energy(1.1, "Ha")
@@ -267,11 +296,11 @@ class FloatWithUnit(float):
         return float.__new__(cls, val)
 
     def __init__(self, val, unit, unit_type=None):
-        self._unit_type = unit_type
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(
                 "{} is not a supported unit for {}".format(unit, unit_type))
         self._unit = Unit(unit)
+        self._unit_type = unit_type
         super(FloatWithUnit, self).__init__(val)
 
     def __repr__(self):
@@ -318,6 +347,7 @@ class FloatWithUnit(float):
                                  unit=self._unit)
         return FloatWithUnit(float(self) * other, unit_type=None,
                              unit=self._unit * other._unit)
+
     def __pow__(self, i):
         return FloatWithUnit(float(self) ** i, unit_type=None,
                              unit=self._unit ** i)
@@ -441,7 +471,7 @@ class ArrayWithUnit(np.ndarray):
         if hasattr(other, "unit_type"):
             if other.unit_type != self.unit_type:
                 raise UnitError("Adding different types of units is"
-                                 " not allowed")
+                                " not allowed")
 
             if other.unit != self.unit:
                 other = other.to(self.unit)
@@ -605,11 +635,11 @@ def unitized(unit):
             val = f(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
             if isinstance(val, collections.Sequence):
-                # TODO: why don't we return a ArrayWithFloatWithUnit?
+                # TODO: why don't we return a ArrayWithUnit?
                 # This complicated way is to ensure the sequence type is
                 # preserved (list or tuple).
                 return val.__class__([FloatWithUnit(i, unit_type=unit_type,
-                                           unit=unit) for i in val])
+                                                    unit=unit) for i in val])
             elif isinstance(val, collections.Mapping):
                 for k, v in val.items():
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
