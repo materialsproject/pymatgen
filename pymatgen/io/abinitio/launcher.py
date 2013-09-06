@@ -126,7 +126,7 @@ class OMPEnv(dict):
         err_msg = ""
         for key, value in self.items():
             self[key] = str(value)
-            if key not in OMPEnv._KEYS:
+            if key not in self._KEYS:
                 err_msg += "unknown option %s" % key
 
         if err_msg: 
@@ -149,13 +149,13 @@ class OMPEnv(dict):
 
         err_msg = ""
         for key in parser.options("openmp"):
-            if key.upper() not in OMPEnv._KEYS:
+            if key.upper() not in self._KEYS:
                 err_msg += "unknown option %s, maybe a typo" % key
 
         if err_msg: 
             raise ValueError(err_msg)
 
-        for key in OMPEnv._KEYS:
+        for key in self._KEYS:
             try:
                 obj[key] = str(parser.get("openmp", key))
             except NoOptionError:

@@ -154,7 +154,6 @@ class WorkLink(object):
         """The status of the link, equivalent to the task status"""
         return self._task.status
 
-################################################################################
 
 class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
@@ -477,6 +476,10 @@ class Workflow(BaseWorkflow):
             return max(status_list)
         else:
             return status_list
+
+    def recheck_status(self):
+        for task in self:
+            task.recheck_status()
 
     def show_inputs(self, stream=sys.stdout):
         lines = []
