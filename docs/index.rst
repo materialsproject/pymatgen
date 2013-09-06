@@ -81,10 +81,12 @@ v2.8.0
    being are in terms of conversions between different units and addition and
    subtraction of different units of the same type. Some basic quantities
    like ionic radii and atomic masses are now returned in unitized forms for
-   easy conversion. Please see :mod:`pymatgen.core.units`.
+   easy conversion. Please see :mod:`pymatgen.core.units` and the
+   :doc:`examples </examples>` for a demonstration of house to use units in
+   pymatgen.
 2. **Minor backwards-incompatible change**. Structures are now sorted by
    default when generating VASP input files using vaspio_set. Old behavior can
-   be obtained by setting sort_structure = False in the constructor. This is
+   be obtained by setting sort_structure=False in the constructor. This is
    typically the desired behavior and prevents the generation of large
    POTCARs when atomic species are not grouped together.
 3. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
