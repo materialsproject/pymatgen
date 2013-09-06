@@ -3,9 +3,10 @@
 """
 This module implements a FloatWithUnit, which is a subclass of float. It
 also defines supported units for some commonly used units for energy, length,
-temperature, time and charge. FloatWithUnits also support conversion to one
+temperature, time and charge. FloatWithUnit also support conversion to one
 another, and additions and subtractions perform automatic conversion if
-units are detected.
+units are detected. An ArrayWithUnit is also implemented, which is a subclass
+of numpy's ndarray with similar unit features.
 """
 
 from __future__ import division
@@ -23,8 +24,7 @@ import collections
 from numbers import Number
 import numbers
 from functools import partial
-from pymatgen.core.physical_constants import AVOGADROS_CONST, \
-    e, EV_TO_HA
+from pymatgen.core.physical_constants import N_a, e, EV_TO_HA
 import re
 
 """
@@ -60,7 +60,7 @@ BASE_UNITS = {
     },
     "amount": {
         "mol": 1,
-        "atom": 1 / AVOGADROS_CONST
+        "atom": 1 / N_a
     },
     "intensity": {
         "cd": 1
