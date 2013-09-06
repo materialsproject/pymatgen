@@ -187,18 +187,42 @@ class Task(object):
 
         self._status = status
 
-        if status == self.S_DONE:
-            # Check the returncode of the process first.
-            if self.returncode != 0:
-                self._status = self.S_ERROR
-            else:
-                # TODO
-                # 1) Search the ABINIT log file for possible errors.
-                # 2) Analyze the stderr file.
-                self._status = self.S_OK
-
         # Notify the observers
         #self.subject.notify_observers(self)
+
+    def recheck_status(self):
+
+        if self.status in [self.S_SUB, self.S_RUN, self.S_DONE]: 
+            # Check the returncode of the process first.
+            if self.returncode != 0:
+                self.set_status(self.S_ERROR)
+            else:
+                # Check if the run completed successfully.
+                from .utils import abinit_output_iscomplete
+                run_completed = abinit_output_iscomplete(self.output_file.path)
+
+                if run_completed:
+                    self.set_status(self.S_OK)
+                else:
+                    pass
+                    #    # 1) Search the ABINIT output file for possible errors.
+                    #    # 2) Analyze the stderr file.
+                    #    parser = EventParser()
+                    #    try:
+                    #        events = parser.parse(self.output_file.path)
+
+                    #    except parser.Error as exc:
+                    #        raise
+                    #        # TODO: Handle possible errors in the parser by generating a custom EventList object
+                    #        #return EventList(self.output_file.path, events=[Error(str(exc))])
+
+                    #    if events.errors:
+                    #        self._status = self.S_ERROR
+
+                    #    else:
+                    #        # Perhaps Fortran runtime error?
+                    #        self._status = self.S_OK
+
 
     @property
     def links(self):
