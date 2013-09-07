@@ -192,37 +192,52 @@ class Task(object):
 
     def recheck_status(self):
 
-        if self.status in [self.S_SUB, self.S_RUN, self.S_DONE]: 
-            # Check the returncode of the process first.
-            if self.returncode != 0:
-                self.set_status(self.S_ERROR)
+        if self.status not in [self.S_SUB, self.S_RUN, self.S_DONE]: 
+            return
+
+        # Check the returncode of the process first.
+        if self.returncode != 0:
+            self.set_status(self.S_ERROR)
+
+        else:
+            # Check if the run completed successfully.
+            report = EventParser().parse(self.output_file.path)
+                                                                                                     
+            if report.run_completed:
+                self.set_status(self.S_OK)
+
             else:
-                # Check if the run completed successfully.
-                from .utils import abinit_output_iscomplete
-                run_completed = abinit_output_iscomplete(self.output_file.path)
+                # TODO
+                # This is the delicate part since we have to discern among different possibilities:
+                #
+                # 1) Calculation stopped due to an Abinit Error or Bug.
+                # 2) Segmentation fault that (by definition) was not handled by ABINIT.
+                # 3) Problem with the resource manager and/or the OS (walltime error, resource error ...)
+                # 4) Calculation is still running!
+                #
+                # Point 2) and 3) are the most complicated since there's no standard!
 
-                if run_completed:
-                    self.set_status(self.S_OK)
-                else:
-                    pass
-                    #    # 1) Search the ABINIT output file for possible errors.
-                    #    # 2) Analyze the stderr file.
-                    #    parser = EventParser()
-                    #    try:
-                    #        events = parser.parse(self.output_file.path)
+                # 1) Search for possible errors or bugs in the ABINIT **output** file.
+                if report.errors or report.bugs:
+                    self._status = self.S_ERROR
+                    return 
 
-                    #    except parser.Error as exc:
-                    #        raise
-                    #        # TODO: Handle possible errors in the parser by generating a custom EventList object
-                    #        #return EventList(self.output_file.path, events=[Error(str(exc))])
+                # 2) Analyze the stderr file for Fortran runtime errors.
+                #   err_lines = self.stderr_file.readlines()
+                #   if err_lines:
+                #       self._status = self.S_ERROR
+                #       return 
 
-                    #    if events.errors:
-                    #        self._status = self.S_ERROR
+                # 3) Analyze the error file of the resource manager.
+                #   self._status = self.S_ERROR
+                #   err_lines = self.qerr_file.readlines()
+                #   if err_lines:
+                #       self._status = self.S_ERROR
+                #       return 
 
-                    #    else:
-                    #        # Perhaps Fortran runtime error?
-                    #        self._status = self.S_OK
-
+                # 4)
+                self._status = self.S_OK
+                return 
 
     @property
     def links(self):
