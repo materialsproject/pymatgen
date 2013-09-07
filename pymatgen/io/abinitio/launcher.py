@@ -14,7 +14,6 @@ __all__ = [
     "ShellLauncher",
 ]
 
-# =========================================================================== #
 
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
@@ -90,12 +89,11 @@ class ScriptEditor(object):
             self.reset()
         return s
 
-##########################################################################################
 
-class OMPEnv(dict):
+class OmpEnv(dict):
     """
-    Dictionary with the OpenMP environment variables"
-    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables"
+    Dictionary with the OpenMP environment variables
+    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables
     """
     _KEYS = [
        "OMP_SCHEDULE",
@@ -115,11 +113,11 @@ class OMPEnv(dict):
         """ 
         Constructor method inherited from dictionary:
                                                    
-        >>> OMPEnv(OMP_NUM_THREADS=1)
+        >>> OmpEnv(OMP_NUM_THREADS=1)
         {'OMP_NUM_THREADS': '1'}
                                                    
         To create an instance from an INI file, use:
-           OMPEnv.from_filename(filename)
+           OmpEnv.from_file(filename)
         """
         self.update(*args, **kwargs)
 
@@ -133,7 +131,7 @@ class OMPEnv(dict):
             raise ValueError(err_msg)
 
     @staticmethod
-    def from_filename(filename, allow_empty=False):
+    def from_file(filename, allow_empty=False):
         from ConfigParser import SafeConfigParser, NoOptionError
         parser = SafeConfigParser()
         parser.read(filename)
@@ -169,7 +167,6 @@ class OMPEnv(dict):
 
         return obj
 
-##########################################################################################
 
 class TaskLauncher(object):
     """Abstract class for a task launcher."""
@@ -359,7 +356,6 @@ class ShellLauncher(TaskLauncher):
 
         return process
 
-##########################################################################################
 
 #class SlurmLauncher(TaskLauncher):
 #    _type = "slurm"
@@ -373,8 +369,6 @@ class ShellLauncher(TaskLauncher):
 #        This is a very delicate part. Hopefully fireworks will help solve the problem!
 #        """
 #        raise NotImplementedError()
-
-##########################################################################################
 
 
 class SimpleResourceManagerError(Exception):
@@ -395,9 +389,9 @@ class SimpleResourceManager(object):
                 sleep_time:
                     Time delay (seconds) before trying to start a new task.
         """
-        from pymatgen.io.abinitio.workflow import Workflow
-        if not isinstance(work, Workflow):
-            work = Workflow.from_task(work)
+        #from pymatgen.io.abinitio.workflow import Workflow
+        #if not isinstance(work, Workflow):
+        #    work = Workflow.from_task(work)
 
         self.work = work
 
@@ -446,4 +440,3 @@ class SimpleResourceManager(object):
 
         return self.work.returncodes
 
-##########################################################################################
