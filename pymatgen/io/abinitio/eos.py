@@ -4,7 +4,7 @@ from __future__ import division, print_function
 import collections
 import numpy as np
 
-import pymatgen.core.physical_constants as const
+from pymatgen.core.units import FloatWithUnit
 import pymatgen.core.units as units
 
 __all__ = [
@@ -271,7 +271,7 @@ class EOS_Fit(object):
 
     @property
     def b0_GPa(self):
-        return self.b0 * const.EV_ANGS3_TO_GPA
+        return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
     def plot(self, **kwargs):
         """
