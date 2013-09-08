@@ -10,7 +10,7 @@ Basic functionality
 * `Basic functionality <static/Basic%20functionality.html>`_
 * `Working with units <static/Units.html>`_
 * `Working with molecules <static/Molecule.html>`_
-* `Drawing electronic structure of Fe <static/Plotting%20the%20electronic%20structure%20of%20Fe.html`_
+* `Drawing electronic structure of Fe <static/Plotting%20the%20electronic%20structure%20of%20Fe.html>`_
 
 Working with Materials API
 --------------------------
