@@ -6,7 +6,7 @@ import os.path
 
 
 from pymatgen.core.structure import Structure
-from pymatgen.core.physical_constants import HA_TO_EV
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.abinitio.abiobjects import *
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -49,7 +49,7 @@ class SmearingTest(unittest.TestCase):
 
         self.assertTrue(fd1ev)
 
-        same_fd = Smearing.assmearing("fermi_dirac:"+ str(1.0/HA_TO_EV))
+        same_fd = Smearing.assmearing("fermi_dirac:"+ str(1.0/Ha_to_eV))
 
         self.assertTrue(same_fd == fd1ev)
 
@@ -120,7 +120,7 @@ class PPModelTest(unittest.TestCase):
         godby.to_abivars()
         self.assertTrue(godby)
 
-        same_godby = PPModel.asppmodel("godby:"+ str(12.0/HA_TO_EV))
+        same_godby = PPModel.asppmodel("godby:"+ str(12.0/Ha_to_eV))
         self.assertTrue(same_godby == godby)
 
         noppm = PPModel.noppmodel()
