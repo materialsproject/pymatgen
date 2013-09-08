@@ -24,8 +24,17 @@ import collections
 from numbers import Number
 import numbers
 from functools import partial
-from pymatgen.core.physical_constants import N_a, e, EV_TO_HA
+from pymatgen.core.physical_constants import N_a, e
 import re
+
+"""
+Some conversion factors
+"""
+Ha_to_eV = 27.21138386
+Ry_to_eV = Ha_to_eV / 2
+amu_to_kg = 1.660538921e-27
+mile_to_meters = 1609.347219
+bohr_to_angstrom = 0.5291772083
 
 """
 Definitions of supported units. Values below are essentially scaling and
@@ -36,16 +45,16 @@ BASE_UNITS = {
     "length": {
         "m": 1,
         "km": 1000,
-        "mile": 1609.347219,
+        "mile": mile_to_meters,
         "ang": 1e-10,
         "cm": 1e-2,
         "pm": 1e-12,
-        "bohr": 0.5291772083e-10,
+        "bohr": bohr_to_angstrom * 1e-10,
     },
     "mass": {
         "kg": 1,
         "g": 1e-3,
-        "amu": 1.660538921e-27,
+        "amu": amu_to_kg,
     },
     "time": {
         "s": 1,
@@ -73,8 +82,8 @@ BASE_UNITS = {
 DERIVED_UNITS = {
     "energy": {
         "eV": {"kg": 1, "m": 2, "s": -2, e: 1},
-        "Ha": {"kg": 1, "m": 2, "s": -2, e / EV_TO_HA: 1},
-        "Ry": {"kg": 1, "m": 2, "s": -2, e / EV_TO_HA / 2: 1},
+        "Ha": {"kg": 1, "m": 2, "s": -2, e * Ha_to_eV: 1},
+        "Ry": {"kg": 1, "m": 2, "s": -2, e * Ry_to_eV: 1},
         "J": {"kg": 1, "m": 2, "s": -2},
         "kJ": {"kg": 1, "m": 2, "s": -2, 1000: 1}
     },
