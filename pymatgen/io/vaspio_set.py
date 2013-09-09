@@ -568,10 +568,10 @@ class MITMDVaspInputSet(JSONVaspInputSet):
         self.nsteps = nsteps
         self.time_step = time_step
         self.spin_polarized = spin_polarized
-        self.user_incar_settings = user_incar_settings
+        self.user_incar_settings = user_incar_settings or {}
 
         #use VASP default ENCUT
-        if 'ENCUT' not in user_incar_settings:
+        if 'ENCUT' not in self.user_incar_settings:
             del self.incar_settings['ENCUT']
 
     def get_kpoints(self, structure):
