@@ -3,15 +3,17 @@ Created on March 25, 2013
 
 @author: geoffroy
 """
+from __future__ import division
 
 import numpy as np
+
 from math import ceil
 from math import cos
 from math import sin
 from math import tan
 from math import pi
+from warnings import warn
 from pymatgen.symmetry.finder import SymmetryFinder
-
 
 class HighSymmKpath(object):
     """
@@ -43,32 +45,42 @@ class HighSymmKpath(object):
         self._conv = self._sym.get_conventional_standard_structure()
         self._prim_rec = self._prim.lattice.reciprocal_lattice
         self._kpath = None
-        if self._sym.get_lattice_type() == "cubic":
-            if "P" in self._sym.get_spacegroup_symbol():
+
+        lattice_type = self._sym.get_lattice_type() 
+        spg_symbol = self._sym.get_spacegroup_symbol()
+
+        if lattice_type == "cubic":
+            if "P" in spg_symbol:
                 self._kpath = self.cubic()
-            if "F" in self._sym.get_spacegroup_symbol():
+            elif "F" in spg_symbol:
                 self._kpath = self.fcc()
-            if "I" in self._sym.get_spacegroup_symbol():
+            elif "I" in spg_symbol:
                 self._kpath = self.bcc()
-        elif self._sym.get_lattice_type() == "tetragonal":
-            if "P" in self._sym.get_spacegroup_symbol():
+            else:
+                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+
+        elif lattice_type == "tetragonal":
+            if "P" in spg_symbol:
                 self._kpath = self.tet()
-            if "I" in self._sym.get_spacegroup_symbol():
+            elif "I" in spg_symbol:
                 a = self._conv.lattice.abc[0]
                 c = self._conv.lattice.abc[2]
                 if c < a:
                     self._kpath = self.bctet1(c, a)
                 else:
                     self._kpath = self.bctet2(c, a)
-        elif self._sym.get_lattice_type() == "orthorhombic":
+            else:
+                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+
+        elif lattice_type == "orthorhombic":
             a = self._conv.lattice.abc[0]
             b = self._conv.lattice.abc[1]
             c = self._conv.lattice.abc[2]
 
-            if "P" in self._sym.get_spacegroup_symbol():
+            if "P" in spg_symbol:
                 self._kpath = self.orc()
 
-            if "F" in self._sym.get_spacegroup_symbol():
+            elif "F" in spg_symbol:
                 if 1 / a ** 2 > 1 / b ** 2 + 1 / c ** 2:
                     self._kpath = self.orcf1(a, b, c)
                 elif 1 / a ** 2 < 1 / b ** 2 + 1 / c ** 2:
@@ -76,29 +88,32 @@ class HighSymmKpath(object):
                 else:
                     self._kpath = self.orcf3(a, b, c)
 
-            if "I" in self._sym.get_spacegroup_symbol():
+            elif "I" in spg_symbol:
                 self._kpath = self.orci(a, b, c)
 
-            if "C" in self._sym.get_spacegroup_symbol():
+            elif "C" in spg_symbol:
                 self._kpath = self.orcc(a, b, c)
+            else:
+                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
 
-        elif self._sym.get_lattice_type() == "hexagonal":
+        elif lattice_type == "hexagonal":
             self._kpath = self.hex()
 
-        elif self._sym.get_lattice_type() == "rhombohedral":
+        elif lattice_type == "rhombohedral":
             alpha = self._prim.lattice.lengths_and_angles[1][0]
             if alpha < 90:
                 self._kpath = self.rhl1(alpha * pi / 180)
             else:
                 self._kpath = self.rhl2(alpha * pi / 180)
-        elif self._sym.get_lattice_type() == "monoclinic":
+
+        elif lattice_type == "monoclinic":
             a, b, c = self._conv.lattice.abc
             alpha = self._conv.lattice.lengths_and_angles[1][0]
 
-            if "P" in self._sym.get_spacegroup_symbol():
+            if "P" in spg_symbol:
                 self._kpath = self.mcl(b, c, alpha * pi / 180)
 
-            if "C" in self._sym.get_spacegroup_symbol():
+            elif "C" in spg_symbol:
                 kgamma = self._prim_rec.lengths_and_angles[1][2]
                 if kgamma > 90:
                     self._kpath = self.mclc1(a, b, c, alpha * pi / 180)
@@ -114,7 +129,10 @@ class HighSymmKpath(object):
                     if b * cos(alpha * pi / 180) / c \
                             + b ** 2 * sin(alpha) ** 2 / a ** 2 > 1:
                         self._kpath = self.mclc5(a, b, c, alpha * pi / 180)
-        elif self._sym.get_lattice_type() == "triclinic":
+            else:
+                warn("Unexpected value for spg_symbol: %s" % spg_symbol)
+
+        elif lattice_type == "triclinic":
             kalpha = self._prim_rec.lengths_and_angles[1][0]
             kbeta = self._prim_rec.lengths_and_angles[1][1]
             kgamma = self._prim_rec.lengths_and_angles[1][2]
@@ -126,6 +144,9 @@ class HighSymmKpath(object):
                 self._kpath = self.tria()
             if kalpha < 90 and kbeta < 90 and kgamma == 90:
                 self._kpath = self.trib()
+
+        else:
+            warn("Unknown lattice type %s" % lattice_type)
 
     @property
     def structure(self):

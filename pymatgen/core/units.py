@@ -138,11 +138,19 @@ def _get_si_unit(unit):
     return si_unit[0], BASE_UNITS[unit_type][unit]
 
 
+class UnitError(BaseException):
+    """
+    Exception class for unit errors.
+    """
+
+
 class Unit(collections.Mapping):
     """
     Represents a unit, e.g., "m" for meters, etc. Supports compound units.
     Only integer powers are supported for units.
     """
+    Error = UnitError
+
     def __init__(self, unit_def):
         """
         Constructs a unit.
@@ -293,6 +301,7 @@ class FloatWithUnit(float):
     >>> c.to("eV")
     32.932522246000005 eV
     """
+    Error = UnitError
 
     def __new__(cls, val, unit, unit_type=None):
         return float.__new__(cls, val)
@@ -432,6 +441,8 @@ class ArrayWithUnit(np.ndarray):
     >>> c.to("eV")
     array([ 28.21138386,  56.42276772]) eV
     """
+    Error = UnitError
+
     def __new__(cls, input_array, unit, unit_type=None):
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
@@ -614,7 +625,7 @@ def obj_with_unit(obj, unit):
     if isinstance(obj, numbers.Number):
         return FloatWithUnit(obj, unit=unit, unit_type=unit_type)
     elif isinstance(obj, collections.Mapping):
-        return {k: obj_with_unit(v) for k,v in obj.items()}
+        return {k: obj_with_unit(v, unit) for k,v in obj.items()}
     else:
         return ArrayWithUnit(obj, unit=unit, unit_type=unit_type)
 
@@ -648,13 +659,6 @@ def unitized(unit):
             return val
         return wrapped_f
     return wrap
-
-
-class UnitError(BaseException):
-    """
-    Exception class for unit errors.
-    """
-    pass
 
 
 if __name__ == "__main__":

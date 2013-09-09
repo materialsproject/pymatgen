@@ -165,6 +165,9 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
             3 * ene_ha,
             ene_ha * 3,
             ene_ha / 3,
+            3 / ene_ha,
+            ene_ha * time_s,
+            ene_ha / ene_ev,
             ene_ha.copy(),
             ene_ha[0:1],
             e1,
@@ -173,8 +176,20 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
             e4,
         ]
 
-        # for obj in objects_with_unit:
-        #     self.assertTrue(obj.unit == "Ha")
+        for i, obj in enumerate(objects_with_unit):
+            #print(i, obj.unit)
+            self.assertTrue(hasattr(obj, "unit"))
+            #self.assertTrue(str(obj.unit) == "Ha")
+
+        objects_without_unit = [
+            # Here we could return a FloatWithUnit object but I prefer this 
+            # a bare scalar since FloatWithUnit extends float while we could have an int.
+            ene_ha[0],
+        ]
+
+        for obj in objects_without_unit:
+            print(obj, type(obj))
+            self.assertFalse(hasattr(obj, "unit"))
 
         with self.assertRaises(UnitError):
             ene_ha + time_s

@@ -79,21 +79,38 @@ class Task(object):
     Error = TaskError
 
     # Possible status of the task.
-    S_DONE = 1   # Task completed, This does not imply that results are ok or that the calculation completed successfully
-    S_READY = 2  # Task is ready for submission.
-    S_SUB = 4    # Task has been submitted.
-    S_RUN = 8    # Task is running.
+    S_READY = 1    # Task is ready for submission.
+    S_SUB = 2      # Task has been submitted.
+    S_RUN = 4      # Task is running.
+    S_DONE = 8     # Task done, This does not imply that results are ok or that the calculation completed successfully
+    S_ERROR = 16   # Task raised some kind of Error (either the process or ABINIT).
+    S_OK = 32      # Task completed successfully.
 
-    status2str = {
-        S_DONE: "done",
+    STATUS2STR = {
         S_READY: "ready",
         S_SUB: "submitted",
         S_RUN: "running",
+        S_DONE: "done",
+        S_ERROR: "error",
+        S_OK: "completed",
     }
 
     def __init__(self):
         # Set the initial status.
         self.set_status(Task.S_READY)
+
+        # Used to push additional info on the task during its execution. 
+        #self._history = collections.OrderedDict()
+
+    def __getstate__(self):
+        """
+        Return state is pickled as the contents for the instance.
+                                                                                      
+        In this case we just remove the process since Subprocess objects cannot be pickled.
+        This is the reason why we have to store the returncode in self_returncode instead
+        of using self.process.returncode.
+        """
+        return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
     # Interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -102,18 +119,19 @@ class Task(object):
 
     def poll(self):
         """Check if child process has terminated. Set and return returncode attribute."""
-        returncode = self.process.poll()
-        if returncode is not None:
+        self._returncode = self.process.poll()
+
+        if self._returncode is not None:
             self.set_status(Task.S_DONE)
 
-        return returncode
+        return self._returncode
 
     def wait(self):
         """Wait for child process to terminate. Set and return returncode attribute."""
-        returncode = self.process.wait()
+        self._returncode = self.process.wait()
         self.set_status(Task.S_DONE)
 
-        return returncode
+        return self._returncode
 
     def communicate(self, input=None):
         """
@@ -124,12 +142,15 @@ class Task(object):
         communicate() returns a tuple (stdoutdata, stderrdata).
         """
         stdoutdata, stderrdata = self.process.communicate(input=input)
+        self._returncode = self.process.returncode
         self.set_status(Task.S_DONE)
+
         return stdoutdata, stderrdata 
 
     def kill(self):
         """Kill the child."""
         self.process.kill()
+        self._returncode = self.process.returncode
 
     @property
     def returncode(self):
@@ -138,7 +159,10 @@ class Task(object):
         A None value indicates that the process hasn't terminated yet.
         A negative value -N indicates that the child was terminated by signal N (Unix only).
         """
-        return self.process.returncode
+        try: 
+            return self._returncode
+        except AttributeError:
+            return 0
 
     @property
     def id(self):
@@ -159,34 +183,101 @@ class Task(object):
         """Gives the status of the task."""
         return self._status
 
+    @property
+    def str_status(self):
+        """String representation of the status."""
+        return self.STATUS2STR[self.status]
+
     def set_status(self, status):
         """Set the status of the task."""
-        if status not in Task.status2str:
+        if status not in self.STATUS2STR:
             raise RuntimeError("Unknown status: %s" % status)
 
         self._status = status
 
         # Notify the observers
-        #self.subject.notify_observers(status)
+        #self.subject.notify_observers(self)
+
+    def recheck_status(self):
+
+        if self.status not in [self.S_SUB, self.S_RUN, self.S_DONE]: 
+            return
+
+        # Check the returncode of the process first.
+        if self.returncode != 0:
+            self.set_status(self.S_ERROR)
+
+        else:
+            # Check if the run completed successfully.
+            report = EventParser().parse(self.output_file.path)
+                                                                                                     
+            if report.run_completed:
+                self.set_status(self.S_OK)
+
+            else:
+                # TODO
+                # This is the delicate part since we have to discern among different possibilities:
+                #
+                # 1) Calculation stopped due to an Abinit Error or Bug.
+                # 2) Segmentation fault that (by definition) was not handled by ABINIT.
+                # 3) Problem with the resource manager and/or the OS (walltime error, resource error ...)
+                # 4) Calculation is still running!
+                #
+                # Point 2) and 3) are the most complicated since there's no standard!
+
+                # 1) Search for possible errors or bugs in the ABINIT **output** file.
+                if report.errors or report.bugs:
+                    self._status = self.S_ERROR
+                    return 
+
+                # 2) Analyze the stderr file for Fortran runtime errors.
+                #   err_lines = self.stderr_file.readlines()
+                #   if err_lines:
+                #       self._status = self.S_ERROR
+                #       return 
+
+                # 3) Analyze the error file of the resource manager.
+                #   self._status = self.S_ERROR
+                #   err_lines = self.qerr_file.readlines()
+                #   if err_lines:
+                #       self._status = self.S_ERROR
+                #       return 
+
+                # 4)
+                self._status = self.S_OK
+                return 
+
+    @property
+    def links(self):
+        return self._links
 
     @property
     def links_status(self):
         """Returns a list with the status of the links."""
-        if not self._links:
+        if not self.links:
             return [Task.S_DONE,]
-        return [l.status for l in self._links]
 
-    @abc.abstractmethod
-    def setup(self, *args, **kwargs):
-        """Public method called before submitting the task."""
+        return [l.status for l in self.links]
 
-    def _setup(self, *args, **kwargs):
-        """
-        This method calls self.setup after having performed additional operations
-        such as the creation of the symbolic links needed to connect different tasks.
-        """
-        # Create symbolic links to the output files produced by the other tasks
-        for link in self._links:
+    @property
+    def is_allocated(self):
+        """True if the task has been allocated, i.e. if it has been submitted or if it's running."""
+        return self.status in [Task.S_SUB, Task.S_RUN]
+
+    @property
+    def is_completed(self):
+        """True if the task has been executed."""
+        return self.status >= Task.S_DONE
+
+    @property
+    def can_run(self):
+        """The task can run if its status is S_READY and all the other links (if any) are done!"""
+        #return (self.status == Task.S_READY) and all([link_stat==Task.S_DONE for link_stat in task.links_status])
+        return (self.status == Task.S_READY) and all([stat >= Task.S_DONE for stat in self.links_status])
+
+    def connect(self):
+        """Create symbolic links to the output files produced by the other tasks."""
+        for link in self.links:
             filepaths, exts = link.get_filepaths_and_exts()
             for (path, ext) in zip(filepaths, exts):
                 dst = self.idata_path_from_ext(ext)
@@ -202,27 +293,45 @@ class Task(object):
                     raise self.Error("%s is needed by this task but it does not exist" % path)
 
                 # Link path to dst
-                #print("Linking ", path," --> ",dst)
+                print("Linking ", path," --> ",dst)
                 os.symlink(path, dst)
 
+    @abc.abstractmethod
+    def setup(self, *args, **kwargs):
+        """Public method called before submitting the task."""
+
+    def _setup(self, *args, **kwargs):
+        """
+        This method calls self.setup after having performed additional operations
+        such as the creation of the symbolic links needed to connect different tasks.
+        """
+        self.connect()
         self.setup(*args, **kwargs)
+
+    def _parse_events(self):
+        """Analyzes the main output for possible errors or warnings."""
+        parser = EventParser()
+        try:
+            return parser.parse(self.output_file.path)
+
+        except parser.Error as exc:
+            raise
+            # TODO: Handle possible errors in the parser by generating a custom EventList object
+            #return EventList(self.output_file.path, events=[Error(str(exc))])
 
     @property
     def events(self):
         """List of errors or warnings reported by ABINIT."""
-        if self.status != Task.S_DONE:
+        if self.status is None or self.status < self.S_DONE:
             raise self.Error(
-                "Task %s is not completed.\n You cannot access its events now, use get_events" % repr(self))
+                "Task %s is not completed.\nYou cannot access its events now, use _parse_events" % repr(self))
+
         try:
             return self._events
-        except AttributeError:
-            self._events = self.get_events()
-            return self._events
 
-    def get_events(self):
-        """Analyzes the main output for possible errors or warnings."""
-        # TODO: Handle possible errors in the parser by generating a custom EventList object
-        return EventParser().parse(self.output_file.path)
+        except AttributeError:
+            self._events = self._parse_events()
+            return self._events
 
     @property
     def results(self):
@@ -244,7 +353,7 @@ class Task(object):
         if self.returncode is None:
             raise self.Error("return code is None, you should call wait, communitate or poll")
 
-        if self.status != Task.S_DONE:
+        if self.status is None or self.status < self.S_DONE:
             raise self.Error("Task is not completed")
 
         return TaskResults({
@@ -333,7 +442,6 @@ class AbinitTask(Task):
 
         # Find number of processors ....
         #runhints = self.get_runhints()
-        #launcher = self.runmode.make_launcher(runhints)
 
         # Build the launcher and store it.
         self.set_launcher(self.runmode.make_launcher(self))
@@ -342,7 +450,8 @@ class AbinitTask(Task):
         return "<%s at %s, workdir = %s>" % (
             self.__class__.__name__, id(self), os.path.basename(self.workdir))
 
-    #def __str__(self):
+    def __str__(self):
+        return self.__repr__()
 
     @classmethod
     def from_input(cls, abinit_input, workdir, runmode, task_id=1, links=None, **kwargs):
@@ -365,21 +474,7 @@ class AbinitTask(Task):
                 keyword arguments (not used here)
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        class StrategyWithInput(object):
-            def __init__(self, abinit_input):
-                self.abinit_input = abinit_input
-                                                 
-            @property
-            def pseudos(self):
-                return self.abinit_input.pseudos
-
-            def add_extra_abivars(self, abivars):
-                """Add variables (dict) to extra_abivars."""
-                self.abinit_input.set_variables(**abivars)
-                                                 
-            def make_input(self):
-                return str(self.abinit_input)
-
+        from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
         return cls(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
 
@@ -586,12 +681,14 @@ class AbinitTask(Task):
         """
         if not exclude_wildcard:
             shutil.rmtree(self.workdir)
+
         else:
             pats = exclude_wildcard.split("|")
 
             import fnmatch
 
             def keep(fname):
+                """True if fname must be preserved."""
                 for pat in pats:
                     if fnmatch.fnmatch(fname, pat):
                         return True
@@ -655,10 +752,6 @@ class AbinitTask(Task):
             - call the _setup method
             - execute the job file via the shell or other means.
             - return Results object
-
-        .. warning::
-             This method must be thread safe since we may want to run several independent
-             calculations with different python threads. 
         """
         self.build(*args, **kwargs)
 
@@ -678,7 +771,7 @@ class TaskResults(dict, MSONable):
     """
     Dictionary used to store the most important results produced by a Task.
     """
-    _mandatory_keys = [
+    _MANDATORY_KEYS = [
         "task_name",
         "task_returncode",
         "task_status",
@@ -711,7 +804,7 @@ class TaskResults(dict, MSONable):
         """
         # TODO Better treatment of events.
         try:
-            assert (self["task_returncode"] == 0 and self["task_status"] == Task.S_DONE)
+            assert (self["task_returncode"] == 0 and self["task_status"] == self.S_DONE)
         except AssertionError as exc:
             self.push_exceptions(exc)
 
@@ -797,17 +890,15 @@ class RunMode(dict, MSONable):
     """
     This object contains the user-specified settings controlling the execution 
     of the run (submission, coarse- and fine-grained parallelism ...)
-    It acts as a factory that produced Launcher instances.
+    It acts as a factory for `Launcher` objects.
     """
     # Default values (correspond to the sequential mode).
-    _defaults = {
-        "launcher_type": "shell",    # ["shell", "slurm", "slurm", "pbs",]
-        #"with_fw"     : False,      # True if we are using fireworks.
+    _DEFAULTS = {
+        "launcher_type": "shell",    # ["shell", "slurm", "pbs",]
+        #"qadaptor":   : None,
+        "use_fw"       : False,      # True if we are using fireworks.
         "policy"       : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
-        "mpirun"       : "mpirun",   # Path to the mpi runnner.
-        "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforces)
-        "omp_env"      : {},         # OpenMP environment variables.
-        "queue_params" : {},         # Parameters passed to the firework QueueAdapter.
+        "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
     }
 
     def __init__(self, *args, **kwargs):
@@ -819,9 +910,9 @@ class RunMode(dict, MSONable):
     @classmethod
     def asrunmode(cls, obj):
         """
-        Returns a RunMode instance from obj. Accepts:
+        Returns a `RunMode` instance from obj. Accepts:
 
-            - RunMode instances
+            - `RunMode` instances
             - A string with "sequential" to indicate that Abinit will be executed in sequential mode.
         """
         if isinstance(obj, cls):
@@ -847,8 +938,8 @@ class RunMode(dict, MSONable):
 
     @classmethod
     def from_file(cls, filename):
-        """Initialize an instance of RunMode from the configuration file (JSON format)."""
-        defaults = cls._defaults.copy() 
+        """Initialize an instance of `RunMode` from the configuration file (JSON format)."""
+        defaults = cls._DEFAULTS.copy() 
         d = json_load(filename) 
 
         # Put default values if they are not in d.
@@ -859,7 +950,7 @@ class RunMode(dict, MSONable):
 
     @classmethod
     def sequential(cls, launcher_type=None):
-        d = cls._defaults.copy()
+        d = cls._DEFAULTS.copy()
         if launcher_type is not None:
             d["launcher_type"] = launcher_type
 
@@ -867,7 +958,7 @@ class RunMode(dict, MSONable):
 
     @classmethod
     def mpi_parallel(cls, mpi_ncpus, launcher_type=None):
-        d = cls._defaults.copy()
+        d = cls._DEFAULTS.copy()
         if launcher_type is not None:
             d["launcher_type"] = launcher_type
         new = cls(d)
@@ -893,8 +984,9 @@ class RunMode(dict, MSONable):
 
     def make_launcher(self, task):
         """Factory function returning a launcher instance."""
-        #if have_fw:
-        #   raise ValueError("Firework not yet supported")
+
+        #if self.use_fw:
+        #   raise NotImplementedError("Firework not yet supported")
                                                        
         # Find the subclass to instanciate.
         cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
@@ -909,5 +1001,3 @@ class RunMode(dict, MSONable):
     def make_seq_launcher(self, task):
         """Return a simple launcher for sequential runs."""
         raise NotImplementedError("")
-
-##########################################################################################
