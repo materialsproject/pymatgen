@@ -520,7 +520,8 @@ class MITMDVaspInputSet(JSONVaspInputSet):
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2, 
                  hubbard_off=True, spin_polarized=False,
-                 sort_structure=False, **kwargs):
+                 sort_structure=False, user_incar_settings=None,
+                 **kwargs):
         """
         Args:
             start_temp:
@@ -538,6 +539,8 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             sort_structure:
                 Whether to sort structure. Defaults to False (different
                 behavior from standard input sets).
+            user_incar_settings:
+                Settings to override the default incar settings (as a dict)
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
@@ -552,23 +555,24 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                     'ISPIN': 2 if spin_polarized else 1}
         
         #override default settings with user supplied settings
-        if 'user_incar_settings' in kwargs:
-            user_settings = kwargs['user_incar_settings']
-            defaults.update(user_settings)
-        kwargs['user_incar_settings'] = defaults
+        if user_incar_settings:
+            defaults.update(user_incar_settings)
         
         JSONVaspInputSet.__init__(
             self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            hubbard_off=hubbard_off, sort_structure=sort_structure, **kwargs)
+            hubbard_off=hubbard_off, sort_structure=sort_structure, 
+            user_incar_settings = defaults, **kwargs)
         
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
         self.time_step = time_step
         self.spin_polarized = spin_polarized
+        self.user_incar_settings = user_incar_settings
 
         #use VASP default ENCUT
-        del self.incar_settings['ENCUT']
+        if 'ENCUT' not in user_incar_settings:
+            del self.incar_settings['ENCUT']
 
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
@@ -581,7 +585,8 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             "end_temp": self.end_temp,
             "nsteps": self.nsteps,
             "time_step": self.time_step,
-            "spin_polarized": self.spin_polarized
+            "spin_polarized": self.spin_polarized,
+            "user_incar_settings": self.user_incar_settings
         })
         return d
 
