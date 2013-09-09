@@ -82,7 +82,7 @@ class Task(object):
     S_READY = 1    # Task is ready for submission.
     S_SUB = 2      # Task has been submitted.
     S_RUN = 4      # Task is running.
-    S_DONE = 8     # Task completed, This does not imply that results are ok or that the calculation completed successfully
+    S_DONE = 8     # Task done, This does not imply that results are ok or that the calculation completed successfully
     S_ERROR = 16   # Task raised some kind of Error (either the process or ABINIT).
     S_OK = 32      # Task completed successfully.
 
@@ -98,6 +98,9 @@ class Task(object):
     def __init__(self):
         # Set the initial status.
         self.set_status(Task.S_READY)
+
+        # Used to push additional info on the task during its execution. 
+        #self._history = collections.OrderedDict()
 
     def __getstate__(self):
         """
@@ -159,7 +162,7 @@ class Task(object):
         try: 
             return self._returncode
         except AttributeError:
-            return None
+            return 0
 
     @property
     def id(self):
@@ -179,6 +182,11 @@ class Task(object):
     def status(self):
         """Gives the status of the task."""
         return self._status
+
+    @property
+    def str_status(self):
+        """String representation of the status."""
+        return self.STATUS2STR[self.status]
 
     def set_status(self, status):
         """Set the status of the task."""
@@ -434,7 +442,6 @@ class AbinitTask(Task):
 
         # Find number of processors ....
         #runhints = self.get_runhints()
-        #launcher = self.runmode.make_launcher(runhints)
 
         # Build the launcher and store it.
         self.set_launcher(self.runmode.make_launcher(self))
@@ -745,10 +752,6 @@ class AbinitTask(Task):
             - call the _setup method
             - execute the job file via the shell or other means.
             - return Results object
-
-        .. warning::
-             This method must be thread safe since we may want to run several independent
-             calculations with different python threads. 
         """
         self.build(*args, **kwargs)
 
@@ -887,17 +890,15 @@ class RunMode(dict, MSONable):
     """
     This object contains the user-specified settings controlling the execution 
     of the run (submission, coarse- and fine-grained parallelism ...)
-    It acts as a factory that produced Launcher instances.
+    It acts as a factory for `Launcher` objects.
     """
     # Default values (correspond to the sequential mode).
-    _defaults = {
-        "launcher_type": "shell",    # ["shell", "slurm", "slurm", "pbs",]
-        #"with_fw"     : False,      # True if we are using fireworks.
+    _DEFAULTS = {
+        "launcher_type": "shell",    # ["shell", "slurm", "pbs",]
+        #"qadaptor":   : None,
+        "use_fw"       : False,      # True if we are using fireworks.
         "policy"       : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
-        "mpirun"       : "mpirun",   # Path to the mpi runnner.
-        "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforces)
-        "omp_env"      : {},         # OpenMP environment variables.
-        "queue_params" : {},         # Parameters passed to the firework QueueAdapter.
+        "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
     }
 
     def __init__(self, *args, **kwargs):
@@ -909,9 +910,9 @@ class RunMode(dict, MSONable):
     @classmethod
     def asrunmode(cls, obj):
         """
-        Returns a RunMode instance from obj. Accepts:
+        Returns a `RunMode` instance from obj. Accepts:
 
-            - RunMode instances
+            - `RunMode` instances
             - A string with "sequential" to indicate that Abinit will be executed in sequential mode.
         """
         if isinstance(obj, cls):
@@ -937,8 +938,8 @@ class RunMode(dict, MSONable):
 
     @classmethod
     def from_file(cls, filename):
-        """Initialize an instance of RunMode from the configuration file (JSON format)."""
-        defaults = cls._defaults.copy() 
+        """Initialize an instance of `RunMode` from the configuration file (JSON format)."""
+        defaults = cls._DEFAULTS.copy() 
         d = json_load(filename) 
 
         # Put default values if they are not in d.
@@ -949,7 +950,7 @@ class RunMode(dict, MSONable):
 
     @classmethod
     def sequential(cls, launcher_type=None):
-        d = cls._defaults.copy()
+        d = cls._DEFAULTS.copy()
         if launcher_type is not None:
             d["launcher_type"] = launcher_type
 
@@ -957,7 +958,7 @@ class RunMode(dict, MSONable):
 
     @classmethod
     def mpi_parallel(cls, mpi_ncpus, launcher_type=None):
-        d = cls._defaults.copy()
+        d = cls._DEFAULTS.copy()
         if launcher_type is not None:
             d["launcher_type"] = launcher_type
         new = cls(d)
@@ -983,8 +984,9 @@ class RunMode(dict, MSONable):
 
     def make_launcher(self, task):
         """Factory function returning a launcher instance."""
-        #if self.has_fw:
-        #   raise ValueError("Firework not yet supported")
+
+        #if self.use_fw:
+        #   raise NotImplementedError("Firework not yet supported")
                                                        
         # Find the subclass to instanciate.
         cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
@@ -999,4 +1001,3 @@ class RunMode(dict, MSONable):
     def make_seq_launcher(self, task):
         """Return a simple launcher for sequential runs."""
         raise NotImplementedError("")
-

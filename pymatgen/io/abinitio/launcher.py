@@ -44,12 +44,16 @@ class ScriptEditor(object):
         self._lines.append('#!' + self.shell)
 
     def declare_var(self, key, val):
-        """Return a lines setting a variable."""
-        line = key + '=' + str(val)
+        """Declare a env variable. If val is None the variable is unset."""
+        if val is not None:
+            line = "export " + key + '=' + str(val)
+        else:
+            line = "unset " + key 
+
         self._add(line)
 
     def declare_vars(self, d):
-        """Declare the variabled defined in d (dict)"""
+        """Declare the variables defined in the dictionary d."""
         for k,v in d.items():
             self.declare_var(k, v)
 
@@ -125,7 +129,7 @@ class OmpEnv(dict):
         for key, value in self.items():
             self[key] = str(value)
             if key not in self._KEYS:
-                err_msg += "unknown option %s" % key
+                err_msg += "unknown option %s\n" % key
 
         if err_msg: 
             raise ValueError(err_msg)
@@ -357,27 +361,13 @@ class ShellLauncher(TaskLauncher):
         return process
 
 
-#class SlurmLauncher(TaskLauncher):
-#    _type = "slurm"
-#
-#    def make_rsmheader(self):
-#        raise NotImplementedError()
-#
-#    def launch(self, *args, **kwargs):
-#        """
-#        Run the script in a subprocess, returns a Popen-like object.
-#        This is a very delicate part. Hopefully fireworks will help solve the problem!
-#        """
-#        raise NotImplementedError()
-
-
-class SimpleResourceManagerError(Exception):
+class ResourceManagerError(Exception):
     """Base error class for `SimpleResourceManager."""
 
 
 class SimpleResourceManager(object):
 
-    Error = SimpleResourceManagerError
+    Error = ResourceManagerError
 
     def __init__(self, work, max_ncpus, sleep_time=20, verbose=0):
         """
