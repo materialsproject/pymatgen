@@ -20,7 +20,7 @@ from pymatgen.core import Molecule
 from pymatgen.util.io_utils import zopen
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.units import Energy
-import pymatgen.core.physical_constants as phyc
+from pymatgen.core.units import FloatWithUnit
 
 
 class NwTask(MSONable):
@@ -547,8 +547,8 @@ class NwOutput(object):
                 else:
                     m = corrections_patt.search(l)
                     if m:
-                        corrections[m.group(1)] = float(m.group(2)) / \
-                                                  phyc.EV_PER_ATOM_TO_KJ_PER_MOL
+                        corrections[m.group(1)] = FloatWithUnit(
+                            m.group(2), "kJ mol^-1").to("eV atom^-1")
 
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
