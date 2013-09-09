@@ -518,8 +518,8 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     runs.
     """
 
-    def __init__(self, start_temp, end_temp, nsteps, time_step=2,
-                 prec="Normal", hubbard_off=True, spin_polarized=False,
+    def __init__(self, start_temp, end_temp, nsteps, time_step=2, 
+                 hubbard_off=True, spin_polarized=False,
                  sort_structure=False, **kwargs):
         """
         Args:
@@ -532,8 +532,6 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             time_step:
                 The time step for the simulation. The POTIM parameter.
                 Defaults to 2fs.
-            prec:
-                precision - Normal or LOW. Defaults to Low for MD runs.
             hubbard_off:
                 Whether to turn off Hubbard U. Defaults to *True* (different
                 behavior from standard input sets) for MD runs.
@@ -543,29 +541,34 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
+        #MD default settings
+        defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
+                    'EDIFF': 0.000001, 'LSCALU': False, 'LCHARG': False, 
+                    'LPLANE': False, 'LWAVE': True, 'ICHARG': 1, 'ISMEAR': 0, 
+                    'SIGMA': 0.05, 'NELMIN': 4, 'LREAL': True, 'BMIX': 1, 
+                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0, 
+                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100, 
+                    'SMASS': 0, 'POTIM': time_step, 'PREC': 'Normal',
+                    'ISPIN': 2 if spin_polarized else 1}
+        
+        #override default settings with user supplied settings
+        if 'user_incar_settings' in kwargs:
+            user_settings = kwargs['user_incar_settings']
+            defaults.update(user_settings)
+        kwargs['user_incar_settings'] = defaults
+        
         JSONVaspInputSet.__init__(
             self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
             hubbard_off=hubbard_off, sort_structure=sort_structure, **kwargs)
+        
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
         self.time_step = time_step
-        self.prec = prec
         self.spin_polarized = spin_polarized
 
-        #Optimized parameters for MD simulations.
-        incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
-                          'PREC': prec, 'EDIFF': 0.000001, 'LSCALU': False,
-                          'LCHARG': False, 'LPLANE': False, 'LWAVE': True,
-                          "ICHARG": 1, "ISMEAR": 0, "SIGMA": 0.05, "NELMIN": 4,
-                          "LREAL": True, "BMIX": 1, "MAXMIX": 20, "NELM": 500,
-                          "NSIM": 4, "ISYM": 0, "ISIF": 0, "IBRION": 0,
-                          "NBLOCK": 1, "KBLOCK": 100, "SMASS": 0,
-                          "POTIM": time_step,
-                          "ISPIN": 2 if spin_polarized else 1}
         #use VASP default ENCUT
         del self.incar_settings['ENCUT']
-        self.incar_settings.update(incar_settings)
 
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
@@ -578,7 +581,6 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             "end_temp": self.end_temp,
             "nsteps": self.nsteps,
             "time_step": self.time_step,
-            "prec": self.prec,
             "spin_polarized": self.spin_polarized
         })
         return d
@@ -587,7 +589,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
     def from_dict(cls, d):
         return cls(start_temp=d["start_temp"], end_temp=d["end_temp"],
                    nsteps=d["nsteps"], time_step=d["time_step"],
-                   prec=d["prec"], hubbard_off=d.get("hubbard_off", False),
+                   hubbard_off=d.get("hubbard_off", False),
                    user_incar_settings=d["user_incar_settings"],
                    spin_polarized=d.get("spin_polarized", False),
                    constrain_total_magmom=d["constrain_total_magmom"],
