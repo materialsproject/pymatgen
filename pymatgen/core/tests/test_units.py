@@ -91,7 +91,7 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269190469588 eV atom^-1")
         self.assertRaises(UnitError, form_e.to, "m s^-1")
         a = FloatWithUnit(1.0, "Ha^3")
-        self.assertEqual(str(a.to("J^3")), "8.286726616151194e-53 J^3")
+        self.assertEqual(str(a.to("J^3")), "8.286726616151198e-53 J^3")
         a = FloatWithUnit(1.0, "Ha bohr^-2")
         self.assertEqual(str(a.to("J m^-2")), "1556.8929145749312 J m^-2")
 

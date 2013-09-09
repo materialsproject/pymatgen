@@ -16,7 +16,7 @@ import pymatgen.core.units as units
 from pprint import pformat
 from pymatgen.util.decorators import singleton
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
+from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure, Molecule
@@ -391,7 +391,7 @@ class AbiStructure(Structure, AbivarAble):
 
         molecule = Molecule([p.symbol for p in pseudos], cart_coords)
 
-        l = Bohr2Ang(acell)
+        l = ArrayWithUnit(acell, "bohr").to("ang")
 
         structure = molecule.get_boxed_structure(l[0], l[1], l[2])
 
@@ -440,7 +440,7 @@ class AbiStructure(Structure, AbivarAble):
         #    lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
         #xred = '\n' + "\n".join(lines)
 
-        rprim = Ang2Bohr(self.lattice.matrix)
+        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
         return {
