@@ -592,21 +592,79 @@ class ArrayWithUnit(np.ndarray):
 
 
 Energy = partial(FloatWithUnit, unit_type="energy")
+"""
+A float with an energy unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
+"""
 EnergyArray = partial(ArrayWithUnit, unit_type="energy")
 
 Length = partial(FloatWithUnit, unit_type="length")
+"""
+A float with a length unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
+        raised.
+"""
 LengthArray = partial(ArrayWithUnit, unit_type="length")
 
 Mass = partial(FloatWithUnit, unit_type="mass")
+"""
+A float with a mass unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., amu, kg, etc. Must be valid unit or UnitError is
+        raised.
+"""
 MassArray = partial(ArrayWithUnit, unit_type="mass")
 
 Temp = partial(FloatWithUnit, unit_type="temperature")
+"""
+A float with a temperature unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., K. Only K (kelvin) is supported.
+"""
 TempArray = partial(ArrayWithUnit, unit_type="temperature")
 
 Time = partial(FloatWithUnit, unit_type="time")
+"""
+A float with a time unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., s, min, h. Must be valid unit or UnitError is
+        raised.
+"""
 TimeArray = partial(ArrayWithUnit, unit_type="time")
 
 Charge = partial(FloatWithUnit, unit_type="charge")
+"""
+A float with a charge unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., C, e (electron charge). Must be valid unit or UnitError
+        is raised.
+"""
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
 
 
