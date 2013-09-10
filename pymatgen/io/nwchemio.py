@@ -599,6 +599,8 @@ class NwOutput(object):
                     parse_bset = True
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
+                    if "COSMO solvation results" in output:
+                        job_type=job_type+"COSMO"
                 else:
                     m = corrections_patt.search(l)
                     if m:
