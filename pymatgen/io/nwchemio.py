@@ -512,6 +512,14 @@ class NwOutput(object):
 
     def _parse_job(self, output):
         energy_patt = re.compile("Total \w+ energy\s+=\s+([\.\-\d]+)")
+        """  In cosmo solvation results gas phase energy =      -152.5044774212 """
+
+        energy_gas_patt = re.compile("gas phase energy\s+=\s+([\.\-\d]+)")
+
+        """ In cosmo solvation results sol phase energy =      -152.5044774212 """
+
+        energy_sol_patt = re.compile("sol phase energy\s+=\s+([\.\-\d]+)")
+
         coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
                                 "([\.\-\d]+)\s+([\.\-\d]+)")
         corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
@@ -567,6 +575,15 @@ class NwOutput(object):
                 if m:
                     energies.append(float(m.group(1)) * phyc.Ha_eV)
                     continue
+
+                m=energy_gas_patt.search(l)
+                if m:
+                    energies.append(float(m.group(1)) * phyc.Ha_eV)
+
+                m=energy_sol_patt.search(l)
+                if m:
+                    energies.append(float(m.group(1)) * phyc.Ha_eV)
+
 
                 m = preamble_patt.search(l)
                 if m:
