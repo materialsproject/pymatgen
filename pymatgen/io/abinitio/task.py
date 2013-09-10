@@ -112,6 +112,15 @@ class Task(object):
         """
         return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
+    @abc.abstractproperty
+    def executable(self):
+        """
+        Path to the executable associated to the task (internally stored in self._executable).
+        """
+
+    def set_executable(self, executable):
+        self._executable = executable
+
     # Interface modeled after subprocess.Popen
     @abc.abstractproperty
     def process(self):
@@ -220,7 +229,7 @@ class Task(object):
                 #
                 # 1) Calculation stopped due to an Abinit Error or Bug.
                 # 2) Segmentation fault that (by definition) was not handled by ABINIT.
-                # 3) Problem with the resource manager and/or the OS (walltime error, resource error ...)
+                # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
                 # 4) Calculation is still running!
                 #
                 # Point 2) and 3) are the most complicated since there's no standard!
@@ -440,9 +449,6 @@ class AbinitTask(Task):
         self.log_file = File(os.path.join(self.workdir, AbinitTask.basename.log_file))
         self.stderr_file = File(os.path.join(self.workdir, AbinitTask.basename.stderr_file))
 
-        # Find number of processors ....
-        #runhints = self.get_runhints()
-
         # Build the launcher and store it.
         self.set_launcher(self.runmode.make_launcher(self))
 
@@ -477,6 +483,13 @@ class AbinitTask(Task):
         from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
         return cls(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
+
+    @property
+    def executable(self):
+        try:
+            return self._executable
+        except AttributeError:
+            return "abinit"
 
     @property
     def name(self):
@@ -719,28 +732,6 @@ class AbinitTask(Task):
         """Remove the directory with the input files (indata dir)."""
         shutil.rmtree(self.indata_dir)
 
-    def get_runhints(self):
-        """
-        Run ABINIT in sequential to obtain a set of possible
-        configurations for the number of processors.
-        RunMode is used to select the paramenters of the run.
-        """
-        raise NotImplementedError("")
-
-        # Build a sequential launcher to run the code.
-        seq_launcher = self.runmode.make_seq_launcher(self)
-
-        # Launch the calculation.
-        retcode = seq_launcher.launch(self)
-
-        # Parse the output file to find the number of MPI processors, 
-        # the number of OpenMP processors, memory estimate in Gb ...
-        runhints = RunHintsParser().parse(self.output_file.path)
-
-        self.set_status(self.S_READY)
-
-        return runhints
-
     def setup(self, *args, **kwargs):
         pass
 
@@ -765,7 +756,6 @@ class AbinitTask(Task):
         self.start(*args, **kwargs)
         return self.wait()
 
-##########################################################################################
 
 class TaskResults(dict, MSONable):
     """
@@ -829,18 +819,22 @@ class TaskResults(dict, MSONable):
         return cls.from_dict(json_load(filename))    
 
 
+class RunHintsError(Exception):
+    """Base error class for `RunHints`."""
+
+
 class RunHints(collections.OrderedDict):
     """
-    Dictionary with the hints for the parallel execution reported by abinit.
+    Dictionary with the hints for the parallel execution reported by ABINIT.
 
     Example:
         <RUN_HINTS, max_ncpus = "108", autoparal="3">
-            "1" : {"tot_ncpus": 2,           # Total number of CPUs
-                   "mpi_ncpus": 2,           # Number of MPI processes.
-                   "omp_ncpus": 1,           # Number of OMP threads (0 if not used)
-                   "memory_gb": 10,          # Estimated memory requirement in Gigabytes (total or per proc?)
-                   "weight"   : 0.4,         # 1.0 corresponds to an "expected" optimal efficiency.
-                   "variables": {            # Dictionary with the variables that should be added to the input.
+            "1" : {"tot_ncpus": 2,         # Total number of CPUs
+                   "mpi_ncpus": 2,         # Number of MPI processes.
+                   "omp_ncpus": 1,         # Number of OMP threads (0 if not used)
+                   "memory_gb": 10,        # Estimated memory requirement in Gigabytes (total or per proc?)
+                   "weight"   : 0.4,       # 1.0 corresponds to an "expected" optimal efficiency.
+                   "abivars": {            # Dictionary with the variables that should be added to the input.
                         "varname1": varvalue1,
                         "varname2": varvalue2,
                         }
@@ -854,6 +848,11 @@ class RunHints(collections.OrderedDict):
         96       1         1        24         4         1        1.50
         84       1         1        12         7         2        0.25
     """
+    Error = RunHintsError
+
+    def __init__(self, *args, **kwargs):
+        super(RunHints, self).__init__(*args, **kwargs)
+
     @classmethod
     def from_file(cls, filename):
         """
@@ -866,24 +865,24 @@ class RunHints(collections.OrderedDict):
         try:
             start = lines.index("<RUN_HINTS>\n")
             stop  = lines.index("</RUN_HINTS>\n")
+
         except ValueError:
-            raise ValueError("%s does not contain any valid RUN_HINTS section" % filename)
+            raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
 
         runhints = json_loads("".join(l for l in lines[start+1:stop]))
 
         # Sort the dict so that configuration with minimum (weight-1.0) appears in the first positions
         return cls(sorted(runhints, key=lambda t : abs(t[1]["weight"] - 1.0), reverse=False))
 
-    def __init__(self, *args, **kwargs):
-        super(RunHints, self).__init__(*args, **kwargs)
-
-    def get_hint(self, policy):
-        # Find the optimal configuration depending on policy
+    def select(self, policy):
+        """Find the optimal configuration according on policy."""
         raise NotImplementedError("")
+        #okey = ??
+        #self["mpi_ncpus"] = min(mpi_ncpus, self["max_ncpus"])
+        #self["omp_ncpus"] = min(omp_ncpus, self["max_ncpus"])
+
         # Copy the dictionary and return AttrDict instance.
-        #odict = self[okey].copy()
-        #odict["_policy"] = policy
-        #return AttrDict(odict)
+        return AttrDict(self[okey].copy())
 
 
 class RunMode(dict, MSONable):
@@ -891,11 +890,18 @@ class RunMode(dict, MSONable):
     This object contains the user-specified settings controlling the execution 
     of the run (submission, coarse- and fine-grained parallelism ...)
     It acts as a factory for `Launcher` objects.
+
+    A `TaskManager` is responsible for the generation and the submission 
+    script, as well as of the specification of the parameters passed to the Resource Manager
+    (e.g. Slurm, PBS ...) and/or the dynamic specification of the ABINIT variables governing the 
+    parallel execution. A `TaskManager` delegates the generation of the submission
+    script and the submission of the task to the `QueueAdapter`. 
+    A `TaskManager` has a `TaskPolicy` object that governs the specification of the 
+    parameters for the parallel executions.
     """
     # Default values (correspond to the sequential mode).
     _DEFAULTS = {
         "launcher_type": "shell",    # ["shell", "slurm", "pbs",]
-        #"qadaptor":   : None,
         "use_fw"       : False,      # True if we are using fireworks.
         "policy"       : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
         "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
@@ -922,31 +928,6 @@ class RunMode(dict, MSONable):
             return cls.sequential()
 
         raise ValueError("Don't know how to convert obj %s into a %s instance" % (obj, obj.__class__.__name__))
-
-    @classmethod
-    def load_user_configuration(cls):
-        fname = "runmode.json"
-        cwd = os.getcwd()
-
-        path = os.path.join(cwd, fname)
-
-        if os.path.exists(path):
-            return cls.from_filename(path)
-        else:
-            raise NotImplementedError("Trying in the pymatgen dir")
-            #raise RuntimeError("Cannot find configuration file for initializing RunMode instance")
-
-    @classmethod
-    def from_file(cls, filename):
-        """Initialize an instance of `RunMode` from the configuration file (JSON format)."""
-        defaults = cls._DEFAULTS.copy() 
-        d = json_load(filename) 
-
-        # Put default values if they are not in d.
-        for (k,v) in defaults.items():
-            if k not in d:
-                d[k] = v
-        return cls(d)
 
     @classmethod
     def sequential(cls, launcher_type=None):
@@ -998,6 +979,128 @@ class RunMode(dict, MSONable):
                    **task.runmode
                   )
 
-    def make_seq_launcher(self, task):
-        """Return a simple launcher for sequential runs."""
+
+class TaskPolicy(dict):
+    """
+    This object stores the parameters used by the `TaskManager` to 
+    create the submission script and/or the modification of the 
+    ABINIT variables governing the parallel execution.
+    """
+
+    # Default values.
+    _DEFAULTS = dict(
+        use_fw=False,      # True if we are using fireworks.
+        max_ncpus=np.inf,  # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(TaskPolicy, self).__init__(*args, **kwargs)
+
+        err_msg = ""
+        for k, v in self:
+            if k not in self._DEFAULTS:
+                err_msg += "Unknow key %s\n" % k
+
+        if err_msg:
+            raise ValueError(err_msg)
+
+        for k, v in self._DEFAULTS:
+            if k not in self:
+                self[k] = v
+
+    @classmethod
+    def default_policy(cls):
+        return cls(**cls._DEFAULTS.copy())
+
+
+class TaskManager(object):
+    """
+    A `TaskManager` is responsible for the generation and the submission 
+    script, as well as of the specification of the parameters passed to the Resource Manager
+    (e.g. Slurm, PBS ...) and/or the dynamic specification of the ABINIT variables governing the 
+    parallel execution. A `TaskManager` delegates the generation of the submission
+    script and the submission of the task to the `QueueAdapter`. 
+    A `TaskManager` has a `TaskPolicy` object that governs the specification of the 
+    parameters for the parallel executions.
+    """
+
+    def __init__(self, qadapter_class, policy=None):
+        self.qadapter = qadapter_class()
+        self.policy = policy if policy is not None else TaskPolicy.default_policy()
+
+    #@classmethod 
+    #def simple_manager(cls, mpi_ncpus=1):
+    #    """
+    #    Simplest task manager that submits jobs with a simple shell script.
+    #    Assume the shell environment is already properly initialized.
+    #    """
+    #    return cls(qadapter_class=ShellAdapter, policy=None)
+
+    def optimize_params(self, task):
+        """
+        Find optimal parameters for the execution of the task 
+        using the options specified in self.policy.
+     
+        This method can change the ABINIT input variables and/or the 
+        parameters passed to the Resource Manager e.g. the number of CPUs.
+        """
         raise NotImplementedError("")
+
+        # 1) Run ABINIT in sequential to get the possible configurations.
+        retcode = self._dummy_run(task)
+
+        if retcode != 0:
+            return 
+
+        # 2) Parse the configurations
+        try:
+            hints = RunHints.from_file(task.log_file.path)
+
+        except RunHints.Error:
+            raise
+
+        # 3) Select the optimal configuration according to policy
+        optimal = hints.select(self.policy)
+
+        # 4) Change the input file and/or the submission script
+        task.strategy.add_abivars(optimal.abivars)
+
+        #self.qadapter.set_mpi_nprocs(optimal.mpi_nprocs)
+        #self.qadapter.set_omp_nprocs(optimal.omp_nprocs)
+
+    def _dummy_run(self, task):
+        retcode = 0
+        return retcode
+
+    def submit_task(self, task):
+        """Submit the task."""
+
+        #if self.policy.use_fw:
+        #   raise NotImplementedError("Firework not yet supported")
+                                                       
+        # Find the subclass to instanciate.
+        #cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
+        #return cls(task.jobfile_path, 
+        #           stdin  = task.files_file.path, 
+        #           stdout = task.log_file.path,
+        #           stderr = task.stderr_file.path,
+        #           **task.runmode
+        #          )
+
+        # NEW VERSION based of queue_adapter.
+        #qad = self.qadapter
+        #script = qad.get_script_str(
+        #    job_name=task.name, 
+        #    launch_dir=task.workdir, 
+        #    executable=task.executable,
+        #    stdin =task.files_file.path, 
+        #    stdout=task.log_file.path,
+        #    stderr=task.stderr_file.path,
+        #)
+
+        #script_file = task.job_file.path
+        #with open(script_file, "w") as fh:
+        #    fh.write(script)
+
+        #process = qad.submit_to_queue(script_file)
+        #return process
