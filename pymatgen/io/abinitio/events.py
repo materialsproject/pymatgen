@@ -8,7 +8,6 @@ from __future__ import division, print_function
 import os.path
 import collections
 import json
-# import abc
 
 from pymatgen.serializers.json_coders import MSONable
 
@@ -16,11 +15,11 @@ __all__ = [
     "EventParser",
 ]
 
-class Event(MSONable):
+class AbinitEvent(MSONable):
     """
     Example (JSON)::
 
-        <Event>
+        <AbinitEvent>
             "class": "ScfConvergenceWarning",
             "src_file": "routine name",
             "src_line": "line number in src_file",
@@ -29,7 +28,7 @@ class Event(MSONable):
             "actual_tol": 1.0e-8,
             "required_tol": 1.0e-10,
             "nstep": 50,
-        </Event>
+        </AbinitEvent>
     """
     def __init__(self, **kwargs):
         self._kwargs = kwargs.copy()
@@ -89,25 +88,25 @@ class Event(MSONable):
         return {}
 
 
-class Comment(Event):
+class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
 
 
-class Error(Event):
+class AbinitError(AbinitEvent):
     """Base class for Error events"""
     @property
     def iscritical(self):
         return True
 
 
-class Bug(Event):
+class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
     @property
     def iscritical(self):
         return True
 
 
-class Warning(Event):
+class AbinitWarning(AbinitEvent):
     """
     Base class for Warning events (the most important class).
     Developers should subclass this class to define the different exceptions
@@ -121,17 +120,17 @@ class Warning(Event):
 
 # Register the concrete base classes.
 _BASE_CLASSES = [
-    Comment,
-    Error,
-    Bug,
-    Warning,
+    AbinitComment,
+    AbinitError,
+    AbinitBug,
+    AbinitWarning,
 ]
 
 ##########################################################################################
 
 
-class EventList(collections.Iterable, MSONable):
-    """Iterable storing the events produced by an abinit calculation."""
+class EventReport(collections.Iterable, MSONable):
+    """Iterable storing the events raised by an ABINIT calculation."""
 
     def __init__(self, filename, events=None):
         """
@@ -159,12 +158,27 @@ class EventList(collections.Iterable, MSONable):
         lines = [self.filename+":",]
         for event in self:
             lines.append(str(event))
+
         return "\n".join(l for l in lines)
 
     def append(self, event):
         """Add an event to the list."""
         self._events.append(event)
         self._events_by_baseclass[event.baseclass].append(event)
+
+    def set_run_completed(self, bool_value):
+        """Set the value of _run_completed."""
+        self._run_completed = bool_value
+
+    @property
+    def run_completed(self):
+        """
+        Returns True if the calculation terminated.
+        """
+        try:
+            return self._run_completed
+        except AttributeError:
+            return False
 
     @property
     def critical_events(self):
@@ -173,19 +187,19 @@ class EventList(collections.Iterable, MSONable):
 
     @property
     def comments(self):
-        return self.select(Comment)
+        return self.select(AbinitComment)
 
     @property
     def errors(self):
-        return self.select(Error)
+        return self.select(AbinitError)
 
     @property
     def bugs(self):
-        return self.select(Bug)
+        return self.select(AbinitBug)
 
     @property
     def warnings(self):
-        return self.select(Warning)
+        return self.select(AbinitWarning)
 
     @property
     def num_warnings(self):
@@ -226,7 +240,6 @@ class EventList(collections.Iterable, MSONable):
         events = [Event.from_dict(ed) for ed in d["events"]]
         return cls(d["filename"], events=events)
 
-##########################################################################################
 
 
 class EventParserError(Exception):
@@ -251,13 +264,16 @@ class EventParser(object):
                 Save nafter lines of trailing context after matching lines.
 
         Returns:
-            EventList instance.
+            `EventReport` instance.
         """
         filename = os.path.abspath(filename)
 
         # TODO
-        # we have to standardize the abinit WARNING, COMMENT and ERROR  so that we can parse them easily
-        # without having to use nafter.
+        # we have to standardize the abinit WARNING, COMMENT and ERROR  
+        # so that we can parse them easily without having to use nafter.
+
+        # TODO: Handle possible errors in the parser by generating a custom EventList object
+        #return EventList(self.output_file.path, events=[Error(str(exc))])
 
         # Note the space after the name.
         exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
@@ -265,10 +281,10 @@ class EventParser(object):
         errors, bugs, warnings, comments = [], [], [], []
 
         handlers = {
-            "ERROR "   : errors.append,
-            "BUG "     : bugs.append,
-            "WARNING " : warnings.append,
-            "COMMENT " : comments.append,
+            "ERROR "  : errors.append,
+            "BUG "    : bugs.append,
+            "WARNING ": warnings.append,
+            "COMMENT ": comments.append,
         }
 
         def exc_case(line):
@@ -277,29 +293,35 @@ class EventParser(object):
             else:
                 return None
 
+        MAGIC = "Calculation completed."
+        run_completed = False
+
         with open(filename, "r") as fh:
             lines = fh.readlines()
             nlines = len(lines)
             for (lineno, line) in enumerate(lines):
+                if MAGIC in line:
+                    run_completed = False
                 handle = handlers.get(exc_case(line))
                 if handle is None: continue
                 context = lines[lineno: min(lineno+nafter, nlines)]
                 handle((lineno, "".join([c for c in context])))
 
-        events = EventList(filename)
+        events = EventReport(filename)
 
         for lineno, s in errors:
-            events.append(Error(lineno=lineno, message=s))
+            events.append(AbinitError(lineno=lineno, message=s))
 
         for lineno, s in bugs:
-            events.append(Bug(lineno=lineno, message=s))
+            events.append(AbinitBug(lineno=lineno, message=s))
 
         for lineno, s in warnings:
-            events.append(Warning(lineno=lineno, message=s))
+            events.append(AbinitWarning(lineno=lineno, message=s))
 
         for lineno, s in comments:
-            events.append(Comment(lineno=lineno, message=s))
+            events.append(AbinitComment(lineno=lineno, message=s))
 
+        events.set_run_completed(run_completed)
         return events
 
     @staticmethod
@@ -313,11 +335,17 @@ class EventParser(object):
         START_TAG = "<Event>"
         STOP_TAG = "<\Event>"
 
-        events = EventList(filename)
+        events = EventReport(filename)
+
+        MAGIC = "Calculation completed."
+        run_completed = False
 
         with open(filename) as fh:
             in_event, s = False, None
             for l, line in enumerate(fh):
+
+                if MAGIC in line:
+                    run_completed = False
 
                 if not in_event:
                     if line.startswith(START_TAG):
@@ -339,4 +367,5 @@ class EventParser(object):
             if s:
                 events.append(Event.from_string(s, lineno))
 
+            events.set_run_completed(run_completed)
             return events
