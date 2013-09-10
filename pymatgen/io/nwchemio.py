@@ -600,7 +600,7 @@ class NwOutput(object):
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
                     if job_type=="NWChem DFT Module" and "COSMO solvation results" in output:
-                        job_type=job_type+"COSMO"
+                        job_type=job_type+" COSMO"
                 else:
                     m = corrections_patt.search(l)
                     if m:
