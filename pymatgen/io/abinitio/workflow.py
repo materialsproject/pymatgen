@@ -10,6 +10,7 @@ import abc
 import collections
 import functools
 import numpy as np
+import cPickle as pickle
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -38,7 +39,7 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
-
+    "Workflow",
 ]
 
 ################################################################################
@@ -153,15 +154,18 @@ class WorkLink(object):
         """The status of the link, equivalent to the task status"""
         return self._task.status
 
-################################################################################
 
 class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
+
 
 class BaseWorkflow(object):
     __metaclass__ = abc.ABCMeta
 
     Error = WorkflowError
+
+    # Basename of the pickle database.
+    _PICKLE_FNAME = "__workflow__.pickle"
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -208,8 +212,9 @@ class BaseWorkflow(object):
         """Returns the number of CPUs reserved in this moment."""
         ncpus = 0
         for task in self:
-            if task.status in [task.S_SUB, task.S_RUN]:
+            if task.is_allocated:
                 ncpus += task.tot_ncpus
+
         return ncpus
 
     def fetch_task_to_run(self):
@@ -219,14 +224,13 @@ class BaseWorkflow(object):
         Raises `StopIteration` if all tasks are done.
         """
         for task in self:
-            # The task is ready to run if its status is S_READY and all the other links (if any) are done!
-            if (task.status == task.S_READY) and all([link_stat==task.S_DONE for link_stat in task.links_status]):
+            if task.can_run:
                 return task
 
         # All the tasks are done so raise an exception 
         # that will be handled by the client code.
-        if all([task.status == task.S_DONE for task in self]):
-            raise StopIteration
+        if all([task.is_completed for task in self]):
+            raise StopIteration("All tasks completed.")
 
         # No task found, this usually happens when we have dependencies. 
         # Beware of possible deadlocks here!
@@ -247,32 +251,57 @@ class BaseWorkflow(object):
         """
         return WorkFlowResults(task_results={task.name: task.results for task in self})
 
-##########################################################################################
+    def pickle_dump(self, protocol=0):
+        """Save the status of the object in pickle format."""
+        filepath = os.path.join(self.workdir, self._PICKLE_FNAME)
+
+        with open(filepath, "w") as fh:
+            pickle.dump(self, fh, protocol=protocol)
+
+    @classmethod
+    def pickle_load(cls, path):
+        """
+        Load the object from a pickle file. 
+
+        Args:
+            path:
+                filepath or directory name.
+        """
+        if os.path.isdir(path):
+            path = os.path.join(path, cls._PICKLE_FNAME)
+
+        # TODO atomic transaction.
+        with open(path, "rb") as fh:
+            new = pickle.load(fh)
+
+        #new.__class__ = cls
+        return new
+
 
 class WorkFlowResults(dict, MSONable):
     """
     Dictionary used to store some of the results produce by a Task object
     """
-    _mandatory_keys = [
+    _MANDATORY_KEYS = [
         "task_results",
     ]
-    EXC_KEY = "_exceptions"
+    _EXC_KEY = "_exceptions"
 
     def __init__(self, *args, **kwargs):
         super(WorkFlowResults, self).__init__(*args, **kwargs)
 
-        if self.EXC_KEY not in self:
-            self[self.EXC_KEY] = []
+        if self._EXC_KEY not in self:
+            self[self._EXC_KEY] = []
 
     @property
     def exceptions(self):
-        return self[self.EXC_KEY]
+        return self[self._EXC_KEY]
 
     def push_exceptions(self, *exceptions):
         for exc in exceptions:
             newstr = str(exc)
             if newstr not in self.exceptions:
-                self[self.EXC_KEY] += [newstr,]
+                self[self._EXC_KEY] += [newstr,]
 
     def assert_valid(self):
         """
@@ -283,9 +312,9 @@ class WorkFlowResults(dict, MSONable):
         """
         # Validate tasks.
         for tres in self.task_results:
-            self[self.EXC_KEY] += tres.assert_valid()
+            self[self._EXC_KEY] += tres.assert_valid()
 
-        return self[self.EXC_KEY]
+        return self[self._EXC_KEY]
 
     @property
     def to_dict(self):
@@ -298,23 +327,15 @@ class WorkFlowResults(dict, MSONable):
     def from_dict(cls, d):
         mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
         return cls(mydict)
+    
 
-    def json_dump(self, filename):
-        json_pretty_dump(self.to_dict, filename)
-
-    @classmethod
-    def json_load(cls, filename):
-        return cls.from_dict(json_load(filename))
-
-##########################################################################################
-
-class Workflow(BaseWorkflow, MSONable):
+class Workflow(BaseWorkflow):
     """
     A Workflow is a list of (possibly connected) tasks.
     """
     Error = WorkflowError
 
-    def __init__(self, workdir, runmode, **kwargs):
+    def __init__(self, workdir, runmode):
         """
         Args:
             workdir:
@@ -325,8 +346,6 @@ class Workflow(BaseWorkflow, MSONable):
         self.workdir = os.path.abspath(workdir)
 
         self.runmode = RunMode.asrunmode(runmode)
-
-        self._kwargs = kwargs
 
         self._tasks = []
 
@@ -350,6 +369,9 @@ class Workflow(BaseWorkflow, MSONable):
     def __repr__(self):
         return "<%s at %s, workdir = %s>" % (self.__class__.__name__, id(self), str(self.workdir))
 
+    def __str__(self):
+        return self.__repr__()
+
     @property
     def processes(self):
         return [task.process for task in self]
@@ -369,20 +391,20 @@ class Workflow(BaseWorkflow, MSONable):
         """True if PAW calculation."""
         return all(task.ispaw for task in self)
 
-    @property
-    def to_dict(self):
-        d = dict(
-            workdir=self.workdir,
-            runmode=self.runmode.to_dict,
-            kwargs=self._kwargs
-        )
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+    #@property
+    #def to_dict(self):
+    #    d = dict(
+    #        workdir=self.workdir,
+    #        runmode=self.runmode.to_dict,
+    #        kwargs=self._kwargs
+    #    )
+    #    d["@module"] = self.__class__.__module__
+    #    d["@class"] = self.__class__.__name__
+    #    return d
 
-    @staticmethod
-    def from_dict(d):
-        return Work(d["workdir"], d["runmode"], **d["kwargs"])
+    #@classmethod
+    #def from_dict(cls, d):
+    #    return cls(d["workdir"], d["runmode"])
 
     def register(self, obj, links=()):
         """
@@ -419,7 +441,7 @@ class Workflow(BaseWorkflow, MSONable):
 
         if links:
             self._links_dict[task_id].extend(links)
-            print("task_id %s neeeds\n %s" % (task_id, [str(l) for l in links]))
+            print("task_id %s needs\n %s" % (task_id, [str(l) for l in links]))
 
         return WorkLink(task)
 
@@ -435,11 +457,16 @@ class Workflow(BaseWorkflow, MSONable):
 
     def build(self, *args, **kwargs):
         """Creates the top level directory."""
+        # Create top level directory.
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
 
+        # Build dirs and files of each task.
+        for task in self:
+            task.build(*args, **kwargs)
+
         #for task in self:
-        #    task.build(*args, **kwargs)
+        #    task.connect()
 
     def get_status(self, only_highest_rank=False):
         """Get the status of the tasks in self."""
@@ -449,6 +476,10 @@ class Workflow(BaseWorkflow, MSONable):
             return max(status_list)
         else:
             return status_list
+
+    def recheck_status(self):
+        for task in self:
+            task.recheck_status()
 
     def show_inputs(self, stream=sys.stdout):
         lines = []
@@ -463,13 +494,6 @@ class Workflow(BaseWorkflow, MSONable):
             app(width*"=" + "\n")
 
         stream.write("\n".join(lines))
-
-        #from abipy.gui.wxapps import wxapp_showfiles
-        #wxapp_showfiles(dirpath=self.workdir, walk=True, wildcard="*.abi").MainLoop()
-
-    #def show_outputs(self):
-        #from abipy.gui.wxapps import wxapp_showfiles
-        #wxapp_showfiles(dirpath=self.workdir, walk=True, wildcard="*.abo").MainLoop()
 
     def rmtree(self, exclude_wildcard=""):
         """
@@ -568,7 +592,13 @@ class Workflow(BaseWorkflow, MSONable):
 
         return etotal
 
-################################################################################
+    def json_dump(self, filename):
+        json_pretty_dump(self.to_dict, filename)
+                                                  
+    @classmethod
+    def json_load(cls, filename):
+        return cls.from_dict(json_load(filename))
+
 
 class IterativeWork(Workflow):
     """
@@ -600,7 +630,8 @@ class IterativeWork(Workflow):
         """
         Generate and register a new task
 
-        Return: task object
+        Returns: 
+            New `Task` object
         """
         try:
             next_strategy = next(self.strategy_generator)
@@ -929,6 +960,7 @@ class PseudoConvergence(Workflow):
             wf_results.json_dump(self.path_in_workdir("results.json"))
 
         return wf_results
+
 
 class PseudoIterativeConvergence(IterativeWork):
 
