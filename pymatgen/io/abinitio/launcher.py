@@ -182,7 +182,7 @@ class ResourceManagerError(Exception):
     """Base error class for `SimpleResourceManager."""
 
 
-class SimpleResourceManager(object):
+class PyResourceManager(object):
 
     Error = ResourceManagerError
 
@@ -210,6 +210,10 @@ class SimpleResourceManager(object):
 
     def run(self, *args, **kwargs):
         """Call the start method of the object contained in work."""
+
+        if self.work.all_done:
+            return self.work.returncodes
+
         while True:
             polls = self.work.poll()
             # Fetch the first task that is ready to run

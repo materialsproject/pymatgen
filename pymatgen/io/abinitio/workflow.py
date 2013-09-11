@@ -376,9 +376,9 @@ class Workflow(BaseWorkflow):
         return [task.process for task in self]
 
     @property
-    def alldone(self):
-        """True if all the Task in the `Workflow` are completed."""
-        return all([task.status == Task.S_DONE for task in self])
+    def all_done(self):
+        """True if all the Task in the `Workflow` are done."""
+        return all([task.status >= Task.S_DONE for task in self])
 
     @property
     def isnc(self):
@@ -575,7 +575,7 @@ class Workflow(BaseWorkflow):
         Return a numpy array with the total energies in Hartree
         The array element is set to np.inf if an exception is raised while reading the GSR file.
         """
-        if not self.alldone:
+        if not self.all_done:
             raise self.Error("Some task is still in running/submitted state")
 
         etotal = []
