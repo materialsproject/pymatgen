@@ -16,6 +16,7 @@ from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_du
 from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
 from pymatgen.io.abinitio.launcher import TaskLauncher
 from pymatgen.io.abinitio.events import EventParser
+from pymatgen.io.abinitio.qadapters import qadapter_class
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ class FakeProcess(object):
         return None
 
 
-def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
+def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
     """Factory function for Task instances."""
     # TODO
     # Instanciate subclasses depending on the runlevel.
@@ -66,7 +67,7 @@ def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
        "bse": AbinitTask,
     }
 
-    return classes[strategy.runlevel](strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
+    return classes[strategy.runlevel](strategy, workdir, manager, task_id=task_id, links=links, **kwargs)
 
 
 class TaskError(Exception):
@@ -185,7 +186,7 @@ class Task(object):
     @property
     def tot_ncpus(self):
         """Total number of CPUs used to run the task."""
-        return self.launcher.tot_ncpus
+        return self.manager.tot_ncpus
 
     @property
     def status(self):
@@ -403,15 +404,17 @@ class AbinitTask(Task):
     basename = Basename("run.abi", "run.abo", "run.files", "run.log", "stderr", "job.sh", "__abilock__")
     del Basename
 
-    def __init__(self, strategy, workdir, runmode, task_id=1, links=None, **kwargs):
+    def __init__(self, strategy, workdir, manager, task_id=1, links=None, **kwargs):
         """
         Args:
             strategy: 
                 `Strategy` instance describing the calculation.
             workdir:
                 Path to the working directory.
-            runmode:
-                `RunMode` instance or string "sequential"
+            manager:
+                `TaskManager` object.
+            policy:
+                `TaskPolicy` object.
             task_id:
                 Task identifier (must be unique if self belongs to a `Workflow`).
             links:
@@ -422,11 +425,11 @@ class AbinitTask(Task):
         """
         super(AbinitTask, self).__init__()
 
-        self.strategy = strategy
-
         self.workdir = os.path.abspath(workdir)
 
-        self.runmode = RunMode.asrunmode(runmode).copy()
+        self.strategy = strategy
+
+        self.manager = manager
 
         self.set_id(task_id)
 
@@ -449,9 +452,6 @@ class AbinitTask(Task):
         self.log_file = File(os.path.join(self.workdir, AbinitTask.basename.log_file))
         self.stderr_file = File(os.path.join(self.workdir, AbinitTask.basename.stderr_file))
 
-        # Build the launcher and store it.
-        self.set_launcher(self.runmode.make_launcher(self))
-
     def __repr__(self):
         return "<%s at %s, workdir = %s>" % (
             self.__class__.__name__, id(self), os.path.basename(self.workdir))
@@ -460,7 +460,7 @@ class AbinitTask(Task):
         return self.__repr__()
 
     @classmethod
-    def from_input(cls, abinit_input, workdir, runmode, task_id=1, links=None, **kwargs):
+    def from_input(cls, abinit_input, workdir, manager, task_id=1, links=None, **kwargs):
         """
         Create an instance of `AbinitTask` from an ABINIT input.
 
@@ -469,8 +469,10 @@ class AbinitTask(Task):
                 `AbinitInput` object.
             workdir:
                 Path to the working directory.
-            runmode:
-                `RunMode` instance or string "sequential"
+            manager:
+                `TaskManager` object.
+            policy:
+                `TaskPolicy` object.
             task_id:
                 Task identifier (must be unique if self belongs to a `Workflow`).
             links:
@@ -482,7 +484,8 @@ class AbinitTask(Task):
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
         from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
-        return cls(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
+
+        return cls(strategy, workdir, manager, task_id=task_id, links=links, **kwargs)
 
     @property
     def executable(self):
@@ -502,13 +505,6 @@ class AbinitTask(Task):
         except AttributeError:
             # Attach a fake process so that we can poll it.
             return FakeProcess()
-
-    @property
-    def launcher(self):
-        return self._launcher
-
-    def set_launcher(self, launcher):
-        self._launcher = launcher
 
     @property
     def jobfile_path(self):
@@ -749,7 +745,7 @@ class AbinitTask(Task):
         self._setup(*args, **kwargs)
 
         # Start the calculation in a subprocess and return.
-        self._process = self.launcher.launch(self)
+        self._process = self.manager.launch(self)
 
     def start_and_wait(self, *args, **kwargs):
         """Helper method to start the task and wait."""
@@ -885,101 +881,6 @@ class RunHints(collections.OrderedDict):
         return AttrDict(self[okey].copy())
 
 
-class RunMode(dict, MSONable):
-    """
-    This object contains the user-specified settings controlling the execution 
-    of the run (submission, coarse- and fine-grained parallelism ...)
-    It acts as a factory for `Launcher` objects.
-
-    A `TaskManager` is responsible for the generation and the submission 
-    script, as well as of the specification of the parameters passed to the Resource Manager
-    (e.g. Slurm, PBS ...) and/or the dynamic specification of the ABINIT variables governing the 
-    parallel execution. A `TaskManager` delegates the generation of the submission
-    script and the submission of the task to the `QueueAdapter`. 
-    A `TaskManager` has a `TaskPolicy` object that governs the specification of the 
-    parameters for the parallel executions.
-    """
-    # Default values (correspond to the sequential mode).
-    _DEFAULTS = {
-        "launcher_type": "shell",    # ["shell", "slurm", "pbs",]
-        "use_fw"       : False,      # True if we are using fireworks.
-        "policy"       : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
-        "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
-    }
-
-    def __init__(self, *args, **kwargs):
-        super(RunMode, self).__init__(*args, **kwargs)
-
-    def copy(self):
-        return RunMode(**super(RunMode, self).copy())
-    
-    @classmethod
-    def asrunmode(cls, obj):
-        """
-        Returns a `RunMode` instance from obj. Accepts:
-
-            - `RunMode` instances
-            - A string with "sequential" to indicate that Abinit will be executed in sequential mode.
-        """
-        if isinstance(obj, cls):
-            return obj
-
-        if isinstance(obj, str) and obj == "sequential":
-            return cls.sequential()
-
-        raise ValueError("Don't know how to convert obj %s into a %s instance" % (obj, obj.__class__.__name__))
-
-    @classmethod
-    def sequential(cls, launcher_type=None):
-        d = cls._DEFAULTS.copy()
-        if launcher_type is not None:
-            d["launcher_type"] = launcher_type
-
-        return cls(d)
-
-    @classmethod
-    def mpi_parallel(cls, mpi_ncpus, launcher_type=None):
-        d = cls._DEFAULTS.copy()
-        if launcher_type is not None:
-            d["launcher_type"] = launcher_type
-        new = cls(d)
-        new.set_mpi_ncpus(mpi_ncpus)
-        return new
-
-    def set_mpi_ncpus(self, mpi_ncpus):
-        self["mpi_ncpus"] = min(mpi_ncpus, self["max_ncpus"])
-
-    #def set_omp_ncpus(self, omp_ncpus):
-    #     self["omp_ncpus"] = min(omp_ncpus, self["max_ncpus"])
-
-    @property
-    def to_dict(self):
-        d = self.copy()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-                                                 
-    @classmethod
-    def from_dict(cls, d):
-        return cls({k: v for (k, v) in d.items() if k not in ("@module", "@class")})
-
-    def make_launcher(self, task):
-        """Factory function returning a launcher instance."""
-
-        #if self.use_fw:
-        #   raise NotImplementedError("Firework not yet supported")
-                                                       
-        # Find the subclass to instanciate.
-        cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
-
-        return cls(task.jobfile_path, 
-                   stdin  = task.files_file.path, 
-                   stdout = task.log_file.path,
-                   stderr = task.stderr_file.path,
-                   **task.runmode
-                  )
-
-
 class TaskPolicy(dict):
     """
     This object stores the parameters used by the `TaskManager` to 
@@ -997,16 +898,19 @@ class TaskPolicy(dict):
         super(TaskPolicy, self).__init__(*args, **kwargs)
 
         err_msg = ""
-        for k, v in self:
+        for k, v in self.items():
             if k not in self._DEFAULTS:
                 err_msg += "Unknow key %s\n" % k
 
         if err_msg:
             raise ValueError(err_msg)
 
-        for k, v in self._DEFAULTS:
+        for k, v in self._DEFAULTS.items():
             if k not in self:
                 self[k] = v
+
+    def copy(self):
+        return super(TaskPolicy, self).copy()
 
     @classmethod
     def default_policy(cls):
@@ -1024,17 +928,49 @@ class TaskManager(object):
     parameters for the parallel executions.
     """
 
-    def __init__(self, qadapter_class, policy=None):
-        self.qadapter = qadapter_class()
+    def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
+                 pre_rocket=None, post_rocket=None, mpi_runner=None, policy=None):
+
+        qad_class = qadapter_class(qtype)
+
+        self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
+                 pre_rocket=pre_rocket, post_rocket=post_rocket, mpi_runner=mpi_runner)
+
         self.policy = policy if policy is not None else TaskPolicy.default_policy()
 
-    #@classmethod 
-    #def simple_manager(cls, mpi_ncpus=1):
-    #    """
-    #    Simplest task manager that submits jobs with a simple shell script.
-    #    Assume the shell environment is already properly initialized.
-    #    """
-    #    return cls(qadapter_class=ShellAdapter, policy=None)
+    def __str__(self):
+        """String representation."""
+        lines = []
+        app = lines.append
+        app("tot_ncpus %d" % self.tot_ncpus)
+        app("MPI_RUNNER %s" % str(self.qadapter.mpi_runner))
+        app("policy %s" % self.policy)
+
+        return "\n".join(lines)
+
+    @classmethod 
+    def sequential(cls):
+        """
+        Simplest task manager that submits jobs with a simple shell script.
+        Assume the shell environment is already properly initialized.
+        """
+        return cls(qtype="shell")
+
+    @classmethod 
+    def simple_mpi(cls, mpi_runner="mpirun", mpi_ncpus=1):
+        """
+        Simplest task manager that submits jobs with a simple shell script and mpirun.
+        Assume the shell environment is already properly initialized.
+        """
+        return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner)
+
+    #def copy(self):
+    #    return self.__class__(self.qadapter.copy(), self.policy.copy())
+
+    @property
+    def tot_ncpus(self):
+        """Total number of CPUs used to run the task."""
+        return self.qadapter.tot_ncpus
 
     def optimize_params(self, task):
         """
@@ -1072,35 +1008,28 @@ class TaskManager(object):
         retcode = 0
         return retcode
 
-    def submit_task(self, task):
+    def launch(self, task):
         """Submit the task."""
 
-        #if self.policy.use_fw:
-        #   raise NotImplementedError("Firework not yet supported")
-                                                       
-        # Find the subclass to instanciate.
-        #cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
-        #return cls(task.jobfile_path, 
-        #           stdin  = task.files_file.path, 
-        #           stdout = task.log_file.path,
-        #           stderr = task.stderr_file.path,
-        #           **task.runmode
-        #          )
+        qad = self.qadapter
+        script = qad.get_script_str(
+            job_name=task.name, 
+            launch_dir=task.workdir, 
+            executable=task.executable,
+            stdin =task.files_file.path, 
+            stdout=task.log_file.path,
+            stderr=task.stderr_file.path,
+        )
 
-        # NEW VERSION based of queue_adapter.
-        #qad = self.qadapter
-        #script = qad.get_script_str(
-        #    job_name=task.name, 
-        #    launch_dir=task.workdir, 
-        #    executable=task.executable,
-        #    stdin =task.files_file.path, 
-        #    stdout=task.log_file.path,
-        #    stderr=task.stderr_file.path,
-        #)
+        # Write the script
+        #print(script)
+        script_file = task.jobfile_path
+        with open(script_file, "w") as fh:
+            fh.write(script)
 
-        #script_file = task.job_file.path
-        #with open(script_file, "w") as fh:
-        #    fh.write(script)
+        # Submit the script.
+        task.set_status(task.S_SUB)
+        process = qad.submit_to_queue(script_file)
+        task.set_status(task.S_RUN)
 
-        #process = qad.submit_to_queue(script_file)
-        #return process
+        return process
