@@ -252,8 +252,8 @@ Examples
 A good way to explore the functionality of pymatgen is to look at examples.
 Please check out the ipython notebooks at our :doc:`examples page </examples>`.
 
-Usage and API Documentation
----------------------------
+Usage guide
+-----------
 
 Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
 (toc given below).
@@ -263,17 +263,20 @@ Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
 
    usage
 
+API documentation
+-----------------
+
 For detailed documentation of all modules and classes, please refer to the
-:doc:`pymatgen API docs </modules>`.
+:doc:`API docs </modules>`.
 
 matgenie.py - Command line tool
 -------------------------------
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
-that utilize the library to perform all kinds of analyses. You can find these
-scripts in `scripts directory of pymatgen's github repo
-<https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
+that utilize the library to perform all kinds of analyses. These are
+installed to your path by default when you install pymatgen through the
+typical installation routes.
 
 Here, we will discuss the most versatile of these scripts, known as
 matgenie.py. The typical usage of matgenie.py is::
