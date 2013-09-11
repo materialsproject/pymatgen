@@ -164,7 +164,7 @@ class BaseWorkflow(object):
     Error = WorkflowError
 
     # Basename of the pickle database.
-    _PICKLE_FNAME = "__workflow__.pickle"
+    PICKLE_FNAME = "__workflow__.pickle"
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -256,7 +256,7 @@ class BaseWorkflow(object):
 
     def pickle_dump(self, protocol=0):
         """Save the status of the object in pickle format."""
-        filepath = os.path.join(self.workdir, self._PICKLE_FNAME)
+        filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
         with open(filepath, "w") as fh:
             pickle.dump(self, fh, protocol=protocol)
@@ -271,7 +271,7 @@ class BaseWorkflow(object):
                 filepath or directory name.
         """
         if os.path.isdir(path):
-            path = os.path.join(path, cls._PICKLE_FNAME)
+            path = os.path.join(path, cls.PICKLE_FNAME)
 
         # TODO atomic transaction.
         with open(path, "rb") as fh:
