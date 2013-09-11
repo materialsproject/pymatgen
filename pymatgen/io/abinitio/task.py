@@ -298,7 +298,6 @@ class Task(object):
     @property
     def can_run(self):
         """The task can run if its status is S_READY and all the other links (if any) are done!"""
-        #return (self.status == Task.S_READY) and all([link_stat==Task.S_DONE for link_stat in task.links_status])
         return (self.status == Task.S_READY) and all([stat >= Task.S_DONE for stat in self.links_status])
 
     def connect(self):
@@ -318,9 +317,16 @@ class Task(object):
                 if not os.path.exists(path):
                     raise self.Error("%s is needed by this task but it does not exist" % path)
 
-                # Link path to dst
+                # Link path to dst if dst link does not exist.
+                # else check that it points to the expected file.
                 print("Linking ", path," --> ",dst)
-                os.symlink(path, dst)
+                if not os.path.exists(dst):
+                    os.symlink(path, dst)
+                else:
+                    try:
+                        assert os.path.realpath(dst) == path
+                    except AssertionError as exc:
+                        raise self.Error(str(exc))
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -521,6 +527,10 @@ class AbinitTask(Task):
     @property
     def name(self):
         return self.workdir
+
+    @property
+    def short_name(self):
+        return os.path.basename(self.workdir)
 
     @property
     def process(self):
