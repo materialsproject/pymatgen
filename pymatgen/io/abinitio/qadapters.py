@@ -315,6 +315,7 @@ class AbstractQueueAdapter(object):
             se.declare_vars(self.shell_env)
 
         # Cd to launch_dir
+        #print(launch_dir)
         se.add_line("cd " + launch_dir)
 
         if self.pre_rocket:
@@ -628,9 +629,3 @@ if __name__ == "__main__":
             #with open("test.pickle", "w") as fh:
             #    #pickle.dump(qad, fh, protocol=0)
             #    pickle.dump(cls, fh, protocol=0)
-
-            #from pymatgen.io.abinitio.task import RunMode
-            #TaskManager = TaskManager(
-            #    qadaptor_class=qad,
-            #    #"policy"   : "default",  
-            #)
