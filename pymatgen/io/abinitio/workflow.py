@@ -425,7 +425,7 @@ class Workflow(BaseWorkflow):
 
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
-            task = task_factory(obj, self.manager, task_id=task_id, links=links)
+            task = task_factory(obj, task_workdir, self.manager, task_id=task_id, links=links)
 
         else:
             # Create the new task from the input. Note that no subclasses are instanciated here.
@@ -912,12 +912,12 @@ class PseudoConvergence(Workflow):
 
     def __init__(self, workdir, manager, pseudo, ecut_list, atols_mev,
                  toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV"):
 
         super(PseudoConvergence, self).__init__(workdir, manager)
 
         # Temporary object used to build the strategy.
-        generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev,
+        generator = PseudoIterativeConvergence(workdir, manager, pseudo, ecut_list, atols_mev,
                                                toldfe    = toldfe,
                                                spin_mode = spin_mode,
                                                acell     = acell,

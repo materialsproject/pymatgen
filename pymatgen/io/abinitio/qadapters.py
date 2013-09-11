@@ -5,9 +5,9 @@ import os
 import abc
 import string
 import functools
-import subprocess
 import getpass
 
+from subprocess import Popen, PIPE
 from pymatgen.io.abinitio.launcher import ScriptEditor
 
 __all__ = [
@@ -21,6 +21,7 @@ def is_string(obj):
     try:
         dummy = obj + ""
         return True
+
     except TypeError:
         return False
 
@@ -50,7 +51,7 @@ class Command(object):
         """ Run a command then return: (status, output, error). """
         def target(**kwargs):
             try:
-                self.process = subprocess.Popen(self.command, **kwargs)
+                self.process = Popen(self.command, **kwargs)
                 self.output, self.error = self.process.communicate()
                 self.status = self.process.returncode
             except:
@@ -59,9 +60,9 @@ class Command(object):
                 self.status = -1
         # default stdout and stderr
         if 'stdout' not in kwargs:
-            kwargs['stdout'] = subprocess.PIPE
+            kwargs['stdout'] = PIPE
         if 'stderr' not in kwargs:
-            kwargs['stderr'] = subprocess.PIPE
+            kwargs['stderr'] = PIPE
         # thread
         import threading
         thread = threading.Thread(target=target, kwargs=kwargs)
@@ -93,6 +94,7 @@ class MpiRunner(object):
         if self.has_mpirun:
 
             if self.type is None:
+                # TODO: better treatment of mpirun syntax.
                 #se.add_line('$MPIRUN -n $MPI_NCPUS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
                 num_opt = "-n " + str(mpi_ncpus)
                 cmd = " ".join([self.name, num_opt, executable, stdin, stdout, stderr])
@@ -108,11 +110,15 @@ class MpiRunner(object):
 
     @property
     def has_mpirun(self):
+        """True if we are running via mpirun, mpiexec ..."""
         return self.name is not None
 
 
-class QScriptTemplate(string.Template):
-    delimiter = '$$'
+def qadapter_class(qtype):
+    return {"shell": ShellAdapter,
+            "slurm": SlurmAdapter,
+            "pbs": PbsAdapter,
+            }[qtype.lower()]
 
 
 class QueueAdapterError(Exception):
@@ -135,7 +141,7 @@ class AbstractQueueAdapter(object):
     Error = QueueAdapterError
 
     def __init__(self, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_rocket=None, post_rocket=None, mpi_runner=None):
+                 pre_run=None, post_run=None, mpi_runner=None):
         """
         Args:
             setup:
@@ -147,9 +153,9 @@ class AbstractQueueAdapter(object):
                 before running the application.
             omp_env:
                 Dictionary with the OpenMP variables.
-            pre_rocket:
+            pre_run:
                 String or list of commands executed before launching the calculation.
-            post_rocket:
+            post_run:
                 String or list of commands executed once the calculation is completed.
             mpi_runner:
                 Path to mpirun or `MpiRunner` instance. None if not used
@@ -173,13 +179,13 @@ class AbstractQueueAdapter(object):
         if not isinstance(mpi_runner, MpiRunner):
             self.mpi_runner = MpiRunner(mpi_runner)
 
-        if is_string(pre_rocket):
-            pre_rocket = [pre_rocket]
-        self.pre_rocket = pre_rocket[:] if pre_rocket is not None else []
+        if is_string(pre_run):
+            pre_run = [pre_run]
+        self.pre_run = pre_run[:] if pre_run is not None else []
 
-        if is_string(post_rocket):
-            post_rocket = [post_rocket]
-        self.post_rocket = post_rocket[:] if post_rocket is not None else []
+        if is_string(post_run):
+            post_run = [post_run]
+        self.post_run = post_run[:] if post_run is not None else []
 
         # Parse the template so that we know the list of supported options.
         cls = self.__class__
@@ -194,13 +200,13 @@ class AbstractQueueAdapter(object):
                 raise ValueError(err_msg)
 
     #def copy(self):
-        #return self.__class__(qparams, setup=None, modules=None, shell_env=None, omp_env=None, pre_rocket=None, post_rocket=None, mpi_runner)
+        #return self.__class__(qparams, setup=None, modules=None, shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner)
 
     @property
     def supported_qparams(self):
         """
-        Dictionary with the supported parameters that can be passed to the queue manager.
-        (obtained by parsing QTEMPLATE.
+        Dictionary with the supported parameters that can be passed to the 
+        queue manager (obtained by parsing QTEMPLATE).
         """ 
         try:
             return self._supported_qparams
@@ -211,7 +217,7 @@ class AbstractQueueAdapter(object):
             return self._supported_qparams
     
     @property
-    def has_mpirunner(self):
+    def has_mpirun(self):
         """True if we are using a mpirunner"""
         return bool(self.mpi_runner)
 
@@ -265,7 +271,7 @@ class AbstractQueueAdapter(object):
 
     def _make_qheader(self, job_name):
         """Return a string with the options that are passed to the resource manager."""
-        a = QScriptTemplate(self.QTEMPLATE)
+        qtemplate = QScriptTemplate(self.QTEMPLATE)
 
         # set substitution dict for replacements into the template and clean null values
         subs_dict = {k: v for k,v in self.qparams.items() if v is not None}  
@@ -276,7 +282,7 @@ class AbstractQueueAdapter(object):
         subs_dict['job_name'] = job_name 
 
         # might contain unused parameters as leftover $$.
-        unclean_template = a.safe_substitute(subs_dict)  
+        unclean_template = qtemplate.safe_substitute(subs_dict)  
 
         # Remove lines with leftover $$.
         clean_template = []
@@ -288,10 +294,12 @@ class AbstractQueueAdapter(object):
 
     def get_script_str(self, job_name, launch_dir, executable, stdin=None, stdout=None, stderr=None):
         """
-        returns a (multi-line) String representing the queue script, e.g. PBS script.
+        Returns a (multi-line) String representing the queue script, e.g. PBS script.
         Uses the template_file along with internal parameters to create the script.
 
-        :param launch_dir: (str) The directory the job will be launched in
+        Args:
+            launch_dir: 
+                (str) The directory the job will be launched in.
         """
         qheader = self._make_qheader(job_name)
 
@@ -315,21 +323,20 @@ class AbstractQueueAdapter(object):
             se.declare_vars(self.shell_env)
 
         # Cd to launch_dir
-        #print(launch_dir)
-        se.add_line("cd " + launch_dir)
+        se.add_line("cd " + os.path.abspath(launch_dir))
 
-        if self.pre_rocket:
+        if self.pre_run:
             se.add_comment("Commands before execution")
-            se.add_lines(self.pre_rocket)
+            se.add_lines(self.pre_run)
 
         mpi_ncpus = self.mpi_ncpus
 
         line = self.mpi_runner.string_to_run(executable, mpi_ncpus, stdin=stdin, stdout=stdout, stderr=stderr)
         se.add_line(line)
 
-        if self.post_rocket:
+        if self.post_run:
             se.add_comment("Commands after execution")
-            se.add_lines(self.post_rocket)
+            se.add_lines(self.post_run)
 
         shell_text = se.get_script_str()
 
@@ -338,9 +345,13 @@ class AbstractQueueAdapter(object):
     @abc.abstractmethod
     def submit_to_queue(self, script_file):
         """
-        submits the job to the queue, probably using subprocess or shutil
+        Submits the job to the queue, probably using subprocess or shutil
 
-        :param script_file: (str) name of the script file to use (String)
+        Args:
+            script_file: 
+                (str) name of the script file to use (String)
+        Returns:
+            process
         """
 
     @abc.abstractmethod
@@ -349,7 +360,8 @@ class AbstractQueueAdapter(object):
         returns the number of jobs in the queue, probably using subprocess or shutil to
         call a command like 'qstat'. returns None when the number of jobs cannot be determined.
 
-        :param username: (str) the username of the jobs to count (default is to autodetect)
+        Args:
+            username: (str) the username of the jobs to count (default is to autodetect)
         """
 
 ####################
@@ -363,7 +375,6 @@ class ShellAdapter(AbstractQueueAdapter):
 
 export MPI_NCPUS=$${MPI_NCPUS}
 """
-
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
@@ -374,7 +385,7 @@ export MPI_NCPUS=$${MPI_NCPUS}
         self.qparams["MPI_NCPUS"] = mpi_ncpus
 
     def submit_to_queue(self, script_file):
-        process = subprocess.Popen(("/bin/bash", script_file), stderr=subprocess.PIPE)
+        process = Popen(("/bin/bash", script_file), stderr=PIPE)
         return process
 
     def get_njobs_in_queue(self, username=None):
@@ -396,7 +407,6 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --output=$${job_name}.qout
 #SBATCH --error=$${job_name}.qerr
 """
-
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
@@ -413,15 +423,15 @@ class SlurmAdapter(AbstractQueueAdapter):
         # submit the job
         try:
             cmd = ['sbatch', script_file]
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            p.wait()
+            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
-            if p.returncode == 0:
+            if process.returncode == 0:
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    job_id = int(p.stdout.read().split()[3])
-                    sprint('Job submission was successful and job_id is {}'.format(job_id))
+                    job_id = int(process.stdout.read().split()[3])
+                    print('Job submission was successful and job_id is {}'.format(job_id))
                     return job_id
 
                 except:
@@ -431,19 +441,21 @@ class SlurmAdapter(AbstractQueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
-                           "The error response reads: {}".format(p.stderr.read()))
+                           "The error response reads: {}".format(process.stderr.read()))
                 raise self.Error(err_msg)
 
         except:
             # random error, e.g. no qsub on machine!
             raise self.Error('Running sbatch caused an error...')
 
+        return process
+
     def get_njobs_in_queue(self, username=None):
         if username is None:
             username = getpass.getuser()
 
         cmd = ['squeue', '-o "%u"', '-u', username]
-        p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE)
+        p = Popen(cmd, shell=False, stdout=PIPE)
         p.wait()
 
         # parse the result
@@ -480,7 +492,6 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -o $${job_name}.qout
 #PBS -e $${job_name}.qerr
 """
-
     #@property
     #def mpi_ncpus(self):
     #    """Number of CPUs used for MPI."""
@@ -498,55 +509,55 @@ class PbsAdapter(AbstractQueueAdapter):
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
-        pbs_logger = self.get_qlogger('qadapter.pbs')
-
         # submit the job
         try:
-            cmd = ['qsub', script_file]
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            p.wait()
+            cmd = ['qsub', scriprocesst_file]
+            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            process.wait()
 
             # grab the returncode. PBS returns 0 if the job was successful
-            if p.returncode == 0:
+            if process.returncode == 0:
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    job_id = int(p.stdout.read().split('.')[0])
-                    pbs_logger.info('Job submission was successful and job_id is {}'.format(job_id))
+                    job_id = int(process.stdout.read().split('.')[0])
+                    print('Job submission was successful and job_id is {}'.format(job_id))
                     return job_id
+
                 except:
                     # probably error parsing job code
                     raise self.Error("Could not parse job id following qsub...")
 
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
-                msgs = [
-                    'Error in job submission with PBS file {f} and cmd {c}'.format(f=script_file, c=cmd),
-                    'The error response reads: {}'.format(p.stderr.read())]
-                log_fancy(pbs_logger, 'error', msgs)
+                msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
+                      'The error response reads: {}'.format(process.stderr.read()))
 
         except:
             # random error, e.g. no qsub on machine!
             raise self.Error("Running qsub caused an error...")
 
+        return process
+
     def get_njobs_in_queue(self, username=None):
-        # initialize username
+        # Initialize username
         if username is None:
             username = getpass.getuser()
 
         # run qstat
         qstat = Command(['qstat', '-a', '-u', username])
-        p = qstat.run(timeout=5)
+        process = qstat.run(timeout=5)
 
         # parse the result
-        if p[0] == 0:
+        if process[0] == 0:
             # lines should have this form
             # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
             # count lines that include the username in it
 
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
-            outs = p[1].split('\n')
+            outs = process[1].split('\n')
             njobs = len([line.split() for line in outs if username in line])
             pbs_logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+
             return njobs
 
         # there's a problem talking to qstat server?
@@ -557,75 +568,5 @@ class PbsAdapter(AbstractQueueAdapter):
 
         return None
 
-
-def qadapter_class(qtype):
-    return {
-        "shell": ShellAdapter,
-        "slurm": SlurmAdapter,
-        "pbs": PbsAdapter,
-
-    }[qtype.lower()]
-
-
-if __name__ == "__main__":
-
-    slurm = SlurmAdapter(
-        qparams=dict(
-            ntasks=12,
-            partition="hmem",
-            account='nobody@nowhere.org',
-            time="119:59:59",
-            #ntasks_per_node=None,
-            #cpus_per_task=None,
-            #ntasks=None,
-            #time=None,
-            #partition=None,
-            #account=None,
-        ),
-        setup = ["echo 'This is the list of commands executed during the initial setup'", "ssh user@node01"],
-        # List of modules to load before running the application.
-        modules = ['intel-compilers/12.0.4.191', 'MPI/Intel/mvapich2/1.6', 'FFTW/3.3'],
-        # Dictionary with the shell environment variables to export before running the application.
-        shell_env = dict(FOO=1, PATH="/home/gmatteo/bin:$PATH"),
-        # OpenMP variables.
-        omp_env = dict(OMP_NUM_THREADS=1),
-        pre_rocket = ["echo 'List of command executed before launching the calculation'" ],
-        post_rocket = ["echo 'List of command executed once the calculation is completed'" ],
-        mpi_runner= "mpirun",
-    )
-
-    shell = ShellAdapter(
-        qparams={},
-        setup=["echo 'List of commands executed during the initial setup'", "ssh user@node01"],
-        # List of modules to load before running the application.
-        modules= ['intel-compilers/12.0.4.191', 'MPI/Intel/mvapich2/1.6', 'FFTW/3.3'],
-        # Dictionary with the shell environment variables to export
-        # before running the application.
-        shell_env = dict(MPI_NCPUS=1, BAR=None, PATH="/home/gmatteo/bin:$PATH"),
-        # OpenMP variables.
-        omp_env = dict(OMP_NUM_THREADS=1),
-        pre_rocket = ["echo 'List of command executed before launching the calculation'" ],
-        post_rocket = ["echo 'List of command executed once the calculation is completed'" ],
-        mpi_runner = "mpirun",
-        )
-
-    for qad in [shell, slurm]:
-
-        for num in [2, 3]:
-            qad.set_mpi_ncpus(num)
-
-            script = qad.get_script_str(job_name="myjob", launch_dir="hello", 
-                executable="abinit", stdin="STDIN", stdout="STDOUT", stderr="STDERR")
-
-            print(script)
-
-            #script_file = "job_file.sh"
-            #with open(script_file, "w") as fh:
-            #    fh.write(script)
-
-            #process = qad.submit_to_queue(script_file)
-
-            #import cPickle as pickle
-            #with open("test.pickle", "w") as fh:
-            #    #pickle.dump(qad, fh, protocol=0)
-            #    pickle.dump(cls, fh, protocol=0)
+class QScriptTemplate(string.Template):
+    delimiter = '$$'

@@ -14,7 +14,6 @@ from pymatgen.util.string_utils import stream_has_colours
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
 from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
-from pymatgen.io.abinitio.launcher import TaskLauncher
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
@@ -28,6 +27,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "task_factory",
+    "TaskManager",
 ]
 
 
@@ -933,12 +933,12 @@ class TaskManager(object):
     """
 
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
-                 pre_rocket=None, post_rocket=None, mpi_runner=None, policy=None):
+                 pre_run=None, post_run=None, mpi_runner=None, policy=None):
 
         qad_class = qadapter_class(qtype)
 
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
-                 pre_rocket=pre_rocket, post_rocket=post_rocket, mpi_runner=mpi_runner)
+                 pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
 
         self.policy = policy if policy is not None else TaskPolicy.default_policy()
 
