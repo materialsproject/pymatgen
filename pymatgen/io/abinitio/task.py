@@ -88,12 +88,12 @@ class Task(object):
     S_OK = 32      # Task completed successfully.
 
     STATUS2STR = {
-        S_READY: "ready",
-        S_SUB: "submitted",
-        S_RUN: "running",
-        S_DONE: "done",
-        S_ERROR: "error",
-        S_OK: "completed",
+        S_READY: "Ready",
+        S_SUB: "Submitted",
+        S_RUN: "Running",
+        S_DONE: "Done",
+        S_ERROR: "Error",
+        S_OK: "Completed",
     }
 
     def __init__(self):
@@ -322,8 +322,16 @@ class Task(object):
         self.connect()
         self.setup(*args, **kwargs)
 
-    def _parse_events(self):
-        """Analyzes the main output for possible errors or warnings."""
+    def parse_events(self):
+        """
+        Analyzes the main output for possible errors or warnings.
+
+        Returns:
+            `EventReport` instance or None if the main output file does not exist.
+        """
+        if not os.path.exists(self.output_file.path):
+            return None
+
         parser = EventParser()
         try:
             return parser.parse(self.output_file.path)
@@ -338,13 +346,13 @@ class Task(object):
         """List of errors or warnings reported by ABINIT."""
         if self.status is None or self.status < self.S_DONE:
             raise self.Error(
-                "Task %s is not completed.\nYou cannot access its events now, use _parse_events" % repr(self))
+                "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
 
         try:
             return self._events
 
         except AttributeError:
-            self._events = self._parse_events()
+            self._events = self.parse_events()
             return self._events
 
     @property

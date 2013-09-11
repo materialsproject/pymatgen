@@ -253,7 +253,7 @@ class StringColorizer(object):
 
     def __call__(self, string, colour):
         if self.has_colours:
-            code = self.colours.get(colour, "")
+            code = self.colours.get(colour.lower(), "")
             if code:
                 return code + string + "\x1b[00m"
             else:

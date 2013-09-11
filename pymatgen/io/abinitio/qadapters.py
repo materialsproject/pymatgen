@@ -12,9 +12,9 @@ from pymatgen.io.abinitio.launcher import ScriptEditor
 
 __all__ = [
     "MpiRunner",
-    "ShellAdapter",
-    "SlurmAdapter",
-    "PbsAdapter",
+    #"ShellAdapter",
+    #"SlurmAdapter",
+    #"PbsAdapter",
 ]
 
 def is_string(obj):
@@ -49,6 +49,7 @@ class Command(object):
 
     def run(self, timeout=None, **kwargs):
         """ Run a command then return: (status, output, error). """
+
         def target(**kwargs):
             try:
                 self.process = Popen(self.command, **kwargs)
@@ -58,6 +59,7 @@ class Command(object):
                 import traceback
                 self.error = traceback.format_exc()
                 self.status = -1
+
         # default stdout and stderr
         if 'stdout' not in kwargs:
             kwargs['stdout'] = PIPE
@@ -145,20 +147,20 @@ class AbstractQueueAdapter(object):
         """
         Args:
             setup:
-                String or list of commands executed during the initial setup.
+                String or list of commands to execute during the initial setup.
             modules:
                 String or list of modules to load before running the application.
             shell_env:
-                Dictionary with the shell environment variables to export
+                Dictionary with the environment variables to export
                 before running the application.
             omp_env:
                 Dictionary with the OpenMP variables.
             pre_run:
-                String or list of commands executed before launching the calculation.
+                String or list of commands to execute before launching the calculation.
             post_run:
-                String or list of commands executed once the calculation is completed.
+                String or list of commands to execute once the calculation is completed.
             mpi_runner:
-                Path to mpirun or `MpiRunner` instance. None if not used
+                Path to the MPI runner or `MpiRunner` instance. None if not used
         """
         # Make defensive copies so that we can change the values at runtime.
         self.qparams = qparams.copy() if qparams is not None else {}
@@ -301,8 +303,10 @@ class AbstractQueueAdapter(object):
             launch_dir: 
                 (str) The directory the job will be launched in.
         """
+        # Construct the header for the Queue Manager.
         qheader = self._make_qheader(job_name)
 
+        # Add the bash section.
         se = ScriptEditor()
 
         if self.setup:
@@ -329,6 +333,7 @@ class AbstractQueueAdapter(object):
             se.add_comment("Commands before execution")
             se.add_lines(self.pre_run)
 
+        # Construct the string to run the executable with MPI and mpi_ncpus.
         mpi_ncpus = self.mpi_ncpus
 
         line = self.mpi_runner.string_to_run(executable, mpi_ncpus, stdin=stdin, stdout=stdout, stderr=stderr)
@@ -385,8 +390,19 @@ export MPI_NCPUS=$${MPI_NCPUS}
         self.qparams["MPI_NCPUS"] = mpi_ncpus
 
     def submit_to_queue(self, script_file):
-        process = Popen(("/bin/bash", script_file), stderr=PIPE)
-        return process
+
+        if not os.path.exists(script_file):
+            raise self.Error('Cannot find script file located at: {}'.format(script_file))
+
+        # submit the job
+        try:
+            process = Popen(("/bin/bash", script_file), stderr=PIPE)
+            job_id = None
+            return process
+
+        except:
+            # random error
+            raise self.Error("Random Error ...!")
 
     def get_njobs_in_queue(self, username=None):
         return None
@@ -417,6 +433,7 @@ class SlurmAdapter(AbstractQueueAdapter):
         self.qparams["ntasks"] = mpi_ncpus
 
     def submit_to_queue(self, script_file):
+
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
@@ -432,11 +449,14 @@ class SlurmAdapter(AbstractQueueAdapter):
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                     job_id = int(process.stdout.read().split()[3])
                     print('Job submission was successful and job_id is {}'.format(job_id))
-                    return job_id
 
                 except:
                     # probably error parsing job code
-                    log_exception(slurm_logger, 'Could not parse job id following slurm...')
+                    job_id = None
+                    print('Could not parse job id following slurm...')
+
+                finally:
+                    return process
 
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
@@ -448,23 +468,21 @@ class SlurmAdapter(AbstractQueueAdapter):
             # random error, e.g. no qsub on machine!
             raise self.Error('Running sbatch caused an error...')
 
-        return process
-
     def get_njobs_in_queue(self, username=None):
         if username is None:
             username = getpass.getuser()
 
         cmd = ['squeue', '-o "%u"', '-u', username]
-        p = Popen(cmd, shell=False, stdout=PIPE)
-        p.wait()
+        process = Popen(cmd, shell=False, stdout=PIPE)
+        process.wait()
 
         # parse the result
-        if p.returncode == 0:
+        if process.returncode == 0:
             # lines should have this form
             # username
             # count lines that include the username in it
 
-            outs = p.stdout.readlines()
+            outs = process.stdout.readlines()
             njobs = len([line.split() for line in outs if username in line])
             print('The number of jobs currently in the queue is: {}'.format(njobs))
             return njobs
@@ -472,7 +490,7 @@ class SlurmAdapter(AbstractQueueAdapter):
         # there's a problem talking to squeue server?
         slurm_logger = self.get_qlogger('qadapter.slurm')
         msgs = ['Error trying to get the number of jobs in the queue using squeue service',
-                'The error response reads: {}'.format(p.stderr.read())]
+                'The error response reads: {}'.format(process.stderr.read())]
         log_fancy(slurm_logger, 'error', msgs)
 
         return None
@@ -521,11 +539,14 @@ class PbsAdapter(AbstractQueueAdapter):
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                     job_id = int(process.stdout.read().split('.')[0])
                     print('Job submission was successful and job_id is {}'.format(job_id))
-                    return job_id
 
                 except:
                     # probably error parsing job code
-                    raise self.Error("Could not parse job id following qsub...")
+                    print("Could not parse job id following qsub...")
+                    job_id = None
+
+                finally:
+                    return process, job_id
 
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
@@ -536,7 +557,6 @@ class PbsAdapter(AbstractQueueAdapter):
             # random error, e.g. no qsub on machine!
             raise self.Error("Running qsub caused an error...")
 
-        return process
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
