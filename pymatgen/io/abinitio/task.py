@@ -184,6 +184,18 @@ class Task(object):
         self._id = id
 
     @property
+    def queue_id(self):
+        """Queue identifier returned by the Queue manager. None if not set"""
+        try:
+            return self._queue_id
+        except AttributeError:
+            return None
+
+    def set_queue_id(self, queue_id):
+        """Set the task identifier."""
+        self._queue_id = queue_id
+
+    @property
     def tot_ncpus(self):
         """Total number of CPUs used to run the task."""
         return self.manager.tot_ncpus
@@ -678,16 +690,14 @@ class AbinitTask(Task):
         if not os.path.exists(self.tmpdata_dir):
             os.makedirs(self.tmpdata_dir)
 
-        # Write input file and files file.
+        # Write files file and input file.
+        self.files_file.write(self.filesfile_string)
+
         if not self.input_file.exists:
             self.input_file.write(self.make_input())
 
-        if not self.files_file.exists:
-            self.files_file.write(self.filesfile_string)
-
         #if not os.path.exists(self.jobfile_path):
-        #    with open(self.jobfile_path, "w") as f:
-        #            f.write(str(self.jobfile))
+        self.manager.write_jobfile(self)
 
     def rmtree(self, exclude_wildcard=""):
         """
@@ -1020,11 +1030,8 @@ class TaskManager(object):
         retcode = 0
         return retcode
 
-    def launch(self, task):
-        """Submit the task."""
-
-        qad = self.qadapter
-        script = qad.get_script_str(
+    def write_jobfile(self, task):
+        script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir, 
             executable=task.executable,
@@ -1038,9 +1045,18 @@ class TaskManager(object):
         with open(script_file, "w") as fh:
             fh.write(script)
 
+        return script_file
+
+    def launch(self, task):
+        """Submit the task."""
+        script_file = self.write_jobfile(task)
+
         # Submit the script.
         task.set_status(task.S_SUB)
-        process = qad.submit_to_queue(script_file)
+
+        process, queue_id = self.qadapter.submit_to_queue(script_file)
+
         task.set_status(task.S_RUN)
+        task.set_queue_id(queue_id)
 
         return process
