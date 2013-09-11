@@ -356,7 +356,7 @@ class AbstractQueueAdapter(object):
             script_file: 
                 (str) name of the script file to use (String)
         Returns:
-            process
+            process, queue_id
         """
 
     @abc.abstractmethod
@@ -379,7 +379,9 @@ class ShellAdapter(AbstractQueueAdapter):
 #!/bin/bash
 
 export MPI_NCPUS=$${MPI_NCPUS}
+
 """
+
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
@@ -397,8 +399,8 @@ export MPI_NCPUS=$${MPI_NCPUS}
         # submit the job
         try:
             process = Popen(("/bin/bash", script_file), stderr=PIPE)
-            job_id = None
-            return process
+            queue_id = process.pid
+            return process, queue_id
 
         except:
             # random error
@@ -410,7 +412,7 @@ export MPI_NCPUS=$${MPI_NCPUS}
 
 class SlurmAdapter(AbstractQueueAdapter):
 
-    QTEMPLATE = """
+    QTEMPLATE = """\
 #!/bin/bash
 
 #SBATCH --ntasks=$${ntasks}
@@ -422,7 +424,9 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --job-name=$${job_name}
 #SBATCH --output=$${job_name}.qout
 #SBATCH --error=$${job_name}.qerr
+
 """
+
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
@@ -447,16 +451,16 @@ class SlurmAdapter(AbstractQueueAdapter):
             if process.returncode == 0:
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    job_id = int(process.stdout.read().split()[3])
-                    print('Job submission was successful and job_id is {}'.format(job_id))
+                    queue_id = int(process.stdout.read().split()[3])
+                    print('Job submission was successful and queue_id is {}'.format(queue_id))
 
                 except:
                     # probably error parsing job code
-                    job_id = None
+                    queue_id = None
                     print('Could not parse job id following slurm...')
 
                 finally:
-                    return process
+                    return process, queue_id
 
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
@@ -488,17 +492,16 @@ class SlurmAdapter(AbstractQueueAdapter):
             return njobs
 
         # there's a problem talking to squeue server?
-        slurm_logger = self.get_qlogger('qadapter.slurm')
-        msgs = ['Error trying to get the number of jobs in the queue using squeue service',
-                'The error response reads: {}'.format(process.stderr.read())]
-        log_fancy(slurm_logger, 'error', msgs)
+        err_msg = ('Error trying to get the number of jobs in the queue using squeue service' + 
+                   'The error response reads: {}'.format(process.stderr.read()))
+        print(err_msg)
 
         return None
 
 
 class PbsAdapter(AbstractQueueAdapter):
 
-    QTEMPLATE = """
+    QTEMPLATE = """\
 #!/bin/bash
 
 #PBS -A $${account}
@@ -509,6 +512,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -N $${job_name}
 #PBS -o $${job_name}.qout
 #PBS -e $${job_name}.qerr
+
 """
     #@property
     #def mpi_ncpus(self):
@@ -537,16 +541,16 @@ class PbsAdapter(AbstractQueueAdapter):
             if process.returncode == 0:
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    job_id = int(process.stdout.read().split('.')[0])
-                    print('Job submission was successful and job_id is {}'.format(job_id))
+                    queue_id = int(process.stdout.read().split('.')[0])
+                    print('Job submission was successful and queue_id is {}'.format(queue_id))
 
                 except:
                     # probably error parsing job code
                     print("Could not parse job id following qsub...")
-                    job_id = None
+                    queue_id = None
 
                 finally:
-                    return process, job_id
+                    return process, queue_id
 
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
@@ -576,15 +580,14 @@ class PbsAdapter(AbstractQueueAdapter):
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
             outs = process[1].split('\n')
             njobs = len([line.split() for line in outs if username in line])
-            pbs_logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+            print('The number of jobs currently in the queue is: {}'.format(njobs))
 
             return njobs
 
         # there's a problem talking to qstat server?
-        pbs_logger = self.get_qlogger('qadapter.pbs')
-        msgs = ['Error trying to get the number of jobs in the queue using qstat service',
-                'The error response reads: {}'.format(p[2])]
-        log_fancy(pbs_logger, 'error', msgs)
+        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
+                   'The error response reads: {}'.format(process[2]))
+        print(msg)
 
         return None
 

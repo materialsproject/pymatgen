@@ -250,6 +250,10 @@ class BaseWorkflow(object):
         """
         return WorkFlowResults(task_results={task.name: task.results for task in self})
 
+    def build_and_pickle_dump(self, protocol=0):
+        self.build()
+        self.pickle_dump(protocol=protocol)
+
     def pickle_dump(self, protocol=0):
         """Save the status of the object in pickle format."""
         filepath = os.path.join(self.workdir, self._PICKLE_FNAME)
@@ -420,7 +424,7 @@ class Workflow(BaseWorkflow):
         if links and not isinstance(links, collections.Iterable):
             links = [links,]
 
-        task_id = len(self) + 1
+        task_id = len(self)
         task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
 
         if isinstance(obj, Strategy):
@@ -629,6 +633,7 @@ class IterativeWork(Workflow):
         """
         try:
             next_strategy = next(self.strategy_generator)
+
         except StopIteration:
             raise StopIteration
 
