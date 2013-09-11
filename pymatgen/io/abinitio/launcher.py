@@ -14,6 +14,13 @@ __all__ = [
     "ShellLauncher",
 ]
 
+def is_string(obj):
+    try:
+        dummy = obj + " "
+        return True
+    except TypeError:
+        return False
+
 
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
@@ -27,7 +34,7 @@ class ScriptEditor(object):
         return self._shell
 
     def _add(self, text, pre=""):
-        if isinstance(text, str):
+        if is_string(text):
             self._lines.append(pre+text)
         else:
             self._lines.extend([pre + t for t in text])

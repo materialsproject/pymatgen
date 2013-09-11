@@ -219,7 +219,11 @@ class Task(object):
 
         else:
             # Check if the run completed successfully.
-            report = EventParser().parse(self.output_file.path)
+            try:
+                report = EventParser().parse(self.output_file.path)
+            except Exception as exc:
+                self.set_status(self.S_ERROR)
+                return 
                                                                                                      
             if report.run_completed:
                 self.set_status(self.S_OK)
@@ -1021,8 +1025,7 @@ class TaskManager(object):
             stderr=task.stderr_file.path,
         )
 
-        # Write the script
-        #print(script)
+        # Write the script.
         script_file = task.jobfile_path
         with open(script_file, "w") as fh:
             fh.write(script)
