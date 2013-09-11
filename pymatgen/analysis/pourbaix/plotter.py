@@ -340,7 +340,7 @@ class PourbaixPlotter(object):
         """
         str_name = ""
         if isinstance(entry, MultiEntry):
-            if len(entry.entrylist) > 1:
+            if len(entry.entrylist) > 2:
                 return str(self._pd.qhull_entries.index(entry))
             for e in entry.entrylist:
                 str_name += latexify_ion(latexify(e.name)) + " + "

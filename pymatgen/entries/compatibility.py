@@ -7,7 +7,7 @@ functionals.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Anubhav Jain"
+__author__ = "Shyue Ping Ong, Anubhav Jain, Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -22,6 +22,8 @@ from collections import defaultdict
 from pymatgen.core.composition import Composition
 from pymatgen.entries.post_processors_abc import EntryPostProcessor
 from pymatgen.io.vaspio_set import MITVaspInputSet, MPVaspInputSet
+from pymatgen.core.periodic_table import Element
+from pymatgen.analysis.structure_analyzer import oxide_type
 
 
 class Compatibility(EntryPostProcessor):
@@ -91,6 +93,10 @@ class Compatibility(EntryPostProcessor):
 
         self.u_corrections = u_corrections
         self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
+
+        self.oxide_correction = {}
+        self.oxide_correction = dict(self._config.items(
+            "{}OxideCorrection".format(input_set_name)))
 
         self.valid_potcars = set(self.input_set.potcar_settings.values())
         self.u_settings = self.input_set.incar_settings["LDAUU"]
@@ -176,6 +182,31 @@ class Compatibility(EntryPostProcessor):
                     return None
                 if sym in ucorr:
                     correction += float(ucorr[sym]) * comp[el]
+
+            #Check for peroxide, superoxide, and ozonide corrections. For now, ozonides will be ignored.
+            if len(comp) >= 2 and Element("O") in comp:
+                if "oxide_type" in entry.data:
+                    if entry.data["oxide_type"] in self.oxide_correction:
+                        correction += float(self.oxide_correction[entry.data["oxide_type"]]) * comp[Element("O")] / 2
+                    elif entry.data["oxide_type"] is "ozonide":
+                        return None
+                elif hasattr(entry, "structure"):
+                    ox_type, nbonds = oxide_type(entry.structure, 1.1, return_nbonds=True)
+                    if ox_type in self.oxide_correction:
+                        correction += float(self.oxide_correction[ox_type]) * nbonds
+                    elif ox_type is "ozonide":
+                        return None
+                else:
+                    common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2",
+                                         "BeO2", "MgO2", "CaO2", "SrO2", "BaO2"]
+                    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
+                    ozonides = ["LiO3", "NaO3", "KO3"]
+                    if rform in common_peroxides:
+                        correction += float(self.oxide_correction["peroxide"]) * comp[Element("O")] / 2
+                    elif rform in common_superoxides:
+                        correction += float(self.oxide_correction["superoxide"]) * comp[Element("O")] / 2
+                    elif rform in ozonides:
+                        return None
 
             entry.correction = correction
         return entry
