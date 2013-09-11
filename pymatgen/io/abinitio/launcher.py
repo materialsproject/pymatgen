@@ -310,12 +310,6 @@ class TaskLauncher(object):
 
     def write_script(self, overwrite=True):
         """Writes the script file."""
-        #if not self.jobfile.exists:
-        #    os.makedirs(self.jobfile.dirname)
-
-        #if self.jobfile.exists and not overwrite:
-        #    raise ValueError("%s already exists, cannot overwrite" % self.jobfile.path)
-
         with open(self.jobfile.path, 'w') as f:
             f.write(self.get_script_str())
 
@@ -379,10 +373,6 @@ class SimpleResourceManager(object):
                 sleep_time:
                     Time delay (seconds) before trying to start a new task.
         """
-        #from pymatgen.io.abinitio.workflow import Workflow
-        #if not isinstance(work, Workflow):
-        #    work = Workflow.from_task(work)
-
         self.work = work
 
         self.max_ncpus = max_ncpus 

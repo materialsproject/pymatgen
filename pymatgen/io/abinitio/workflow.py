@@ -27,7 +27,6 @@ from .netcdf import ETSF_Reader
 from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
 from .pseudos import Pseudo
 from .strategies import ScfStrategy
-from .task import RunMode
 from .eos import EOS
 
 #import logging
@@ -335,17 +334,17 @@ class Workflow(BaseWorkflow):
     """
     Error = WorkflowError
 
-    def __init__(self, workdir, runmode):
+    def __init__(self, workdir, manager):
         """
         Args:
             workdir:
                 Path to the working directory.
-            runmode:
-                RunMode instance or string "sequential"
+            manager:
+                `TaskAdapter` object.
         """
         self.workdir = os.path.abspath(workdir)
 
-        self.runmode = RunMode.asrunmode(runmode)
+        self.manager = manager
 
         self._tasks = []
 
@@ -395,7 +394,6 @@ class Workflow(BaseWorkflow):
     #def to_dict(self):
     #    d = dict(
     #        workdir=self.workdir,
-    #        runmode=self.runmode.to_dict,
     #        kwargs=self._kwargs
     #    )
     #    d["@module"] = self.__class__.__module__
@@ -404,7 +402,7 @@ class Workflow(BaseWorkflow):
 
     #@classmethod
     #def from_dict(cls, d):
-    #    return cls(d["workdir"], d["runmode"])
+    #    return cls(d["workdir"])
 
     def register(self, obj, links=()):
         """
@@ -427,15 +425,11 @@ class Workflow(BaseWorkflow):
 
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
-            task = task_factory(obj, task_workdir, self.runmode, task_id=task_id, links=links)
+            task = task_factory(obj, self.manager, task_id=task_id, links=links)
 
         else:
             # Create the new task from the input. Note that no subclasses are instanciated here.
-            try:
-                task = AbinitTask.from_input(obj, task_workdir, self.runmode, task_id=task_id, links=links)
-
-            except:
-                raise TypeError("Don't know how to create a Task from object type %s" % str(type(obj)))
+            task = AbinitTask.from_input(obj, task_workdir, self.manager, task_id=task_id, links=links)
 
         self._tasks.append(task)
 
@@ -446,7 +440,7 @@ class Workflow(BaseWorkflow):
         return WorkLink(task)
 
     def path_in_workdir(self, filename):
-        """Create the absolute path of filename in the workind directory."""
+        """Create the absolute path of filename in the working directory."""
         return os.path.join(self.workdir, filename)
 
     def setup(self, *args, **kwargs):
@@ -607,20 +601,20 @@ class IterativeWork(Workflow):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, runmode, strategy_generator, max_niter=25):
+    def __init__(self, workdir, strategy_generator, manager, max_niter=25):
         """
         Args:
             workdir:
                 Working directory.
-            runmode:
-                `RunMode` object.
             strategy_generator:
                 Strategy generator.
+            manager:
+                `TaskManager` class.
             max_niter:
                 Maximum number of iterations. A negative value or zero value
                 is equivalent to having an infinite number of iterations.
         """
-        super(IterativeWork, self).__init__(workdir, runmode)
+        super(IterativeWork, self).__init__(workdir, manager)
 
         self.strategy_generator = strategy_generator
 
@@ -916,11 +910,11 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
 class PseudoConvergence(Workflow):
 
-    def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode="sequential", toldfe=1.e-8, spin_mode="polarized", 
+    def __init__(self, workdir, manager, pseudo, ecut_list, atols_mev,
+                 toldfe=1.e-8, spin_mode="polarized", 
                  acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
 
-        super(PseudoConvergence, self).__init__(workdir, runmode)
+        super(PseudoConvergence, self).__init__(workdir, manager)
 
         # Temporary object used to build the strategy.
         generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev,
@@ -964,8 +958,8 @@ class PseudoConvergence(Workflow):
 
 class PseudoIterativeConvergence(IterativeWork):
 
-    def __init__(self, workdir, pseudo, ecut_list_or_slice, atols_mev,
-                 runmode="sequential", toldfe=1.e-8, spin_mode="polarized", 
+    def __init__(self, workdir, manager, pseudo, ecut_list_or_slice, atols_mev,
+                 toldfe=1.e-8, spin_mode="polarized", 
                  acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50,):
         """
         Args:
@@ -977,6 +971,8 @@ class PseudoIterativeConvergence(IterativeWork):
                 List of cutoff energies or slice object (mainly used for infinite iterations).
             atols_mev:
                 List of absolute tolerances in meV (3 entries corresponding to accuracy ["low", "normal", "high"]
+            manager:
+                `TaskManager` object.
             spin_mode:
                 Defined how the electronic spin will be treated.
             acell:
@@ -1003,7 +999,7 @@ class PseudoIterativeConvergence(IterativeWork):
                 yield self.strategy_with_ecut(ecut)
 
         super(PseudoIterativeConvergence, self).__init__(
-            workdir, runmode, strategy_generator(), max_niter=max_niter)
+            workdir, manager, strategy_generator(), max_niter=max_niter)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
@@ -1071,14 +1067,13 @@ class PseudoIterativeConvergence(IterativeWork):
 
 class BandStructure(Workflow):
     """Workflow for band structure calculations."""
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy,
-                 dos_strategy=None):
+    def __init__(self, workdir, manager, scf_strategy, nscf_strategy, dos_strategy=None):
         """
         Args:
             workdir:
                 Working directory.
-            runmode:
-                `RunMode` instance.
+            manager:
+                `TaskManager` object.
             scf_strategy:
                 `SCFStrategy` instance
             nscf_strategy:
@@ -1087,7 +1082,7 @@ class BandStructure(Workflow):
                 `NSCFStrategy` instance defining the DOS calculation. 
                 DOS is computed only if dos_strategy is not None.
         """
-        super(BandStructure, self).__init__(workdir, runmode)
+        super(BandStructure, self).__init__(workdir, manager)
 
         # Register the GS-SCF run.
         scf_link = self.register(scf_strategy)
@@ -1103,17 +1098,17 @@ class BandStructure(Workflow):
 
 class Relaxation(Workflow):
 
-    def __init__(self, workdir, runmode, relax_strategy):
+    def __init__(self, workdir, manager, relax_strategy):
         """
         Args:
             workdir:
                 Working directory.
-            runmode:
-                `RunMode` instance.
+            manager:
+                `TaskManager` object.
             relax_strategy:
                 `RelaxStrategy` instance
         """
-        super(Relaxation, self).__init__(workdir, runmode)
+        super(Relaxation, self).__init__(workdir, manager)
 
         link = self.register(relax_strategy)
 
@@ -1121,11 +1116,11 @@ class Relaxation(Workflow):
 
 class DeltaTest(Workflow):
 
-    def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
+    def __init__(self, workdir, manager, structure_or_cif, pseudos, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
-        super(DeltaTest, self).__init__(workdir, runmode)
+        super(DeltaTest, self).__init__(workdir, manager)
 
         if isinstance(structure_or_cif, Structure):
             structure = structure_or_cif
@@ -1221,7 +1216,7 @@ class DeltaTest(Workflow):
 
 class GW_Workflow(Workflow):
 
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy,
+    def __init__(self, workdir, manager, scf_strategy, nscf_strategy,
                  scr_strategy, sigma_strategy):
         """
         Workflow for GW calculations.
@@ -1229,8 +1224,8 @@ class GW_Workflow(Workflow):
         Args:
             workdir:
                 Working directory of the calculation.
-            runmode:
-                `RunMode` instance.
+            manager:
+                `TaskManager` object.
             scf_strategy:
                 `SCFStrategy` instance
             nscf_strategy:
@@ -1240,7 +1235,7 @@ class GW_Workflow(Workflow):
             sigma_strategy:
                 Strategy for the self-energy run.
         """
-        super(GW_Workflow, self).__init__(workdir, runmode)
+        super(GW_Workflow, self).__init__(workdir, manager)
 
         # Register the GS-SCF run.
         scf_link = self.register(scf_strategy)
@@ -1258,7 +1253,7 @@ class GW_Workflow(Workflow):
 
 class BSEMDF_Workflow(Workflow):
 
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, bse_strategy): 
+    def __init__(self, workdir, manager, scf_strategy, nscf_strategy, bse_strategy):
         """
         Workflow for simple BSE calculations in which the self-energy corrections 
         are approximated by the scissors operator and the screening in modeled 
@@ -1267,8 +1262,8 @@ class BSEMDF_Workflow(Workflow):
         Args:
             workdir:
                 Working directory of the calculation.
-            runmode:
-                Run mode.
+            manager:
+                `TaskManager`.
             scf_strategy:
                 ScfStrategy instance
             nscf_strategy:
@@ -1276,7 +1271,7 @@ class BSEMDF_Workflow(Workflow):
             bse_strategy:
                 BSEStrategy instance.
         """
-        super(BSEMDF_Workflow, self).__init__(workdir, runmode)
+        super(BSEMDF_Workflow, self).__init__(workdir, manager)
 
         # Register the GS-SCF run.
         scf_link = self.register(scf_strategy)
