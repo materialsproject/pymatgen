@@ -547,7 +547,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
         #MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
                     'EDIFF': 0.000001, 'LSCALU': False, 'LCHARG': False, 
-                    'LPLANE': False, 'LWAVE': True, 'ICHARG': 1, 'ISMEAR': 0, 
+                    'LPLANE': False, 'LWAVE': True, 'ICHARG': 0, 'ISMEAR': 0, 
                     'SIGMA': 0.05, 'NELMIN': 4, 'LREAL': True, 'BMIX': 1, 
                     'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0, 
                     'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100, 
