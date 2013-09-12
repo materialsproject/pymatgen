@@ -696,8 +696,15 @@ def unitized(unit):
     unit information. For mapping types, the values are assigned units.
 
     Args:
-        units:
-            Specific units (eV, Ha, m, ang, etc.).
+        unit:
+            Specific unit (eV, Ha, m, ang, etc.).
+
+    Example usage::
+
+        @unitized(unit="kg")
+        def get_mass():
+            return 123.45
+
     """
     def wrap(f):
         def wrapped_f(*args, **kwargs):
