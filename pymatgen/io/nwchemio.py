@@ -195,7 +195,7 @@ task $theory $operation""")
                       title=d["title"], theory=d["theory"],
                       operation=d["operation"], basis_set=d["basis_set"],
                       theory_directives=d["theory_directives"],
-                      alternate_directive=d["alternate_directives"]
+                      alternate_directives=d["alternate_directives"]
                      )
 
     @classmethod
@@ -579,11 +579,11 @@ class NwOutput(object):
 
                 m=energy_gas_patt.search(l)
                 if m:
-                    energies.append(float(m.group(1)) * phyc.Ha_eV)
+                    energies.append(Energy(m.group(1), "Ha").to("eV"))
 
                 m=energy_sol_patt.search(l)
                 if m:
-                    energies.append(float(m.group(1)) * phyc.Ha_eV)
+                    energies.append(Energy(m.group(1), "Ha").to("eV"))
 
 
                 m = preamble_patt.search(l)
