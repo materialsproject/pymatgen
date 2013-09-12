@@ -39,6 +39,11 @@ class NwTaskTest(unittest.TestCase):
     def setUp(self):
         self.task = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="dft",
                            theory_directives={"xc": "b3lyp"})
+        self.task_cosmo = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="dft",
+                           theory_directives={"xc": "b3lyp"},alternate_directives={'cosmo':"cosmo"})
+        self.task_esp = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="esp",
+                           theory_directives={"restrain": "harmonic 0.001"})
+
 
     def test_multi_bset(self):
         t = NwTask.from_molecule(
@@ -96,6 +101,37 @@ end
 task dft energy"""
         self.assertEqual(str(task), ans)
 
+    def test_dft_cosmo_task(self):
+        task = NwTask.dft_task(mol, charge=mol.charge, operation="energy",
+                        xc="b3lyp", basis_set="6-311++G**",alternate_directives={'cosmo':"cosmo"})
+        ans = """title "H4C1 dft energy"
+charge 0
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+cosmo
+ dielec 78.0
+end
+task dft energy"""
+        self.assertEqual(str(task), ans)
+
+    def test_esp_task(self):
+        task = NwTask.esp_task(mol, charge=mol.charge, operation="",
+                         basis_set="6-311++G**")
+        ans = """title "H4C1 esp "
+charge 0
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+task esp"""
+        self.assertEqual(str(task), ans)
+
 
 class NwInputTest(unittest.TestCase):
 
@@ -112,6 +148,7 @@ class NwInputTest(unittest.TestCase):
             NwTask.dft_task(mol, charge=mol.charge - 1, operation="energy",
                             xc="b3lyp", basis_set="6-311++G**")
         ]
+
         self.nwi = NwInput(mol, tasks,
                            geometry_options=["units", "angstroms", "noautoz"])
 
