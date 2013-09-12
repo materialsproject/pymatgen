@@ -200,7 +200,7 @@ class Compatibility(EntryPostProcessor):
                     common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2",
                                          "BeO2", "MgO2", "CaO2", "SrO2", "BaO2"]
                     common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-                    ozonides = ["LiO3", "NaO3", "KO3"]
+                    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
                     if rform in common_peroxides:
                         correction += float(self.oxide_correction["peroxide"]) * comp[Element("O")] / 2
                     elif rform in common_superoxides:
