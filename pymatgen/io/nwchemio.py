@@ -70,7 +70,7 @@ class NwTask(MSONable):
 
     def __init__(self, charge, spin_multiplicity, basis_set,
                  title=None, theory="dft", operation="optimize",
-                 theory_directives=None):
+                 theory_directives=None, alternate_directives=None):
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -102,6 +102,11 @@ class NwTask(MSONable):
                 A dict of theory directives. For example,
                 if you are running dft calculations, you may specify the
                 exchange correlation functional using {"xc": "b3lyp"}.
+
+            alternate_directives:
+                A dict of alternate directives. To perform cosmo calculation
+                under dft task
+
         """
         #Basic checks.
         if theory.lower() not in NwTask.theories.keys():
@@ -119,6 +124,8 @@ class NwTask(MSONable):
         self.operation = operation
         self.theory_directives = theory_directives \
             if theory_directives is not None else {}
+        self.alternate_directives = alternate_directives \
+            if alternate_directives is not None else {}
 
     def __str__(self):
         bset_spec = []
@@ -130,14 +137,38 @@ class NwTask(MSONable):
         for k, v in self.theory_directives.items():
             theory_spec.append(" {} {}".format(k, v))
         theory_spec.append("end")
-
-        t = Template("""title "$title"
+        for c, d in self.alternate_directives.items():
+            if len(d)>0:
+                theory_spec.append(" {} {}".format(c, d))
+            else:
+                theory_spec.append("{}".format(c))
+        if "cosmo" in self.alternate_directives:
+            theory_spec.append("end")
+        if "esp" in self.theory:
+            if "esp" in self.theory_directives:
+                t = Template("""title "$title"
+charge $charge
+basis
+$bset_spec
+end
+$theory_spec
+task $theory""")
+            else:
+                t = Template("""title "$title"
+charge $charge
+basis
+$bset_spec
+end
+task $theory""")
+        else:
+            t = Template("""title "$title"
 charge $charge
 basis
 $bset_spec
 end
 $theory_spec
 task $theory $operation""")
+
 
         return t.substitute(
             title=self.title, charge=self.charge,
@@ -154,7 +185,8 @@ task $theory $operation""")
                 "spin_multiplicity": self.spin_multiplicity,
                 "title": self.title, "theory": self.theory,
                 "operation": self.operation, "basis_set": self.basis_set,
-                "theory_directives": self.theory_directives}
+                "theory_directives": self.theory_directives,
+                "alternate_directives": self.alternate_directives}
 
     @classmethod
     def from_dict(cls, d):
@@ -162,12 +194,14 @@ task $theory $operation""")
                       spin_multiplicity=d["spin_multiplicity"],
                       title=d["title"], theory=d["theory"],
                       operation=d["operation"], basis_set=d["basis_set"],
-                      theory_directives=d["theory_directives"])
+                      theory_directives=d["theory_directives"],
+                      alternate_directives=d["alternate_directives"]
+                     )
 
     @classmethod
     def from_molecule(cls, mol, theory, charge=None, spin_multiplicity=None,
                       basis_set="6-31g", title=None,
-                      operation="optimize", theory_directives=None):
+                      operation="optimize", theory_directives=None, alternate_directives=None):
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -226,11 +260,12 @@ task $theory $operation""")
 
         return NwTask(charge, spin_multiplicity, basis_set,
                       title=title, theory=theory, operation=operation,
-                      theory_directives=theory_directives)
+                      theory_directives=theory_directives,
+                      alternate_directives=alternate_directives)
 
 
     @classmethod
-    def dft_task(cls, mol, xc="b3lyp", dielectric="78", **kwargs):
+    def dft_task(cls, mol, xc="b3lyp", dielectric="78.0", **kwargs):
         """
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
@@ -251,6 +286,9 @@ task $theory $operation""")
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
         t.theory_directives.update({"xc": xc,
                                     "mult": t.spin_multiplicity})
+        if "cosmo" in t.alternate_directives:
+            t.alternate_directives.update({"cosmo":"",
+                                           "dielec": dielectric})
         return t
 
     @classmethod
@@ -266,8 +304,9 @@ task $theory $operation""")
                 Any of the other kwargs supported by NwTask. Note the theory
                 is always "dft" for a dft task.
         """
-        e = NwTask.from_molecule(mol, operation="", theory="esp", **kwargs)
-        e.theory_directives.update({"restrain": "harmonic 0.001"})
+        kwargs.update({"operation":""})
+        e = NwTask.from_molecule(mol, theory="esp", **kwargs)
+        #e.theory_directives.update({"restrain": "harmonic 0.001"})
 
         return e
 
@@ -474,6 +513,14 @@ class NwOutput(object):
 
     def _parse_job(self, output):
         energy_patt = re.compile("Total \w+ energy\s+=\s+([\.\-\d]+)")
+        """  In cosmo solvation results gas phase energy =      -152.5044774212 """
+
+        energy_gas_patt = re.compile("gas phase energy\s+=\s+([\.\-\d]+)")
+
+        """ In cosmo solvation results sol phase energy =      -152.5044774212 """
+
+        energy_sol_patt = re.compile("sol phase energy\s+=\s+([\.\-\d]+)")
+
         coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
                                 "([\.\-\d]+)\s+([\.\-\d]+)")
         corrections_patt = re.compile("([\w\-]+ correction to \w+)\s+="
@@ -530,6 +577,15 @@ class NwOutput(object):
                     energies.append(Energy(m.group(1), "Ha").to("eV"))
                     continue
 
+                m=energy_gas_patt.search(l)
+                if m:
+                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+
+                m=energy_sol_patt.search(l)
+                if m:
+                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+
+
                 m = preamble_patt.search(l)
                 if m:
                     try:
@@ -544,6 +600,8 @@ class NwOutput(object):
                     parse_bset = True
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
+                    if job_type=="NWChem DFT Module" and "COSMO solvation results" in output:
+                        job_type=job_type+" COSMO"
                 else:
                     m = corrections_patt.search(l)
                     if m:
