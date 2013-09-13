@@ -2,21 +2,18 @@
 from __future__ import division, print_function
 
 import os 
-import os.path
-import copy 
-import collections
 import abc
 
 from subprocess import Popen, PIPE
 
 from pymatgen.io.abinitio.utils import File
 
+
 __all__ = [
     "ScriptEditor",
     "ShellLauncher",
 ]
 
-# =========================================================================== #
 
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
@@ -47,12 +44,16 @@ class ScriptEditor(object):
         self._lines.append('#!' + self.shell)
 
     def declare_var(self, key, val):
-        """Return a lines setting a variable."""
-        line = key + '=' + str(val)
+        """Declare a env variable. If val is None the variable is unset."""
+        if val is not None:
+            line = "export " + key + '=' + str(val)
+        else:
+            line = "unset " + key 
+
         self._add(line)
 
     def declare_vars(self, d):
-        """Declare the variabled defined in d (dict)"""
+        """Declare the variables defined in the dictionary d."""
         for k,v in d.items():
             self.declare_var(k, v)
 
@@ -92,12 +93,11 @@ class ScriptEditor(object):
             self.reset()
         return s
 
-##########################################################################################
 
-class OMPEnv(dict):
+class OmpEnv(dict):
     """
-    Dictionary with the OpenMP environment variables"
-    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables"
+    Dictionary with the OpenMP environment variables
+    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables
     """
     _KEYS = [
        "OMP_SCHEDULE",
@@ -117,25 +117,25 @@ class OMPEnv(dict):
         """ 
         Constructor method inherited from dictionary:
                                                    
-        >>> OMPEnv(OMP_NUM_THREADS=1)
+        >>> OmpEnv(OMP_NUM_THREADS=1)
         {'OMP_NUM_THREADS': '1'}
                                                    
         To create an instance from an INI file, use:
-           OMPEnv.from_filename(filename)
+           OmpEnv.from_file(filename)
         """
         self.update(*args, **kwargs)
 
         err_msg = ""
         for key, value in self.items():
             self[key] = str(value)
-            if key not in OMPEnv._KEYS:
-                err_msg += "unknown option %s" % key
+            if key not in self._KEYS:
+                err_msg += "unknown option %s\n" % key
 
         if err_msg: 
             raise ValueError(err_msg)
 
     @staticmethod
-    def from_filename(filename, allow_empty=False):
+    def from_file(filename, allow_empty=False):
         from ConfigParser import SafeConfigParser, NoOptionError
         parser = SafeConfigParser()
         parser.read(filename)
@@ -151,13 +151,13 @@ class OMPEnv(dict):
 
         err_msg = ""
         for key in parser.options("openmp"):
-            if key.upper() not in OMPEnv._KEYS:
+            if key.upper() not in self._KEYS:
                 err_msg += "unknown option %s, maybe a typo" % key
 
         if err_msg: 
             raise ValueError(err_msg)
 
-        for key in OMPEnv._KEYS:
+        for key in self._KEYS:
             try:
                 obj[key] = str(parser.get("openmp", key))
             except NoOptionError:
@@ -171,7 +171,6 @@ class OMPEnv(dict):
 
         return obj
 
-##########################################################################################
 
 class TaskLauncher(object):
     """Abstract class for a task launcher."""
@@ -361,31 +360,14 @@ class ShellLauncher(TaskLauncher):
 
         return process
 
-##########################################################################################
 
-#class SlurmLauncher(TaskLauncher):
-#    _type = "slurm"
-#
-#    def make_rsmheader(self):
-#        raise NotImplementedError()
-#
-#    def launch(self, *args, **kwargs):
-#        """
-#        Run the script in a subprocess, returns a Popen-like object.
-#        This is a very delicate part. Hopefully fireworks will help solve the problem!
-#        """
-#        raise NotImplementedError()
-
-##########################################################################################
-
-
-class SimpleResourceManagerError(Exception):
+class ResourceManagerError(Exception):
     """Base error class for `SimpleResourceManager."""
 
 
 class SimpleResourceManager(object):
 
-    Error = SimpleResourceManagerError
+    Error = ResourceManagerError
 
     def __init__(self, work, max_ncpus, sleep_time=20, verbose=0):
         """
@@ -397,7 +379,12 @@ class SimpleResourceManager(object):
                 sleep_time:
                     Time delay (seconds) before trying to start a new task.
         """
+        #from pymatgen.io.abinitio.workflow import Workflow
+        #if not isinstance(work, Workflow):
+        #    work = Workflow.from_task(work)
+
         self.work = work
+
         self.max_ncpus = max_ncpus 
         self.sleep_time = sleep_time
         self.verbose = verbose
@@ -443,4 +430,3 @@ class SimpleResourceManager(object):
 
         return self.work.returncodes
 
-##########################################################################################

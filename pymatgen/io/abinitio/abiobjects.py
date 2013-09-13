@@ -1,17 +1,22 @@
-"Low-level objects providing an abstraction for the objects involved in the calculation."
+#!/usr/bin/env python
+
+"""
+Low-level objects providing an abstraction for the objects involved in the
+calculation.
+"""
+
 from __future__ import division, print_function
 
 import collections
 import numpy as np
 import os.path
 import abc
+import pymatgen.core.units as units
 
 from pprint import pformat
-
 from pymatgen.util.decorators import singleton
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.core.units import any2Ha
-from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
+from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure, Molecule
@@ -19,7 +24,7 @@ from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
 
-##########################################################################################
+###############################################################################
 
 
 class AbivarAble(object):
@@ -31,10 +36,13 @@ class AbivarAble(object):
 
     @abc.abstractmethod
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables."
+        """
+        Returns a dictionary with the abinit variables.
+        """
 
     def __str__(self):
         return pformat(self.to_abivars(), indent=1, width=80, depth=None)
+
 
 @singleton
 class MandatoryVariable(object):
@@ -43,6 +51,7 @@ class MandatoryVariable(object):
     the cool syntax: variable is MANDATORY!
     """
 
+
 @singleton
 class DefaultVariable(object):
     """
@@ -50,16 +59,17 @@ class DefaultVariable(object):
     """
 
 MANDATORY = MandatoryVariable()
-DEFAULT   = DefaultVariable()
+DEFAULT = DefaultVariable()
 
-##########################################################################################
+###############################################################################
 
 
-class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"), AbivarAble):
+class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
+               AbivarAble):
     """
     Different configurations of the electron density as implemented in abinit:
-    One can use asspinmode to construct the object via SpinMode.asspinmode(string)
-    where string can assume the values:
+    One can use asspinmode to construct the object via SpinMode.asspinmode
+    (string) where string can assume the values:
 
         - polarized
         - unpolarized
@@ -69,7 +79,7 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
     """
     @classmethod
     def asspinmode(cls, obj):
-        "Converts obj into a SpinMode instance"
+        """Converts obj into a SpinMode instance"""
         if isinstance(obj, cls):
             return obj
         else:
@@ -80,10 +90,11 @@ class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
                 raise KeyError("Wrong value for spin_mode: %s" % str(obj))
 
     def to_abivars(self):
-        return {"nsppol" : self.nsppol,
-                "nspinor": self.nspinor,
-                "nspden" : self.nspden,
-                }
+        return {
+            "nsppol": self.nsppol,
+            "nspinor": self.nspinor,
+            "nspden": self.nspden,
+        }
 
 # An handy Multiton
 _mode2spinvars = {
@@ -94,7 +105,7 @@ _mode2spinvars = {
     "spinor_nomag": SpinMode("spinor_nomag", 1, 2, 1),
 }
 
-##########################################################################################
+###############################################################################
 
 
 class Smearing(AbivarAble, MSONable):
@@ -117,16 +128,14 @@ class Smearing(AbivarAble, MSONable):
         self.tsmear = tsmear
 
     def __str__(self):
-        s  = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
+        s = "occopt %d # %s Smearing\n" % (self.occopt, self.mode)
         if self.tsmear:
             s += 'tsmear %s' % self.tsmear
         return s
 
     def __eq__(self, other):
-        if other is None:
-            return False
-        else:
-            return (self.occopt == other.occopt and np.allclose(self.tsmear, other.tsmear))
+        return (self.occopt == other.occopt and 
+                np.allclose(self.tsmear, other.tsmear))
 
     def __ne__(self, other):
         return not self == other
@@ -145,7 +154,11 @@ class Smearing(AbivarAble, MSONable):
             * Smearing instance
             * "name:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
             * "name:tsmear units" e.g. "gaussian:0.1 eV"
+            * None --> no smearing
         """
+        if obj is None:
+            return Smearing.nosmearing()
+
         if isinstance(obj, cls):
             return obj
 
@@ -160,8 +173,8 @@ class Smearing(AbivarAble, MSONable):
             try:
                 tsmear = float(tsmear)
             except ValueError:
-                tsmear, units = tsmear.split()
-                tsmear = any2Ha(units)(float(tsmear))
+                tsmear, unit = tsmear.split()
+                tsmear = units.Energy(float(tsmear), unit).to("Ha")
 
             return cls(occopt, tsmear)
 
@@ -186,16 +199,15 @@ class Smearing(AbivarAble, MSONable):
     @property
     def to_dict(self):
         """json friendly dict representation of Smearing"""
-        d = {"occopt": self.occopt, "tsmear": self.tsmear}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
+        return {"occopt": self.occopt, "tsmear": self.tsmear,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__}
 
     @staticmethod
     def from_dict(d):
         return Smearing(d["occopt"], d["tsmear"])
 
-##########################################################################################
+###############################################################################
 
 
 class ElectronsAlgorithm(dict, AbivarAble):
@@ -219,12 +231,13 @@ class ElectronsAlgorithm(dict, AbivarAble):
 
         for k in self:
             if k not in self._default_vars:
-                raise ValueError("%s: No default value has been provided for key %s" % (self.__class__.__name__, k))
+                raise ValueError("%s: No default value has been provided for "
+                                 "key %s" % (self.__class__.__name__, k))
 
     def to_abivars(self):
         return self.copy()
 
-##########################################################################################
+###############################################################################
 
 
 class Electrons(AbivarAble):
@@ -336,7 +349,7 @@ def asabistructure(obj):
 
             if obj.endswith(".nc"):
                 structure = structure_from_etsf_file(obj)
-                print(structure._sites)
+                #print(structure._sites)
             else:
                 structure = read_structure(obj)
 
@@ -378,7 +391,7 @@ class AbiStructure(Structure, AbivarAble):
 
         molecule = Molecule([p.symbol for p in pseudos], cart_coords)
 
-        l = Bohr2Ang(acell)
+        l = ArrayWithUnit(acell, "bohr").to("ang")
 
         structure = molecule.get_boxed_structure(l[0], l[1], l[2])
 
@@ -412,20 +425,23 @@ class AbiStructure(Structure, AbivarAble):
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        significant_figures = 12
-        format_str = "{{:.{0}f}}".format(significant_figures)
-        fmt = format_str.format
+        #significant_figures = 12
+        #format_str = "{{:.{0}f}}".format(significant_figures)
+        #fmt = format_str.format
 
-        lines = []
-        for vec in Ang2Bohr(self.lattice.matrix):
-            lines.append(" ".join([fmt(c) for c in vec]))
-        rprim = "\n" + "\n".join(lines)
+        #lines = []
+        #for vec in Ang2Bohr(self.lattice.matrix):
+        #    lines.append(" ".join([fmt(c) for c in vec]))
+        #rprim = "\n" + "\n".join(lines)
 
-        lines = []
-        for (i, site) in enumerate(self):
-            coords = site.frac_coords
-            lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
-        xred = '\n' + "\n".join(lines)
+        #lines = []
+        #for (i, site) in enumerate(self):
+        #    coords = site.frac_coords
+        #    lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
+        #xred = '\n' + "\n".join(lines)
+
+        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
+        xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
         return {
             "acell" : 3 * [1.0],
@@ -476,10 +492,12 @@ class KSampling(AbivarAble):
 
         Args:
             mode:
-                Mode for generating k-poits. Use one of the KSampling.modes enum types.
+                Mode for generating k-poits. Use one of the KSampling.modes
+                enum types.
             num_kpts:
                 Number of kpoints if mode is "automatic"
-                Number of division for the sampling of the smallest segment if mode is "path"
+                Number of division for the sampling of the smallest segment if
+                mode is "path".
                 Not used for the other modes
             kpts:
                 Number of divisions. Even when only a single specification is
@@ -488,15 +506,18 @@ class KSampling(AbivarAble):
             kpt_shifts:
                 Shifts for Kpoints.
             use_symmetries:
-                False if spatial symmetries should not be used to reduced the number of independent k-points.
+                False if spatial symmetries should not be used to reduced the
+                number of independent k-points.
             use_time_reversal:
-                False if time-reversal symmetry should not be used to reduced the number of independent k-points.
+                False if time-reversal symmetry should not be used to reduced
+                the number of independent k-points.
             kpts_weights:
                 Optional weights for kpoints. For explicit kpoints.
             labels:
                 In path-mode, this should provide a list of labels for each kpt.
             chksymbreak:
-                Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.
+                Abinit input variable: check whether the BZ sampling preserves
+                the symmetry of the crystal.
             comment:
                 String comment for Kpoints
 
@@ -536,7 +557,7 @@ class KSampling(AbivarAble):
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
             kptbounds = np.reshape(kpts, (-1,3,))
-            print("in path with kptbound: %s " % kptbounds)
+            #print("in path with kptbound: %s " % kptbounds)
 
             abivars.update({
                 "ndivsm"   : num_kpts,
@@ -694,7 +715,7 @@ class KSampling(AbivarAble):
             kpath_bounds = []
             for label in kpath_labels:
                 red_coord = sp.kpath["kpoints"][label]
-                print("label %s, red_coord %s" % (label, red_coord))
+                #print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
         return cls(mode     = KSampling.modes.path,
@@ -944,8 +965,8 @@ class PPModel(AbivarAble, MSONable):
             try:
                 plasmon_freq = float(plasmon_freq)
             except ValueError:
-                plasmon_freq, units = plasmon_freq.split()
-                plasmon_freq = any2Ha(units)(float(plasmon_freq))
+                plasmon_freq, unit = plasmon_freq.split()
+                plasmon_freq = units.Energy(float(plasmon_freq), unit).to("Ha")
 
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
@@ -1482,7 +1503,7 @@ class Perturbation(AbivarAble):
             qpt:
                 reduced coordinates of the q-point associated to the perturbation.
         """
-        self.qpt = npreshape(qpt, (-1,3))
+        self.qpt = np.reshape(qpt, (-1,3))
         self.nqpt = len(self.qpt)
 
     @property

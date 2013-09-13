@@ -207,6 +207,46 @@ class FrameworkComparator(AbstractComparator):
         return len(structure)
 
 
+class OrderDisorderElementComparator(AbstractComparator):
+    """
+    A Comparator that matches sites, regardless of species.
+    """
+
+    def are_equal(self, sp1, sp2):
+        """
+        True if there is some overlap in composition between the species
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            True always
+        """
+        set1 = set(sp1.element_composition.keys())
+        set2 = set(sp2.element_composition.keys())
+        if set1.intersection(set2):
+            return True
+        return False
+
+    def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            TODO No good hash yet
+        """
+        return 1
+
+
 class StructureMatcher(MSONable):
     """
     Class to match structures by similarity.
@@ -254,7 +294,7 @@ class StructureMatcher(MSONable):
     """
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
-                 scale=True, attempt_supercell=False,
+                 scale=True, attempt_supercell=False, allow_subset=False,
                  comparator=SpeciesComparator()):
         """
         Args:
@@ -277,6 +317,12 @@ class StructureMatcher(MSONable):
                 after a primitive cell reduction (divisible by an integer)
                 attempts to generate a supercell transformation of the
                 smaller cell which is equivalent to the larger structure.
+            allow_subset:
+                Allow one structure to match to the subset of another
+                structure. Eg. Matching of an ordered structure onto a
+                disordered one, or matching a delithiated to a lithiated
+                structure. This option cannot be combined with
+                attempt_supercell, or with structure grouping.
             comparator:
                 A comparator object implementing an equals method that declares
                 declaring equivalency of sites. Default is
@@ -298,232 +344,130 @@ class StructureMatcher(MSONable):
         self._primitive_cell = primitive_cell
         self._scale = scale
         self._supercell = attempt_supercell
+        self._subset = allow_subset
+        if attempt_supercell and allow_subset:
+            raise ValueError("attempt_supercell cannot be combined with "
+                             "allow_subset")
 
-    def _get_lattices(self, s1, s2, vol_tol):
-        s1_lengths, s1_angles = s1.lattice.lengths_and_angles
-        all_nn = get_points_in_sphere_pbc(
-            s2.lattice, [[0, 0, 0]], [0, 0, 0],
-            (1 + self.ltol) * max(s1_lengths))[:, [0, 1]]
+    def _get_lattices(self, target_s, s, supercell_size=1):
+        """
+        Yields lattices for s with lengths and angles close to the
+        lattice of target_s. If supercell_size is specified, the
+        returned lattice will have that number of primitive cells
+        in it
 
-        nv = []
-        for l in s1_lengths:
-            nvi = all_nn[np.where((all_nn[:, 1] < (1 + self.ltol) * l)
-                                  &
-                                  (all_nn[:, 1] > (1 - self.ltol) * l))][:, 0]
-            if not len(nvi):
+        Args:
+            s, target_s: Structure objects
+        """
+        t_l, t_a = target_s.lattice.lengths_and_angles
+        r = (1 + self.ltol) * max(t_l)
+        fpts, dists, i = get_points_in_sphere_pbc(
+            lattice=s.lattice, frac_points=[[0, 0, 0]], center=[0, 0, 0],
+            r=r).T
+        #get possible vectors for a, b, and c
+        new_v = []
+        for l in t_l:
+            max_r = (1 + self.ltol) * l
+            min_r = (1 - self.ltol) * l
+            vi = fpts[np.where((dists < max_r) & (dists > min_r))]
+            if len(vi) == 0:
                 return
-            nvi = [np.array(site) for site in nvi]
-            nvi = np.dot(nvi, s2.lattice.matrix)
-            nv.append(nvi)
-            #The vectors are broadcast into a 5-D array containing
-        #all permutations of the entries in nv[0], nv[1], nv[2]
-        #produces the same result as three nested loops over the
+            cart_vi = np.dot(np.array([i for i in vi]), s.lattice.matrix)
+            new_v.append(cart_vi)
+
+        #The vectors are broadcast into a 5-D array containing
+        #all permutations of the entries in new_v[0], new_v[1], new_v[2]
+        #Produces the same result as three nested loops over the
         #same variables and calculating determinants individually
-        bfl = (np.array(nv[0])[None, None, :, None, :] *
+        bfl = (np.array(new_v[0])[None, None, :, None, :] *
                np.array([1, 0, 0])[None, None, None, :, None] +
-               np.array(nv[1])[None, :, None, None, :] *
+               np.array(new_v[1])[None, :, None, None, :] *
                np.array([0, 1, 0])[None, None, None, :, None] +
-               np.array(nv[2])[:, None, None, None, :] *
+               np.array(new_v[2])[:, None, None, None, :] *
                np.array([0, 0, 1])[None, None, None, :, None])
 
-        #Compute volume of each array
-        vol = np.sum(bfl[:, :, :, 0, :] * np.cross(bfl[:, :, :, 1, :],
-                                                   bfl[:, :, :, 2, :]), 3)
-        #Find valid lattices
-        valid = np.where(abs(vol) >= vol_tol)
-        if not len(valid[0]):
+        #Compute volume of each lattice
+        vol = np.abs(np.sum(bfl[:, :, :, 0, :] *
+                            np.cross(bfl[:, :, :, 1, :],
+                                     bfl[:, :, :, 2, :]), 3))
+        #valid lattices must not change volume
+        min_vol = s.volume * 0.999 * supercell_size
+        max_vol = s.volume * 1.001 * supercell_size
+        bfl = bfl[np.where((vol > min_vol) & (vol < max_vol))]
+        if len(bfl) == 0:
             return
-            #loop over valid lattices to compute the angles for each
-        lengths = np.sum(bfl[valid] ** 2, axis=2) ** 0.5
-        angles = np.zeros((len(bfl[valid]), 3), float)
+
+        #compute angles
+        lengths = np.sum(bfl ** 2, axis=2) ** 0.5
+        angles = np.zeros((len(bfl), 3), float)
         for i in xrange(3):
             j = (i + 1) % 3
             k = (i + 2) % 3
             angles[:, i] = \
-                np.sum(bfl[valid][:, j, :] * bfl[valid][:, k, :], 1) \
+                np.sum(bfl[:, j, :] * bfl[:, k, :], 1) \
                 / (lengths[:, j] * lengths[:, k])
         angles = np.arccos(angles) * 180. / np.pi
         #Check angles are within tolerance
-        valid_angles = np.where(np.all(np.abs(angles - s1_angles) <
+        valid_angles = np.where(np.all(np.abs(angles - t_a) <
                                        self.angle_tol, axis=1))
-        if len(valid_angles[0]) == 0:
-            return
-            #yield valid lattices
-        for lat in bfl[valid][valid_angles]:
+        for lat in bfl[valid_angles]:
             nl = Lattice(lat)
             yield nl
 
-    def _cmp_fractional_struct(self, s1, s2, frac_tol):
+    def _cmp_fractional_struct(self, s1, s2, frac_tol, mask):
         #compares the fractional coordinates
-        for s1_coords, s2_coords in zip(s1, s2):
-            dist = s1_coords[:, None] - s2_coords[None, :]
-            dist = abs(dist - np.round(dist))
-            dist[np.where(dist > frac_tol[None, None, :])] = 3 * len(dist)
-            cost = np.sum(dist, axis=-1)
-            if np.max(np.min(cost, axis=0)) >= 3 * len(dist):
-                return False
-            lin = LinearAssignment(cost)
-            if lin.min_cost >= 3 * len(dist):
-                return False
+        mask_val = 3 * len(s1)
+        dist = s2[:, None] - s1[None, :]
+        dist = abs(dist - np.round(dist))
+        dist[np.where(dist > frac_tol[None, None, :])] = mask_val
+        cost = np.sum(dist, axis=-1)
+        cost[mask] = mask_val
+        if np.max(np.min(cost, axis=1)) >= mask_val:
+            return False
+        if self._subset:
+            n = len(s1)
+            square_cost = np.zeros((n, n))
+            square_cost[:cost.shape[0], :cost.shape[1]] = cost
+            cost = square_cost
+        lin = LinearAssignment(cost)
+        if lin.min_cost >= mask_val:
+            return False
         return True
 
-    def _cmp_cartesian_struct(self, s1, s2, l1, l2):
+    def _cart_dists(self, s1, s2, l1, l2, mask):
         """
-        Once a fit is found, a rms minimizing fit is done to
-        ensure the fit is correct. To do this,
-
-        1) The structures are placed into an average lattice
-        2) All sites are shifted by the mean
-            displacement vector between matched sites.
-        3) calculate distances
-        4) return rms distance normalized by (V/Natom) ^ 1/3
-            and the maximum distance found
+        Finds the cartesian distances normalized by (V/Natom) ^ 1/3
+        between s1 and s2 on the average lattice of l1 and l2
+        s1 and s2 are lists of fractional coordinates. Minimizes the
+        RMS distance of the matching with an additional translation
+        (but doesn't change the mapping)
+        returns distances, fractional_translation vector
         """
-        nsites = sum(map(len, s1))
-
+        #create the average lattice
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
+        avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
+        norm_length = (avg_lattice.volume / len(s1)) ** (1 / 3)
+        mask_val = 1e20 * norm_length * self.stol
 
-        avg_lattice = Lattice.from_lengths_and_angles(avg_params[0],
-                                                      avg_params[1])
-        dist = np.zeros([nsites, nsites]) + 100 * nsites
-        vec_matrix = np.zeros([nsites, nsites, 3])
-        i = 0
-        for s1_coords, s2_coords in zip(s1, s2):
-            j = len(s1_coords)
-            vecs = pbc_shortest_vectors(avg_lattice, s1_coords, s2_coords)
-            distances = (np.sum(vecs ** 2, axis=-1)) ** 0.5
-            dist[i: i + j, i: i + j] = distances
-            vec_matrix[i: i + j, i: i + j] = vecs
-            i += j
-        lin = LinearAssignment(dist)
-        inds = np.arange(nsites)
+        all_d_2 = np.zeros([len(s1), len(s1)])
+        vec_matrix = np.zeros([len(s1), len(s1), 3])
 
-        shortest_vecs = vec_matrix[inds, lin.solution, :]
-        shortest_vec_square = np.sum(
-            (shortest_vecs - np.average(shortest_vecs, axis=0)) ** 2, -1)
+        vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
+        vec_matrix[:len(s2)] = vecs
+        vec_matrix[mask] = mask_val
+        d_2 = (np.sum(vecs ** 2, axis=-1))
+        all_d_2[:len(s2)] = d_2
+        all_d_2[mask] = mask_val
 
-        norm_length = (avg_lattice.volume / nsites) ** (1 / 3)
-
-        rms = np.average(shortest_vec_square) ** 0.5 / norm_length
-
-        max_dist = np.max(shortest_vec_square) ** 0.5 / norm_length
-
-        return rms, max_dist
-
-    def _supercell_fit(self, struct1, struct2, break_on_match):
-        """
-        Calculate RMS displacement between two structures
-        where one is a potential supercell of the other
-
-        Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
-            break_on_match:
-                True or False. Will break if the maximum
-                    distance found is less than the
-                    provided stol
-
-        Returns:
-            rms displacement normalized by (Vol / nsites) ** (1/3) and
-            maximum distance found between two paired sites
-        """
-        struct1 = Structure.from_sites(struct1)
-        struct2 = Structure.from_sites(struct2)
-
-        stored_rms = None
-
-        #reset struct1 to supercell
-        if struct2.num_sites > struct1.num_sites:
-            [struct2, struct1] = [struct1, struct2]
-
-        #number of formula units
-        fu = struct1.num_sites / struct2.num_sites
-
-        struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
-        struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
-
-        nl1 = struct1.lattice
-        nl2 = struct2.lattice
-
-        #Volume to determine invalid lattices
-        vol_tol = fu * nl2.volume / 2
-
-        #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = np.array([self.stol / ((1 - self.ltol) * np.pi) * i
-                             for i in struct1.lattice.reciprocal_lattice.abc])
-        frac_tol *= ((nl1.volume + fu * nl2.volume)
-                     / (2 * struct1.num_sites)) ** (1 / 3)
-
-        #generate structure coordinate lists
-        species_list = []
-        s1 = []
-        for site in struct1:
-            found = False
-            for i, species in enumerate(species_list):
-                if self._comparator.are_equal(site.species_and_occu,
-                                              species):
-                    found = True
-                    s1[i].append(site.frac_coords)
-                    break
-            if not found:
-                s1.append([site.frac_coords])
-                species_list.append(site.species_and_occu)
-
-        zipped = sorted(zip(s1, species_list), key=lambda x: len(x[0]))
-
-        s1 = [x[0] for x in zipped]
-        species_list = [x[1] for x in zipped]
-
-        #translate s1
-        s1_translation = s1[0][0]
-        for i in range(len(species_list)):
-            s1[i] = np.mod(s1[i] - s1_translation, 1)
-
-        #do permutations of vectors, check for equality
-        for nl in self._get_lattices(struct1, struct2, vol_tol):
-
-            s2_cart = [[] for i in s1]
-
-            scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
-
-            supercell = struct2.copy()
-            supercell.make_supercell(scale_matrix.astype('int'))
-
-            for site in supercell:
-                found = False
-                for i, species in enumerate(species_list):
-                    if self._comparator.are_equal(site.species_and_occu,
-                                                  species):
-                        found = True
-                        s2_cart[i].append(site.coords)
-                        break
-                        #if no site match found return None
-                if not found:
-                    return None
-
-            #check that sizes of the site groups are identical
-            for f1, c2 in zip(s1, s2_cart):
-                if len(f1) != len(c2):
-                    return None
-
-            s2 = [nl.get_fractional_coords(c) for c in s2_cart]
-            for coord in s2[0]:
-                t_s2 = [np.mod(coords - coord, 1) for coords in s2]
-                if self._cmp_fractional_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
-                                                               nl1)
-                    if break_on_match and max_dist < self.stol:
-                        return max_dist
-                    elif stored_rms is None or rms < stored_rms[0]:
-                        stored_rms = rms, max_dist
-
-        if break_on_match:
-            return None
-        else:
-            return stored_rms
+        lin = LinearAssignment(all_d_2)
+        inds = np.arange(len(s2))
+        shortest_vecs = vec_matrix[inds, lin.solution[:len(s2)], :]
+        translation = np.average(shortest_vecs, axis=0)
+        f_translation = avg_lattice.get_fractional_coords(translation)
+        shortest_distances = np.sum((shortest_vecs - translation) ** 2,
+                                    -1) ** 0.5
+        return shortest_distances / norm_length, f_translation
 
     def fit(self, struct1, struct2):
         """
@@ -539,12 +483,12 @@ class StructureMatcher(MSONable):
             True or False.
         """
 
-        fit_dist = self._calc_rms(struct1, struct2, break_on_match=True)
+        match = self._find_match(struct1, struct2, break_on_match=True)
 
-        if fit_dist is None:
+        if match is None:
             return False
         else:
-            return fit_dist <= self.stol
+            return match[0] <= self.stol
 
     def get_rms_dist(self, struct1, struct2):
         """
@@ -561,12 +505,19 @@ class StructureMatcher(MSONable):
             and maximum distance between paired sites. If no matching
             lattice is found None is returned.
         """
+        match = self._find_match(struct1, struct2, break_on_match=False,
+                                 use_rms=True)
+        if match is None:
+            return None
+        else:
+            return match[0], max(match[1])
 
-        return self._calc_rms(struct1, struct2, break_on_match=False)
-
-    def _calc_rms(self, struct1, struct2, break_on_match):
+    def _find_match(self, struct1, struct2, break_on_match=False,
+                    use_rms=False, niggli=True):
         """
-        Calculate RMS displacement between two structures
+        Finds the best match between two structures.
+        Typically, 'best' is determined by minimax cartesian distance
+        on the average lattice
 
         Args:
             struct1:
@@ -574,24 +525,25 @@ class StructureMatcher(MSONable):
             struct2:
                 2nd structure
             break_on_match:
-                True or False. Will break if the maximum
-                    distance found is less than the
-                    provided stol
+                If true, breaks once the max distance is below
+                the stol (RMS distance if use_rms is true)
+            use_rms:
+                If True, finds the match that minimizes
+                RMS instead of minimax
+            niggli:
+                whether to compute the niggli cells of the input
+                structures
 
         Returns:
-            rms displacement normalized by (Vol / nsites) ** (1/3) and
-            maximum distance found between two paired sites
+            the value, distances, s2 lattice, and s2 translation
+            vector for the best match
         """
         struct1 = Structure.from_sites(struct1.sites)
         struct2 = Structure.from_sites(struct2.sites)
 
-        stol = self.stol
-        comparator = self._comparator
-        #initial stored rms
-        stored_rms = None
-
-        if comparator.get_structure_hash(struct1) != \
-                comparator.get_structure_hash(struct2):
+        if self._comparator.get_structure_hash(struct1) != \
+                self._comparator.get_structure_hash(struct2) \
+            and not self._subset:
             return None
 
         #primitive cell transformation
@@ -599,100 +551,97 @@ class StructureMatcher(MSONable):
             struct1 = struct1.get_primitive_structure()
             struct2 = struct2.get_primitive_structure()
 
-        # Same number of sites
-        if struct1.num_sites != struct2.num_sites:
-            #if mismatch try to fit a supercell or return None
-            if self._supercell and not (
-                    (struct1.num_sites % struct2.num_sites)
-                    and (struct2.num_sites % struct1.num_sites)):
-                return self._supercell_fit(struct1, struct2, break_on_match)
-            else:
+        if self._supercell:
+            #force struct1 to be the larger one
+            if struct2.num_sites > struct1.num_sites:
+                struct2, struct1 = struct1, struct2
+            fu = struct1.num_sites // struct2.num_sites
+        else:
+            fu = 1
+
+        # Check that the number of sites is correct
+        if self._subset:
+            if struct2.num_sites > struct1.num_sites:
+                struct2, struct1 = struct1, struct2
+                #can't do the check until we group with the comparator
+        else:
+            if struct1.num_sites != struct2.num_sites * fu:
                 return None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
         # cells considerably.
-        struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
-        struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
+        if niggli:
+            struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
+            struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
 
         nl1 = struct1.lattice
         nl2 = struct2.lattice
 
         #rescale lattice to same volume
         if self._scale:
-            scale_vol = (nl2.volume / nl1.volume) ** (1 / 6)
-            nl1 = Lattice(nl1.matrix * scale_vol)
+            ratio = (fu * nl2.volume / nl1.volume) ** (1 / 6)
+            nl1 = Lattice(nl1.matrix * ratio)
             struct1.modify_lattice(nl1)
-            nl2 = Lattice(nl2.matrix / scale_vol)
+            nl2 = Lattice(nl2.matrix / ratio)
             struct2.modify_lattice(nl2)
 
-        #Volume to determine invalid lattices
-        vol_tol = nl2.volume / 2
-
         #fractional tolerance of atomic positions (2x for initial fitting)
-        frac_tol = \
-            np.array([stol / ((1 - self.ltol) * np.pi) * i for
-                      i in struct1.lattice.reciprocal_lattice.abc]) * \
-            ((nl1.volume + nl2.volume) /
-             (2 * struct1.num_sites)) ** (1.0 / 3)
+        normalization = ((2 * struct2.num_sites) /
+                         (struct1.volume + struct2.volume)) ** (1 / 3)
+        frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * \
+                   self.stol / ((1 - self.ltol) * np.pi) / normalization
 
-        #generate structure coordinate lists
-        species_list = []
-        s1 = []
-        for site in struct1:
-            found = False
-            for i, species in enumerate(species_list):
-                if comparator.are_equal(site.species_and_occu, species):
-                    found = True
-                    s1[i].append(site.frac_coords)
-                    break
-            if not found:
-                s1.append([site.frac_coords])
-                species_list.append(site.species_and_occu)
+        #make array mask
+        mask = np.zeros((len(struct2) * fu, len(struct1)), dtype=np.bool)
+        i = 0
+        for site2 in struct2:
+            for repeat in range(fu):
+                for j, site1 in enumerate(struct1):
+                    mask[i, j] = not self._comparator.are_equal(
+                        site2.species_and_occu, site1.species_and_occu)
+                i += 1
 
-        zipped = sorted(zip(s1, species_list), key=lambda x: len(x[0]))
+        #print LinearAssignment(mask).min_cost
+        #find the best sites for the translation vector
+        num_s1_invalid_matches = np.sum(mask, axis=1)
+        s2_translation_index = np.argmax(num_s1_invalid_matches)
+        s1_translation_indices = np.argwhere(
+            mask[s2_translation_index] == 0).flatten()
 
-        s1 = [x[0] for x in zipped]
-        species_list = [x[1] for x in zipped]
-        s2_cart = [[] for i in s1]
+        s1fc = np.array(struct1.frac_coords)
+        s2cc = np.array(struct2.cart_coords)
 
-        for site in struct2:
-            found = False
-            for i, species in enumerate(species_list):
-                if comparator.are_equal(site.species_and_occu, species):
-                    found = True
-                    s2_cart[i].append(site.coords)
-                    break
-                    #if no site match found return None
-            if not found:
-                return None
-
-        #check that sizes of the site groups are identical
-        for f1, c2 in zip(s1, s2_cart):
-            if len(f1) != len(c2):
-                return None
-
-        #translate s1
-        s1_translation = s1[0][0]
-        for i in range(len(species_list)):
-            s1[i] = np.mod(s1[i] - s1_translation, 1)
-            #do permutations of vectors, check for equality
-        for nl in self._get_lattices(struct1, struct2, vol_tol):
-            s2 = [nl.get_fractional_coords(c) for c in s2_cart]
-            for coord in s2[0]:
-                t_s2 = [np.mod(coords - coord, 1) for coords in s2]
-                if self._cmp_fractional_struct(s1, t_s2, frac_tol):
-                    rms, max_dist = self._cmp_cartesian_struct(s1, t_s2, nl,
-                                                               nl1)
-                    if break_on_match and max_dist < stol:
-                        return max_dist
-                    elif stored_rms is None or rms < stored_rms[0]:
-                        stored_rms = rms, max_dist
-
-        if break_on_match:
-            return None
-        else:
-            return stored_rms
+        best_match = None
+        for nl in self._get_lattices(struct1, struct2, fu):
+            #if supercell needs to be created, update s2_cart
+            if self._supercell and fu > 1:
+                scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
+                supercell = struct2.copy()
+                supercell.make_supercell(scale_matrix.astype('int'))
+                s2fc = np.array(supercell.frac_coords)
+            else:
+                s2fc = nl.get_fractional_coords(s2cc)
+                #loop over possible translations
+            for s1i in s1_translation_indices:
+                translation = s1fc[s1i] - s2fc[s2_translation_index]
+                t_s2fc = s2fc + translation
+                if self._cmp_fractional_struct(s1fc, t_s2fc, frac_tol, mask):
+                    distances, t = self._cart_dists(s1fc, t_s2fc, nl, nl1,
+                                                    mask)
+                    if use_rms:
+                        val = np.linalg.norm(distances) / len(distances) ** \
+                              0.5
+                    else:
+                        val = max(distances)
+                    if best_match is None or val < best_match[0]:
+                        total_translation = translation + t
+                        total_translation -= np.round(total_translation)
+                        best_match = val, distances, nl, total_translation
+                    if break_on_match and val < self.stol:
+                        return best_match
+        if best_match and best_match[0] < self.stol:
+            return best_match
 
     def find_indexes(self, s_list, group_list):
         """
@@ -727,7 +676,10 @@ class StructureMatcher(MSONable):
             Assumption: if s1=s2 and s2=s3, then s1=s3
             This may not be true for small tolerances.
         """
-        #Use structure hash to pre-group structures.
+        if self._subset:
+            raise ValueError("allow_subset cannot be used with"
+                             " group_structures")
+            #Use structure hash to pre-group structures.
         sorted_s_list = sorted(s_list, key=self._comparator.get_structure_hash)
         all_groups = []
 
@@ -807,17 +759,70 @@ class StructureMatcher(MSONable):
         else:
             return min_rms, min_mapping
 
-    def fit_anonymous_all_mapping(self, struct1, struct2):
+    def fit_with_electronegativity(self, struct1, struct2):
         """
         Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. Preferentially pairs together species
-        with closer oxidation states over minimizing rms_distance
+        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structures are similar. If multiple substitutions are within tolerance
+        this will return the one which minimizes the difference in electronegativity
+        between the matches species.
 
         Args:
             struct1:
-                1st oxidation state decorated structure
+                1st structure
             struct2:
-                2nd oxidation state decorated structure
+                2nd structure
+
+        Returns:
+            min_mapping
+            min_rms is the minimum of the max rms calculated, and min_mapping
+            is the corresponding minimal species mapping that would map
+            struct1 to struct2. None is returned if no fit is found.
+        """
+
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+        if len(sp1) != len(sp2):
+            return None, None
+
+        latt1 = struct1.lattice
+        fcoords1 = struct1.frac_coords
+        min_X_diff = np.inf
+        min_mapping = None
+        for perm in itertools.permutations(sp2):
+            sp_mapping = dict(zip(sp1, perm))
+            mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
+            transformed_structure = Structure(latt1, mapped_sp, fcoords1)
+            if self.fit(transformed_structure, struct2):
+                #Calculate electronegativity difference
+                X_diff = np.average(
+                    [(host_sp.elements[0].X - map_sp.elements[0].X) *
+                     struct1.composition.get(host_sp.elements[0]) for
+                     host_sp, map_sp in sp_mapping.iteritems()])
+
+                if min_X_diff is 0:
+                    return {}
+
+                if min_X_diff > X_diff:
+                    min_X_diff = X_diff
+                    min_mapping = {k: v for k, v in sp_mapping.items()
+                                   if k != v}
+        if min_mapping is None:
+            return None
+        else:
+            return min_mapping
+
+    def fit_anonymous_all_mapping(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. Returns a dictionary of species
+        substitutions that are within tolerance
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
 
         Returns:
             (mappings)
@@ -846,7 +851,7 @@ class StructureMatcher(MSONable):
                     #check if mapping already found
                     for k, v in possible_mapping.iteritems():
                         if {k: v} not in mappings:
-                                mappings.append({k: v})
+                            mappings.append({k: v})
         if not mappings:
             return None
         else:
@@ -881,3 +886,29 @@ class StructureMatcher(MSONable):
             return None
         else:
             return min_mapping
+
+    def get_s2_like_s1(self, struct1, struct2):
+        """
+        performs transformations on struct2 to put it in a basis similar to
+        struct1 (without changing any of the inter-site distances)
+        """
+        if self._primitive_cell:
+            raise ValueError("get_s2_like_s1 cannot be used with the primitive"
+                             " cell option")
+        if self._supercell and struct2.num_sites > struct1.num_sites:
+            raise ValueError("The non-supercell must be put onto the basis"
+                             " of the supercell, not the other way around")
+        if self._subset and struct2.num_sites > struct1.num_sites:
+            raise ValueError("The smaller structure must be transformed onto"
+                             " the larger one, not the other way around")
+        match = self._find_match(struct1, struct2, break_on_match=False,
+                                 use_rms=True, niggli=False)
+        if match is None:
+            return None
+        scale_matrix = np.round(
+            np.dot(match[2].matrix, struct2.lattice.inv_matrix)).astype('int')
+        temp = struct2.copy()
+        temp.make_supercell(scale_matrix)
+        fc = temp.frac_coords + match[3]
+        return Structure(temp.lattice, temp.species_and_occu, fc,
+                         to_unit_cell=True)

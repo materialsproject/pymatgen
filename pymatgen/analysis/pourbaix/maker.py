@@ -15,20 +15,23 @@ __email__ = "sjayaram@mit.edu"
 __status__ = "Development"
 __date__ = "Nov 1, 2012"
 
-PREFAC = 0.0591
-MU_H2O = -2.4583
 
 import logging
 import numpy as np
 import itertools
 import re
+from itertools import chain
 from pyhull.convex_hull import ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry
 from pymatgen.core.periodic_table import Element
 from pymatgen.core import Composition
 from pymatgen.core.ion import Ion
 
+
 logger = logging.getLogger(__name__)
+
+PREFAC = 0.0591
+MU_H2O = -2.4583
 
 
 class PourbaixDiagram(object):
@@ -41,7 +44,7 @@ class PourbaixDiagram(object):
             entries:
                 Entries list containing both Solids and Ions
             comp_dict:
-                Dictionary of compositions 
+                Dictionary of compositions
         """
         self._solid_entries = list()
         self._ion_entries = list()
@@ -119,29 +122,30 @@ class PourbaixDiagram(object):
         """
         N = len(self._elt_comp)  # No. of elements
         entries = self._unprocessed_entries
-        elt_list = self._elt_comp.keys()
-        composition_list = [self._elt_comp[el] for el in elt_list]
+        el_list = self._elt_comp.keys()
+        comp_list = [self._elt_comp[el] for el in el_list]
         list_of_entries = list(itertools.combinations(
             [i for i in xrange(len(entries))], N))
         processed_entries = list()
         self._entry_components_list = list_of_entries
         self._entry_components_dict = {}
+        count = 0
         for entry_list in list_of_entries:
-            A = [[0.0 for i in xrange(1, len(elt_list))]
-                 for j in xrange(1, len(entry_list))]
+            # Check if all elements in composition list are present in entry_list
+            if not (set([Element(el) for el in el_list]).issubset(set(list(chain.from_iterable([entries[i].composition.keys() for i in entry_list]))))):
+                continue
+            count += 1
+            A = [[0.0] * (len(el_list) - 1) for _ in range(len(entry_list) - 1)]
             multi_entries = [entries[j] for j in entry_list]
-            sum_nel = 0.0
             entry0 = entries[entry_list[0]]
+            comp0 = entry0.composition
             if entry0.phase_type == "Solid":
-                red_fac = \
-                    entry0.composition.get_reduced_composition_and_factor()[1]
+                red_fac = comp0.get_reduced_composition_and_factor()[1]
             else:
                 red_fac = 1.0
-            for i in xrange(len(elt_list)):
-                sum_nel += entry0.composition[Element(elt_list[i])] / red_fac
-            b = [entry0.composition[Element(elt_list[i])] / red_fac -
-                 composition_list[i] * sum_nel for i in xrange(1,
-                                                               len(elt_list))]
+            sum_nel = sum([comp0[el] / red_fac for el in el_list])
+            b = [comp0[Element(el_list[i])] / red_fac - comp_list[i] * sum_nel
+                 for i in xrange(1, len(el_list))]
             for j in xrange(1, len(entry_list)):
                 entry = entries[entry_list[j]]
                 comp = entry.composition
@@ -149,12 +153,10 @@ class PourbaixDiagram(object):
                     red_fac = comp.get_reduced_composition_and_factor()[1]
                 else:
                     red_fac = 1.0
-                sum_nel = 0.0
-                for el in self._elt_comp:
-                    sum_nel += comp[Element(el)] / red_fac
-                for i in xrange(1, len(elt_list)):
-                    el = elt_list[i]
-                    A[i-1][j-1] = composition_list[i] * sum_nel -\
+                sum_nel = sum([comp[el] / red_fac for el in el_list])
+                for i in xrange(1, len(el_list)):
+                    el = el_list[i]
+                    A[i-1][j-1] = comp_list[i] * sum_nel -\
                         comp[Element(el)] / red_fac
             try:
                 weights = np.linalg.solve(np.array(A), np.array(b))
@@ -170,8 +172,6 @@ class PourbaixDiagram(object):
             super_entry = MultiEntry(multi_entries, weights)
             self._entry_components_dict[super_entry] = entry_list
             processed_entries.append(super_entry)
-        self._entry_components_dict[super_entry] = entry_list
-        processed_entries.append(super_entry)
         return processed_entries
 
     def _make_pourbaixdiagram(self):

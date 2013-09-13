@@ -1,8 +1,8 @@
 from __future__ import division, print_function
 
 import os
+import cStringIO as StringIO
 
-from cStringIO import StringIO
 from subprocess import Popen, PIPE
 
 from pymatgen.util.io_utils import which
@@ -69,9 +69,11 @@ class ExecWrapper(object):
             with open(self.stdout_fname, "r") as out, open(self.stderr_fname, "r") as err:
                 self.stdout_data = out.read()
                 self.stderr_data = err.read()
+
             if self.verbose:
                 print("*** stdout: ***\n", self.stdout_data)
                 print("*** stderr  ***\n", self.stderr_data)
+
             raise self.Error("%s returned %s\n cmd_str: %s" % (self, self.returncode, self.cmd_str))
 
 ##########################################################################################
@@ -108,7 +110,7 @@ class Mrgscr(ExecWrapper):
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
                 map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
-        inp = StringIO()
+        inp = StringIO.StringIO()
 
         inp.write(str(nfiles) + "\n")      # Number of files to merge.
         inp.write(out_prefix + "\n")      # Prefix for the final output file:
@@ -163,7 +165,7 @@ class Mrggkk(ExecWrapper):
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
                 map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
-        inp = StringIO()
+        inp = StringIO.StringIO()
 
         inp.write(out_fname + "\n")        # Name of the output file
         inp.write(str(binascii) + "\n")    # Integer flag: 0 --> binary output, 1 --> ascii formatted output
@@ -229,7 +231,7 @@ class Mrgddb(ExecWrapper):
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
                 map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
-        inp = StringIO()
+        inp = StringIO.StringIO()
 
         inp.write(out_ddb + "\n")            # Name of the output file.
         inp.write(str(description) + "\n")     # Description.
@@ -264,7 +266,7 @@ class Anaddb(ExecWrapper):
 
     #def make_stdin(self):
     #    # Files file
-    #    inp = StringIO()
+    #    inp = StringIO.StringIO()
     #    inp.write(self.input_fname + "\n")     # Input file.
     #    inp.write(self.stdout_fname + "\n")    # Output file.
     #    inp.write(ddb_file + "\n")             # DDB file
@@ -288,7 +290,7 @@ class Anaddb(ExecWrapper):
                 map(pj, 3 * [cwd], [self.stdin_fname, self.inp_fname, self.stdout_fname, self.stderr_fname])
 
         # Files file
-        inp = StringIO()
+        inp = StringIO.StringIO()
 
         inp.write(self.input_fname + "\n")     # Input file.
         inp.write(self.stdout_fname + "\n")    # Output file.

@@ -1,6 +1,31 @@
 Change log
 ==========
 
+v2.7.9
+------
+1. Minor bug fix release to fix pyhull dependencies to be more friendly.
+2. Improved structure matcher that allows for more flexible matching. New
+   matching between ordered and disordered comparator.
+
+v2.7.7
+-------
+1. Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
+   source software for performing high-throughput geometry-based analysis of
+   porous materials and their voids. Please see
+   http://www.maciejharanczyk.info/Zeopp/about.html.
+2. Specify version of distribute to 0.6.34 for better compatibility.
+
+v2.7.6
+------
+1. Support for VTK 6.x in structure visualization.
+2. Updated install instructions for openbabel.
+3. Preliminary pourbaix analysis (Sai Jayaratnam).
+
+v2.7.5
+------
+1. Vastly improved Nwchem IO (by Shyue Ping Ong).
+2. Much improved ABINIT support (by Matteo Giantomassi).
+
 v2.7.4
 ------
 1. Added basic Nwchem (http://www.nwchem-sw.org/) IO support. (by: Shyue Ping

@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 5, 2012"
 
 import unittest
@@ -94,7 +94,7 @@ class TransformedStructureTest(unittest.TestCase):
 
     def test_get_vasp_input(self):
         vaspis = MPVaspInputSet()
-        self.assertEqual("Na_pv\nO\nP\nFe_pv",
+        self.assertEqual("Na_pv\nFe_pv\nP\nO",
                          self.trans.get_vasp_input(vaspis,
                                                    False)['POTCAR.spec'])
         self.assertEqual(len(self.trans.structures), 2)
@@ -167,8 +167,6 @@ class TransformedStructureTest(unittest.TestCase):
                                                           'notwill@test.com')])
         self.assertEqual(snl.history, [h])
         self.assertEqual(snl.authors, [('notwill', 'notwill@test.com')])
-        
-        
         
 
 if __name__ == "__main__":

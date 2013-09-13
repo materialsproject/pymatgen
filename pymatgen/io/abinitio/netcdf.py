@@ -3,7 +3,7 @@ from __future__ import division, print_function
 
 import os.path
 
-from pymatgen.core.physical_constants import Bohr2Ang, Ha2eV
+from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
@@ -22,7 +22,6 @@ __all__ = [
     "as_etsfreader",
     "NetcdfReader",
     "ETSF_Reader",
-    "GSR_Reader",
     "structure_from_etsf_file",
 ]
 
@@ -271,48 +270,6 @@ class ETSF_Reader(NetcdfReader):
 
 ################################################################################
 
-
-class GSR_Reader(ETSF_Reader):
-    """
-    This object reads the results stored in the _GSR (Ground-State Results)
-    file. produced by ABINIT. It provides helper function to access the most
-    important quantities.
-    """
-    def read_band_structure(self):
-        raise NotImplementedError("")
-        structure = self.read_structure()
-        from pprint import pprint
-
-        kpoints = self.read_value("reduced_coordinates_of_kpoints")
-        efermi = Ha2eV(self.read_value("fermie"))
-        np_eigvals = Ha2eV(self.read_value("eigenvalues"))
-        # TODO
-        #assert np_eigvals.units == "atomic units"
-        nsppol = np_eigvals.shape[0]
-
-        # FIXME: Here I need the labels
-        labels_dict = {}
-        for (i, kpoint) in enumerate(kpoints):
-            labels_dict[str(i)] = kpoint
-
-        eigenvals = {}
-        for isp in range(nsppol):
-            spin = Spin.up
-            if isp == 1: spin = Spin.down
-            eigenvals[spin] = np_eigvals[isp,:,:].transpose()
-            print(eigenvals[spin].shape)
-            #tmp = np_eigvals[isp,:,:].transpose()
-
-        #bands = BandStructure(kpoints, eigenvals, structure.lattice, efermi,
-        # labels_dict=None, structure=structure)
-
-        bands = BandStructureSymmLine(kpoints, eigenvals, structure.lattice,
-                                      efermi, labels_dict, structure=structure)
-        return bands
-
-##########################################################################################
-
-
 def structure_from_etsf_file(ncdata, site_properties=None):
     """
     Reads and returns a pymatgen structure from a NetCDF file
@@ -327,7 +284,8 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     ncdata, closeit = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
-    lattice = Bohr2Ang(ncdata.read_value("primitive_vectors"))
+    lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"),
+                            "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
     natom = len(red_coords)
