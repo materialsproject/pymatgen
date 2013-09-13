@@ -117,7 +117,7 @@ class PDPlotter(object):
         plt.show()
 
     def _get_2d_plot(self, label_stable=True, label_unstable=True, ordering=None, energy_colormap=None,
-                     vmin_mev=-200.0, vmax_mev=200.0, show_colorbar=True):
+                     vmin_mev=-60.0, vmax_mev=60.0, show_colorbar=True):
         """
         Shows the plot using pylab.  Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
