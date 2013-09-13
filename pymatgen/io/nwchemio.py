@@ -102,11 +102,9 @@ class NwTask(MSONable):
                 A dict of theory directives. For example,
                 if you are running dft calculations, you may specify the
                 exchange correlation functional using {"xc": "b3lyp"}.
-
             alternate_directives:
-                A dict of alternate directives. To perform cosmo calculation
-                under dft task
-
+                A dict of alternate directives. For example, to perform
+                cosmo calculations with DFT, you'd supply {'cosmo': "cosmo"}.
         """
         #Basic checks.
         if theory.lower() not in NwTask.theories.keys():
@@ -228,11 +226,13 @@ task $theory $operation""")
                 The theory used for the task. Defaults to "dft".
             operation:
                 The operation for the task. Defaults to "optimize".
-
             theory_directives:
                 A dict of theory directives. For example,
                 if you are running dft calculations, you may specify the
                 exchange correlation functional using {"xc": "b3lyp"}.
+            alternate_directives:
+                A dict of alternate directives. For example, to perform
+                cosmo calculations with DFT, you'd supply {'cosmo': "cosmo"}.
         """
         title = title if title is not None else "{} {} {}".format(
             re.sub("\s", "", mol.formula), theory, operation)

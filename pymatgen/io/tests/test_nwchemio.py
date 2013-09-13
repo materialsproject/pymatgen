@@ -103,7 +103,8 @@ task dft energy"""
 
     def test_dft_cosmo_task(self):
         task = NwTask.dft_task(mol, charge=mol.charge, operation="energy",
-                        xc="b3lyp", basis_set="6-311++G**",alternate_directives={'cosmo':"cosmo"})
+                               xc="b3lyp", basis_set="6-311++G**",
+                               alternate_directives={'cosmo': "cosmo"})
         ans = """title "H4C1 dft energy"
 charge 0
 basis
@@ -293,7 +294,6 @@ class NwOutputTest(unittest.TestCase):
 
     def test_read(self):
         nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
-
         self.assertEqual(0, nwo.data[0]["charge"])
         self.assertEqual(-1, nwo.data[-1]["charge"])
         self.assertAlmostEqual(-1102.622361621359, nwo.data[0]["energies"][-1])
