@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Apr 25, 2012"
 
 import itertools
@@ -20,7 +20,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     in_coord_list, pbc_diff, in_coord_list_pbc, get_points_in_sphere_pbc,\
     find_in_coord_list, find_in_coord_list_pbc, pbc_all_distances,\
-    barycentric_coords
+    barycentric_coords, pbc_shortest_vectors
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -142,6 +142,23 @@ class CoordUtilsTest(PymatgenTest):
         #test single point
         self.assertTrue(np.allclose(output2[2],
                                     barycentric_coords(pts2[2], simplex2)))
+        
+    def test_pbc_shortest_vectors(self):
+        fcoords = np.array([[0.3, 0.3, 0.5],
+                            [0.1, 0.1, 0.3],
+                            [0.9, 0.9, 0.8],
+                            [0.1, 0.0, 0.5],
+                            [0.9, 0.7, 0.0]])
+        lattice = Lattice.from_lengths_and_angles([8, 8, 4],
+                                                  [90, 76, 58])
+        expected = np.array([[0.000, 3.015, 4.072, 3.519, 3.245],
+                             [3.015, 0.000, 3.207, 1.131, 4.453],
+                             [4.072, 3.207, 0.000, 2.251, 1.788],
+                             [3.519, 1.131, 2.251, 0.000, 3.852]])
+        vectors = pbc_shortest_vectors(lattice, fcoords[:-1], fcoords)
+        dists = np.sum(vectors**2, axis = -1)**0.5
+        self.assertArrayAlmostEqual(dists, expected, 3)
+        
 
 if __name__ == "__main__":
     import unittest

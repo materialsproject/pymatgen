@@ -12,7 +12,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Nov 27, 2011"
 
 import numpy as np
@@ -212,7 +212,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
 
     d_2 = np.sum(vectors ** 2, axis=3)
-    a, b = np.indices([len(fcoords1), len(fcoords1)])
+    a, b = np.indices([len(fcoords1), len(fcoords2)])
     return vectors[a, b, np.argmin(d_2, axis=2)]
 
 

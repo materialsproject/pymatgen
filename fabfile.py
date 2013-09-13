@@ -21,6 +21,9 @@ from pymatgen import __version__ as ver
 
 
 def makedoc():
+    with lcd("examples"):
+        local("ipython nbconvert --to html *.ipynb")
+        local("mv *.html ../docs/_static")
     with lcd("docs"):
         local("sphinx-apidoc -o . -f ../pymatgen")
         local("rm pymatgen.*.tests.rst")
@@ -46,9 +49,8 @@ def makedoc():
 
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
-
         local("make html")
-        local("cp _static/* _build/html/_static")
+        local("cp _static/* ../../pymatgen-docs/html/static")
 
 
 def publish():
@@ -66,7 +68,7 @@ def setver():
 
 def update_dev_doc():
     makedoc()
-    with lcd("../docs/pymatgen/html/"):
+    with lcd("../pymatgen-docs/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")
@@ -81,6 +83,6 @@ def log_ver():
 def release():
     setver()
     #test()
-    makedoc()
     publish()
+    update_dev_doc()
     log_ver()

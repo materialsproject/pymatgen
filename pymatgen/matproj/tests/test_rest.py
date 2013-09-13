@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Jun 9, 2012"
 
 import unittest
@@ -23,7 +23,8 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.phasediagram import PhaseDiagram, PDAnalyzer
+from pymatgen.phasediagram.pdmaker import PhaseDiagram
+from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

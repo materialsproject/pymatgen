@@ -47,6 +47,7 @@ class VaspToComputedEntryDroneTest(unittest.TestCase):
         self.assertAlmostEqual(entry.energy, -269.38319884)
         self.assertIsInstance(entry, ComputedStructureEntry)
         self.assertIsNotNone(entry.structure)
+        self.assertEqual(len(entry.parameters["history"]), 2)
         compat = MITCompatibility()
         self.assertIsNone(compat.process_entry(entry))
 

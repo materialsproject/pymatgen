@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
 """
-This module provides classes to interface with the Materials Project http REST
-interface to enable the creation of data structures and pymatgen objects using
+This module provides classes to interface with the Materials Project REST
+API to enable the creation of data structures and pymatgen objects using
 Materials Project data.
 
-To make use of the Materials Project REST application programming interface (
-Materials API), you need to be a registered user of the MaterialsProject,
-and obtain an API key by going to your profile at
+To make use of the Materials API, you need to be a registered user of the
+Materials Project, and obtain an API key by going to your profile at
 https://www.materialsproject.org/profile.
 """
 
@@ -18,7 +17,7 @@ __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Feb 22, 2013"
 
 import os
@@ -364,7 +363,7 @@ class MPRester(object):
         Please refer to the Materials Project REST wiki
         https://materialsproject.org/wiki/index.php/The_Materials_API#mpquery
         on the mpquery language and supported criteria and properties.
-        Essentially, any supported properties within MPRestAdaptor should be
+        Essentially, any supported properties within MPRester should be
         supported in mpquery.
 
         Mpquery allows an advanced developer to perform queries which are
@@ -375,7 +374,9 @@ class MPRester(object):
             criteria:
                 Criteria of the query as a mongo-style dict. For example,
                 {"elements":{"$in":["Li", "Na", "K"], "$all": ["O"]},
-                "nelements":2} selects all Li, Na and K oxides
+                "nelements":2} selects all Li, Na and K oxides.
+                {"band_gap": {"$gt": 1}} selects all materials with band gaps
+                greater than 1 eV.
             properties:
                 Properties to request for as a list. For example,
                 ["formula", "formation_energy_per_atom"] returns the formula
@@ -599,11 +600,13 @@ class MPRester(object):
                 structures.
             remarks:
                 List of Strings ['Remark A', 'Remark B']
-            masterdata:
+            master_data:
                 A free form dict. Namespaced at the root level with an
                 underscore, e.g. {"_materialsproject":<custom data>}. This
                 data is added to all structures detected in the directory,
                 in addition to other vasp data on a per structure basis.
+            master_history:
+                A master history to be added to all entries.
             created_at:
                 A datetime object
             ncpus:
@@ -617,7 +620,7 @@ class MPRester(object):
 
         structures = []
         metadata = []
-        # TODO: Get histories from the data.
+        histories = []
         for e in queen.get_data():
             structures.append(e.structure)
             m = {
@@ -628,12 +631,14 @@ class MPRester(object):
                     "initial_structure": e.data["initial_structure"].to_dict
                 }
             }
+            if "history" in e.parameters:
+                histories.append(e.parameters["history"])
             if master_data is not None:
                 m.update(master_data)
             metadata.append(m)
-        histories = None
         if master_history is not None:
             histories = master_history * len(structures)
+
         return self.submit_structures(
             structures, authors, projects=projects, references=references,
             remarks=remarks, data=metadata, histories=histories,

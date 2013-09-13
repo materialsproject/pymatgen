@@ -15,7 +15,6 @@ import cStringIO as StringIO
 import numpy as np
 
 from pymatgen.core.periodic_table import PeriodicTable
-from pymatgen.core.physical_constants import Ha_eV, Ha2meV
 from pymatgen.util.num_utils import iterator_from_slice
 
 __all__ = [

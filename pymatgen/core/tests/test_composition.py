@@ -12,7 +12,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
 
@@ -247,7 +247,7 @@ class CompositionTest(unittest.TestCase):
     def test_get_fractional_composition(self):
         for c in self.comp:
             self.assertAlmostEqual(c.get_fractional_composition().num_atoms, 1)
-            
+
     def test_init_numerical_tolerance(self):
         self.assertEqual(Composition({'B':1, 'C':-1e-12}), Composition('B'))
 

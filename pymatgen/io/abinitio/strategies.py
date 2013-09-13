@@ -36,6 +36,7 @@ __email__ = "gmatteo at gmail.com"
 #        for klass in Scftrategy.__subclasses__():
 #            gs_subclasses[klass.__name__] = klass
 
+
 def select_pseudos(pseudos, structure):
     """
     Given a list of pseudos and a pymatgen structure, extract the pseudopotentials for the calculation.
@@ -57,7 +58,23 @@ def select_pseudos(pseudos, structure):
                                                                                  
     return PseudoTable(pseudos)
 
-##########################################################################################
+
+class StrategyWithInput(object):
+    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+    def __init__(self, abinit_input):
+        self.abinit_input = abinit_input
+                                         
+    @property
+    def pseudos(self):
+        return self.abinit_input.pseudos
+
+    def add_extra_abivars(self, abivars):
+        """Add variables (dict) to extra_abivars."""
+        self.abinit_input.set_variables(**abivars)
+                                         
+    def make_input(self):
+        return str(self.abinit_input)
+
 
 class Strategy(object):
     """
@@ -113,15 +130,15 @@ class Strategy(object):
 
     @abc.abstractproperty
     def runlevel(self):
-        "String defining the Runlevel. See _runl2optdriver"
+        """String defining the Runlevel. See _runl2optdriver."""
                                                             
     @property
     def optdriver(self):
-        "The optdriver associated to the calculation"
+        """The optdriver associated to the calculation."""
         return self._runl2optdriver[self.runlevel]
 
     def learn(self, **data):
-        "Update the data stored in self"
+        """Update the data stored in self."""
         if not hasattr(self, "_data"):
             self._data = dict(data)
         else:
@@ -131,7 +148,7 @@ class Strategy(object):
 
     @property
     def accuracy(self):
-        "Accuracy used by the strategy"
+        """Accuracy used by the strategy."""
         try:
             return self._accuracy
         except AttributeError:
@@ -139,7 +156,7 @@ class Strategy(object):
             return self._accuracy
 
     def set_accuracy(self, accuracy):
-        "Accuracy setter"
+        """Accuracy setter."""
         if hasattr(self, "_accuracy"):
             raise RuntimeError("object already has accuracy %s " % self._accuracy)
 
@@ -156,16 +173,17 @@ class Strategy(object):
 
     @property
     def isnc(self):
-        "True if norm-conserving calculation"
+        """True if norm-conserving calculation."""
         return self.pseudos.allnc
                                               
     @property
     def ispaw(self):
-        "True if PAW calculation"
+        """True if PAW calculation."""
         return self.pseudos.allpaw
 
     @property
     def ecut(self):
+        """Cutoff energy in Hartree."""
         try:
             # User option.
             return self.extra_abivars["ecut"] 
@@ -176,6 +194,7 @@ class Strategy(object):
 
     @property
     def pawecutdg(self):
+        """Cutoff energy in Hartree for the dense grid used in PAW calculations."""
         if not self.ispaw:
             return None
         try:
@@ -188,7 +207,7 @@ class Strategy(object):
 
     @property
     def tolerance(self):
-        "Return a dict {varname: varvalue} with the tolerance used for the calculation."
+        """Return a dict {varname: varvalue} with the tolerance used for the calculation."""
         # Check user options first.
         for tolname in self._tolerances:
             try:
@@ -202,17 +221,17 @@ class Strategy(object):
 
     @property
     def need_forces(self):
-        "True if forces are required at each SCF step (like the stresses)."
+        """True if forces are required at each SCF step (like the stresses)."""
         return self.runlevel in ["relax",]
                                                                             
     @property
     def need_stress(self):
-        "True if the computation of the stress is required"
+        """True if the computation of the stress is required."""
         # TODO: here it's easier to check if optcell != 0
         return self.runlevel in ["relax",]
 
     def add_extra_abivars(self, abivars):
-        "Add variables (dict) to extra_abivars"
+        """Add variables (dict) to extra_abivars."""
         self.extra_abivars.update(abivars)
 
     #def iocontrol(self):

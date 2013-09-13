@@ -99,15 +99,18 @@ def abinit_output_iscomplete(output_file):
     chunk = 5 * 1024  # Read only the last 5Kb of data.
     nlines = 10       # Check only in the last 10 lines.
 
+    MAGIC = "Calculation completed." 
+
     with open(output_file, 'r') as f:
         size = f.tell()
         f.seek(max(size - chunk, 0))
         try:
             for line in f.read().splitlines()[-nlines:]:
-                if "Calculation completed." in line:
+                if MAGIC in line:
                     return True
         except:
             pass
+
     return False
 
 

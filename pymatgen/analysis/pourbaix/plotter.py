@@ -202,21 +202,20 @@ class PourbaixPlotter(object):
                 of the form [[xlo, xhi], [ylo, yhi]]
 
         Returns:
-            stable_entries, unstable_entries 
+            stable_entries, unstable_entries
             stable_entries: dict of lines. The keys are Pourbaix Entries, and
             lines are in the form of a list
             unstable_entries: list of unstable entries
         """
-        
+
         analyzer = PourbaixAnalyzer(self._pd)
         self._analyzer = analyzer
         if limits:
             analyzer.chempot_limits = limits
         chempot_ranges = analyzer.get_chempot_range_map(limits)
         self.chempot_ranges = chempot_ranges
-        
         stable_entries_list = collections.defaultdict(list)
-        
+
         for entry in chempot_ranges:
             for line in chempot_ranges[entry]:
                 x = [line.coords[0][0], line.coords[1][0]]
@@ -229,7 +228,7 @@ class PourbaixPlotter(object):
 
         return stable_entries_list, unstable_entries_list
 
-    def get_center(self, lines, limits=None):
+    def get_center(self, lines):
         """
         Returns coordinates of center of a domain. Useful
         for labeling a Pourbaix plot.
@@ -245,12 +244,6 @@ class PourbaixPlotter(object):
                 x,y coordinate of center of domain. If domain lies
                 outside limits, center will lie on the boundary.
         """
-        if limits:
-            xlim = limits[0]
-            ylim = limits[1]
-        else:
-            xlim = self._analyzer.chempot_limits[0]
-            ylim = self._analyzer.chempot_limits[1]
         center_x = 0.0
         center_y = 0.0
         coords = []
@@ -261,14 +254,6 @@ class PourbaixPlotter(object):
                     coords.append(coord.tolist())
                     cx = coord[0]
                     cy = coord[1]
-                    if cx < xlim[0]:
-                        cx = xlim[0]
-                    if cx > xlim[1]:
-                        cx = xlim[1]
-                    if cy < ylim[0]:
-                        cy = ylim[0]
-                    if cy > ylim[1]:
-                        cy = ylim[1]
                     center_x += cx
                     center_y += cy
                     count_center += 1.0
@@ -286,6 +271,7 @@ class PourbaixPlotter(object):
             limits:
                 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
+
         Returns:
             plt:
                 matplotlib plot object
@@ -316,12 +302,6 @@ class PourbaixPlotter(object):
         plt.plot(neutral_line[0], neutral_line[1], "k-.", linewidth=lw)
         plt.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
 
-        borders = list()
-        borders.append([[xlim[0], ylim[0]], [xlim[0], ylim[1]]])
-        borders.append([[xlim[0], ylim[0]], [xlim[1], ylim[0]]])
-        borders.append([[xlim[1], ylim[1]], [xlim[0], ylim[1]]])
-        borders.append([[xlim[1], ylim[1]], [xlim[1], ylim[0]]])
-
         for entry, lines in stable.items():
             center_x = 0.0
             center_y = 0.0
@@ -336,14 +316,6 @@ class PourbaixPlotter(object):
                         coords.append(coord.tolist())
                         cx = coord[0]
                         cy = coord[1]
-                        if cx < xlim[0]:
-                            cx = xlim[0]
-                        if cx > xlim[1]:
-                            cx = xlim[1]
-                        if cy < ylim[0]:
-                            cy = ylim[0]
-                        if cy > ylim[1]:
-                            cy = ylim[1]
                         center_x += cx
                         center_y += cy
                         count_center += 1.0
@@ -426,6 +398,21 @@ class PourbaixPlotter(object):
         f.set_size_inches((12, 10))
         plt.tight_layout(pad=1.09)
         plt.savefig(stream, format=image_format)
+
+    def domain_vertices(self, entry):
+        """
+        Returns the vertices of the Pourbaix domain.
+
+        Args:
+            entry:
+                Entry for which domain vertices are desired
+
+        Returns:
+            list of vertices
+        """
+        if entry not in self._analyzer.pourbaix_domain_vertices.keys():
+            return []
+        return self._analyzer.pourbaix_domain_vertices[entry]
 
 
 def latexify_ion(formula):

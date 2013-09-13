@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from __future__ import division
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.composition import Composition
@@ -386,6 +386,11 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.cart_coords[0],
                                     [3.38014845, 1.05428585, 2.06775453])
 
+        self.structure.translate_sites([0], [0.5, 0.5, 0.5],
+                                       frac_coords=True, to_unit_cell=False)
+        self.assertArrayAlmostEqual(self.structure.frac_coords[0],
+                                    [1.00187517, 1.25665291, 1.15946374])
+
     def test_make_supercell(self):
         self.structure.make_supercell([2, 1, 1])
         self.assertEqual(self.structure.formula, "Si4")
@@ -395,6 +400,15 @@ class StructureTest(PymatgenTest):
         self.assertEqual(self.structure.formula, "Si32")
         self.assertArrayAlmostEqual(self.structure.lattice.abc,
                                     [15.360792, 35.195996, 7.680396], 5)
+
+    def test_another_supercell(self):
+        #this is included b/c for some reason the old algo was failing on it
+        s = self.structure.copy()
+        s.make_supercell([[0, 2, 2], [2, 0, 2], [2, 2, 0]])
+        self.assertEqual(s.formula, "Si32")
+        s = self.structure.copy()
+        s.make_supercell([[0, 2, 0], [1, 0, 0], [0, 0, 1]])
+        self.assertEqual(s.formula, "Si4")
 
     def test_to_from_dict(self):
         d = self.structure.to_dict
@@ -641,8 +655,8 @@ class MoleculeTest(PymatgenTest):
         sub = Molecule(["X", "C", "H", "H", "H"], coords)
         self.mol.substitute(1, sub)
         self.assertAlmostEqual(self.mol.get_distance(0, 4), 1.54)
-        sub = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
-        self.mol.substitute(2, sub)
+        f = Molecule(["X", "F"], [[0, 0, 0], [0, 0, 1.11]])
+        self.mol.substitute(2, f)
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.35)
         oh = Molecule(["X", "O", "H"],
                       [[0, 0.780362, -.456316], [0, 0, .114079],
@@ -651,6 +665,24 @@ class MoleculeTest(PymatgenTest):
         self.assertAlmostEqual(self.mol.get_distance(0, 7), 1.43)
         self.mol.substitute(3, "methyl")
         self.assertEqual(self.mol.formula, "H7 C3 O1 F1")
+        coords = [[0.00000, 1.40272, 0.00000],
+                  [0.00000, 2.49029, 0.00000],
+                  [-1.21479, 0.70136, 0.00000],
+                  [-2.15666, 1.24515, 0.00000],
+                  [-1.21479, -0.70136, 0.00000],
+                  [-2.15666, -1.24515, 0.00000],
+                  [0.00000, -1.40272, 0.00000],
+                  [0.00000, -2.49029, 0.00000],
+                  [1.21479, -0.70136, 0.00000],
+                  [2.15666, -1.24515, 0.00000],
+                  [1.21479, 0.70136, 0.00000],
+                  [2.15666, 1.24515, 0.00000]]
+        benzene = Molecule(["C", "H", "C", "H", "C", "H", "C", "H", "C", "H",
+                            "C", "H"], coords)
+        benzene.substitute(1, sub)
+        self.assertEqual(benzene.formula, "H8 C7")
+        #Carbon attached should be in plane.
+        self.assertAlmostEqual(benzene[11].coords[2], 0)
 
 if __name__ == '__main__':
     import unittest

@@ -17,6 +17,14 @@ electronic_structure Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`boltztrap` Module
+-----------------------
+
+.. automodule:: pymatgen.electronic_structure.boltztrap
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`core` Module
 ------------------
 

@@ -12,7 +12,7 @@ __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 16, 2012"
 
@@ -26,7 +26,7 @@ import logging
 import numpy as np
 from numpy.linalg import det
 
-from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
+from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
@@ -228,8 +228,8 @@ class Poscar(MSONable):
         Returns:
             Poscar object.
         """
-
-        chunks = re.split("^\s*$", data.rstrip(), flags=re.MULTILINE)
+        #"^\s*$" doesn't match lines with no whitespace
+        chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         if chunks[0] == "":
             chunks.pop(0)
             chunks[0] = "\n" + chunks[0]
@@ -443,9 +443,8 @@ class Poscar(MSONable):
         velocities = np.random.randn(len(self.structure), 3)
 
         #in AMU, (N,1) array
-        atomic_masses = np.array([site.specie.atomic_mass
+        atomic_masses = np.array([site.specie.atomic_mass.to("kg")
                                   for site in self.structure])
-        atomic_masses *= AMU_TO_KG  # in Kg
         dof = 3 * len(self.structure) - 3
 
         #scale velocities due to atomic masses
