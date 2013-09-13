@@ -101,9 +101,10 @@ task dft energy"""
         self.assertEqual(str(task), ans)
 
     def test_dft_cosmo_task(self):
-        task = NwTask.dft_task(mol, charge=mol.charge, operation="energy",
-                               xc="b3lyp", basis_set="6-311++G**",
-                               alternate_directives={'cosmo': "cosmo"})
+        task = NwTask.dft_task(
+            mol, charge=mol.charge, operation="energy",
+            xc="b3lyp", basis_set="6-311++G**",
+            alternate_directives={'cosmo': {"dielec": 78.0}})
         ans = """title "H4C1 dft energy"
 charge 0
 basis
