@@ -104,7 +104,8 @@ class NwTask(MSONable):
                 exchange correlation functional using {"xc": "b3lyp"}.
             alternate_directives:
                 A dict of alternate directives. For example, to perform
-                cosmo calculations with DFT, you'd supply {'cosmo': "cosmo"}.
+                cosmo calculations and dielectric constant of 78,
+                you'd supply {'cosmo': {"dielectric": 78}}.
         """
         #Basic checks.
         if theory.lower() not in NwTask.theories.keys():
@@ -135,12 +136,10 @@ class NwTask(MSONable):
         for k, v in self.theory_directives.items():
             theory_spec.append(" {} {}".format(k, v))
         theory_spec.append("end")
-        for c, d in self.alternate_directives.items():
-            if len(d) > 0:
-                theory_spec.append(" {} {}".format(c, d))
-            else:
-                theory_spec.append("{}".format(c))
-        if "cosmo" in self.alternate_directives:
+        for k, v in self.alternate_directives.items():
+            theory_spec.append(k)
+            for k2, v2 in v.items():
+                theory_spec.append(" {} {}".format(k2, v2))
             theory_spec.append("end")
         if "esp" in self.theory:
             if "esp" in self.theory_directives:
@@ -196,8 +195,6 @@ task $theory $operation""")
     @classmethod
     def from_molecule(cls, mol, theory, charge=None, spin_multiplicity=None,
                       basis_set="6-31g", title=None,
-                      operation="optimize", theory_directives=None,
-                      alternate_directives=None):
                       operation="optimize", theory_directives=None,
                       alternate_directives=None):
         """
@@ -264,7 +261,7 @@ task $theory $operation""")
                       alternate_directives=alternate_directives)
 
     @classmethod
-    def dft_task(cls, mol, xc="b3lyp", dielectric="78.0", **kwargs):
+    def dft_task(cls, mol, xc="b3lyp", **kwargs):
         """
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
@@ -283,10 +280,6 @@ task $theory $operation""")
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
         t.theory_directives.update({"xc": xc,
                                     "mult": t.spin_multiplicity})
-        if "cosmo" in t.alternate_directives:
-            t.alternate_directives.update({"cosmo": "",
-            t.alternate_directives.update({"cosmo": "",
-                                           "dielec": dielectric})
         return t
 
     @classmethod
@@ -302,7 +295,6 @@ task $theory $operation""")
                 Any of the other kwargs supported by NwTask. Note the theory
                 is always "dft" for a dft task.
         """
-        kwargs.update({"operation": ""})
         kwargs.update({"operation": ""})
         e = NwTask.from_molecule(mol, theory="esp", **kwargs)
         #e.theory_directives.update({"restrain": "harmonic 0.001"})
