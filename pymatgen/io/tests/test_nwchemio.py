@@ -24,6 +24,7 @@ from pymatgen.io.nwchemio import NwTask, NwInput, NwInputError, NwOutput
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules")
 
+
 coords = [[0.000000, 0.000000, 0.000000],
           [0.000000, 0.000000, 1.089000],
           [1.026719, 0.000000, -0.363000],
@@ -33,6 +34,7 @@ mol = Molecule(["C", "H", "H", "H", "H"], coords)
 
 
 class NwTaskTest(unittest.TestCase):
+
     def setUp(self):
         self.task = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="dft",
                            theory_directives={"xc": "b3lyp"})
@@ -60,6 +62,7 @@ task dft optimize"""
         self.assertEqual(str(t), ans)
 
     def test_str_and_from_string(self):
+
         ans = """title "dft optimize"
 charge 0
 basis
