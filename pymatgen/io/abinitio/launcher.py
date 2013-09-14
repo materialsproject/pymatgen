@@ -248,3 +248,59 @@ class PyResourceManager(object):
 
         return self.work.returncodes
 
+
+class PyLauncherError(Exception):
+    """Error class for PyLauncher."""
+
+class PyLauncher(object):
+
+    Error = PyLauncherError
+
+    def __init__(self, work):
+        self.work = work
+
+    def single_shot(self):
+        work = self.work
+        nlaunch = 0
+
+        try:
+            task = work.fetch_task_to_run()
+                                                            
+            if task is None:
+                raise self.Error("No task to run!. Possible deadlock")
+                                                            
+            else:
+                print("got task", task)
+                task.start()
+                #task.start_and_wait()
+                #retcode = task.returncode
+                #print("Task returncode", task.returncode)
+                nlaunch += 1
+                                                            
+        except StopIteration as exc:
+            print(str(exc))
+
+        finally:
+            work.pickle_dump()
+
+        return nlaunch 
+
+    def rapidfire(self):
+        nlaunch = 0
+
+        work = self.work
+        while True:
+            try:
+                task = work.fetch_task_to_run()
+                if task is None:
+                    break
+                task.start()
+                nlaunch += 1
+
+            except StopIteration as exc:
+                #print(str(exc))
+                break
+
+        work.pickle_dump()
+
+        return nlaunch 
