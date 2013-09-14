@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+Part of this code is based on a similar implementation preset in fireworks.
+work done by D. Waroquiers, A. Jain, and M. Kocher'
+"""
 from __future__ import print_function, division
 
 import os
@@ -590,6 +594,7 @@ class PbsAdapter(AbstractQueueAdapter):
         print(msg)
 
         return None
+
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'
