@@ -169,7 +169,12 @@ class Unit(collections.Mapping):
             for m in re.finditer("([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
-                unit[m.group(1)] += p
+                k = m.group(1)
+                for utype in ALL_UNITS.values():
+                    for u in utype.keys():
+                        if u.lower() == k.lower():
+                            k = u
+                unit[k] += p
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
 

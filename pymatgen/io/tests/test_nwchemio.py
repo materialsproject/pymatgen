@@ -43,7 +43,6 @@ class NwTaskTest(unittest.TestCase):
                                  alternate_directives={'cosmo': "cosmo"})
         self.task_esp = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="esp")
 
-
     def test_multi_bset(self):
         t = NwTask.from_molecule(
             mol, theory="dft", basis_set={"C": "6-311++G**",
