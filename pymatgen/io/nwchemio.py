@@ -130,35 +130,18 @@ class NwTask(MSONable):
         bset_spec = []
         for el, bset in self.basis_set.items():
             bset_spec.append(" {} library \"{}\"".format(el, bset))
-
-        theory_spec = ["{}".format(self.theory)]
-        theory_spec = ["{}".format(self.theory)]
-        for k, v in self.theory_directives.items():
-            theory_spec.append(" {} {}".format(k, v))
-        theory_spec.append("end")
+        theory_spec = []
+        if self.theory != "esp":
+            theory_spec.append("{}".format(self.theory))
+            for k, v in self.theory_directives.items():
+                theory_spec.append(" {} {}".format(k, v))
+            theory_spec.append("end")
         for k, v in self.alternate_directives.items():
             theory_spec.append(k)
             for k2, v2 in v.items():
                 theory_spec.append(" {} {}".format(k2, v2))
             theory_spec.append("end")
-        if "esp" in self.theory:
-            if "esp" in self.theory_directives:
-                t = Template("""title "$title"
-charge $charge
-basis
-$bset_spec
-end
-$theory_spec
-task $theory""")
-            else:
-                t = Template("""title "$title"
-charge $charge
-basis
-$bset_spec
-end
-task $theory""")
-        else:
-            t = Template("""title "$title"
+        t = Template("""title "$title"
 charge $charge
 basis
 $bset_spec
@@ -295,11 +278,7 @@ task $theory $operation""")
                 Any of the other kwargs supported by NwTask. Note the theory
                 is always "dft" for a dft task.
         """
-        kwargs.update({"operation": ""})
-        e = NwTask.from_molecule(mol, theory="esp", **kwargs)
-        #e.theory_directives.update({"restrain": "harmonic 0.001"})
-
-        return e
+        return NwTask.from_molecule(mol, theory="esp", **kwargs)
 
 
 class NwInput(MSONable):
