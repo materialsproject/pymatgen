@@ -340,6 +340,9 @@ class Task(object):
         self.connect()
         self.setup(*args, **kwargs)
 
+    def get_event_report(self):
+        return self.parse_events()
+
     def parse_events(self):
         """
         Analyzes the main output for possible errors or warnings.
@@ -431,7 +434,7 @@ class AbinitTask(Task):
 
     # Basenames for Abinit input and output files.
     Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
-    basename = Basename("run.abi", "run.abo", "run.files", "run.log", "stderr", "job.sh", "__abilock__")
+    basename = Basename("run.abi", "run.abo", "run.files", "run.log", "run.err", "job.sh", "__abilock__")
     del Basename
 
     def __init__(self, strategy, workdir, manager, task_id=1, links=None, **kwargs):
@@ -769,8 +772,7 @@ class AbinitTask(Task):
 
             - build dirs and files
             - call the _setup method
-            - execute the job file via the shell or other means.
-            - return Results object
+            - execute the job file by executing/submitting the job script.
         """
         self.build(*args, **kwargs)
 
@@ -966,7 +968,7 @@ class TaskManager(object):
         qad_class = qadapter_class(qtype)
 
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
-                 pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
+                                  pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
 
         self.policy = policy if policy is not None else TaskPolicy.default_policy()
 
@@ -1048,6 +1050,8 @@ class TaskManager(object):
             stdin =task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
+            #qerr_file=task.qerr_file.path
+            #qout_file==task.qerr_file.path
         )
 
         # Write the script.
