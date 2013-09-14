@@ -131,7 +131,7 @@ class NwTask(MSONable):
         for el, bset in self.basis_set.items():
             bset_spec.append(" {} library \"{}\"".format(el, bset))
         theory_spec = []
-        if self.theory != "esp":
+        if self.theory_directives:
             theory_spec.append("{}".format(self.theory))
             for k, v in self.theory_directives.items():
                 theory_spec.append(" {} {}".format(k, v))
