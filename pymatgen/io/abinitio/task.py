@@ -87,14 +87,16 @@ class Task(object):
     S_ERROR = 16   # Task raised some kind of Error (either the process or ABINIT).
     S_OK = 32      # Task completed successfully.
 
-    STATUS2STR = {
-        S_READY: "Ready",
-        S_SUB: "Submitted",
-        S_RUN: "Running",
-        S_DONE: "Done",
-        S_ERROR: "Error",
-        S_OK: "Completed",
-    }
+    STATUS2STR = collections.OrderedDict([
+        (S_READY, "Ready"),
+        (S_SUB, "Submitted"),
+        (S_RUN, "Running"),
+        (S_DONE, "Done"),
+        (S_ERROR, "Error"),
+        (S_OK, "Completed"),
+    ])
+
+    POSSIBLE_STATUS = STATUS2STR.keys()
 
     def __init__(self):
         # Set the initial status.
@@ -212,7 +214,7 @@ class Task(object):
 
     def set_status(self, status):
         """Set the status of the task."""
-        if status not in self.STATUS2STR:
+        if status not in self.POSSIBLE_STATUS:
             raise RuntimeError("Unknown status: %s" % status)
 
         self._status = status
@@ -864,7 +866,7 @@ class RunHints(collections.OrderedDict):
                    "omp_ncpus": 1,         # Number of OMP threads (0 if not used)
                    "memory_gb": 10,        # Estimated memory requirement in Gigabytes (total or per proc?)
                    "weight"   : 0.4,       # 1.0 corresponds to an "expected" optimal efficiency.
-                   "abivars": {            # Dictionary with the variables that should be added to the input.
+                   "abivars": {            # Dictionary with the ABINIT variables that should be added to the input.
                         "varname1": varvalue1,
                         "varname2": varvalue2,
                         }
@@ -894,8 +896,11 @@ class RunHints(collections.OrderedDict):
 
         try:
             start = lines.index("<RUN_HINTS>\n")
-            stop  = lines.index("</RUN_HINTS>\n")
+        except ValueError:
+            raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
 
+        try:
+            stop  = lines[start:].index("</RUN_HINTS>\n")
         except ValueError:
             raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
 

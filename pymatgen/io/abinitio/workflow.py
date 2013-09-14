@@ -250,15 +250,16 @@ class BaseWorkflow(object):
         """
         return WorkFlowResults(task_results={task.name: task.results for task in self})
 
-    def build_and_pickle_dump(self, protocol=0):
+    def build_and_pickle_dump(self, protocol=-1):
         self.build()
         self.pickle_dump(protocol=protocol)
 
-    def pickle_dump(self, protocol=0):
+    def pickle_dump(self, protocol=-1):
         """Save the status of the object in pickle format."""
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
-        with open(filepath, "w") as fh:
+        mode = "w" if protocol == 0 else "wb" 
+        with open(filepath, mode) as fh:
             pickle.dump(self, fh, protocol=protocol)
 
     @classmethod
@@ -277,7 +278,6 @@ class BaseWorkflow(object):
         with open(path, "rb") as fh:
             new = pickle.load(fh)
 
-        #new.__class__ = cls
         return new
 
 
@@ -383,6 +383,18 @@ class Workflow(BaseWorkflow):
     def all_done(self):
         """True if all the Task in the `Workflow` are done."""
         return all([task.status >= Task.S_DONE for task in self])
+
+    def status_counter(self):
+        """
+        Returns a `Counter` object that counts the number of task with 
+        given status (use the string representation of the status as key).
+        """
+        counter = collections.Counter() 
+
+        for task in self:
+            counter[task.str_status] += 1
+
+        return counter
 
     @property
     def isnc(self):
