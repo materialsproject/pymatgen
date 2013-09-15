@@ -169,7 +169,12 @@ class Unit(collections.Mapping):
             for m in re.finditer("([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
-                unit[m.group(1)] += p
+                k = m.group(1)
+                for utype in ALL_UNITS.values():
+                    for u in utype.keys():
+                        if u.lower() == k.lower():
+                            k = u
+                unit[k] += p
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
 
@@ -628,21 +633,79 @@ class ArrayWithUnit(np.ndarray):
 
 
 Energy = partial(FloatWithUnit, unit_type="energy")
+"""
+A float with an energy unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
+"""
 EnergyArray = partial(ArrayWithUnit, unit_type="energy")
 
 Length = partial(FloatWithUnit, unit_type="length")
+"""
+A float with a length unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
+        raised.
+"""
 LengthArray = partial(ArrayWithUnit, unit_type="length")
 
 Mass = partial(FloatWithUnit, unit_type="mass")
+"""
+A float with a mass unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., amu, kg, etc. Must be valid unit or UnitError is
+        raised.
+"""
 MassArray = partial(ArrayWithUnit, unit_type="mass")
 
 Temp = partial(FloatWithUnit, unit_type="temperature")
+"""
+A float with a temperature unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., K. Only K (kelvin) is supported.
+"""
 TempArray = partial(ArrayWithUnit, unit_type="temperature")
 
 Time = partial(FloatWithUnit, unit_type="time")
+"""
+A float with a time unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., s, min, h. Must be valid unit or UnitError is
+        raised.
+"""
 TimeArray = partial(ArrayWithUnit, unit_type="time")
 
 Charge = partial(FloatWithUnit, unit_type="charge")
+"""
+A float with a charge unit.
+
+Args:
+    val:
+        Value
+    unit:
+        Units. E.g., C, e (electron charge). Must be valid unit or UnitError
+        is raised.
+"""
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
 
 
@@ -674,8 +737,15 @@ def unitized(unit):
     unit information. For mapping types, the values are assigned units.
 
     Args:
-        units:
-            Specific units (eV, Ha, m, ang, etc.).
+        unit:
+            Specific unit (eV, Ha, m, ang, etc.).
+
+    Example usage::
+
+        @unitized(unit="kg")
+        def get_mass():
+            return 123.45
+
     """
     def wrap(f):
         def wrapped_f(*args, **kwargs):
