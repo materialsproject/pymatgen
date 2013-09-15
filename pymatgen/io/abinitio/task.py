@@ -826,7 +826,7 @@ class TaskResults(dict, MSONable):
         """
         # TODO Better treatment of events.
         try:
-            assert (self["task_returncode"] == 0 and self["task_status"] == self.S_DONE)
+            assert (self["task_returncode"] == 0 and self["task_status"] == self.S_OK)
         except AssertionError as exc:
             self.push_exceptions(exc)
 
@@ -861,7 +861,7 @@ class RunHints(collections.OrderedDict):
 
     Example:
         <RUN_HINTS, max_ncpus = "108", autoparal="3">
-            "1" : {"tot_ncpus": 2,         # Total number of CPUs
+            "1": {"tot_ncpus": 2,         # Total number of CPUs
                    "mpi_ncpus": 2,         # Number of MPI processes.
                    "omp_ncpus": 1,         # Number of OMP threads (0 if not used)
                    "memory_gb": 10,        # Estimated memory requirement in Gigabytes (total or per proc?)
@@ -870,7 +870,9 @@ class RunHints(collections.OrderedDict):
                         "varname1": varvalue1,
                         "varname2": varvalue2,
                         }
-                }
+                 }
+            "2": { ...
+                 }
         </RUN_HINTS>
 
     For paral_kgb we have:
@@ -891,7 +893,7 @@ class RunHints(collections.OrderedDict):
         Read the <RUN_HINTS> section from file filename
         Assumes the file contains only one section.
         """
-        with open(filaname, "r") as fh:
+        with open(filename, "r") as fh:
             lines = fh.readlines()
 
         try:
@@ -904,33 +906,36 @@ class RunHints(collections.OrderedDict):
         except ValueError:
             raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
 
+        # TODO Handle the case in which autoparal is not supported.
+
         runhints = json_loads("".join(l for l in lines[start+1:stop]))
 
         # Sort the dict so that configuration with minimum (weight-1.0) appears in the first positions
-        return cls(sorted(runhints, key=lambda t : abs(t[1]["weight"] - 1.0), reverse=False))
+        return cls(sorted(runhints, key=lambda t: abs(t[1]["weight"] - 1.0), reverse=False))
 
     def select(self, policy):
         """Find the optimal configuration according on policy."""
         raise NotImplementedError("")
         #okey = ??
-        #self["mpi_ncpus"] = min(mpi_ncpus, self["max_ncpus"])
-        #self["omp_ncpus"] = min(omp_ncpus, self["max_ncpus"])
+        #self["mpi_ncpus"] = min(mpi_ncpus, self.max_ncpus)
+        #self["omp_ncpus"] = min(omp_ncpus, self.max_ncpus)
 
         # Copy the dictionary and return AttrDict instance.
         return AttrDict(self[okey].copy())
 
 
-class TaskPolicy(dict):
+class TaskPolicy(AttrDict):
     """
     This object stores the parameters used by the `TaskManager` to 
-    create the submission script and/or the modification of the 
-    ABINIT variables governing the parallel execution.
+    create the submission script and/or to modify the ABINIT variables 
+    governing the parallel execution.
     """
-
     # Default values.
     _DEFAULTS = dict(
-        use_fw=False,      # True if we are using fireworks.
-        max_ncpus=np.inf,  # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
+        use_fw=False,  # True if we are using fireworks.
+        autoparal=0,   # ABINIT autoparal option.
+        max_ncpus=-1,  # Max number of CPUs that can be used (DEFAULT: no limit is enforced, users should specify this value)
+        #mode="normal"  # ["normal", "aggressive", "conservative"]
     )
 
     def __init__(self, *args, **kwargs):
@@ -948,8 +953,8 @@ class TaskPolicy(dict):
             if k not in self:
                 self[k] = v
 
-    def copy(self):
-        return super(TaskPolicy, self).copy()
+    #def copy(self):
+    #    return super(TaskPolicy, self).copy()
 
     @classmethod
     def default_policy(cls):
@@ -1011,48 +1016,80 @@ class TaskManager(object):
         """Total number of CPUs used to run the task."""
         return self.qadapter.tot_ncpus
 
-    def optimize_params(self, task):
+    def autoparal(self, task):
         """
         Find optimal parameters for the execution of the task 
         using the options specified in self.policy.
      
         This method can change the ABINIT input variables and/or the 
-        parameters passed to the Resource Manager e.g. the number of CPUs.
+        parameters passed to the `TaskManager` e.g. the number of CPUs.
+
+        Returns:
+            return code of the subprocess.
         """
         raise NotImplementedError("")
+        policy = self.manager.policy
+        assert policy.autoparal == 0
 
-        # 1) Run ABINIT in sequential to get the possible configurations.
-        retcode = self._dummy_run(task)
+        # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
 
-        if retcode != 0:
-            return 
+        # Set the variables for automatic parallelization
+        autoparal_vars = dict(
+            autoparal=policy.autoparal,
+            max_ncpus=policy.max_ncpus,
+        )
 
-        # 2) Parse the configurations
+        task.strategy.add_extra_abivars(autoparal_vars)
+
+        # TODO
+        # Should remove the Queue header here!
+        seq_manager = self.manager.to_shell_manager(mpi_nprocs=1)
+
+        process = seq_manager.launch(task)
+
+        # Reset the status, remove garbage files ...
+        task.set_status(task.S_READY)
+
+        # Remove the variables for automatic parallelization
+        task.strategy.remove_extra_abivars(autoparal_vars)
+
+        if process.retcode != 0:
+            return process.retcode
+                                                                  
+        # 2) Parse the autoparal configurations
         try:
             hints = RunHints.from_file(task.log_file.path)
-
+                                                                  
         except RunHints.Error:
-            raise
+            return -1
 
         # 3) Select the optimal configuration according to policy
-        optimal = hints.select(self.policy)
-
+        optimal = hints.select(policy)
+                                                                  
         # 4) Change the input file and/or the submission script
-        task.strategy.add_abivars(optimal.abivars)
-
-        #self.qadapter.set_mpi_nprocs(optimal.mpi_nprocs)
+        task.strategy.add_extra_abivars(optimal.abivars)
+                                                                  
+        self.qadapter.set_mpi_nprocs(optimal.mpi_nprocs)
         #self.qadapter.set_omp_nprocs(optimal.omp_nprocs)
 
-    def _dummy_run(self, task):
-        retcode = 0
-        return retcode
+        return 0
 
     def write_jobfile(self, task):
+        """
+        Write the submission script.
+
+        Args:
+            task:
+                `Task` object.
+
+        Returns:
+            The path of the script file.
+        """
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir, 
             executable=task.executable,
-            stdin =task.files_file.path, 
+            stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
             #qerr_file=task.qerr_file.path
@@ -1067,7 +1104,9 @@ class TaskManager(object):
         return script_file
 
     def launch(self, task):
-        """Submit the task."""
+        """
+        Submit the task and return process object.
+        """
         script_file = self.write_jobfile(task)
 
         # Submit the script.

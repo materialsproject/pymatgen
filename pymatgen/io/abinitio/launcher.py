@@ -265,16 +265,13 @@ class PyLauncher(object):
 
         try:
             task = work.fetch_task_to_run()
+            #print("got task", task)
                                                             
             if task is None:
                 raise self.Error("No task to run!. Possible deadlock")
                                                             
             else:
-                print("got task", task)
                 task.start()
-                #task.start_and_wait()
-                #retcode = task.returncode
-                #print("Task returncode", task.returncode)
                 nlaunch += 1
                                                             
         except StopIteration as exc:
