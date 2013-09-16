@@ -44,10 +44,11 @@ class PDEntry(MSONable):
                 Optional parameter to name the entry. Defaults to the reduced
                 chemical formula.
             attribute:
-                Optional attribute of the entry. This can be used to specify that
-                the entry is a newly found compound, or to specify a particular label for
-                the entry, or else ... Used for further analysis and plotting purposes.
-                An attribute can be anything but must be MSONable.
+                Optional attribute of the entry. This can be used to specify
+                that the entry is a newly found compound, or to specify a
+                particular label for the entry, or else ... Used for further
+                analysis and plotting purposes. An attribute can be anything
+                but must be MSONable.
         """
         self._energy = energy
         self._composition = Composition(composition)
@@ -113,7 +114,8 @@ class PDEntry(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(Composition(d["composition"]), d["energy"], d["name"], d["attribute"] if "attribute" in d else None)
+        return cls(Composition(d["composition"]), d["energy"], d["name"],
+                   d["attribute"] if "attribute" in d else None)
 
 
 class GrandPotPDEntry(PDEntry):
