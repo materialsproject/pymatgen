@@ -188,7 +188,6 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         ]
 
         for obj in objects_without_unit:
-            print(obj, type(obj))
             self.assertFalse(hasattr(obj, "unit"))
 
         with self.assertRaises(UnitError):
