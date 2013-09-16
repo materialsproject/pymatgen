@@ -327,6 +327,10 @@ class NwOutputTest(unittest.TestCase):
         self.assertTrue(nwo.data[-1]["has_error"])
         self.assertEqual(nwo.data[-1]["errors"][0], "Bad convergence")
 
+        nwo = NwOutput(os.path.join(test_dir, "CH3CH2O.nwout"))
+        self.assertTrue(nwo.data[-1]["has_error"])
+        self.assertEqual(nwo.data[-1]["errors"][0], "Bad convergence")
+
         nwo = NwOutput(os.path.join(test_dir, "C1N1Cl1_1.nwout"))
         self.assertTrue(nwo.data[-1]["has_error"])
         self.assertEqual(nwo.data[-1]["errors"][0], "autoz error")
