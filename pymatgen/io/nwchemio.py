@@ -501,6 +501,7 @@ class NwOutput(object):
                                    "multiplicity)\s*:\s*(\S+)")
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
+            "Calculation failed to converge": "Bad convergence",
             "geom_binvr: #indep variables incorrect": "autoz error"}
 
         data = {}
