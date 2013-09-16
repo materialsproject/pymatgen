@@ -193,16 +193,16 @@ class BVAnalyzer(object):
             #Retain probabilities that are at least 1/100 of highest prob.
             valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
                                    val))
-        
+
         #make variables needed for recursion
         nsites = np.array(map(len, equi_sites))
         vmin = np.array(map(min, valences))
         vmax = np.array(map(max, valences))
-        
+
         self._n = 0
         self._best_score = 0
         self._best_vset = None
-        
+
         def evaluate_assignment(v_set):
             el_oxi = collections.defaultdict(list)
             for i, sites in enumerate(equi_sites):
@@ -215,28 +215,28 @@ class BVAnalyzer(object):
             if score > self._best_score:
                 self._best_vset = v_set
                 self._best_score = score
-            
+
         def _recurse(assigned=[]):
-            #recurses to find permutations of valences based on whether a 
+            #recurses to find permutations of valences based on whether a
             #charge balanced assignment can still be found
             if self._n > self.max_permutations:
                 return
-            
+
             i = len(assigned)
             highest = vmax.copy()
             highest[:i] = assigned
             highest *= nsites
             highest = np.sum(highest)
-            
+
             lowest = vmin.copy()
             lowest[:i] = assigned
             lowest *= nsites
             lowest = np.sum(lowest)
-            
+
             if highest < 0 or lowest > 0:
                 self._n += 1
                 return
-            
+
             if i == len(valences):
                 evaluate_assignment(assigned)
                 self._n += 1
@@ -245,9 +245,9 @@ class BVAnalyzer(object):
                 for v in valences[i]:
                     new_assigned = list(assigned)
                     _recurse(new_assigned + [v])
-                    
+
         _recurse()
-        
+
         if self._best_vset:
             assigned = {}
             for val, sites in zip(self._best_vset, equi_sites):
@@ -258,7 +258,6 @@ class BVAnalyzer(object):
         else:
             raise ValueError("Valences cannot be assigned!")
             
-        
     def get_oxi_state_decorated_structure(self, structure):
         """
         Get an oxidation state decorated structure. This currently works only

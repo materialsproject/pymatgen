@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.1
+------
+1. Bug fix release. Incorrect units assigned for ionic radii.
+2. Improved nwchemio supports COSMO and ESP calculations (Nav Rajput).
+
 v2.8.0
 ------
 1. **Units**. Pymatgen now has a new system of managing units,
