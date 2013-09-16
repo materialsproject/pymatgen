@@ -106,18 +106,20 @@ class PDPlotter(object):
 
         return lines, stable_entries, unstable_entries
 
-    def show(self, label_stable=True, label_unstable=True, ordering=None, energy_colormap=None):
+    def show(self, label_stable=True, label_unstable=True, ordering=None, energy_colormap=None,
+             process_attributes=False):
         """
         Draws the phase diagram using Matplotlib and show it.
         """
         if self._dim < 4:
-            plt = self._get_2d_plot(label_stable, label_unstable, ordering, energy_colormap)
+            plt = self._get_2d_plot(label_stable, label_unstable, ordering, energy_colormap,
+                                    process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot(label_stable)
         plt.show()
 
     def _get_2d_plot(self, label_stable=True, label_unstable=True, ordering=None, energy_colormap=None,
-                     vmin_mev=-200.0, vmax_mev=200.0, show_colorbar=True):
+                     vmin_mev=-60.0, vmax_mev=60.0, show_colorbar=True, process_attributes=False):
         """
         Shows the plot using pylab.  Usually I won"t do imports in methods,
         but since plotting is a fairly expensive library to load and not all
@@ -132,9 +134,23 @@ class PDPlotter(object):
             (_lines, _labels, _unstable) = self.pd_plot_data
             (lines, labels, unstable) = order_phase_diagram(_lines, _labels, _unstable, ordering)
         if energy_colormap is None:
-            for x, y in lines:
-                plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
-                         markerfacecolor="b", markersize=15)
+            if process_attributes:
+                for x, y in lines:
+                    plt.plot(x, y, "k-", linewidth=3, markeredgecolor="k")
+                # One should think about a clever way to have "complex" attributes with complex processing options
+                # but with a clear logic. At this moment, I just use the attributes to know whether an entry is a new
+                # compound or an existing (from the ICSD or from the MP) one.
+                for x, y in labels.iterkeys():
+                    if labels[(x, y)].attribute == None or labels[(x, y)].attribute == "existing":
+                        plt.plot(x, y, "ko", linewidth=3, markeredgecolor="k",
+                                 markerfacecolor="b", markersize=12)
+                    else:
+                        plt.plot(x, y, "k*", linewidth=3, markeredgecolor="k",
+                                 markerfacecolor="g", markersize=18)
+            else:
+                for x, y in lines:
+                    plt.plot(x, y, "ko-", linewidth=3, markeredgecolor="k",
+                             markerfacecolor="b", markersize=15)
         else:
             from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable
@@ -158,9 +174,18 @@ class PDPlotter(object):
             energies = [en if en < 0.0 else -0.00000001 for en in _energies]
             vals_stable = map.to_rgba(energies)
             ii = 0
-            for x, y in labels.iterkeys():
-                plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=15)
-                ii+=1
+            if process_attributes:
+                for x, y in labels.iterkeys():
+                    if labels[(x, y)].attribute == None or labels[(x, y)].attribute == "existing":
+                        plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=12)
+                    else:
+                        plt.plot(x, y, "*", markerfacecolor=vals_stable[ii], markersize=18)
+                    ii += 1
+            else:
+                for x, y in labels.iterkeys():
+                    plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=15)
+                    ii += 1
+
         font = FontProperties()
         font.set_weight("bold")
         font.set_size(24)
@@ -203,18 +228,29 @@ class PDPlotter(object):
             else:
                 halign = "center"
             if label_stable:
-                plt.annotate(latexify(label), coords, xytext=vec,
-                             textcoords="offset points",
-                             horizontalalignment=halign,
-                             verticalalignment=valign,
-                             fontproperties=font)
+                if process_attributes and entry.attribute == 'new':
+                    plt.annotate(latexify(label), coords, xytext=vec,
+                                 textcoords="offset points",
+                                 horizontalalignment=halign,
+                                 verticalalignment=valign,
+                                 fontproperties=font,
+                                 color='g')
+                else:
+                    plt.annotate(latexify(label), coords, xytext=vec,
+                                 textcoords="offset points",
+                                 horizontalalignment=halign,
+                                 verticalalignment=valign,
+                                 fontproperties=font)
 
         if self.show_unstable:
+            from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
             font = FontProperties()
             font.set_size(16)
+            pda = PDAnalyzer(self._pd)
             energies_unstable = [pda.get_e_above_hull(entry) for entry, coord in unstable.iteritems()]
-            energies.extend(energies_unstable)
-            vals_unstable = map.to_rgba(energies_unstable)
+            if energy_colormap is not None:
+                energies.extend(energies_unstable)
+                vals_unstable = map.to_rgba(energies_unstable)
             ii = 0
             for entry, coords in unstable.items():
                 vec = (np.array(coords) - center)
@@ -239,7 +275,7 @@ class PDPlotter(object):
         if energy_colormap is not None and show_colorbar:
             map.set_array(energies)
             cbar = plt.colorbar(map)
-            cbar.set_label('Energy [meV] above hull (in red)\nInverse energy [meV] above hull (in green)',
+            cbar.set_label('Energy [meV/at] above hull (in red)\nInverse energy [meV/at] above hull (in green)',
                            rotation=-90, ha='left', va='center')
             ticks = cbar.ax.get_yticklabels()
             cbar.ax.set_yticklabels(['${v}$'.format(v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
@@ -282,7 +318,7 @@ class PDPlotter(object):
         ax.axis("off")
         return plt
 
-    def write_image(self, stream, image_format="svg", ordering=None, energy_colormap=None):
+    def write_image(self, stream, image_format="svg", ordering=None, energy_colormap=None, process_attributes=False):
         """
         Writes the phase diagram to an image in a stream.
 
@@ -294,7 +330,8 @@ class PDPlotter(object):
                 Defaults to svg for best results for vector graphics.
         """
         if self._dim < 4:
-            plt = self._get_2d_plot(ordering=ordering, energy_colormap=energy_colormap)
+            plt = self._get_2d_plot(ordering=ordering, energy_colormap=energy_colormap,
+                                    process_attributes=process_attributes)
         elif self._dim == 4:
             plt = self._get_3d_plot()
 
