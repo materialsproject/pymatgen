@@ -52,6 +52,8 @@ class CifParser(object):
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
             with zopen(filename, "r") as f:
+                # We use this round-about way to remove non-ascii characters
+                # from the string first.
                 stream = cStringIO.StringIO(remove_non_ascii(f.read()))
                 self._cif = CifFile.ReadCif(stream)
         else:
