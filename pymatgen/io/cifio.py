@@ -27,6 +27,7 @@ import numpy as np
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.util.io_utils import zopen
 from pymatgen.util.coord_utils import in_coord_list_pbc
+from pymatgen.util.string_utils import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
@@ -51,7 +52,8 @@ class CifParser(object):
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
             with zopen(filename, "r") as f:
-                self._cif = CifFile.ReadCif(f)
+                stream = cStringIO.StringIO(remove_non_ascii(f.read()))
+                self._cif = CifFile.ReadCif(stream)
         else:
             self._cif = CifFile.ReadCif(filename)
 
@@ -70,8 +72,8 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        output = cStringIO.StringIO(cif_string)
-        return CifParser(output, occupancy_tolerance)
+        stream = cStringIO.StringIO(remove_non_ascii(cif_string))
+        return CifParser(stream, occupancy_tolerance)
 
     def _unique_coords(self, coord_in):
         """
