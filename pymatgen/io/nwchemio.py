@@ -102,11 +102,10 @@ class NwTask(MSONable):
                 A dict of theory directives. For example,
                 if you are running dft calculations, you may specify the
                 exchange correlation functional using {"xc": "b3lyp"}.
-
             alternate_directives:
-                A dict of alternate directives. To perform cosmo calculation
-                under dft task
-
+                A dict of alternate directives. For example, to perform
+                cosmo calculations and dielectric constant of 78,
+                you'd supply {'cosmo': {"dielectric": 78}}.
         """
         #Basic checks.
         if theory.lower() not in NwTask.theories.keys():
@@ -131,36 +130,18 @@ class NwTask(MSONable):
         bset_spec = []
         for el, bset in self.basis_set.items():
             bset_spec.append(" {} library \"{}\"".format(el, bset))
-
-        theory_spec = ["{}".format(self.theory)]
-        for k, v in self.theory_directives.items():
-            theory_spec.append(" {} {}".format(k, v))
-        theory_spec.append("end")
-        for c, d in self.alternate_directives.items():
-            if len(d) > 0:
-                theory_spec.append(" {} {}".format(c, d))
-            else:
-                theory_spec.append("{}".format(c))
-        if "cosmo" in self.alternate_directives:
+        theory_spec = []
+        if self.theory_directives:
+            theory_spec.append("{}".format(self.theory))
+            for k, v in self.theory_directives.items():
+                theory_spec.append(" {} {}".format(k, v))
             theory_spec.append("end")
-        if "esp" in self.theory:
-            if "esp" in self.theory_directives:
-                t = Template("""title "$title"
-charge $charge
-basis
-$bset_spec
-end
-$theory_spec
-task $theory""")
-            else:
-                t = Template("""title "$title"
-charge $charge
-basis
-$bset_spec
-end
-task $theory""")
-        else:
-            t = Template("""title "$title"
+        for k, v in self.alternate_directives.items():
+            theory_spec.append(k)
+            for k2, v2 in v.items():
+                theory_spec.append(" {} {}".format(k2, v2))
+            theory_spec.append("end")
+        t = Template("""title "$title"
 charge $charge
 basis
 $bset_spec
@@ -228,11 +209,13 @@ task $theory $operation""")
                 The theory used for the task. Defaults to "dft".
             operation:
                 The operation for the task. Defaults to "optimize".
-
             theory_directives:
                 A dict of theory directives. For example,
                 if you are running dft calculations, you may specify the
                 exchange correlation functional using {"xc": "b3lyp"}.
+            alternate_directives:
+                A dict of alternate directives. For example, to perform
+                cosmo calculations with DFT, you'd supply {'cosmo': "cosmo"}.
         """
         title = title if title is not None else "{} {} {}".format(
             re.sub("\s", "", mol.formula), theory, operation)
@@ -261,7 +244,7 @@ task $theory $operation""")
                       alternate_directives=alternate_directives)
 
     @classmethod
-    def dft_task(cls, mol, xc="b3lyp", dielectric="78.0", **kwargs):
+    def dft_task(cls, mol, xc="b3lyp", **kwargs):
         """
         A class method for quickly creating DFT tasks with optional
         cosmo parameter .
@@ -280,13 +263,10 @@ task $theory $operation""")
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
         t.theory_directives.update({"xc": xc,
                                     "mult": t.spin_multiplicity})
-        if "cosmo" in t.alternate_directives:
-            t.alternate_directives.update({"cosmo": "",
-                                           "dielec": dielectric})
         return t
 
     @classmethod
-    def esp_task(cls, mol, xc="b3lyp", **kwargs):
+    def esp_task(cls, mol, **kwargs):
         """
         A class method for quickly creating ESP tasks with RESP
         charge fitting.
@@ -298,11 +278,7 @@ task $theory $operation""")
                 Any of the other kwargs supported by NwTask. Note the theory
                 is always "dft" for a dft task.
         """
-        kwargs.update({"operation": ""})
-        e = NwTask.from_molecule(mol, theory="esp", **kwargs)
-        #e.theory_directives.update({"restrain": "harmonic 0.001"})
-
-        return e
+        return NwTask.from_molecule(mol, theory="esp", **kwargs)
 
 
 class NwInput(MSONable):
@@ -507,7 +483,13 @@ class NwOutput(object):
 
     def _parse_job(self, output):
         energy_patt = re.compile("Total \w+ energy\s+=\s+([\.\-\d]+)")
+
+        #In cosmo solvation results; gas phase energy = -152.5044774212
+
         energy_gas_patt = re.compile("gas phase energy\s+=\s+([\.\-\d]+)")
+
+        #In cosmo solvation results; sol phase energy = -152.5044774212
+
         energy_sol_patt = re.compile("sol phase energy\s+=\s+([\.\-\d]+)")
 
         coord_patt = re.compile("\d+\s+(\w+)\s+[\.\-\d]+\s+([\.\-\d]+)\s+"
