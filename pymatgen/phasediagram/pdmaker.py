@@ -16,6 +16,7 @@ __date__ = "Nov 25, 2012"
 
 import collections
 import numpy as np
+from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 
 try:
     # If scipy ConvexHull exists, use it because it is faster for large hulls.
@@ -29,12 +30,13 @@ except ImportError:
 
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
+from pymatgen.entries.computed_entries import ComputedEntry
 
-from pymatgen.core.periodic_table import DummySpecie
+from pymatgen.core.periodic_table import DummySpecie, Element
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 
 
-class PhaseDiagram (object):
+class PhaseDiagram (MSONable):
     """
     Simple phase diagram class taking in elements and entries as inputs.
     The algorithm is based on the work in the following papers:
@@ -225,6 +227,19 @@ class PhaseDiagram (object):
                              for entry in self.stable_entries])]
         return "\n".join(output)
 
+    @property
+    def to_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "all_entries": [e.to_dict for e in self.all_entries],
+                "elements": [e.to_dict for e in self.elements]}
+
+    @classmethod
+    def from_dict(cls, d):
+        entries = [ComputedEntry.from_dict(dd) for dd in d["all_entries"]]
+        elements = [Element.from_dict(dd) for dd in d["elements"]]
+        return cls(entries, elements)
+
 
 class GrandPotentialPhaseDiagram(PhaseDiagram):
     """
@@ -287,6 +302,20 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         output.append(", ".join([entry.name
                                  for entry in self.stable_entries]))
         return "\n".join(output)
+
+    @property
+    def to_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "all_entries": [e.to_dict for e in self.all_entries],
+                "chempots": self.chempots,
+                "elements": [e.to_dict for e in self.elements]}
+
+    @classmethod
+    def from_dict(cls, d):
+        entries = PMGJSONDecoder().process_decoded(d["all_entries"])
+        elements = PMGJSONDecoder().process_decoded(d["elements"])
+        return cls(entries, d["chempots"], elements)
 
 
 class CompoundPhaseDiagram(PhaseDiagram):
@@ -372,6 +401,20 @@ class CompoundPhaseDiagram(PhaseDiagram):
                 #into the phase space. We ignore them.
                 pass
         return new_entries, sp_mapping
+
+    @property
+    def to_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "original_entries": [e.to_dict for e in self.original_entries],
+                "terminal_compositions": [c.to_dict for c in self.terminal_compositions],
+                "normalize_terminal_compositions": self.normalize_terminal_compositions}
+
+    @classmethod
+    def from_dict(cls, d):
+        entries = PMGJSONDecoder().process_decoded(d["original_entries"])
+        terminal_compositions = PMGJSONDecoder().process_decoded(d["terminal_compositions"])
+        return cls(entries, terminal_compositions, d["normalize_terminal_compositions"])
 
 
 class PhaseDiagramError(Exception):
