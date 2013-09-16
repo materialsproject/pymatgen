@@ -93,9 +93,9 @@ class CifParser(object):
         """
         Generate structure from part of the cif.
         """
-        lengths = [float_from_str(data["_cell_length_" + i])
+        lengths = [str2float(data["_cell_length_" + i])
                    for i in ["a", "b", "c"]]
-        angles = [float_from_str(data["_cell_angle_" + i])
+        angles = [str2float(data["_cell_angle_" + i])
                   for i in ["alpha", "beta", "gamma"]]
         lattice = Lattice.from_lengths_and_angles(lengths, angles)
         try:
@@ -116,9 +116,10 @@ class CifParser(object):
             return ""
 
         try:
-            oxi_states = {data["_atom_type_symbol"][i]:
-                          float_from_str(data["_atom_type_oxidation_number"][i])
-                          for i in xrange(len(data["_atom_type_symbol"]))}
+            oxi_states = {
+                data["_atom_type_symbol"][i]:
+                str2float(data["_atom_type_oxidation_number"][i])
+                for i in xrange(len(data["_atom_type_symbol"]))}
         except (ValueError, KeyError):
             oxi_states = None
 
@@ -131,11 +132,11 @@ class CifParser(object):
                             oxi_states[data["_atom_site_type_symbol"][i]])
             else:
                 el = Element(symbol)
-            x = float_from_str(data["_atom_site_fract_x"][i])
-            y = float_from_str(data["_atom_site_fract_y"][i])
-            z = float_from_str(data["_atom_site_fract_z"][i])
+            x = str2float(data["_atom_site_fract_x"][i])
+            y = str2float(data["_atom_site_fract_y"][i])
+            z = str2float(data["_atom_site_fract_z"][i])
             try:
-                occu = float_from_str(data["_atom_site_occupancy"][i])
+                occu = str2float(data["_atom_site_occupancy"][i])
             except (KeyError, ValueError):
                 occu = 1
             if occu > 0:
@@ -182,7 +183,7 @@ class CifParser(object):
         for k, v in self._cif.items():
             try:
                 structures.append(self._get_structure(v, primitive))
-            except KeyError as ex:
+            except KeyError:
                 pass
         return structures
 
@@ -309,7 +310,7 @@ class CifWriter:
             f.write(self.__str__())
 
 
-def float_from_str(text):
+def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """
