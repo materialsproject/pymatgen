@@ -257,6 +257,7 @@ class StructureVis(object):
         if self.show_bonds or self.show_polyhedron:
             elements = sorted(s.composition.elements, key=lambda a: a.X)
             anion = elements[-1]
+
             def contains_anion(site):
                 for sp in site.species_and_occu.keys():
                     if sp.symbol == anion.symbol:
@@ -306,14 +307,15 @@ class StructureVis(object):
             if has_lattice:
                 #Adjust the camera for best viewing
                 lengths = s.lattice.abc
-                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / \
-                    lengths[0] * 3.5
+                pos = (matrix[1] + matrix[2]) * 0.5 + \
+                    matrix[0] * max(lengths) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
             else:
                 origin = s.center_of_mass
-                max_site = max(s, key=lambda site: site.distance_from_point(origin))
+                max_site = max(
+                    s, key=lambda site: site.distance_from_point(origin))
                 camera.SetPosition(origin + 5 * (max_site.coords - origin))
                 camera.SetFocalPoint(s.center_of_mass)
 
@@ -538,7 +540,7 @@ class StructureVis(object):
         for ii in range(3):
             points.InsertNextPoint(neighbors[ii].x, neighbors[ii].y,
                                    neighbors[ii].z)
-            triangle.GetPointIds().SetId(ii,ii)
+            triangle.GetPointIds().SetId(ii, ii)
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
 
