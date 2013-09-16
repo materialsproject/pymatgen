@@ -326,6 +326,10 @@ class FloatWithUnit(float):
     def __str__(self):
         return self.__repr__()
 
+    def __getnewargs__(self):
+        #function used by pickle to recreate object
+        return self._val, self._unit, self._unit_type
+
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
             return super(FloatWithUnit, self).__add__(other)
