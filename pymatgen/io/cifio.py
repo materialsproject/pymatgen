@@ -52,9 +52,8 @@ class CifParser(object):
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
             with zopen(filename, "r") as f:
-                # We use this round-about way to remove non-ascii characters
-                # from the string first.
-                stream = cStringIO.StringIO(remove_non_ascii(f.read()))
+                # We use this round-about way to clean up the CIF first.
+                stream = cStringIO.StringIO(_clean_cif(f.read()))
                 self._cif = CifFile.ReadCif(stream)
         else:
             self._cif = CifFile.ReadCif(filename)
@@ -74,7 +73,7 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        stream = cStringIO.StringIO(remove_non_ascii(cif_string))
+        stream = cStringIO.StringIO(_clean_cif(cif_string))
         return CifParser(stream, occupancy_tolerance)
 
     def _unique_coords(self, coord_in):
@@ -308,6 +307,25 @@ class CifWriter:
         """
         with open(filename, "w") as f:
             f.write(self.__str__())
+
+
+def _clean_cif(s):
+    """
+    Removes non-ASCII and some unsupported _cgraph fields from the cif
+    string
+    """
+    clean = []
+    lines = s.split("\n")
+    while len(lines) > 0:
+        l = lines.pop(0)
+        if l.strip().startswith("_cgraph"):
+            l = lines.pop(0)
+            while not (l.strip().startswith("_") or l.strip() == "loop_"):
+                l = lines.pop(0)
+            continue
+        elif not l.strip().startswith("_eof"):
+            clean.append(remove_non_ascii(l))
+    return "\n".join(clean)
 
 
 def str2float(text):

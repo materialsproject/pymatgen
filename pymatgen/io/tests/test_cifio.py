@@ -12,14 +12,13 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class  CifIOTest(unittest.TestCase):
+class CifIOTest(unittest.TestCase):
 
     def test_CifParser(self):
         parser = CifParser(os.path.join(test_dir, 'LiFePO4.cif'))
         for s in parser.get_structures(True):
             self.assertEqual(s.formula, "Li4 Fe4 P4 O16",
                              "Incorrectly parsed cif.")
-
 
         parser = CifParser(os.path.join(test_dir, 'V2O3.cif'))
         for s in parser.get_structures(True):
@@ -107,6 +106,11 @@ loop_
         parser = CifParser.from_string(cif_str)
         self.assertEqual(parser.get_structures()[0].formula, "Fe4 P4 O16",
                          "Incorrectly parsed cif.")
+
+        parser = CifParser(os.path.join(test_dir, 'srycoo.cif'))
+        self.assertEqual(parser.get_structures()[0].formula,
+                         "Sr5.6 Y2.4 Co8 O21")
+
 
     def test_CifWriter(self):
         filepath = os.path.join(test_dir, 'POSCAR')
