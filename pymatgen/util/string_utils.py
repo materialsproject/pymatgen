@@ -196,6 +196,16 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
         out.write("\n")
 
 
+def is_string(s):
+    """True if s behaves like a string (duck typing test)."""
+    try:
+        dummy = s + " "
+        return True
+
+    except TypeError:
+        return False
+
+
 def list_strings(arg):
     """
     Always return a list of strings, given a string or list of strings as
@@ -212,15 +222,12 @@ def list_strings(arg):
     >>> list_strings(['A','list','of','strings'])
     ['A', 'list', 'of', 'strings']
     """
-
-    #if isinstance(arg, string):  version for Py3K
-    if isinstance(arg, basestring):
+    if is_string(obj):
         return [arg]
     else:
         return arg
 
 
-###############################################################################
 def stream_has_colours(stream):
     """
     True if stream supports colours. Python cookbook, #475186
