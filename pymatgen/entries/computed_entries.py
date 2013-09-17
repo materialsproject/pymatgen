@@ -34,7 +34,7 @@ class ComputedEntry(PDEntry, MSONable):
     """
 
     def __init__(self, composition, energy, correction=0.0, parameters=None,
-                 data=None, entry_id=None):
+                 data=None, entry_id=None, attribute=None):
         """
         Args:
             composition:
@@ -55,13 +55,19 @@ class ComputedEntry(PDEntry, MSONable):
                 entry. Defaults to None.
             entry_id:
                 An optional id to uniquely identify the entry.
+            attribute:
+                Optional attribute of the entry. This can be used to specify that
+                the entry is a newly found compound, or to specify a particular label for
+                the entry, or else ... Used for further analysis and plotting purposes.
+                An attribute can be anything but must be MSONable.
         """
         comp = Composition(composition)
-        PDEntry.__init__(self, comp, energy)
+        PDEntry.__init__(self, comp, energy, attribute=attribute)
         self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
+        self._attribute = attribute
 
     @property
     def energy(self):
@@ -97,7 +103,8 @@ class ComputedEntry(PDEntry, MSONable):
         return cls(d["composition"], d["energy"], d["correction"],
                    dec.process_decoded(d.get("parameters", {})),
                    dec.process_decoded(d.get("data", {})),
-                   entry_id=d.get("entry_id", None))
+                   entry_id=d.get("entry_id", None),
+                   attribute=d["attribute"] if "attribute" in d else None)
 
     @property
     def to_dict(self):
@@ -109,7 +116,8 @@ class ComputedEntry(PDEntry, MSONable):
                 "parameters": json.loads(json.dumps(self.parameters,
                                                     cls=PMGJSONEncoder)),
                 "data": json.loads(json.dumps(self.data, cls=PMGJSONEncoder)),
-                "entry_id": self.entry_id}
+                "entry_id": self.entry_id,
+                "attribute": self._attribute}
 
 
 class ComputedStructureEntry(ComputedEntry):

@@ -271,7 +271,7 @@ class MPRester(object):
         data = self.get_data(material_id, prop="bandstructure")
         return data[0]["bandstructure"]
 
-    def get_entries_in_chemsys(self, elements, compatible_only=True):
+    def get_entries_in_chemsys(self, elements, compatible_only=True, inc_structure=None):
         """
         Helper method to get a list of ComputedEntries in a chemical system.
         For example, elements = ["Li", "Fe", "O"] will return a list of all
@@ -293,7 +293,7 @@ class MPRester(object):
             List of ComputedEntries.
         """
         return self.get_entries("-".join(elements),
-                                compatible_only=compatible_only)
+                                compatible_only=compatible_only, inc_structure=inc_structure)
 
     def get_exp_thermo_data(self, formula):
         """
