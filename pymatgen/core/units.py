@@ -390,10 +390,11 @@ class FloatWithUnit(float):
                              unit=self._unit)
 
     def __getnewargs__(self):
+        """function used by pickle to recreate object."""
         #print(self)
         #print(dir(self))
         if hasattr(self, "_unit_type"):
-            args = float(self), self._unit, self._unit_type
+            args = self._val, self._unit, self._unit_type
         else:
             args = float(self), self._unit, None
 

@@ -222,10 +222,24 @@ def list_strings(arg):
     >>> list_strings(['A','list','of','strings'])
     ['A', 'list', 'of', 'strings']
     """
-    if is_string(obj):
+    if is_string(arg):
         return [arg]
     else:
         return arg
+
+
+def remove_non_ascii(s):
+    """
+    Remove non-ascii characters in a file.
+
+    Args:
+        s:
+            Input string
+
+    Returns:
+        String with all non-ascii characters removed.
+    """
+    return "".join(i for i in s if ord(i) < 128)
 
 
 def stream_has_colours(stream):

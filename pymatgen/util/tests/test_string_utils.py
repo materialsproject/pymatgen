@@ -14,9 +14,11 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Aug 26, 2012"
 
 import unittest
+import random
 
 from pymatgen.util.string_utils import generate_latex_table, str_delimited, \
-    str_aligned, formula_double_format, latexify, latexify_spacegroup
+    str_aligned, formula_double_format, latexify, latexify_spacegroup, \
+    remove_non_ascii
 
 
 class FuncTest(unittest.TestCase):
@@ -47,6 +49,11 @@ ccc   dddd"""
         self.assertEqual(formula_double_format(2.00), "2")
         self.assertEqual(formula_double_format(2.10), "2.1")
 
+    def test_remove_non_ascii(self):
+        s = "".join(chr(random.randint(0, 127)) for i in xrange(10))
+        s += "".join(chr(random.randint(128, 150)) for i in xrange(10))
+        clean = remove_non_ascii(s)
+        self.assertEqual(len(clean), 10)
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
