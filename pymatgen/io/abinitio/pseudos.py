@@ -16,6 +16,7 @@ import numpy as np
 
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.util.num_utils import iterator_from_slice
+from pymatgen.util.string_utils import list_strings, is_string
 
 __all__ = [
     "Pseudo",
@@ -1013,6 +1014,8 @@ class PseudoTable(collections.Sequence):
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
         # hence the values are lists of pseudos.
+        if is_string(pseudos):
+            pseudos = list_strings(pseudos)
 
         if not isinstance(pseudos, collections.Iterable):
             pseudos = [pseudos]

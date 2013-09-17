@@ -39,8 +39,8 @@ __email__ = "gmatteo at gmail.com"
 
 def select_pseudos(pseudos, structure):
     """
-    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials for the calculation.
-    (useful when we receive an entire periodic table)
+    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials 
+    for the calculation (useful when we receive an entire periodic table).
 
     Raises ValueError if no pseudo or multiple occurrences are found.
     """
@@ -71,6 +71,10 @@ class StrategyWithInput(object):
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
         self.abinit_input.set_variables(**abivars)
+
+    def remove_extra_abivars(self, keys):
+        """Remove variables from extra_abivars."""
+        self.abinit_input.remove_variables(keys)
                                          
     def make_input(self):
         return str(self.abinit_input)
@@ -233,6 +237,10 @@ class Strategy(object):
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
         self.extra_abivars.update(abivars)
+
+    def remove_extra_abivars(self, keys):
+        for key in keys:
+            self.extra_abivars.pop(key)
 
     #def iocontrol(self):
     #    "Dictionary with variables controlling the IO"
