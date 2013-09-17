@@ -392,12 +392,17 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        #if hasattr(self, "_unit_type"):
-        args = float(self), self._unit, self._unit_type
-        #else:
-        #    args = float(self), self._unit, None
+        #print(self.__dict__)
+        # FIXME
+        # There's a problem with _unit_type if we try to unpickle objects from file.
+        # since self._unit_type might not be defined. I think this is due to 
+        # the use of decorators (property and unitized). In particular I have problems with "amu"
+        # likely due to weight in core.composition
+        if hasattr(self, "_unit_type"):
+            args = float(self), self._unit, self._unit_type
+        else:
+            args = float(self), self._unit, None
 
-        #print("in getnewargs %s" % str(args))
         return args
 
     def __getstate__(self):
@@ -760,6 +765,8 @@ def unitized(unit):
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
+            else:
+                raise TypeError("Don't know how to assign units to %s" % str(val))
             return val
         return wrapped_f
     return wrap
