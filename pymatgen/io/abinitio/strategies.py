@@ -7,7 +7,7 @@ import numpy as np
 
 from pprint import pprint, pformat
 
-from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
 from .abiobjects import SpinMode, Smearing, Electrons
 from .pseudos import PseudoTable
 
@@ -714,7 +714,7 @@ class InputWriter(object):
         if value is None:  
             return [] # Use ABINIT default.
                                                                                    
-        if isinstance(value, collections.Iterable) and not isinstance(value, str):
+        if isinstance(value, collections.Iterable) and not is_string(value):
             arr = np.array(value)
             if len(arr.shape) in [0,1]: # scalar or vector.
                 token = [key, " ".join([str(i) for i in arr])]

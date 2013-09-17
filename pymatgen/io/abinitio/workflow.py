@@ -19,6 +19,7 @@ import pymatgen.core.physical_constants as const
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
+from pymatgen.util.string_utils import list_strings
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
 
@@ -113,8 +114,7 @@ class WorkLink(object):
         self._products = []
 
         if exts is not None:
-            if isinstance(exts, str):
-                exts = [exts,]
+            exts = list_strings(exts)
 
             for ext in exts:
                 prod = Product(ext, task.odata_path_from_ext(ext))

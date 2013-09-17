@@ -494,7 +494,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
     Return dict{key1 : value1, key2 : value2, ...}
     """
-    if isinstance(lines, basestring):
+    if is_string(lines):
         lines = [lines]
 
     if not isinstance(key_nums, collections.Iterable):
@@ -956,6 +956,7 @@ class PseudoParser(object):
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
+
         except Exception as exc:
             raise self.Error(filename + ": " + str(exc))
 
@@ -1014,11 +1015,11 @@ class PseudoTable(collections.Sequence):
         # Store pseudos in a default dictionary with z as key.
         # Note that we can have more than one pseudo for given z.
         # hence the values are lists of pseudos.
-        if is_string(pseudos):
-            pseudos = list_strings(pseudos)
-
         if not isinstance(pseudos, collections.Iterable):
             pseudos = [pseudos]
+
+        if is_string(pseudos[0]):
+            pseudos = list_strings(pseudos)
 
         self._pseudos_with_z = collections.defaultdict(list)
 
