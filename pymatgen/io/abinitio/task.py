@@ -11,7 +11,7 @@ import warnings
 import numpy as np
 
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.util.string_utils import stream_has_colours
+from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
 from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
@@ -749,8 +749,7 @@ class AbinitTask(Task):
 
     def remove_files(self, *filenames):
         """Remove all the files listed in filenames."""
-        if isinstance(filenames, str):
-            filenames = [filenames]
+        filenames = list_strings(filenames)
 
         for dirpath, dirnames, fnames in os.walk(self.workdir):
             for fname in fnames:
