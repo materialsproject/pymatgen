@@ -394,7 +394,7 @@ class FloatWithUnit(float):
         #print(self)
         #print(dir(self))
         if hasattr(self, "_unit_type"):
-            args = self._val, self._unit, self._unit_type
+            args = float(self), self._unit, self._unit_type
         else:
             args = float(self), self._unit, None
 
