@@ -65,6 +65,14 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`qadapters` Module
+-----------------------
+
+.. automodule:: pymatgen.io.abinitio.qadapters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`strategies` Module
 ------------------------
 

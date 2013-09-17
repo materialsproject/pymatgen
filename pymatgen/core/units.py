@@ -169,7 +169,12 @@ class Unit(collections.Mapping):
             for m in re.finditer("([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 p = m.group(2)
                 p = 1 if not p else int(p)
-                unit[m.group(1)] += p
+                k = m.group(1)
+                for utype in ALL_UNITS.values():
+                    for u in utype.keys():
+                        if u.lower() == k.lower():
+                            k = u
+                unit[k] += p
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
 
@@ -315,11 +320,12 @@ class FloatWithUnit(float):
         super(FloatWithUnit, self).__init__(val)
 
     def __repr__(self):
-        s = super(FloatWithUnit, self).__repr__()
-        return "{} {}".format(s, self._unit)
+        return super(FloatWithUnit, self).__repr__()
+        #return "{} {}".format(s, self._unit)
 
     def __str__(self):
-        return self.__repr__()
+        s = super(FloatWithUnit, self).__str__()
+        return "{} {}".format(s, self._unit)
 
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
@@ -383,6 +389,20 @@ class FloatWithUnit(float):
         return FloatWithUnit(super(FloatWithUnit, self).__neg__(),
                              unit_type=self._unit_type,
                              unit=self._unit)
+
+    def __getnewargs__(self):
+        """Function used by pickle to recreate object."""
+        return float(self), self._unit, self._unit_type
+        
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["val"] = float(self)
+        #print("in getstate %s" % state)
+        return state
+
+    def __setstate__(self, state):
+        #print("in setstate %s" % state)
+        self._unit = state["_unit"]
 
     @property
     def unit_type(self):
@@ -471,6 +491,19 @@ class ArrayWithUnit(np.ndarray):
     @property
     def unit(self):
         return self._unit
+
+    def __reduce__(self):
+        #print("in reduce")
+        reduce = list(super(ArrayWithUnit, self).__reduce__())
+        #print("unit",self._unit)
+        #print(reduce[2])
+        reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
+        return tuple(reduce)
+
+    def __setstate__(self, state):
+        #print("in setstate %s" % str(state))
+        super(ArrayWithUnit, self).__setstate__(state["np_state"])
+        self._unit = state["_unit"]
 
     def __repr__(self):
         return "{} {}".format(np.array(self).__repr__(), self.unit)

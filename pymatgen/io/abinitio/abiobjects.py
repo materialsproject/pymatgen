@@ -4,7 +4,6 @@
 Low-level objects providing an abstraction for the objects involved in the
 calculation.
 """
-
 from __future__ import division, print_function
 
 import collections
@@ -15,6 +14,7 @@ import pymatgen.core.units as units
 
 from pprint import pformat
 from pymatgen.util.decorators import singleton
+from pymatgen.util.string_utils import is_string
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import MSONable
@@ -343,7 +343,7 @@ def asabistructure(obj):
         # Promote
         return AbiStructure(obj)
 
-    if isinstance(obj, str):
+    if is_string(obj):
         # Handle file paths.
         if os.path.isfile(obj):
 

@@ -239,8 +239,11 @@ class StructureVis(object):
         labels = ["a", "b", "c"]
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
 
-        if self.show_unit_cell and has_lattice:
+        if has_lattice:
             matrix = s.lattice.matrix
+
+        if self.show_unit_cell and has_lattice:
+            #matrix = s.lattice.matrix
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -254,6 +257,7 @@ class StructureVis(object):
         if self.show_bonds or self.show_polyhedron:
             elements = sorted(s.composition.elements, key=lambda a: a.X)
             anion = elements[-1]
+
             def contains_anion(site):
                 for sp in site.species_and_occu.keys():
                     if sp.symbol == anion.symbol:
@@ -303,14 +307,15 @@ class StructureVis(object):
             if has_lattice:
                 #Adjust the camera for best viewing
                 lengths = s.lattice.abc
-                pos = (matrix[1] + matrix[2]) * 0.5 + matrix[0] * max(lengths) / \
-                    lengths[0] * 3.5
+                pos = (matrix[1] + matrix[2]) * 0.5 + \
+                    matrix[0] * max(lengths) / lengths[0] * 3.5
                 camera.SetPosition(pos)
                 camera.SetViewUp(matrix[2])
                 camera.SetFocalPoint((matrix[0] + matrix[1] + matrix[2]) * 0.5)
             else:
                 origin = s.center_of_mass
-                max_site = max(s, key=lambda site: site.distance_from_point(origin))
+                max_site = max(
+                    s, key=lambda site: site.distance_from_point(origin))
                 camera.SetPosition(origin + 5 * (max_site.coords - origin))
                 camera.SetFocalPoint(s.center_of_mass)
 
@@ -535,7 +540,7 @@ class StructureVis(object):
         for ii in range(3):
             points.InsertNextPoint(neighbors[ii].x, neighbors[ii].y,
                                    neighbors[ii].z)
-            triangle.GetPointIds().SetId(ii,ii)
+            triangle.GetPointIds().SetId(ii, ii)
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
 
@@ -571,6 +576,102 @@ class StructureVis(object):
             ac.GetProperty().SetEdgeColor(edges_color)
             ac.GetProperty().SetLineWidth(edges_linewidth)
             ac.GetProperty().EdgeVisibilityOn()
+        self.ren.AddActor(ac)
+
+    def add_faces(self, faces, color, opacity=0.35):
+        for face in faces:
+            if len(face) == 3:
+                points = vtk.vtkPoints()
+                triangle = vtk.vtkTriangle()
+                for ii in range(3):
+                    points.InsertNextPoint(face[ii][0], face[ii][1], face[ii][2])
+                    triangle.GetPointIds().SetId(ii, ii)
+                triangles = vtk.vtkCellArray()
+                triangles.InsertNextCell(triangle)
+                trianglePolyData = vtk.vtkPolyData()
+                trianglePolyData.SetPoints(points)
+                trianglePolyData.SetPolys(triangles)
+                mapper = vtk.vtkPolyDataMapper()
+                mapper.SetInput(trianglePolyData)
+                ac = vtk.vtkActor()
+                ac.SetMapper(mapper)
+                ac.GetProperty().SetOpacity(opacity)
+                ac.GetProperty().SetColor(color)
+                self.ren.AddActor(ac)
+            elif False and len(face) == 4:
+                points = vtk.vtkPoints()
+                for ii in range(4):
+                    points.InsertNextPoint(face[ii][0], face[ii][1], face[ii][2])
+                line1 = vtk.vtkLine()
+                line1.GetPointIds().SetId(0, 0)
+                line1.GetPointIds().SetId(1, 2)
+                line2 = vtk.vtkLine()
+                line2.GetPointIds().SetId(0, 3)
+                line2.GetPointIds().SetId(1, 1)
+                lines = vtk.vtkCellArray()
+                lines.InsertNextCell(line1)
+                lines.InsertNextCell(line2)
+                polydata = vtk.vtkPolyData()
+                polydata.SetPoints(points)
+                polydata.SetLines(lines)
+                ruledSurfaceFilter = vtk.vtkRuledSurfaceFilter()
+                ruledSurfaceFilter.SetInput(polydata)
+                ruledSurfaceFilter.SetResolution(15, 15)
+                ruledSurfaceFilter.SetRuledModeToResample()
+                mapper = vtk.vtkPolyDataMapper()
+                mapper.SetInput(ruledSurfaceFilter.GetOutput())
+                ac = vtk.vtkActor()
+                ac.SetMapper(mapper)
+                ac.GetProperty().SetOpacity(opacity)
+                ac.GetProperty().SetColor(color)
+                self.ren.AddActor(ac)
+            elif len(face) > 3:
+                center = np.zeros(3, np.float)
+                for site in face:
+                    center += site
+                center /= np.float(len(face))
+                for ii in range(len(face)):
+                    points = vtk.vtkPoints()
+                    triangle = vtk.vtkTriangle()
+                    points.InsertNextPoint(face[ii][0], face[ii][1], face[ii][2])
+                    ii2 = np.mod(ii+1, len(face))
+                    points.InsertNextPoint(face[ii2][0], face[ii2][1], face[ii2][2])
+                    points.InsertNextPoint(center[0], center[1], center[2])
+                    for ii in range(3):
+                        triangle.GetPointIds().SetId(ii, ii)
+                    triangles = vtk.vtkCellArray()
+                    triangles.InsertNextCell(triangle)
+                    trianglePolyData = vtk.vtkPolyData()
+                    trianglePolyData.SetPoints(points)
+                    trianglePolyData.SetPolys(triangles)
+                    mapper = vtk.vtkPolyDataMapper()
+                    mapper.SetInput(trianglePolyData)
+                    ac = vtk.vtkActor()
+                    ac.SetMapper(mapper)
+                    ac.GetProperty().SetOpacity(opacity)
+                    ac.GetProperty().SetColor(color)
+                    self.ren.AddActor(ac)
+            else:
+                raise ValueError("Number of points for a face should be >= 3")
+
+    def add_edges(self, edges, type='line', linewidth=2, color=[0.0, 0.0, 0.0]):
+        points = vtk.vtkPoints()
+        lines = vtk.vtkCellArray()
+        for iedge, edge in enumerate(edges):
+            points.InsertPoint(2*iedge, edge[0])
+            points.InsertPoint(2*iedge + 1, edge[1])
+            lines.InsertNextCell(2)
+            lines.InsertCellPoint(2*iedge)
+            lines.InsertCellPoint(2*iedge + 1)
+        polydata = vtk.vtkPolyData()
+        polydata.SetPoints(points)
+        polydata.SetLines(lines)
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInput(polydata)
+        ac = vtk.vtkActor()
+        ac.SetMapper(mapper)
+        ac.GetProperty().SetColor(color)
+        ac.GetProperty().SetLineWidth(linewidth)
         self.ren.AddActor(ac)
 
     def add_bonds(self, neighbors, center, color=None, opacity=None,

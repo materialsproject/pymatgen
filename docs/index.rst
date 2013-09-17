@@ -72,6 +72,21 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.3
+------
+1. Big fix release for json dumping for unitized floats.
+
+v2.8.2
+------
+1. Bug fix release to improve CIF parsing for more non-standard CIF files.
+   In particular, non-ascii characters are removed and _cgraph* fields are
+   removed prior to parsing for better support in PyCiFRW.
+
+v2.8.1
+------
+1. Bug fix release. Incorrect units assigned for ionic radii.
+2. Improved nwchemio supports COSMO and ESP calculations (Nav Rajput).
+
 v2.8.0
 ------
 1. **Units**. Pymatgen now has a new system of managing units,

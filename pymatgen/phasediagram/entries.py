@@ -33,7 +33,7 @@ class PDEntry(MSONable):
         set to some other string for display purposes.
     """
 
-    def __init__(self, composition, energy, name=None):
+    def __init__(self, composition, energy, name=None, attribute=None):
         """
         Args:
             comp:
@@ -43,10 +43,23 @@ class PDEntry(MSONable):
             name:
                 Optional parameter to name the entry. Defaults to the reduced
                 chemical formula.
+            attribute:
+                Optional attribute of the entry. This can be used to specify
+                that the entry is a newly found compound, or to specify a
+                particular label for the entry, or else ... Used for further
+                analysis and plotting purposes. An attribute can be anything
+                but must be MSONable.
         """
         self._energy = energy
         self._composition = Composition(composition)
         self.name = name if name else self._composition.reduced_formula
+        self._attribute = attribute
+
+    def set_attribute(self, attribute):
+        """
+        Sets the optional attribute of the entry.
+        """
+        self._attribute = attribute
 
     @property
     def energy(self):
@@ -70,6 +83,13 @@ class PDEntry(MSONable):
         return self._composition
 
     @property
+    def attribute(self):
+        """
+        Returns the optional attribute of the entry.
+        """
+        return self._attribute
+
+    @property
     def is_element(self):
         """
         True if the entry is an element.
@@ -89,11 +109,13 @@ class PDEntry(MSONable):
                 "@class": self.__class__.__name__,
                 "composition": self._composition.to_dict,
                 "energy": self._energy,
-                "name": self.name}
+                "name": self.name,
+                "attribute": self._attribute}
 
     @classmethod
     def from_dict(cls, d):
-        return cls(Composition(d["composition"]), d["energy"], d["name"])
+        return cls(Composition(d["composition"]), d["energy"], d["name"],
+                   d["attribute"] if "attribute" in d else None)
 
 
 class GrandPotPDEntry(PDEntry):
