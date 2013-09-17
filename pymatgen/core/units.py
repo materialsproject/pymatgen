@@ -320,11 +320,12 @@ class FloatWithUnit(float):
         super(FloatWithUnit, self).__init__(val)
 
     def __repr__(self):
-        s = super(FloatWithUnit, self).__repr__()
-        return "{} {}".format(s, self._unit)
+        return super(FloatWithUnit, self).__repr__()
+        #return "{} {}".format(s, self._unit)
 
     def __str__(self):
-        return self.__repr__()
+        s = super(FloatWithUnit, self).__str__()
+        return "{} {}".format(s, self._unit)
 
     def __getnewargs__(self):
         #function used by pickle to recreate object
