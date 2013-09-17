@@ -19,7 +19,7 @@ import pymatgen.core.physical_constants as const
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
-from pymatgen.util.string_utils import list_strings
+from pymatgen.util.string_utils import list_strings, pprint_table
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
 
@@ -30,8 +30,8 @@ from .pseudos import Pseudo
 from .strategies import ScfStrategy
 from .eos import EOS
 
-#import logging
-#logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -451,7 +451,7 @@ class Workflow(BaseWorkflow):
 
         if links:
             self._links_dict[task_id].extend(links)
-            print("task_id %s needs\n %s" % (task_id, [str(l) for l in links]))
+            logger.debug("task_id %s needs\n %s" % (task_id, [str(l) for l in links]))
 
         return WorkLink(task)
 
@@ -811,7 +811,6 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
         app(row)
 
     if stream is not None:
-        from pymatgen.util.string_utils import pprint_table
         stream.write("pseudo: %s\n" % pseudo.name)
         pprint_table(table, out=stream)
 

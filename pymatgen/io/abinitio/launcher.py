@@ -6,20 +6,16 @@ import abc
 
 from subprocess import Popen, PIPE
 
+from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 __all__ = [
     "ScriptEditor",
 ]
-
-def is_string(obj):
-    try:
-        dummy = obj + " "
-        return True
-    except TypeError:
-        return False
-
 
 class ScriptEditor(object):
     """Simple editor that simplifies the writing of shell scripts"""
@@ -265,17 +261,17 @@ class PyLauncher(object):
 
         try:
             task = work.fetch_task_to_run()
-            #print("got task", task)
-                                                            
+
             if task is None:
-                raise self.Error("No task to run!. Possible deadlock")
+                #raise self.Error("No task to run!. Possible deadlock")
+                logger.debug("No task to run! Possible deadlock")
                                                             
             else:
                 task.start()
                 nlaunch += 1
                                                             
-        except StopIteration as exc:
-            print(str(exc))
+        except StopIteration:
+            logger.debug("Out of tasks.")
 
         finally:
             work.pickle_dump()
@@ -294,8 +290,8 @@ class PyLauncher(object):
                 task.start()
                 nlaunch += 1
 
-            except StopIteration as exc:
-                #print(str(exc))
+            except StopIteration:
+                #logger.debug("Out of tasks.")
                 break
 
         work.pickle_dump()
