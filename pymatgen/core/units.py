@@ -327,10 +327,6 @@ class FloatWithUnit(float):
         s = super(FloatWithUnit, self).__str__()
         return "{} {}".format(s, self._unit)
 
-    def __getnewargs__(self):
-        #function used by pickle to recreate object
-        return self._val, self._unit, self._unit_type
-
     def __add__(self, other):
         if not hasattr(other, "unit_type"):
             return super(FloatWithUnit, self).__add__(other)
@@ -393,6 +389,26 @@ class FloatWithUnit(float):
         return FloatWithUnit(super(FloatWithUnit, self).__neg__(),
                              unit_type=self._unit_type,
                              unit=self._unit)
+
+    def __getnewargs__(self):
+        """Function used by pickle to recreate object."""
+        #if hasattr(self, "_unit_type"):
+        args = float(self), self._unit, self._unit_type
+        #else:
+        #    args = float(self), self._unit, None
+
+        #print("in getnewargs %s" % str(args))
+        return args
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["val"] = float(self)
+        #print("in getstate %s" % state)
+        return state
+
+    def __setstate__(self, state):
+        #print("in setstate %s" % state)
+        self._unit = state["_unit"]
 
     @property
     def unit_type(self):
@@ -481,6 +497,19 @@ class ArrayWithUnit(np.ndarray):
     @property
     def unit(self):
         return self._unit
+
+    def __reduce__(self):
+        #print("in reduce")
+        reduce = list(super(ArrayWithUnit, self).__reduce__())
+        #print("unit",self._unit)
+        #print(reduce[2])
+        reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
+        return tuple(reduce)
+
+    def __setstate__(self, state):
+        #print("in setstate %s" % str(state))
+        super(ArrayWithUnit, self).__setstate__(state["np_state"])
+        self._unit = state["_unit"]
 
     def __repr__(self):
         return "{} {}".format(np.array(self).__repr__(), self.unit)

@@ -2,13 +2,14 @@
 from __future__ import division
 
 import numpy as np
+import tempfile
+import cPickle as pickle
+import collections
 
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.units import (Energy, Time, Length, unitized, Mass,
                                  EnergyArray, TimeArray, LengthArray, Unit,
                                  FloatWithUnit, ArrayWithUnit, UnitError)
-
-import collections
 
 
 class UnitTest(PymatgenTest):
@@ -201,6 +202,36 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         v = ArrayWithUnit([1,2,3], "bohr^3").to("ang^3")
         self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] '
                                   'ang^3')
+
+
+class DataPersistenceTest(PymatgenTest):
+    def test_pickle(self):
+        """Test whether FloatWithUnit and ArrayWithUnit support pickle"""
+
+        for cls in [FloatWithUnit, ArrayWithUnit]:
+            a = cls(1, "eV")
+            b = cls(1, "N bohr")
+            obj = [a, b]
+
+            protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
+
+            for protocol in protocols:
+
+                mode = "w" if protocol == 0 else "wb"
+                fd, tmpfile = tempfile.mkstemp(text="b" in mode)
+
+                with open(tmpfile, mode) as fh:
+                    pickle.dump(obj, fh, protocol=protocol)
+
+                with open(tmpfile, "r") as fh:
+                    new_obj = pickle.load(fh)
+                    newa, newb = new_obj
+
+                self.assert_equal(newa, a)
+                self.assert_equal(newb, b)
+
+                self.assertTrue(str(a) == str(newa))
+                self.assertTrue(str(b) == str(newb))
 
 
 if __name__ == '__main__':

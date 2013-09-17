@@ -196,6 +196,16 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
         out.write("\n")
 
 
+def is_string(s):
+    """True if s behaves like a string (duck typing test)."""
+    try:
+        dummy = s + " "
+        return True
+
+    except TypeError:
+        return False
+
+
 def list_strings(arg):
     """
     Always return a list of strings, given a string or list of strings as
@@ -212,9 +222,7 @@ def list_strings(arg):
     >>> list_strings(['A','list','of','strings'])
     ['A', 'list', 'of', 'strings']
     """
-
-    #if isinstance(arg, string):  version for Py3K
-    if isinstance(arg, basestring):
+    if is_string(arg):
         return [arg]
     else:
         return arg
@@ -266,7 +274,7 @@ class StringColorizer(object):
 
     def __call__(self, string, colour):
         if self.has_colours:
-            code = self.colours.get(colour, "")
+            code = self.colours.get(colour.lower(), "")
             if code:
                 return code + string + "\x1b[00m"
             else:
