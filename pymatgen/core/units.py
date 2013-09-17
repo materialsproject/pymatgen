@@ -390,13 +390,11 @@ class FloatWithUnit(float):
                              unit=self._unit)
 
     def __getnewargs__(self):
-        """function used by pickle to recreate object."""
-        #print(self)
-        #print(dir(self))
-        if hasattr(self, "_unit_type"):
-            args = float(self), self._unit, self._unit_type
-        else:
-            args = float(self), self._unit, None
+        """Function used by pickle to recreate object."""
+        #if hasattr(self, "_unit_type"):
+        args = float(self), self._unit, self._unit_type
+        #else:
+        #    args = float(self), self._unit, None
 
         #print("in getnewargs %s" % str(args))
         return args
@@ -502,8 +500,6 @@ class ArrayWithUnit(np.ndarray):
     def __reduce__(self):
         #print("in reduce")
         reduce = list(super(ArrayWithUnit, self).__reduce__())
-        #print(reduce, len(reduce))
-        #reduce[2] = tuple(list(reduce[2]) + [self._unit])
         #print("unit",self._unit)
         #print(reduce[2])
         reduce[2] = {"np_state": reduce[2], "_unit": self._unit}
