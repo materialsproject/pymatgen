@@ -72,6 +72,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.3
+------
+1. Big fix release for json dumping for unitized floats.
+
 v2.8.2
 ------
 1. Bug fix release to improve CIF parsing for more non-standard CIF files.
