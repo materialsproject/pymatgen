@@ -7,15 +7,16 @@ import os
 import shutil
 import collections
 import abc
+import warnings
 import numpy as np
 
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.util.string_utils import stream_has_colours
+from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
 from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
-from pymatgen.io.abinitio.launcher import TaskLauncher
 from pymatgen.io.abinitio.events import EventParser
+from pymatgen.io.abinitio.qadapters import qadapter_class
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -27,6 +28,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "task_factory",
+    "TaskManager",
 ]
 
 
@@ -52,7 +54,7 @@ class FakeProcess(object):
         return None
 
 
-def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
+def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
     """Factory function for Task instances."""
     # TODO
     # Instanciate subclasses depending on the runlevel.
@@ -66,7 +68,7 @@ def task_factory(strategy, workdir, runmode, task_id=1, links=None, **kwargs):
        "bse": AbinitTask,
     }
 
-    return classes[strategy.runlevel](strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
+    return classes[strategy.runlevel](strategy, workdir, manager, task_id=task_id, links=links, **kwargs)
 
 
 class TaskError(Exception):
@@ -86,14 +88,16 @@ class Task(object):
     S_ERROR = 16   # Task raised some kind of Error (either the process or ABINIT).
     S_OK = 32      # Task completed successfully.
 
-    STATUS2STR = {
-        S_READY: "ready",
-        S_SUB: "submitted",
-        S_RUN: "running",
-        S_DONE: "done",
-        S_ERROR: "error",
-        S_OK: "completed",
-    }
+    STATUS2STR = collections.OrderedDict([
+        (S_READY, "Ready"),
+        (S_SUB, "Submitted"),
+        (S_RUN, "Running"),
+        (S_DONE, "Done"),
+        (S_ERROR, "Error"),
+        (S_OK, "Completed"),
+    ])
+
+    POSSIBLE_STATUS = STATUS2STR.keys()
 
     def __init__(self):
         # Set the initial status.
@@ -183,9 +187,21 @@ class Task(object):
         self._id = id
 
     @property
+    def queue_id(self):
+        """Queue identifier returned by the Queue manager. None if not set"""
+        try:
+            return self._queue_id
+        except AttributeError:
+            return None
+
+    def set_queue_id(self, queue_id):
+        """Set the task identifier."""
+        self._queue_id = queue_id
+
+    @property
     def tot_ncpus(self):
         """Total number of CPUs used to run the task."""
-        return self.launcher.tot_ncpus
+        return self.manager.tot_ncpus
 
     @property
     def status(self):
@@ -199,7 +215,7 @@ class Task(object):
 
     def set_status(self, status):
         """Set the status of the task."""
-        if status not in self.STATUS2STR:
+        if status not in self.POSSIBLE_STATUS:
             raise RuntimeError("Unknown status: %s" % status)
 
         self._status = status
@@ -218,7 +234,11 @@ class Task(object):
 
         else:
             # Check if the run completed successfully.
-            report = EventParser().parse(self.output_file.path)
+            try:
+                report = EventParser().parse(self.output_file.path)
+            except Exception as exc:
+                self.set_status(self.S_ERROR)
+                return 
                                                                                                      
             if report.run_completed:
                 self.set_status(self.S_OK)
@@ -281,7 +301,6 @@ class Task(object):
     @property
     def can_run(self):
         """The task can run if its status is S_READY and all the other links (if any) are done!"""
-        #return (self.status == Task.S_READY) and all([link_stat==Task.S_DONE for link_stat in task.links_status])
         return (self.status == Task.S_READY) and all([stat >= Task.S_DONE for stat in self.links_status])
 
     def connect(self):
@@ -301,9 +320,16 @@ class Task(object):
                 if not os.path.exists(path):
                     raise self.Error("%s is needed by this task but it does not exist" % path)
 
-                # Link path to dst
+                # Link path to dst if dst link does not exist.
+                # else check that it points to the expected file.
                 print("Linking ", path," --> ",dst)
-                os.symlink(path, dst)
+                if not os.path.exists(dst):
+                    os.symlink(path, dst)
+                else:
+                    try:
+                        assert os.path.realpath(dst) == path
+                    except AssertionError as exc:
+                        raise self.Error(str(exc))
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -317,8 +343,19 @@ class Task(object):
         self.connect()
         self.setup(*args, **kwargs)
 
-    def _parse_events(self):
-        """Analyzes the main output for possible errors or warnings."""
+    def get_event_report(self):
+        return self.parse_events()
+
+    def parse_events(self):
+        """
+        Analyzes the main output for possible errors or warnings.
+
+        Returns:
+            `EventReport` instance or None if the main output file does not exist.
+        """
+        if not os.path.exists(self.output_file.path):
+            return None
+
         parser = EventParser()
         try:
             return parser.parse(self.output_file.path)
@@ -333,13 +370,13 @@ class Task(object):
         """List of errors or warnings reported by ABINIT."""
         if self.status is None or self.status < self.S_DONE:
             raise self.Error(
-                "Task %s is not completed.\nYou cannot access its events now, use _parse_events" % repr(self))
+                "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
 
         try:
             return self._events
 
         except AttributeError:
-            self._events = self._parse_events()
+            self._events = self.parse_events()
             return self._events
 
     @property
@@ -400,18 +437,20 @@ class AbinitTask(Task):
 
     # Basenames for Abinit input and output files.
     Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
-    basename = Basename("run.abi", "run.abo", "run.files", "run.log", "stderr", "job.sh", "__abilock__")
+    basename = Basename("run.abi", "run.abo", "run.files", "run.log", "run.err", "job.sh", "__abilock__")
     del Basename
 
-    def __init__(self, strategy, workdir, runmode, task_id=1, links=None, **kwargs):
+    def __init__(self, strategy, workdir, manager, task_id=1, links=None, **kwargs):
         """
         Args:
             strategy: 
                 `Strategy` instance describing the calculation.
             workdir:
                 Path to the working directory.
-            runmode:
-                `RunMode` instance or string "sequential"
+            manager:
+                `TaskManager` object.
+            policy:
+                `TaskPolicy` object.
             task_id:
                 Task identifier (must be unique if self belongs to a `Workflow`).
             links:
@@ -422,11 +461,11 @@ class AbinitTask(Task):
         """
         super(AbinitTask, self).__init__()
 
-        self.strategy = strategy
-
         self.workdir = os.path.abspath(workdir)
 
-        self.runmode = RunMode.asrunmode(runmode).copy()
+        self.strategy = strategy
+
+        self.manager = manager
 
         self.set_id(task_id)
 
@@ -449,9 +488,6 @@ class AbinitTask(Task):
         self.log_file = File(os.path.join(self.workdir, AbinitTask.basename.log_file))
         self.stderr_file = File(os.path.join(self.workdir, AbinitTask.basename.stderr_file))
 
-        # Build the launcher and store it.
-        self.set_launcher(self.runmode.make_launcher(self))
-
     def __repr__(self):
         return "<%s at %s, workdir = %s>" % (
             self.__class__.__name__, id(self), os.path.basename(self.workdir))
@@ -460,7 +496,7 @@ class AbinitTask(Task):
         return self.__repr__()
 
     @classmethod
-    def from_input(cls, abinit_input, workdir, runmode, task_id=1, links=None, **kwargs):
+    def from_input(cls, abinit_input, workdir, manager, task_id=1, links=None, **kwargs):
         """
         Create an instance of `AbinitTask` from an ABINIT input.
 
@@ -469,8 +505,10 @@ class AbinitTask(Task):
                 `AbinitInput` object.
             workdir:
                 Path to the working directory.
-            runmode:
-                `RunMode` instance or string "sequential"
+            manager:
+                `TaskManager` object.
+            policy:
+                `TaskPolicy` object.
             task_id:
                 Task identifier (must be unique if self belongs to a `Workflow`).
             links:
@@ -482,7 +520,8 @@ class AbinitTask(Task):
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
         from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
-        return cls(strategy, workdir, runmode, task_id=task_id, links=links, **kwargs)
+
+        return cls(strategy, workdir, manager, task_id=task_id, links=links, **kwargs)
 
     @property
     def executable(self):
@@ -496,19 +535,16 @@ class AbinitTask(Task):
         return self.workdir
 
     @property
+    def short_name(self):
+        return os.path.basename(self.workdir)
+
+    @property
     def process(self):
         try:
             return self._process
         except AttributeError:
             # Attach a fake process so that we can poll it.
             return FakeProcess()
-
-    @property
-    def launcher(self):
-        return self._launcher
-
-    def set_launcher(self, launcher):
-        self._launcher = launcher
 
     @property
     def jobfile_path(self):
@@ -670,16 +706,14 @@ class AbinitTask(Task):
         if not os.path.exists(self.tmpdata_dir):
             os.makedirs(self.tmpdata_dir)
 
-        # Write input file and files file.
-        if not self.input_file.exists:
-            self.input_file.write(self.make_input())
+        # Write files file and input file.
+        self.files_file.write(self.filesfile_string)
 
-        if not self.files_file.exists:
-            self.files_file.write(self.filesfile_string)
+        #if not self.input_file.exists:
+        self.input_file.write(self.make_input())
 
         #if not os.path.exists(self.jobfile_path):
-        #    with open(self.jobfile_path, "w") as f:
-        #            f.write(str(self.jobfile))
+        self.manager.write_jobfile(self)
 
     def rmtree(self, exclude_wildcard=""):
         """
@@ -715,8 +749,7 @@ class AbinitTask(Task):
 
     def remove_files(self, *filenames):
         """Remove all the files listed in filenames."""
-        if isinstance(filenames, str):
-            filenames = [filenames]
+        filenames = list_strings(filenames)
 
         for dirpath, dirnames, fnames in os.walk(self.workdir):
             for fname in fnames:
@@ -741,15 +774,19 @@ class AbinitTask(Task):
 
             - build dirs and files
             - call the _setup method
-            - execute the job file via the shell or other means.
-            - return Results object
+            - execute the job file by executing/submitting the job script.
         """
         self.build(*args, **kwargs)
 
         self._setup(*args, **kwargs)
 
+        # Automatic parallelization
+        #retcode = self.manager.autoparal(self)
+        #if retcode != 0:
+        #    warnings.warn("autoparal returned %s" % retcode)
+
         # Start the calculation in a subprocess and return.
-        self._process = self.launcher.launch(self)
+        self._process = self.manager.launch(self)
 
     def start_and_wait(self, *args, **kwargs):
         """Helper method to start the task and wait."""
@@ -794,7 +831,7 @@ class TaskResults(dict, MSONable):
         """
         # TODO Better treatment of events.
         try:
-            assert (self["task_returncode"] == 0 and self["task_status"] == self.S_DONE)
+            assert (self["task_returncode"] == 0 and self["task_status"] == self.S_OK)
         except AssertionError as exc:
             self.push_exceptions(exc)
 
@@ -819,26 +856,33 @@ class TaskResults(dict, MSONable):
         return cls.from_dict(json_load(filename))    
 
 
-class RunHintsError(Exception):
-    """Base error class for `RunHints`."""
+class ParalHintsError(Exception):
+    """Base error class for `ParalHints`."""
 
 
-class RunHints(collections.OrderedDict):
+class ParalConf(AttrDict):
     """
-    Dictionary with the hints for the parallel execution reported by ABINIT.
+    This object store the parameters associated to one 
+    of the possible parallel configurations reported by ABINIT.
+    Essentialy it is a dictionary whose keys can be accessed as 
+    attributes. It also provides default values for selected keys
+    that might not be present in the ABINIT dictionary.
 
     Example:
         <RUN_HINTS, max_ncpus = "108", autoparal="3">
-            "1" : {"tot_ncpus": 2,         # Total number of CPUs
-                   "mpi_ncpus": 2,         # Number of MPI processes.
-                   "omp_ncpus": 1,         # Number of OMP threads (0 if not used)
-                   "memory_gb": 10,        # Estimated memory requirement in Gigabytes (total or per proc?)
-                   "weight"   : 0.4,       # 1.0 corresponds to an "expected" optimal efficiency.
-                   "abivars": {            # Dictionary with the variables that should be added to the input.
+            "1": {
+                  "tot_ncpus": 2,     # Total number of CPUs
+                  "mpi_ncpus": 2,     # Number of MPI processes.
+                  "omp_ncpus": 1,     # Number of OMP threads (1 if not present)
+                  "mem_per_cpus: 10, # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
+                  "weight"   : 0.4,   # 1.0 corresponds to an "expected" optimal efficiency.
+                  "abivars": {        # Dictionary with the ABINIT variables that should be added to the input.
                         "varname1": varvalue1,
                         "varname2": varvalue2,
                         }
-                }
+                 }
+            "2": { ...
+                 }
         </RUN_HINTS>
 
     For paral_kgb we have:
@@ -848,10 +892,54 @@ class RunHints(collections.OrderedDict):
         96       1         1        24         4         1        1.50
         84       1         1        12         7         2        0.25
     """
-    Error = RunHintsError
+    _DEFAULTS = {
+        "omp_ncpus": 1,     
+        "mem_per_cpu": 0.0, 
+        "abivars": {}       
+    }
 
     def __init__(self, *args, **kwargs):
-        super(RunHints, self).__init__(*args, **kwargs)
+        super(ParalConf, self).__init__(*args, **kwargs)
+        
+        # Add default values if not already in self.
+        for k, v in self._DEFAULTS.items():
+            if k not in self:
+                self[k] = v
+
+    #@property
+    #def speedup(self)
+    #    return self.weight * self.tot_ncpus
+
+
+class ParalHintsParser(object):
+
+    Error = ParalHintsError
+
+    def parse(self, filename):
+        return ParalHints.from_file(filename)
+
+
+class ParalHints(collections.Iterable):
+    """
+    Iterable with the hints for the parallel execution reported by ABINIT.
+    """
+    Error = ParalHintsError
+
+    def __init__(self, header, confs):
+        self.header = header
+        self._confs = [ParalConf(**d) for d in confs]
+
+    def __iter__(self):
+        return self._confs.__iter__()
+
+    def __len__(self):
+        return self._confs.__len__()
+
+    def __str__(self):
+        return "\n".join(str(conf) for conf in self)
+
+    def copy(self):
+        return self.__class__(header=self.header.copy(), confs=self._confs[:])
 
     @classmethod
     def from_file(cls, filename):
@@ -859,152 +947,137 @@ class RunHints(collections.OrderedDict):
         Read the <RUN_HINTS> section from file filename
         Assumes the file contains only one section.
         """
-        with open(filaname, "r") as fh:
+        START_TAG = "<RUN_HINTS>"
+        END_TAG = "</RUN_HINTS>"
+
+        start, end = None, None
+        with open(filename, "r") as fh:
             lines = fh.readlines()
 
-        try:
-            start = lines.index("<RUN_HINTS>\n")
-            stop  = lines.index("</RUN_HINTS>\n")
+        for i, line in enumerate(lines):
+            if START_TAG in line:
+                start = i
+            elif END_TAG in line:
+                end = i
+                break
 
-        except ValueError:
-            raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
+        # TODO Handle the case in which autoparal is not supported.
+        if start is None or end is None:
+            raise cls.Error("%s does not contain any valid RUN_HINTS section" % filename)
 
-        runhints = json_loads("".join(l for l in lines[start+1:stop]))
+        import yaml
+        s = "".join(l for l in lines[start+1:end])
+        #print(s)
 
+        d = yaml.load(s)
+        return cls(header=d["header"], confs=d["configurations"])
+
+    #def apply_filter(self, filter):
+    #    new_confs = []
+    #    for conf in self:
+    #        attr_value = getattr(conf, attrname)
+    #        if func(attr_value:):
+    #            new_confs.append(conf)
+    #    self._confs = new_confs
+
+    #def select(self, command)
+    #    new_confs = []
+    #    for conf in self:
+    #       if command(conf):
+    #            new_confs.append(conf)
+    #    return self.__class__(self.header, new_confs)
+    #    self._confs = new_confs
+
+    #def sort(self, cmp=None, key=None, reverse=False): 
+    #    "stable sort *IN PLACE*; cmp(x, y) -> -1, 0, 1"
+    #    self._confs.sort(cmp=None, key=None, reverse=False)
+    #def sort_by_mem(self):
+    #def sort_by_speedup(self):
+
+    def sort_by_weight(self):
         # Sort the dict so that configuration with minimum (weight-1.0) appears in the first positions
-        return cls(sorted(runhints, key=lambda t : abs(t[1]["weight"] - 1.0), reverse=False))
+        self._confs = sorted(self._confs, key=lambda c: abs(c.weight - 1.0), reverse=False)
 
-    def select(self, policy):
+    def select_optimal_conf(self, policy):
         """Find the optimal configuration according on policy."""
         raise NotImplementedError("")
-        #okey = ??
-        #self["mpi_ncpus"] = min(mpi_ncpus, self["max_ncpus"])
-        #self["omp_ncpus"] = min(omp_ncpus, self["max_ncpus"])
 
-        # Copy the dictionary and return AttrDict instance.
-        return AttrDict(self[okey].copy())
+        # Make a copy since we are gonna change the object in place.
+        hints = self.copy()
 
+        #  First select the configurations satisfying the 
+        #  constraints specified by the user (if any)
+        #for constraint in self.policy.constraints:
+        #    hints.apply_filter(constraint)
 
-class RunMode(dict, MSONable):
-    """
-    This object contains the user-specified settings controlling the execution 
-    of the run (submission, coarse- and fine-grained parallelism ...)
-    It acts as a factory for `Launcher` objects.
+        # If no configuration fullfills the requirements, 
+        # we return the one with the highest speedup.
+        if not hints:
+            self.copy().sort_by_weight()
+            return hints[0].copy()
 
-    A `TaskManager` is responsible for the generation and the submission 
-    script, as well as of the specification of the parameters passed to the Resource Manager
-    (e.g. Slurm, PBS ...) and/or the dynamic specification of the ABINIT variables governing the 
-    parallel execution. A `TaskManager` delegates the generation of the submission
-    script and the submission of the task to the `QueueAdapter`. 
-    A `TaskManager` has a `TaskPolicy` object that governs the specification of the 
-    parameters for the parallel executions.
-    """
-    # Default values (correspond to the sequential mode).
-    _DEFAULTS = {
-        "launcher_type": "shell",    # ["shell", "slurm", "pbs",]
-        "use_fw"       : False,      # True if we are using fireworks.
-        "policy"       : "default",  # Policy used to select the number of MPI processes when there are ambiguities.
-        "max_ncpus"    : np.inf,     # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
-    }
+        # Find the optimal configuration according to policy.mode.
+        mode = policy.mode
 
-    def __init__(self, *args, **kwargs):
-        super(RunMode, self).__init__(*args, **kwargs)
+        #if mode in ["default", "aggressive"]:
+        #    hints.sort_by_weight()
+        #elif mode == "conservative":
+        #    hints.sort_by_tot_num_cpus()
+        #else:
+        #    raise ValueError("Wrong value for mode: %s" % str(mode))
 
-    def copy(self):
-        return RunMode(**super(RunMode, self).copy())
-    
-    @classmethod
-    def asrunmode(cls, obj):
-        """
-        Returns a `RunMode` instance from obj. Accepts:
-
-            - `RunMode` instances
-            - A string with "sequential" to indicate that Abinit will be executed in sequential mode.
-        """
-        if isinstance(obj, cls):
-            return obj
-
-        if isinstance(obj, str) and obj == "sequential":
-            return cls.sequential()
-
-        raise ValueError("Don't know how to convert obj %s into a %s instance" % (obj, obj.__class__.__name__))
-
-    @classmethod
-    def sequential(cls, launcher_type=None):
-        d = cls._DEFAULTS.copy()
-        if launcher_type is not None:
-            d["launcher_type"] = launcher_type
-
-        return cls(d)
-
-    @classmethod
-    def mpi_parallel(cls, mpi_ncpus, launcher_type=None):
-        d = cls._DEFAULTS.copy()
-        if launcher_type is not None:
-            d["launcher_type"] = launcher_type
-        new = cls(d)
-        new.set_mpi_ncpus(mpi_ncpus)
-        return new
-
-    def set_mpi_ncpus(self, mpi_ncpus):
-        self["mpi_ncpus"] = min(mpi_ncpus, self["max_ncpus"])
-
-    #def set_omp_ncpus(self, omp_ncpus):
-    #     self["omp_ncpus"] = min(omp_ncpus, self["max_ncpus"])
-
-    @property
-    def to_dict(self):
-        d = self.copy()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-                                                 
-    @classmethod
-    def from_dict(cls, d):
-        return cls({k: v for (k, v) in d.items() if k not in ("@module", "@class")})
-
-    def make_launcher(self, task):
-        """Factory function returning a launcher instance."""
-
-        #if self.use_fw:
-        #   raise NotImplementedError("Firework not yet supported")
-                                                       
-        # Find the subclass to instanciate.
-        cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
-
-        return cls(task.jobfile_path, 
-                   stdin  = task.files_file.path, 
-                   stdout = task.log_file.path,
-                   stderr = task.stderr_file.path,
-                   **task.runmode
-                  )
+        # Return a copy of the configuration.
+        return hints[0].copy()
 
 
-class TaskPolicy(dict):
+class TaskPolicy(AttrDict):
     """
     This object stores the parameters used by the `TaskManager` to 
-    create the submission script and/or the modification of the 
-    ABINIT variables governing the parallel execution.
+    create the submission script and/or to modify the ABINIT variables 
+    governing the parallel execution. A `TaskPolicy` object contains 
+    a set of variables that specify the launcher, and options
+    and constraints used to select the optimal configuration for the parallel run 
     """
-
     # Default values.
     _DEFAULTS = dict(
-        use_fw=False,      # True if we are using fireworks.
-        max_ncpus=np.inf,  # Max number of CPUs that can be used (DEFAULT: no limit is enforced)
+        use_fw=False,       # True if we are using fireworks.
+        autoparal=0,     # ABINIT autoparal option. None to disable this feature.
+        mode="default",     # ["default", "aggressive", "conservative"]
+        max_ncpus=2,
+        #max_mpi_ncpus=-1,  # Max number of CPUs to use for MPI (DEFAULT: no limit is enforced, users should specify this value)
+        #automated=False,
+        # Constraints
     )
+
+    #def __init__(self, autoparal=None, mode="normal", use_fw=False, automated=False, constraints=None)
+    #    """
+    #    Args:
+    #        autoparal: 
+    #            Value of autoparal input variable. None to disable the autoparal feature.
+    #        mode:
+    #        use_fw: 
+    #        automated:
+    #        constraints: 
+    #            List of constraints (Mongodb syntax)
+    #    """
+    #    self.autoparal = autoparal
+    #    self.mode = mode 
+    #    self.use_fw = use_fw 
+    #    self.automated = automated
+    #    self.constraints = [] if constraints is None else constraints
 
     def __init__(self, *args, **kwargs):
         super(TaskPolicy, self).__init__(*args, **kwargs)
 
         err_msg = ""
-        for k, v in self:
+        for k, v in self.items():
             if k not in self._DEFAULTS:
                 err_msg += "Unknow key %s\n" % k
 
         if err_msg:
             raise ValueError(err_msg)
 
-        for k, v in self._DEFAULTS:
+        for k, v in self._DEFAULTS.items():
             if k not in self:
                 self[k] = v
 
@@ -1017,90 +1090,179 @@ class TaskManager(object):
     """
     A `TaskManager` is responsible for the generation and the submission 
     script, as well as of the specification of the parameters passed to the Resource Manager
-    (e.g. Slurm, PBS ...) and/or the dynamic specification of the ABINIT variables governing the 
+    (e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the 
     parallel execution. A `TaskManager` delegates the generation of the submission
     script and the submission of the task to the `QueueAdapter`. 
     A `TaskManager` has a `TaskPolicy` object that governs the specification of the 
     parameters for the parallel executions.
     """
+    def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
+                 pre_run=None, post_run=None, mpi_runner=None, policy=None):
 
-    def __init__(self, qadapter_class, policy=None):
-        self.qadapter = qadapter_class()
+        qad_class = qadapter_class(qtype)
+
+        self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
+                                  pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
+
         self.policy = policy if policy is not None else TaskPolicy.default_policy()
 
-    #@classmethod 
-    #def simple_manager(cls, mpi_ncpus=1):
-    #    """
-    #    Simplest task manager that submits jobs with a simple shell script.
-    #    Assume the shell environment is already properly initialized.
-    #    """
-    #    return cls(qadapter_class=ShellAdapter, policy=None)
+    def __str__(self):
+        """String representation."""
+        lines = []
+        app = lines.append
+        app("tot_ncpus %d" % self.tot_ncpus)
+        app("MPI_RUNNER %s" % str(self.qadapter.mpi_runner))
+        app("policy %s" % self.policy)
 
-    def optimize_params(self, task):
+        return "\n".join(lines)
+
+    @classmethod 
+    def sequential(cls):
+        """
+        Simplest task manager that submits jobs with a simple shell script.
+        Assume the shell environment is already properly initialized.
+        """
+        return cls(qtype="shell")
+
+    @classmethod 
+    def simple_mpi(cls, mpi_runner="mpirun", mpi_ncpus=1):
+        """
+        Simplest task manager that submits jobs with a simple shell script and mpirun.
+        Assume the shell environment is already properly initialized.
+        """
+        return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner)
+
+    def to_shell_manager(self, mpi_ncpus=1):
+        """
+        Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
+        with a `ShellAdapter` with mpi_ncpus.
+        """
+        cls = self.__class__
+        qad = self.qadapter
+
+        new = cls("shell", qparams=qad.qparams, setup=qad.setup, modules=qad.modules, 
+                  shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
+                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=self.policy)
+        new.qadapter.set_mpi_ncpus(mpi_ncpus)
+    
+        return new
+
+    #def copy(self):
+    #    return self.__class__(self.qadapter.copy(), self.policy.copy())
+
+    @property
+    def tot_ncpus(self):
+        """Total number of CPUs used to run the task."""
+        return self.qadapter.tot_ncpus
+
+    def autoparal(self, task):
         """
         Find optimal parameters for the execution of the task 
         using the options specified in self.policy.
      
         This method can change the ABINIT input variables and/or the 
-        parameters passed to the Resource Manager e.g. the number of CPUs.
+        parameters passed to the `TaskManager` e.g. the number of CPUs.
+
+        Returns:
+            return code of the subprocess.
         """
-        raise NotImplementedError("")
+        policy = self.policy
+        if policy.autoparal is None:
+            return 0
 
-        # 1) Run ABINIT in sequential to get the possible configurations.
-        retcode = self._dummy_run(task)
+        assert policy.autoparal == 0
+        # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
 
-        if retcode != 0:
-            return 
+        # Set the variables for automatic parallelization
+        autoparal_vars = dict(
+            autoparal=policy.autoparal,
+            #max_ncpus=policy.max_ncpus,
+        )
 
-        # 2) Parse the configurations
+        task.strategy.add_extra_abivars(autoparal_vars)
+        task.build()
+
+        # Build a simple manager that runs jobs in a shell subprocess.
+        # Should remove the Queue header here!
+        seq_manager = self.to_shell_manager(mpi_ncpus=1)
+        print(seq_manager)
+
+        process = seq_manager.launch(task)
+        process.wait()
+        print(process)
+
+        # Reset the status, remove garbage files ...
+        task.set_status(task.S_READY)
+
+        # Remove the variables added for the automatic parallelization
+        task.strategy.remove_extra_abivars(autoparal_vars.keys())
+
+        if process.returncode != 0:
+            return process.returncode
+                                                                  
+        # 2) Parse the autoparal configurations
+        parser = ParalHintsParser()
+
         try:
-            hints = RunHints.from_file(task.log_file.path)
+            confs = parser.parse(task.log_file.path)
 
-        except RunHints.Error:
-            raise
+        except parser.Error:
+            return -1
 
         # 3) Select the optimal configuration according to policy
-        optimal = hints.select(self.policy)
-
+        optimal = confs.select_optimal_conf(policy)
+                                                                  
         # 4) Change the input file and/or the submission script
-        task.strategy.add_abivars(optimal.abivars)
+        task.strategy.add_extra_abivars(optimal.abivars)
+                                                                  
+        self.qadapter.set_mpi_ncpus(optimal.mpi_ncpus)
+        #self.qadapter.set_omp_nprocs(optimal.omp_ncpus)
+        #self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
 
-        #self.qadapter.set_mpi_nprocs(optimal.mpi_nprocs)
-        #self.qadapter.set_omp_nprocs(optimal.omp_nprocs)
+        return process.returncode
 
-    def _dummy_run(self, task):
-        retcode = 0
-        return retcode
+    def write_jobfile(self, task):
+        """
+        Write the submission script.
 
-    def submit_task(self, task):
-        """Submit the task."""
+        Args:
+            task:
+                `AbinitTask` object.
 
-        #if self.policy.use_fw:
-        #   raise NotImplementedError("Firework not yet supported")
-                                                       
-        # Find the subclass to instanciate.
-        #cls = TaskLauncher.from_launcher_type(task.runmode["launcher_type"])
-        #return cls(task.jobfile_path, 
-        #           stdin  = task.files_file.path, 
-        #           stdout = task.log_file.path,
-        #           stderr = task.stderr_file.path,
-        #           **task.runmode
-        #          )
+        Returns:
+            The path of the script file.
+        """
+        script = self.qadapter.get_script_str(
+            job_name=task.name, 
+            launch_dir=task.workdir, 
+            executable=task.executable,
+            stdin=task.files_file.path, 
+            stdout=task.log_file.path,
+            stderr=task.stderr_file.path,
+            # TODO
+            #qerr_file=task.qerr_file.path
+            #qout_file==task.qerr_file.path
+        )
 
-        # NEW VERSION based of queue_adapter.
-        #qad = self.qadapter
-        #script = qad.get_script_str(
-        #    job_name=task.name, 
-        #    launch_dir=task.workdir, 
-        #    executable=task.executable,
-        #    stdin =task.files_file.path, 
-        #    stdout=task.log_file.path,
-        #    stderr=task.stderr_file.path,
-        #)
+        # Write the script.
+        script_file = task.jobfile_path
+        with open(script_file, "w") as fh:
+            fh.write(script)
 
-        #script_file = task.job_file.path
-        #with open(script_file, "w") as fh:
-        #    fh.write(script)
+        return script_file
 
-        #process = qad.submit_to_queue(script_file)
-        #return process
+    def launch(self, task):
+        """
+        Submit the task and return process object.
+        """
+        script_file = self.write_jobfile(task)
+
+        # Submit the script.
+        task.set_status(task.S_SUB)
+
+        process, queue_id = self.qadapter.submit_to_queue(script_file)
+
+        task.set_status(task.S_RUN)
+        task.set_queue_id(queue_id)
+
+        return process

@@ -196,6 +196,16 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
         out.write("\n")
 
 
+def is_string(s):
+    """True if s behaves like a string (duck typing test)."""
+    try:
+        dummy = s + " "
+        return True
+
+    except TypeError:
+        return False
+
+
 def list_strings(arg):
     """
     Always return a list of strings, given a string or list of strings as
@@ -212,15 +222,26 @@ def list_strings(arg):
     >>> list_strings(['A','list','of','strings'])
     ['A', 'list', 'of', 'strings']
     """
-
-    #if isinstance(arg, string):  version for Py3K
-    if isinstance(arg, basestring):
+    if is_string(arg):
         return [arg]
     else:
         return arg
 
 
-###############################################################################
+def remove_non_ascii(s):
+    """
+    Remove non-ascii characters in a file.
+
+    Args:
+        s:
+            Input string
+
+    Returns:
+        String with all non-ascii characters removed.
+    """
+    return "".join(i for i in s if ord(i) < 128)
+
+
 def stream_has_colours(stream):
     """
     True if stream supports colours. Python cookbook, #475186
@@ -253,7 +274,7 @@ class StringColorizer(object):
 
     def __call__(self, string, colour):
         if self.has_colours:
-            code = self.colours.get(colour, "")
+            code = self.colours.get(colour.lower(), "")
             if code:
                 return code + string + "\x1b[00m"
             else:

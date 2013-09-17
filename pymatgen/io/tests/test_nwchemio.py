@@ -13,7 +13,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "6/6/13"
 
-
 import unittest
 import os
 import json
@@ -39,6 +38,10 @@ class NwTaskTest(unittest.TestCase):
     def setUp(self):
         self.task = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="dft",
                            theory_directives={"xc": "b3lyp"})
+        self.task_cosmo = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="dft",
+                                 theory_directives={"xc": "b3lyp"},
+                                 alternate_directives={'cosmo': "cosmo"})
+        self.task_esp = NwTask(0, 1, basis_set={"H": "6-31g"}, theory="esp")
 
     def test_multi_bset(self):
         t = NwTask.from_molecule(
@@ -96,9 +99,42 @@ end
 task dft energy"""
         self.assertEqual(str(task), ans)
 
+    def test_dft_cosmo_task(self):
+        task = NwTask.dft_task(
+            mol, charge=mol.charge, operation="energy",
+            xc="b3lyp", basis_set="6-311++G**",
+            alternate_directives={'cosmo': {"dielec": 78.0}})
+        ans = """title "H4C1 dft energy"
+charge 0
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+cosmo
+ dielec 78.0
+end
+task dft energy"""
+        self.assertEqual(str(task), ans)
+
+    def test_esp_task(self):
+        task = NwTask.esp_task(mol, charge=mol.charge, operation="",
+                               basis_set="6-311++G**")
+        ans = """title "H4C1 esp "
+charge 0
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+
+task esp """
+        self.assertEqual(str(task), ans)
+
 
 class NwInputTest(unittest.TestCase):
-
     def setUp(self):
         tasks = [
             NwTask.dft_task(mol, operation="optimize", xc="b3lyp",
@@ -112,6 +148,7 @@ class NwInputTest(unittest.TestCase):
             NwTask.dft_task(mol, charge=mol.charge - 1, operation="energy",
                             xc="b3lyp", basis_set="6-311++G**")
         ]
+
         self.nwi = NwInput(mol, tasks,
                            geometry_options=["units", "angstroms", "noautoz"])
 
@@ -253,14 +290,32 @@ task dft energy
 
 
 class NwOutputTest(unittest.TestCase):
-
     def test_read(self):
         nwo = NwOutput(os.path.join(test_dir, "CH4.nwout"))
+        nwo_cosmo = NwOutput(os.path.join(test_dir, "N2O4.nwout"))
 
         self.assertEqual(0, nwo.data[0]["charge"])
         self.assertEqual(-1, nwo.data[-1]["charge"])
         self.assertAlmostEqual(-1102.622361621359, nwo.data[0]["energies"][-1])
         self.assertAlmostEqual(-1102.9985415777337, nwo.data[2]["energies"][-1])
+        self.assertAlmostEqual(-11156.353144819144,
+                               nwo_cosmo.data[5]["energies"][0])
+        self.assertAlmostEqual(-11153.37324779646,
+                               nwo_cosmo.data[5]["energies"][1])
+        self.assertAlmostEqual(-11156.353144818084,
+                               nwo_cosmo.data[5]["energies"][2])
+        self.assertAlmostEqual(-11168.818445621277,
+                               nwo_cosmo.data[6]["energies"][0])
+        self.assertAlmostEqual(-11166.361953878302,
+                               nwo_cosmo.data[6]["energies"][1])
+        self.assertAlmostEqual(-11168.818445621277,
+                               nwo_cosmo.data[6]["energies"][2])
+        self.assertAlmostEqual(-11165.227470577684,
+                               nwo_cosmo.data[7]["energies"][0])
+        self.assertAlmostEqual(-11165.02495508804,
+                               nwo_cosmo.data[7]["energies"][1])
+        self.assertAlmostEqual(-11165.227470576949,
+                               nwo_cosmo.data[7]["energies"][2])
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
@@ -269,6 +324,10 @@ class NwOutputTest(unittest.TestCase):
                          "6-311++G**")
 
         nwo = NwOutput(os.path.join(test_dir, "H4C3O3_1.nwout"))
+        self.assertTrue(nwo.data[-1]["has_error"])
+        self.assertEqual(nwo.data[-1]["errors"][0], "Bad convergence")
+
+        nwo = NwOutput(os.path.join(test_dir, "CH3CH2O.nwout"))
         self.assertTrue(nwo.data[-1]["has_error"])
         self.assertEqual(nwo.data[-1]["errors"][0], "Bad convergence")
 
