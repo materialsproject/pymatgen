@@ -322,10 +322,14 @@ def _clean_cif(s):
         if skip:
             if l.strip().startswith("_") or l.strip() == "loop_":
                 skip = False
-        elif l.strip().startswith("_cgraph"):
+            else:
+                continue
+
+        if l.strip().startswith("_cgraph"):
             skip = True
         elif not l.strip().startswith("_eof"):
             clean.append(remove_non_ascii(l))
+
     return "\n".join(clean)
 
 
