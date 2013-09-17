@@ -18,8 +18,8 @@ from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
-#import logging
-#logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -230,51 +230,65 @@ class Task(object):
 
         # Check the returncode of the process first.
         if self.returncode != 0:
-            self.set_status(self.S_ERROR)
+            return self.set_status(self.S_ERROR)
+
+        # Start to check when the output file has been created.
+        if not self.output_file.exists:
+            if not self.stderr_file.exists:
+                # The job is still in the queue.
+                return
+            else:
+                # TODO check possible errors in stderr and queue manager 
+                err_msg = self.stderr_file.read()
+                if err_msg:
+                    logger.critical("stderr message" + msg)
+
+                return self.set_status(self.S_ERROR)
+
+        # Check if the run completed successfully.
+        try:
+            report = EventParser().parse(self.output_file.path)
+
+        except Exception as exc:
+            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
+            return self.set_status(self.S_ERROR)
+
+        if report.run_completed:
+            self.set_status(self.S_OK)
 
         else:
-            # Check if the run completed successfully.
-            try:
-                report = EventParser().parse(self.output_file.path)
-            except Exception as exc:
-                self.set_status(self.S_ERROR)
+            # TODO
+            # This is the delicate part since we have to discern among different possibilities:
+            #
+            # 1) Calculation stopped due to an Abinit Error or Bug.
+            # 2) Segmentation fault that (by definition) was not handled by ABINIT.
+            # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
+            # 4) Calculation is still running!
+            #
+            # Point 2) and 3) are the most complicated since there's no standard!
+
+            # 1) Search for possible errors or bugs in the ABINIT **output** file.
+            if report.errors or report.bugs:
+                logger.critical("Found Errors or Bugs in ABINIT main output!")
+                self._status = self.S_ERROR
                 return 
-                                                                                                     
-            if report.run_completed:
-                self.set_status(self.S_OK)
 
-            else:
-                # TODO
-                # This is the delicate part since we have to discern among different possibilities:
-                #
-                # 1) Calculation stopped due to an Abinit Error or Bug.
-                # 2) Segmentation fault that (by definition) was not handled by ABINIT.
-                # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
-                # 4) Calculation is still running!
-                #
-                # Point 2) and 3) are the most complicated since there's no standard!
+            # 2) Analyze the stderr file for Fortran runtime errors.
+            #   err_lines = self.stderr_file.readlines()
+            #   if err_lines:
+            #       self._status = self.S_ERROR
+            #       return 
 
-                # 1) Search for possible errors or bugs in the ABINIT **output** file.
-                if report.errors or report.bugs:
-                    self._status = self.S_ERROR
-                    return 
+            # 3) Analyze the error file of the resource manager.
+            #   self._status = self.S_ERROR
+            #   err_lines = self.qerr_file.readlines()
+            #   if err_lines:
+            #       self._status = self.S_ERROR
+            #       return 
 
-                # 2) Analyze the stderr file for Fortran runtime errors.
-                #   err_lines = self.stderr_file.readlines()
-                #   if err_lines:
-                #       self._status = self.S_ERROR
-                #       return 
-
-                # 3) Analyze the error file of the resource manager.
-                #   self._status = self.S_ERROR
-                #   err_lines = self.qerr_file.readlines()
-                #   if err_lines:
-                #       self._status = self.S_ERROR
-                #       return 
-
-                # 4)
-                self._status = self.S_OK
-                return 
+            # 4)
+            self._status = self.S_OK
+            return 
 
     @property
     def links(self):
@@ -322,7 +336,7 @@ class Task(object):
 
                 # Link path to dst if dst link does not exist.
                 # else check that it points to the expected file.
-                print("Linking ", path," --> ",dst)
+                logger.debug("Linking path %s --> %s" % (path, dst))
                 if not os.path.exists(dst):
                     os.symlink(path, dst)
                 else:
@@ -361,6 +375,7 @@ class Task(object):
             return parser.parse(self.output_file.path)
 
         except parser.Error as exc:
+            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
             raise
             # TODO: Handle possible errors in the parser by generating a custom EventList object
             #return EventList(self.output_file.path, events=[Error(str(exc))])
@@ -478,7 +493,7 @@ class AbinitTask(Task):
 
             self._links = links
             for link in links:
-                print("Adding ", link.get_abivars())
+                logger.debug("Adding abivars %s " % str(link.get_abivars()))
                 self.strategy.add_extra_abivars(link.get_abivars())
 
         # Files required for the execution.

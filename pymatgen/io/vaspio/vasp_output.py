@@ -24,8 +24,8 @@ import itertools
 import warnings
 import xml.sax.handler
 import StringIO
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 import numpy as np
 
