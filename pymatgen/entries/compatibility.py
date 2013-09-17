@@ -187,15 +187,15 @@ class Compatibility(EntryPostProcessor):
             if len(comp) >= 2 and Element("O") in comp:
                 if "oxide_type" in entry.data:
                     if entry.data["oxide_type"] in self.oxide_correction:
-                        correction += float(self.oxide_correction[entry.data["oxide_type"]]) * comp[Element("O")] / 2
+                        correction += float(self.oxide_correction[entry.data["oxide_type"]]) * comp[Element("O")] / 2.0
                     elif entry.data["oxide_type"] is "ozonide":
-                        return None
+                        correction += float(self.oxide_correction[entry.data["oxide_type"]]) * comp[Element("O")] / 3.0
                 elif hasattr(entry, "structure"):
                     ox_type, nbonds = oxide_type(entry.structure, 1.1, return_nbonds=True)
                     if ox_type in self.oxide_correction:
                         correction += float(self.oxide_correction[ox_type]) * nbonds
                     elif ox_type is "ozonide":
-                        return None
+                        correction += float(self.oxide_correction[ox_type]) * nbonds * 2.0 / 3.0 
                 else:
                     common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2",
                                          "BeO2", "MgO2", "CaO2", "SrO2", "BaO2"]
@@ -206,7 +206,7 @@ class Compatibility(EntryPostProcessor):
                     elif rform in common_superoxides:
                         correction += float(self.oxide_correction["superoxide"]) * comp[Element("O")] / 2
                     elif rform in ozonides:
-                        return None
+                        correction += float(self.oxide_correction["ozonide"]) * comp[Element("O")] / 2 * 3
 
             entry.correction = correction
         return entry
