@@ -55,7 +55,7 @@ class FloatWithUnitTest(PymatgenTest):
         self.assertAlmostEqual(x.to("cm"), 4.2e-08)
         self.assertEqual(x.to("pm"), 420)
         self.assertEqual(str(x / 2), "2.1 ang")
-        self.assertEqual(str(x ** 3), "74.08800000000001 ang^3")
+        self.assertEqual(str(x ** 3), "74.088 ang^3")
 
     def test_unitized(self):
 
@@ -88,12 +88,12 @@ class FloatWithUnitTest(PymatgenTest):
         e = Mass(1, "kg") * g * Length(1, "m")
         self.assertEqual(str(e), "10.0 N m")
         form_e = FloatWithUnit(10, unit="kJ mol^-1")
-        self.assertEqual(str(form_e.to("eV atom^-1")), "0.10364269190469588 eV atom^-1")
+        self.assertEqual(str(form_e.to("eV atom^-1")), "0.103642691905 eV atom^-1")
         self.assertRaises(UnitError, form_e.to, "m s^-1")
         a = FloatWithUnit(1.0, "Ha^3")
-        self.assertEqual(str(a.to("J^3")), "8.286726616151198e-53 J^3")
+        self.assertEqual(str(a.to("J^3")), "8.28672661615e-53 J^3")
         a = FloatWithUnit(1.0, "Ha bohr^-2")
-        self.assertEqual(str(a.to("J m^-2")), "1556.8929145749312 J m^-2")
+        self.assertEqual(str(a.to("J m^-2")), "1556.89291457 J m^-2")
 
 
 class ArrayWithFloatWithUnitTest(PymatgenTest):
@@ -182,7 +182,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
             #self.assertTrue(str(obj.unit) == "Ha")
 
         objects_without_unit = [
-            # Here we could return a FloatWithUnit object but I prefer this 
+            # Here we could return a FloatWithUnit object but I prefer this
             # a bare scalar since FloatWithUnit extends float while we could have an int.
             ene_ha[0],
         ]
