@@ -210,7 +210,7 @@ class DataPersistenceTest(PymatgenTest):
 
         for cls in [FloatWithUnit, ArrayWithUnit]:
             a = cls(1, "eV")
-            b = cls(1, "N bohr")
+            b = cls(10, "N bohr")
             obj = [a, b]
 
             protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
@@ -218,20 +218,18 @@ class DataPersistenceTest(PymatgenTest):
             for protocol in protocols:
 
                 mode = "w" if protocol == 0 else "wb"
-                fd, tmpfile = tempfile.mkstemp(text="b" in mode)
+                fd, tmpfile = tempfile.mkstemp(text="b" not in mode)
 
                 with open(tmpfile, mode) as fh:
                     pickle.dump(obj, fh, protocol=protocol)
 
                 with open(tmpfile, "r") as fh:
                     new_obj = pickle.load(fh)
-                    newa, newb = new_obj
 
-                self.assert_equal(newa, a)
-                self.assert_equal(newb, b)
 
-                self.assertTrue(str(a) == str(newa))
-                self.assertTrue(str(b) == str(newb))
+                for old_item, new_item in zip(obj, new_obj):
+                    self.assert_equal(old_item, new_item)
+                    self.assertTrue(str(old_item) == str(new_item))
 
 
 if __name__ == '__main__':
