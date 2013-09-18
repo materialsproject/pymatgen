@@ -100,8 +100,9 @@ class Compatibility(EntryPostProcessor):
         self.u_corrections = u_corrections
         self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
 
-        self.oxide_correction = {k: float(v) for k, v in self._config
-        .items("{}OxideCorrection".format(input_set_name))}
+        self.oxide_correction = {
+            k: float(v) for k, v
+            in self._config.items("{}OxideCorrection".format(input_set_name))}
 
         self.valid_potcars = set(self.input_set.potcar_settings.values())
         self.u_settings = self.input_set.incar_settings["LDAUU"]
