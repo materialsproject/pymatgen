@@ -19,14 +19,205 @@ import os
 import ConfigParser
 from collections import defaultdict
 
-from pymatgen.core.composition import Composition
-from pymatgen.entries.post_processors_abc import EntryPostProcessor
 from pymatgen.io.vaspio_set import MITVaspInputSet, MPVaspInputSet
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.structure_analyzer import oxide_type
 
+import abc
 
-class Compatibility(EntryPostProcessor):
+
+class Correction(object):
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractmethod
+    def correct_entry(self, entry):
+        """
+        Process a single entry.
+
+        Args:
+            entry:
+                A ComputedEntry object.
+
+        Returns:
+            An processed entry. None if entry is not compatible within the
+            processing scheme.
+        """
+        return
+
+
+class PotcarCorrection(Correction):
+    """
+    Check that POTCARs are valid.
+    """
+    def __init__(self, name):
+        """
+        Args:
+            name:
+                Name of POTCAR settings to use.
+        """
+        if name == "MP":
+            input_set = MPVaspInputSet()
+        elif name == "MIT":
+            input_set = MITVaspInputSet()
+        self.valid_potcars = set(input_set.potcar_settings.values())
+
+    def correct_entry(self, entry):
+        try:
+            psp_settings = set([sym.split(" ")[1]
+                                for sym
+                                in entry.parameters["potcar_symbols"]])
+        except KeyError:
+            raise ValueError("PotcarCorrection can only be "
+                             "checked for entries with a \"potcar_symbols\" in "
+                             "entry.parameters")
+        if not self.valid_potcars.issuperset(psp_settings):
+            return None
+        return entry
+
+
+class GasCorrection(Correction):
+    """
+    Correct gas energies.
+    """
+    def __init__(self, name):
+        """
+        Args:
+            name:
+                Name of POTCAR settings to use.
+        """
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        config = ConfigParser.SafeConfigParser()
+        config.optionxform = str
+        config.readfp(open(os.path.join(module_dir, "Compatibility.cfg")))
+        cpd_energies = dict(
+            config.items("{}CompoundEnergies".format(name)))
+        self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
+        self.oxide_correction = {
+            k: float(v) for k, v
+            in config.items("{}OxideCorrection".format(name))}
+
+    def correct_entry(self, entry):
+        comp = entry.composition
+        rform = entry.composition.reduced_formula
+        if rform in self.cpd_energies:
+            entry.entry_id = -comp.keys()[0].Z
+            entry.correction += self.cpd_energies[rform] * comp.num_atoms \
+                - entry.uncorrected_energy
+            return entry
+
+        correction = 0
+        #Check for peroxide, superoxide, and ozonide corrections. For
+        # now, ozonides will be ignored.
+        if len(comp) >= 2 and Element("O") in comp:
+            if "oxide_type" in entry.data:
+                if entry.data["oxide_type"] in self.oxide_correction:
+                    ox_corr = self.oxide_correction[
+                        entry.data["oxide_type"]]
+                    if entry.data["oxide_type"] is "ozonide":
+                        correction += ox_corr * comp["O"] * 2 / 3
+                    else:
+                        correction += ox_corr * comp["O"] / 2
+            elif hasattr(entry, "structure"):
+                ox_type, nbonds = oxide_type(entry.structure, 1.1,
+                                             return_nbonds=True)
+                if ox_type in self.oxide_correction:
+                    if ox_type is "ozonide":
+                        correction += self.oxide_correction[ox_type] \
+                            * nbonds * 2 / 3
+                    else:
+                        correction += self.oxide_correction[ox_type] * \
+                            nbonds
+            else:
+                if rform in UCorrection.common_peroxides:
+                    correction += self.oxide_correction["peroxide"] * \
+                        comp["O"] / 2
+                elif rform in UCorrection.common_superoxides:
+                    correction += self.oxide_correction["superoxide"] * \
+                        comp["O"] / 2
+                elif rform in UCorrection.ozonides:
+                    correction += self.oxide_correction["ozonide"] * \
+                        comp["O"] / 2 * 3
+
+        entry.correction += correction
+        return entry
+
+class UCorrection(Correction):
+    """
+    Correct U.
+    """
+    common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2",
+                        "MgO2", "CaO2", "SrO2", "BaO2"]
+    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
+    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+
+    def __init__(self, name, compat_type):
+        """
+        Args:
+            name:
+                Name of POTCAR settings to use.
+            compat_type:
+                Two options, GGA or Advanced.  GGA means all GGA+U entries are
+                excluded.  Advanced means mixing scheme is implemented to make
+                entries compatible with each other, but entries which are
+                supposed to be done in GGA+U will have the equivalent GGA
+                entries excluded. For example, Fe oxides should have a U value
+                under the Advanced scheme. A GGA Fe oxide run will therefore be
+                excluded under the scheme.
+        """
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        config = ConfigParser.SafeConfigParser()
+        config.optionxform = str
+        config.readfp(open(os.path.join(module_dir, "Compatibility.cfg")))
+        if name == "MP":
+            self.input_set = MPVaspInputSet()
+        elif name == "MIT":
+            self.input_set = MITVaspInputSet()
+        else:
+            raise ValueError("Invalid input set name {}".format(name))
+
+        u_corrections = {}
+        for el in self.input_set.incar_settings["LDAUU"].keys():
+            sect_name = "{}{}UCorrections{}".format(name, compat_type, el)
+            if sect_name in config.sections():
+                corr = dict(config.items(sect_name))
+                u_corrections[el] = {k: float(v) for k, v in corr.items()}
+
+        self.u_corrections = u_corrections
+        self.u_settings = self.input_set.incar_settings["LDAUU"]
+
+        if compat_type == "GGA":
+            self.u_corrections = {}
+            self.u_settings = {}
+
+    def correct_entry(self, entry):
+        if entry.parameters.get("run_type", "GGA") == "HF":
+            return None
+
+        calc_u = entry.parameters.get("hubbards", None)
+        calc_u = defaultdict(int) if calc_u is None else calc_u
+        comp = entry.composition
+
+        elements = sorted([el for el in comp.elements if comp[el] > 0],
+                           key=lambda el: el.X)
+        most_electroneg = elements[-1].symbol
+        correction = 0
+
+        ucorr = self.u_corrections.get(most_electroneg, {})
+        usettings = self.u_settings.get(most_electroneg, {})
+
+        for el in comp.elements:
+            sym = el.symbol
+            #Check for bad U values
+            if calc_u.get(sym, 0) != usettings.get(sym, 0):
+                return None
+            if sym in ucorr:
+                correction += float(ucorr[sym]) * comp[el]
+
+        entry.correction += correction
+        return entry
+
+
+class Compatibility(object):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. This is a base class from which other specific compatibility
@@ -51,85 +242,13 @@ class Compatibility(EntryPostProcessor):
     interface using the pymatgen.matproj.rest package will automatically have
     these fields populated.
     """
-
-    common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2",
-                        "MgO2", "CaO2", "SrO2", "BaO2"]
-    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
-
-    def __init__(self, input_set_name, compat_type):
+    def __init__(self, corrections):
         """
         Args:
-            input_set_name:
-                The name of the input set to use. Can be either
-                MaterialsProject or MIT.
-            compat_type:
-                Two options, GGA or Advanced.  GGA means all GGA+U entries are
-                excluded.  Advanced means mixing scheme is implemented to make
-                entries compatible with each other, but entries which are
-                supposed to be done in GGA+U will have the equivalent GGA
-                entries excluded. For example, Fe oxides should have a U value
-                under the Advanced scheme. A GGA Fe oxide run will therefore be
-                excluded under the scheme.
+            corrections:
+                List of corrections to apply.
         """
-        self.compat_type = compat_type
-        self.input_set_name = input_set_name
-        if input_set_name == "MaterialsProject":
-            self.input_set = MPVaspInputSet()
-        elif input_set_name == "MIT":
-            self.input_set = MITVaspInputSet()
-        else:
-            raise ValueError("Invalid input set name {}"
-                             .format(input_set_name))
-
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        self._config.readfp(open(os.path.join(module_dir,
-                                              "Compatibility.cfg")))
-        u_corrections = {}
-        for el in self.input_set.incar_settings["LDAUU"].keys():
-            name = "{}{}UCorrections{}".format(input_set_name, compat_type, el)
-            if name in self._config.sections():
-                corr = dict(self._config.items(name))
-                u_corrections[el] = {k: float(v) for k, v in corr.items()}
-
-        cpd_energies = dict(self._config.items(
-            "{}{}CompoundEnergies".format(input_set_name, compat_type)))
-
-        self.u_corrections = u_corrections
-        self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
-
-        self.oxide_correction = {
-            k: float(v) for k, v
-            in self._config.items("{}OxideCorrection".format(input_set_name))}
-
-        self.valid_potcars = set(self.input_set.potcar_settings.values())
-        self.u_settings = self.input_set.incar_settings["LDAUU"]
-
-        if compat_type == "GGA":
-            self.u_corrections = {}
-            self.u_settings = {}
-
-    def requires_hubbard(self, comp):
-        """
-        Check if a particular composition requies U parameters to be set.
-
-        Args:
-            comp:
-                Composition
-
-        Returns:
-            True if hubbard U parameter required. False otherwise.
-        """
-        comp = Composition(comp)
-        elements = sorted([el for el in comp.elements if comp[el] > 0],
-                          key=lambda el: el.X)
-        most_electroneg = elements[-1].symbol
-
-        usettings = self.u_settings.get(most_electroneg, {})
-
-        return any([usettings.get(el.symbol, 0) for el in comp.elements])
+        self.corrections = corrections
 
     def process_entry(self, entry):
         """
@@ -149,79 +268,11 @@ class Compatibility(EntryPostProcessor):
         if entry.parameters.get("run_type", "GGA") == "HF":
             return None
 
-        cpdenergies = self.cpd_energies
-        calc_u = entry.parameters.get("hubbards", None)
-        calc_u = defaultdict(int) if calc_u is None else calc_u
-        comp = entry.composition
-        #Check that POTCARs are valid
-        rform = comp.reduced_formula
-        if rform not in cpdenergies:
-            try:
-                psp_settings = set([sym.split(" ")[1]
-                                    for sym
-                                    in entry.parameters["potcar_symbols"]])
-            except KeyError:
-                raise ValueError("Compatibility can only be checked for "
-                                 "entries with a \"potcar_symbols\" in "
-                                 "entry.parameters")
-            if not self.valid_potcars.issuperset(psp_settings):
+        entry.correction = 0
+        for c in self.corrections:
+            entry = c.correct_entry(entry)
+            if entry is None:
                 return None
-
-        #correct all compounds that are wrong, e.g. O2 molecule
-        if rform in cpdenergies:
-            entry.structureid = -comp.keys()[0].Z
-            entry.correction = cpdenergies[rform] * comp.num_atoms \
-                - entry.uncorrected_energy
-        else:
-            elements = sorted([el for el in comp.elements if comp[el] > 0],
-                              key=lambda el: el.X)
-            most_electroneg = elements[-1].symbol
-            correction = 0
-
-            ucorr = self.u_corrections.get(most_electroneg, {})
-            usettings = self.u_settings.get(most_electroneg, {})
-
-            for el in comp.elements:
-                sym = el.symbol
-                #Check for bad U values
-                if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                    return None
-                if sym in ucorr:
-                    correction += float(ucorr[sym]) * comp[el]
-
-            #Check for peroxide, superoxide, and ozonide corrections. For
-            # now, ozonides will be ignored.
-            if len(comp) >= 2 and Element("O") in comp:
-                if "oxide_type" in entry.data:
-                    if entry.data["oxide_type"] in self.oxide_correction:
-                        ox_corr = self.oxide_correction[
-                            entry.data["oxide_type"]]
-                        if entry.data["oxide_type"] is "ozonide":
-                            correction += ox_corr * comp["O"] * 2 / 3
-                        else:
-                            correction += ox_corr * comp["O"] / 2
-                elif hasattr(entry, "structure"):
-                    ox_type, nbonds = oxide_type(entry.structure, 1.1,
-                                                 return_nbonds=True)
-                    if ox_type in self.oxide_correction:
-                        if ox_type is "ozonide":
-                            correction += self.oxide_correction[ox_type] \
-                                * nbonds * 2 / 3
-                        else:
-                            correction += self.oxide_correction[ox_type] * \
-                                nbonds
-                else:
-                    if rform in Compatibility.common_peroxides:
-                        correction += self.oxide_correction["peroxide"] * \
-                            comp["O"] / 2
-                    elif rform in Compatibility.common_superoxides:
-                        correction += self.oxide_correction["superoxide"] * \
-                            comp["O"] / 2
-                    elif rform in Compatibility.ozonides:
-                        correction += self.oxide_correction["ozonide"] * \
-                            comp["O"] / 2 * 3
-
-            entry.correction = correction
         return entry
 
     def process_entries(self, entries):
@@ -236,14 +287,6 @@ class Compatibility(EntryPostProcessor):
             are not compatible are excluded.
         """
         return filter(None, map(self.process_entry, entries))
-
-    @property
-    def corrected_compound_formulas(self):
-        return self.cpd_energies.keys()
-
-    def __str__(self):
-        return "{} {} Compatibility".format(self.input_set_name,
-                                            self.compat_type)
 
 
 class MaterialsProjectCompatibility(Compatibility):
@@ -267,10 +310,12 @@ class MaterialsProjectCompatibility(Compatibility):
                 under the Advanced scheme. A GGA Fe oxide run will therefore be
                 excluded under the scheme.
         """
-        Compatibility.__init__(self, "MaterialsProject", compat_type)
+        Compatibility.__init__(self,
+                               [PotcarCorrection("MP"), GasCorrection("MP"),
+                                UCorrection("MP", compat_type)])
 
 
-class MITCompatibility(MaterialsProjectCompatibility):
+class MITCompatibility(Compatibility):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Note that this should only be used for VASP calculations using the
@@ -290,4 +335,7 @@ class MITCompatibility(MaterialsProjectCompatibility):
                 under the Advanced scheme. A GGA Fe oxide run will therefore be
                 excluded under the scheme.
         """
-        Compatibility.__init__(self, "MIT", compat_type)
+        Compatibility.__init__(self,
+                               [PotcarCorrection("MIT"),
+                                GasCorrection("MIT"),
+                                UCorrection("MIT", compat_type)])

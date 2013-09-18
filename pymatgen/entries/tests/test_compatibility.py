@@ -16,7 +16,7 @@ __date__ = "Mar 19, 2012"
 import unittest
 
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
-    MITCompatibility
+    MITCompatibility, UCorrection, GasCorrection, PotcarCorrection
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen import Composition, Lattice, Structure, Element
 
@@ -121,18 +121,10 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
                         'potcar_symbols': ['PAW_PBE O 08Apr2002'],
                         'run_type': 'GGA'})
         entry = compat.process_entry(entry)
-        self.assertEqual(entry.structureid, -8)
+        self.assertEqual(entry.entry_id, -8)
         self.assertAlmostEqual(entry.energy, -4.22986844926)
         self.assertAlmostEqual(ggacompat.process_entry(entry).energy,
                                -4.22986844926)
-
-    def test_requires_hubbard(self):
-        compat = MaterialsProjectCompatibility()
-        self.assertTrue(compat.requires_hubbard("Fe2O3"))
-        self.assertTrue(compat.requires_hubbard("FeSO4"))
-        self.assertFalse(compat.requires_hubbard("FeS2"))
-        self.assertFalse(compat.requires_hubbard("Li2O"))
-        self.assertTrue(compat.requires_hubbard("FeOF"))
 
 
 class MITCompatibilityTest(unittest.TestCase):
@@ -206,16 +198,8 @@ class MITCompatibilityTest(unittest.TestCase):
                                           'potcar_symbols':
         ['PAW_PBE O 08Apr2002'], 'run_type': 'GGA'})
         entry = compat.process_entry(entry)
-        self.assertEqual(entry.structureid, -8)
+        self.assertEqual(entry.entry_id, -8)
         self.assertAlmostEqual(entry.energy, -4.25915626315)
-
-    def test_requires_hubbard(self):
-        compat = MITCompatibility()
-        self.assertTrue(compat.requires_hubbard("Fe2O3"))
-        self.assertTrue(compat.requires_hubbard("FeSO4"))
-        self.assertTrue(compat.requires_hubbard("FeS2"))
-        self.assertFalse(compat.requires_hubbard("Li2O"))
-        self.assertTrue(compat.requires_hubbard("FeOF"))
 
 
 class OxideTypeCorrectionTest(unittest.TestCase):
@@ -300,6 +284,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, (-3 + 1.90))
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
