@@ -27,12 +27,18 @@ import abc
 
 
 class Correction(object):
+    """
+    A Correction class is a pre-defined scheme for correction a computed
+    entry based on the type and chemistry of the structure and the
+    calculation parameters. All Correction classes must implement a
+    correct_entry method.
+    """
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def correct_entry(self, entry):
         """
-        Process a single entry.
+        Corrects a single entry.
 
         Args:
             entry:
@@ -47,13 +53,27 @@ class Correction(object):
 
 class PotcarCorrection(Correction):
     """
-    Check that POTCARs are valid.
+    Checks that POTCARs are valid within a pre-defined input set. This
+    ensures that calculations performed using different InputSets are not
+    compared against each other.
+
+
+    Entry.parameters must contain a "potcar_symbols" key that is a list of
+    all POTCARs used in the run. Again, using the example of an Fe2O3 run
+    using Materials Project parameters, this would look like
+    entry.parameters["potcar_symbols"] = ['PAW_PBE Fe_pv 06Sep2000',
+    'PAW_PBE O 08Apr2002'].
     """
     def __init__(self, name):
         """
         Args:
             name:
-                Name of POTCAR settings to use.
+                Name of settings to use. Current valid settings are MP or
+                MIT, which is the relevant settings based on the MP or MIT
+                VaspInputSets.
+
+        Raises:
+            ValueError if entry do not contain "potcar_symbols" key.
         """
         if name == "MP":
             input_set = MPVaspInputSet()
@@ -77,13 +97,16 @@ class PotcarCorrection(Correction):
 
 class GasCorrection(Correction):
     """
-    Correct gas energies.
+    Correct gas energies to obtain the right formation energies. Note that
+    this depends on calculations being run within the same input set.
     """
     def __init__(self, name):
         """
         Args:
             name:
-                Name of POTCAR settings to use.
+                Name of settings to use. Current valid settings are MP or
+                MIT, which is the relevant settings based on the MP or MIT
+                VaspInputSets.
         """
         module_dir = os.path.dirname(os.path.abspath(__file__))
         config = ConfigParser.SafeConfigParser()
@@ -141,9 +164,20 @@ class GasCorrection(Correction):
         entry.correction += correction
         return entry
 
+
 class UCorrection(Correction):
     """
-    Correct U.
+    This class implements the GGA/GGA+U mixing scheme, which allows mixing of
+    entries. Entry.parameters must contain a "hubbards" key which is a dict
+    of all non-zero Hubbard U values used in the calculation. For example,
+    if you ran a Fe2O3 calculation with Materials Project parameters,
+    this would look like entry.parameters["hubbards"] = {"Fe": 5.3}
+    If the "hubbards" key is missing, a GGA run is assumed.
+
+    It should be noted that ComputedEntries assimilated using the
+    pymatgen.apps.borg package and obtained via the MaterialsProject REST
+    interface using the pymatgen.matproj.rest package will automatically have
+    these fields populated.
     """
     common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2",
                         "MgO2", "CaO2", "SrO2", "BaO2"]
@@ -154,7 +188,9 @@ class UCorrection(Correction):
         """
         Args:
             name:
-                Name of POTCAR settings to use.
+                Name of settings to use. Current valid settings are MP or
+                MIT, which is the relevant settings based on the MP or MIT
+                VaspInputSets.
             compat_type:
                 Two options, GGA or Advanced.  GGA means all GGA+U entries are
                 excluded.  Advanced means mixing scheme is implemented to make
@@ -219,28 +255,13 @@ class UCorrection(Correction):
 
 class Compatibility(object):
     """
-    This class implements the GGA/GGA+U mixing scheme, which allows mixing of
-    entries. This is a base class from which other specific compatibility
-    schemes are implemented.
-
-    For compatibility to be checked, the entry supplied have two additional
-    restrictions in terms of its parameters key:
-
-    1. Entry.parameters must contain a "hubbards" key which is a dict of all
-       non-zero Hubbard U values used in the calculation. For example,
-       if you ran a Fe2O3 calculation with Materials Project parameters,
-       this would look like entry.parameters["hubbards"] = {"Fe": 5.3}
-       If the "hubbards" key is missing, a GGA run is assumed.
-    2. Entry.parameters must contain a "potcar_symbols" key that is a list of
-       all POTCARs used in the run. Again, using the example of an Fe2O3 run
-       using Materials Project parameters, this would look like
-       entry.parameters["potcar_symbols"] = ['PAW_PBE Fe_pv 06Sep2000',
-       'PAW_PBE O 08Apr2002'].
-
-    It should be noted that ComputedEntries assimilated using the
-    pymatgen.apps.borg package and obtained via the MaterialsProject REST
-    interface using the pymatgen.matproj.rest package will automatically have
-    these fields populated.
+    The Compatibility class combines a list of corrections to be applied to
+    an entry or a set of entries. Note that some of the Corrections have
+    interdependencies. For example, PotcarCorrection must always be used
+    before any other compatibility. Also, GasCorrection("MP") must be used
+    with PotcarCorrection("MP") (similarly with "MIT"). Typically,
+    you should use the specific MaterialsProjectCompatibility and
+    MITCompatibility subclasses instead.
     """
     def __init__(self, corrections):
         """
@@ -252,7 +273,7 @@ class Compatibility(object):
 
     def process_entry(self, entry):
         """
-        Process a single entry with the chosen Compatibility scheme.
+        Process a single entry with the chosen Corrections.
 
         Args:
             entry:
@@ -261,9 +282,6 @@ class Compatibility(object):
         Returns:
             An adjusted entry if entry is compatible, otherwise None is
             returned.
-
-        Raises:
-            ValueError if entry do not contain "potcar_symbols" key.
         """
         if entry.parameters.get("run_type", "GGA") == "HF":
             return None
