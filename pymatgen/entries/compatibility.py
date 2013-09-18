@@ -62,7 +62,7 @@ class Compatibility(EntryPostProcessor):
         Args:
             input_set_name:
                 The name of the input set to use. Can be either
-                MaterialsProject or MITMatgen.
+                MaterialsProject or MIT.
             compat_type:
                 Two options, GGA or Advanced.  GGA means all GGA+U entries are
                 excluded.  Advanced means mixing scheme is implemented to make
@@ -76,7 +76,7 @@ class Compatibility(EntryPostProcessor):
         self.input_set_name = input_set_name
         if input_set_name == "MaterialsProject":
             self.input_set = MPVaspInputSet()
-        elif input_set_name == "MITMatgen":
+        elif input_set_name == "MIT":
             self.input_set = MITVaspInputSet()
         else:
             raise ValueError("Invalid input set name {}"
@@ -289,4 +289,4 @@ class MITCompatibility(MaterialsProjectCompatibility):
                 under the Advanced scheme. A GGA Fe oxide run will therefore be
                 excluded under the scheme.
         """
-        Compatibility.__init__(self, "MITMatgen", compat_type)
+        Compatibility.__init__(self, "MIT", compat_type)
