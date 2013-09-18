@@ -724,10 +724,8 @@ class AbinitTask(Task):
         # Write files file and input file.
         self.files_file.write(self.filesfile_string)
 
-        #if not self.input_file.exists:
         self.input_file.write(self.make_input())
 
-        #if not os.path.exists(self.jobfile_path):
         self.manager.write_jobfile(self)
 
     def rmtree(self, exclude_wildcard=""):
@@ -796,7 +794,7 @@ class AbinitTask(Task):
         self._setup(*args, **kwargs)
 
         # Automatic parallelization
-        #retcode = self.manager.autoparal(self)
+        retcode = self.manager.autoparal(self)
         #if retcode != 0:
         #    warnings.warn("autoparal returned %s" % retcode)
 
@@ -890,7 +888,7 @@ class ParalConf(AttrDict):
                   "mpi_ncpus": 2,     # Number of MPI processes.
                   "omp_ncpus": 1,     # Number of OMP threads (1 if not present)
                   "mem_per_cpus: 10, # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
-                  "weight"   : 0.4,   # 1.0 corresponds to an "expected" optimal efficiency.
+                  "efficiency"   : 0.4,   # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
                   "abivars": {        # Dictionary with the ABINIT variables that should be added to the input.
                         "varname1": varvalue1,
                         "varname2": varvalue2,
@@ -921,9 +919,9 @@ class ParalConf(AttrDict):
             if k not in self:
                 self[k] = v
 
-    #@property
-    #def speedup(self)
-    #    return self.weight * self.tot_ncpus
+    @property
+    def speedup(self):
+        return self.efficiency * self.tot_ncpus
 
 
 class ParalHintsParser(object):
@@ -943,6 +941,9 @@ class ParalHints(collections.Iterable):
     def __init__(self, header, confs):
         self.header = header
         self._confs = [ParalConf(**d) for d in confs]
+
+    def __getitem__(self, key):
+        return self._confs[key]
 
     def __iter__(self):
         return self._confs.__iter__()
@@ -1006,17 +1007,17 @@ class ParalHints(collections.Iterable):
     #def sort(self, cmp=None, key=None, reverse=False): 
     #    "stable sort *IN PLACE*; cmp(x, y) -> -1, 0, 1"
     #    self._confs.sort(cmp=None, key=None, reverse=False)
-    #def sort_by_mem(self):
-    #def sort_by_speedup(self):
 
-    def sort_by_weight(self):
-        # Sort the dict so that configuration with minimum (weight-1.0) appears in the first positions
-        self._confs = sorted(self._confs, key=lambda c: abs(c.weight - 1.0), reverse=False)
+    def sort_by_efficiency(self):
+        self._confs = sorted(self._confs, key=lambda c: c.efficiency, reverse=True)
+
+    def sort_by_speedup(self):
+        self._confs = sorted(self._confs, key=lambda c: c.speedup, reverse=True)
+
+    #def sort_by_mem(self):
 
     def select_optimal_conf(self, policy):
         """Find the optimal configuration according on policy."""
-        raise NotImplementedError("")
-
         # Make a copy since we are gonna change the object in place.
         hints = self.copy()
 
@@ -1025,24 +1026,28 @@ class ParalHints(collections.Iterable):
         #for constraint in self.policy.constraints:
         #    hints.apply_filter(constraint)
 
+        hints.sort_by_speedup()
+
         # If no configuration fullfills the requirements, 
         # we return the one with the highest speedup.
         if not hints:
-            self.copy().sort_by_weight()
+            self.copy().sort_by_speedup()
             return hints[0].copy()
 
         # Find the optimal configuration according to policy.mode.
         mode = policy.mode
 
         #if mode in ["default", "aggressive"]:
-        #    hints.sort_by_weight()
+        #    hints.sort_by_efficiency()
         #elif mode == "conservative":
         #    hints.sort_by_tot_num_cpus()
         #else:
         #    raise ValueError("Wrong value for mode: %s" % str(mode))
 
         # Return a copy of the configuration.
-        return hints[0].copy()
+        optimal = hints[0].copy()
+        print("Will relaunch the job with optimized parameters:\n %s" % str(optimal))
+        return optimal
 
 
 class TaskPolicy(AttrDict):
@@ -1056,7 +1061,7 @@ class TaskPolicy(AttrDict):
     # Default values.
     _DEFAULTS = dict(
         use_fw=False,       # True if we are using fireworks.
-        autoparal=0,     # ABINIT autoparal option. None to disable this feature.
+        autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
         mode="default",     # ["default", "aggressive", "conservative"]
         max_ncpus=2,
         #max_mpi_ncpus=-1,  # Max number of CPUs to use for MPI (DEFAULT: no limit is enforced, users should specify this value)
@@ -1182,10 +1187,10 @@ class TaskManager(object):
             return code of the subprocess.
         """
         policy = self.policy
-        if policy.autoparal is None:
+        if policy.autoparal == 0:
             return 0
 
-        assert policy.autoparal == 0
+        assert policy.autoparal == 1
         # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
 
         # Set the variables for automatic parallelization
@@ -1200,11 +1205,10 @@ class TaskManager(object):
         # Build a simple manager that runs jobs in a shell subprocess.
         # Should remove the Queue header here!
         seq_manager = self.to_shell_manager(mpi_ncpus=1)
-        print(seq_manager)
+        #print(seq_manager)
 
         process = seq_manager.launch(task)
         process.wait()
-        print(process)
 
         # Reset the status, remove garbage files ...
         task.set_status(task.S_READY)
@@ -1212,8 +1216,12 @@ class TaskManager(object):
         # Remove the variables added for the automatic parallelization
         task.strategy.remove_extra_abivars(autoparal_vars.keys())
 
-        if process.returncode != 0:
-            return process.returncode
+        # Remove the output file since Abinit likes to create new files 
+        # with extension .outA, .outB if the file already exist.
+        os.remove(task.output_file.path)
+
+        #if process.returncode != 0:
+        #    return process.returncode
                                                                   
         # 2) Parse the autoparal configurations
         parser = ParalHintsParser()
@@ -1226,12 +1234,12 @@ class TaskManager(object):
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
-                                                                  
+
         # 4) Change the input file and/or the submission script
         task.strategy.add_extra_abivars(optimal.abivars)
                                                                   
         self.qadapter.set_mpi_ncpus(optimal.mpi_ncpus)
-        #self.qadapter.set_omp_nprocs(optimal.omp_ncpus)
+        #self.qadapter.set_omp_ncpus(optimal.omp_ncpus)
         #self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
 
         return process.returncode
@@ -1270,6 +1278,8 @@ class TaskManager(object):
         """
         Submit the task and return process object.
         """
+        task.build()
+
         script_file = self.write_jobfile(task)
 
         # Submit the script.
