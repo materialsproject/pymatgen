@@ -298,7 +298,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'potcar_symbols':
         ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
-        self.assertEqual(lio3_entry_corrected.energy, -0.5726325000000001)
+        self.assertEqual(lio3_entry_corrected.energy, (-3 + 1.618245))
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
