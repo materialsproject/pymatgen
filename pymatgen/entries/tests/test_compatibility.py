@@ -285,7 +285,8 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         el_li = Element("Li")
         el_o = Element("O")
         elts = [el_li, el_o, el_o, el_o]
-        latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911, 133.847504, 102.228244, 95.477342)
+        latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911,
+                                       133.847504, 102.228244, 95.477342)
         coords = [[0.513004, 0.513004, 1.000000],
                   [0.017616, 0.017616, 0.000000],
                   [0.649993, 0.874790, 0.775203],
