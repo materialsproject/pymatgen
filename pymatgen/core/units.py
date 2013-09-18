@@ -393,7 +393,7 @@ class FloatWithUnit(float):
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
         return float(self), self._unit, self._unit_type
-        
+
     def __getstate__(self):
         state = self.__dict__.copy()
         state["val"] = float(self)
