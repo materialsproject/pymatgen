@@ -52,6 +52,11 @@ class Compatibility(EntryPostProcessor):
     these fields populated.
     """
 
+    common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2",
+                        "MgO2", "CaO2", "SrO2", "BaO2"]
+    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
+    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
+
     def __init__(self, input_set_name, compat_type):
         """
         Args:
@@ -74,7 +79,8 @@ class Compatibility(EntryPostProcessor):
         elif input_set_name == "MITMatgen":
             self.input_set = MITVaspInputSet()
         else:
-            raise ValueError("Invalid input set name {}".format(input_set_name))
+            raise ValueError("Invalid input set name {}"
+                             .format(input_set_name))
 
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
@@ -94,9 +100,8 @@ class Compatibility(EntryPostProcessor):
         self.u_corrections = u_corrections
         self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
 
-        self.oxide_correction = {}
-        self.oxide_correction = dict(self._config.items(
-            "{}OxideCorrection".format(input_set_name)))
+        self.oxide_correction = {k: float(v) for k, v in self._config
+        .items("{}OxideCorrection".format(input_set_name))}
 
         self.valid_potcars = set(self.input_set.potcar_settings.values())
         self.u_settings = self.input_set.incar_settings["LDAUU"]
@@ -183,32 +188,37 @@ class Compatibility(EntryPostProcessor):
                 if sym in ucorr:
                     correction += float(ucorr[sym]) * comp[el]
 
-            #Check for peroxide, superoxide, and ozonide corrections. For now, ozonides will be ignored.
+            #Check for peroxide, superoxide, and ozonide corrections. For
+            # now, ozonides will be ignored.
             if len(comp) >= 2 and Element("O") in comp:
                 if "oxide_type" in entry.data:
                     if entry.data["oxide_type"] in self.oxide_correction:
+                        ox_corr = self.oxide_correction[
+                            entry.data["oxide_type"]]
                         if entry.data["oxide_type"] is "ozonide":
-                            correction += float(self.oxide_correction[entry.data["oxide_type"]]) * comp[Element("O")] * 2.0/ 3.0
+                            correction += ox_corr * comp["O"] * 2 / 3
                         else:
-                            correction += float(self.oxide_correction[entry.data["oxide_type"]]) * comp[Element("O")] / 2.0
+                            correction += ox_corr * comp["O"] / 2
                 elif hasattr(entry, "structure"):
-                    ox_type, nbonds = oxide_type(entry.structure, 1.1, return_nbonds=True)
+                    ox_type, nbonds = oxide_type(entry.structure, 1.1,
+                                                 return_nbonds=True)
                     if ox_type in self.oxide_correction:
                         if ox_type is "ozonide":
-                            correction += float(self.oxide_correction[ox_type]) * nbonds * 2.0 / 3.0
-                        else:  
-                            correction += float(self.oxide_correction[ox_type]) * nbonds
+                            correction += self.oxide_correction[ox_type] \
+                                * nbonds * 2 / 3
+                        else:
+                            correction += self.oxide_correction[ox_type] * \
+                                nbonds
                 else:
-                    common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2",
-                                         "BeO2", "MgO2", "CaO2", "SrO2", "BaO2"]
-                    common_superoxides = ["LiO2", "NaO2", "KO2", "RbO2", "CsO2"]
-                    ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
-                    if rform in common_peroxides:
-                        correction += float(self.oxide_correction["peroxide"]) * comp[Element("O")] / 2.0
-                    elif rform in common_superoxides:
-                        correction += float(self.oxide_correction["superoxide"]) * comp[Element("O")] / 2.0
-                    elif rform in ozonides:
-                        correction += float(self.oxide_correction["ozonide"]) * comp[Element("O")] / 2.0 * 3.0
+                    if rform in Compatibility.common_peroxides:
+                        correction += self.oxide_correction["peroxide"] * \
+                            comp["O"] / 2
+                    elif rform in Compatibility.common_superoxides:
+                        correction += self.oxide_correction["superoxide"] * \
+                            comp["O"] / 2
+                    elif rform in Compatibility.ozonides:
+                        correction += self.oxide_correction["ozonide"] * \
+                            comp["O"] / 2 * 3
 
             entry.correction = correction
         return entry
