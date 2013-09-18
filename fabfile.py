@@ -62,7 +62,8 @@ def test():
 
 
 def setver():
-    local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup".format(ver))
+    local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
+          .format(ver))
     local("mv newsetup setup.py")
 
 
@@ -75,14 +76,15 @@ def update_dev_doc():
 
 
 def log_ver():
-    filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public", "pymatgen", ver)
+    filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
+                            "pymatgen", ver)
     with open(filepath, "w") as f:
         f.write("Release")
 
 
 def release():
     setver()
-    #test()
+    test()
     publish()
-    update_dev_doc()
     log_ver()
+    update_dev_doc()
