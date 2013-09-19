@@ -1063,8 +1063,7 @@ class TaskPolicy(AttrDict):
         use_fw=False,       # True if we are using fireworks.
         autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
         mode="default",     # ["default", "aggressive", "conservative"]
-        max_ncpus=2,
-        #max_mpi_ncpus=-1,  # Max number of CPUs to use for MPI (DEFAULT: no limit is enforced, users should specify this value)
+        max_ncpus=None,     # Max number of CPUs to use for MPI (DEFAULT: no limit is enforced, users should specify this value)
         #automated=False,
         # Constraints
     )
@@ -1100,6 +1099,9 @@ class TaskPolicy(AttrDict):
         for k, v in self._DEFAULTS.items():
             if k not in self:
                 self[k] = v
+
+        if self.autoparal and self.max_ncpus is None:
+            raise ValueError("When autoparal is enabled, max_ncpus must be specified.")
 
     @classmethod
     def default_policy(cls):
@@ -1203,9 +1205,7 @@ class TaskManager(object):
         task.build()
 
         # Build a simple manager that runs jobs in a shell subprocess.
-        # Should remove the Queue header here!
         seq_manager = self.to_shell_manager(mpi_ncpus=1)
-        #print(seq_manager)
 
         process = seq_manager.launch(task)
         process.wait()
@@ -1232,6 +1232,10 @@ class TaskManager(object):
         except parser.Error:
             return -1
 
+        # Prune configuration with more processors that polcy.max_ncpus.
+        # This workaround is not needed if we pass max_ncpuds to abinit.
+        confs = ParalHints(confs.header, [c for c in confs if c.tot_npcus <= policy.max_ncpus])
+
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
 
@@ -1239,8 +1243,14 @@ class TaskManager(object):
         task.strategy.add_extra_abivars(optimal.abivars)
                                                                   
         self.qadapter.set_mpi_ncpus(optimal.mpi_ncpus)
-        #self.qadapter.set_omp_ncpus(optimal.omp_ncpus)
-        #self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
+
+        #if optimal.omp_ncpus > 1:
+        #    self.qadapter.set_omp_ncpus(optimal.omp_ncpus)
+        #else:
+        #    self.qadapter.disable_omp()
+
+        #if optimal.mem_per_cpu is not None
+        #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
 
         return process.returncode
 
