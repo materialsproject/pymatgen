@@ -31,10 +31,12 @@ import re
 Some conversion factors
 """
 Ha_to_eV = 27.21138386
+eV_to_Ha = 1 / Ha_to_eV
 Ry_to_eV = Ha_to_eV / 2
 amu_to_kg = 1.660538921e-27
 mile_to_meters = 1609.347219
 bohr_to_angstrom = 0.5291772083
+bohr_to_ang = bohr_to_angstrom
 
 """
 Definitions of supported units. Values below are essentially scaling and
