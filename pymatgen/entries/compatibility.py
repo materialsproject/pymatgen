@@ -165,6 +165,40 @@ class GasCorrection(Correction):
         return entry
 
 
+class AqueousCorrection(Correction):
+    """
+    This class implements aqueous phase compound corrections for elements
+    and H2O.
+    """
+    def __init__(self, name):
+        """
+        Args:
+            name:
+                The name of the input set to use. Can be either MP or MIT.
+        """
+
+        module_dir = os.path.dirname(os.path.abspath(__file__))
+        config = ConfigParser.SafeConfigParser()
+        config.optionxform = str
+        config.readfp(open(os.path.join(module_dir,
+                                        "Compatibility.cfg")))
+
+        cpd_energies = dict(
+            config.items("{}AqueousCompoundEnergies".format(name)))
+
+        self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
+
+    def correct_entry(self, entry):
+        comp = entry.composition
+        rform = comp.reduced_formula
+        cpdenergies = self.cpd_energies
+        if rform in cpdenergies:
+            entry.entry_id = -comp.keys()[0].Z
+            entry.correction = cpdenergies[rform] * comp.num_atoms \
+                - entry.uncorrected_energy
+        return entry
+
+
 class UCorrection(Correction):
     """
     This class implements the GGA/GGA+U mixing scheme, which allows mixing of
@@ -283,9 +317,6 @@ class Compatibility(object):
             An adjusted entry if entry is compatible, otherwise None is
             returned.
         """
-        if entry.parameters.get("run_type", "GGA") == "HF":
-            return None
-
         entry.correction = 0
         for c in self.corrections:
             entry = c.correct_entry(entry)
@@ -328,9 +359,10 @@ class MaterialsProjectCompatibility(Compatibility):
                 under the Advanced scheme. A GGA Fe oxide run will therefore be
                 excluded under the scheme.
         """
-        Compatibility.__init__(self,
-                               [PotcarCorrection("MP"), GasCorrection("MP"),
-                                UCorrection("MP", compat_type)])
+        name = "MP"
+        Compatibility.__init__(
+            self, [PotcarCorrection(name), GasCorrection(name),
+                   UCorrection(name, compat_type)])
 
 
 class MITCompatibility(Compatibility):
@@ -353,7 +385,7 @@ class MITCompatibility(Compatibility):
                 under the Advanced scheme. A GGA Fe oxide run will therefore be
                 excluded under the scheme.
         """
-        Compatibility.__init__(self,
-                               [PotcarCorrection("MIT"),
-                                GasCorrection("MIT"),
-                                UCorrection("MIT", compat_type)])
+        name = "MIT"
+        Compatibility.__init__(
+            self, [PotcarCorrection(name), GasCorrection(name),
+                   UCorrection(name, compat_type)])
