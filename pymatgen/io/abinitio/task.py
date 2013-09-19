@@ -1126,7 +1126,7 @@ class TaskManager(object):
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
                                   pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
 
-        self.policy = policy if policy is not None else TaskPolicy.default_policy()
+        self.policy = AttrDict(**policy) if policy is not None else TaskPolicy.default_policy()
 
     def __str__(self):
         """String representation."""
@@ -1162,7 +1162,7 @@ class TaskManager(object):
         cls = self.__class__
         qad = self.qadapter
 
-        new = cls("shell", qparams=qad.qparams, setup=qad.setup, modules=qad.modules, 
+        new = cls("shell", qparams={"MPI_NCPUS": mpi_ncpus}, setup=qad.setup, modules=qad.modules, 
                   shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=self.policy)
         new.qadapter.set_mpi_ncpus(mpi_ncpus)
