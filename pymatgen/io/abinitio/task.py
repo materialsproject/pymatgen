@@ -225,7 +225,7 @@ class Task(object):
 
     def recheck_status(self):
 
-        if self.status not in [self.S_SUB, self.S_RUN, self.S_DONE]: 
+        if self.status not in [self.S_SUB, self.S_RUN, self.S_DONE, self.S_ERROR]: 
             return
 
         # Check the returncode of the process first.
@@ -241,7 +241,7 @@ class Task(object):
                 # TODO check possible errors in stderr and queue manager 
                 err_msg = self.stderr_file.read()
                 if err_msg:
-                    logger.critical("stderr message" + msg)
+                    logger.critical("stderr message" + err_msg)
 
                 return self.set_status(self.S_ERROR)
 
@@ -794,9 +794,7 @@ class AbinitTask(Task):
         self._setup(*args, **kwargs)
 
         # Automatic parallelization
-        retcode = self.manager.autoparal(self)
-        #if retcode != 0:
-        #    warnings.warn("autoparal returned %s" % retcode)
+        self.manager.autoparal(self)
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
@@ -1035,8 +1033,7 @@ class ParalHints(collections.Iterable):
             return hints[0].copy()
 
         # Find the optimal configuration according to policy.mode.
-        mode = policy.mode
-
+        #mode = policy.mode
         #if mode in ["default", "aggressive"]:
         #    hints.sort_by_efficiency()
         #elif mode == "conservative":
@@ -1234,7 +1231,7 @@ class TaskManager(object):
 
         # Prune configuration with more processors that polcy.max_ncpus.
         # This workaround is not needed if we pass max_ncpuds to abinit.
-        confs = ParalHints(confs.header, [c for c in confs if c.tot_npcus <= policy.max_ncpus])
+        confs = ParalHints(confs.header, [c for c in confs if c.tot_ncpus <= policy.max_ncpus])
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
