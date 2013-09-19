@@ -16,8 +16,9 @@ __date__ = "Mar 19, 2012"
 import unittest
 
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility, \
-    MITCompatibility, UCorrection, GasCorrection, PotcarCorrection
-from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+    MITCompatibility, AqueousCorrection
+from pymatgen.entries.computed_entries import ComputedEntry, \
+    ComputedStructureEntry
 from pymatgen import Composition, Lattice, Structure, Element
 
 
@@ -284,6 +285,25 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, (-3 + 1.90))
+
+
+class AqueousCorrectionTest(unittest.TestCase):
+
+    def setUp(self):
+        self.corr = AqueousCorrection("MIT")
+
+    def test_compound_energy(self):
+        entry = ComputedEntry(Composition("H2O"), -16)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -15.0261, 4)
+
+        entry = ComputedEntry(Composition("H2O"), -24)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -15.0261, 4)
+
+        entry = ComputedEntry(Composition("Cl"), -24)
+        entry = self.corr.correct_entry(entry)
+        self.assertAlmostEqual(entry.energy, -1.5982245489900002, 4)
 
 
 if __name__ == "__main__":
