@@ -1042,8 +1042,8 @@ class ParalHints(collections.Iterable):
 
         # First select the configurations satisfying the 
         # constraints specified by the user (if any)
-        for constraint in self.policy.constraints:
-            hints.apply_filter(constraint)
+        #for constraint in policy.constraints:
+        #    hints.apply_filter(constraint)
 
         hints.sort_by_speedup()
 
@@ -1054,8 +1054,7 @@ class ParalHints(collections.Iterable):
             return hints[0].copy()
 
         # Find the optimal configuration according to policy.mode.
-        mode = policy.mode
-
+        #mode = policy.mode
         #if mode in ["default", "aggressive"]:
         #    hints.sort_by_spedup()
         #elif mode == "conservative":
@@ -1166,12 +1165,12 @@ class TaskManager(object):
         return cls(qtype="shell")
 
     @classmethod 
-    def simple_mpi(cls, mpi_runner="mpirun", mpi_ncpus=1):
+    def simple_mpi(cls, mpi_runner="mpirun", mpi_ncpus=1, policy=None):
         """
         Simplest task manager that submits jobs with a simple shell script and mpirun.
         Assume the shell environment is already properly initialized.
         """
-        return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner)
+        return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner, policy=policy)
 
     @property
     def tot_ncpus(self):
@@ -1215,7 +1214,7 @@ class TaskManager(object):
         parameters passed to the `TaskManager` e.g. the number of CPUs for MPI/OpenMp.
         """
         policy = self.policy
-        if policy.autoparal == 0:
+        if policy.autoparal == 0 or policy.max_ncpus is None:
             return 0
 
         assert policy.autoparal == 1
@@ -1224,7 +1223,7 @@ class TaskManager(object):
         # Set the variables for automatic parallelization
         autoparal_vars = dict(
             autoparal=policy.autoparal,
-            #max_ncpus=policy.max_ncpus,
+            max_ncpus=policy.max_ncpus,
         )
 
         task.strategy.add_extra_abivars(autoparal_vars)
@@ -1259,10 +1258,6 @@ class TaskManager(object):
 
         except parser.Error:
             return -1
-
-        # Prune configuration with more processors that polcy.max_ncpus.
-        # This workaround is not needed if we pass max_ncpus to abinit.
-        confs = ParalHints(confs.header, [c for c in confs if c.tot_ncpus <= policy.max_ncpus])
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
