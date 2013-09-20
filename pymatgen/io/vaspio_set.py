@@ -175,11 +175,12 @@ class DictVaspInputSet(AbstractVaspInputSet):
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
+                 user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True):
         """
         Args:
             name:
-                The name in the config file.
+                A name fo the input set.
             config_dict:
                 The config dictionary to use.
             hubbard_off:
@@ -212,6 +213,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
             for k in self.incar_settings.keys():
                 if k.startswith("LDAU"):
                     del self.incar_settings[k]
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
 
     def get_incar(self, structure):
         incar = Incar()
@@ -330,7 +333,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             "constrain_total_magmom": self.set_nupdown,
             "sort_structure": self.sort_structure,
             "@class": self.__class__.__name__,
-            "@module": self.__module__.__name__,
+            "@module": self.__class__.__module__,
         }
 
     @classmethod
@@ -340,16 +343,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True))
 
-
-class JSONVaspInputSet(DictVaspInputSet):
-    """
-    Loads a DictVaspInputSet from a file, with some other options. This is
-    never initialized by itself. It's for ease of implementing the sub-classes.
-    """
-
-    def __init__(self, name, json_file, hubbard_off=False,
-                 user_incar_settings=None, constrain_total_magmom=False,
-                 sort_structure=True):
+    @staticmethod
+    def from_json_file(name, json_file, hubbard_off=False,
+                       user_incar_settings=None, constrain_total_magmom=False,
+                       sort_structure=True):
         """
         Args:
             name:
@@ -376,38 +373,15 @@ class JSONVaspInputSet(DictVaspInputSet):
                 together.
         """
         with open(json_file) as f:
-            DictVaspInputSet.__init__(
-                self, name, json.load(f), hubbard_off=hubbard_off,
+            return DictVaspInputSet(
+                name, json.load(f),
+                hubbard_off=hubbard_off,
                 constrain_total_magmom=constrain_total_magmom,
+                user_incar_settings=user_incar_settings,
                 sort_structure=sort_structure)
-        self.json_file = json_file
-        self.user_incar_settings = user_incar_settings
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
-    @property
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "json_file": self.json_file,
-            "hubbard_off": self.hubbard_off,
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "sort_structure": self.sort_structure,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(d["name"], d["json_file"],
-                   hubbard_off=d.get("hubbard_off", False),
-                   user_incar_settings=d["user_incar_settings"],
-                   constrain_total_magmom=d["constrain_total_magmom"],
-                   sort_structure=d.get("sort_structure", True))
 
 
-MITVaspInputSet = partial(JSONVaspInputSet, "MIT",
+MITVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT",
                           os.path.join(MODULE_DIR, "MITVaspInputSet.json"))
 """
 Standard implementation of VaspInputSet utilizing parameters in the MIT
@@ -426,7 +400,7 @@ for more information. Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
 
-MITGGAVaspInputSet = partial(JSONVaspInputSet, "MIT GGA",
+MITGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT GGA",
                              os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
                              hubbard_off=True)
 """
@@ -435,7 +409,7 @@ Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
 MITHSEVaspInputSet = partial(
-    JSONVaspInputSet, "MIT HSE",
+    DictVaspInputSet.from_json_file, "MIT HSE",
     os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"))
 """
 Typical implementation of input set for a HSE run using MIT parameters.
@@ -443,7 +417,7 @@ Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
 
-class MITNEBVaspInputSet(JSONVaspInputSet):
+class MITNEBVaspInputSet(DictVaspInputSet):
     """
     Class for writing NEB inputs.
     """
@@ -455,9 +429,9 @@ class MITNEBVaspInputSet(JSONVaspInputSet):
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
-        JSONVaspInputSet.__init__(
-            self, "MIT NEB",
-            os.path.join(MODULE_DIR, "MITVaspInputSet.json"), **kwargs)
+        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MIT NEB", json.load(f), **kwargs)
         self.nimages = nimages
         # NEB settings
         self.incar_settings.update(
@@ -505,20 +479,20 @@ class MITNEBVaspInputSet(JSONVaspInputSet):
 
     @classmethod
     def from_dict(cls, d):
-        return cls(user_incar_settings=d["user_incar_settings"],
+        return cls(user_incar_settings=d.get("user_incar_settings", None),
                    constrain_total_magmom=d["constrain_total_magmom"],
                    sort_structure=d.get("sort_structure", True),
                    hubbard_off=d.get("hubbard_off", False),
                    nimages=d["nimages"])
 
 
-class MITMDVaspInputSet(JSONVaspInputSet):
+class MITMDVaspInputSet(DictVaspInputSet):
     """
     Class for writing a vasp md run. This DOES NOT do multiple stage
     runs.
     """
 
-    def __init__(self, start_temp, end_temp, nsteps, time_step=2, 
+    def __init__(self, start_temp, end_temp, nsteps, time_step=2,
                  hubbard_off=True, spin_polarized=False,
                  sort_structure=False, user_incar_settings=None,
                  **kwargs):
@@ -542,27 +516,27 @@ class MITMDVaspInputSet(JSONVaspInputSet):
             user_incar_settings:
                 Settings to override the default incar settings (as a dict)
             **kwargs:
-                Other kwargs supported by :class:`JSONVaspInputSet`.
+                Other kwargs supported by :class:`DictVaspInputSet`.
         """
         #MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
-                    'EDIFF': 0.000001, 'LSCALU': False, 'LCHARG': False, 
-                    'LPLANE': False, 'LWAVE': True, 'ICHARG': 0, 'ISMEAR': 0, 
-                    'SIGMA': 0.05, 'NELMIN': 4, 'LREAL': True, 'BMIX': 1, 
-                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0, 
-                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100, 
+                    'EDIFF': 0.000001, 'LSCALU': False, 'LCHARG': False,
+                    'LPLANE': False, 'LWAVE': True, 'ICHARG': 0, 'ISMEAR': 0,
+                    'SIGMA': 0.05, 'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
+                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
+                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
                     'SMASS': 0, 'POTIM': time_step, 'PREC': 'Normal',
                     'ISPIN': 2 if spin_polarized else 1}
-        
+
         #override default settings with user supplied settings
         if user_incar_settings:
             defaults.update(user_incar_settings)
-        
-        JSONVaspInputSet.__init__(
-            self, "MIT MD", os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
-            hubbard_off=hubbard_off, sort_structure=sort_structure, 
-            user_incar_settings = defaults, **kwargs)
-        
+        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MIT MD", json.load(f),
+                hubbard_off=hubbard_off, sort_structure=sort_structure,
+                user_incar_settings = defaults, **kwargs)
+
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
@@ -601,7 +575,7 @@ class MITMDVaspInputSet(JSONVaspInputSet):
                    sort_structure=d.get("sort_structure", True))
 
 
-MPVaspInputSet = partial(JSONVaspInputSet, "MP",
+MPVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP",
                          os.path.join(MODULE_DIR, "MPVaspInputSet.json"))
 """
 Implementation of VaspInputSet utilizing parameters in the public
@@ -613,14 +587,14 @@ which result in different fitted values. Supports the same kwargs as
 """
 
 
-MPGGAVaspInputSet = partial(JSONVaspInputSet, "MP GGA",
+MPGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP GGA",
                             os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
                             hubbard_off=True)
 """
 Same as the MPVaspInput set, but the +U is enforced to be turned off.
 """
 
-class MPStaticVaspInputSet(JSONVaspInputSet):
+class MPStaticVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static calculations that typically follow relaxation runs.
@@ -632,9 +606,9 @@ class MPStaticVaspInputSet(JSONVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        JSONVaspInputSet.__init__(
-            self, "MP Static", os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
-            **kwargs)
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MP Static", json.load(f), **kwargs)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
