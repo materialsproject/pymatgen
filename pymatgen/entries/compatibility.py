@@ -129,37 +129,29 @@ class GasCorrection(Correction):
             return entry
 
         correction = 0
-        #Check for peroxide, superoxide, and ozonide corrections. For
-        # now, ozonides will be ignored.
+        #Check for oxide, peroxide, superoxide, and ozonide corrections. 
         if len(comp) >= 2 and Element("O") in comp:
             if "oxide_type" in entry.data:
                 if entry.data["oxide_type"] in self.oxide_correction:
                     ox_corr = self.oxide_correction[
                         entry.data["oxide_type"]]
-                    if entry.data["oxide_type"] is "ozonide":
-                        correction += ox_corr * comp["O"] * 2 / 3
-                    else:
-                        correction += ox_corr * comp["O"] / 2
+                    correction += ox_corr * comp["O"]
             elif hasattr(entry, "structure"):
-                ox_type, nbonds = oxide_type(entry.structure, 1.1,
+                ox_type, nbonds = oxide_type(entry.structure, 1.05,
                                              return_nbonds=True)
                 if ox_type in self.oxide_correction:
-                    if ox_type is "ozonide":
-                        correction += self.oxide_correction[ox_type] \
-                            * nbonds * 2 / 3
-                    else:
-                        correction += self.oxide_correction[ox_type] * \
-                            nbonds
+                    correction += self.oxide_correction[ox_type] * \
+                        nbonds
             else:
                 if rform in UCorrection.common_peroxides:
                     correction += self.oxide_correction["peroxide"] * \
-                        comp["O"] / 2
+                        comp["O"]
                 elif rform in UCorrection.common_superoxides:
                     correction += self.oxide_correction["superoxide"] * \
-                        comp["O"] / 2
+                        comp["O"]
                 elif rform in UCorrection.ozonides:
                     correction += self.oxide_correction["ozonide"] * \
-                        comp["O"] / 2 * 3
+                        comp["O"]
 
         entry.correction += correction
         return entry
