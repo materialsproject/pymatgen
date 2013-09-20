@@ -456,6 +456,8 @@ class PointGroupAnalyzer(object):
         return True
 
 
+@requires(spcluster is not None, "Cannot import scipy. cluster_sites require "
+                                 "scipy.cluster.")
 def cluster_sites(mol, tol):
     """
     Cluster sites based on distance and species type.
