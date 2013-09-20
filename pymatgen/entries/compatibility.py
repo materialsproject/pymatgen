@@ -136,12 +136,19 @@ class GasCorrection(Correction):
                     ox_corr = self.oxide_correction[
                         entry.data["oxide_type"]]
                     correction += ox_corr * comp["O"]
+                elif entry.data["oxide_type"] == "hydroxide":
+                    correction += self.oxide_correction["oxide"] *\
+                        comp["O"]
+
             elif hasattr(entry, "structure"):
                 ox_type, nbonds = oxide_type(entry.structure, 1.05,
                                              return_nbonds=True)
                 if ox_type in self.oxide_correction:
                     correction += self.oxide_correction[ox_type] * \
                         nbonds
+                elif ox_type == "hydroxide":
+                    correction += self.oxide_correction["oxide"] *\
+                        comp["O"]
             else:
                 if rform in UCorrection.common_peroxides:
                     correction += self.oxide_correction["peroxide"] * \
@@ -152,6 +159,8 @@ class GasCorrection(Correction):
                 elif rform in UCorrection.ozonides:
                     correction += self.oxide_correction["ozonide"] * \
                         comp["O"]
+                elif Element("O") in comp.elements and len(comp.elements) > 1:
+                    correction += self.oxide_correction['oxide'] * comp["O"]
 
         entry.correction += correction
         return entry

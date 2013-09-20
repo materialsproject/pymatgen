@@ -57,7 +57,7 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
 
         #Check actual correction
         self.assertAlmostEqual(compat.process_entry(entry).correction,
-                               - 2.733 * 2)
+                               - 2.733 * 2 - 0.70229 * 3)
 
         entry = ComputedEntry(
             'FeF3', -2, 0.0,
@@ -143,7 +143,7 @@ class MITCompatibilityTest(unittest.TestCase):
                                            'PAW_PBE O 08Apr2002']})
         self.assertIsNotNone(compat.process_entry(entry))
         self.assertAlmostEqual(compat.process_entry(entry).correction,
-                               - 1.723 * 2)
+                               - 1.723 * 2 -0.66975*3)
 
         entry = ComputedEntry(
             'FeF3', -2, 0.0,
@@ -224,7 +224,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'potcar_symbols':
         ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio2_entry_corrected = self.compat.process_entry(lio2_entry_nostruct)
-        self.assertAlmostEqual(lio2_entry_corrected.energy, 1.3153, 4)
+        self.assertAlmostEqual(lio2_entry_corrected.energy, -3 - 0.13893*4, 4)
 
     def test_process_entry_superoxide(self):
         el_li = Element("Li")
@@ -248,7 +248,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'potcar_symbols':
         ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio2_entry_corrected = self.compat.process_entry(lio2_entry)
-        self.assertAlmostEqual(lio2_entry_corrected.energy, -0.8423, 4)
+        self.assertAlmostEqual(lio2_entry_corrected.energy, -3 -0.13893*4, 4)
 
     def test_process_entry_peroxide(self):
         latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
@@ -271,7 +271,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'potcar_symbols':
         ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
         li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
-        self.assertAlmostEqual(li2o2_entry_corrected.energy, -2.0576, 4)
+        self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4)
 
     def test_process_entry_ozonide(self):
         el_li = Element("Li")
@@ -291,7 +291,7 @@ class OxideTypeCorrectionTest(unittest.TestCase):
                                           'potcar_symbols':
         ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
-        self.assertAlmostEqual(lio3_entry_corrected.energy, -0.15)
+        self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
 
 
 class AqueousCorrectionTest(unittest.TestCase):
