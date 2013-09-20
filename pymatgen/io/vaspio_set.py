@@ -752,8 +752,8 @@ class MPStaticVaspInputSet(JSONVaspInputSet):
                                "LWAVE": False, "NSW": 0, "ICHARG": 0})
 
         # Compare ediff between previous and staticinputset values,
-        # choose the tigher ediff
-        previous_incar.update({"EDIFF": min(previous_incar["EDIFF"],
+        # choose the tighter ediff
+        previous_incar.update({"EDIFF": min(previous_incar.get("EDIFF", 1),
                                             new_incar["EDIFF"])})
 
         # add user settings
