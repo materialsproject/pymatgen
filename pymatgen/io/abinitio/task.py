@@ -202,6 +202,16 @@ class Task(object):
     def tot_ncpus(self):
         """Total number of CPUs used to run the task."""
         return self.manager.tot_ncpus
+                                                         
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.manager.mpi_ncpus
+                                                         
+    @property
+    def omp_ncpus(self):
+        """Number of CPUs used for OpenMP."""
+        return self.manager.omp_ncpus
 
     @property
     def status(self):
@@ -880,20 +890,26 @@ class ParalConf(AttrDict):
     that might not be present in the ABINIT dictionary.
 
     Example:
-        <RUN_HINTS, max_ncpus = "108", autoparal="3">
-            "1": {
-                  "tot_ncpus": 2,     # Total number of CPUs
-                  "mpi_ncpus": 2,     # Number of MPI processes.
-                  "omp_ncpus": 1,     # Number of OMP threads (1 if not present)
-                  "mem_per_cpus: 10, # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
-                  "efficiency"   : 0.4,   # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
-                  "abivars": {        # Dictionary with the ABINIT variables that should be added to the input.
-                        "varname1": varvalue1,
-                        "varname2": varvalue2,
-                        }
-                 }
-            "2": { ...
-                 }
+
+        <RUN_HINTS>
+        header: 
+            version: 1,
+            autoparal: 1,
+            max_ncpus: 108,
+
+        configurations:
+        -
+            tot_ncpus: 2,     # Total number of CPUs
+            mpi_ncpus: 2,     # Number of MPI processes.
+            omp_ncpus: 1,     # Number of OMP threads (1 if not present)
+            mem_per_cpus: 10, # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
+            efficiency: 0.4,  # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
+            vars: {        # Dictionary with the variables that should be added to the input.
+                  varname1: varvalue1,
+                  varname2: varvalue2,
+                  },
+        -
+             ...
         </RUN_HINTS>
 
     For paral_kgb we have:
@@ -906,7 +922,7 @@ class ParalConf(AttrDict):
     _DEFAULTS = {
         "omp_ncpus": 1,     
         "mem_per_cpu": 0.0, 
-        "abivars": {}       
+        "vars": {}       
     }
 
     def __init__(self, *args, **kwargs):
@@ -986,31 +1002,36 @@ class ParalHints(collections.Iterable):
         d = yaml.load(s)
         return cls(header=d["header"], confs=d["configurations"])
 
-    #def apply_filter(self, filter):
-    #    new_confs = []
-    #    for conf in self:
-    #        attr_value = getattr(conf, attrname)
-    #        if func(attr_value:):
-    #            new_confs.append(conf)
-    #    self._confs = new_confs
+    def apply_filter(self, filter):
+        raise NotImplementedError("")
+        new_confs = []
+
+        for conf in self:
+            if not filter(costraint):
+                new_confs.append(conf)
+
+        self._confs = new_confs
 
     #def select(self, command)
     #    new_confs = []
     #    for conf in self:
     #       if command(conf):
     #            new_confs.append(conf)
-    #    return self.__class__(self.header, new_confs)
     #    self._confs = new_confs
 
-    #def sort(self, cmp=None, key=None, reverse=False): 
-    #    "stable sort *IN PLACE*; cmp(x, y) -> -1, 0, 1"
-    #    self._confs.sort(cmp=None, key=None, reverse=False)
-
     def sort_by_efficiency(self):
-        self._confs = sorted(self._confs, key=lambda c: c.efficiency, reverse=True)
+        """
+        Sort the configurations in place so that conf with highest efficieny 
+        appears in the first positions.
+        """
+        self._confs.sort(key=lambda c: c.efficiency, reverse=True)
 
     def sort_by_speedup(self):
-        self._confs = sorted(self._confs, key=lambda c: c.speedup, reverse=True)
+        """
+        Sort the configurations in place so that conf with highest speedup 
+        appears in the first positions.
+        """
+        self._confs.sort(key=lambda c: c.speedup, reverse=True)
 
     #def sort_by_mem(self):
 
@@ -1019,10 +1040,10 @@ class ParalHints(collections.Iterable):
         # Make a copy since we are gonna change the object in place.
         hints = self.copy()
 
-        #  First select the configurations satisfying the 
-        #  constraints specified by the user (if any)
-        #for constraint in self.policy.constraints:
-        #    hints.apply_filter(constraint)
+        # First select the configurations satisfying the 
+        # constraints specified by the user (if any)
+        for constraint in self.policy.constraints:
+            hints.apply_filter(constraint)
 
         hints.sort_by_speedup()
 
@@ -1033,11 +1054,12 @@ class ParalHints(collections.Iterable):
             return hints[0].copy()
 
         # Find the optimal configuration according to policy.mode.
-        #mode = policy.mode
+        mode = policy.mode
+
         #if mode in ["default", "aggressive"]:
-        #    hints.sort_by_efficiency()
+        #    hints.sort_by_spedup()
         #elif mode == "conservative":
-        #    hints.sort_by_tot_num_cpus()
+        #    hints.sort_by_efficiency()
         #else:
         #    raise ValueError("Wrong value for mode: %s" % str(mode))
 
@@ -1060,12 +1082,12 @@ class TaskPolicy(AttrDict):
         use_fw=False,       # True if we are using fireworks.
         autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
         mode="default",     # ["default", "aggressive", "conservative"]
-        max_ncpus=None,     # Max number of CPUs to use for MPI (DEFAULT: no limit is enforced, users should specify this value)
+        max_ncpus=None,     # Max number of CPUs that can be used (users should specify this value when autoparal > 0)
+        constraints = []    # List of constraints (mongodb syntax).
         #automated=False,
-        # Constraints
     )
 
-    #def __init__(self, autoparal=None, mode="normal", use_fw=False, automated=False, constraints=None)
+    #def __init__(self, autoparal=0, mode="default", use_fw=False, automated=False, constraints=None)
     #    """
     #    Args:
     #        autoparal: 
@@ -1129,9 +1151,9 @@ class TaskManager(object):
         """String representation."""
         lines = []
         app = lines.append
-        app("tot_ncpus %d" % self.tot_ncpus)
+        app("tot_ncpus %d, mpi_ncpus %d, omp_ncpus %s" % (self.tot_ncpus, self.mpi_ncpus, self.omp_ncpus))
         app("MPI_RUNNER %s" % str(self.qadapter.mpi_runner))
-        app("policy %s" % self.policy)
+        app("policy: %s" % str(self.policy))
 
         return "\n".join(lines)
 
@@ -1151,6 +1173,21 @@ class TaskManager(object):
         """
         return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner)
 
+    @property
+    def tot_ncpus(self):
+        """Total number of CPUs used to run the task."""
+        return self.qadapter.tot_ncpus
+
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qadapter.mpi_ncpus
+
+    @property
+    def omp_ncpus(self):
+        """Number of CPUs used for OpenMP."""
+        return self.qadapter.omp_ncpus
+
     def to_shell_manager(self, mpi_ncpus=1):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
@@ -1162,17 +1199,12 @@ class TaskManager(object):
         new = cls("shell", qparams={"MPI_NCPUS": mpi_ncpus}, setup=qad.setup, modules=qad.modules, 
                   shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=self.policy)
+
         new.qadapter.set_mpi_ncpus(mpi_ncpus)
-    
         return new
 
     #def copy(self):
     #    return self.__class__(self.qadapter.copy(), self.policy.copy())
-
-    @property
-    def tot_ncpus(self):
-        """Total number of CPUs used to run the task."""
-        return self.qadapter.tot_ncpus
 
     def autoparal(self, task):
         """
@@ -1180,10 +1212,7 @@ class TaskManager(object):
         using the options specified in self.policy.
      
         This method can change the ABINIT input variables and/or the 
-        parameters passed to the `TaskManager` e.g. the number of CPUs.
-
-        Returns:
-            return code of the subprocess.
+        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI/OpenMp.
         """
         policy = self.policy
         if policy.autoparal == 0:
@@ -1206,6 +1235,8 @@ class TaskManager(object):
 
         process = seq_manager.launch(task)
         process.wait()
+        # return code is always != 0 
+        #return process.returncode
 
         # Reset the status, remove garbage files ...
         task.set_status(task.S_READY)
@@ -1230,26 +1261,27 @@ class TaskManager(object):
             return -1
 
         # Prune configuration with more processors that polcy.max_ncpus.
-        # This workaround is not needed if we pass max_ncpuds to abinit.
+        # This workaround is not needed if we pass max_ncpus to abinit.
         confs = ParalHints(confs.header, [c for c in confs if c.tot_ncpus <= policy.max_ncpus])
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
 
         # 4) Change the input file and/or the submission script
-        task.strategy.add_extra_abivars(optimal.abivars)
+        task.strategy.add_extra_abivars(optimal.vars)
                                                                   
+        # Change the number of MPI nodes.
         self.qadapter.set_mpi_ncpus(optimal.mpi_ncpus)
 
+        # Change the number of OpenMP threads.
         #if optimal.omp_ncpus > 1:
         #    self.qadapter.set_omp_ncpus(optimal.omp_ncpus)
         #else:
         #    self.qadapter.disable_omp()
 
+        # Change the memory per node required.
         #if optimal.mem_per_cpu is not None
         #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
-
-        return process.returncode
 
     def write_jobfile(self, task):
         """
@@ -1283,7 +1315,14 @@ class TaskManager(object):
 
     def launch(self, task):
         """
-        Submit the task and return process object.
+        Build the input files and submit the task via the `Qadapter` 
+
+        Args:
+            task:
+                `TaskObject`
+        
+        Returns:
+            Process object.
         """
         task.build()
 
