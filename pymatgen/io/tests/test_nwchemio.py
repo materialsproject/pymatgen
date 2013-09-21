@@ -151,6 +151,10 @@ class NwInputTest(unittest.TestCase):
 
         self.nwi = NwInput(mol, tasks,
                            geometry_options=["units", "angstroms", "noautoz"])
+        self.nwi_symm = NwInput(mol, tasks,
+                                geometry_options=["units", "angstroms",
+                                                  "noautoz"],
+                                symmetry_options=["c1"])
 
     def test_str(self):
         ans = """geometry units angstroms noautoz
@@ -223,11 +227,87 @@ task dft energy
 """
         self.assertEqual(str(self.nwi), ans)
 
+        ans_symm = """geometry units angstroms noautoz
+ symmetry c1
+ C 0.0 0.0 0.0
+ H 0.0 0.0 1.089
+ H 1.026719 0.0 -0.363
+ H -0.51336 -0.889165 -0.363
+ H -0.51336 0.889165 -0.363
+end
+
+title "H4C1 dft optimize"
+charge 0
+basis
+ H library "6-31++G*"
+ C library "6-31++G*"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft optimize
+
+title "H4C1 dft freq"
+charge 0
+basis
+ H library "6-31++G*"
+ C library "6-31++G*"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft freq
+
+title "H4C1 dft energy"
+charge 0
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 1
+end
+task dft energy
+
+title "H4C1 dft energy"
+charge 1
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 2
+end
+task dft energy
+
+title "H4C1 dft energy"
+charge -1
+basis
+ H library "6-311++G**"
+ C library "6-311++G**"
+end
+dft
+ xc b3lyp
+ mult 2
+end
+task dft energy
+"""
+
+        self.assertEqual(str(self.nwi_symm), ans_symm)
+
     def test_to_from_dict(self):
         d = self.nwi.to_dict
         nwi = NwInput.from_dict(d)
         self.assertIsInstance(nwi, NwInput)
         #Ensure it is json-serializable.
+        json.dumps(d)
+        d = self.nwi_symm.to_dict
+        nwi_symm = NwInput.from_dict(d)
+        self.assertIsInstance(nwi_symm, NwInput)
         json.dumps(d)
 
     def test_from_string_and_file(self):
@@ -287,6 +367,19 @@ task dft energy
         self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
         self.assertEqual(nwi.tasks[-1].theory, "dft")
         self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
+
+        str_inp_symm = str_inp.replace("geometry units angstroms",
+                                       "geometry units angstroms\n symmetry "
+                                       "c1")
+
+        nwi_symm = NwInput.from_string(str_inp_symm)
+        self.assertEqual(nwi_symm.geometry_options, ['units', 'angstroms'])
+        self.assertEqual(nwi_symm.symmetry_options, ['c1'])
+        self.assertEqual(nwi_symm.tasks[0].theory, "scf")
+        self.assertEqual(nwi_symm.tasks[0].basis_set["C"], "6-31++G*")
+        self.assertEqual(nwi_symm.tasks[-1].theory, "dft")
+        self.assertEqual(nwi_symm.tasks[-1].basis_set["C"], "6-311++G**")
+
 
 
 class NwOutputTest(unittest.TestCase):
