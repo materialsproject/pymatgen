@@ -732,7 +732,8 @@ class AbinitTask(Task):
             os.makedirs(self.tmpdata_dir)
 
         # Write files file and input file.
-        self.files_file.write(self.filesfile_string)
+        if not self.files_file.exists:
+            self.files_file.write(self.filesfile_string)
 
         self.input_file.write(self.make_input())
 
@@ -943,7 +944,40 @@ class ParalHintsParser(object):
     Error = ParalHintsError
 
     def parse(self, filename):
-        return ParalHints.from_file(filename)
+        """
+        Read the <RUN_HINTS> section from file filename
+        Assumes the file contains only one section.
+        """
+        START_TAG = "<RUN_HINTS>"
+        END_TAG = "</RUN_HINTS>"
+
+        start, end = None, None
+        with open(filename, "r") as fh:
+            lines = fh.readlines()
+
+        for i, line in enumerate(lines):
+            if START_TAG in line:
+                start = i
+            elif END_TAG in line:
+                end = i
+                break
+
+        if start is None or end is None:
+            raise cls.Error("%s does not contain any valid RUN_HINTS section" % filename)
+
+        if start == stop:
+            # Empy section ==> One has to enable Yaml in ABINIT.
+            raise cls.Error("%s contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
+
+        s = "".join(l for l in lines[start+1:end])
+
+        import yaml
+        try:
+            d = yaml.load(s)
+        except:
+            raise cls.Error("Malformatted Yaml file")
+
+        return ParalHints(header=d["header"], confs=d["configurations"])
 
 
 class ParalHints(collections.Iterable):
@@ -971,37 +1005,6 @@ class ParalHints(collections.Iterable):
     def copy(self):
         return self.__class__(header=self.header.copy(), confs=self._confs[:])
 
-    @classmethod
-    def from_file(cls, filename):
-        """
-        Read the <RUN_HINTS> section from file filename
-        Assumes the file contains only one section.
-        """
-        START_TAG = "<RUN_HINTS>"
-        END_TAG = "</RUN_HINTS>"
-
-        start, end = None, None
-        with open(filename, "r") as fh:
-            lines = fh.readlines()
-
-        for i, line in enumerate(lines):
-            if START_TAG in line:
-                start = i
-            elif END_TAG in line:
-                end = i
-                break
-
-        # TODO Handle the case in which autoparal is not supported.
-        if start is None or end is None:
-            raise cls.Error("%s does not contain any valid RUN_HINTS section" % filename)
-
-        import yaml
-        s = "".join(l for l in lines[start+1:end])
-        #print(s)
-
-        d = yaml.load(s)
-        return cls(header=d["header"], confs=d["configurations"])
-
     def apply_filter(self, filter):
         raise NotImplementedError("")
         new_confs = []
@@ -1019,19 +1022,19 @@ class ParalHints(collections.Iterable):
     #            new_confs.append(conf)
     #    self._confs = new_confs
 
-    def sort_by_efficiency(self):
+    def sort_by_efficiency(self, reverse=False):
         """
-        Sort the configurations in place so that conf with highest efficieny 
+        Sort the configurations in place so that conf with lowest efficieny 
         appears in the first positions.
         """
-        self._confs.sort(key=lambda c: c.efficiency, reverse=True)
+        self._confs.sort(key=lambda c: c.efficiency, reverse=reverse)
 
-    def sort_by_speedup(self):
+    def sort_by_speedup(self, reverse=False):
         """
-        Sort the configurations in place so that conf with highest speedup 
+        Sort the configurations in place so that conf with lowest speedup 
         appears in the first positions.
         """
-        self._confs.sort(key=lambda c: c.speedup, reverse=True)
+        self._confs.sort(key=lambda c: c.speedup, reverse=reverse)
 
     #def sort_by_mem(self):
 
@@ -1051,19 +1054,19 @@ class ParalHints(collections.Iterable):
         # we return the one with the highest speedup.
         if not hints:
             self.copy().sort_by_speedup()
-            return hints[0].copy()
+            return hints[-1].copy()
 
         # Find the optimal configuration according to policy.mode.
         #mode = policy.mode
         #if mode in ["default", "aggressive"]:
-        #    hints.sort_by_spedup()
+        #    hints.sort_by_spedup(reverse=True)
         #elif mode == "conservative":
-        #    hints.sort_by_efficiency()
+        #    hints.sort_by_efficiency(reverse=True)
         #else:
         #    raise ValueError("Wrong value for mode: %s" % str(mode))
 
         # Return a copy of the configuration.
-        optimal = hints[0].copy()
+        optimal = hints[-1].copy()
         print("Will relaunch the job with optimized parameters:\n %s" % str(optimal))
         return optimal
 
@@ -1082,7 +1085,7 @@ class TaskPolicy(AttrDict):
         autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
         mode="default",     # ["default", "aggressive", "conservative"]
         max_ncpus=None,     # Max number of CPUs that can be used (users should specify this value when autoparal > 0)
-        constraints = []    # List of constraints (mongodb syntax).
+        constraints = [],   # List of constraints (mongodb syntax).
         #automated=False,
     )
 
@@ -1119,7 +1122,7 @@ class TaskPolicy(AttrDict):
                 self[k] = v
 
         if self.autoparal and self.max_ncpus is None:
-            raise ValueError("When autoparal is enabled, max_ncpus must be specified.")
+            raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
     @classmethod
     def default_policy(cls):
@@ -1159,7 +1162,7 @@ class TaskManager(object):
     @classmethod 
     def sequential(cls):
         """
-        Simplest task manager that submits jobs with a simple shell script.
+        Simple task manager that submits jobs with a simple shell script.
         Assume the shell environment is already properly initialized.
         """
         return cls(qtype="shell")
@@ -1167,7 +1170,7 @@ class TaskManager(object):
     @classmethod 
     def simple_mpi(cls, mpi_runner="mpirun", mpi_ncpus=1, policy=None):
         """
-        Simplest task manager that submits jobs with a simple shell script and mpirun.
+        Simple task manager that submits jobs with a simple shell script and mpirun.
         Assume the shell environment is already properly initialized.
         """
         return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner, policy=policy)
@@ -1190,7 +1193,7 @@ class TaskManager(object):
     def to_shell_manager(self, mpi_ncpus=1):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
-        with a `ShellAdapter` with mpi_ncpus.
+        with a `ShellAdapter` with mpi_ncpus so that we can submit the job without passing through the queue.
         """
         cls = self.__class__
         qad = self.qadapter
@@ -1211,10 +1214,11 @@ class TaskManager(object):
         using the options specified in self.policy.
      
         This method can change the ABINIT input variables and/or the 
-        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI/OpenMp.
+        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
         """
         policy = self.policy
-        if policy.autoparal == 0 or policy.max_ncpus is None:
+
+        if policy.autoparal == 0 or policy.max_ncpus is None: # nothing to do
             return 0
 
         assert policy.autoparal == 1
@@ -1247,9 +1251,6 @@ class TaskManager(object):
         # with extension .outA, .outB if the file already exist.
         os.remove(task.output_file.path)
 
-        #if process.returncode != 0:
-        #    return process.returncode
-                                                                  
         # 2) Parse the autoparal configurations
         parser = ParalHintsParser()
 
@@ -1274,9 +1275,11 @@ class TaskManager(object):
         #else:
         #    self.qadapter.disable_omp()
 
-        # Change the memory per node required.
+        # Change the memory per node.
         #if optimal.mem_per_cpu is not None
         #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
+
+        return 0
 
     def write_jobfile(self, task):
         """
@@ -1298,7 +1301,7 @@ class TaskManager(object):
             stderr=task.stderr_file.path,
             # TODO
             #qerr_file=task.qerr_file.path
-            #qout_file==task.qerr_file.path
+            #qout_file=task.qout_file.path
         )
 
         # Write the script.

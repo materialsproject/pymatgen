@@ -78,3 +78,21 @@ def min_max_indexes(seq):
     minimum = min(enumerate(seq), key=lambda s: s[1])
     maximum = max(enumerate(seq), key=lambda s: s[1])
     return minimum[0], maximum[0]
+
+
+#def listify(obj):
+#    """
+#    Transform any object, iterable or not, to a list. 
+#    Returns obj if object is Iterable.
+#    """
+#    if isinstance(obj, collections.Iterable):
+#        if isinstance(obj, tuple):
+#            return list(obj)
+#        else:
+#            return obj
+#
+#    elif isinstance(obj, collections.Iterator):
+#        return list(obj)
+#
+#    else:
+#        return [obj]
