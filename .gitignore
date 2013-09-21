@@ -19,3 +19,5 @@ build
 distribute*.egg
 distribute*.tar.gz
 .ipynb_checkpoints
+
+gulptmp_4_1
