@@ -725,7 +725,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                                "LCHARG": True, "LORBIT": 11, "LVHAR": True,
                                "LWAVE": False, "NSW": 0, "ICHARG": 0})
 
-        for incar_key in ["MAGMOM", "LMAXMIX", "NUPDOWN"]:
+        for incar_key in ["MAGMOM", "NUPDOWN"]:
             if new_incar.get(incar_key, None):
                 previous_incar.update({incar_key: new_incar[incar_key]})
             else:
