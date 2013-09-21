@@ -731,14 +731,13 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             else:
                 previous_incar.pop(incar_key, None)
 
-        # use new LDAUU when possible b/c the Poscar might have changed
-        # representation
-        if (previous_incar.get('LDAU')
-                and sum(previous_incar.get('LDAUU', [])) > 0
-                and sum(previous_incar.get('LDAUJ', [])) > 0):
-            conditional_tags = ['LDAUU', 'LDAUL', 'LDAUJ']
-            for tag in conditional_tags:
-                previous_incar.update({tag: new_incar[tag]})
+        # use new LDAUU when possible b/c the Poscar might have changed representation
+        if previous_incar.get('LDAU'):
+            u = previous_incar.get('LDAUU', [])
+            j = previous_incar.get('LDAUJ', [])
+            if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
+                for tag in ['LDAUU', 'LDAUL', 'LDAUJ']:
+                    previous_incar.update({tag: new_incar[tag]})
 
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
