@@ -721,19 +721,25 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         new_incar = mpsvip.get_incar(structure)
 
         # Use previous run INCAR and override necessary parameters
-        new_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
+        previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
                                "LCHARG": True, "LORBIT": 11, "LVHAR": True,
                                "LWAVE": False, "NSW": 0, "ICHARG": 0})
 
+        for incar_key in ["MAGMOM", "LDAUJ", "LDAUL", "LDAUU", "LMAXMIX", "NUPDOWN"]:
+            if new_incar.get(incar_key, None):
+                previous_incar.update({incar_key:new_incar[incar_key]})
+            else:
+                previous_incar.pop(incar_key, None)
+
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
-        new_incar.update({"EDIFF": min(previous_incar.get("EDIFF", 1),
+        previous_incar.update({"EDIFF": min(previous_incar.get("EDIFF", 1),
                                             new_incar["EDIFF"])})
 
         # add user settings
         if user_incar_settings:
-            new_incar.update(user_incar_settings)
-        new_incar.write_file(os.path.join(output_dir, "INCAR"))
+            previous_incar.update(user_incar_settings)
+        previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Prefer to use k-point scheme from previous run
         previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
