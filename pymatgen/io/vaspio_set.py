@@ -736,7 +736,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             u = previous_incar.get('LDAUU', [])
             j = previous_incar.get('LDAUJ', [])
             if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
-                for tag in ['LDAUU', 'LDAUL', 'LDAUJ']:
+                for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
                     previous_incar.update({tag: new_incar[tag]})
 
         # Compare ediff between previous and staticinputset values,
