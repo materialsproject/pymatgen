@@ -731,9 +731,11 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             else:
                 previous_incar.pop(incar_key, None)
 
-        # use new LDAUU when possible b/c the Poscar might have changed representation
-        if previous_incar.get('LDAU') and sum(previous_incar.get('LDAUU', [])) > 0 \
-           and sum(previous_incar.get('LDAUJ', [])) > 0:
+        # use new LDAUU when possible b/c the Poscar might have changed
+        # representation
+        if (previous_incar.get('LDAU')
+                and sum(previous_incar.get('LDAUU', [])) > 0
+                and sum(previous_incar.get('LDAUJ', [])) > 0):
             conditional_tags = ['LDAUU', 'LDAUL', 'LDAUJ']
             for tag in conditional_tags:
                 previous_incar.update({tag: new_incar[tag]})
@@ -750,13 +752,16 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
         # Prefer to use k-point scheme from previous run
         previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
-                                   previous_final_structure.lattice.reciprocal_lattice.volume
+            previous_final_structure.lattice.reciprocal_lattice.volume
         new_kpoints_density = max(previous_kpoints_density, 90)
-        new_kpoints = mpsvip.get_kpoints(structure, kpoints_density=new_kpoints_density)
+        new_kpoints = mpsvip.get_kpoints(structure,
+                                         kpoints_density=new_kpoints_density)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
             if previous_kpoints.style[0] == "M" and \
-                            SymmetryFinder(structure, 0.01).get_lattice_type() != "hexagonal":
-                k_div = (kp + 1 if kp % 2 == 1 else kp for kp in new_kpoints.kpts[0])
+                    SymmetryFinder(structure, 0.01).get_lattice_type() != \
+                    "hexagonal":
+                k_div = (kp + 1 if kp % 2 == 1 else kp
+                         for kp in new_kpoints.kpts[0])
                 Kpoints.monkhorst_automatic(k_div). \
                     write_file(os.path.join(output_dir, "KPOINTS"))
             else:
@@ -833,7 +838,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                            kpts_weights=[1] * len(cart_k_points))
         else:
             num_kpoints = kpoints_density * \
-                          structure.lattice.reciprocal_lattice.volume
+                    structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
