@@ -7,7 +7,7 @@ import numpy as np
 
 from pprint import pprint, pformat
 
-from pymatgen.util.string_utils import str_aligned, str_delimited
+from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
 from .abiobjects import SpinMode, Smearing, Electrons
 from .pseudos import PseudoTable
 
@@ -39,8 +39,8 @@ __email__ = "gmatteo at gmail.com"
 
 def select_pseudos(pseudos, structure):
     """
-    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials for the calculation.
-    (useful when we receive an entire periodic table)
+    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials 
+    for the calculation (useful when we receive an entire periodic table).
 
     Raises ValueError if no pseudo or multiple occurrences are found.
     """
@@ -57,6 +57,27 @@ def select_pseudos(pseudos, structure):
         pseudos.append(pseudos_for_type[0])
                                                                                  
     return PseudoTable(pseudos)
+
+
+class StrategyWithInput(object):
+    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+    def __init__(self, abinit_input):
+        self.abinit_input = abinit_input
+                                         
+    @property
+    def pseudos(self):
+        return self.abinit_input.pseudos
+
+    def add_extra_abivars(self, abivars):
+        """Add variables (dict) to extra_abivars."""
+        self.abinit_input.set_variables(**abivars)
+
+    def remove_extra_abivars(self, keys):
+        """Remove variables from extra_abivars."""
+        self.abinit_input.remove_variables(keys)
+                                         
+    def make_input(self):
+        return str(self.abinit_input)
 
 
 class Strategy(object):
@@ -216,6 +237,10 @@ class Strategy(object):
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
         self.extra_abivars.update(abivars)
+
+    def remove_extra_abivars(self, keys):
+        for key in keys:
+            self.extra_abivars.pop(key)
 
     #def iocontrol(self):
     #    "Dictionary with variables controlling the IO"
@@ -689,7 +714,7 @@ class InputWriter(object):
         if value is None:  
             return [] # Use ABINIT default.
                                                                                    
-        if isinstance(value, collections.Iterable) and not isinstance(value, str):
+        if isinstance(value, collections.Iterable) and not is_string(value):
             arr = np.array(value)
             if len(arr.shape) in [0,1]: # scalar or vector.
                 token = [key, " ".join([str(i) for i in arr])]

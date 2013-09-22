@@ -160,6 +160,7 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
   int i;
   double symprec, angle_tolerance;
   char symbol[26];
+  char symbol2[26];
   PyArrayObject* lattice;
   PyArrayObject* position;
   PyArrayObject* atom_type;
@@ -188,7 +189,8 @@ static PyObject * get_spacegroup(PyObject *self, PyObject *args)
 					      num_atom,
 					      symprec,
 					      angle_tolerance);
-  sprintf(symbol, "%s (%d)", symbol, num_spg);
+  sprintf(symbol2, "%s (%d)", symbol, num_spg);
+  strcpy(symbol, symbol2);
 
   return PyString_FromString(symbol);
 }

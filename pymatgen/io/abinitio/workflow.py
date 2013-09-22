@@ -10,22 +10,24 @@ import abc
 import collections
 import functools
 import numpy as np
+import cPickle as pickle
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.core.physical_constants import Bohr2Ang, Ang2Bohr, Ha2eV, Ha_eV, Ha2meV
+import pymatgen.core.physical_constants as const 
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
-from pymatgen.io.abinitio.task import task_factory, Task
+from pymatgen.util.string_utils import list_strings
+from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
+from pymatgen.io.abinitio.strategies import Strategy
 
 from .utils import File
 from .netcdf import ETSF_Reader
 from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
 from .pseudos import Pseudo
 from .strategies import ScfStrategy
-from .task import RunMode
 from .eos import EOS
 
 #import logging
@@ -37,14 +39,14 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
-
+    "Workflow",
 ]
 
 ################################################################################
 
 
 def map_method(method):
-    "Decorator that calls item.method for all items in a iterable object."
+    """Decorator that calls item.method for all items in a iterable object."""
     @functools.wraps(method)
     def wrapped(iter_obj, *args, **kwargs):
         return [getattr(item, method.__name__)(*args, **kwargs)
@@ -52,7 +54,6 @@ def map_method(method):
     return wrapped
 
 
-################################################################################
 
 class Product(object):
     """
@@ -91,14 +92,14 @@ class WorkLink(object):
 
     A WorkLink is a task that produces a list of products (files) that are
     reused by the other tasks belonging to a Work instance.
-    One usually instantiates the object by calling work.register_task and produces_exts.
+    One usually instantiates the object by calling work.register and produces_exts.
     Example:
 
         # Register the SCF task in work and get the link.
-        scf_link = work.register_task(scf_strategy)
+        scf_link = work.register(scf_strategy)
 
         # Register the NSCF calculation and its dependency on the SCF run.
-        nscf_link = work.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        nscf_link = work.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
     """
     def __init__(self, task, exts=None):
         """
@@ -113,8 +114,7 @@ class WorkLink(object):
         self._products = []
 
         if exts is not None:
-            if isinstance(exts, str):
-                exts = [exts,]
+            exts = list_strings(exts)
 
             for ext in exts:
                 prod = Product(ext, task.odata_path_from_ext(ext))
@@ -137,7 +137,7 @@ class WorkLink(object):
         Returns a dictionary with the abinit variables that must
         be added to the input file in order to connect the two tasks.
         """
-        abivars =  {}
+        abivars = {}
         for prod in self._products:
             abivars.update(prod.get_abivars())
         return abivars
@@ -153,15 +153,18 @@ class WorkLink(object):
         """The status of the link, equivalent to the task status"""
         return self._task.status
 
-################################################################################
 
 class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
+
 
 class BaseWorkflow(object):
     __metaclass__ = abc.ABCMeta
 
     Error = WorkflowError
+
+    # Basename of the pickle database.
+    PICKLE_FNAME = "__workflow__.pickle"
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -205,28 +208,28 @@ class BaseWorkflow(object):
 
     @property
     def ncpus_reserved(self):
-        "Returns the number of CPUs reserved in this moment."
+        """Returns the number of CPUs reserved in this moment."""
         ncpus = 0
         for task in self:
-            if task.status in [task.S_SUB, task.S_RUN]:
+            if task.is_allocated:
                 ncpus += task.tot_ncpus
+
         return ncpus
 
     def fetch_task_to_run(self):
         """
         Returns the first task that is ready to run or None if no task can be submitted at present"
 
-        Raises StopIteration if all tasks are done.
+        Raises `StopIteration` if all tasks are done.
         """
         for task in self:
-            # The task is ready to run if its status is S_READY and all the other links (if any) are done!
-            if (task.status == task.S_READY) and all([link_stat==task.S_DONE for link_stat in task.links_status]):
+            if task.can_run:
                 return task
 
         # All the tasks are done so raise an exception 
         # that will be handled by the client code.
-        if all([task.status == task.S_DONE for task in self]):
-            raise StopIteration
+        if all([task.is_completed for task in self]):
+            raise StopIteration("All tasks completed.")
 
         # No task found, this usually happens when we have dependencies. 
         # Beware of possible deadlocks here!
@@ -247,32 +250,61 @@ class BaseWorkflow(object):
         """
         return WorkFlowResults(task_results={task.name: task.results for task in self})
 
-##########################################################################################
+    def build_and_pickle_dump(self, protocol=-1):
+        self.build()
+        self.pickle_dump(protocol=protocol)
+
+    def pickle_dump(self, protocol=-1):
+        """Save the status of the object in pickle format."""
+        filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
+
+        mode = "w" if protocol == 0 else "wb" 
+        with open(filepath, mode) as fh:
+            pickle.dump(self, fh, protocol=protocol)
+
+    @classmethod
+    def pickle_load(cls, path):
+        """
+        Load the object from a pickle file. 
+
+        Args:
+            path:
+                filepath or directory name.
+        """
+        if os.path.isdir(path):
+            path = os.path.join(path, cls.PICKLE_FNAME)
+
+        # TODO atomic transaction.
+        with open(path, "rb") as fh:
+            new = pickle.load(fh)
+
+        return new
+
 
 class WorkFlowResults(dict, MSONable):
     """
     Dictionary used to store some of the results produce by a Task object
     """
-    _mandatory_keys = [
+    _MANDATORY_KEYS = [
         "task_results",
     ]
-    EXC_KEY = "_exceptions"
+    _EXC_KEY = "_exceptions"
 
     def __init__(self, *args, **kwargs):
         super(WorkFlowResults, self).__init__(*args, **kwargs)
 
-        if self.EXC_KEY not in self:
-            self[self.EXC_KEY] = []
+        if self._EXC_KEY not in self:
+            self[self._EXC_KEY] = []
 
     @property
     def exceptions(self):
-        return self[self.EXC_KEY]
+        return self[self._EXC_KEY]
 
     def push_exceptions(self, *exceptions):
         for exc in exceptions:
             newstr = str(exc)
             if newstr not in self.exceptions:
-                self[self.EXC_KEY] += [newstr,]
+                self[self._EXC_KEY] += [newstr,]
 
     def assert_valid(self):
         """
@@ -283,9 +315,9 @@ class WorkFlowResults(dict, MSONable):
         """
         # Validate tasks.
         for tres in self.task_results:
-            self[self.EXC_KEY] += tres.assert_valid()
+            self[self._EXC_KEY] += tres.assert_valid()
 
-        return self[self.EXC_KEY]
+        return self[self._EXC_KEY]
 
     @property
     def to_dict(self):
@@ -298,43 +330,25 @@ class WorkFlowResults(dict, MSONable):
     def from_dict(cls, d):
         mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
         return cls(mydict)
+    
 
-    def json_dump(self, filename):
-        json_pretty_dump(self.to_dict, filename)
-
-    @classmethod
-    def json_load(cls, filename):
-        return cls.from_dict(json_load(filename))
-
-##########################################################################################
-
-class Workflow(BaseWorkflow, MSONable):
+class Workflow(BaseWorkflow):
     """
     A Workflow is a list of (possibly connected) tasks.
     """
     Error = WorkflowError
 
-    #@classmethod
-    #def from_task(cls, task):
-    #    "Build a Work instance from a task object"
-    #    workdir, tail = os.path.dirname(task.workdir)
-    #    new = cls(workdir, taks.runmode)
-    #    new.register_task(task.input)
-    #    return new
-
-    def __init__(self, workdir, runmode, **kwargs):
+    def __init__(self, workdir, manager):
         """
         Args:
             workdir:
                 Path to the working directory.
-            runmode:
-                RunMode instance or string "sequential"
+            manager:
+                `TaskAdapter` object.
         """
         self.workdir = os.path.abspath(workdir)
 
-        self.runmode = RunMode.asrunmode(runmode)
-
-        self._kwargs = kwargs
+        self.manager = manager
 
         self._tasks = []
 
@@ -358,23 +372,29 @@ class Workflow(BaseWorkflow, MSONable):
     def __repr__(self):
         return "<%s at %s, workdir = %s>" % (self.__class__.__name__, id(self), str(self.workdir))
 
-    @property
-    def to_dict(self):
-        d = {"workdir": self.workdir,
-             "runmode": self.runmode.to_dict,
-             "kwargs" : self._kwargs,
-            }
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @staticmethod
-    def from_dict(d):
-        return Work(d["workdir"], d["runmode"], **d["kwargs"])
+    def __str__(self):
+        return self.__repr__()
 
     @property
-    def alldone(self):
-        return all([task.status == Task.S_DONE for task in self])
+    def processes(self):
+        return [task.process for task in self]
+
+    @property
+    def all_done(self):
+        """True if all the Task in the `Workflow` are done."""
+        return all([task.status >= Task.S_DONE for task in self])
+
+    def status_counter(self):
+        """
+        Returns a `Counter` object that counts the number of task with 
+        given status (use the string representation of the status as key).
+        """
+        counter = collections.Counter() 
+
+        for task in self:
+            counter[task.str_status] += 1
+
+        return counter
 
     @property
     def isnc(self):
@@ -386,8 +406,57 @@ class Workflow(BaseWorkflow, MSONable):
         """True if PAW calculation."""
         return all(task.ispaw for task in self)
 
+    #@property
+    #def to_dict(self):
+    #    d = dict(
+    #        workdir=self.workdir,
+    #        kwargs=self._kwargs
+    #    )
+    #    d["@module"] = self.__class__.__module__
+    #    d["@class"] = self.__class__.__name__
+    #    return d
+
+    #@classmethod
+    #def from_dict(cls, d):
+    #    return cls(d["workdir"])
+
+    def register(self, obj, links=()):
+        """
+        Registers a new task and add it to the internal list, taking into account possible dependencies.
+
+        Args:
+            obj:
+                `Strategy` object or `AbinitInput` instance.
+                if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
+
+        Returns:   
+            `WorkLink` object
+        """
+        # Handle possible dependencies.
+        if links and not isinstance(links, collections.Iterable):
+            links = [links,]
+
+        task_id = len(self)
+        task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
+
+        if isinstance(obj, Strategy):
+            # Create the new task (note the factory so that we create subclasses easily).
+            task = task_factory(obj, task_workdir, self.manager, task_id=task_id, links=links)
+
+        else:
+            # Create the new task from the input. Note that no subclasses are instanciated here.
+            task = AbinitTask.from_input(obj, task_workdir, self.manager, task_id=task_id, links=links)
+
+        self._tasks.append(task)
+
+        if links:
+            self._links_dict[task_id].extend(links)
+            print("task_id %s needs\n %s" % (task_id, [str(l) for l in links]))
+
+        return WorkLink(task)
+
     def path_in_workdir(self, filename):
-        """Create the absolute path of filename in the workind directory."""
+        """Create the absolute path of filename in the working directory."""
         return os.path.join(self.workdir, filename)
 
     def setup(self, *args, **kwargs):
@@ -396,52 +465,18 @@ class Workflow(BaseWorkflow, MSONable):
         The default implementation is empty.
         """
 
-    #def show_inputs(self, stream=sys.stdout):
-    #    lines = []
-    #    app = lines.append
-    #    width = 120
-    #    for task in self:
-    #        app("\n")
-    #        app(repr(task))
-    #        app("\ninput: %s" % task.input_file.path)
-    #        app("\n")
-    #        app(str(task.input))
-    #        app(width*"=" + "\n")
-    #    stream.write("\n".join(lines))
-
-    def register_task(self, strategy, links=()):
-        """
-        Registers a new task:
-
-            - creates a new AbinitTask from the input strategy.
-            - adds the new task to the internal list, taking into account possible dependencies.
-
-        Returns: WorkLink object
-        """
-        task_id = len(self) + 1
-
-        task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
-
-        # Handle possible dependencies.
-        if links:
-            if not isinstance(links, collections.Iterable):
-                links = [links,]
-
-        # Create the new task (note the factory so that we create subclasses easily).
-        task = task_factory(strategy, task_workdir, self.runmode, task_id=task_id, links=links)
-
-        self._tasks.append(task)
-
-        if links:
-            self._links_dict[task_id].extend(links)
-            print("task_id %s neeeds\n %s" % (task_id, [str(l) for l in links]))
-
-        return WorkLink(task)
-
     def build(self, *args, **kwargs):
         """Creates the top level directory."""
+        # Create top level directory.
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
+
+        # Build dirs and files of each task.
+        for task in self:
+            task.build(*args, **kwargs)
+
+        #for task in self:
+        #    task.connect()
 
     def get_status(self, only_highest_rank=False):
         """Get the status of the tasks in self."""
@@ -452,19 +487,33 @@ class Workflow(BaseWorkflow, MSONable):
         else:
             return status_list
 
-    @property
-    def processes(self):
-        return [task.process for task in self]
+    def recheck_status(self):
+        for task in self:
+            task.recheck_status()
+
+    def show_inputs(self, stream=sys.stdout):
+        lines = []
+        app = lines.append
+
+        width = 120
+        for task in self:
+            app("\n")
+            app(repr(task)+"\n")
+            app("Input file: %s\n" % task.input_file.path)
+            app(str(task.make_input()))
+            app(width*"=" + "\n")
+
+        stream.write("\n".join(lines))
 
     def rmtree(self, exclude_wildcard=""):
         """
-        Remove all calculation files and directories.
+        Remove all files and directories in the working directory
 
         Args:
             exclude_wildcard:
                 Optional string with regular expressions separated by |.
                 Files matching one of the regular expressions will be preserved.
-                ex: exclude_wildar="*.nc|*.txt" preserves all the files
+                example: exclude_wildard="*.nc|*.txt" preserves all the files
                 whose extension is in ["nc", "txt"].
 
         """
@@ -475,6 +524,7 @@ class Workflow(BaseWorkflow, MSONable):
             pats = exclude_wildcard.split("|")
 
             import fnmatch
+
             def keep(fname):
                 for pat in pats:
                     if fnmatch.fnmatch(fname, pat):
@@ -541,7 +591,7 @@ class Workflow(BaseWorkflow, MSONable):
         Return a numpy array with the total energies in Hartree
         The array element is set to np.inf if an exception is raised while reading the GSR file.
         """
-        if not self.alldone:
+        if not self.all_done:
             raise self.Error("Some task is still in running/submitted state")
 
         etotal = []
@@ -552,7 +602,13 @@ class Workflow(BaseWorkflow, MSONable):
 
         return etotal
 
-################################################################################
+    def json_dump(self, filename):
+        json_pretty_dump(self.to_dict, filename)
+                                                  
+    @classmethod
+    def json_load(cls, filename):
+        return cls.from_dict(json_load(filename))
+
 
 class IterativeWork(Workflow):
     """
@@ -561,18 +617,20 @@ class IterativeWork(Workflow):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, runmode, strategy_generator, max_niter=25):
+    def __init__(self, workdir, strategy_generator, manager, max_niter=25):
         """
         Args:
             workdir:
                 Working directory.
             strategy_generator:
                 Strategy generator.
+            manager:
+                `TaskManager` class.
             max_niter:
                 Maximum number of iterations. A negative value or zero value
                 is equivalent to having an infinite number of iterations.
         """
-        super(IterativeWork, self).__init__(workdir, runmode)
+        super(IterativeWork, self).__init__(workdir, manager)
 
         self.strategy_generator = strategy_generator
 
@@ -582,10 +640,12 @@ class IterativeWork(Workflow):
         """
         Generate and register a new task
 
-        Return: task object
+        Returns: 
+            New `Task` object
         """
         try:
             next_strategy = next(self.strategy_generator)
+
         except StopIteration:
             raise StopIteration
 
@@ -605,7 +665,7 @@ class IterativeWork(Workflow):
         self.niter = 1
 
         while True:
-            if self.max_niter > 0 and self.niter > self.max_niter:
+            if self.niter > self.max_niter > 0:
                 print("niter %d > max_niter %d" % (self.niter, self.max_niter))
                 break
 
@@ -636,16 +696,20 @@ class IterativeWork(Workflow):
 ##########################################################################################
 
 def strictly_increasing(values):
-    return all(x<y for x, y in zip(values, values[1:]))
+    return all(x < y for x, y in zip(values, values[1:]))
+
 
 def strictly_decreasing(values):
-    return all(x>y for x, y in zip(values, values[1:]))
+    return all(x > y for x, y in zip(values, values[1:]))
+
 
 def non_increasing(values):
-    return all(x>=y for x, y in zip(values, values[1:]))
+    return all(x >= y for x, y in zip(values, values[1:]))
+
 
 def non_decreasing(values):
-    return all(x<=y for x, y in zip(values, values[1:]))
+    return all(x <= y for x, y in zip(values, values[1:]))
+
 
 def monotonic(values, mode="<", atol=1.e-8):
     """
@@ -678,9 +742,10 @@ def monotonic(values, mode="<", atol=1.e-8):
                 return False
 
     else:
-        raise ValueError("Wrong mode %s" % mode)
+        raise ValueError("Wrong mode %s" % str(mode))
 
     return True
+
 
 def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
     """
@@ -724,8 +789,9 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
 
     return i + 1
 
+
 def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys.stdout):
-    de_low, de_normal, de_high = [a / (1000 * Ha_eV) for a in atols_mev]
+    de_low, de_normal, de_high = [a / (1000 * const.HA_TO_EV) for a in atols_mev]
 
     num_ene = len(etotal)
     etotal_inf = etotal[-1]
@@ -740,7 +806,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
 
     app(["iter", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
     for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf)* Ha_eV * 1.e+3)
+        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf) * const.HA_TO_EV * 1.e+3)
         row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
         app(row)
 
@@ -824,7 +890,7 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
     emax = -np.inf
     for (aratio, etot) in zip(aug_ratios, etotals):
-        emev = Ha2meV(etot)
+        emev = const.Ha2meV(etot)
         emev_inf = npts * [emev[-1]]
         yy = emev - emev_inf
 
@@ -861,14 +927,14 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
 class PseudoConvergence(Workflow):
 
-    def __init__(self, workdir, pseudo, ecut_list, atols_mev,
-                 runmode="sequential", toldfe=1.e-8, spin_mode="polarized", 
-                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
+    def __init__(self, workdir, manager, pseudo, ecut_list, atols_mev,
+                 toldfe=1.e-8, spin_mode="polarized", 
+                 acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV"):
 
-        super(PseudoConvergence, self).__init__(workdir, runmode)
+        super(PseudoConvergence, self).__init__(workdir, manager)
 
         # Temporary object used to build the strategy.
-        generator = PseudoIterativeConvergence(workdir, pseudo, ecut_list, atols_mev,
+        generator = PseudoIterativeConvergence(workdir, manager, pseudo, ecut_list, atols_mev,
                                                toldfe    = toldfe,
                                                spin_mode = spin_mode,
                                                acell     = acell,
@@ -882,7 +948,7 @@ class PseudoConvergence(Workflow):
         for ecut in ecut_list:
             strategy = generator.strategy_with_ecut(ecut)
             self.ecut_list.append(ecut)
-            self.register_task(strategy)
+            self.register(strategy)
 
     def get_results(self, *args, **kwargs):
 
@@ -906,10 +972,11 @@ class PseudoConvergence(Workflow):
 
         return wf_results
 
+
 class PseudoIterativeConvergence(IterativeWork):
 
-    def __init__(self, workdir, pseudo, ecut_list_or_slice, atols_mev,
-                 runmode="sequential", toldfe=1.e-8, spin_mode="polarized", 
+    def __init__(self, workdir, manager, pseudo, ecut_list_or_slice, atols_mev,
+                 toldfe=1.e-8, spin_mode="polarized", 
                  acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV", max_niter=50,):
         """
         Args:
@@ -921,6 +988,8 @@ class PseudoIterativeConvergence(IterativeWork):
                 List of cutoff energies or slice object (mainly used for infinite iterations).
             atols_mev:
                 List of absolute tolerances in meV (3 entries corresponding to accuracy ["low", "normal", "high"]
+            manager:
+                `TaskManager` object.
             spin_mode:
                 Defined how the electronic spin will be treated.
             acell:
@@ -947,7 +1016,7 @@ class PseudoIterativeConvergence(IterativeWork):
                 yield self.strategy_with_ecut(ecut)
 
         super(PseudoIterativeConvergence, self).__init__(
-            workdir, runmode, strategy_generator(), max_niter=max_niter)
+            workdir, manager, strategy_generator(), max_niter=max_niter)
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
@@ -1015,14 +1084,13 @@ class PseudoIterativeConvergence(IterativeWork):
 
 class BandStructure(Workflow):
     """Workflow for band structure calculations."""
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy,
-                 dos_strategy=None):
+    def __init__(self, workdir, manager, scf_strategy, nscf_strategy, dos_strategy=None):
         """
         Args:
             workdir:
                 Working directory.
-            runmode:
-                `RunMode` instance.
+            manager:
+                `TaskManager` object.
             scf_strategy:
                 `SCFStrategy` instance
             nscf_strategy:
@@ -1031,46 +1099,45 @@ class BandStructure(Workflow):
                 `NSCFStrategy` instance defining the DOS calculation. 
                 DOS is computed only if dos_strategy is not None.
         """
-        super(BandStructure, self).__init__(workdir, runmode)
+        super(BandStructure, self).__init__(workdir, manager)
 
         # Register the GS-SCF run.
-        scf_link = self.register_task(scf_strategy)
+        scf_link = self.register(scf_strategy)
 
         # Register the NSCF run and its dependency
-        self.register_task(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Add DOS computation
         if dos_strategy is not None:
-            self.register_task(dos_strategy,
-                               links=scf_link.produces_exts("_DEN"))
+            self.register(dos_strategy, links=scf_link.produces_exts("_DEN"))
 
 ################################################################################
 
 class Relaxation(Workflow):
 
-    def __init__(self, workdir, runmode, relax_strategy):
+    def __init__(self, workdir, manager, relax_strategy):
         """
         Args:
             workdir:
                 Working directory.
-            runmode:
-                `RunMode` instance.
+            manager:
+                `TaskManager` object.
             relax_strategy:
                 `RelaxStrategy` instance
         """
-        super(Relaxation, self).__init__(workdir, runmode)
+        super(Relaxation, self).__init__(workdir, manager)
 
-        link = self.register_task(relax_strategy)
+        link = self.register(relax_strategy)
 
 ################################################################################
 
 class DeltaTest(Workflow):
 
-    def __init__(self, workdir, runmode, structure_or_cif, pseudos, kppa,
+    def __init__(self, workdir, manager, structure_or_cif, pseudos, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
-        super(DeltaTest, self).__init__(workdir, runmode)
+        super(DeltaTest, self).__init__(workdir, manager)
 
         if isinstance(structure_or_cif, Structure):
             structure = structure_or_cif
@@ -1113,13 +1180,13 @@ class DeltaTest(Workflow):
                                        accuracy=accuracy, spin_mode=spin_mode,
                                        smearing=smearing, **extra_abivars)
 
-            self.register_task(scf_strategy)
+            self.register(scf_strategy)
 
     def get_results(self, *args, **kwargs):
 
         num_sites = self._input_structure.num_sites
 
-        etotal = Ha2eV(self.read_etotal())
+        etotal = const.Ha2eV(self.read_etotal())
 
         wf_results = super(DeltaTest, self).get_results()
 
@@ -1166,7 +1233,7 @@ class DeltaTest(Workflow):
 
 class GW_Workflow(Workflow):
 
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy,
+    def __init__(self, workdir, manager, scf_strategy, nscf_strategy,
                  scr_strategy, sigma_strategy):
         """
         Workflow for GW calculations.
@@ -1174,8 +1241,8 @@ class GW_Workflow(Workflow):
         Args:
             workdir:
                 Working directory of the calculation.
-            runmode:
-                `RunMode` instance.
+            manager:
+                `TaskManager` object.
             scf_strategy:
                 `SCFStrategy` instance
             nscf_strategy:
@@ -1185,30 +1252,25 @@ class GW_Workflow(Workflow):
             sigma_strategy:
                 Strategy for the self-energy run.
         """
-        super(GW_Workflow, self).__init__(workdir, runmode)
+        super(GW_Workflow, self).__init__(workdir, manager)
 
         # Register the GS-SCF run.
-        scf_link = self.register_task(scf_strategy)
+        scf_link = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_link = self.register_task(nscf_strategy,
-                                       links=scf_link.produces_exts("_DEN"))
+        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Register the SCREENING run.
-        screen_link = self.register_task(scr_strategy,
-                                         links=nscf_link.produces_exts("_WFK"))
+        screen_link = self.register(scr_strategy, links=nscf_link.produces_exts("_WFK"))
 
         # Register the SIGMA run.
-        sigma_links = [nscf_link.produces_exts("_WFK"),
-                       screen_link.produces_exts("_SCR"),]
+        self.register(sigma_strategy, links=[nscf_link.produces_exts("_WFK"),
+                                             screen_link.produces_exts("_SCR")])
 
-        self.register_task(sigma_strategy, links=sigma_links)
-
-################################################################################
 
 class BSEMDF_Workflow(Workflow):
 
-    def __init__(self, workdir, runmode, scf_strategy, nscf_strategy, bse_strategy): 
+    def __init__(self, workdir, manager, scf_strategy, nscf_strategy, bse_strategy):
         """
         Workflow for simple BSE calculations in which the self-energy corrections 
         are approximated by the scissors operator and the screening in modeled 
@@ -1217,8 +1279,8 @@ class BSEMDF_Workflow(Workflow):
         Args:
             workdir:
                 Working directory of the calculation.
-            runmode:
-                Run mode.
+            manager:
+                `TaskManager`.
             scf_strategy:
                 ScfStrategy instance
             nscf_strategy:
@@ -1226,16 +1288,14 @@ class BSEMDF_Workflow(Workflow):
             bse_strategy:
                 BSEStrategy instance.
         """
-        super(BSEMDF_Workflow, self).__init__(workdir, runmode)
+        super(BSEMDF_Workflow, self).__init__(workdir, manager)
 
         # Register the GS-SCF run.
-        scf_link = self.register_task(scf_strategy)
+        scf_link = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_link = self.register_task(nscf_strategy,
-                                       links=scf_link.produces_exts("_DEN"))
+        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
 
         # Construct the input for the BSE run.
-        bse_link = self.register_task(bse_strategy,
-                                      links=nscf_link.produces_exts("_WFK"))
+        bse_link = self.register(bse_strategy, links=nscf_link.produces_exts("_WFK"))
 

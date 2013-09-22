@@ -543,7 +543,7 @@ class StructureMatcher(MSONable):
 
         if self._comparator.get_structure_hash(struct1) != \
                 self._comparator.get_structure_hash(struct2) \
-                and not self._subset:
+            and not self._subset:
             return None
 
         #primitive cell transformation
@@ -563,7 +563,7 @@ class StructureMatcher(MSONable):
         if self._subset:
             if struct2.num_sites > struct1.num_sites:
                 struct2, struct1 = struct1, struct2
-            #can't do the check until we group with the comparator
+                #can't do the check until we group with the comparator
         else:
             if struct1.num_sites != struct2.num_sites * fu:
                 return None
@@ -590,10 +590,10 @@ class StructureMatcher(MSONable):
         normalization = ((2 * struct2.num_sites) /
                          (struct1.volume + struct2.volume)) ** (1 / 3)
         frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * \
-            self.stol / ((1 - self.ltol) * np.pi) / normalization
+                   self.stol / ((1 - self.ltol) * np.pi) / normalization
 
         #make array mask
-        mask = np.zeros((len(struct2)*fu, len(struct1)), dtype=np.bool)
+        mask = np.zeros((len(struct2) * fu, len(struct1)), dtype=np.bool)
         i = 0
         for site2 in struct2:
             for repeat in range(fu):
@@ -622,7 +622,7 @@ class StructureMatcher(MSONable):
                 s2fc = np.array(supercell.frac_coords)
             else:
                 s2fc = nl.get_fractional_coords(s2cc)
-            #loop over possible translations
+                #loop over possible translations
             for s1i in s1_translation_indices:
                 translation = s1fc[s1i] - s2fc[s2_translation_index]
                 t_s2fc = s2fc + translation
@@ -631,7 +631,7 @@ class StructureMatcher(MSONable):
                                                     mask)
                     if use_rms:
                         val = np.linalg.norm(distances) / len(distances) ** \
-                            0.5
+                              0.5
                     else:
                         val = max(distances)
                     if best_match is None or val < best_match[0]:
@@ -679,7 +679,7 @@ class StructureMatcher(MSONable):
         if self._subset:
             raise ValueError("allow_subset cannot be used with"
                              " group_structures")
-        #Use structure hash to pre-group structures.
+            #Use structure hash to pre-group structures.
         sorted_s_list = sorted(s_list, key=self._comparator.get_structure_hash)
         all_groups = []
 
@@ -759,17 +759,70 @@ class StructureMatcher(MSONable):
         else:
             return min_rms, min_mapping
 
-    def fit_anonymous_all_mapping(self, struct1, struct2):
+    def fit_with_electronegativity(self, struct1, struct2):
         """
         Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. Preferentially pairs together species
-        with closer oxidation states over minimizing rms_distance
+        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structures are similar. If multiple substitutions are within tolerance
+        this will return the one which minimizes the difference in electronegativity
+        between the matches species.
 
         Args:
             struct1:
-                1st oxidation state decorated structure
+                1st structure
             struct2:
-                2nd oxidation state decorated structure
+                2nd structure
+
+        Returns:
+            min_mapping
+            min_rms is the minimum of the max rms calculated, and min_mapping
+            is the corresponding minimal species mapping that would map
+            struct1 to struct2. None is returned if no fit is found.
+        """
+
+        sp1 = list(set(struct1.species_and_occu))
+        sp2 = list(set(struct2.species_and_occu))
+        if len(sp1) != len(sp2):
+            return None, None
+
+        latt1 = struct1.lattice
+        fcoords1 = struct1.frac_coords
+        min_X_diff = np.inf
+        min_mapping = None
+        for perm in itertools.permutations(sp2):
+            sp_mapping = dict(zip(sp1, perm))
+            mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
+            transformed_structure = Structure(latt1, mapped_sp, fcoords1)
+            if self.fit(transformed_structure, struct2):
+                #Calculate electronegativity difference
+                X_diff = np.average(
+                    [(host_sp.elements[0].X - map_sp.elements[0].X) *
+                     struct1.composition.get(host_sp.elements[0]) for
+                     host_sp, map_sp in sp_mapping.iteritems()])
+
+                if min_X_diff is 0:
+                    return {}
+
+                if min_X_diff > X_diff:
+                    min_X_diff = X_diff
+                    min_mapping = {k: v for k, v in sp_mapping.items()
+                                   if k != v}
+        if min_mapping is None:
+            return None
+        else:
+            return min_mapping
+
+    def fit_anonymous_all_mapping(self, struct1, struct2):
+        """
+        Performs an anonymous fitting, which allows distinct species in one
+        structure to map to another. Returns a dictionary of species
+        substitutions that are within tolerance
+
+        Args:
+            struct1:
+                1st structure
+            struct2:
+                2nd structure
 
         Returns:
             (mappings)
@@ -798,7 +851,7 @@ class StructureMatcher(MSONable):
                     #check if mapping already found
                     for k, v in possible_mapping.iteritems():
                         if {k: v} not in mappings:
-                                mappings.append({k: v})
+                            mappings.append({k: v})
         if not mappings:
             return None
         else:
