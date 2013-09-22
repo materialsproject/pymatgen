@@ -647,6 +647,10 @@ class MPStaticVaspInputSet(JSONVaspInputSet):
             structure.num_sites
         return super(MPStaticVaspInputSet, self).get_kpoints(structure)
 
+    def get_poscar(self, structure):
+        sym_finder = SymmetryFinder(structure, symprec=0.01)
+        return Poscar(sym_finder.get_primitive_standard_structure())
+
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
                       additional_info=False):
