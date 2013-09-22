@@ -1195,7 +1195,7 @@ class TaskManager(object):
         """Number of CPUs used for OpenMP."""
         return self.qadapter.omp_ncpus
 
-    def to_shell_manager(self, mpi_ncpus=1):
+    def to_shell_manager(self, mpi_ncpus=1, policy=None):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
         with a `ShellAdapter` with mpi_ncpus so that we can submit the job without passing through the queue.
@@ -1203,9 +1203,11 @@ class TaskManager(object):
         cls = self.__class__
         qad = self.qadapter
 
+        policy = self.policy if policy is None else policy
+
         new = cls("shell", qparams={"MPI_NCPUS": mpi_ncpus}, setup=qad.setup, modules=qad.modules, 
                   shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
-                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=self.policy)
+                  post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy)
 
         new.set_mpi_ncpus(mpi_ncpus)
         return new

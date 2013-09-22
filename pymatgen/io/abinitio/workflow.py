@@ -277,6 +277,7 @@ class BaseWorkflow(object):
         # TODO atomic transaction.
         with open(path, "rb") as fh:
             new = pickle.load(fh)
+        #new.__class__ = cls
 
         return new
 
