@@ -8,6 +8,7 @@ import shutil
 import collections
 import abc
 import warnings
+import copy
 import numpy as np
 
 from pymatgen.core.design_patterns import Enum, AttrDict
@@ -965,7 +966,7 @@ class ParalHintsParser(object):
         if start is None or end is None:
             raise cls.Error("%s does not contain any valid RUN_HINTS section" % filename)
 
-        if start == stop:
+        if start == end:
             # Empy section ==> One has to enable Yaml in ABINIT.
             raise cls.Error("%s contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
 
@@ -1081,20 +1082,21 @@ class TaskPolicy(AttrDict):
     """
     # Default values.
     _DEFAULTS = dict(
-        use_fw=False,       # True if we are using fireworks.
         autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
         mode="default",     # ["default", "aggressive", "conservative"]
         max_ncpus=None,     # Max number of CPUs that can be used (users should specify this value when autoparal > 0)
+        use_fw=False,       # True if we are using fireworks.
         constraints = [],   # List of constraints (mongodb syntax).
         #automated=False,
     )
 
-    #def __init__(self, autoparal=0, mode="default", use_fw=False, automated=False, constraints=None)
+    #def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): #, automated=False, 
     #    """
     #    Args:
     #        autoparal: 
     #            Value of autoparal input variable. None to disable the autoparal feature.
     #        mode:
+    #        max_ncpus:
     #        use_fw: 
     #        automated:
     #        constraints: 
@@ -1102,6 +1104,7 @@ class TaskPolicy(AttrDict):
     #    """
     #    self.autoparal = autoparal
     #    self.mode = mode 
+    #    self.max_ncpus = max_ncpus
     #    self.use_fw = use_fw 
     #    self.automated = automated
     #    self.constraints = [] if constraints is None else constraints
@@ -1126,17 +1129,18 @@ class TaskPolicy(AttrDict):
 
     @classmethod
     def default_policy(cls):
-        return cls(**cls._DEFAULTS.copy())
+        d = cls._DEFAULTS.copy()
+        return cls(**d)
 
 
 class TaskManager(object):
     """
-    A `TaskManager` is responsible for the generation and the submission 
-    script, as well as of the specification of the parameters passed to the Resource Manager
+    A `TaskManager` is responsible for the generation of the job script and the submission 
+    of the task, as well as of the specification of the parameters passed to the Resource Manager
     (e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the 
     parallel execution. A `TaskManager` delegates the generation of the submission
     script and the submission of the task to the `QueueAdapter`. 
-    A `TaskManager` has a `TaskPolicy` object that governs the specification of the 
+    A `TaskManager` has a `TaskPolicy` that governs the specification of the 
     parameters for the parallel executions.
     """
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
@@ -1147,7 +1151,8 @@ class TaskManager(object):
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
                                   pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
 
-        self.policy = AttrDict(**policy) if policy is not None else TaskPolicy.default_policy()
+        self.policy = TaskPolicy(**policy) if policy is not None else TaskPolicy.default_policy()
+        #print(type(self.policy), self.policy)
 
     def __str__(self):
         """String representation."""
@@ -1162,15 +1167,15 @@ class TaskManager(object):
     @classmethod 
     def sequential(cls):
         """
-        Simple task manager that submits jobs with a simple shell script.
-        Assume the shell environment is already properly initialized.
+        Build a simple `TaskManager` that submits jobs with a simple shell script.
+        Assume the shell environment has been initialized.
         """
         return cls(qtype="shell")
 
     @classmethod 
     def simple_mpi(cls, mpi_runner="mpirun", mpi_ncpus=1, policy=None):
         """
-        Simple task manager that submits jobs with a simple shell script and mpirun.
+        Build a `TaskManager` that submits jobs with a simple shell script and mpirun.
         Assume the shell environment is already properly initialized.
         """
         return cls(qtype="shell", qparams=dict(MPI_NCPUS=mpi_ncpus), mpi_runner=mpi_runner, policy=policy)
@@ -1202,11 +1207,27 @@ class TaskManager(object):
                   shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=self.policy)
 
-        new.qadapter.set_mpi_ncpus(mpi_ncpus)
+        new.set_mpi_ncpus(mpi_ncpus)
         return new
 
-    #def copy(self):
-    #    return self.__class__(self.qadapter.copy(), self.policy.copy())
+    def copy(self):
+        """Shallow copy of self."""
+        return copy.copy(self)
+
+    def deepcopy(self):
+        """Deep copy of self."""
+        return copy.deepcopy(self)
+
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of MPI nodes to use."""
+        self.qadapter.set_mpi_ncpus(mpi_ncpus)
+
+    #def set_omp_ncpus(self, omp_ncpus):
+    #    """Set the number of OpenMp threads to use."""
+    #    self.qadapter.set_omp_ncpus(omp_ncpus)
+
+    #def set_mem_per_cpu(self, mem_per_cpu):
+    #    self.qadapter.set_mem_per_cpu(mem_per_cpu)
 
     def autoparal(self, task):
         """
@@ -1215,11 +1236,16 @@ class TaskManager(object):
      
         This method can change the ABINIT input variables and/or the 
         parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
+
+        Returns:
+            `ParalHints` object with the configuratin reported by autoparal. None if some problem occurred.
         """
+        print(type(self.policy), self.policy)
         policy = self.policy
 
-        if policy.autoparal == 0 or policy.max_ncpus is None: # nothing to do
-            return 0
+        # FIXME: Refactor policy object, avoid AttrDict
+        if policy["autoparal"] == 0 or policy.max_ncpus is None: # nothing to do
+            return None
 
         assert policy.autoparal == 1
         # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
@@ -1248,7 +1274,7 @@ class TaskManager(object):
         task.strategy.remove_extra_abivars(autoparal_vars.keys())
 
         # Remove the output file since Abinit likes to create new files 
-        # with extension .outA, .outB if the file already exist.
+        # with extension .outA, .outB if the file already exists.
         os.remove(task.output_file.path)
 
         # 2) Parse the autoparal configurations
@@ -1258,7 +1284,9 @@ class TaskManager(object):
             confs = parser.parse(task.log_file.path)
 
         except parser.Error:
-            return -1
+            return None
+
+        #return confs
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
@@ -1267,11 +1295,11 @@ class TaskManager(object):
         task.strategy.add_extra_abivars(optimal.vars)
                                                                   
         # Change the number of MPI nodes.
-        self.qadapter.set_mpi_ncpus(optimal.mpi_ncpus)
+        self.set_mpi_ncpus(optimal.mpi_ncpus)
 
         # Change the number of OpenMP threads.
         #if optimal.omp_ncpus > 1:
-        #    self.qadapter.set_omp_ncpus(optimal.omp_ncpus)
+        #    self.set_omp_ncpus(optimal.omp_ncpus)
         #else:
         #    self.qadapter.disable_omp()
 
@@ -1279,7 +1307,7 @@ class TaskManager(object):
         #if optimal.mem_per_cpu is not None
         #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
 
-        return 0
+        return confs
 
     def write_jobfile(self, task):
         """
