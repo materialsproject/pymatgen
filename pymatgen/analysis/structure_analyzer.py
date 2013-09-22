@@ -431,7 +431,7 @@ class oxide_type_class():
                 is_superoxide = False
                 is_ozonide = True
         try:
-            nbonds = len(set(bond_atoms)) / 2.0
+            nbonds = len(set(bond_atoms))
         except UnboundLocalError:
             nbonds = 0.0
         if is_ozonide:

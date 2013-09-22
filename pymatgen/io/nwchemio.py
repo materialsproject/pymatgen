@@ -288,7 +288,8 @@ class NwInput(MSONable):
     """
 
     def __init__(self, mol, tasks, directives=None,
-                 geometry_options=("units", "angstroms")):
+                 geometry_options=("units", "angstroms"),
+                 symmetry_options=None):
         """
         Args:
             mol:
@@ -304,11 +305,15 @@ class NwInput(MSONable):
                 Additional list of options to be supplied to the geometry.
                 E.g., ["units", "angstroms", "noautoz"]. Defaults to
                 ("units", "angstroms").
+            symmetry_options:
+                Addition list of option to be supplied to the symmetry.
+                E.g. ["c1"] to turn off the symmetry
         """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
         self.geometry_options = geometry_options
+        self.symmetry_options = symmetry_options
 
     @property
     def molecule(self):
@@ -323,6 +328,8 @@ class NwInput(MSONable):
             o.append("{} {}".format(d[0], d[1]))
         o.append("geometry "
                  + " ".join(self.geometry_options))
+        if self.symmetry_options:
+            o.append(" symmetry " + " ".join(self.symmetry_options))
         for site in self._mol:
             o.append(" {} {} {} {}".format(site.specie.symbol, site.x, site.y,
                                            site.z))
@@ -342,7 +349,8 @@ class NwInput(MSONable):
             "mol": self._mol.to_dict,
             "tasks": [t.to_dict for t in self.tasks],
             "directives": [list(t) for t in self.directives],
-            "geometry_options": list(self.geometry_options)
+            "geometry_options": list(self.geometry_options),
+            "symmetry_options": self.symmetry_options
         }
 
     @classmethod
@@ -350,7 +358,8 @@ class NwInput(MSONable):
         return NwInput(Molecule.from_dict(d["mol"]),
                        tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
                        directives=[tuple(li) for li in d["directives"]],
-                       geometry_options=d["geometry_options"])
+                       geometry_options=d["geometry_options"],
+                       symmetry_options=d["symmetry_options"])
 
     @classmethod
     def from_string(cls, string_input):
@@ -373,6 +382,7 @@ class NwInput(MSONable):
         basis_set = None
         theory_directives = {}
         geom_options = None
+        symmetry_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
             l = lines.pop(0).strip()
@@ -382,8 +392,12 @@ class NwInput(MSONable):
             toks = l.split()
             if toks[0].lower() == "geometry":
                 geom_options = toks[1:]
-                #Parse geometry
                 l = lines.pop(0).strip()
+                toks = l.split()
+                if toks[0].lower() == "symmetry":
+                    symmetry_options = toks[1:]
+                    l = lines.pop(0).strip()
+                #Parse geometry
                 species = []
                 coords = []
                 while l.lower() != "end":
@@ -426,7 +440,8 @@ class NwInput(MSONable):
                 directives.append(l.strip().split())
 
         return NwInput(mol, tasks=tasks, directives=directives,
-                       geometry_options=geom_options)
+                       geometry_options=geom_options,
+                       symmetry_options=symmetry_options)
 
     @classmethod
     def from_file(cls, filename):
