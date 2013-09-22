@@ -285,7 +285,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         potcar_symbols = []
         for el in elements:
             potcar_symbols.append(self.potcar_settings[el]
-                                  if el in self.potcar_settings else el)
+            if el in self.potcar_settings else el)
         return potcar_symbols
 
     def get_kpoints(self, structure):
@@ -399,7 +399,6 @@ Please refer::
 for more information. Supports the same kwargs as :class:`JSONVaspInputSet`.
 """
 
-
 MITGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT GGA",
                              os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
                              hubbard_off=True)
@@ -421,6 +420,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
     """
     Class for writing NEB inputs.
     """
+
     def __init__(self, nimages=8, **kwargs):
         """
         Args:
@@ -535,7 +535,7 @@ class MITMDVaspInputSet(DictVaspInputSet):
             DictVaspInputSet.__init__(
                 self, "MIT MD", json.load(f),
                 hubbard_off=hubbard_off, sort_structure=sort_structure,
-                user_incar_settings = defaults, **kwargs)
+                user_incar_settings=defaults, **kwargs)
 
         self.start_temp = start_temp
         self.end_temp = end_temp
@@ -586,13 +586,13 @@ which result in different fitted values. Supports the same kwargs as
 :class:`JSONVaspInputSet`.
 """
 
-
 MPGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP GGA",
                             os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
                             hubbard_off=True)
 """
 Same as the MPVaspInput set, but the +U is enforced to be turned off.
 """
+
 
 class MPStaticVaspInputSet(DictVaspInputSet):
     """
@@ -630,6 +630,10 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             kpoints_density * structure.lattice.reciprocal_lattice.volume * \
             structure.num_sites
         return super(MPStaticVaspInputSet, self).get_kpoints(structure)
+
+    def get_poscar(self, structure):
+        sym_finder = SymmetryFinder(structure, symprec=0.01)
+        return Poscar(sym_finder.get_primitive_standard_structure())
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
@@ -725,6 +729,20 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                                "LCHARG": True, "LORBIT": 11, "LVHAR": True,
                                "LWAVE": False, "NSW": 0, "ICHARG": 0})
 
+        for incar_key in ["MAGMOM", "NUPDOWN"]:
+            if new_incar.get(incar_key, None):
+                previous_incar.update({incar_key: new_incar[incar_key]})
+            else:
+                previous_incar.pop(incar_key, None)
+
+        # use new LDAUU when possible b/c the Poscar might have changed representation
+        if previous_incar.get('LDAU'):
+            u = previous_incar.get('LDAUU', [])
+            j = previous_incar.get('LDAUJ', [])
+            if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
+                for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
+                    previous_incar.update({tag: new_incar[tag]})
+
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
         previous_incar.update({"EDIFF": min(previous_incar.get("EDIFF", 1),
@@ -737,18 +755,23 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
         # Prefer to use k-point scheme from previous run
         previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
-                                   previous_final_structure.lattice.reciprocal_lattice.volume
-        new_kpoints_density = max(previous_kpoints_density,90)
-        new_kpoints = mpsvip.get_kpoints(structure, kpoints_density=new_kpoints_density)
+            previous_final_structure.lattice.reciprocal_lattice.volume
+        new_kpoints_density = max(previous_kpoints_density, 90)
+        new_kpoints = mpsvip.get_kpoints(structure,
+                                         kpoints_density=new_kpoints_density)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
-            if previous_kpoints.style[0]=="M" and \
-                SymmetryFinder(structure, 0.01).get_lattice_type() != "hexagonal":
-                k_div = (kp + 1 if kp % 2 == 1 else kp for kp in new_kpoints.kpts[0])
-                Kpoints.monkhorst_automatic(k_div).\
+            if previous_kpoints.style[0] == "M" and \
+                    SymmetryFinder(structure, 0.01).get_lattice_type() != \
+                    "hexagonal":
+                k_div = (kp + 1 if kp % 2 == 1 else kp
+                         for kp in new_kpoints.kpts[0])
+                Kpoints.monkhorst_automatic(k_div). \
                     write_file(os.path.join(output_dir, "KPOINTS"))
             else:
-                Kpoints.gamma_automatic(new_kpoints.kpts[0]).\
+                Kpoints.gamma_automatic(new_kpoints.kpts[0]). \
                     write_file(os.path.join(output_dir, "KPOINTS"))
+        else:
+            new_kpoints.write_file(os.path.join(output_dir, "KPOINTS"))
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
@@ -818,7 +841,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                            kpts_weights=[1] * len(cart_k_points))
         else:
             num_kpoints = kpoints_density * \
-                structure.lattice.reciprocal_lattice.volume
+                    structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
