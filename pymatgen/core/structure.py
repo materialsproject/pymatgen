@@ -33,11 +33,11 @@ from pymatgen.core.periodic_table import Element, Specie, \
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
-from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
     pbc_all_distances
 from pymatgen.util.decorators import singleton
+from pymatgen.core.units import Mass, Length
 
 
 class SiteCollection(collections.Sequence):
@@ -437,8 +437,8 @@ class IStructure(SiteCollection, MSONable):
         """
         Returns the density in units of g/cc
         """
-        constant = AMU_TO_KG * 1000 / 1e-24
-        return self.composition.weight / self.volume * constant
+        m = Mass(self.composition.weight, "amu")
+        return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     def __eq__(self, other):
         if other is None:
@@ -983,6 +983,46 @@ class IStructure(SiteCollection, MSONable):
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         return cls.from_sites(sites)
+
+    def dot(self, coords_a, coords_b, space="r", frac_coords=False):
+        """
+        Compute the scalar producr of vector(s) either in real space or
+        reciprocal space.
+                                                                                                
+        Args:
+            coords:
+                Array-like object with the coordinates.
+            space:
+               "r" for real space, "g" for reciprocal space.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+
+       Returns:
+           one-dimensional `numpy` array.
+        """
+        lattice = {"r": self.lattice,
+                   "g": self.reciprocal_lattice}[space.lower()]
+        return lattice.dot(coords_a, coords_b, frac_coords=frac_coords)
+
+    def norm(self, coords, space="r", frac_coords=True):
+        """
+        Compute the norm of vector(s) either in real space or reciprocal space.
+
+        Args:
+            coords:
+                Array-like object with the coordinates.
+            space:
+               "r" for real space, "g" for reciprocal space.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+
+        Returns:
+            one-dimensional `numpy` array.
+        """
+        return np.sqrt(self.dot(coords, coords, space=space,
+                                frac_coords=frac_coords))
 
 
 class IMolecule(SiteCollection, MSONable):
@@ -1723,8 +1763,9 @@ class Structure(IStructure):
         unit cell.
 
         Args:
-            sites:
-                List of site indices on which to perform the translation.
+            indices:
+                Integer or List of site indices on which to perform the
+                translation.
             vector:
                 Translation vector for sites.
             frac_coords:
@@ -1733,6 +1774,9 @@ class Structure(IStructure):
             to_unit_cell:
                 Boolean stating whether new sites are transformed to unit cell
         """
+        if not isinstance(indices, collections.Iterable):
+            indices = [indices]
+
         for i in indices:
             site = self._sites[i]
             if frac_coords:

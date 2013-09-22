@@ -3,7 +3,7 @@ from __future__ import division, print_function
 
 import os.path
 
-from pymatgen.core.physical_constants import Bohr2Ang, Ha2eV
+from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
@@ -284,7 +284,8 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     ncdata, closeit = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
-    lattice = Bohr2Ang(ncdata.read_value("primitive_vectors"))
+    lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"),
+                            "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
     natom = len(red_coords)

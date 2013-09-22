@@ -19,6 +19,7 @@ import datetime
 from collections import namedtuple
 import json
 
+from pymatgen.util.string_utils import remove_non_ascii
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex
@@ -43,8 +44,7 @@ def is_valid_bibtex(reference):
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
-    sio = cStringIO.StringIO(str("".join(filter(lambda x: ord(x) < 128,
-                                                reference))))
+    sio = cStringIO.StringIO(remove_non_ascii(reference))
     parser = bibtex.Parser()
     bib_data = parser.parse_stream(sio)
     return len(bib_data.entries) > 0

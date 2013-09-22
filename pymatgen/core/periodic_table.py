@@ -17,10 +17,12 @@ import os
 import re
 import json
 
+from pymatgen.core.units import Mass, Length, unitized
 from pymatgen.util.decorators import singleton, cached_class
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from functools import total_ordering
+
 
 #Loads element data from json file
 with open(os.path.join(os.path.dirname(__file__), "periodic_table.json")) as f:
@@ -262,13 +264,13 @@ class Element(object):
 
     .. attribute:: average_ionic_radius
 
-        Average ionic radius for element in pm. The average is taken over all
+        Average ionic radius for element in ang. The average is taken over all
         oxidation states of the element for which data is present.
 
     .. attribute:: ionic_radii
 
         All ionic radii of the element as a dict of
-        {oxidation state: ionic radii}. Radii are given in pm.
+        {oxidation state: ionic radii}. Radii are given in ang.
     """
 
     def __init__(self, symbol):
@@ -285,8 +287,7 @@ class Element(object):
         self._z = self._data["Atomic no"]
         self._symbol = symbol
         self._x = self._data.get("X", 0)
-        for a in ["name", "atomic_mass", "atomic_radius",
-                  "mendeleev_no", "electrical_resistivity",
+        for a in ["name", "mendeleev_no", "electrical_resistivity",
                   "velocity_of_sound", "reflectivity",
                   "refractive_index", "poissons_ratio", "molar_volume",
                   "electronic_structure", "thermal_conductivity",
@@ -303,6 +304,12 @@ class Element(object):
             if str(val).startswith("no data"):
                 val = None
             self.__setattr__(a, val)
+        if str(self._data.get("Atomic radius",
+                              "no data")).startswith("no data"):
+            self.atomic_radius = None
+        else:
+            self.atomic_radius = Length(self._data["Atomic radius"], "ang")
+        self.atomic_mass = Mass(self._data["Atomic mass"], "amu")
 
     def __getnewargs__(self):
         #function used by pickle to recreate object
@@ -316,10 +323,11 @@ class Element(object):
         return self._data.copy()
 
     @property
+    @unitized("ang")
     def average_ionic_radius(self):
         """
-        Average ionic radius for element in pm. The average is taken over all
-        oxidation states of the element for which data is present.
+        Average ionic radius for element (with units). The average is taken
+        over all oxidation states of the element for which data is present.
         """
         if "Ionic radii" in self._data:
             radii = self._data["Ionic radii"]
@@ -328,10 +336,11 @@ class Element(object):
             return 0
 
     @property
+    @unitized("ang")
     def ionic_radii(self):
         """
         All ionic radii of the element as a dict of
-        {oxidation state: ionic radii}. Radii are given in pm.
+        {oxidation state: ionic radii}. Radii are given in ang.
         """
         if "Ionic radii" in self._data:
             return {int(k): v for k, v in self._data["Ionic radii"].items()}

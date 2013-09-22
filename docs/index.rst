@@ -72,16 +72,41 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.3
+------
+1. Big fix release for json dumping for unitized floats.
+
+v2.8.2
+------
+1. Bug fix release to improve CIF parsing for more non-standard CIF files.
+   In particular, non-ascii characters are removed and _cgraph* fields are
+   removed prior to parsing for better support in PyCiFRW.
+
+v2.8.1
+------
+1. Bug fix release. Incorrect units assigned for ionic radii.
+2. Improved nwchemio supports COSMO and ESP calculations (Nav Rajput).
+
 v2.8.0
 ------
-1. **Minor backwards-incompatible change**. Structures are now sorted by
+1. **Units**. Pymatgen now has a new system of managing units,
+   defined in pymatgen.core.units. Typical energy, length, time,
+   temperature and charge units are supported. Units subclass float,
+   which makes the usage transparent in all functions. The value that they
+   being are in terms of conversions between different units and addition and
+   subtraction of different units of the same type. Some basic quantities
+   like ionic radii and atomic masses are now returned in unitized forms for
+   easy conversion. Please see :mod:`pymatgen.core.units` and the
+   :doc:`examples </examples>` for a demonstration of house to use units in
+   pymatgen.
+2. **Minor backwards-incompatible change**. Structures are now sorted by
    default when generating VASP input files using vaspio_set. Old behavior can
-   be obtained by setting sort_structure = False in the constructor. This is
+   be obtained by setting sort_structure=False in the constructor. This is
    typically the desired behavior and prevents the generation of large
    POTCARs when atomic species are not grouped together.
-2. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
+3. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
    terminal atoms properly.
-3. Additional conversion tools for ABINIT (by Matteo Giantomassi).
+4. Additional conversion tools for ABINIT (by Matteo Giantomassi).
 
 :doc:`Older versions </changelog>`
 
@@ -236,10 +261,16 @@ some quick examples of the core capabilities and objects:
 
 The above illustrates only the most basic capabilities of pymatgen.
 
-Tutorials, Examples and API docs
---------------------------------
+Examples
+--------
 
-Users are strongly encouraged to explore the :doc:`usage pages </usage>`
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+
+Usage guide
+-----------
+
+Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
 (toc given below).
 
 .. toctree::
@@ -247,23 +278,20 @@ Users are strongly encouraged to explore the :doc:`usage pages </usage>`
 
    usage
 
-A good way to explore the functionality of pymatgen is to look at examples.
-We have created a `Github wiki page
-<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
-their Github gists performing various kinds of functions with pymatgen.
-Please feel free to check them out and we welcome your contributions as well!
+API documentation
+-----------------
 
 For detailed documentation of all modules and classes, please refer to the
-:doc:`pymatgen API docs </modules>`.
+:doc:`API docs </modules>`.
 
 matgenie.py - Command line tool
 -------------------------------
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
-that utilize the library to perform all kinds of analyses. You can find these
-scripts in `scripts directory of pymatgen's github repo
-<https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
+that utilize the library to perform all kinds of analyses. These are
+installed to your path by default when you install pymatgen through the
+typical installation routes.
 
 Here, we will discuss the most versatile of these scripts, known as
 matgenie.py. The typical usage of matgenie.py is::
