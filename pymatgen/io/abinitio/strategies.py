@@ -3,6 +3,7 @@ from __future__ import division, print_function
 
 import abc
 import collections
+import copy
 import numpy as np
 
 from pprint import pprint, pformat
@@ -131,6 +132,14 @@ class Strategy(object):
 
     def __str__(self):
         return "<%s at %s, accuracy = %s>" % (self.__class__.__name__, id(self), self.accuracy)
+
+    def copy(self):
+        """Shallow copy of self."""
+        return copy.copy(self)
+
+    def deepcopy(self):
+        """Deep copy of self."""
+        return copy.deepcopy(self)
 
     @abc.abstractproperty
     def runlevel(self):

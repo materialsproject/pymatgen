@@ -420,7 +420,7 @@ class Workflow(BaseWorkflow):
     #def from_dict(cls, d):
     #    return cls(d["workdir"])
 
-    def register(self, obj, links=()):
+    def register(self, obj, links=(), manager=None):
         """
         Registers a new task and add it to the internal list, taking into account possible dependencies.
 
@@ -428,6 +428,12 @@ class Workflow(BaseWorkflow):
             obj:
                 `Strategy` object or `AbinitInput` instance.
                 if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
+            links:
+                List of `WorkLink` objects specifying the dependency of this node.
+                An empy list of links implies that this node has no dependencies.
+            manager:
+                The `TaskManager` responsible for the submission of the task. If manager is None, we use 
+                the `TaskManager` specified during the creation of the workflow.
 
         Returns:   
             `WorkLink` object
@@ -439,13 +445,16 @@ class Workflow(BaseWorkflow):
         task_id = len(self)
         task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
 
+        # Make a deepcopy since manager is mutable and we might change it at run-time.
+        manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
+
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
-            task = task_factory(obj, task_workdir, self.manager, task_id=task_id, links=links)
+            task = task_factory(obj, task_workdir, manager, task_id=task_id, links=links)
 
         else:
             # Create the new task from the input. Note that no subclasses are instanciated here.
-            task = AbinitTask.from_input(obj, task_workdir, self.manager, task_id=task_id, links=links)
+            task = AbinitTask.from_input(obj, task_workdir, manager, task_id=task_id, links=links)
 
         self._tasks.append(task)
 
