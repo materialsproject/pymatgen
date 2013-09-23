@@ -79,6 +79,9 @@ class PotcarCorrection(Correction):
             input_set = MPVaspInputSet()
         elif name == "MIT":
             input_set = MITVaspInputSet()
+        else:
+            raise ValueError("Only MIT and MP POTCAR corrections are "
+                             "supported currently.")
         self.valid_potcars = set(input_set.potcar_settings.values())
 
     def correct_entry(self, entry):
@@ -266,7 +269,7 @@ class UCorrection(Correction):
         comp = entry.composition
 
         elements = sorted([el for el in comp.elements if comp[el] > 0],
-                           key=lambda el: el.X)
+                          key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = 0
 
