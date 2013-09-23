@@ -13,7 +13,7 @@ import copy
 import numpy as np
 
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings
+from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
 from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
@@ -58,8 +58,9 @@ class FakeProcess(object):
 
 def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
     """Factory function for Task instances."""
-    # TODO
-    # Instanciate subclasses depending on the runlevel.
+    # TODO: Instanciate subclasses depending on the runlevel.
+    #       so that we can implement methods such as restart, check_convergence
+    #       whose implementation depends on the type of calculation.
     classes = {
        "scf": AbinitTask,
        "nscf": AbinitTask,
@@ -264,16 +265,28 @@ class Task(object):
 
         # Start to check when the output file has been created.
         if not self.output_file.exists:
-            #print("out does not exists")
-            if not self.stderr_file.exists:
+            logger.debug("output_file does not exists")
+
+            if not self.stderr_file.exists and not self.qerr_file_exists:
                 # The job is still in the queue.
                 return self.status
+
             else:
-                # TODO check possible errors in stderr and queue manager 
-                err_msg = self.stderr_file.read()
-                if err_msg:
-                    logger.critical("stderr message:\n" + err_msg)
-                    return self.set_status(self.S_ERROR, err_info=err_msf)
+                # Analyze the standard error of the executable:
+                if self.stderr_file.exists:
+                    err_msg = self.stderr_file.read()
+                    if err_msg:
+                        logger.critical("executable stderr:\n" + err_msg)
+                        return self.set_status(self.S_ERROR, err_info=err_msf)
+
+                # Analyze the error file of the resource manager.
+                if self.qerr_file.exists:
+                    err_info = self.qerr_file.read()
+                    if err_info:
+                        logger.critical("queue stderr:\n" + err_msg)
+                        return self.set_status(self.S_ERROR, err_info=err_info)
+
+                return self.status
 
         # Check if the run completed successfully.
         parser = EventParser()
@@ -368,11 +381,14 @@ class Task(object):
                         dst += "-etsf.nc"
 
                 if not os.path.exists(path):
-                    raise self.Error("%s is needed by this task but it does not exist" % path)
+                    err_msg = "%s is needed by this task but it does not exist" % path
+                    logger.critical(err_msg)
+                    raise self.Error(err_msg)
 
                 # Link path to dst if dst link does not exist.
                 # else check that it points to the expected file.
                 logger.debug("Linking path %s --> %s" % (path, dst))
+
                 if not os.path.exists(dst):
                     os.symlink(path, dst)
                 else:
@@ -381,8 +397,11 @@ class Task(object):
                     except AssertionError as exc:
                         raise self.Error(str(exc))
 
-    #@abc.abstractmethod
+    #def check_convergence(self, *args, **kwargs):
+    #    """Return True if the calculation is converged."""
+
     #def restart(self, *args, **kwargs):
+    #    """Restart the calculation"""
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -785,22 +804,12 @@ class AbinitTask(Task):
             shutil.rmtree(self.workdir)
 
         else:
-            #w = WildCard(exclude_wildcards)
-            pats = exclude_wildcard.split("|")
-
-            import fnmatch
-
-            def keep(fname):
-                """True if fname must be preserved."""
-                for pat in pats:
-                    if fnmatch.fnmatch(fname, pat):
-                        return True
-                return False
+            w = WildCard(exclude_wildcards)
 
             for dirpath, dirnames, filenames in os.walk(self.workdir):
                 for fname in filenames:
                     filepath = os.path.join(dirpath, fname)
-                    if not keep(fname):
+                    if not w.match(fname):
                         os.remove(filepath)
 
     def remove_files(self, *filenames):
@@ -813,13 +822,17 @@ class AbinitTask(Task):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
-    def rm_tmpdatadir(self):
-        """Remove the directory with the temporary files."""
-        shutil.rmtree(self.tmpdata_dir)
-
     def rm_indatadir(self):
         """Remove the directory with the input files (indata dir)."""
         shutil.rmtree(self.indata_dir)
+
+    #def rm_outdatadir(self):
+    #    """Remove the directory with the temporary files."""
+    #    shutil.rmtree(self.outdata_dir)
+
+    def rm_tmpdatadir(self):
+        """Remove the directory with the temporary files."""
+        shutil.rmtree(self.tmpdata_dir)
 
     def setup(self, *args, **kwargs):
         pass
@@ -887,6 +900,7 @@ class TaskResults(dict, MSONable):
         # TODO Better treatment of events.
         try:
             assert (self["task_returncode"] == 0 and self["task_status"] == self.S_OK)
+
         except AssertionError as exc:
             self.push_exceptions(exc)
 
@@ -1292,10 +1306,9 @@ class TaskManager(object):
            `ParalHints` object with the configuration reported by autoparal and the optimal configuration.
            (None, None) if some problem occurred.
         """
-        print(type(self.policy), self.policy)
+        #print(type(self.policy), self.policy)
         policy = self.policy
 
-        # FIXME: Refactor policy object, avoid AttrDict
         if policy.autoparal == 0 or policy.max_ncpus is None: # nothing to do
             return None, None
 
@@ -1317,7 +1330,6 @@ class TaskManager(object):
         process = seq_manager.launch(task)
         process.wait()
         # return code is always != 0 
-        #return process.returncode
 
         # Reset the status, remove garbage files ...
         task.set_status(task.S_READY)
@@ -1411,6 +1423,5 @@ class TaskManager(object):
         process, queue_id = self.qadapter.submit_to_queue(script_file)
 
         task.set_queue_id(queue_id)
-        #task.set_status(task.S_RUN)
 
         return process
