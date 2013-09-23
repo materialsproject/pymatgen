@@ -69,17 +69,22 @@ class Product(object):
 
     @property
     def filepath(self):
+        """Absolute path of the file."""
         return self.file.path
 
     def get_abivars(self):
+        """
+        Returns a dictionary with the ABINIT variables that 
+        must be used to make the code use this file.
+        """
         return self._EXT2ABIVARS[self.ext]
 
 
-class WorkLink(object):
+class Link(object):
     """
     This object describes the dependencies among the tasks contained in a `Workflow` instance.
 
-    A `WorkLink` has a task that produces a list of products (files) that are
+    A `Link` has a node that produces a list of products (files) that are
     reused by the other tasks belonging to a `Workflow`.
     One usually creates the object by calling work.register and produces_exts.
 
@@ -91,27 +96,29 @@ class WorkLink(object):
         # Register the NSCF calculation and its dependency on the SCF run.
         nscf_link = work.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
     """
-    def __init__(self, task, exts=None):
+    def __init__(self, node, exts=None):
         """
         Args:
-            task:
-                The task associated to the link.
+            node:
+                The task or the worfklow associated to the link.
             exts:
                 Extensions of the output files that are needed for running the other tasks.
         """
-        self._task = task
+        self._node = node
 
         self._products = []
-
         if exts is not None:
             for ext in list_strings(exts):
-                prod = Product(ext, task.odata_path_from_ext(ext))
+                prod = Product(ext, node.odata_path_from_ext(ext))
                 self._products.append(prod)
 
     def __str__(self):
-        s = "%s: task %s with products\n %s" % (
-                self.__class__.__name__, repr(self._task), "\n".join(str(p) for p in self.products))
+        s = "node %s with products\n %s" % (repr(self.node), "\n".join(str(p) for p in self.products))
         return s
+
+    @property
+    def node(self):
+        return self._node
 
     @property
     def products(self):
@@ -119,12 +126,12 @@ class WorkLink(object):
         return self._products
 
     def produces_exts(self, exts):
-        return WorkLink(self._task, exts=exts)
+        return Link(self.node, exts=exts)
 
     def get_abivars(self):
         """
         Returns a dictionary with the ABINIT variables that must
-        be added to the input file in order to connect the two tasks.
+        be added to the input file in order to connect the two calculations.
         """
         abivars = {}
         for prod in self.products:
@@ -136,12 +143,13 @@ class WorkLink(object):
         """Returns the paths of the output files produced by self and its extensions"""
         filepaths = [prod.filepath for prod in self._products]
         exts = [prod.ext for prod in self._products]
+
         return filepaths, exts
 
     @property
     def status(self):
-        """The status of the link, equivalent to the task status"""
-        return self._task.status
+        """The status of the link, i.e. the status of the node"""
+        return self.node.status
 
 
 class WorkflowError(Exception):
@@ -223,6 +231,7 @@ class BaseWorkflow(object):
 
         # No task found, this usually happens when we have dependencies. 
         # Beware of possible deadlocks here!
+        logger.warning("Possible deadlock in fetch_task_to_run!")
         return None
 
     @abc.abstractmethod
@@ -339,7 +348,7 @@ class Workflow(BaseWorkflow):
         """
         self.workdir = os.path.abspath(workdir)
 
-        self.manager = manager
+        self.manager = manager.deepcopy()
 
         self._tasks = []
 
@@ -420,14 +429,14 @@ class Workflow(BaseWorkflow):
                 `Strategy` object or `AbinitInput` instance.
                 if Strategy object, we create a new `AbinitTask` from the input strategy and add it to the list.
             links:
-                List of `WorkLink` objects specifying the dependency of this node.
+                List of `Link` objects specifying the dependency of this node.
                 An empy list of links implies that this node has no dependencies.
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
                 the `TaskManager` specified during the creation of the workflow.
 
         Returns:   
-            `WorkLink` object
+            `Link` object
         """
         # Handle possible dependencies.
         if links and not isinstance(links, collections.Iterable):
@@ -453,7 +462,7 @@ class Workflow(BaseWorkflow):
             self._links_dict[task_id].extend(links)
             logger.debug("task_id %s needs\n %s" % (task_id, [str(l) for l in links]))
 
-        return WorkLink(task)
+        return Link(task)
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the working directory."""
@@ -478,12 +487,27 @@ class Workflow(BaseWorkflow):
         #for task in self:
         #    task.connect()
 
-    def get_status(self, only_highest_rank=False):
-        """Get the status of the tasks in self."""
+    @property
+    def status(self):
+        """
+        Returns the status of the workflow i.e. the minimum of the status of the tasks.
+        """
+        return self.get_all_status(only_min=True)
+
+    def get_all_status(self, only_min=False):
+        """
+        Returns a list with the status of the tasks in self.
+
+        Args:
+            only_min:
+                If True, the minimum of the status is returned.
+        """
+        self.check_status()
+
         status_list = [task.status for task in self]
 
-        if only_highest_rank:
-            return max(status_list)
+        if only_min:
+            return min(status_list)
         else:
             return status_list
 
@@ -492,19 +516,23 @@ class Workflow(BaseWorkflow):
         for task in self:
             task.check_status()
 
-    def show_inputs(self, stream=sys.stdout):
-        lines = []
-        app = lines.append
-
-        width = 120
         for task in self:
-            app("\n")
-            app(repr(task)+"\n")
-            app("Input file: %s\n" % task.input_file.path)
-            app(str(task.make_input()))
-            app(width*"=" + "\n")
+            if task.status <= task.S_SUB:
+                all_ok = all([stat == task.S_OK for stat in task.links_status])
+                if all_ok: 
+                    task.set_status(task.S_READY)
 
-        stream.write("\n".join(lines))
+    #def show_inputs(self, stream=sys.stdout):
+    #    lines = []
+    #    app = lines.append
+    #    width = 120
+    #    for task in self:
+    #        app("\n")
+    #        app(repr(task)+"\n")
+    #        app("Input file: %s\n" % task.input_file.path)
+    #        app(str(task.make_input()))
+    #        app(width*"=" + "\n")
+    #    stream.write("\n".join(lines))
 
     def rmtree(self, exclude_wildcard=""):
         """
@@ -676,7 +704,7 @@ class IterativeWork(Workflow):
 
         while True:
             if self.niter > self.max_niter > 0:
-                print("niter %d > max_niter %d" % (self.niter, self.max_niter))
+                logger.debug("niter %d > max_niter %d" % (self.niter, self.max_niter))
                 break
 
             try:
@@ -970,7 +998,7 @@ class PseudoConvergence(Workflow):
         wf_results.update(data)
 
         if not monotonic(etotal, mode="<", atol=1.0e-5):
-            print("E(ecut) is not decreasing")
+            logger.warning("E(ecut) is not decreasing")
             wf_results.push_exceptions("E(ecut) is not decreasing:\n" + str(etotal))
 
         if kwargs.get("json_dump", True):
@@ -1078,7 +1106,7 @@ class PseudoIterativeConvergence(IterativeWork):
         wf_results.update(data)
 
         if not monotonic(data["etotal"], mode="<", atol=1.0e-5):
-            print("E(ecut) is not decreasing")
+            logger.warning("E(ecut) is not decreasing")
             wf_results.push_exceptions("E(ecut) is not decreasing\n" + str(etotal))
 
         if kwargs.get("json_dump", True):
@@ -1208,7 +1236,7 @@ class DeltaTest(Workflow):
 
             # Use same fit as the one employed for the deltafactor.
             eos_fit = EOS.DeltaFactor().fit(self.volumes/num_sites, etotal/num_sites)
-            print("delta",eos_fit)
+            #print("delta",eos_fit)
             eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
 
             wf_results.update({
