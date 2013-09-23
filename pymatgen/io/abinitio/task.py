@@ -1114,56 +1114,54 @@ class TaskPolicy(AttrDict):
     and constraints used to select the optimal configuration for the parallel run 
     """
     # Default values.
-    _DEFAULTS = dict(
-        autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
-        mode="default",     # ["default", "aggressive", "conservative"]
-        max_ncpus=None,     # Max number of CPUs that can be used (users should specify this value when autoparal > 0)
-        use_fw=False,       # True if we are using fireworks.
-        constraints = [],   # List of constraints (mongodb syntax).
-        #automated=False,
-    )
+    #_DEFAULTS = dict(
+    #    autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
+    #    mode="default",     # ["default", "aggressive", "conservative"]
+    #    max_ncpus=None,     # Max number of CPUs that can be used (users should specify this value when autoparal > 0)
+    #    use_fw=False,       # True if we are using fireworks.
+    #    constraints = [],   # List of constraints (mongodb syntax).
+    #    #automated=False,
+    #)
 
-    #def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): #, automated=False, 
-    #    """
-    #    Args:
-    #        autoparal: 
-    #            Value of autoparal input variable. None to disable the autoparal feature.
-    #        mode:
-    #        max_ncpus:
-    #        use_fw: 
-    #        automated:
-    #        constraints: 
-    #            List of constraints (Mongodb syntax)
-    #    """
-    #    self.autoparal = autoparal
-    #    self.mode = mode 
-    #    self.max_ncpus = max_ncpus
-    #    self.use_fw = use_fw 
-    #    self.automated = automated
-    #    self.constraints = [] if constraints is None else constraints
-
-    def __init__(self, *args, **kwargs):
-        super(TaskPolicy, self).__init__(*args, **kwargs)
-
-        err_msg = ""
-        for k, v in self.items():
-            if k not in self._DEFAULTS:
-                err_msg += "Unknow key %s\n" % k
-
-        if err_msg:
-            raise ValueError(err_msg)
-
-        for k, v in self._DEFAULTS.items():
-            if k not in self:
-                self[k] = v
+    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): #, automated=False, 
+        """
+        Args:
+            autoparal: 
+                Value of autoparal input variable. None to disable the autoparal feature.
+            mode:
+            max_ncpus:
+            use_fw: 
+            automated:
+            constraints: 
+                List of constraints (Mongodb syntax)
+        """
+        self.autoparal = autoparal
+        self.mode = mode 
+        self.max_ncpus = max_ncpus
+        self.use_fw = use_fw 
+        self.constraints = constraints
+        #self.automated = automated
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
+    #def __init__(self, *args, **kwargs):
+    #    super(TaskPolicy, self).__init__(*args, **kwargs)
+    #    err_msg = ""
+    #    for k, v in self.items():
+    #        if k not in self._DEFAULTS:
+    #            err_msg += "Unknow key %s\n" % k
+    #    if err_msg:
+    #        raise ValueError(err_msg)
+    #    for k, v in self._DEFAULTS.items():
+    #        if k not in self:
+    #            self[k] = v
+    #    if self.autoparal and self.max_ncpus is None:
+    #        raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
+
     @classmethod
     def default_policy(cls):
-        d = cls._DEFAULTS.copy()
-        return cls(**d)
+        return cls()
 
 
 class TaskManager(object):
@@ -1308,7 +1306,7 @@ class TaskManager(object):
         policy = self.policy
 
         # FIXME: Refactor policy object, avoid AttrDict
-        if policy["autoparal"] == 0 or policy.max_ncpus is None: # nothing to do
+        if policy.autoparal == 0 or policy.max_ncpus is None: # nothing to do
             return None, None
 
         assert policy.autoparal == 1
