@@ -595,7 +595,6 @@ class AbinitTask(Task):
         #    return self._name
         #except AttributeError:
 
-
     @property
     def short_name(self):
         return os.path.basename(self.workdir)
@@ -1389,13 +1388,12 @@ class TaskManager(object):
             job_name=task.name, 
             launch_dir=task.workdir, 
             executable=task.executable,
+            qout_path=task.qout_file.path,
+            qerr_path=task.qerr_file.path,
             stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
-            # TODO
-            #qerr_file=task.qerr_file.path
-            #qout_file=task.qout_file.path
-        )
+            )
 
         # Write the script.
         script_file = task.job_file.path
