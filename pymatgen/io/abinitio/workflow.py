@@ -19,7 +19,7 @@ import pymatgen.core.physical_constants as const
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
-from pymatgen.util.string_utils import list_strings, pprint_table
+from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
 
@@ -67,7 +67,8 @@ class Product(object):
     def __str__(self):
         return "ext = %s, file = %s" % (self.ext, self.file)
 
-    def get_filepath(self):
+    @property
+    def filepath(self):
         return self.file.path
 
     def get_abivars(self):
@@ -80,7 +81,8 @@ class WorkLink(object):
 
     A `WorkLink` has a task that produces a list of products (files) that are
     reused by the other tasks belonging to a `Workflow`.
-    One usually instantiates the object by calling work.register and produces_exts.
+    One usually creates the object by calling work.register and produces_exts.
+
     Example:
 
         # Register the SCF task in work and get the link.
@@ -132,7 +134,7 @@ class WorkLink(object):
 
     def get_filepaths_and_exts(self):
         """Returns the paths of the output files produced by self and its extensions"""
-        filepaths = [prod.get_filepath() for prod in self._products]
+        filepaths = [prod.filepath for prod in self._products]
         exts = [prod.ext for prod in self._products]
         return filepaths, exts
 
@@ -168,8 +170,7 @@ class BaseWorkflow(object):
 
     def wait(self):
         """
-        Wait for child processed to terminate. Set and return returncode
-        attributes.
+        Wait for child processed to terminate. Set and return returncode attribute.
         """
         return [task.wait() for task in self]
 
@@ -208,7 +209,8 @@ class BaseWorkflow(object):
         """
         Returns the first task that is ready to run or None if no task can be submitted at present"
 
-        Raises `StopIteration` if all tasks are done.
+        Raises:
+            `StopIteration` if all tasks are done.
         """
         for task in self:
             if task.can_run:
@@ -486,6 +488,7 @@ class Workflow(BaseWorkflow):
             return status_list
 
     def check_status(self):
+        """Check the status of the tasks."""
         for task in self:
             task.check_status()
 
@@ -519,31 +522,40 @@ class Workflow(BaseWorkflow):
             shutil.rmtree(self.workdir)
 
         else:
-            pats = exclude_wildcard.split("|")
-
-            import fnmatch
-
-            def keep(fname):
-                for pat in pats:
-                    if fnmatch.fnmatch(fname, pat):
-                        return True
-                return False
+            w = WildCard(exclude_wildcard)
 
             for dirpath, dirnames, filenames in os.walk(self.workdir):
                 for fname in filenames:
                     path = os.path.join(dirpath, fname)
-                    if not keep(fname):
+                    if not w.match(fname):
                         os.remove(path)
 
-    def rm_tmpdatadir(self):
-        """Remove all the tmpdata directories."""
-        for task in self:
-            task.rm_tmpdatadir()
+    #@property
+    #def indata_dir(self):
+    #    """Directory with the input data of the `Workflow`."""
+    #    head, tail = os.path.split(self.prefix.idata)
+    #    return os.path.join(self.workdir, head)
+    #                                                  
+    #@property
+    #def outdata_dir(self):
+    #    """Directory with the output data of the `Workflow`."""
+    #    head, tail = os.path.split(self.prefix.odata)
+    #    return os.path.join(self.workdir, head)
 
     def rm_indatadir(self):
         """Remove all the indata directories."""
         for task in self:
             task.rm_indatadir()
+
+    #def rm_outdatadir(self):
+    #    """Remove all the indata directories."""
+    #    for task in self:
+    #        task.rm_outatadir()
+
+    def rm_tmpdatadir(self):
+        """Remove all the tmpdata directories."""
+        for task in self:
+            task.rm_tmpdatadir()
 
     def move(self, dst, isabspath=False):
         """
@@ -691,7 +703,6 @@ class IterativeWork(Workflow):
         True if the iteration should be stopped.
         """
 
-##########################################################################################
 
 def strictly_increasing(values):
     return all(x < y for x, y in zip(values, values[1:]))
@@ -839,7 +850,6 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
 
     return data
 
-##########################################################################################
 
 def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
     """
@@ -920,7 +930,6 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
     return fig
 
-##########################################################################################
 
 class PseudoConvergence(Workflow):
 
@@ -1056,7 +1065,7 @@ class PseudoIterativeConvergence(IterativeWork):
         return self.check_etotal_convergence(self, *args, **kwargs)
 
     def get_results(self, *args, **kwargs):
-        # Get the results of the tasks.
+        """Return the results of the tasks."""
         wf_results = super(PseudoIterativeConvergence, self).get_results()
 
         data = self.check_etotal_convergence()
@@ -1077,7 +1086,6 @@ class PseudoIterativeConvergence(IterativeWork):
 
         return wf_results
 
-################################################################################
 
 class BandStructure(Workflow):
     """Workflow for band structure calculations."""
@@ -1108,7 +1116,6 @@ class BandStructure(Workflow):
         if dos_strategy is not None:
             self.register(dos_strategy, links=scf_link.produces_exts("_DEN"))
 
-################################################################################
 
 class Relaxation(Workflow):
 
@@ -1126,7 +1133,6 @@ class Relaxation(Workflow):
 
         link = self.register(relax_strategy)
 
-################################################################################
 
 class DeltaTest(Workflow):
 
@@ -1226,7 +1232,6 @@ class DeltaTest(Workflow):
 
         return wf_results
 
-################################################################################
 
 class GW_Workflow(Workflow):
 
