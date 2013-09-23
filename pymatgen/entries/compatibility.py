@@ -136,7 +136,8 @@ class GasCorrection(Correction):
                     ox_corr = self.oxide_correction[
                         entry.data["oxide_type"]]
                     correction += ox_corr * comp["O"]
-            #Legacy option/ if hydroxides are still labeled: apply same correction as for oxides
+                # Legacy option/ if hydroxides are still labeled: apply same
+                # correction as for oxides
                 elif entry.data["oxide_type"] == "hydroxide":
                     correction += self.oxide_correction["oxide"] *\
                         comp["O"]
