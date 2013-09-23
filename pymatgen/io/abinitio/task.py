@@ -958,7 +958,7 @@ class ParalConf(AttrDict):
             omp_ncpus: 1,     # Number of OMP threads (1 if not present)
             mem_per_cpus: 10, # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
             efficiency: 0.4,  # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
-            vars: {        # Dictionary with the variables that should be added to the input.
+            vars: {           # Dictionary with the variables that should be added to the input.
                   varname1: varvalue1,
                   varname2: varvalue2,
                   },
@@ -1133,34 +1133,29 @@ class TaskPolicy(object):
     a set of variables that specify the launcher, and options
     and constraints used to select the optimal configuration for the parallel run 
     """
-    # Default values.
-    #_DEFAULTS = dict(
-    #    autoparal=0,        # ABINIT autoparal option. Set it to 0 to disable this feature.
-    #    mode="default",     # ["default", "aggressive", "conservative"]
-    #    max_ncpus=None,     # Max number of CPUs that can be used (users should specify this value when autoparal > 0)
-    #    use_fw=False,       # True if we are using fireworks.
-    #    constraints = [],   # List of constraints (mongodb syntax).
-    #    #automated=False,
-    #)
 
     def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): 
         """
         Args:
             autoparal: 
-                Value of autoparal input variable. None to disable the autoparal feature.
+                Value of ABINIT autoparal input variable. None to disable the autoparal feature.
             mode:
+                Select the algorith to select the optimal configuration for the parallel execution.
+                Possible values: ["default", "aggressive", "conservative"]
             max_ncpus:
+                Max number of CPUs that can be used (must be specifies if autoparal > 0).
             use_fw: 
-            automated:
+                True if we are using fireworks.
             constraints: 
-                List of constraints (Mongodb syntax)
+
+                List of constraints used to filter the autoparal configuration (Mongodb syntax)
         """
         self.autoparal = autoparal
         self.mode = mode 
         self.max_ncpus = max_ncpus
         self.use_fw = use_fw 
+        # TODO: Need a object to support mongodb-like queries.
         self.constraints = constraints
-        #self.automated = automated
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
