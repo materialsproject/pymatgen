@@ -225,7 +225,7 @@ class PyResourceManager(object):
                 # Check that we don't exceed the number of cpus employed, before starting.
                 if self.verbose:
                     print("work polls %s" % polls)
-                    print("work status %s" % self.work.get_status())
+                    print("work status %s" % self.work.get_all_status())
 
                 if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
                     if self.verbose: 
