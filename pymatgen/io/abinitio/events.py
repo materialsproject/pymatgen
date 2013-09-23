@@ -301,7 +301,7 @@ class EventParser(object):
             nlines = len(lines)
             for (lineno, line) in enumerate(lines):
                 if MAGIC in line:
-                    run_completed = False
+                    run_completed = True
                 handle = handlers.get(exc_case(line))
                 if handle is None: continue
                 context = lines[lineno: min(lineno+nafter, nlines)]
@@ -345,7 +345,7 @@ class EventParser(object):
             for l, line in enumerate(fh):
 
                 if MAGIC in line:
-                    run_completed = False
+                    run_completed = True
 
                 if not in_event:
                     if line.startswith(START_TAG):

@@ -4,6 +4,7 @@ Classes defining Abinit calculations and workflows
 from __future__ import division, print_function
 
 import os
+import time
 import shutil
 import collections
 import abc
@@ -105,7 +106,7 @@ class Task(object):
         self.set_status(Task.S_READY)
 
         # Used to push additional info on the task during its execution. 
-        #self._history = collections.OrderedDict()
+        self.history = collections.deque(maxlen=10)
 
     def __getstate__(self):
         """
@@ -124,6 +125,7 @@ class Task(object):
         """
 
     def set_executable(self, executable):
+        """Set the executable associate to this task."""
         self._executable = executable
 
     # Interface modeled after subprocess.Popen
@@ -224,92 +226,115 @@ class Task(object):
         """String representation of the status."""
         return self.STATUS2STR[self.status]
 
-    def set_status(self, status):
+    def set_status(self, status, err_info=None):
         """Set the status of the task."""
+
         if status not in self.POSSIBLE_STATUS:
             raise RuntimeError("Unknown status: %s" % status)
 
+        changed = False
+        if hasattr(self, "_status"):
+            changed = status != self._status
+
         self._status = status
 
-        # Notify the observers
-        #self.subject.notify_observers(self)
+        if changed:
+            if status == self.S_SUB: 
+                self._submission_time = time.time()
+                self.history.append("Submitted on %s" % time.asctime())
 
-    def recheck_status(self):
+            if status == self.S_OK:
+                self.history.append("Completed on %s" % time.asctime())
 
-        if self.status not in [self.S_SUB, self.S_RUN, self.S_DONE, self.S_ERROR]: 
+            if status == self.S_ERROR:
+                self.history.append("Error info:\n %s" % str(err_info))
+
+            # Notify the observers
+            #self.notify_observers(self)
+
+        return status
+
+    def check_status(self):
+        if self.status < self.S_SUB:
             return
 
         # Check the returncode of the process first.
         if self.returncode != 0:
-            return self.set_status(self.S_ERROR)
+            return self.set_status(self.S_ERROR, err_info="return code %s" % self.returncode)
 
         # Start to check when the output file has been created.
         if not self.output_file.exists:
+            #print("out does not exists")
             if not self.stderr_file.exists:
                 # The job is still in the queue.
-                return
+                return self.status
             else:
                 # TODO check possible errors in stderr and queue manager 
                 err_msg = self.stderr_file.read()
                 if err_msg:
-                    logger.critical("stderr message" + err_msg)
-
-                return self.set_status(self.S_ERROR)
+                    logger.critical("stderr message:\n" + err_msg)
+                    return self.set_status(self.S_ERROR, err_info=err_msf)
 
         # Check if the run completed successfully.
-        try:
-            report = EventParser().parse(self.output_file.path)
+        parser = EventParser()
 
-        except Exception as exc:
+        try:
+            report = parser.parse(self.output_file.path)
+
+        except parser.Error as exc:
             logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return self.set_status(self.S_ERROR)
+            return self.set_status(self.S_ERROR, err_info=str(exc))
 
         if report.run_completed:
-            self.set_status(self.S_OK)
+            return self.set_status(self.S_OK)
 
-        else:
-            # TODO
-            # This is the delicate part since we have to discern among different possibilities:
-            #
-            # 1) Calculation stopped due to an Abinit Error or Bug.
-            # 2) Segmentation fault that (by definition) was not handled by ABINIT.
-            # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
-            # 4) Calculation is still running!
-            #
-            # Point 2) and 3) are the most complicated since there's no standard!
+        # This is the delicate part since we have to discern among different possibilities:
+        #
+        # 1) Calculation stopped due to an Abinit Error or Bug.
+        #
+        # 2) Segmentation fault that (by definition) was not handled by ABINIT.
+        #    In this case we check if the ABINIT error file is not empty.
+        #
+        # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
+        #    In this case we check if the error file of the queue manager is not empty.
+        # 
+        # 4) Calculation is still running!
+        #
+        # Point 2) and 3) are the most complicated since there's no standard!
 
-            # 1) Search for possible errors or bugs in the ABINIT **output** file.
-            if report.errors or report.bugs:
-                logger.critical("Found Errors or Bugs in ABINIT main output!")
-                self._status = self.S_ERROR
-                return 
+        # 1) Search for possible errors or bugs in the ABINIT **output** file.
+        if report.errors or report.bugs:
+            logger.critical("Found Errors or Bugs in ABINIT main output!")
+            return self.set_status(self.S_ERROR, err_info=str(report.errors) + str(report_bus))
 
-            # 2) Analyze the stderr file for Fortran runtime errors.
-            #   err_lines = self.stderr_file.readlines()
-            #   if err_lines:
-            #       self._status = self.S_ERROR
-            #       return 
+        # 2) Analyze the stderr file for Fortran runtime errors.
+        if self.stderr_file.exists:
+            err_info = self.stderr_file.read()
+            if err_info:
+                return self.set_status(self.S_ERROR, err_info=err_info)
 
-            # 3) Analyze the error file of the resource manager.
-            #   self._status = self.S_ERROR
-            #   err_lines = self.qerr_file.readlines()
-            #   if err_lines:
-            #       self._status = self.S_ERROR
-            #       return 
+        # 3) Analyze the error file of the resource manager.
+        if self.qerr_file.exists:
+            err_info = self.qerr_file.read()
+            if err_info:
+                return self.set_status(self.S_ERROR, err_info=err_info)
 
-            # 4)
-            self._status = self.S_OK
-            return 
+        # 4) Assume the job is still running.
+        return self.set_status(self.S_RUN)
 
     @property
     def links(self):
+        """
+        Iterable with the links of the status. 
+        Empty list if self is not connected to other tasks.
+        """
         return self._links
 
     @property
     def links_status(self):
         """Returns a list with the status of the links."""
         if not self.links:
-            return [Task.S_DONE,]
+            return [Task.S_OK]
 
         return [l.status for l in self.links]
 
@@ -355,6 +380,9 @@ class Task(object):
                         assert os.path.realpath(dst) == path
                     except AssertionError as exc:
                         raise self.Error(str(exc))
+
+    #@abc.abstractmethod
+    #def restart(self, *args, **kwargs):
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -410,6 +438,7 @@ class Task(object):
         """The results produced by the task. Set by get_results"""
         try:
             return self._results
+
         except AttributeError:
             self._results = self.get_results()
             return self._results 
@@ -461,11 +490,6 @@ class AbinitTask(Task):
     prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
-    # Basenames for Abinit input and output files.
-    Basename = collections.namedtuple("Basename", "input output files_file log_file stderr_file jobfile lockfile")
-    basename = Basename("run.abi", "run.abo", "run.files", "run.log", "run.err", "job.sh", "__abilock__")
-    del Basename
-
     def __init__(self, strategy, workdir, manager, task_id=1, links=None, **kwargs):
         """
         Args:
@@ -483,7 +507,7 @@ class AbinitTask(Task):
                 List of `WorkLink` objects specifying the dependencies of the task.
                 Used for tasks belonging to a `Workflow`.
             kwargs:
-                keyword arguments (not used here)
+                keyword arguments (not used for the time being)
         """
         super(AbinitTask, self).__init__()
 
@@ -508,11 +532,16 @@ class AbinitTask(Task):
                 self.strategy.add_extra_abivars(link.get_abivars())
 
         # Files required for the execution.
-        self.input_file = File(os.path.join(self.workdir, AbinitTask.basename.input))
-        self.output_file = File(os.path.join(self.workdir, AbinitTask.basename.output))
-        self.files_file = File(os.path.join(self.workdir, AbinitTask.basename.files_file))
-        self.log_file = File(os.path.join(self.workdir, AbinitTask.basename.log_file))
-        self.stderr_file = File(os.path.join(self.workdir, AbinitTask.basename.stderr_file))
+        self.input_file = File(os.path.join(self.workdir, "run.abi"))
+        self.output_file = File(os.path.join(self.workdir, "run.abo"))
+        self.files_file = File(os.path.join(self.workdir, "run.files"))
+        self.job_file = File(os.path.join(self.workdir, "job.sh"))
+        self.log_file = File(os.path.join(self.workdir, "run.log"))
+        self.stderr_file = File(os.path.join(self.workdir, "run.err"))
+
+        # stderr and output file of the queue manager.
+        self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
+        self.qout_file = File(os.path.join(self.workdir, "queue.out"))
 
     def __repr__(self):
         return "<%s at %s, workdir = %s>" % (
@@ -556,9 +585,16 @@ class AbinitTask(Task):
         except AttributeError:
             return "abinit"
 
+    #def set_name(name):
+    #    self._name = name
+
     @property
     def name(self):
         return self.workdir
+        #try:
+        #    return self._name
+        #except AttributeError:
+
 
     @property
     def short_name(self):
@@ -571,11 +607,6 @@ class AbinitTask(Task):
         except AttributeError:
             # Attach a fake process so that we can poll it.
             return FakeProcess()
-
-    @property
-    def jobfile_path(self):
-        """Absolute path of the job file (shell script)."""
-        return os.path.join(self.workdir, self.basename.jobfile)    
 
     @property
     def indata_dir(self):
@@ -755,6 +786,7 @@ class AbinitTask(Task):
             shutil.rmtree(self.workdir)
 
         else:
+            #w = WildCard(exclude_wildcards)
             pats = exclude_wildcard.split("|")
 
             import fnmatch
@@ -827,6 +859,7 @@ class TaskResults(dict, MSONable):
         "task_status",
         "task_events",
     ]
+
     EXC_KEY = "_exceptions"
 
     def __init__(self, *args, **kwargs):
@@ -964,11 +997,11 @@ class ParalHintsParser(object):
                 break
 
         if start is None or end is None:
-            raise cls.Error("%s does not contain any valid RUN_HINTS section" % filename)
+            raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
 
         if start == end:
             # Empy section ==> One has to enable Yaml in ABINIT.
-            raise cls.Error("%s contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
+            raise self.Error("%s contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
 
         s = "".join(l for l in lines[start+1:end])
 
@@ -976,7 +1009,7 @@ class ParalHintsParser(object):
         try:
             d = yaml.load(s)
         except:
-            raise cls.Error("Malformatted Yaml file")
+            raise self.Error("Malformatted Yaml file")
 
         return ParalHints(header=d["header"], confs=d["configurations"])
 
@@ -1037,7 +1070,8 @@ class ParalHints(collections.Iterable):
         """
         self._confs.sort(key=lambda c: c.speedup, reverse=reverse)
 
-    #def sort_by_mem(self):
+    #def sort_by_mem_cpu(self, reverse=False):
+    #    self._confs.sort(key=lambda c: c.mem_per_cpus, reverse=reverse)
 
     def select_optimal_conf(self, policy):
         """Find the optimal configuration according on policy."""
@@ -1164,6 +1198,34 @@ class TaskManager(object):
 
         return "\n".join(lines)
 
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d)
+
+    @classmethod
+    def from_file(cls, filename):
+        """Read the configuration parameters from a Yaml file."""
+        import yaml
+        with open(filename, "r") as fh:
+            d = yaml.load(fh)
+
+        return cls.from_dict(d)
+
+    #@classmethod
+    #def from_user_config(cls):
+    #    Try in the current directory.
+    #    fname = "taskmanager.yaml"
+    #    path = fname
+    #    if os.path.exists(path):
+    #        return cls.from_file(path)
+
+    #    Try in the configuration directory.
+    #    path = os.path.join(home, path)
+    #    if os.path.exists(home, path):
+    #        return cls.from_file(path)
+    #
+    #    raise RuntimeError("Cannot locate %s neither in current directory nor in home directory" % fname)
+
     @classmethod 
     def sequential(cls):
         """
@@ -1224,9 +1286,9 @@ class TaskManager(object):
         """Set the number of MPI nodes to use."""
         self.qadapter.set_mpi_ncpus(mpi_ncpus)
 
-    #def set_omp_ncpus(self, omp_ncpus):
-    #    """Set the number of OpenMp threads to use."""
-    #    self.qadapter.set_omp_ncpus(omp_ncpus)
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMp threads to use."""
+        self.qadapter.set_omp_ncpus(omp_ncpus)
 
     #def set_mem_per_cpu(self, mem_per_cpu):
     #    self.qadapter.set_mem_per_cpu(mem_per_cpu)
@@ -1240,14 +1302,15 @@ class TaskManager(object):
         parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
 
         Returns:
-            `ParalHints` object with the configuratin reported by autoparal. None if some problem occurred.
+           `ParalHints` object with the configuration reported by autoparal and the optimal configuration.
+           (None, None) if some problem occurred.
         """
         print(type(self.policy), self.policy)
         policy = self.policy
 
         # FIXME: Refactor policy object, avoid AttrDict
         if policy["autoparal"] == 0 or policy.max_ncpus is None: # nothing to do
-            return None
+            return None, None
 
         assert policy.autoparal == 1
         # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
@@ -1277,18 +1340,18 @@ class TaskManager(object):
 
         # Remove the output file since Abinit likes to create new files 
         # with extension .outA, .outB if the file already exists.
-        os.remove(task.output_file.path)
+        try:
+            os.remove(task.output_file.path)
+        except:
+            pass
 
         # 2) Parse the autoparal configurations
         parser = ParalHintsParser()
 
         try:
             confs = parser.parse(task.log_file.path)
-
         except parser.Error:
-            return None
-
-        #return confs
+            return None, None
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
@@ -1309,7 +1372,7 @@ class TaskManager(object):
         #if optimal.mem_per_cpu is not None
         #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
 
-        return confs
+        return confs, optimal
 
     def write_jobfile(self, task):
         """
@@ -1335,7 +1398,7 @@ class TaskManager(object):
         )
 
         # Write the script.
-        script_file = task.jobfile_path
+        script_file = task.job_file.path
         with open(script_file, "w") as fh:
             fh.write(script)
 
@@ -1361,7 +1424,7 @@ class TaskManager(object):
 
         process, queue_id = self.qadapter.submit_to_queue(script_file)
 
-        task.set_status(task.S_RUN)
         task.set_queue_id(queue_id)
+        #task.set_status(task.S_RUN)
 
         return process

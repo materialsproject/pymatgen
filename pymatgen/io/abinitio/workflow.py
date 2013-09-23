@@ -42,18 +42,6 @@ __all__ = [
     "Workflow",
 ]
 
-################################################################################
-
-
-def map_method(method):
-    """Decorator that calls item.method for all items in a iterable object."""
-    @functools.wraps(method)
-    def wrapped(iter_obj, *args, **kwargs):
-        return [getattr(item, method.__name__)(*args, **kwargs)
-                for item in iter_obj]
-    return wrapped
-
-
 
 class Product(object):
     """
@@ -83,15 +71,15 @@ class Product(object):
         return self.file.path
 
     def get_abivars(self):
-        return self._EXT2ABIVARS[self.ext].copy()
+        return self._EXT2ABIVARS[self.ext]
 
 
 class WorkLink(object):
     """
-    This object describes the dependencies among the tasks contained in a Work instance.
+    This object describes the dependencies among the tasks contained in a `Workflow` instance.
 
-    A WorkLink is a task that produces a list of products (files) that are
-    reused by the other tasks belonging to a Work instance.
+    A `WorkLink` has a task that produces a list of products (files) that are
+    reused by the other tasks belonging to a `Workflow`.
     One usually instantiates the object by calling work.register and produces_exts.
     Example:
 
@@ -114,9 +102,7 @@ class WorkLink(object):
         self._products = []
 
         if exts is not None:
-            exts = list_strings(exts)
-
-            for ext in exts:
+            for ext in list_strings(exts):
                 prod = Product(ext, task.odata_path_from_ext(ext))
                 self._products.append(prod)
 
@@ -127,6 +113,7 @@ class WorkLink(object):
 
     @property
     def products(self):
+        """List of files produces by self."""
         return self._products
 
     def produces_exts(self, exts):
@@ -134,12 +121,13 @@ class WorkLink(object):
 
     def get_abivars(self):
         """
-        Returns a dictionary with the abinit variables that must
+        Returns a dictionary with the ABINIT variables that must
         be added to the input file in order to connect the two tasks.
         """
         abivars = {}
-        for prod in self._products:
+        for prod in self.products:
             abivars.update(prod.get_abivars())
+
         return abivars
 
     def get_filepaths_and_exts(self):
@@ -497,9 +485,9 @@ class Workflow(BaseWorkflow):
         else:
             return status_list
 
-    def recheck_status(self):
+    def check_status(self):
         for task in self:
-            task.recheck_status()
+            task.check_status()
 
     def show_inputs(self, stream=sys.stdout):
         lines = []
