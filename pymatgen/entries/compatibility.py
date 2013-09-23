@@ -129,13 +129,14 @@ class GasCorrection(Correction):
             return entry
 
         correction = 0
-        #Check for oxide, peroxide, superoxide, and ozonide corrections. 
+        #Check for oxide, peroxide, superoxide, and ozonide corrections.
         if len(comp) >= 2 and Element("O") in comp:
             if "oxide_type" in entry.data:
                 if entry.data["oxide_type"] in self.oxide_correction:
                     ox_corr = self.oxide_correction[
                         entry.data["oxide_type"]]
                     correction += ox_corr * comp["O"]
+            #Legacy option/ if hydroxides are still labeled: apply same correction as for oxides
                 elif entry.data["oxide_type"] == "hydroxide":
                     correction += self.oxide_correction["oxide"] *\
                         comp["O"]
@@ -146,9 +147,6 @@ class GasCorrection(Correction):
                 if ox_type in self.oxide_correction:
                     correction += self.oxide_correction[ox_type] * \
                         nbonds
-                elif ox_type == "hydroxide":
-                    correction += self.oxide_correction["oxide"] *\
-                        comp["O"]
             else:
                 if rform in UCorrection.common_peroxides:
                     correction += self.oxide_correction["peroxide"] * \
@@ -194,9 +192,13 @@ class AqueousCorrection(Correction):
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
         if rform in cpdenergies:
-            entry.entry_id = -comp.keys()[0].Z
-            entry.correction = cpdenergies[rform] * comp.num_atoms \
-                - entry.uncorrected_energy
+            if rform in ["H2", "H2O"]:
+                entry.entry_id = -comp.keys()[0].Z
+                entry.correction = cpdenergies[rform] * comp.num_atoms \
+                    - entry.uncorrected_energy
+            else:
+                entry.correction += cpdenergies[rform] * comp.num_atoms
+
         return entry
 
 
