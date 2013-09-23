@@ -72,6 +72,12 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.4
+------
+1. Completely revamped Compatibility/Correction system which improves
+   readability (Shyue Ping Ong/Anubhav Jain/Sai Jayaraman). This change is
+   backwards compatible for the most part.
+
 v2.8.3
 ------
 1. Big fix release for json dumping for unitized floats.
