@@ -1105,7 +1105,7 @@ class ParalHints(collections.Iterable):
         return optimal
 
 
-class TaskPolicy(AttrDict):
+class TaskPolicy(object):
     """
     This object stores the parameters used by the `TaskManager` to 
     create the submission script and/or to modify the ABINIT variables 
@@ -1123,7 +1123,7 @@ class TaskPolicy(AttrDict):
     #    #automated=False,
     #)
 
-    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): #, automated=False, 
+    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): 
         """
         Args:
             autoparal: 
@@ -1145,24 +1145,6 @@ class TaskPolicy(AttrDict):
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
-    #def __init__(self, *args, **kwargs):
-    #    super(TaskPolicy, self).__init__(*args, **kwargs)
-    #    err_msg = ""
-    #    for k, v in self.items():
-    #        if k not in self._DEFAULTS:
-    #            err_msg += "Unknow key %s\n" % k
-    #    if err_msg:
-    #        raise ValueError(err_msg)
-    #    for k, v in self._DEFAULTS.items():
-    #        if k not in self:
-    #            self[k] = v
-    #    if self.autoparal and self.max_ncpus is None:
-    #        raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
-
-    @classmethod
-    def default_policy(cls):
-        return cls()
-
 
 class TaskManager(object):
     """
@@ -1182,7 +1164,15 @@ class TaskManager(object):
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
                                   pre_run=pre_run, post_run=post_run, mpi_runner=mpi_runner)
 
-        self.policy = TaskPolicy(**policy) if policy is not None else TaskPolicy.default_policy()
+        if policy is None:
+            # Use default policy.
+            self.policy = TaskPolicy()
+        else:
+            if isinstance(policy, TaskPolicy):
+                self.policy = policy
+            else:
+                self.policy = TaskPolicy(**policy) 
+
         #print(type(self.policy), self.policy)
 
     def __str__(self):
