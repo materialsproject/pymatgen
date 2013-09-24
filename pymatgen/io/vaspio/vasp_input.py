@@ -641,8 +641,6 @@ class Incar(dict):
             val = int(val)
             return val
         except ValueError:
-            if key == "LORBIT":
-               print val
             pass
 
         try:
