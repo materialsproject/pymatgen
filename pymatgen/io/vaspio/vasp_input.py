@@ -888,13 +888,15 @@ class Kpoints(MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
+        # VASP documentation recommends to use even grids for n <= 8 and odd
+        # grids for n > 8.
         num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
-        all_even = all([i % 2 == 0 for i in num_div])
-        if all_even and (not is_hexagonal):
-            style = Kpoints.supported_modes.Monkhorst
-        else:
+        has_odd = any([i % 2 == 1 for i in num_div])
+        if has_odd or is_hexagonal:
             style = Kpoints.supported_modes.Gamma
+        else:
+            style = Kpoints.supported_modes.Monkhorst
 
         comment = "pymatgen generated KPOINTS with grid density = " + \
             "{} / atom".format(kppa)
