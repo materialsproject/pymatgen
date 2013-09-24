@@ -206,8 +206,7 @@ class MITCompatibilityTest(unittest.TestCase):
                         'potcar_symbols': ['PAW_PBE O 08Apr2002'],
                         'run_type': 'GGA'})
         entry = compat.process_entry(entry)
-        self.assertEqual(entry.entry_id, -8)
-        self.assertAlmostEqual(entry.energy, -4.25915626315)
+        self.assertAlmostEqual(entry.energy, -1)
 
 
 class OxideTypeCorrectionTest(unittest.TestCase):
@@ -302,15 +301,15 @@ class AqueousCorrectionTest(unittest.TestCase):
     def test_compound_energy(self):
         entry = ComputedEntry(Composition("H2O"), -16)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.100455, 4)
+        self.assertAlmostEqual(entry.energy, -15.10057, 4)
 
         entry = ComputedEntry(Composition("H2O"), -24)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.100455, 4)
+        self.assertAlmostEqual(entry.energy, -15.10057, 4)
 
         entry = ComputedEntry(Composition("Cl"), -24)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -1.6092, 4)
+        self.assertAlmostEqual(entry.energy, -24.344373, 4)
 
 
 if __name__ == "__main__":
