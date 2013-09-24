@@ -641,8 +641,6 @@ class Incar(dict):
             val = int(val)
             return val
         except ValueError:
-            if key == "LORBIT":
-               print val
             pass
 
         try:
@@ -890,10 +888,12 @@ class Kpoints(MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        all_odd = all([i % 2 == 1 for i in num_div])
+        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
-        style = Kpoints.supported_modes.Monkhorst
-        if all_odd or is_hexagonal:
+        all_even = all([i % 2 == 0 for i in num_div])
+        if all_even and (not is_hexagonal):
+            style = Kpoints.supported_modes.Monkhorst
+        else:
             style = Kpoints.supported_modes.Gamma
 
         comment = "pymatgen generated KPOINTS with grid density = " + \

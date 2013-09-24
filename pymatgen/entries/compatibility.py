@@ -79,6 +79,9 @@ class PotcarCorrection(Correction):
             input_set = MPVaspInputSet()
         elif name == "MIT":
             input_set = MITVaspInputSet()
+        else:
+            raise ValueError("Only MIT and MP POTCAR corrections are "
+                             "supported currently.")
         self.valid_potcars = set(input_set.potcar_settings.values())
 
     def correct_entry(self, entry):
@@ -129,26 +132,19 @@ class GasCorrection(Correction):
             return entry
 
         correction = 0
-        #Check for oxide, peroxide, superoxide, and ozonide corrections. 
+        #Check for oxide, peroxide, superoxide, and ozonide corrections.
         if len(comp) >= 2 and Element("O") in comp:
             if "oxide_type" in entry.data:
                 if entry.data["oxide_type"] in self.oxide_correction:
                     ox_corr = self.oxide_correction[
                         entry.data["oxide_type"]]
                     correction += ox_corr * comp["O"]
-                elif entry.data["oxide_type"] == "hydroxide":
-                    correction += self.oxide_correction["oxide"] *\
-                        comp["O"]
-
             elif hasattr(entry, "structure"):
                 ox_type, nbonds = oxide_type(entry.structure, 1.05,
                                              return_nbonds=True)
                 if ox_type in self.oxide_correction:
                     correction += self.oxide_correction[ox_type] * \
                         nbonds
-                elif ox_type == "hydroxide":
-                    correction += self.oxide_correction["oxide"] *\
-                        comp["O"]
             else:
                 if rform in UCorrection.common_peroxides:
                     correction += self.oxide_correction["peroxide"] * \
@@ -194,9 +190,13 @@ class AqueousCorrection(Correction):
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
         if rform in cpdenergies:
-            entry.entry_id = -comp.keys()[0].Z
-            entry.correction = cpdenergies[rform] * comp.num_atoms \
-                - entry.uncorrected_energy
+            if rform in ["H2", "H2O"]:
+                entry.entry_id = -comp.keys()[0].Z
+                entry.correction = cpdenergies[rform] * comp.num_atoms \
+                    - entry.uncorrected_energy
+            else:
+                entry.correction += cpdenergies[rform] * comp.num_atoms
+
         return entry
 
 
@@ -269,7 +269,7 @@ class UCorrection(Correction):
         comp = entry.composition
 
         elements = sorted([el for el in comp.elements if comp[el] > 0],
-                           key=lambda el: el.X)
+                          key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         correction = 0
 
