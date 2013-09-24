@@ -205,6 +205,11 @@ class Task(object):
         self._queue_id = queue_id
 
     @property
+    def has_queue_manager(self):
+        """True if we are submitting jobs via a queue manager."""
+        return self.manager.qadapter.QTYPE.lower() != "shell"
+
+    @property
     def tot_ncpus(self):
         """Total number of CPUs used to run the task."""
         return self.manager.tot_ncpus
@@ -272,7 +277,7 @@ class Task(object):
         if not self.output_file.exists:
             logger.debug("output_file does not exists")
 
-            if not self.stderr_file.exists and not self.qerr_file_exists:
+            if not self.stderr_file.exists and not self.qerr_file.exists:
                 # The job is still in the queue.
                 return self.status
 
@@ -418,11 +423,18 @@ class Task(object):
 
     #@abc.abstractmethod
     #def restart(self)):
-    #    """Restart the calculation"""
+    #    """
+    #    Restart the calculation. This method is called if the calculation is not converged 
+    #    and we can restart the task. See restart_if_needed.
+    #    """
     #    self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
     #    self.start()
 
     #def restart_if_needed(self):
+    # """
+    # Callback that is executed once the job is done. 
+    # The implementation of is_converged, can_restart and restart is delegated to the subclasses.
+    # """
     # if not self.is_converged():
     #    if self.can_restart():
     #         self.restart()
@@ -432,11 +444,6 @@ class Task(object):
     #        self.set_status(self.S_ERROR, info_msg=info_msg)
     #
     #    return 0
-
-    #@property
-    #def has_queue_manager(self):
-    #    """True if we are submitting jobs via a queue manager."""
-    #    return self.manager.qadapter.QTYPE.lower() != "shell"
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -479,10 +486,8 @@ class Task(object):
     #    if self.status is None or self.status < self.S_DONE:
     #        raise self.Error(
     #            "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
-
     #    try:
     #        return self._events
-
     #    except AttributeError:
     #        self._events = self.parse_events()
     #        return self._events
@@ -726,9 +731,9 @@ class AbinitTask(Task):
     def from_dict(d):
         raise NotImplementedError("")
 
-    def isdone(self):
-        """True if the output file is complete."""
-        return abinit_output_iscomplete(self.output_file.path)
+    #def isdone(self):
+    #    """True if the output file is complete."""
+    #    return abinit_output_iscomplete(self.output_file.path)
 
     @property
     def isnc(self):
@@ -1049,7 +1054,7 @@ class ParalHintsParser(object):
             raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
 
         if start == end:
-            # Empy section ==> One has to enable Yaml in ABINIT.
+            # Empy section ==> User didn't enable Yaml in ABINIT.
             raise self.Error("%s contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
 
         s = "".join(l for l in lines[start+1:end])
@@ -1086,7 +1091,8 @@ class ParalHints(collections.Iterable):
         return "\n".join(str(conf) for conf in self)
 
     def copy(self):
-        return self.__class__(header=self.header.copy(), confs=self._confs[:])
+        #return self.__class__(header=self.header.copy(), confs=self._confs[:])
+        return copy.copy(self)
 
     def apply_filter(self, filter):
         raise NotImplementedError("")
@@ -1359,8 +1365,9 @@ class TaskManager(object):
         # we don't want to make a request to the queue manager for this simple job!
         seq_manager = self.to_shell_manager(mpi_ncpus=1)
 
+        # Return code is always != 0 
         process = seq_manager.launch(task)
-        process.wait()  # return code is always != 0 
+        process.wait()  
 
         # Reset the status, remove garbage files ...
         task.set_status(task.S_READY)
