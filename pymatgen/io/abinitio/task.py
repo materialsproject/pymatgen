@@ -75,7 +75,7 @@ def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
 
 
 class TaskError(Exception):
-    """Base Exception for Task methods"""
+    """Base Exception for `Task` methods"""
 
 
 class Task(object):
@@ -85,12 +85,12 @@ class Task(object):
 
     # Possible status of the task.
     S_INIT = 1    # Task has been initialized
-    S_READY = 2    # Task is ready for submission (all the links of the task have status S_OK)
-    S_SUB = 4      # Task has been submitted.
-    S_RUN = 8      # Task is running.
-    S_DONE = 16     # Task done, This does not imply that results are ok or that the calculation completed successfully
-    S_ERROR = 32   # Task raised some kind of Error (either the process or ABINIT).
-    S_OK = 64      # Task completed successfully.
+    S_READY = 2   # Task is ready for submission (all the links of the task have status S_OK)
+    S_SUB = 4     # Task has been submitted.
+    S_RUN = 8     # Task is running.
+    S_DONE = 16   # Task done, This does not imply that results are ok or that the calculation completed successfully
+    S_ERROR = 32  # Task raised some kind of Error (the submission process, the queue manager or ABINIT).
+    S_OK = 64     # Task completed successfully.
 
     STATUS2STR = collections.OrderedDict([
         (S_INIT, "Initialized"),
@@ -116,7 +116,7 @@ class Task(object):
         Return state is pickled as the contents for the instance.
                                                                                       
         In this case we just remove the process since Subprocess objects cannot be pickled.
-        This is the reason why we have to store the returncode in self_returncode instead
+        This is the reason why we have to store the returncode in self._returncode instead
         of using self.process.returncode.
         """
         return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
@@ -229,7 +229,7 @@ class Task(object):
         """String representation of the status."""
         return self.STATUS2STR[self.status]
 
-    def set_status(self, status, err_info=None):
+    def set_status(self, status, info_msg=None):
         """Set the status of the task."""
 
         if status not in self.POSSIBLE_STATUS:
@@ -250,7 +250,7 @@ class Task(object):
                 self.history.append("Completed on %s" % time.asctime())
 
             if status == self.S_ERROR:
-                self.history.append("Error info:\n %s" % str(err_info))
+                self.history.append("Error info:\n %s" % str(info_msg))
 
             # Notify the observers
             #self.notify_observers(self)
@@ -266,7 +266,7 @@ class Task(object):
 
         # Check the returncode of the process first.
         if self.returncode != 0:
-            return self.set_status(self.S_ERROR, err_info="return code %s" % self.returncode)
+            return self.set_status(self.S_ERROR, info_msg="return code %s" % self.returncode)
 
         # Start to check when the output file has been created.
         if not self.output_file.exists:
@@ -282,14 +282,14 @@ class Task(object):
                     err_msg = self.stderr_file.read()
                     if err_msg:
                         logger.critical("executable stderr:\n" + err_msg)
-                        return self.set_status(self.S_ERROR, err_info=err_msf)
+                        return self.set_status(self.S_ERROR, info_msg=err_msg)
 
                 # Analyze the error file of the resource manager.
                 if self.qerr_file.exists:
                     err_info = self.qerr_file.read()
                     if err_info:
                         logger.critical("queue stderr:\n" + err_msg)
-                        return self.set_status(self.S_ERROR, err_info=err_info)
+                        return self.set_status(self.S_ERROR, info_msg=err_info)
 
                 return self.status
 
@@ -301,7 +301,7 @@ class Task(object):
 
         except parser.Error as exc:
             logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return self.set_status(self.S_ERROR, err_info=str(exc))
+            return self.set_status(self.S_ERROR, info_msg=str(exc))
 
         if report.run_completed:
             return self.set_status(self.S_OK)
@@ -311,10 +311,12 @@ class Task(object):
         # 1) Calculation stopped due to an Abinit Error or Bug.
         #
         # 2) Segmentation fault that (by definition) was not handled by ABINIT.
-        #    In this case we check if the ABINIT error file is not empty.
+        #    In this case we check if the ABINIT standard error is not empty.
+        #    hoping that nobody has written to sdterr (e.g. libraries in debug mode)
         #
         # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
         #    In this case we check if the error file of the queue manager is not empty.
+        #    Also in this case we *assume* that there's something wrong if the stderr of the queue manager is not empty
         # 
         # 4) Calculation is still running!
         #
@@ -323,19 +325,19 @@ class Task(object):
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
         if report.errors or report.bugs:
             logger.critical("Found Errors or Bugs in ABINIT main output!")
-            return self.set_status(self.S_ERROR, err_info=str(report.errors) + str(report_bus))
+            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report_bus))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
         if self.stderr_file.exists:
             err_info = self.stderr_file.read()
             if err_info:
-                return self.set_status(self.S_ERROR, err_info=err_info)
+                return self.set_status(self.S_ERROR, info_msg=err_info)
 
         # 3) Analyze the error file of the resource manager.
         if self.qerr_file.exists:
             err_info = self.qerr_file.read()
             if err_info:
-                return self.set_status(self.S_ERROR, err_info=err_info)
+                return self.set_status(self.S_ERROR, info_msg=err_info)
 
         # 4) Assume the job is still running.
         return self.set_status(self.S_RUN)
@@ -403,11 +405,38 @@ class Task(object):
                     except AssertionError as exc:
                         raise self.Error(str(exc))
 
-    #def check_convergence(self, *args, **kwargs):
+    #@abc.abstractmethod
+    #def is_converged(self):
     #    """Return True if the calculation is converged."""
 
-    #def restart(self, *args, **kwargs):
+    #@abc.abstractmethod
+    #def can_restart(self):
+    #    """"
+    #     Returns True if task can restart i.e. if ABINIT has produced 
+    #     all the files and input data we need to restart the job.
+    #     """
+
+    #@abc.abstractmethod
+    #def restart(self)):
     #    """Restart the calculation"""
+    #    self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
+    #    self.start()
+
+    #def restart_if_needed(self):
+    # if not self.is_converged():
+    #    if self.can_restart():
+    #         self.restart()
+    #         return 1
+    #    else:
+    #        info_msg = "calculation not converged but restart was not possible!"
+    #        self.set_status(self.S_ERROR, info_msg=info_msg)
+    #
+    #    return 0
+
+    #@property
+    #def has_queue_manager(self):
+    #    """True if we are submitting jobs via a queue manager."""
+    #    return self.manager.qadapter.QTYPE.lower() != "shell"
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -579,7 +608,7 @@ class AbinitTask(Task):
     def from_input(cls, abinit_input, workdir, manager, task_id=1, links=None, **kwargs):
         """
         Create an instance of `AbinitTask` from an ABINIT input.
-
+    
         Args:
             abinit_input:
                 `AbinitInput` object.
@@ -605,6 +634,7 @@ class AbinitTask(Task):
 
     @property
     def executable(self):
+        """path to the executable required for running the Task."""
         try:
             return self._executable
         except AttributeError:
@@ -1297,20 +1327,20 @@ class TaskManager(object):
 
     def autoparal(self, task):
         """
-        Find optimal parameters for the execution of the task 
+        Find an optimal set of parameters for the execution of the task 
         using the options specified in self.policy.
-     
         This method can change the ABINIT input variables and/or the 
         parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
 
         Returns:
            `ParalHints` object with the configuration reported by autoparal and the optimal configuration.
-           (None, None) if some problem occurred.
+           (None, None) is returned if some problem occurred.
         """
         #print(type(self.policy), self.policy)
         policy = self.policy
 
-        if policy.autoparal == 0 or policy.max_ncpus is None: # nothing to do
+        if policy.autoparal == 0 or policy.max_ncpus is None: 
+            # nothing to do
             return None, None
 
         assert policy.autoparal == 1
@@ -1325,12 +1355,12 @@ class TaskManager(object):
         task.strategy.add_extra_abivars(autoparal_vars)
         task.build()
 
-        # Build a simple manager that runs jobs in a shell subprocess.
+        # Build a simple manager to run the job in a shell subprocess on the frontend
+        # we don't want to make a request to the queue manager for this simple job!
         seq_manager = self.to_shell_manager(mpi_ncpus=1)
 
         process = seq_manager.launch(task)
-        process.wait()
-        # return code is always != 0 
+        process.wait()  # return code is always != 0 
 
         # Reset the status, remove garbage files ...
         task.set_status(task.S_READY)
@@ -1385,6 +1415,7 @@ class TaskManager(object):
         Returns:
             The path of the script file.
         """
+        # Construct the submission script.
         script = self.qadapter.get_script_str(
             job_name=task.name, 
             launch_dir=task.workdir, 
@@ -1423,6 +1454,7 @@ class TaskManager(object):
 
         process, queue_id = self.qadapter.submit_to_queue(script_file)
 
+        # Save the queue id.
         task.set_queue_id(queue_id)
 
         return process

@@ -22,8 +22,7 @@ class WorkflowTestCase(unittest.TestCase):
         pseudo = filepath("14si.pspnc")
         ecut_list = range(10, 40, 2)
 
-        pptest_wf = PseudoConvergence(workdir, manager, pseudo,
-                                      ecut_list=ecut_list, atols_mev=(10, 1, 0.1))
+        pptest_wf = PseudoConvergence(workdir, manager, pseudo, ecut_list, atols_mev=(10, 1, 0.1))
 
         print(repr(pptest_wf))
         print(pptest_wf)

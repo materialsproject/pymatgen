@@ -21,9 +21,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "MpiRunner",
-    #"ShellAdapter",
-    #"SlurmAdapter",
-    #"PbsAdapter",
 ]
 
 class Command(object):
@@ -370,6 +367,7 @@ class AbstractQueueAdapter(object):
 ####################
 
 class ShellAdapter(AbstractQueueAdapter):
+    QTYPE = "shell"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -407,6 +405,7 @@ export MPI_NCPUS=$${MPI_NCPUS}
 
 
 class SlurmAdapter(AbstractQueueAdapter):
+    QTYPE = "slurm"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -496,6 +495,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 
 
 class PbsAdapter(AbstractQueueAdapter):
+    QTYPE = "pbs"
 
     QTEMPLATE = """\
 #!/bin/bash

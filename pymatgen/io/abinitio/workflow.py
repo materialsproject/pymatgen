@@ -288,6 +288,7 @@ class WorkFlowResults(dict, MSONable):
     _MANDATORY_KEYS = [
         "task_results",
     ]
+
     _EXC_KEY = "_exceptions"
 
     def __init__(self, *args, **kwargs):
@@ -370,7 +371,7 @@ class Workflow(BaseWorkflow):
         return self._tasks[slice]
 
     def __repr__(self):
-        return "<%s at %s, workdir = %s>" % (self.__class__.__name__, id(self), str(self.workdir))
+        return "<%s at %s, workdir = %s>" % (self.__class__.__name__, id(self), self.workdir)
 
     def __str__(self):
         return self.__repr__()
@@ -522,18 +523,6 @@ class Workflow(BaseWorkflow):
                 if all_ok: 
                     task.set_status(task.S_READY)
 
-    #def show_inputs(self, stream=sys.stdout):
-    #    lines = []
-    #    app = lines.append
-    #    width = 120
-    #    for task in self:
-    #        app("\n")
-    #        app(repr(task)+"\n")
-    #        app("Input file: %s\n" % task.input_file.path)
-    #        app(str(task.make_input()))
-    #        app(width*"=" + "\n")
-    #    stream.write("\n".join(lines))
-
     def rmtree(self, exclude_wildcard=""):
         """
         Remove all files and directories in the working directory
@@ -655,7 +644,7 @@ class IterativeWork(Workflow):
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, strategy_generator, manager, max_niter=25):
+    def __init__(self, workdir, manager, strategy_generator, max_niter=25):
         """
         Args:
             workdir:
