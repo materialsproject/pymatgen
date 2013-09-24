@@ -163,7 +163,7 @@ class CifParser(object):
         struct = Structure(lattice, allspecies, allcoords)
         if primitive:
             struct = struct.get_primitive_structure()
-        return struct.get_sorted_structure()
+        return struct.get_reduced_structure().get_sorted_structure()
 
     def get_structures(self, primitive=True):
         """
