@@ -10,19 +10,25 @@ class File(object):
 
     Provides wrappers for the most commonly used os.path functions.
     """
-
     def __init__(self, path):
-        self.path = os.path.abspath(path)
+        self._path = os.path.abspath(path)
 
     def __repr__(self):
         return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
 
     @property
+    def path(self):
+        """Absolute path of the file."""
+        return self._path
+
+    @property
     def basename(self):
+        """File basename."""
         return os.path.basename(self.path)
 
     @property
     def dirname(self):
+        """Absolute path of the directory where the file is located."""
         return os.path.dirname(self.path)
 
     @property
@@ -36,28 +42,95 @@ class File(object):
         return self.basename.endswith(".nc")
 
     def read(self):
+        """Read data from file."""
         with open(self.path, "r") as f:
             return f.read()
 
     def readlines(self):
+        """Read lines from files."""
         with open(self.path, "r") as f:
             return f.readlines()
 
     def write(self, string):
+        """Write string to file."""
         self.make_dir()
         with open(self.path, "w") as f:
             return f.write(string)
 
     def writelines(self, lines):
+        """Write a list of strings to file."""
         self.make_dir()
         with open(self.path, "w") as f:
             return f.writelines()
 
     def make_dir(self):
+        """Make the directory where the file is located."""
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
 
-##########################################################################################
+
+class Directory(object):
+    """
+    Very simple class that provides helper functions
+    wrapping the most commonly used functions of os.path.
+    """
+    def __init__(self, path):
+        self._path = os.path.abspath(path)
+
+    def __repr__(self):
+        return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
+
+    @property
+    def path(self):
+        """Absolute path of the directory."""
+        return self._path
+
+    @property
+    def basename(self):
+        """Directory basename."""
+        return os.path.basename(self.path)
+
+    @property
+    def exists(self):
+        "True if file exists."
+        return os.path.exists(self.path)
+
+    def path_in_dir(self, filename):
+        """Return the absolute path of filename in the directory."""
+        return os.path.join(self.path, filename)
+
+    def list_filepaths(self):
+        """Return the list of absolute filepaths in the top-level directory."""
+        fnames = [f for f in os.listdir(self.path)]
+        return [os.path.join(self.path, f) for f in fnames]
+
+    def has_abifile(self, ext):
+        """
+        Returns the absolute path of the ABINIT file with extension ext.
+        Support both Fortran files and netcdf files. In the later case,
+        we check whether a file with extension ext + ".nc" is present 
+        in the directory.
+        Returns empty string is file is not present.
+
+        Raises:
+            ValueError if multiple files with the given ext are found.
+            This implies that this method is not compatible with multiple datasets.
+        """
+        files = []
+        for f in self.list_filepaths():
+            if f.endswith(ext) or f.endswith(ext + ".nc"):
+                files.append(f)
+
+        if not files:
+            return ""
+
+        if len(files) > 1:
+            # ABINIT users must learn that multiple datasets are bad!
+            err_msg = "Found multiple files with the same extensions\n Please avoid the use of mutiple datasets!"
+            raise ValueError(err_msg)
+
+        return files[0]
+
 
 def find_file(files, ext, prefix=None, dataset=None, image=None):
     """
@@ -87,8 +160,6 @@ def find_file(files, ext, prefix=None, dataset=None, image=None):
             if found: return filename
     else:
         return None
-
-##########################################################################################
 
 
 def abinit_output_iscomplete(output_file):
