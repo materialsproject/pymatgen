@@ -114,6 +114,8 @@ class Task(object):
     def __init__(self):
         # Set the initial status.
         self.set_status(self.S_INIT)
+        # Number of restars.
+        self.num_restarts = 0
 
         # Used to push additional info on the task during its execution. 
         self.history = collections.deque(maxlen=50)
@@ -203,6 +205,8 @@ class Task(object):
             return 1
         else:
             self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+            # TODO: Here I need a reference to the workflow.
+            #self.workflow.check_status()
             return 0
 
     @property
@@ -440,6 +444,9 @@ class Task(object):
     def _restart(self):
         """Called by restart once we have finished preparing the task for restarting."""
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
+
+        # Increase the counter and relaunch the task.
+        self.num_restarts += 1
         self.start()
 
     #@abc.abstractmethod
@@ -575,6 +582,10 @@ class AbinitTask(Task):
     prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
+    #IPREF = "in"
+    #OPREF = "out"
+    #TPREF = "tmp"
+
     def __init__(self, strategy, workdir, manager, task_id=1, links=None, **kwargs):
         """
         Args:
@@ -589,7 +600,7 @@ class AbinitTask(Task):
             task_id:
                 Task identifier (must be unique if self belongs to a `Workflow`).
             links:
-                List of `WorkLink` objects specifying the dependencies of the task.
+                List of `Link` objects specifying the dependencies of the task.
                 Used for tasks belonging to a `Workflow`.
             kwargs:
                 keyword arguments (not used for the time being)
@@ -657,7 +668,7 @@ class AbinitTask(Task):
             task_id:
                 Task identifier (must be unique if self belongs to a `Workflow`).
             links:
-                List of `WorkLink` objects specifying the dependencies of the task.
+                List of `Link` objects specifying the dependencies of the task.
                 Used for tasks belonging to a `Workflow`.
             kwargs:
                 keyword arguments (not used here)
@@ -720,9 +731,9 @@ class AbinitTask(Task):
 
         app(self.input_file.path)                 # Path to the input file
         app(self.output_file.path)                # Path to the output file
-        app(pj(self.workdir, self.prefix.idata))  # Prefix for in data
-        app(pj(self.workdir, self.prefix.odata))  # Prefix for out data
-        app(pj(self.workdir, self.prefix.tdata))  # Prefix for tmp data
+        app(pj(self.workdir, self.prefix.idata))  # Prefix for input data
+        app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
+        app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
 
         # Paths to the pseudopotential files.
         for pseudo in self.pseudos:
@@ -743,10 +754,6 @@ class AbinitTask(Task):
     @staticmethod
     def from_dict(d):
         raise NotImplementedError("")
-
-    #def isdone(self):
-    #    """True if the output file is complete."""
-    #    return abinit_output_iscomplete(self.output_file.path)
 
     @property
     def isnc(self):
@@ -816,14 +823,9 @@ class AbinitTask(Task):
             os.makedirs(self.workdir)
 
         # Create dirs for input, output and tmp data.
-        if not os.path.exists(self.indir.path):
-            os.makedirs(self.indir.path)
-
-        if not os.path.exists(self.outdir.path):
-            os.makedirs(self.outdir.path)
-
-        if not os.path.exists(self.tmpdir.path):
-            os.makedirs(self.tmpdir.path)
+        self.indir.makedirs()
+        self.outdir.makedirs()
+        self.tmpdir.makedirs()
 
         # Write files file and input file.
         if not self.files_file.exists:
@@ -1194,10 +1196,10 @@ class ParalHintsParser(object):
         START_TAG = "<RUN_HINTS>"
         END_TAG = "</RUN_HINTS>"
 
-        start, end = None, None
         with open(filename, "r") as fh:
             lines = fh.readlines()
 
+        start, end = None, None
         for i, line in enumerate(lines):
             if START_TAG in line:
                 start = i
@@ -1217,8 +1219,8 @@ class ParalHintsParser(object):
         import yaml
         try:
             d = yaml.load(s)
-        except:
-            raise self.Error("Malformatted Yaml file")
+        except Exception as exc:
+            raise self.Error("Malformatted Yaml section in file %s:\n %s" % (filename, str(exc)))
 
         return ParalHints(header=d["header"], confs=d["configurations"])
 

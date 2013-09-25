@@ -95,6 +95,15 @@ class Directory(object):
         "True if file exists."
         return os.path.exists(self.path)
 
+    def makedirs(self):
+        """
+        Super-mkdir; create a leaf directory and all intermediate ones.
+        Works like mkdir, except that any intermediate path segment (not
+        just the rightmost) will be created if it does not exist.
+        """
+        if not self.exists:
+            os.makedirs(self.path)
+
     def path_in_dir(self, filename):
         """Return the absolute path of filename in the directory."""
         return os.path.join(self.path, filename)

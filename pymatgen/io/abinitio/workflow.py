@@ -465,6 +465,7 @@ class Workflow(BaseWorkflow):
 
         # Set the class
         if task_class is not None:
+            #task_class = task_class_from_runlevel(runlevel)
             task.__class__ = task_class
 
         self._tasks.append(task)
@@ -556,18 +557,6 @@ class Workflow(BaseWorkflow):
                     path = os.path.join(dirpath, fname)
                     if not w.match(fname):
                         os.remove(path)
-
-    #@property
-    #def indir(self):
-    #    """Directory with the input data of the `Workflow`."""
-    #    head, tail = os.path.split(self.prefix.idata)
-    #    return os.path.join(self.workdir, head)
-    #                                                  
-    #@property
-    #def outdir(self):
-    #    """Directory with the output data of the `Workflow`."""
-    #    head, tail = os.path.split(self.prefix.odata)
-    #    return os.path.join(self.workdir, head)
 
     def rm_indatadir(self):
         """Remove all the indata directories."""
