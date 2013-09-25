@@ -23,14 +23,14 @@ TITLE comment: From cif file
 TITLE Source:  CoO19128.cif
 TITLE Structure Summary:  Co2 O2
 TITLE Reduced formula:  CoO
-TITLE space group: (Cmc2_1), space number:  (36)
+TITLE space group: (Ccm2_1), space number:  (36)
 TITLE abc:  3.297078   3.297078   5.254213
 TITLE angles: 90.000000  90.000000 120.000000
 TITLE sites: 4
-* 1 Co     0.666666     0.333332     0.496324
-* 2 Co     0.333333     0.666667     0.996324
-* 3 O     0.666666     0.333332     0.878676
-* 4 O     0.333333     0.666667     0.378675"""
+* 1 Co     0.333334     0.666666     0.503676
+* 2 Co     0.666667     0.333333     0.003676
+* 3 O     0.333334     0.666666     0.121324
+* 4 O     0.666667     0.333333     0.621325"""
 
     def test_get_header(self):
         comment = 'From cif file'
@@ -38,8 +38,7 @@ TITLE sites: 4
                                              comment))
         self.maxDiff = 1000
         self.assertEqual(FeffInputSetTest.header_string.splitlines(),
-                         header.splitlines(),
-                         'Failed to generate header string')
+                         header.splitlines())
 
     def test_getfefftags(self):
         tags = FeffInputSet.get_feff_tags(x, "XANES").to_dict

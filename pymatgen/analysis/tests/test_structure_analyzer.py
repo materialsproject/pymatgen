@@ -77,12 +77,12 @@ class VoronoiConnectivityTest(unittest.TestCase):
         expected = np.array([0, 1.96338392, 0, 0.04594495])
         self.assertTrue(np.allclose(ca[15, :4, ca.shape[2] // 2], expected))
         
-        expected = np.array([0, 2.04147512, 2.12118181])
+        expected = np.array([0, 0, 0])
         self.assertTrue(np.allclose(ca[1, -3:, 51], expected))
         
         site = vc.get_sitej(27, 51)
         self.assertEqual(site.specie, Element('O'))
-        expected = np.array([-0.04316, 0.25111, 0.29158])
+        expected = np.array([-0.29158, 0.74889, 0.95684])
         self.assertTrue(np.allclose(site.frac_coords, expected))
     
 
