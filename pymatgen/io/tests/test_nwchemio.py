@@ -428,6 +428,10 @@ class NwOutputTest(unittest.TestCase):
         self.assertTrue(nwo.data[-1]["has_error"])
         self.assertEqual(nwo.data[-1]["errors"][0], "autoz error")
 
+        nwo = NwOutput(os.path.join(test_dir, "anthrachinon_wfs_16_ethyl.nwout"))
+        self.assertTrue(nwo.data[-1]["has_error"])
+        self.assertEqual(nwo.data[-1]["errors"][0], "Geometry optimization failed")
+
 
 if __name__ == "__main__":
     unittest.main()

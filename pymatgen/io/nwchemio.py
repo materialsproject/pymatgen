@@ -517,7 +517,8 @@ class NwOutput(object):
         error_defs = {
             "calculations not reaching convergence": "Bad convergence",
             "Calculation failed to converge": "Bad convergence",
-            "geom_binvr: #indep variables incorrect": "autoz error"}
+            "geom_binvr: #indep variables incorrect": "autoz error",
+            "dft optimize failed": "Geometry optimization failed"}
 
         data = {}
         energies = []
