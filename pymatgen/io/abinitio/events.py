@@ -1,7 +1,6 @@
 """
 This module defines the events signaled by abinit during the execution. It also
-provides a parser to extract these events form the main output file and the
-log file.
+provides a parser to extract these events form the main output file and the log file.
 """
 from __future__ import division, print_function
 
@@ -17,18 +16,37 @@ __all__ = [
 
 class AbinitEvent(MSONable):
     """
-    Example (JSON)::
+    Example (YAML syntax)::
 
-        <AbinitEvent>
-            "class": "ScfConvergenceWarning",
-            "src_file": "routine name",
-            "src_line": "line number in src_file",
-            "message": "The human-readable message goes here!"
-            "tolname": "tolwfr",
-            "actual_tol": 1.0e-8,
-            "required_tol": 1.0e-10,
-            "nstep": 50,
-        </AbinitEvent>
+        ---
+        # Normal warning without any handler.
+        Warning:
+            message: "This is a normal warning that won't trigger any handler in the python code!"
+            src_file: routine_name
+            src_line:  112
+        ---
+
+        ---
+        # Critical warning that will trigger some action in the python code.
+        ScfCriticalWarning:
+            message: "The human-readable message goes here!"
+            src_file: foo.F90
+            src_line: 112
+            tolname: tolwfr
+            actual_tol: 1.0e-8
+            required_tol: 1.0e-10
+            nstep: 50
+        ---
+
+    The algorithm to extract the YAML sections is very simple.
+
+    1) Find --- at the beginning of line.
+    2) If the next lines ends with "Warning:", "Error:", "Bug:", "Comment
+       we know we have encountered a new ABINIT event else we close the YAML document.
+    3) The key defines the event class to instantiate.
+
+    Note that now --- becomes a reserved word since it should be 
+    used only to mark the beginning and the end of YAML documents.
     """
     def __init__(self, **kwargs):
         self._kwargs = kwargs.copy()
@@ -126,8 +144,6 @@ _BASE_CLASSES = [
     AbinitWarning,
 ]
 
-##########################################################################################
-
 
 class EventReport(collections.Iterable, MSONable):
     """Iterable storing the events raised by an ABINIT calculation."""
@@ -187,30 +203,37 @@ class EventReport(collections.Iterable, MSONable):
 
     @property
     def comments(self):
+        """List of comments found."""
         return self.select(AbinitComment)
 
     @property
     def errors(self):
+        """List of errors found."""
         return self.select(AbinitError)
 
     @property
     def bugs(self):
+        """List of bugs found."""
         return self.select(AbinitBug)
 
     @property
     def warnings(self):
+        """List of warnings found."""
         return self.select(AbinitWarning)
 
     @property
     def num_warnings(self):
+        """Number of warnings reported."""
         return len(self.warnings)
 
     @property
     def num_errors(self):
+        """Number of errors reported."""
         return len(self.errors)
 
     @property
     def num_comments(self):
+        """Number of comments reported."""
         return len(self.comments)
 
     def select(self, base_class, only_critical=False):
