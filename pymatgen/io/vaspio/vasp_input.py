@@ -641,8 +641,6 @@ class Incar(dict):
             val = int(val)
             return val
         except ValueError:
-            if key == "LORBIT":
-               print val
             pass
 
         try:
@@ -873,7 +871,7 @@ class Kpoints(MSONable):
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
+        num_div = [int(round(mult / l)) for l in lengths]
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
@@ -890,11 +888,15 @@ class Kpoints(MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        all_odd = all([i % 2 == 1 for i in num_div])
+        # VASP documentation recommends to use even grids for n <= 8 and odd
+        # grids for n > 8.
+        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
-        style = Kpoints.supported_modes.Monkhorst
-        if all_odd or is_hexagonal:
+        has_odd = any([i % 2 == 1 for i in num_div])
+        if has_odd or is_hexagonal:
             style = Kpoints.supported_modes.Gamma
+        else:
+            style = Kpoints.supported_modes.Monkhorst
 
         comment = "pymatgen generated KPOINTS with grid density = " + \
             "{} / atom".format(kppa)

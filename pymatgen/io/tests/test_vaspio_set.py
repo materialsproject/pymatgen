@@ -160,15 +160,15 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = self.paramset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[2, 4, 5]])
+        self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mitparamset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[2, 4, 5]])
+        self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpstaticparamset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[3, 5, 6]])
+        self.assertEquals(kpoints.kpts, [[4, 6, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpnscfparamsetl.get_kpoints(self.struct)
@@ -257,7 +257,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
 
     def test_get_kpoints(self):
         kpoints = self.vis.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[2, 4, 5]])
+        self.assertEquals(kpoints.kpts, [[2, 4, 6]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
     def test_to_from_dict(self):
