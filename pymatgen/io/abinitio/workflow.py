@@ -12,10 +12,10 @@ import functools
 import numpy as np
 import cPickle as pickle
 
+from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
-import pymatgen.core.physical_constants as const 
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks
@@ -421,7 +421,7 @@ class Workflow(BaseWorkflow):
     #def from_dict(cls, d):
     #    return cls(d["workdir"])
 
-    def register(self, obj, links=(), manager=None):
+    def register(self, obj, links=(), manager=None, task_class=None):
         """
         Registers a new task and add it to the internal list, taking into account possible dependencies.
 
@@ -435,6 +435,8 @@ class Workflow(BaseWorkflow):
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
                 the `TaskManager` specified during the creation of the workflow.
+            task_class:
+                `AbinitTask` subclass to instanciate. Mainly used if the workflow is not able to find it automatically.
 
         Returns:   
             `Link` object
@@ -449,6 +451,10 @@ class Workflow(BaseWorkflow):
         # Make a deepcopy since manager is mutable and we might change it at run-time.
         manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
 
+        #if hasattr(obj, "runlevel"):
+        #from pymatgen.io.abinitio.strategies import StrategyWithInput
+        #obj = StrategyWithInput(obj)
+
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
             task = task_factory(obj, task_workdir, manager, task_id=task_id, links=links)
@@ -456,6 +462,10 @@ class Workflow(BaseWorkflow):
         else:
             # Create the new task from the input. Note that no subclasses are instanciated here.
             task = AbinitTask.from_input(obj, task_workdir, manager, task_id=task_id, links=links)
+
+        # Set the class
+        if task_class is not None:
+            task.__class__ = task_class
 
         self._tasks.append(task)
 
@@ -548,13 +558,13 @@ class Workflow(BaseWorkflow):
                         os.remove(path)
 
     #@property
-    #def indata_dir(self):
+    #def indir(self):
     #    """Directory with the input data of the `Workflow`."""
     #    head, tail = os.path.split(self.prefix.idata)
     #    return os.path.join(self.workdir, head)
     #                                                  
     #@property
-    #def outdata_dir(self):
+    #def outdir(self):
     #    """Directory with the output data of the `Workflow`."""
     #    head, tail = os.path.split(self.prefix.odata)
     #    return os.path.join(self.workdir, head)
@@ -624,7 +634,7 @@ class Workflow(BaseWorkflow):
         etotal = []
         for task in self:
             # Open the GSR file and read etotal (Hartree)
-            with ETSF_Reader(task.odata_path_from_ext("_GSR")) as ncdata:
+            with ETSF_Reader(task.odata_path_from_ext("_GSR.nc")) as ncdata:
                 etotal.append(ncdata.read_value("etotal"))
 
         return etotal
@@ -676,7 +686,7 @@ class IterativeWork(Workflow):
         except StopIteration:
             raise StopIteration
 
-        self.register_task(next_strategy)
+        self.register(next_strategy)
         assert len(self) == self.niter
 
         return self[-1]
@@ -817,7 +827,7 @@ def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
 
 
 def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys.stdout):
-    de_low, de_normal, de_high = [a / (1000 * const.HA_TO_EV) for a in atols_mev]
+    de_low, de_normal, de_high = [a / (1000 * Ha_to_eV) for a in atols_mev]
 
     num_ene = len(etotal)
     etotal_inf = etotal[-1]
@@ -832,7 +842,7 @@ def compute_hints(ecut_list, etotal, atols_mev, pseudo, min_numpts=1, stream=sys
 
     app(["iter", "ecut", "etotal", "et-e_inf [meV]", "accuracy",])
     for idx, (ec, et) in enumerate(zip(ecut_list, etotal)):
-        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf) * const.HA_TO_EV * 1.e+3)
+        line = "%d %.1f %.7f %.3f" % (idx, ec, et, (et-etotal_inf) * Ha_to_eV * 1.e+3)
         row = line.split() + ["".join(c for c,v in accidx.items() if v == idx)]
         app(row)
 
@@ -914,11 +924,11 @@ def plot_etotal(ecut_list, etotals, aug_ratios, **kwargs):
 
     emax = -np.inf
     for (aratio, etot) in zip(aug_ratios, etotals):
-        emev = const.Ha2meV(etot)
+        emev = np.array(etot) * Ha_to_eV * 1000
         emev_inf = npts * [emev[-1]]
         yy = emev - emev_inf
 
-        emax = max(emax, np.max(yy))
+        emax = np.max(emax, np.max(yy))
 
         line, = ax.plot(ecut_list, yy, "-->", linewidth=3.0, markersize=10)
 
@@ -990,8 +1000,8 @@ class PseudoConvergence(Workflow):
             logger.warning("E(ecut) is not decreasing")
             wf_results.push_exceptions("E(ecut) is not decreasing:\n" + str(etotal))
 
-        if kwargs.get("json_dump", True):
-            wf_results.json_dump(self.path_in_workdir("results.json"))
+        #if kwargs.get("json_dump", True):
+        #    wf_results.json_dump(self.path_in_workdir("results.json"))
 
         return wf_results
 
@@ -1098,8 +1108,8 @@ class PseudoIterativeConvergence(IterativeWork):
             logger.warning("E(ecut) is not decreasing")
             wf_results.push_exceptions("E(ecut) is not decreasing\n" + str(etotal))
 
-        if kwargs.get("json_dump", True):
-            wf_results.json_dump(self.path_in_workdir("results.json"))
+        #if kwargs.get("json_dump", True):
+        #    wf_results.json_dump(self.path_in_workdir("results.json"))
 
         return wf_results
 
@@ -1203,10 +1213,9 @@ class DeltaTest(Workflow):
             self.register(scf_strategy)
 
     def get_results(self, *args, **kwargs):
-
         num_sites = self._input_structure.num_sites
 
-        etotal = const.Ha2eV(self.read_etotal())
+        etotal = ArrayWithUnit(self.read_etotal(), "Ha").to("eV")
 
         wf_results = super(DeltaTest, self).get_results()
 

@@ -16,7 +16,7 @@ from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
-from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File
+from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File, Directory
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
@@ -58,17 +58,19 @@ class FakeProcess(object):
 
 def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
     """Factory function for Task instances."""
-    # TODO: Instanciate subclasses depending on the runlevel.
-    #       so that we can implement methods such as restart, check_convergence
-    #       whose implementation depends on the type of calculation.
+    # Instanciate subclasses depending on the runlevel.
+    # so that we can implement methods such as restart, check_convergence
+    # whose implementation depends on the type of calculation.
     classes = {
-       "scf": AbinitTask,
-       "nscf": AbinitTask,
+       "scf": AbinitScfTask,
+       "nscf": AbinitNscfTask,
+       # TODO
        "relax": AbinitTask,
        "dfpt": AbinitTask,
        "screening": AbinitTask,
        "sigma": AbinitTask,
        "bse": AbinitTask,
+       None: AbinitTask       # Input file with multiple datasets or unregistered runlevel
     }
 
     return classes[strategy.runlevel](strategy, workdir, manager, task_id=task_id, links=links, **kwargs)
@@ -76,6 +78,9 @@ def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
 
 class TaskError(Exception):
     """Base Exception for `Task` methods"""
+
+class TaskRestartError(TaskError):
+    """Exception raised by task.restart"""
 
 
 class Task(object):
@@ -90,6 +95,7 @@ class Task(object):
     S_RUN = 8     # Task is running.
     S_DONE = 16   # Task done, This does not imply that results are ok or that the calculation completed successfully
     S_ERROR = 32  # Task raised some kind of Error (the submission process, the queue manager or ABINIT).
+    #S_UNCONVERGED = 32  # Task raised some kind of Error (the submission process, the queue manager or ABINIT).
     S_OK = 64     # Task completed successfully.
 
     STATUS2STR = collections.OrderedDict([
@@ -99,6 +105,7 @@ class Task(object):
         (S_RUN, "Running"),
         (S_DONE, "Done"),
         (S_ERROR, "Error"),
+        #(S_UNCONVERGED, "Unconverged"),
         (S_OK, "Completed"),
     ])
 
@@ -109,7 +116,7 @@ class Task(object):
         self.set_status(self.S_INIT)
 
         # Used to push additional info on the task during its execution. 
-        self.history = collections.deque(maxlen=10)
+        self.history = collections.deque(maxlen=50)
 
     def __getstate__(self):
         """
@@ -181,6 +188,21 @@ class Task(object):
         try: 
             return self._returncode
         except AttributeError:
+            return 0
+
+    def reset(self):
+        """
+        Reset the task. Mainly used if we made a silly mistake in the initial
+        setup of the queue manager and we want to fix it and rerun the task.
+
+        Returns:
+            0 on success, 1 if reset failed.
+        """
+        if self.status < self.S_DONE:
+            # Can only reset tasks that are done.
+            return 1
+        else:
+            self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
             return 0
 
     @property
@@ -411,39 +433,43 @@ class Task(object):
                         raise self.Error(str(exc))
 
     #@abc.abstractmethod
-    #def is_converged(self):
-    #    """Return True if the calculation is converged."""
+    def is_converged(self):
+        """Return True if the calculation is converged."""
+        return True
+
+    def _restart(self):
+        """Called by restart once we have finished preparing the task for restarting."""
+        self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
+        self.start()
 
     #@abc.abstractmethod
-    #def can_restart(self):
-    #    """"
-    #     Returns True if task can restart i.e. if ABINIT has produced 
-    #     all the files and input data we need to restart the job.
-    #     """
+    def restart(self):
+        """
+        Restart the calculation. This method is called if the calculation is not converged 
+        and we can restart the task. See restart_if_needed.
+        """
+        pass
 
-    #@abc.abstractmethod
-    #def restart(self)):
-    #    """
-    #    Restart the calculation. This method is called if the calculation is not converged 
-    #    and we can restart the task. See restart_if_needed.
-    #    """
-    #    self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
-    #    self.start()
+    def restart_if_needed(self):
+        """
+        Callback that is executed once the job is done. 
+        The implementation of the two methods: 
 
-    #def restart_if_needed(self):
-    # """
-    # Callback that is executed once the job is done. 
-    # The implementation of is_converged, can_restart and restart is delegated to the subclasses.
-    # """
-    # if not self.is_converged():
-    #    if self.can_restart():
-    #         self.restart()
-    #         return 1
-    #    else:
-    #        info_msg = "calculation not converged but restart was not possible!"
-    #        self.set_status(self.S_ERROR, info_msg=info_msg)
-    #
-    #    return 0
+           - is_converged
+           - restart 
+           
+        is delegated to the subclasses.
+        """
+        if not self.is_converged():
+           try:
+               self.restart()
+    
+           except TaskRestartError as exc:
+               info_msg = "calculation not converged but restart was not possible!\n" + str(exc) 
+               self.set_status(self.S_ERROR, info_msg=info_msg)
+               return 1
+     
+        return 0
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -480,17 +506,17 @@ class Task(object):
             # TODO: Handle possible errors in the parser by generating a custom EventList object
             #return EventList(self.output_file.path, events=[Error(str(exc))])
 
-    #@property
-    #def events(self):
-    #    """List of errors or warnings reported by ABINIT."""
-    #    if self.status is None or self.status < self.S_DONE:
-    #        raise self.Error(
-    #            "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
-    #    try:
-    #        return self._events
-    #    except AttributeError:
-    #        self._events = self.parse_events()
-    #        return self._events
+    @property
+    def events(self):
+        """List of errors or warnings reported by ABINIT."""
+        if self.status is None or self.status < self.S_DONE:
+            raise self.Error(
+                "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
+        try:
+            return self._events
+        except AttributeError:
+            self._events = self.parse_events()
+            return self._events
 
     @property
     def results(self):
@@ -598,6 +624,11 @@ class AbinitTask(Task):
         self.log_file = File(os.path.join(self.workdir, "run.log"))
         self.stderr_file = File(os.path.join(self.workdir, "run.err"))
 
+        # Directories with input|output|temporary data.
+        self.indir = Directory(os.path.join(self.workdir, "indata"))
+        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
+        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
         # stderr and output file of the queue manager.
         self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
         self.qout_file = File(os.path.join(self.workdir, "queue.out"))
@@ -667,24 +698,6 @@ class AbinitTask(Task):
             # Attach a fake process so that we can poll it.
             return FakeProcess()
 
-    @property
-    def indata_dir(self):
-        """Directory with the input data."""
-        head, tail = os.path.split(self.prefix.idata)
-        return os.path.join(self.workdir, head)
-
-    @property
-    def outdata_dir(self):
-        """Directory with the output data."""
-        head, tail = os.path.split(self.prefix.odata)
-        return os.path.join(self.workdir, head)
-
-    @property
-    def tmpdata_dir(self):
-        """Directory with the temporary data."""
-        head, tail = os.path.split(self.prefix.tdata)
-        return os.path.join(self.workdir, head)
-
     def idata_path_from_ext(self, ext):
         """Returns the path of the input file with extension ext."""
         return os.path.join(self.workdir, self.prefix.idata + ext)
@@ -751,21 +764,11 @@ class AbinitTask(Task):
 
     def outfiles(self):
         """Return all the output data files produced."""
-        files = []
-        for fname in os.listdir(self.outdata_dir):
-            if fname.startswith(os.path.basename(self.prefix.odata)):
-                files.append(os.path.join(self.outdata_dir, fname))
+        return self.outdir.list_filepaths()
 
-        return files
-                                                                  
     def tmpfiles(self):
         """Return all the input data files produced."""
-        files = []
-        for fname in os.listdir(self.tmpdata_dir):
-            if file.startswith(os.path.basename(self.prefix.tdata)):
-                files.append(os.path.join(self.tmpdata_dir, fname))
-
-        return files
+        return self.tmpdir.list_filepaths()
 
     def path_in_workdir(self, filename):
         """Create the absolute path of filename in the top-level working directory."""
@@ -773,15 +776,15 @@ class AbinitTask(Task):
 
     def path_in_indatadir(self, filename):
         """Create the absolute path of filename in the indata directory."""
-        return os.path.join(self.indata_dir, filename)
+        return self.indir.path_in_dir(filename)
 
     def path_in_outdatadir(self, filename):
         """Create the absolute path of filename in the outdata directory."""
-        return os.path.join(self.outdata_dir, filename)
+        return self.outdir.path_in_dir(filename)
 
     def path_in_tmpdatadir(self, filename):
         """Create the absolute path of filename in the tmp directory."""
-        return os.path.join(self.tmpdata_dir, filename)
+        return self.tmpdir.path_in_dir(filename)
 
     def rename(self, src_basename, dest_basename, datadir="outdir"):
         """
@@ -813,14 +816,14 @@ class AbinitTask(Task):
             os.makedirs(self.workdir)
 
         # Create dirs for input, output and tmp data.
-        if not os.path.exists(self.indata_dir):
-            os.makedirs(self.indata_dir)
+        if not os.path.exists(self.indir.path):
+            os.makedirs(self.indir.path)
 
-        if not os.path.exists(self.outdata_dir):
-            os.makedirs(self.outdata_dir)
+        if not os.path.exists(self.outdir.path):
+            os.makedirs(self.outdir.path)
 
-        if not os.path.exists(self.tmpdata_dir):
-            os.makedirs(self.tmpdata_dir)
+        if not os.path.exists(self.tmpdir.path):
+            os.makedirs(self.tmpdir.path)
 
         # Write files file and input file.
         if not self.files_file.exists:
@@ -865,15 +868,15 @@ class AbinitTask(Task):
 
     def rm_indatadir(self):
         """Remove the directory with the input files (indata dir)."""
-        shutil.rmtree(self.indata_dir)
+        shutil.rmtree(self.indir.path)
 
     #def rm_outdatadir(self):
     #    """Remove the directory with the temporary files."""
-    #    shutil.rmtree(self.outdata_dir)
+    #    shutil.rmtree(self.outdir)
 
     def rm_tmpdatadir(self):
         """Remove the directory with the temporary files."""
-        shutil.rmtree(self.tmpdata_dir)
+        shutil.rmtree(self.tmpdir.path)
 
     def setup(self, *args, **kwargs):
         pass
@@ -900,6 +903,158 @@ class AbinitTask(Task):
         """Helper method to start the task and wait."""
         self.start(*args, **kwargs)
         return self.wait()
+
+
+# TODO
+# Enable restarting capabilites:
+# Before doing so I need:
+#   1) Preliminary standardization of the ABINT events and critical WARNINGS (YAML)
+#   2) Change the parser so that we can use strings in the input file.
+#      We need this change for restarting structural relaxations so that we can read 
+#      the initial structure from file.
+
+class AbinitScfTask(AbinitTask):
+    """
+    Self-consistent GS calculation.
+    """
+    def is_converged(self):
+        """Return True if the calculation is converged."""
+        return False
+        #return True
+        #raise NotImplementedError("")
+        #report = self.get_event_report()
+        ## If we have critical warnings that are registered 
+        ## for this task we trigger the restart.
+        #if report.warnings:
+        #    return False
+
+        #return True
+
+    def restart(self):
+        # SCF calculations can be restarted if we have either the WFK file or the DEN file.
+        vars = {"irdwfk": 1}
+        restart_file = self.outdir.has_abifile("WFK")
+
+        if not restart_file:
+            varname = {"irdden": 1}
+            restart_file = self.outdir.has_abifile("DEN")
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find WFK or DEN file to restart from.")
+
+        # Move out --> in.
+        in_file = os.path.basename(restart_file).replace("out", "in", 1)
+        dest = os.path.join(self.indir.path, in_file)
+
+        if os.path.exists(dest) and not os.path.islink(dest):
+           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
+
+        print("will rename: restart_file %s, dest %s" % (restart_file, dest))
+        os.rename(restart_file, dest)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(vars)
+        print(self.strategy.make_input())
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+class AbinitNscfTask(AbinitTask):
+    """
+    Non-Self-consistent GS calculation.
+    """
+    def is_converged(self):
+        """Return True if the calculation is converged."""
+        return False
+        #return True
+        raise NotImplementedError("")
+        report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+        if report.warnings:
+            return False
+
+        return True
+                                                                                            
+    def restart(self):
+        # NSCF calculations can be restarted only if we have the WFK file.
+        vars = {"irdwfk": 1}
+        restart_file = self.outdir.has_abifile("WFK")
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find the WFK file to restart from.")
+
+        # Move out --> in.
+        in_file = os.path.basename(restart_file).replace("out", "in", 1)
+        dest = os.path.join(self.indir.path, in_file)
+
+        if os.path.exists(dest) and not os.path.islink(dest):
+           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
+
+        os.rename(restart_file, dest)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(vars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+#class AbinitRelaxTask(AbinitTask):
+#    """
+#    Structural optimization.
+#    """
+#    def is_converged(self):
+#        """Return True if the calculation is converged."""
+#        raise NotImplementedError("")
+#        report = self.get_event_report()
+#        # If we have critical warnings that are registered 
+#        # for this task we trigger the restart.
+#        if report.warnings:
+#            return False
+#
+#        return True
+#                                                                                            
+#    def restart(self)):
+#        # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
+#        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
+#
+#        varname = "getwfk_file"
+#        restart_file = self.outdir.has_abifile("WFK")
+#
+#        if not restart_file:
+#            varname = "getden_file"
+#            restart_file = self.outdir.has_abifile("DEN")
+#
+#        if not restat_file:
+#            varname = None 
+#            restart_file = self.outdir.has_abifile("GSR")
+#
+#        if not restart_file:
+#            raise TaskRestartError("Cannot find the WFK|DEN|GSR file to restart from.")
+#
+#        # Move out --> in.
+#        in_file = os.path.basename(restart_file).replace("out", "in", 1)
+#        dest = os.path.join(self.indir.path, in_file)
+#
+#        if os.path.exists(dest) and not os.path.islink(dest):
+#           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
+#
+#        os.rename(restart_file, dest)
+#
+#        # Add the appropriate variable for restarting.
+#        # 1) Read the initial structure from file dest.
+#        vars = {"get_structure_file": dest}
+#
+#        # 2) Read WFK or DEN from dest
+#        if varname is not None:
+#            vars = {varname: dest}
+#
+#        self.strategy.add_extra_abivars(vars)
+#
+#        # Now we can resubmit the job.
+#        self._restart()
 
 
 class TaskResults(dict, MSONable):
