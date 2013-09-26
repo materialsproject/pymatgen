@@ -91,12 +91,12 @@ class Directory(object):
         """Directory basename."""
         return os.path.basename(self.path)
 
-    #def path_join(self, a, *p):
-    #    """
-    #    Join two or more pathname components, inserting '/' as needed.
-    #    If any component is an absolute path, all previous path components will be discarded.
-    #    """
-    #    return os.path.join(self,path, [a] + p)
+    def path_join(self, *p):
+        """
+        Join two or more pathname components, inserting '/' as needed.
+        If any component is an absolute path, all previous path components will be discarded.
+        """
+        return os.path.join(self.path, *p)
 
     @property
     def exists(self):
@@ -116,7 +116,7 @@ class Directory(object):
         """Recursively delete the directory tree"""
         shutil.rmtree(self.path, ignore_errors=True)
 
-    def path_in_dir(self, filename):
+    def path_in(self, filename):
         """Return the absolute path of filename in the directory."""
         return os.path.join(self.path, filename)
 
@@ -125,7 +125,7 @@ class Directory(object):
         fnames = [f for f in os.listdir(self.path)]
         return [os.path.join(self.path, f) for f in fnames]
 
-    def has_abifile(self, ext):
+    def has_abiext(self, ext):
         """
         Returns the absolute path of the ABINIT file with extension ext.
         Support both Fortran files and netcdf files. In the later case,
@@ -158,12 +158,17 @@ class Directory(object):
 # so that I can avoid creating symbolic links before running but
 # the presence of the C-bindings complicates the implementation
 # (gfortran SIGFAULTs if I add strings to dataset_type!
-_EXT2VARS = dict(
-    DEN={"irdden": 1},
-    WFK={"irdwfk": 1},
-    SCR={"irdscr": 1},
-    QPS={"irdqps": 1},
-)
+_EXT2VARS = {
+    "DEN": {"irdden": 1},
+    "WFK": {"irdwfk": 1},
+    "SCR": {"irdscr": 1},
+    "QPS": {"irdqps": 1},
+    "1WFK": {"ird1wf": 1},
+    "1DEN": {"ird1den": 1},
+    "BSR": {"irdbsreso": 1},
+    "BSC": {"irdbscoup": 1},
+    "HAYDR_SAVE": {"irdhaydock": 1},
+}
 
 def irdvars_for_ext(ext):
     """
@@ -171,6 +176,7 @@ def irdvars_for_ext(ext):
     that must be used to read the file with extension ext.
     """
     return _EXT2VARS[ext].copy()
+
 
 def abinit_extensions():
     """List with all the ABINIT extensions that are registered."""

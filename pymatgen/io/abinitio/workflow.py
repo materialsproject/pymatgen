@@ -99,12 +99,10 @@ class Link(object):
             exts:
                 Extensions of the output files that are needed for running the other tasks.
         """
-        self._node = node
+        self._node, self._products = node, []
 
-        self._products = []
         if exts is not None:
             for ext in list_strings(exts):
-                print(ext)
                 prod = Product(ext, node.odata_path_from_ext(ext))
                 self._products.append(prod)
 
@@ -248,10 +246,10 @@ class BaseWorkflow(object):
         Raises:
             `StopIteration` if all tasks are done.
         """
-        self.check_status()
+        #self.check_status()
 
         for task in self:
-            print(task.str_status, [task.links_status])
+            #print(task.str_status, [task.links_status])
             if task.can_run:
                 return task
 
