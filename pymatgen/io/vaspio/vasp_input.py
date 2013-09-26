@@ -26,6 +26,7 @@ import logging
 import numpy as np
 from numpy.linalg import det
 
+from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
@@ -356,7 +357,15 @@ class Poscar(MSONable):
         Returns:
             String representation of POSCAR.
         """
-        lines = [self.comment, "1.0", str(self.structure.lattice)]
+
+        # This corrects for VASP really annoying bug of crashing on lattices
+        # which have triple product < 0. We will just invert the lattice
+        # vectors.
+        latt = self.structure.lattice
+        if np.linalg.det(latt.matrix) < 0:
+            latt = Lattice(-latt.matrix)
+
+        lines = [self.comment, "1.0", str(latt)]
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join([str(x) for x in self.natoms]))
@@ -870,8 +879,8 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
+        num_div = [int(round(mult / l)) for l in lengths]
 
-        num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
@@ -888,13 +897,15 @@ class Kpoints(MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
+        # VASP documentation recommends to use even grids for n <= 8 and odd
+        # grids for n > 8.
         num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
-        all_even = all([i % 2 == 0 for i in num_div])
-        if all_even and (not is_hexagonal):
-            style = Kpoints.supported_modes.Monkhorst
-        else:
+        has_odd = any([i % 2 == 1 for i in num_div])
+        if has_odd or is_hexagonal:
             style = Kpoints.supported_modes.Gamma
+        else:
+            style = Kpoints.supported_modes.Monkhorst
 
         comment = "pymatgen generated KPOINTS with grid density = " + \
             "{} / atom".format(kppa)
