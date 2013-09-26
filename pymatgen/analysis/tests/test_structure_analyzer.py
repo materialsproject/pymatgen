@@ -77,12 +77,12 @@ class VoronoiConnectivityTest(unittest.TestCase):
         expected = np.array([0, 1.96338392, 0, 0.04594495])
         self.assertTrue(np.allclose(ca[15, :4, ca.shape[2] // 2], expected))
         
-        expected = np.array([0, 2.04147512, 2.12118181])
+        expected = np.array([0, 0, 0])
         self.assertTrue(np.allclose(ca[1, -3:, 51], expected))
         
         site = vc.get_sitej(27, 51)
         self.assertEqual(site.specie, Element('O'))
-        expected = np.array([-0.04316, 0.25111, 0.29158])
+        expected = np.array([-0.29158, 0.74889, 0.95684])
         self.assertTrue(np.allclose(site.frac_coords, expected))
     
 
@@ -182,7 +182,21 @@ class MiscFunctionTest(unittest.TestCase):
                   [0.500000, 0.000000, 0.807328]]
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "None")
-        
+
+        el_o = Element("O")
+        latt = Lattice.from_parameters(4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828)
+        elts = [el_o, el_o, el_o, el_o, el_o, el_o, el_o, el_o]
+        coords = [[0.844609, 0.273459, 0.786089],
+                  [0.155391, 0.213911, 0.726541], 
+                  [0.155391, 0.726541, 0.213911],
+                  [0.844609, 0.786089, 0.273459],
+                  [0.821680, 0.207748, 0.207748],
+                  [0.178320, 0.792252, 0.792252],
+                  [0.132641, 0.148222, 0.148222],
+                  [0.867359, 0.851778, 0.851778]]
+        struct = Structure(latt, elts, coords)
+        self.assertEqual(oxide_type(struct, 1.1), "None")
+
 
 if __name__ == '__main__':
     unittest.main()
