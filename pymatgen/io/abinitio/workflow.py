@@ -22,6 +22,7 @@ from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
+from pymatgen.io.abinitio.utils import Directory #File, 
 
 from .utils import File
 from .netcdf import ETSF_Reader
@@ -45,7 +46,7 @@ __all__ = [
 
 class Product(object):
     """
-    A product represents a file produced by an AbinitTask instance, file
+    A product represents a file produced by an `AbinitTask` instance, file
     that is needed by another task in order to start the calculation.
     """
     # TODO
@@ -118,6 +119,7 @@ class Link(object):
 
     @property
     def node(self):
+        """The node associated to the link."""
         return self._node
 
     @property
@@ -257,28 +259,10 @@ class BaseWorkflow(object):
         """Save the status of the object in pickle format."""
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
+        # TODO atomic transaction.
         mode = "w" if protocol == 0 else "wb" 
         with open(filepath, mode) as fh:
             pickle.dump(self, fh, protocol=protocol)
-
-    @classmethod
-    def pickle_load(cls, path):
-        """
-        Load the object from a pickle file. 
-
-        Args:
-            path:
-                filepath or directory name.
-        """
-        if os.path.isdir(path):
-            path = os.path.join(path, cls.PICKLE_FNAME)
-
-        # TODO atomic transaction.
-        with open(path, "rb") as fh:
-            new = pickle.load(fh)
-        #new.__class__ = cls
-
-        return new
 
 
 class WorkFlowResults(dict, MSONable):
@@ -355,6 +339,11 @@ class Workflow(BaseWorkflow):
 
         # Dict with the dependencies of each task, indexed by task.id
         self._links_dict = collections.defaultdict(list)
+
+        # Directories with input|output|temporary data.
+        #self.indir = Directory(os.path.join(self.workdir, "indata"))
+        #self.outdir = Directory(os.path.join(self.workdir, "outdata"))
+        #self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
     def __len__(self):
         return len(self._tasks)
@@ -495,9 +484,6 @@ class Workflow(BaseWorkflow):
         # Build dirs and files of each task.
         for task in self:
             task.build(*args, **kwargs)
-
-        #for task in self:
-        #    task.connect()
 
     @property
     def status(self):
