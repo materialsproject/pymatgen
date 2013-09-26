@@ -1119,7 +1119,7 @@ class AbinitPhononTask(AbinitTask):
 
         return True
                                                                                             
-    def restart(self)):
+    def restart(self):
         # Phonon calculations can be restarted only if we have the 1WFK file or the 1DEN file.
         # from which we can read the first-order wavefunctions or the first order density.
         # FIXME: Do we print the 1DEN file?
