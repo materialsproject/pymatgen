@@ -221,6 +221,7 @@ class PyResourceManager(object):
             if task is None:
                 import time
                 time.sleep(self.sleep_time)
+                self.work.check_status()
             else:
                 # Check that we don't exceed the number of cpus employed, before starting.
                 if self.verbose:
@@ -263,8 +264,8 @@ class PyLauncher(object):
             task = work.fetch_task_to_run()
 
             if task is None:
-                #raise self.Error("No task to run!. Possible deadlock")
                 logger.debug("No task to run! Possible deadlock")
+                #raise self.Error("No task to run!. Possible deadlock")
                                                             
             else:
                 task.start()
@@ -291,7 +292,7 @@ class PyLauncher(object):
                 nlaunch += 1
 
             except StopIteration:
-                #logger.debug("Out of tasks.")
+                logger.debug("Out of tasks.")
                 break
 
         work.pickle_dump()

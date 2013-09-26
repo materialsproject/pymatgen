@@ -22,14 +22,12 @@ from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
-from pymatgen.io.abinitio.utils import Directory
-
-from .utils import File
-from .netcdf import ETSF_Reader
-from .abiobjects import Smearing, AbiStructure, KSampling, Electrons
-from .pseudos import Pseudo
-from .strategies import ScfStrategy
-from .eos import EOS
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext
+from pymatgen.io.abinitio.netcdf import ETSF_Reader
+from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons
+from pymatgen.io.abinitio.pseudos import Pseudo
+from pymatgen.io.abinitio.strategies import ScfStrategy
+from pymatgen.io.abinitio.eos import EOS
 
 import logging
 logger = logging.getLogger(__name__)
@@ -49,17 +47,12 @@ class Product(object):
     A product represents a file produced by an `AbinitTask` instance, file
     that is needed by another task in order to start the calculation.
     """
-    # TODO
-    # It would be nice to pass absolute paths to abinit with getden_path
-    # so that I can avoid creating symbolic links before running but
-    # the presence of the C-bindings complicates the implementation
-    # (gfortran SIGFAULTs if I add strings to dataset_type!
-    _EXT2ABIVARS = {
-        "_DEN": {"irdden": 1},
-        "_WFK": {"irdwfk": 1},
-        "_SCR": {"irdscr": 1},
-        "_QPS": {"irdqps": 1},
-    }
+    #_EXT2ABIVARS = {
+    #    "_DEN": {"irdden": 1},
+    #    "_WFK": {"irdwfk": 1},
+    #    "_SCR": {"irdscr": 1},
+    #    "_QPS": {"irdqps": 1},
+    #}
 
     def __init__(self, ext, path):
         self.ext = ext
@@ -78,7 +71,8 @@ class Product(object):
         Returns a dictionary with the ABINIT variables that 
         must be used to make the code use this file.
         """
-        return self._EXT2ABIVARS[self.ext]
+        return irdvars_for_ext(self.ext)
+        #return self._EXT2ABIVARS[self.ext]
 
 
 class Link(object):
@@ -95,7 +89,7 @@ class Link(object):
         scf_link = work.register(scf_strategy)
 
         # Register the NSCF calculation and its dependency on the SCF run.
-        nscf_link = work.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        nscf_link = work.register(nscf_strategy, links=scf_link.produces_exts("DEN"))
     """
     def __init__(self, node, exts=None):
         """
@@ -110,6 +104,7 @@ class Link(object):
         self._products = []
         if exts is not None:
             for ext in list_strings(exts):
+                print(ext)
                 prod = Product(ext, node.odata_path_from_ext(ext))
                 self._products.append(prod)
 
@@ -228,7 +223,7 @@ class BaseWorkflow(object):
         """
         ncpus = 0
         for task in self:
-            if task.status in  [task.S_SUB, task.S_RUN]
+            if task.status in [task.S_SUB, task.S_RUN]:
                 ncpus += task.tot_ncpus
                                                                   
         return ncpus
@@ -241,7 +236,7 @@ class BaseWorkflow(object):
         """
         ncpus = 0
         for task in self:
-            if task.status = task.S_RUN:
+            if task.status == task.S_RUN:
                 ncpus += task.tot_ncpus
                                                                   
         return ncpus
@@ -253,7 +248,10 @@ class BaseWorkflow(object):
         Raises:
             `StopIteration` if all tasks are done.
         """
+        self.check_status()
+
         for task in self:
+            print(task.str_status, [task.links_status])
             if task.can_run:
                 return task
 
@@ -531,20 +529,20 @@ class Workflow(BaseWorkflow):
                     if not w.match(fname):
                         os.remove(path)
 
-    #def rm_indatadir(self):
-    #    """Remove all the indata directories."""
-    #    for task in self:
-    #        task.rm_indatadir()
+    def rm_indatadir(self):
+        """Remove all the indata directories."""
+        for task in self:
+            task.rm_indatadir()
 
-    #def rm_outdatadir(self):
-    #    """Remove all the indata directories."""
-    #    for task in self:
-    #        task.rm_outatadir()
+    def rm_outdatadir(self):
+        """Remove all the indata directories."""
+        for task in self:
+            task.rm_outatadir()
 
-    #def rm_tmpdatadir(self):
-    #    """Remove all the tmpdata directories."""
-    #    for task in self:
-    #        task.rm_tmpdatadir()
+    def rm_tmpdatadir(self):
+        """Remove all the tmpdata directories."""
+        for task in self:
+            task.rm_tmpdatadir()
 
     def move(self, dst, isabspath=False):
         """
@@ -596,7 +594,7 @@ class Workflow(BaseWorkflow):
         etotal = []
         for task in self:
             # Open the GSR file and read etotal (Hartree)
-            with ETSF_Reader(task.odata_path_from_ext("_GSR.nc")) as ncdata:
+            with ETSF_Reader(task.odata_path_from_ext("GSR")) as ncdata:
                 etotal.append(ncdata.read_value("etotal"))
 
         return etotal
@@ -1099,11 +1097,11 @@ class BandStructure(Workflow):
         scf_link = self.register(scf_strategy)
 
         # Register the NSCF run and its dependency
-        self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        self.register(nscf_strategy, links=scf_link.produces_exts("DEN"))
 
         # Add DOS computation
         if dos_strategy is not None:
-            self.register(dos_strategy, links=scf_link.produces_exts("_DEN"))
+            self.register(dos_strategy, links=scf_link.produces_exts("DEN"))
 
 
 class Relaxation(Workflow):
@@ -1248,14 +1246,14 @@ class GW_Workflow(Workflow):
         scf_link = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("DEN"))
 
         # Register the SCREENING run.
-        screen_link = self.register(scr_strategy, links=nscf_link.produces_exts("_WFK"))
+        screen_link = self.register(scr_strategy, links=nscf_link.produces_exts("WFK"))
 
         # Register the SIGMA run.
-        self.register(sigma_strategy, links=[nscf_link.produces_exts("_WFK"),
-                                             screen_link.produces_exts("_SCR")])
+        self.register(sigma_strategy, links=[nscf_link.produces_exts("WFK"),
+                                             screen_link.produces_exts("SCR")])
 
 
 class BSEMDF_Workflow(Workflow):
@@ -1284,10 +1282,10 @@ class BSEMDF_Workflow(Workflow):
         scf_link = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("_DEN"))
+        nscf_link = self.register(nscf_strategy, links=scf_link.produces_exts("DEN"))
 
         # Construct the input for the BSE run.
-        bse_link = self.register(bse_strategy, links=nscf_link.produces_exts("_WFK"))
+        bse_link = self.register(bse_strategy, links=nscf_link.produces_exts("WFK"))
 
 
 class WorkFlowResults(dict, MSONable):

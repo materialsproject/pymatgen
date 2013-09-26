@@ -130,8 +130,7 @@ class Directory(object):
         Returns the absolute path of the ABINIT file with extension ext.
         Support both Fortran files and netcdf files. In the later case,
         we check whether a file with extension ext + ".nc" is present 
-        in the directory.
-        Returns empty string is file is not present.
+        in the directory. Returns empty string is file is not present.
 
         Raises:
             ValueError if multiple files with the given ext are found.
@@ -152,6 +151,31 @@ class Directory(object):
 
         return files[0]
 
+# This dictionary maps ABINIT file extensions to the 
+# variables that must be used to read the file in input.
+#
+# TODO: It would be nice to pass absolute paths to abinit with getden_path
+# so that I can avoid creating symbolic links before running but
+# the presence of the C-bindings complicates the implementation
+# (gfortran SIGFAULTs if I add strings to dataset_type!
+_EXT2VARS = dict(
+    DEN={"irdden": 1},
+    WFK={"irdwfk": 1},
+    SCR={"irdscr": 1},
+    QPS={"irdqps": 1},
+)
+
+def irdvars_for_ext(ext):
+    """
+    Returns a dictionary with the ABINIT variables 
+    that must be used to read the file with extension ext.
+    """
+    return _EXT2VARS[ext].copy()
+
+def abinit_extensions():
+    """List with all the ABINIT extensions that are registered."""
+    return list(_EXT2VARS.keys())[:]
+
 
 def find_file(files, ext, prefix=None, dataset=None, image=None):
     """
@@ -171,24 +195,19 @@ def find_file(files, ext, prefix=None, dataset=None, image=None):
     for filename in list_strings(files):
         # Remove Netcdf extension (if any)
         f = filename[:-3] if filename.endswith(".nc") else filename
-        if separator not in f: continue
+        if separator not in f: 
+            continue
         tokens = f.split(separator)
+
         if tokens[-1] == ext:
             found = True
-            if prefix is not None:  found = found and filename.startswith(prefix)
-            if dataset is not None: found = found and "DS" + str(dataset) in tokens
-            if image is not None:   found = found and "IMG" + str(image) in tokens
-            if found: return filename
+            if prefix is not None:  
+                found = found and filename.startswith(prefix)
+            if dataset is not None: 
+                found = found and "DS" + str(dataset) in tokens
+            if image is not None:   
+                found = found and "IMG" + str(image) in tokens
+            if found: 
+                return filename
     else:
         return None
-
-
-class NullFile(object):
-    def __init__(self):
-        import os
-        return open(os.devnull, 'w')
-
-
-class NullStream(object):
-    def write(*args):
-        pass
