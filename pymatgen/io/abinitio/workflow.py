@@ -22,7 +22,7 @@ from pymatgen.util.num_utils import iterator_from_slice, chunks
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
-from pymatgen.io.abinitio.utils import Directory #File, 
+from pymatgen.io.abinitio.utils import Directory
 
 from .utils import File
 from .netcdf import ETSF_Reader
@@ -207,12 +207,43 @@ class BaseWorkflow(object):
 
     @property
     def ncpus_reserved(self):
-        """Returns the number of CPUs reserved in this moment."""
+        """
+        Returns the number of CPUs reserved in this moment.
+        A CPUS is reserved if it's still not running but 
+        we have submitted the task to the queue manager.
+        """
         ncpus = 0
         for task in self:
-            if task.is_allocated:
+            if task.status == task.S_SUB:
                 ncpus += task.tot_ncpus
 
+        return ncpus
+
+    @property
+    def ncpus_allocated(self):
+        """
+        Returns the number of CPUs allocated in this moment.
+        A CPU is allocated if it's running a task or if we have
+        submitted a task to the queue manager but the job is still pending.
+        """
+        ncpus = 0
+        for task in self:
+            if task.status in  [task.S_SUB, task.S_RUN]
+                ncpus += task.tot_ncpus
+                                                                  
+        return ncpus
+
+    @property
+    def ncpus_inuse(self):
+        """
+        Returns the number of CPUs used in this moment.
+        A CPU is used if there's a job that is running on it.
+        """
+        ncpus = 0
+        for task in self:
+            if task.status = task.S_RUN:
+                ncpus += task.tot_ncpus
+                                                                  
         return ncpus
 
     def fetch_task_to_run(self):
@@ -263,58 +294,6 @@ class BaseWorkflow(object):
         mode = "w" if protocol == 0 else "wb" 
         with open(filepath, mode) as fh:
             pickle.dump(self, fh, protocol=protocol)
-
-
-class WorkFlowResults(dict, MSONable):
-    """
-    Dictionary used to store some of the results produce by a Task object
-    """
-    _MANDATORY_KEYS = [
-        "task_results",
-    ]
-
-    _EXC_KEY = "_exceptions"
-
-    def __init__(self, *args, **kwargs):
-        super(WorkFlowResults, self).__init__(*args, **kwargs)
-
-        if self._EXC_KEY not in self:
-            self[self._EXC_KEY] = []
-
-    @property
-    def exceptions(self):
-        return self[self._EXC_KEY]
-
-    def push_exceptions(self, *exceptions):
-        for exc in exceptions:
-            newstr = str(exc)
-            if newstr not in self.exceptions:
-                self[self._EXC_KEY] += [newstr,]
-
-    def assert_valid(self):
-        """
-        Returns empty string if results seem valid.
-
-        The try assert except trick allows one to get a string with info on the exception.
-        We use the += operator so that sub-classes can add their own message.
-        """
-        # Validate tasks.
-        for tres in self.task_results:
-            self[self._EXC_KEY] += tres.assert_valid()
-
-        return self[self._EXC_KEY]
-
-    @property
-    def to_dict(self):
-        d = {k: v for k,v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
-        return cls(mydict)
     
 
 class Workflow(BaseWorkflow):
@@ -340,10 +319,13 @@ class Workflow(BaseWorkflow):
         # Dict with the dependencies of each task, indexed by task.id
         self._links_dict = collections.defaultdict(list)
 
-        # Directories with input|output|temporary data.
-        #self.indir = Directory(os.path.join(self.workdir, "indata"))
-        #self.outdir = Directory(os.path.join(self.workdir, "outdata"))
-        #self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+        # Directories with (input|output|temporary) data.
+        # The workflow will use these directories to connect 
+        # itself to other workflows and/or to produce new data 
+        # that will be used by its children.
+        self.indir = Directory(os.path.join(self.workdir, "indata"))
+        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
+        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
     def __len__(self):
         return len(self._tasks)
@@ -478,8 +460,13 @@ class Workflow(BaseWorkflow):
     def build(self, *args, **kwargs):
         """Creates the top level directory."""
         # Create top level directory.
-        if not os.path.exists(self.workdir):
-            os.makedirs(self.workdir)
+        #if not os.path.exists(self.workdir):
+        #    os.makedirs(self.workdir)
+
+        # Create the directories of the workflow.
+        self.indir.makedirs()
+        self.outdir.makedirs()
+        self.tmpdir.makedirs()
 
         # Build dirs and files of each task.
         for task in self:
@@ -544,20 +531,20 @@ class Workflow(BaseWorkflow):
                     if not w.match(fname):
                         os.remove(path)
 
-    def rm_indatadir(self):
-        """Remove all the indata directories."""
-        for task in self:
-            task.rm_indatadir()
+    #def rm_indatadir(self):
+    #    """Remove all the indata directories."""
+    #    for task in self:
+    #        task.rm_indatadir()
 
     #def rm_outdatadir(self):
     #    """Remove all the indata directories."""
     #    for task in self:
     #        task.rm_outatadir()
 
-    def rm_tmpdatadir(self):
-        """Remove all the tmpdata directories."""
-        for task in self:
-            task.rm_tmpdatadir()
+    #def rm_tmpdatadir(self):
+    #    """Remove all the tmpdata directories."""
+    #    for task in self:
+    #        task.rm_tmpdatadir()
 
     def move(self, dst, isabspath=False):
         """
@@ -1302,3 +1289,54 @@ class BSEMDF_Workflow(Workflow):
         # Construct the input for the BSE run.
         bse_link = self.register(bse_strategy, links=nscf_link.produces_exts("_WFK"))
 
+
+class WorkFlowResults(dict, MSONable):
+    """
+    Dictionary used to store some of the results produce by a Task object
+    """
+    _MANDATORY_KEYS = [
+        "task_results",
+    ]
+
+    _EXC_KEY = "_exceptions"
+
+    def __init__(self, *args, **kwargs):
+        super(WorkFlowResults, self).__init__(*args, **kwargs)
+
+        if self._EXC_KEY not in self:
+            self[self._EXC_KEY] = []
+
+    @property
+    def exceptions(self):
+        return self[self._EXC_KEY]
+
+    def push_exceptions(self, *exceptions):
+        for exc in exceptions:
+            newstr = str(exc)
+            if newstr not in self.exceptions:
+                self[self._EXC_KEY] += [newstr,]
+
+    def assert_valid(self):
+        """
+        Returns empty string if results seem valid.
+
+        The try assert except trick allows one to get a string with info on the exception.
+        We use the += operator so that sub-classes can add their own message.
+        """
+        # Validate tasks.
+        for tres in self.task_results:
+            self[self._EXC_KEY] += tres.assert_valid()
+
+        return self[self._EXC_KEY]
+
+    @property
+    def to_dict(self):
+        d = {k: v for k,v in self.items()}
+        d["@module"] = self.__class__.__module__
+        d["@class"] = self.__class__.__name__
+        return d
+
+    @classmethod
+    def from_dict(cls, d):
+        mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
+        return cls(mydict)
