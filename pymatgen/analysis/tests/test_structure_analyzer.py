@@ -182,7 +182,21 @@ class MiscFunctionTest(unittest.TestCase):
                   [0.500000, 0.000000, 0.807328]]
         struct = Structure(latt, elts, coords)
         self.assertEqual(oxide_type(struct, 1.1), "None")
-        
+
+        el_o = Element("O")
+        latt = Lattice.from_parameters(4.389828, 5.369789, 5.369789, 70.786622, 69.244828, 69.244828)
+        elts = [el_o, el_o, el_o, el_o, el_o, el_o, el_o, el_o]
+        coords = [[0.844609, 0.273459, 0.786089],
+                  [0.155391, 0.213911, 0.726541], 
+                  [0.155391, 0.726541, 0.213911],
+                  [0.844609, 0.786089, 0.273459],
+                  [0.821680, 0.207748, 0.207748],
+                  [0.178320, 0.792252, 0.792252],
+                  [0.132641, 0.148222, 0.148222],
+                  [0.867359, 0.851778, 0.851778]]
+        struct = Structure(latt, elts, coords)
+        self.assertEqual(oxide_type(struct, 1.1), "None")
+
 
 if __name__ == '__main__':
     unittest.main()
