@@ -67,8 +67,8 @@ def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
     # so that we can implement methods such as restart, check_convergence
     # whose implementation depends on the type of calculation.
     classes = {
-       "scf": AbinitScfTask,
-       "nscf": AbinitNscfTask,
+       "scf": ScfTask,
+       "nscf": NscfTask,
        # TODO
        "relax": AbinitTask,
        "dfpt": AbinitTask,
@@ -120,11 +120,21 @@ class Task(object):
     def __init__(self):
         # Set the initial status.
         self.set_status(self.S_INIT)
-        # Number of restarts.
+
+        # Number of restarts effectuated and max number (-1 --> no limit).
         self.num_restarts = 0
+        self.max_num_restarts = -1
 
         # Used to push additional info on the task during its execution. 
         self.history = collections.deque(maxlen=50)
+
+        # TODO
+        #self.observers = []
+        #def add_observer(self, observer):
+        #def remove_observer(self, observer):
+        #def notify_observers(self):
+        #    for observer in self.observers:
+        #        observer.notify(self)
 
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (
@@ -420,17 +430,18 @@ class Task(object):
 
     def inlink_file(self, filepath):
         """
-        Create a symbolic lick to the specified file in the 
-        directory containing the input files of the task
+        Create a symbolic link to the specified file in the 
+        directory containing the input files of the task.
         """
         if not os.path.exists(filepath): 
             raise self.Error("File %s\n must exist when the link is created!")
 
         # TODO: find an algorithm that is easy to implement and flexible 
-        # enough to deal will the files we have in ABINIT.
+        # enough to deal will all the files (and conventions) we have in ABINIT.
         #tokens = filepath.split("_")
         #abiext = filepath.find("_")
 
+        #infile = "in" + abiext
         infile = "in_WFK"
         infile = self.indir.path_in_dir(infile)
 
@@ -448,6 +459,8 @@ class Task(object):
         """Create symbolic links to the output files produced by the other tasks."""
         for link in self.links:
             filepaths, exts = link.get_filepaths_and_exts()
+            print(filepaths, exts)
+
             for (path, ext) in zip(filepaths, exts):
                 dst = self.idata_path_from_ext(ext)
 
@@ -510,8 +523,8 @@ class Task(object):
             0 if succes, 1 if restart was not possible.
         """
         if not self.is_converged():
-           #if self.num_restarts == self.max_num_restarts:
-           #    return 1
+           if self.num_restarts == self.max_num_restarts:
+               return 1
 
            try:
                self.restart()
@@ -628,9 +641,9 @@ class AbinitTask(Task):
     prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
-    #IPREF = "in"
-    #OPREF = "out"
-    #TPREF = "tmp"
+    #IN = "in"
+    #OUT = "out"
+    #TMP = "tmp"
 
     def __init__(self, strategy, workdir, manager, task_id=1, links=None, **kwargs):
         """
@@ -750,11 +763,13 @@ class AbinitTask(Task):
 
     def idata_path_from_ext(self, ext):
         """Returns the path of the input file with extension ext."""
-        return os.path.join(self.workdir, self.prefix.idata + ext)
+        assert not ext.startswith("_")
+        return os.path.join(self.workdir, self.prefix.idata + "_" + ext)
 
     def odata_path_from_ext(self, ext):
         """Returns the path of the output file with extension ext"""
-        return os.path.join(self.workdir, self.prefix.odata + ext)
+        assert not ext.startswith("_")
+        return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
     @property
     def pseudos(self):
@@ -960,7 +975,7 @@ class AbinitTask(Task):
 #      We need this change for restarting structural relaxations so that we can read 
 #      the initial structure from file.
 
-class AbinitScfTask(AbinitTask):
+class ScfTask(AbinitTask):
     """
     Self-consistent GS calculation.
     """
@@ -1008,7 +1023,7 @@ class AbinitScfTask(AbinitTask):
         self._restart()
 
 
-class AbinitNscfTask(AbinitTask):
+class NscfTask(AbinitTask):
     """
     Non-Self-consistent GS calculation.
     """
@@ -1149,57 +1164,80 @@ class AbinitPhononTask(AbinitTask):
         # Now we can resubmit the job.
         self._restart()
 
-#class BseTask(AbinitTask):
-#    """
-#    Task for Bethe-Salpeter calculations.
-#
-#    .. note:
-#
-#        The BSE codes provides both iterative and direct schemes
-#        for the computation of the dielectric function. 
-#        The direct diagonalization cannot be restarted whereas 
-#        Haydock and CG support restarting.
-#    """
-#
-#class CgBseTask(BseTask):
-#    """Bethe-Salpeter calculations with the conjugate-gradient method."""
-#
-#
-#class HaydockBseTask(BseTask):
-#    """Bethe-Salpeter calculations with Haydock iterative scheme."""
-#    def is_converged(self):
-#        """Return True if the calculation is converged."""
-#        raise NotImplementedError("")
-#        report = self.get_event_report()
-#        # If we have critical warnings that are registered 
-#        # for this task we trigger the restart.
-#        if report.warnings:
-#            return False
-#
-#        return True
-#                                                                                            
-#    def restart(self)):
-#        # BSE calculations with Haydock can be restarted only if we have the HAYD_SAVE file
-#        vars = {"irdhayd": 1}
-#        restart_file = self.outdir.has_abifile("HAYD_SAVE")
-#
-#        if not restart_file:
-#            raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
-#
-#        # Move out --> in.
-#        in_file = os.path.basename(restart_file).replace("out", "in", 1)
-#        dest = os.path.join(self.indir.path, in_file)
-#
-#        if os.path.exists(dest) and not os.path.islink(dest):
-#           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
-#
-#        os.rename(restart_file, dest)
-#
-#        # Add the appropriate variable for restarting.
-#        self.strategy.add_extra_abivars(vars)
-#
-#        # Now we can resubmit the job.
-#        self._restart()
+class BseTask(AbinitTask):
+    """
+    Task for Bethe-Salpeter calculations.
+
+    .. note:
+
+        The BSE codes provides both iterative and direct schemes
+        for the computation of the dielectric function. 
+        The direct diagonalization cannot be restarted whereas 
+        Haydock and CG support restarting.
+    """
+
+class CgBseTask(BseTask):
+    """Bethe-Salpeter calculations with the conjugate-gradient method."""
+
+
+class HaydockBseTask(BseTask):
+    """Bethe-Salpeter calculations with Haydock iterative scheme."""
+    def is_converged(self):
+        """Return True if the calculation is converged."""
+        return False
+        #raise NotImplementedError("")
+        #report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+        if report.warnings:
+            return False
+
+        return True
+                                                                                            
+    def restart(self):
+        # BSE calculations with Haydock can be restarted only if we have the HAYDR_SAVE file
+        # FIXME: why R? why did I decide to use different names for Tamm-Dancoff and coupling?
+        vars = {}
+
+        vars = {"irdhaydock": 1}
+        hayd_file = self.outdir.has_abifile("HAYDR_SAVE")
+                                                                                      
+        if not hayd_file:
+            vars = {"irdhaydock": 1}
+            hayd_file = self.outdir.has_abifile("HAYDC_SAVE")
+                                                                                      
+        if not hayd_file:
+            raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
+
+        # Move out --> in.
+        in_file = os.path.basename(hayd_file).replace("out", "in", 1)
+        dest = os.path.join(self.indir.path, in_file)
+
+        if os.path.exists(dest) and not os.path.islink(dest):
+           logger.warning("Will overwrite %s with %s" % (dest, hayd_file))
+
+        os.rename(hayd_file, dest)
+
+        abi_exts = ["BSR", "BSC"]
+        #out_files = []
+        for ext in abi_exts:
+            ofile = self.outdir.has_abifile(ext)
+            if ofile:
+                vars.update(irdvars_for_ext(ext))
+                self.out_to_in(ofile)
+                #out_files.append(ofile)
+
+        #if reso_file:
+        #    vars.update({"irdbsreso": 1})
+        #coup_file = self.outdir.has_abifile("BSC")
+        #if coup_file:
+        #    vars.update({"irdbscoup": 1})
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(vars)
+
+        # Now we can resubmit the job.
+        self._restart()
 
 
 class TaskResults(dict, MSONable):
