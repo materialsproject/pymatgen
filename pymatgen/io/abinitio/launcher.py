@@ -227,7 +227,7 @@ class PyResourceManager(object):
                     print("work polls %s" % polls)
                     print("work status %s" % self.work.get_all_status())
 
-                if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
+                if (task.tot_ncpus + self.work.ncpus_allocated <= self.max_ncpus): 
                     if self.verbose: 
                         print("Starting task %s" % task)
                     task.start()

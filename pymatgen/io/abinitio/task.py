@@ -14,7 +14,8 @@ import numpy as np
 try:
     import yaml
 except ImportError:
-    warnings.warn("Error while trying to import PyYaml.")
+    #warnings.warn("Error while trying to import PyYaml.")
+    pass
 
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
@@ -401,10 +402,10 @@ class Task(object):
 
         return [l.status for l in self.links]
 
-    @property
-    def is_allocated(self):
-        """True if the task has been allocated, i.e. if it has been submitted or if it's running."""
-        return self.status in [self.S_SUB, self.S_RUN]
+    #@property
+    #def is_allocated(self):
+    #    """True if the task has been allocated, i.e. if it has been submitted or if it's running."""
+    #    return self.status in [self.S_SUB, self.S_RUN]
 
     @property
     def is_completed(self):
@@ -601,19 +602,19 @@ class Task(object):
             "task_events"    : self.events.to_dict
         })
 
-    #def move(self, dst, isabspath=False):
-    #    """
-    #    Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
-    #    The destination path must not already exist. If the destination already exists
-    #    but is not a directory, it may be overwritten depending on os.rename() semantics.
+    def move(self, dst, isabspath=False):
+        """
+        Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
+        The destination path must not already exist. If the destination already exists
+        but is not a directory, it may be overwritten depending on os.rename() semantics.
 
-    #    Be default, dst is located in the parent directory of self.workdir, use isabspath=True
-    #    to specify an absolute path.
-    #    """
-    #    if not isabspath:
-    #        dst = os.path.join(os.path.dirname(self.workdir), dst)
+        Be default, dst is located in the parent directory of self.workdir, use isabspath=True
+        to specify an absolute path.
+        """
+        if not isabspath:
+            dst = os.path.join(os.path.dirname(self.workdir), dst)
 
-    #    shutil.move(self.workdir, dst)
+        shutil.move(self.workdir, dst)
 
 
 class AbinitTask(Task):
@@ -735,9 +736,9 @@ class AbinitTask(Task):
         #    return self._name
         #except AttributeError:
 
-    #@property
-    #def short_name(self):
-    #    return os.path.basename(self.workdir)
+    @property
+    def short_name(self):
+        return os.path.basename(self.workdir)
 
     @property
     def process(self):
@@ -1155,8 +1156,9 @@ class AbinitPhononTask(AbinitTask):
 #    .. note:
 #
 #        The BSE codes provides both iterative and direct schemes
-#        for the computation of the dielectric function. The direct
-#        diagonalization cannot be restarted whereas Haydock and CG support restarting.
+#        for the computation of the dielectric function. 
+#        The direct diagonalization cannot be restarted whereas 
+#        Haydock and CG support restarting.
 #    """
 #
 #class CgBseTask(BseTask):
@@ -1621,7 +1623,9 @@ class TaskManager(object):
         """Set the number of OpenMp threads to use."""
         self.qadapter.set_omp_ncpus(omp_ncpus)
 
+    # TODO
     #def set_mem_per_cpu(self, mem_per_cpu):
+    #    """Set the memory (in gigabytes) per CPU."""
     #    self.qadapter.set_mem_per_cpu(mem_per_cpu)
 
     def autoparal(self, task):
@@ -1730,6 +1734,7 @@ class TaskManager(object):
 
         # Write the script.
         script_file = task.job_file.path
+
         with open(script_file, "w") as fh:
             fh.write(script)
 
