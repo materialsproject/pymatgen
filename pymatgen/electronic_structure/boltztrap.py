@@ -531,16 +531,6 @@ class BoltztrapAnalyzer():
                 sorted(np.linalg.eig(self.get_average_eff_mass_tensor(
                     temperature=temperature, doping=doping)['n'])[0])}
 
-    def get_seebeck(self, temp):
-        """ Gets the Seebeck coefficient Eig vectors"""    
-        return [np.linalg.eig(c)[0]*1e6 for c in self.seebeck[temp]]
-    def get_conductivity(self, temp):
-        return [sorted(np.linalg.eig(c)[0]*0.01) for c in self._bz.cond[temp]]
-    def get_seebeck_doping(self, temp):
-        """ Gets the Seebeck coefficient Eig vectors"""    
-        return self.seebeck_doping
-    def get_conductivity_doping(self, temp):
-        return [sorted(np.linalg.eig(c)[0]*0.01) for c in self._bz.cond[temp]]
 
     @staticmethod
     def from_files(path_dir):
@@ -661,7 +651,6 @@ class BoltztrapAnalyzer():
 
         def _make_float_hall(a):
             return [i for i in a[:27]]
-
         return BoltztrapAnalyzer(
             float(data['gap']), [float(d) for d in data['mu_steps']],
             {int(d): [_make_float_array(v) for v in data['cond'][d]]
