@@ -11,12 +11,16 @@ import abc
 import warnings
 import copy
 import numpy as np
+try:
+    import yaml
+except ImportError:
+    warnings.warn("Error while trying to import PyYaml.")
 
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
-from pymatgen.io.abinitio.utils import abinit_output_iscomplete, File, Directory
+from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
@@ -79,6 +83,7 @@ def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
 class TaskError(Exception):
     """Base Exception for `Task` methods"""
 
+
 class TaskRestartError(TaskError):
     """Exception raised by task.restart"""
 
@@ -95,7 +100,7 @@ class Task(object):
     S_RUN = 8     # Task is running.
     S_DONE = 16   # Task done, This does not imply that results are ok or that the calculation completed successfully
     S_ERROR = 32  # Task raised some kind of Error (the submission process, the queue manager or ABINIT).
-    #S_UNCONVERGED = 32  # Task raised some kind of Error (the submission process, the queue manager or ABINIT).
+    #S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
     S_OK = 64     # Task completed successfully.
 
     STATUS2STR = collections.OrderedDict([
@@ -114,11 +119,18 @@ class Task(object):
     def __init__(self):
         # Set the initial status.
         self.set_status(self.S_INIT)
-        # Number of restars.
+        # Number of restarts.
         self.num_restarts = 0
 
         # Used to push additional info on the task during its execution. 
         self.history = collections.deque(maxlen=50)
+
+    def __repr__(self):
+        return "<%s at %s, workdir=%s>" % (
+            self.__class__.__name__, id(self), os.path.basename(self.workdir))
+
+    def __str__(self):
+        return self.__repr__()
 
     def __getstate__(self):
         """
@@ -405,6 +417,32 @@ class Task(object):
         all_ok = all([stat == self.S_OK for stat in self.links_status])
         return (self.status < self.S_SUB) and all_ok
 
+    def inlink_file(self, filepath):
+        """
+        Create a symbolic lick to the specified file in the 
+        directory containing the input files of the task
+        """
+        if not os.path.exists(filepath): 
+            raise self.Error("File %s\n must exist when the link is created!")
+
+        # TODO: find an algorithm that is easy to implement and flexible 
+        # enough to deal will the files we have in ABINIT.
+        #tokens = filepath.split("_")
+        #abiext = filepath.find("_")
+
+        infile = "in_WFK"
+        infile = self.indir.path_in_dir(infile)
+
+        # Link path to dst if dst link does not exist.
+        # else check that it points to the expected file.
+        logger.debug("Linking path %s --> %s" % (filepath, infile))
+                                                             
+        if not os.path.exists(infile):
+            os.symlink(filepath, infile)
+        else:
+            if os.path.realpath(infile) != filepath:
+                raise self.Error("infile %s does not point to filepath %s" % (infile, filepath))
+
     def connect(self):
         """Create symbolic links to the output files produced by the other tasks."""
         for link in self.links:
@@ -431,31 +469,31 @@ class Task(object):
                 if not os.path.exists(dst):
                     os.symlink(path, dst)
                 else:
-                    try:
-                        assert os.path.realpath(dst) == path
-                    except AssertionError as exc:
-                        raise self.Error(str(exc))
+                    if os.path.realpath(dst) != path:
+                        raise self.Error("dst %s does not point to path %s" % (dst, path))
 
-    #@abc.abstractmethod
     def is_converged(self):
         """Return True if the calculation is converged."""
+        logger.debug("is converged  method of the base class will always return True")
         return True
 
     def _restart(self):
-        """Called by restart once we have finished preparing the task for restarting."""
+        """
+        Called by restart once we have finished preparing the task for restarting.
+        """
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
         # Increase the counter and relaunch the task.
         self.num_restarts += 1
         self.start()
+        return 0
 
-    #@abc.abstractmethod
     def restart(self):
         """
         Restart the calculation. This method is called if the calculation is not converged 
         and we can restart the task. See restart_if_needed.
         """
-        pass
+        logger.debug("Calling the **empty** restart method of the base class")
 
     def restart_if_needed(self):
         """
@@ -466,13 +504,20 @@ class Task(object):
            - restart 
            
         is delegated to the subclasses.
+
+        Returns:
+            0 if succes, 1 if restart was not possible.
         """
         if not self.is_converged():
+           #if self.num_restarts == self.max_num_restarts:
+           #    return 1
+
            try:
                self.restart()
     
            except TaskRestartError as exc:
                info_msg = "calculation not converged but restart was not possible!\n" + str(exc) 
+               logger.debug(info_msg)
                self.set_status(self.S_ERROR, info_msg=info_msg)
                return 1
      
@@ -556,19 +601,19 @@ class Task(object):
             "task_events"    : self.events.to_dict
         })
 
-    def move(self, dst, isabspath=False):
-        """
-        Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
-        The destination path must not already exist. If the destination already exists
-        but is not a directory, it may be overwritten depending on os.rename() semantics.
+    #def move(self, dst, isabspath=False):
+    #    """
+    #    Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
+    #    The destination path must not already exist. If the destination already exists
+    #    but is not a directory, it may be overwritten depending on os.rename() semantics.
 
-        Be default, dst is located in the parent directory of self.workdir, use isabspath=True
-        to specify an absolute path.
-        """
-        if not isabspath:
-            dst = os.path.join(os.path.dirname(self.workdir), dst)
+    #    Be default, dst is located in the parent directory of self.workdir, use isabspath=True
+    #    to specify an absolute path.
+    #    """
+    #    if not isabspath:
+    #        dst = os.path.join(os.path.dirname(self.workdir), dst)
 
-        shutil.move(self.workdir, dst)
+    #    shutil.move(self.workdir, dst)
 
 
 class AbinitTask(Task):
@@ -644,13 +689,6 @@ class AbinitTask(Task):
         self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
         self.qout_file = File(os.path.join(self.workdir, "queue.out"))
 
-    def __repr__(self):
-        return "<%s at %s, workdir = %s>" % (
-            self.__class__.__name__, id(self), os.path.basename(self.workdir))
-
-    def __str__(self):
-        return self.__repr__()
-
     @classmethod
     def from_input(cls, abinit_input, workdir, manager, task_id=1, links=None, **kwargs):
         """
@@ -697,9 +735,9 @@ class AbinitTask(Task):
         #    return self._name
         #except AttributeError:
 
-    @property
-    def short_name(self):
-        return os.path.basename(self.workdir)
+    #@property
+    #def short_name(self):
+    #    return os.path.basename(self.workdir)
 
     @property
     def process(self):
@@ -769,11 +807,15 @@ class AbinitTask(Task):
         """Construct and write the input file of the calculation."""
         return self.strategy.make_input()
 
-    def outfiles(self):
+    def in_files(self):
+        """Return all the input data files used."""
+        return self.indir.list_filepaths()
+
+    def out_files(self):
         """Return all the output data files produced."""
         return self.outdir.list_filepaths()
 
-    def tmpfiles(self):
+    def tmp_files(self):
         """Return all the input data files produced."""
         return self.tmpdir.list_filepaths()
 
@@ -868,17 +910,14 @@ class AbinitTask(Task):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
+    # TODO Remove this methods. use Directory directly.
     def rm_indatadir(self):
         """Remove the directory with the input files (indata dir)."""
-        shutil.rmtree(self.indir.path)
-
-    #def rm_outdatadir(self):
-    #    """Remove the directory with the temporary files."""
-    #    shutil.rmtree(self.outdir)
+        self.indir.rmtree()
 
     def rm_tmpdatadir(self):
         """Remove the directory with the temporary files."""
-        shutil.rmtree(self.tmpdir.path)
+        self.tmpdir.rmtree()
 
     def setup(self, *args, **kwargs):
         pass
@@ -902,7 +941,12 @@ class AbinitTask(Task):
         self._process = self.manager.launch(self)
 
     def start_and_wait(self, *args, **kwargs):
-        """Helper method to start the task and wait."""
+        """
+        Helper method to start the task and wait.
+
+        Mainly used when we are submitting the task via the shell
+        without passing through a queue manager.
+        """
         self.start(*args, **kwargs)
         return self.wait()
 
@@ -924,9 +968,10 @@ class AbinitScfTask(AbinitTask):
         return False
         #return True
         #raise NotImplementedError("")
+
         #report = self.get_event_report()
-        ## If we have critical warnings that are registered 
-        ## for this task we trigger the restart.
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
         #if report.warnings:
         #    return False
 
@@ -938,7 +983,7 @@ class AbinitScfTask(AbinitTask):
         restart_file = self.outdir.has_abifile("WFK")
 
         if not restart_file:
-            varname = {"irdden": 1}
+            vars = {"irdden": 1}
             restart_file = self.outdir.has_abifile("DEN")
 
         if not restart_file:
@@ -951,12 +996,12 @@ class AbinitScfTask(AbinitTask):
         if os.path.exists(dest) and not os.path.islink(dest):
            logger.warning("Will overwrite %s with %s" % (dest, restart_file))
 
-        print("will rename: restart_file %s, dest %s" % (restart_file, dest))
+        logger.debug("will rename: restart_file %s, dest %s" % (restart_file, dest))
         os.rename(restart_file, dest)
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(vars)
-        print(self.strategy.make_input())
+        #print(self.strategy.make_input())
 
         # Now we can resubmit the job.
         self._restart()
@@ -1059,6 +1104,102 @@ class AbinitNscfTask(AbinitTask):
 #        self._restart()
 
 
+class AbinitPhononTask(AbinitTask):
+    """
+    DFPT calculation for a single atomic perturbation.
+    """
+    def is_converged(self):
+        """Return True if the calculation is converged."""
+        raise NotImplementedError("")
+        report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+        if report.warnings:
+            return False
+
+        return True
+                                                                                            
+    def restart(self)):
+        # Phonon calculations can be restarted only if we have the 1WFK file or the 1DEN file.
+        # from which we can read the first-order wavefunctions or the first order density.
+        # FIXME: Do we print the 1DEN file?
+        vars = {"ird1wfk": 1}
+        restart_file = self.outdir.has_abifile("1WFK")
+
+        if not restart_file:
+            vars = {"ird1den": 1}
+            restart_file = self.outdir.has_abifile("DEN")
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find the 1WFK|1DEN|file to restart from.")
+
+        # Move out --> in.
+        in_file = os.path.basename(restart_file).replace("out", "in", 1)
+        dest = os.path.join(self.indir.path, in_file)
+
+        if os.path.exists(dest) and not os.path.islink(dest):
+           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
+
+        os.rename(restart_file, dest)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(vars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+#class BseTask(AbinitTask):
+#    """
+#    Task for Bethe-Salpeter calculations.
+#
+#    .. note:
+#
+#        The BSE codes provides both iterative and direct schemes
+#        for the computation of the dielectric function. The direct
+#        diagonalization cannot be restarted whereas Haydock and CG support restarting.
+#    """
+#
+#class CgBseTask(BseTask):
+#    """Bethe-Salpeter calculations with the conjugate-gradient method."""
+#
+#
+#class HaydockBseTask(BseTask):
+#    """Bethe-Salpeter calculations with Haydock iterative scheme."""
+#    def is_converged(self):
+#        """Return True if the calculation is converged."""
+#        raise NotImplementedError("")
+#        report = self.get_event_report()
+#        # If we have critical warnings that are registered 
+#        # for this task we trigger the restart.
+#        if report.warnings:
+#            return False
+#
+#        return True
+#                                                                                            
+#    def restart(self)):
+#        # BSE calculations with Haydock can be restarted only if we have the HAYD_SAVE file
+#        vars = {"irdhayd": 1}
+#        restart_file = self.outdir.has_abifile("HAYD_SAVE")
+#
+#        if not restart_file:
+#            raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
+#
+#        # Move out --> in.
+#        in_file = os.path.basename(restart_file).replace("out", "in", 1)
+#        dest = os.path.join(self.indir.path, in_file)
+#
+#        if os.path.exists(dest) and not os.path.islink(dest):
+#           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
+#
+#        os.rename(restart_file, dest)
+#
+#        # Add the appropriate variable for restarting.
+#        self.strategy.add_extra_abivars(vars)
+#
+#        # Now we can resubmit the job.
+#        self._restart()
+
+
 class TaskResults(dict, MSONable):
     """
     Dictionary used to store the most important results produced by a Task.
@@ -1139,23 +1280,23 @@ class ParalConf(AttrDict):
 
         <RUN_HINTS>
         header: 
-            version: 1,
-            autoparal: 1,
-            max_ncpus: 108,
+            version: 1
+            autoparal: 1
+            max_ncpus: 108
 
         configurations:
-        -
-            tot_ncpus: 2,     # Total number of CPUs
-            mpi_ncpus: 2,     # Number of MPI processes.
-            omp_ncpus: 1,     # Number of OMP threads (1 if not present)
-            mem_per_cpus: 10, # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
-            efficiency: 0.4,  # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
-            vars: {           # Dictionary with the variables that should be added to the input.
-                  varname1: varvalue1,
-                  varname2: varvalue2,
-                  },
-        -
-             ...
+            -
+                tot_ncpus: 2         # Total number of CPUs
+                mpi_ncpus: 2         # Number of MPI processes.
+                omp_ncpus: 1         # Number of OMP threads (1 if not present)
+                mem_per_cpus: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
+                efficiency: 0.4      # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
+                vars: {              # Dictionary with the variables that should be added to the input.
+                      varname1: varvalue1
+                      varname2: varvalue2
+                      }
+            -
+                 ...
         </RUN_HINTS>
 
     For paral_kgb we have:
@@ -1208,15 +1349,14 @@ class ParalHintsParser(object):
                 break
 
         if start is None or end is None:
-            raise self.Error("%s does not contain any valid RUN_HINTS section" % filename)
+            raise self.Error("%s\n does not contain any valid RUN_HINTS section" % filename)
 
         if start == end:
             # Empy section ==> User didn't enable Yaml in ABINIT.
-            raise self.Error("%s contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
+            raise self.Error("%s\n contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
 
         s = "".join(l for l in lines[start+1:end])
 
-        import yaml
         try:
             d = yaml.load(s)
         except Exception as exc:
@@ -1248,7 +1388,6 @@ class ParalHints(collections.Iterable):
         return "\n".join(str(conf) for conf in self)
 
     def copy(self):
-        #return self.__class__(header=self.header.copy(), confs=self._confs[:])
         return copy.copy(self)
 
     def apply_filter(self, filter):
@@ -1314,7 +1453,7 @@ class ParalHints(collections.Iterable):
 
         # Return a copy of the configuration.
         optimal = hints[-1].copy()
-        print("Will relaunch the job with optimized parameters:\n %s" % str(optimal))
+        logger.debug("Will relaunch the job with optimized parameters:\n %s" % str(optimal))
         return optimal
 
 
@@ -1357,7 +1496,7 @@ class TaskPolicy(object):
 class TaskManager(object):
     """
     A `TaskManager` is responsible for the generation of the job script and the submission 
-    of the task, as well as of the specification of the parameters passed to the Resource Manager
+    of the task, as well as of the specification of the parameters passed to the resource manager
     (e.g. Slurm, PBS ...) and/or the run-time specification of the ABINIT variables governing the 
     parallel execution. A `TaskManager` delegates the generation of the submission
     script and the submission of the task to the `QueueAdapter`. 
@@ -1381,8 +1520,6 @@ class TaskManager(object):
             else:
                 self.policy = TaskPolicy(**policy) 
 
-        #print(type(self.policy), self.policy)
-
     def __str__(self):
         """String representation."""
         lines = []
@@ -1400,7 +1537,6 @@ class TaskManager(object):
     @classmethod
     def from_file(cls, filename):
         """Read the configuration parameters from a Yaml file."""
-        import yaml
         with open(filename, "r") as fh:
             d = yaml.load(fh)
 
@@ -1410,12 +1546,12 @@ class TaskManager(object):
     #def from_user_config(cls):
     #    Try in the current directory.
     #    fname = "taskmanager.yaml"
-    #    path = fname
+    #    path = os.path.join(os.getcwd(), fname)
     #    if os.path.exists(path):
     #        return cls.from_file(path)
 
     #    Try in the configuration directory.
-    #    path = os.path.join(home, path)
+    #    path = os.path.join(home, fname)
     #    if os.path.exists(home, path):
     #        return cls.from_file(path)
     #
@@ -1424,8 +1560,8 @@ class TaskManager(object):
     @classmethod 
     def sequential(cls):
         """
-        Build a simple `TaskManager` that submits jobs with a simple shell script.
-        Assume the shell environment has been initialized.
+        Build a simple `TaskManager` that submits jobs via a simple shell script.
+        Assume the shell environment has been already initialized.
         """
         return cls(qtype="shell")
 
@@ -1491,15 +1627,16 @@ class TaskManager(object):
     def autoparal(self, task):
         """
         Find an optimal set of parameters for the execution of the task 
-        using the options specified in self.policy.
+        using the options specified in `TaskPolicy`.
         This method can change the ABINIT input variables and/or the 
         parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
 
         Returns:
-           `ParalHints` object with the configuration reported by autoparal and the optimal configuration.
-           (None, None) is returned if some problem occurred.
+           confs, optimal 
+           where confs is a `ParalHints` object with the configuration reported by 
+           autoparal and optimal is the optimal configuration selected.
+           Returns (None, None) if some problem occurred.
         """
-        #print(type(self.policy), self.policy)
         policy = self.policy
 
         if policy.autoparal == 0 or policy.max_ncpus is None: 

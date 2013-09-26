@@ -1,5 +1,6 @@
 """Tools and helper functions for abinit calculations"""
 import os.path
+import shutil
 
 from pymatgen.util.string_utils import list_strings, StringColorizer
 
@@ -90,6 +91,13 @@ class Directory(object):
         """Directory basename."""
         return os.path.basename(self.path)
 
+    #def path_join(self, a, *p):
+    #    """
+    #    Join two or more pathname components, inserting '/' as needed.
+    #    If any component is an absolute path, all previous path components will be discarded.
+    #    """
+    #    return os.path.join(self,path, [a] + p)
+
     @property
     def exists(self):
         "True if file exists."
@@ -103,6 +111,10 @@ class Directory(object):
         """
         if not self.exists:
             os.makedirs(self.path)
+
+    def rmtree(self):
+        """Recursively delete the directory tree"""
+        shutil.rmtree(self.path, ignore_errors=True)
 
     def path_in_dir(self, filename):
         """Return the absolute path of filename in the directory."""
@@ -169,29 +181,6 @@ def find_file(files, ext, prefix=None, dataset=None, image=None):
             if found: return filename
     else:
         return None
-
-
-def abinit_output_iscomplete(output_file):
-    """Return True if the abinit output file is complete."""
-    if not os.path.exists(output_file):
-        return False
-
-    chunk = 5 * 1024  # Read only the last 5Kb of data.
-    nlines = 10       # Check only in the last 10 lines.
-
-    MAGIC = "Calculation completed." 
-
-    with open(output_file, 'r') as f:
-        size = f.tell()
-        f.seek(max(size - chunk, 0))
-        try:
-            for line in f.read().splitlines()[-nlines:]:
-                if MAGIC in line:
-                    return True
-        except:
-            pass
-
-    return False
 
 
 class NullFile(object):

@@ -24,7 +24,7 @@ class AbinitEvent(MSONable):
             message: "This is a normal warning that won't trigger any handler in the python code!"
             src_file: routine_name
             src_line:  112
-        ---
+        ...
 
         ---
         # Critical warning that will trigger some action in the python code.
@@ -36,17 +36,18 @@ class AbinitEvent(MSONable):
             actual_tol: 1.0e-8
             required_tol: 1.0e-10
             nstep: 50
-        ---
+        ...
 
     The algorithm to extract the YAML sections is very simple.
 
     1) Find --- at the beginning of line.
     2) If the next lines ends with "Warning:", "Error:", "Bug:", "Comment
-       we know we have encountered a new ABINIT event else we close the YAML document.
+       we know we have encountered a new ABINIT event 
     3) The key defines the event class to instantiate.
 
-    Note that now --- becomes a reserved word since it should be 
-    used only to mark the beginning and the end of YAML documents.
+    Note that now --- and ... become reserved words (whey they are placed at
+    the begining of a line) since they are used to mark the beginning and 
+    the end of YAML documents.
     """
     def __init__(self, **kwargs):
         self._kwargs = kwargs.copy()
