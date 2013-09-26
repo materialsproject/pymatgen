@@ -126,7 +126,6 @@ class GasCorrection(Correction):
         comp = entry.composition
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
-            entry.entry_id = -comp.keys()[0].Z
             entry.correction += self.cpd_energies[rform] * comp.num_atoms \
                 - entry.uncorrected_energy
             return entry
@@ -191,7 +190,6 @@ class AqueousCorrection(Correction):
         cpdenergies = self.cpd_energies
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
-                entry.entry_id = -comp.keys()[0].Z
                 entry.correction = cpdenergies[rform] * comp.num_atoms \
                     - entry.uncorrected_energy
             else:
