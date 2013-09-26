@@ -399,7 +399,7 @@ class oxide_type_class():
                 for species, occu in site.species_and_occu.items():
                     elmap[species.element] += occu
             comp = Composition(elmap)
-        if Element("O") not in comp:
+        if Element("O") not in comp or (Element("O") in comp and len(comp.elements) == 1):
             return "None", 0
 
         for site in structure:
