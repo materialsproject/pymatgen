@@ -120,6 +120,30 @@ direct
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
 
+        #Vasp 4 type with symbols at the end.
+        poscar_string = """Test1
+1.0
+-3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+direct
+0.000000 0.000000 0.000000 Si
+0.750000 0.500000 0.750000 F"""
+
+        expected = """Test1
+1.0
+3.840198 -0.000000 -0.000000
+-1.920099 -3.325710 -0.000000
+-0.000000 2.217138 -3.135509
+Si F
+1 1
+direct
+0.000000 0.000000 0.000000 Si
+0.750000 0.500000 0.750000 F"""
+        poscar = Poscar.from_string(poscar_string)
+        self.assertEqual(str(poscar), expected)
+
     def test_from_md_run(self):
         #Parsing from an MD type run with velocities
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
