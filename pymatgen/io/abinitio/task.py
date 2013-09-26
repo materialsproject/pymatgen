@@ -21,7 +21,7 @@ from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
-from pymatgen.io.abinitio.utils import File, Directory
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
@@ -312,6 +312,10 @@ class Task(object):
         return status
 
     def check_status(self):
+        """
+        This function check the status of the task by inspecting the output and the 
+        error files produced by the application and by the queue manager.
+        """
         #if min_stat is not None:
         #    if self.status > min_stat:
         #        return
@@ -428,6 +432,23 @@ class Task(object):
         all_ok = all([stat == self.S_OK for stat in self.links_status])
         return (self.status < self.S_SUB) and all_ok
 
+    def out_to_in(self, out_file):
+        """
+        Move an output file to the indata directory and rename the final 
+        file so that ABINIT will read it as an input data file.
+
+        Returns:
+            The absolute path of the new file in the indata directory.
+        """
+        in_file = os.path.basename(out_file).replace("out", "in", 1)
+        dest = os.path.join(self.indir.path, in_file)
+                                                                           
+        if os.path.exists(dest) and not os.path.islink(dest):
+           logger.warning("Will overwrite %s with %s" % (dest, out_file))
+                                                                           
+        os.rename(out_file, dest)
+        return dest
+
     def inlink_file(self, filepath):
         """
         Create a symbolic link to the specified file in the 
@@ -443,7 +464,7 @@ class Task(object):
 
         #infile = "in" + abiext
         infile = "in_WFK"
-        infile = self.indir.path_in_dir(infile)
+        infile = self.indir.path_in(infile)
 
         # Link path to dst if dst link does not exist.
         # else check that it points to the expected file.
@@ -459,7 +480,7 @@ class Task(object):
         """Create symbolic links to the output files produced by the other tasks."""
         for link in self.links:
             filepaths, exts = link.get_filepaths_and_exts()
-            print(filepaths, exts)
+            #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
                 dst = self.idata_path_from_ext(ext)
@@ -839,18 +860,6 @@ class AbinitTask(Task):
         """Create the absolute path of filename in the top-level working directory."""
         return os.path.join(self.workdir, filename)
 
-    def path_in_indatadir(self, filename):
-        """Create the absolute path of filename in the indata directory."""
-        return self.indir.path_in_dir(filename)
-
-    def path_in_outdatadir(self, filename):
-        """Create the absolute path of filename in the outdata directory."""
-        return self.outdir.path_in_dir(filename)
-
-    def path_in_tmpdatadir(self, filename):
-        """Create the absolute path of filename in the tmp directory."""
-        return self.tmpdir.path_in_dir(filename)
-
     def rename(self, src_basename, dest_basename, datadir="outdir"):
         """
         Rename a file located in datadir.
@@ -858,16 +867,14 @@ class AbinitTask(Task):
         src_basename and dest_basename are the basename of the source file
         and of the destination file, respectively.
         """
-        if datadir == "outdir":
-            src = self.path_in_outdatadir(src_basename)
-            dest = self.path_in_outdatadir(dest_basename)
+        directory = {
+            "indir": self.indir,
+            "outdir": self.outdir,
+            "tmpdir": self.tmpdir,
+        }[datadir]
 
-        elif datadir == "tmpdir":
-            src = self.path_in_tmpdatadir(src_basename)
-            dest = self.path_in_tmpdatadir(dest_basename)
-
-        else:
-            raise ValueError("Wrong datadir %s" % datadir)
+        src = directory.path_in(src_basename)
+        dest = directory.path_in(dest_basename)
 
         os.rename(src, dest)
 
@@ -994,13 +1001,14 @@ class ScfTask(AbinitTask):
         #return True
 
     def restart(self):
-        # SCF calculations can be restarted if we have either the WFK file or the DEN file.
-        vars = {"irdwfk": 1}
-        restart_file = self.outdir.has_abifile("WFK")
+        """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
 
-        if not restart_file:
-            vars = {"irdden": 1}
-            restart_file = self.outdir.has_abifile("DEN")
+        # Prefer WFK over DEN since we can reuse the wavefunctions.
+        for ext in ["WFK", "DEN"]:
+            restart_file = self.outdir.has_abiext(ext)
+            irdvars = irdvars_for_ext(ext)
+            if restart_file:
+                break
 
         if not restart_file:
             raise TaskRestartError("Cannot find WFK or DEN file to restart from.")
@@ -1016,7 +1024,7 @@ class ScfTask(AbinitTask):
         os.rename(restart_file, dest)
 
         # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(vars)
+        self.strategy.add_extra_abivars(irdvars)
         #print(self.strategy.make_input())
 
         # Now we can resubmit the job.
@@ -1041,24 +1049,19 @@ class NscfTask(AbinitTask):
         return True
                                                                                             
     def restart(self):
-        # NSCF calculations can be restarted only if we have the WFK file.
-        vars = {"irdwfk": 1}
-        restart_file = self.outdir.has_abifile("WFK")
+        """NSCF calculations can be restarted only if we have the WFK file."""
+        ext = "WFK"
+        restart_file = self.outdir.has_abiext(ext)
+        irdvars = irdvars_for_ext(ext)
 
         if not restart_file:
             raise TaskRestartError("Cannot find the WFK file to restart from.")
 
         # Move out --> in.
-        in_file = os.path.basename(restart_file).replace("out", "in", 1)
-        dest = os.path.join(self.indir.path, in_file)
-
-        if os.path.exists(dest) and not os.path.islink(dest):
-           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
-
-        os.rename(restart_file, dest)
+        self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(vars)
+        self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
         self._restart()
@@ -1084,15 +1087,15 @@ class NscfTask(AbinitTask):
 #        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
 #
 #        varname = "getwfk_file"
-#        restart_file = self.outdir.has_abifile("WFK")
+#        restart_file = self.outdir.has_abiext("WFK")
 #
 #        if not restart_file:
 #            varname = "getden_file"
-#            restart_file = self.outdir.has_abifile("DEN")
+#            restart_file = self.outdir.has_abiext("DEN")
 #
 #        if not restat_file:
 #            varname = None 
-#            restart_file = self.outdir.has_abifile("GSR")
+#            restart_file = self.outdir.has_abiext("GSR")
 #
 #        if not restart_file:
 #            raise TaskRestartError("Cannot find the WFK|DEN|GSR file to restart from.")
@@ -1127,39 +1130,32 @@ class AbinitPhononTask(AbinitTask):
     def is_converged(self):
         """Return True if the calculation is converged."""
         raise NotImplementedError("")
-        report = self.get_event_report()
+        return False
+        #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
-        if report.warnings:
-            return False
+        #if report.warnings:
+        #    return False
 
-        return True
+        #return True
                                                                                             
     def restart(self):
         # Phonon calculations can be restarted only if we have the 1WFK file or the 1DEN file.
         # from which we can read the first-order wavefunctions or the first order density.
-        # FIXME: Do we print the 1DEN file?
-        vars = {"ird1wfk": 1}
-        restart_file = self.outdir.has_abifile("1WFK")
-
-        if not restart_file:
-            vars = {"ird1den": 1}
-            restart_file = self.outdir.has_abifile("DEN")
+        # Prefer 1WFK over 1DEN since we can reuse the wavefunctions.
+        for ext in ["1WFK", "1DEN"]:
+            restart_file = self.outdir.has_abiext(ext)
+            irdvars = irdvars_for_ext(ext)
+            if restart_file:
+                break
 
         if not restart_file:
             raise TaskRestartError("Cannot find the 1WFK|1DEN|file to restart from.")
 
-        # Move out --> in.
-        in_file = os.path.basename(restart_file).replace("out", "in", 1)
-        dest = os.path.join(self.indir.path, in_file)
-
-        if os.path.exists(dest) and not os.path.islink(dest):
-           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
-
-        os.rename(restart_file, dest)
+        self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(vars)
+        self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
         self._restart()
@@ -1176,8 +1172,8 @@ class BseTask(AbinitTask):
         Haydock and CG support restarting.
     """
 
-class CgBseTask(BseTask):
-    """Bethe-Salpeter calculations with the conjugate-gradient method."""
+#class CgBseTask(BseTask):
+#    """Bethe-Salpeter calculations with the conjugate-gradient method."""
 
 
 class HaydockBseTask(BseTask):
@@ -1195,46 +1191,38 @@ class HaydockBseTask(BseTask):
         return True
                                                                                             
     def restart(self):
-        # BSE calculations with Haydock can be restarted only if we have the HAYDR_SAVE file
-        # FIXME: why R? why did I decide to use different names for Tamm-Dancoff and coupling?
-        vars = {}
+        # BSE calculations with Haydock can be restarted only if we have the 
+        # excitonic Hamiltonian and the HAYDR_SAVE file.
+        # TODO: This version seems to work but the main output file is truncated
+        # the log file is complete though.
+        irdvars = {}
 
-        vars = {"irdhaydock": 1}
-        hayd_file = self.outdir.has_abifile("HAYDR_SAVE")
-                                                                                      
-        if not hayd_file:
-            vars = {"irdhaydock": 1}
-            hayd_file = self.outdir.has_abifile("HAYDC_SAVE")
-                                                                                      
-        if not hayd_file:
+        # Move the BSE blocks to indata.
+        count = 0
+        for ext in ["BSR", "BSC"]:
+            ofile = self.outdir.has_abiext(ext)
+            if ofile:
+                count += 1
+                irdvars.update(irdvars_for_ext(ext))
+                self.out_to_in(ofile)
+
+        if not count:
+            raise TaskRestartError("Cannot find the BSR|BSC file to restart from.")
+
+        # Rename HAYDR_SAVE files
+        count = 0
+        for ext in ["HAYDR_SAVE", "HAYDC_SAVE"]:
+            ofile = self.outdir.has_abiext(ext)
+            if ofile:
+                count += 1
+                irdvars.update(irdvars_for_ext(ext))
+                self.out_to_in(ofile)
+
+        if not count:
             raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
 
-        # Move out --> in.
-        in_file = os.path.basename(hayd_file).replace("out", "in", 1)
-        dest = os.path.join(self.indir.path, in_file)
-
-        if os.path.exists(dest) and not os.path.islink(dest):
-           logger.warning("Will overwrite %s with %s" % (dest, hayd_file))
-
-        os.rename(hayd_file, dest)
-
-        abi_exts = ["BSR", "BSC"]
-        #out_files = []
-        for ext in abi_exts:
-            ofile = self.outdir.has_abifile(ext)
-            if ofile:
-                vars.update(irdvars_for_ext(ext))
-                self.out_to_in(ofile)
-                #out_files.append(ofile)
-
-        #if reso_file:
-        #    vars.update({"irdbsreso": 1})
-        #coup_file = self.outdir.has_abifile("BSC")
-        #if coup_file:
-        #    vars.update({"irdbscoup": 1})
-
         # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(vars)
+        self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
         self._restart()

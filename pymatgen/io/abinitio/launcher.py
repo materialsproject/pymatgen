@@ -182,7 +182,7 @@ class PyResourceManager(object):
 
     Error = ResourceManagerError
 
-    def __init__(self, work, max_ncpus, sleep_time=20, verbose=0):
+    def __init__(self, work, max_ncpus, sleep_time=20):
         """
             Args:
                 work:
@@ -196,7 +196,6 @@ class PyResourceManager(object):
 
         self.max_ncpus = max_ncpus 
         self.sleep_time = sleep_time
-        self.verbose = verbose
 
         for task in self.work:
             if task.tot_ncpus > self.max_ncpus:
@@ -222,15 +221,14 @@ class PyResourceManager(object):
                 import time
                 time.sleep(self.sleep_time)
                 self.work.check_status()
+
             else:
                 # Check that we don't exceed the number of cpus employed, before starting.
-                if self.verbose:
-                    print("work polls %s" % polls)
-                    print("work status %s" % self.work.get_all_status())
+                logger.info("work polls %s" % polls)
+                logger.info("work status %s" % self.work.get_all_status())
 
                 if (task.tot_ncpus + self.work.ncpus_allocated <= self.max_ncpus): 
-                    if self.verbose: 
-                        print("Starting task %s" % task)
+                    logger.info("Starting task %s" % task)
                     task.start()
 
         # Wait until all tasks are completed.
