@@ -395,7 +395,7 @@ class Task(object):
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
         if report.errors or report.bugs:
             logger.critical("Found Errors or Bugs in ABINIT main output!")
-            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report_bus))
+            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bus))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
         if self.stderr_file.exists:

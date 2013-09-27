@@ -417,6 +417,14 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --partition=$${partition}
 #SBATCH --account=$${account}
 #SBATCH --job-name=$${job_name}
+#SBATCH	--nodes=$${nodes}
+#SBATCH --mem=$${mem}
+#SBATCH --mail-user=$${mail_user}
+#SBATCH --mail-type=$${mail_type}
+#SBATCH --constraint=$${constraint}
+#SBATCH --gres=$${gres}
+#SBATCH --requeue=$${requeue}
+
 #SBATCH --output=$${_qerr_path}
 #SBATCH --error=$${_qout_path}
 

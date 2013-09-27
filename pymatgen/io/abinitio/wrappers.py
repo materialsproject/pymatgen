@@ -111,7 +111,7 @@ class Mrgscr(ExecWrapper):
 
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
         inp = StringIO.StringIO()
 
@@ -169,7 +169,7 @@ class Mrggkk(ExecWrapper):
             "mrggkk.stdin", "mrggkk.stdout", "mrggkk.stderr")
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
         inp = StringIO.StringIO()
 
@@ -237,7 +237,7 @@ class Mrgddb(ExecWrapper):
 
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
         inp = StringIO.StringIO()
 
@@ -295,7 +295,7 @@ class Anaddb(ExecWrapper):
 
         if cwd is not None:
             self.stdin_fname, self.input_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.inp_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.inp_fname, self.stdout_fname, self.stderr_fname])
 
         # Files file
         inp = StringIO.StringIO()

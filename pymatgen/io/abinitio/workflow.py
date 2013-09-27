@@ -332,7 +332,7 @@ class Workflow(BaseWorkflow):
             workdir:
                 Path to the working directory.
             manager:
-                `TaskAdapter` object.
+                `TaskManager` object.
         """
         self.workdir = os.path.abspath(workdir)
 
