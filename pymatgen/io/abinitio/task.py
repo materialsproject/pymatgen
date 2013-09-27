@@ -137,11 +137,10 @@ class Task(object):
         #        observer.notify(self)
 
     def __repr__(self):
-        return "<%s at %s, workdir=%s>" % (
-            self.__class__.__name__, id(self), os.path.basename(self.workdir))
+        return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
 
     def __str__(self):
-        return self.__repr__()
+        return "<%s, workdir=%s>" % (self.__class__.__name__, os.path.basename(self.workdir))
 
     def __getstate__(self):
         """
@@ -283,17 +282,18 @@ class Task(object):
         """String representation of the status."""
         return self.STATUS2STR[self.status]
 
-    #def __eq__(self, other):
-    #    return self.workdir == other.workdir
+    def __eq__(self, other):
+        return self.workdir == other.workdir
 
-    #def __ne__(self, other):
-    #    return not self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
-    #def __hash__(self)
-    #    return hash(self.workdir)
+    def __hash__(self):
+        return hash(self.workdir)
 
-    #def depends_on(self, obj):
-    #    return obj in self.links
+    def depends_on(self, obj):
+        """True if self depends on the object obj."""
+        return obj in self.links
 
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
@@ -791,13 +791,17 @@ class AbinitTask(Task):
             return FakeProcess()
 
     def idata_path_from_ext(self, ext):
-        """Returns the path of the input file with extension ext."""
-        assert not ext.startswith("_")
+        """
+        Returns the path of the input file with extension ext.
+        Use it when the file does not exist yet.
+        """
         return os.path.join(self.workdir, self.prefix.idata + "_" + ext)
 
     def odata_path_from_ext(self, ext):
-        """Returns the path of the output file with extension ext"""
-        assert not ext.startswith("_")
+        """
+        Returns the path of the output file with extension ext.
+        Use it when the file does not exist yet.
+        """
         return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
     @property

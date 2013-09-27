@@ -66,7 +66,6 @@ class Product(object):
         must be used to make the code use this file.
         """
         return irdvars_for_ext(self.ext)
-        #return self._EXT2ABIVARS[self.ext]
 
 
 class Link(object):
@@ -103,6 +102,9 @@ class Link(object):
     def __str__(self):
         s = "node %s with products\n %s" % (repr(self.node), "\n".join(str(p) for p in self.products))
         return s
+
+    def __hash__(self):
+        return hash(self._node)
 
     @property
     def node(self):
@@ -183,17 +185,18 @@ class BaseWorkflow(object):
         """
         return [task.communicate(input) for task in self]
 
-    #def __eq__(self, other):
-    #    return self.workdir == other.workdir
+    def __eq__(self, other):
+        return self.workdir == other.workdir
                                               
-    #def __ne__(self, other):
-    #    return not self.__eq__(other)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
-    #def __hash__(self)
-    #    return hash(self.workdir)
+    def __hash__(self):
+        return hash(self.workdir)
 
-    #def depends_on(self, obj):
-    #    return obj in self.links
+    def depends_on(self, obj):
+        """True if self depends on the object obj."""
+        return obj in self.links
 
     @property
     def returncodes(self):
@@ -326,7 +329,7 @@ class Workflow(BaseWorkflow):
     """
     Error = WorkflowError
 
-    def __init__(self, workdir, manager):
+    def __init__(self, workdir=None, manager=None):
         """
         Args:
             workdir:
@@ -334,15 +337,26 @@ class Workflow(BaseWorkflow):
             manager:
                 `TaskManager` object.
         """
-        self.workdir = os.path.abspath(workdir)
-
-        self.manager = manager.deepcopy()
-
         self._tasks = []
 
         # Dict with the dependencies of each task, indexed by task.id
         self._links_dict = collections.defaultdict(list)
 
+        if workdir is not None:
+            self.set_workdir(workdir)
+
+        if manager is not None:
+            self.set_manager(manager)
+
+    def set_manager(self, manager):
+        """Set the `TaskManager` to use to launch the Task."""
+        self.manager = manager.deepcopy()
+
+    def set_workdir(self, workdir):
+        """Set the working directory. Cannot be set more than once."""
+        assert not hasattr(self, "workdir")
+        self.workdir = os.path.abspath(workdir)
+                                                                       
         # Directories with (input|output|temporary) data.
         # The workflow will use these directories to connect 
         # itself to other workflows and/or to produce new data 
@@ -369,7 +383,7 @@ class Workflow(BaseWorkflow):
         return "<%s at %s, workdir = %s>" % (self.__class__.__name__, id(self), self.workdir)
 
     def __str__(self):
-        return self.__repr__()
+        return "<%s, workdir=%s>" % (self.__class__.__name__, os.path.basename(self.workdir))
 
     @property
     def processes(self):
@@ -416,7 +430,7 @@ class Workflow(BaseWorkflow):
     #def from_dict(cls, d):
     #    return cls(d["workdir"])
 
-    def register(self, obj, links=(), manager=None, task_class=None):
+    def register(self, obj, links=None, manager=None, task_class=None):
         """
         Registers a new task and add it to the internal list, taking into account possible dependencies.
 
@@ -437,7 +451,7 @@ class Workflow(BaseWorkflow):
             `Link` object
         """
         # Handle possible dependencies.
-        if links and not isinstance(links, (list, tuple)):
+        if links is not None and not isinstance(links, (list, tuple)):
             links = [links]
 
         task_id = len(self)
@@ -445,10 +459,6 @@ class Workflow(BaseWorkflow):
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
         manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
-
-        #if hasattr(obj, "runlevel"):
-        #from pymatgen.io.abinitio.strategies import StrategyWithInput
-        #obj = StrategyWithInput(obj)
 
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
@@ -620,8 +630,13 @@ class Workflow(BaseWorkflow):
         etotal = []
         for task in self:
             # Open the GSR file and read etotal (Hartree)
-            with ETSF_Reader(task.odata_path_from_ext("GSR")) as ncdata:
-                etotal.append(ncdata.read_value("etotal"))
+            gsr_path = task.outdir.has_abiext("GSR")
+            etot = None
+            if gsr_path:
+                with ETSF_Reader(gsr_path) as r:
+                    etot = r.read_value("etotal")
+                
+            etotal.append(etot)
 
         return etotal
 
