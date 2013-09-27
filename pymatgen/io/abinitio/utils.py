@@ -168,6 +168,7 @@ _EXT2VARS = {
     "BSR": {"irdbsreso": 1},
     "BSC": {"irdbscoup": 1},
     "HAYDR_SAVE": {"irdhaydock": 1},
+    "DDK": {"irdddk": 1},
 }
 
 def irdvars_for_ext(ext):
@@ -178,9 +179,48 @@ def irdvars_for_ext(ext):
     return _EXT2VARS[ext].copy()
 
 
-def abinit_extensions():
+def abi_extensions():
     """List with all the ABINIT extensions that are registered."""
     return list(_EXT2VARS.keys())[:]
+
+
+def abi_splitext(filename):
+    """
+    Split the ABINIT extension from a filename.
+    "Extension" are found by searching in an internal database.
+
+    Returns "(root, ext)" where ext is the registered ABINIT extension 
+    The final ".nc" is included (if any) 
+
+    >>> abi_splitext("foo_WFK")
+    WFK
+
+    >>> abi_splitext("/home/guido/foo_bar_WFK.nc")
+    aWFK.nc
+    """
+    filename = os.path.basename(filename)
+    is_ncfile = False
+    if filename.endswith(".nc"):
+        is_ncfile = True
+        filename = filename[:-3]
+
+    known_extensions = abi_extensions()
+
+    # This algorith fails if we have two files 
+    # e.g. HAYDR_SAVE, ANOTHER_HAYDR_SAVE
+    for i in range(len(filename)-1, -1, -1):
+        ext = filename[i:]
+        if ext in known_extensions:
+            break
+
+    else:
+        raise ValueError("Cannot find a registered extension in %s" % filename)
+
+    root = filename[:i]
+    if is_ncfile: 
+        ext = ext + ".nc"
+
+    return root, ext
 
 
 def find_file(files, ext, prefix=None, dataset=None, image=None):

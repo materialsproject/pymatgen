@@ -7,6 +7,9 @@ from subprocess import Popen, PIPE
 from pymatgen.util.io_utils import which
 from pymatgen.util.string_utils import list_strings
 
+import logging
+logger = logging.getLogger(__name__)
+
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"

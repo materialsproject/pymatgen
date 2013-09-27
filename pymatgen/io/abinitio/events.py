@@ -296,9 +296,6 @@ class EventParser(object):
         # we have to standardize the abinit WARNING, COMMENT and ERROR  
         # so that we can parse them easily without having to use nafter.
 
-        # TODO: Handle possible errors in the parser by generating a custom EventList object
-        #return EventList(self.output_file.path, events=[Error(str(exc))])
-
         # Note the space after the name.
         exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
 
@@ -393,3 +390,10 @@ class EventParser(object):
 
             events.set_run_completed(run_completed)
             return events
+
+    def report_exception(self, filename, exc):
+        """
+        This method is used when self.parser raises an Exception so that
+        we can report a customized `EventReport` object with info the exception.
+        """
+        return EventReport(filename, events=[Error(str(exc))])
