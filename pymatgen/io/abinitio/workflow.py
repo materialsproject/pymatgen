@@ -18,7 +18,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
-from pymatgen.util.num_utils import iterator_from_slice, chunks
+from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
@@ -39,6 +39,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "Workflow",
+    "IterativeWorkflow",
 ]
 
 
@@ -47,13 +48,6 @@ class Product(object):
     A product represents a file produced by an `AbinitTask` instance, file
     that is needed by another task in order to start the calculation.
     """
-    #_EXT2ABIVARS = {
-    #    "_DEN": {"irdden": 1},
-    #    "_WFK": {"irdwfk": 1},
-    #    "_SCR": {"irdscr": 1},
-    #    "_QPS": {"irdqps": 1},
-    #}
-
     def __init__(self, ext, path):
         self.ext = ext
         self.file = File(path)
@@ -189,6 +183,18 @@ class BaseWorkflow(object):
         """
         return [task.communicate(input) for task in self]
 
+    #def __eq__(self, other):
+    #    return self.workdir == other.workdir
+                                              
+    #def __ne__(self, other):
+    #    return not self.__eq__(other)
+
+    #def __hash__(self)
+    #    return hash(self.workdir)
+
+    #def depends_on(self, obj):
+    #    return obj in self.links
+
     @property
     def returncodes(self):
         """
@@ -269,6 +275,28 @@ class BaseWorkflow(object):
 
     def _setup(self, *args, **kwargs):
         self.setup(*args, **kwargs)
+
+    #def finalize(self):
+    #    """
+    #    This method is called once the workflow is completed i.e. when 
+    #    all the task in the workflows have status S_OK.
+    #    Subclasses should provide its own implememtation
+    #
+    #    Returns:
+    #        (retcode, message)
+    #        retcode is 0 on success. 
+    #        message is a string that should provide 
+    #        a human-readable description of what has been performed.
+    #    """
+    #    if self.finalized:
+    #       return 2, "Workflow has been already finalized"
+    #    if not self.all_status() = Task.S_OK
+    #       return 1, "Not all task are OK"
+    #
+    #    retcode, message = self._finalize()
+    #    if retcode == 0:
+    #       self.finalized = True
+    #    return retcode, message 
 
     def get_results(self, *args, **kwargs):
         """
@@ -409,8 +437,8 @@ class Workflow(BaseWorkflow):
             `Link` object
         """
         # Handle possible dependencies.
-        if links and not isinstance(links, collections.Iterable):
-            links = [links,]
+        if links and not isinstance(links, (list, tuple)):
+            links = [links]
 
         task_id = len(self)
         task_workdir = os.path.join(self.workdir, "task_" + str(task_id))
@@ -605,9 +633,9 @@ class Workflow(BaseWorkflow):
         return cls.from_dict(json_load(filename))
 
 
-class IterativeWork(Workflow):
+class IterativeWorkflow(Workflow):
     """
-    This object defined a workflow that produces tasks until a particular 
+    This object defines a workflow that produces tasks until a particular 
     condition is satisfied (mainly used for simple convergence studies).
     """
     __metaclass__ = abc.ABCMeta
@@ -625,11 +653,12 @@ class IterativeWork(Workflow):
                 Maximum number of iterations. A negative value or zero value
                 is equivalent to having an infinite number of iterations.
         """
-        super(IterativeWork, self).__init__(workdir, manager)
+        super(IterativeWorkflow, self).__init__(workdir, manager)
 
         self.strategy_generator = strategy_generator
 
         self.max_niter = max_niter
+        self.niter = 0
 
     def next_task(self):
         """
@@ -648,6 +677,9 @@ class IterativeWork(Workflow):
         assert len(self) == self.niter
 
         return self[-1]
+
+    #def start(self)
+    #    return self.sumbmit_tasks()
 
     def submit_tasks(self, *args, **kwargs):
         """
@@ -687,59 +719,6 @@ class IterativeWork(Workflow):
         The dictionary must contains an entry "converged" that evaluates to
         True if the iteration should be stopped.
         """
-
-
-def strictly_increasing(values):
-    return all(x < y for x, y in zip(values, values[1:]))
-
-
-def strictly_decreasing(values):
-    return all(x > y for x, y in zip(values, values[1:]))
-
-
-def non_increasing(values):
-    return all(x >= y for x, y in zip(values, values[1:]))
-
-
-def non_decreasing(values):
-    return all(x <= y for x, y in zip(values, values[1:]))
-
-
-def monotonic(values, mode="<", atol=1.e-8):
-    """
-    Returns False if values are not monotonic (decreasing|increasing).
-    mode is "<" for a decreasing sequence, ">" for an increasing sequence.
-    Two numbers are considered equal if they differ less that atol.
-
-    .. warning:
-        Not very efficient for large data sets.
-
-    >>> values = [1.2, 1.3, 1.4]
-    >>> monotonic(values, mode="<")
-    False
-    >>> monotonic(values, mode=">")
-    True
-    """
-    if len(values) == 1:
-        return True
-
-    if mode == ">":
-        for i in range(len(values)-1):
-            v, vp = values[i], values[i+1]
-            if abs(vp - v) > atol and vp <= v:
-                return False
-
-    elif mode == "<":
-        for i in range(len(values)-1):
-            v, vp = values[i], values[i+1]
-            if abs(vp - v) > atol and vp >= v:
-                return False
-
-    else:
-        raise ValueError("Wrong mode %s" % str(mode))
-
-    return True
-
 
 def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
     """
@@ -964,7 +943,7 @@ class PseudoConvergence(Workflow):
         return wf_results
 
 
-class PseudoIterativeConvergence(IterativeWork):
+class PseudoIterativeConvergence(IterativeWorkflow):
 
     def __init__(self, workdir, manager, pseudo, ecut_list_or_slice, atols_mev,
                  toldfe=1.e-8, spin_mode="polarized", 
@@ -1310,7 +1289,7 @@ class WorkFlowResults(dict, MSONable):
         for exc in exceptions:
             newstr = str(exc)
             if newstr not in self.exceptions:
-                self[self._EXC_KEY] += [newstr,]
+                self[self._EXC_KEY] += [newstr]
 
     def assert_valid(self):
         """

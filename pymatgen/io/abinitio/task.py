@@ -21,7 +21,7 @@ from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
@@ -283,6 +283,18 @@ class Task(object):
         """String representation of the status."""
         return self.STATUS2STR[self.status]
 
+    #def __eq__(self, other):
+    #    return self.workdir == other.workdir
+
+    #def __ne__(self, other):
+    #    return not self.__eq__(other)
+
+    #def __hash__(self)
+    #    return hash(self.workdir)
+
+    #def depends_on(self, obj):
+    #    return obj in self.links
+
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
 
@@ -457,13 +469,10 @@ class Task(object):
         if not os.path.exists(filepath): 
             raise self.Error("File %s\n must exist when the link is created!")
 
-        # TODO: find an algorithm that is easy to implement and flexible 
-        # enough to deal will all the files (and conventions) we have in ABINIT.
-        #tokens = filepath.split("_")
-        #abiext = filepath.find("_")
+        # Extract the Abinit extension and add the prefix for input files.
+        root, abiext = abi_splitext(filepath)
 
-        #infile = "in" + abiext
-        infile = "in_WFK"
+        infile = "in_" + abiext
         infile = self.indir.path_in(infile)
 
         # Link path to dst if dst link does not exist.
@@ -509,7 +518,7 @@ class Task(object):
 
     def is_converged(self):
         """Return True if the calculation is converged."""
-        logger.debug("is converged  method of the base class will always return True")
+        logger.debug("is_converged  method of the base class will always return True")
         return True
 
     def _restart(self):
@@ -588,10 +597,9 @@ class Task(object):
             return parser.parse(self.output_file.path)
 
         except parser.Error as exc:
+            # Return a report with an error entry with info on the exception.
             logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            raise
-            # TODO: Handle possible errors in the parser by generating a custom EventList object
-            #return EventList(self.output_file.path, events=[Error(str(exc))])
+            return parser.report_exception(self.output_file.path, exc)
 
     @property
     def events(self):
@@ -1014,14 +1022,7 @@ class ScfTask(AbinitTask):
             raise TaskRestartError("Cannot find WFK or DEN file to restart from.")
 
         # Move out --> in.
-        in_file = os.path.basename(restart_file).replace("out", "in", 1)
-        dest = os.path.join(self.indir.path, in_file)
-
-        if os.path.exists(dest) and not os.path.islink(dest):
-           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
-
-        logger.debug("will rename: restart_file %s, dest %s" % (restart_file, dest))
-        os.rename(restart_file, dest)
+        self.out_to_in(restart_file)
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -1047,7 +1048,7 @@ class NscfTask(AbinitTask):
             return False
 
         return True
-                                                                                            
+
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
         ext = "WFK"
@@ -1067,60 +1068,44 @@ class NscfTask(AbinitTask):
         self._restart()
 
 
-#class AbinitRelaxTask(AbinitTask):
-#    """
-#    Structural optimization.
-#    """
-#    def is_converged(self):
-#        """Return True if the calculation is converged."""
-#        raise NotImplementedError("")
-#        report = self.get_event_report()
-#        # If we have critical warnings that are registered 
-#        # for this task we trigger the restart.
-#        if report.warnings:
-#            return False
-#
-#        return True
-#                                                                                            
-#    def restart(self)):
-#        # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
-#        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
-#
-#        varname = "getwfk_file"
-#        restart_file = self.outdir.has_abiext("WFK")
-#
-#        if not restart_file:
-#            varname = "getden_file"
-#            restart_file = self.outdir.has_abiext("DEN")
-#
-#        if not restat_file:
-#            varname = None 
-#            restart_file = self.outdir.has_abiext("GSR")
-#
-#        if not restart_file:
-#            raise TaskRestartError("Cannot find the WFK|DEN|GSR file to restart from.")
-#
-#        # Move out --> in.
-#        in_file = os.path.basename(restart_file).replace("out", "in", 1)
-#        dest = os.path.join(self.indir.path, in_file)
-#
-#        if os.path.exists(dest) and not os.path.islink(dest):
-#           logger.warning("Will overwrite %s with %s" % (dest, restart_file))
-#
-#        os.rename(restart_file, dest)
-#
-#        # Add the appropriate variable for restarting.
-#        # 1) Read the initial structure from file dest.
-#        vars = {"get_structure_file": dest}
-#
-#        # 2) Read WFK or DEN from dest
-#        if varname is not None:
-#            vars = {varname: dest}
-#
-#        self.strategy.add_extra_abivars(vars)
-#
-#        # Now we can resubmit the job.
-#        self._restart()
+class AbinitRelaxTask(AbinitTask):
+    """
+    Structural optimization.
+    """
+    def is_converged(self):
+        """Return True if the calculation is converged."""
+        # TODO: 
+        raise NotImplementedError("getucell_path is not supported")
+        #report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+        #if report.warnings:
+        #    return False
+
+        #return True
+                                                                                            
+    def restart(self):
+        # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
+        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
+        # Prefer WFK over other files since we can reuse the wavefunctions.
+
+        for ext in ["WFK", "DEN", "GSR"]:
+            ofile = self.outdir.has_abiext(ext)
+            if ofile:
+                irdvars = irdvars_for_ext(ext)
+                infile = self.out_to_in(ofile)
+                # We will read the unit cell from this file
+                irdvars["getucell_path"] = infile
+                break
+
+        if not ofile:
+            raise TaskRestartError("Cannot find the WFK|DEN|GSR file to restart from.")
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
 
 
 class AbinitPhononTask(AbinitTask):
