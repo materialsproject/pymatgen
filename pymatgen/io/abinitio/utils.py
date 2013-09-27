@@ -193,10 +193,10 @@ def abi_splitext(filename):
     The final ".nc" is included (if any) 
 
     >>> abi_splitext("foo_WFK")
-    WFK
+    ('foo_', 'WFK')
 
     >>> abi_splitext("/home/guido/foo_bar_WFK.nc")
-    aWFK.nc
+    ('foo_bar_', 'WFK.nc')
     """
     filename = os.path.basename(filename)
     is_ncfile = False

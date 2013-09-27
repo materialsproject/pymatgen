@@ -467,7 +467,7 @@ class Task(object):
         directory containing the input files of the task.
         """
         if not os.path.exists(filepath): 
-            raise self.Error("File %s\n must exist when the link is created!")
+            logger.debug("Creating symbolic link to not existent file %s" % filepath)
 
         # Extract the Abinit extension and add the prefix for input files.
         root, abiext = abi_splitext(filepath)
