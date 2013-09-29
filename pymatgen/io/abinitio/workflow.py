@@ -25,9 +25,9 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
+from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask, get_newid, Dependency, Node
 from pymatgen.io.abinitio.strategies import Strategy
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_extensions
+from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons
 from pymatgen.io.abinitio.pseudos import Pseudo
@@ -48,194 +48,17 @@ __all__ = [
 ]
 
 
-class Product(object):
-    """
-    A product represents an output file produced by ABINIT instance.
-    This file is needed to start another `Task` or another `Workflow`.
-    """
-    def __init__(self, ext, path):
-        """
-        Args:
-            ext:
-                ABINIT file extension
-            path:
-                (asbolute) filepath
-        """
-        if ext not in abi_extensions():
-            raise ValueError("Extension %s has not been registered in the internal database" % str(ext))
-
-        self.ext = ext
-        self.file = File(path)
-
-    def __str__(self):
-        return "File=%s, Ext=%s, " % (self.file.path, self.ext)
-
-    @property
-    def filepath(self):
-        """Absolute path of the file."""
-        return self.file.path
-
-    def get_abivars(self):
-        """
-        Returns a dictionary with the ABINIT variables that 
-        must be used to make the code use this file.
-        """
-        return irdvars_for_ext(self.ext)
-
-
-class Node(object):
-    """
-    Abstract class defining the interface that must be implemented
-    by the nodes of the calculation.
-    """
-    __metaclass__ = abc.ABCMeta
-
-    @abc.abstractproperty
-    def workdir(self):
-        """Absolute path of the working directory."""
-
-    def __hash__(self):
-        return hash(self.workdir)
-
-    @abc.abstractproperty
-    def deps(self):
-        """
-        List of `Dependency` objects defining the dependencies 
-        of this `Node`. Empty list if this `Node` does not have dependencies.
-        """
-
-    def depends_on(self, other):
-        """True if this node depends on an another node."""
-        return other in self.deps
-
-    #def show_dependencies(self):
-    #    print("Node %s depends on:" % str(self))
-    #    for i, dep in enumerate(self.deps):
-    #        print("%d) %s, status=%s" % (i, str(dep)), str(dep.status))
-
-    #@abc.abstractmethod
-    #def connect_signals():
-    #    """Connect the signals."""
-
-    #@abc.abstractmethod
-    #def set_status(self, status):
-    #    """Set the status of the `Node`."""
-    #
-    #@abc.abstractproperty
-    #def status(self):
-    #    """Return the status of the `Node`."""
-
-    #@abc.abstractmethod
-    #def check_status(self, status):
-    #    """Check the status of the `Node`."""
-
-
-
-class Dependency(object):
-    """
-    This object describes the dependencies among the nodes of a calculatio.
-
-    A `Dependency` has a node that produces a list of products (files) that are
-    reused by the other tasks belonging to a `Workflow`.
-    One usually creates the object by calling work.register 
-
-    Example:
-
-        # Register the SCF task in work.
-        scf_task = work.register(scf_strategy)
-
-        # Register the NSCF calculation and its dependency on the SCF run.
-        nscf_task = work.register(nscf_strategy, deps={scf_task: "DEN"})
-    """
-    def __init__(self, node, exts=None):
-        """
-        Args:
-            node:
-                The task or the worfklow associated to the dependency.
-            exts:
-                Extensions of the output files that are needed for running the other tasks.
-        """
-        self._node, self._products = node, []
-
-        if exts is not None:
-            for ext in list_strings(exts):
-                prod = Product(ext, node.odata_path_from_ext(ext))
-                self._products.append(prod)
-
-    def __repr__(self):
-        s = "%s\nProduced by node:\n %s " % ("\n".join(repr(p) for p in self.products), repr(self.node))
-        return s
-
-    def __str__(self):
-        s = "%s \nProduced by node %s " % ("\n".join(str(p) for p in self.products), str(self.node))
-        return s
-
-    def __hash__(self):
-        return hash(self._node)
-
-    @property
-    def node(self):
-        """The node associated to the dependency."""
-        return self._node
-
-    @property
-    def products(self):
-        """List of files produces by self."""
-        return self._products
-
-    def get_abivars(self):
-        """
-        Returns a dictionary with the ABINIT variables that must
-        be added to the input file in order to connect the two calculations.
-        """
-        abivars = {}
-        for prod in self.products:
-            abivars.update(prod.get_abivars())
-
-        return abivars
-
-    def get_filepaths_and_exts(self):
-        """Returns the paths of the output files produced by self and its extensions"""
-        filepaths = [prod.filepath for prod in self._products]
-        exts = [prod.ext for prod in self._products]
-
-        return filepaths, exts
-
-    @property
-    def status(self):
-        """The status of the dependency, i.e. the status of the node"""
-        return self.node.status
-
-    #@property
-    #def workdir(self):
-    #    return self.node.workdir
-
-    #@property
-    #def workflow(self):
-    #    try:
-    #        return self.node.workflow
-    #    except AttributeError:
-    #        assert isinstance(self.node, Workflow)
-    #        return self
-
-
 class WorkflowError(Exception):
     """Base class for the exceptions raised by Workflow objects."""
 
 
-class BaseWorkflow(object):
+class BaseWorkflow(Node):
     __metaclass__ = abc.ABCMeta
 
     Error = WorkflowError
 
     # Basename of the pickle database.
     PICKLE_FNAME = "__workflow__.pickle"
-
-    #W_INIT
-    #W_READY
-    #W_DONE
-    #W_ERROR
-    #W_OK 
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -277,11 +100,7 @@ class BaseWorkflow(object):
     def __hash__(self):
         return hash(self.workdir)
 
-    def depends_on(self, obj):
-        """True if self depends on the object obj."""
-        return obj in self.deps
-
-    def show_intra_deps(self):
+    def show_intrawork_deps(self):
         table = [["Task #"] + [str(i) for i in range(len(self))]]
 
         for ii, task1 in enumerate(self):
@@ -452,6 +271,8 @@ class Workflow(BaseWorkflow):
             manager:
                 `TaskManager` object.
         """
+        self._id = get_newid()
+
         self._tasks = []
 
         # Dict with the dependencies of each task, indexed by task.id
@@ -464,10 +285,16 @@ class Workflow(BaseWorkflow):
             self.set_manager(manager)
 
     @property
+    def id(self):
+        """Task identifier."""
+        return self._id
+
+    @property
     def finalized(self):
-        """True if the workflow has been finalized."""
+        """True if the `Workflow` has been finalized."""
         try:
             return self._finalized
+
         except AttributeError:
             return False
 
@@ -515,7 +342,6 @@ class Workflow(BaseWorkflow):
         """
         #FIXME
         return self.outdir.path_in("out_" + ext)
-        #has_abiext(ext)
 
     @property
     def processes(self):
@@ -539,8 +365,8 @@ class Workflow(BaseWorkflow):
     #@property
     #def status(self):
     #    """
-    #    The status of the workflow equal to the most restricting 
-    #    status of the tasks.
+    #    The status of the `Workflow` equal to the most 
+    #    restricting status of the tasks.
     #    """
     #    return min(task.status for task in self)
 
@@ -556,6 +382,19 @@ class Workflow(BaseWorkflow):
 
         return counter
 
+    #def finalize(self):
+    #    for i, task in enumerate(self):
+    #        if not hasattr(task, "manager"):
+    #            task.set_manager(self.manager)
+
+    #        task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
+
+    #        if not hasattr(task, "workdir"):
+    #            task.set_workdir(task_workdir)
+    #        else:
+    #            assert task.workdir == task_workdir
+
+
     def register(self, obj, deps=None, manager=None, task_class=None):
         """
         Registers a new `Task` and add it to the internal list, taking into account possible dependencies.
@@ -569,9 +408,10 @@ class Workflow(BaseWorkflow):
                 None means that this obj has no dependency.
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
-                the `TaskManager` specified during the creation of the workflow.
+                the `TaskManager` specified during the creation of the `Workflow`.
             task_class:
-                `AbinitTask` subclass to instanciate. Mainly used if the workflow is not able to find it automatically.
+                `AbinitTask` subclass to instanciate. 
+                 Mainly used if the workflow is not able to find it automatically.
 
         Returns:   
             `Task` object
@@ -579,7 +419,7 @@ class Workflow(BaseWorkflow):
         task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
-        manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
+        #manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
 
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
@@ -590,7 +430,7 @@ class Workflow(BaseWorkflow):
             task = AbinitTask.from_input(obj, task_workdir, manager)
 
         # Keep a referece to the workflow
-        task.workflow = self
+        #task.workflow = self
 
         # Set the class
         if task_class is not None:
@@ -714,19 +554,19 @@ class Workflow(BaseWorkflow):
         for task in self:
             task.rm_tmpdatadir()
 
-    def move(self, dst, isabspath=False):
+    def move(self, dest, isabspath=False):
         """
         Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
         The destination path must not already exist. If the destination already exists
         but is not a directory, it may be overwritten depending on os.rename() semantics.
 
-        Be default, dst is located in the parent directory of self.workdir, use isabspath=True
+        Be default, dest is located in the parent directory of self.workdir, use isabspath=True
         to specify an absolute path.
         """
         if not isabspath:
-            dst = os.path.join(os.path.dirname(self.workdir), dst)
+            dest = os.path.join(os.path.dirname(self.workdir), dest)
 
-        shutil.move(self.workdir, dst)
+        shutil.move(self.workdir, dest)
 
     def submit_tasks(self, *args, **kwargs):
         """
@@ -1197,7 +1037,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
         return wf_results
 
 
-class BandStructure(Workflow):
+class BandStructureWorkflow(Workflow):
     """Workflow for band structure calculations."""
     def __init__(self, scf_strategy, nscf_strategy, dos_strategy=None, workdir=None, manager=None):
         """
@@ -1214,7 +1054,7 @@ class BandStructure(Workflow):
             manager:
                 `TaskManager` object.
         """
-        super(BandStructure, self).__init__(workdir=workdir, manager=manager)
+        super(BandStructureWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = scf_task = self.register(scf_strategy)
@@ -1228,7 +1068,7 @@ class BandStructure(Workflow):
             self.dos_task = self.register(dos_strategy, deps={scf_task: "DEN"})
 
 
-class Relaxation(Workflow):
+class RelaxationWorkflow(Workflow):
 
     def __init__(self, relax_strategy, workdir=None, manager=None):
         """
@@ -1245,7 +1085,7 @@ class Relaxation(Workflow):
         task = self.register(relax_strategy)
 
 
-class DeltaTest(Workflow):
+class DeltaTestWorkflow(Workflow):
 
     def __init__(self, workdir, manager, structure_or_cif, pseudos, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
@@ -1411,7 +1251,7 @@ class BSEMDF_Workflow(Workflow):
         self.bse_task = bse_task = self.register(bse_strategy, deps={nscf_task: "WFK"})
 
 
-class WorkFlowResults(dict, MSONable):
+class WorkflowResults(dict, MSONable):
     """
     Dictionary used to store some of the results produce by a Task object
     """
@@ -1422,7 +1262,7 @@ class WorkFlowResults(dict, MSONable):
     _EXC_KEY = "_exceptions"
 
     def __init__(self, *args, **kwargs):
-        super(WorkFlowResults, self).__init__(*args, **kwargs)
+        super(WorkflowResults, self).__init__(*args, **kwargs)
 
         if self._EXC_KEY not in self:
             self[self._EXC_KEY] = []

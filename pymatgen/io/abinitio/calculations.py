@@ -13,7 +13,7 @@ from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
 from pymatgen.io.abinitio.workflow import (PseudoIterativeConvergence, 
-    PseudoConvergence, BandStructure, GW_Workflow, BSEMDF_Workflow)
+    PseudoConvergence, BandStructureWorkflow, GW_Workflow, BSEMDF_Workflow)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -22,7 +22,6 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-################################################################################
 
 class PPConvergenceFactory(object):
     """
@@ -33,7 +32,7 @@ class PPConvergenceFactory(object):
                         toldfe=1.e-8, atols_mev=(10, 1, 0.1), spin_mode="polarized",
                         acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
         """
-        Return a Work object given the pseudopotential pseudo.
+        Return a `Workflow` object given the pseudopotential pseudo.
 
         Args:
             workdir:
@@ -73,7 +72,6 @@ class PPConvergenceFactory(object):
 
         return workflow
 
-################################################################################
 
 
 def bandstructure(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
@@ -137,9 +135,9 @@ def bandstructure(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
 
         dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 
-    return BandStructure(workdir, manager, scf_strategy, nscf_strategy, dos_strategy=dos_strategy)
+    return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_strategy=dos_strategy, 
+                                 workdir=workdir, manager=manager)
 
-################################################################################
 
 
 #def relaxation(workdir, manager, structure, pseudos, scf_kppa,
@@ -178,9 +176,8 @@ def bandstructure(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
 #                                   accuracy=accuracy, spin_mode=spin_mode, smearing=smearing, 
 #                                   charge=charge, scf_algorithm=scf_algorithm)
 #
-#    #return Relaxation(workdir, manager, relax_strategy)
+#    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
-################################################################################
 
 def g0w0_with_ppmodel(workdir, manager, structure, pseudos, scf_kppa,
                       nscf_nband, ecuteps, ecutsigx, accuracy="normal",
@@ -261,9 +258,9 @@ def g0w0_with_ppmodel(workdir, manager, structure, pseudos, scf_kppa,
     sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
                                         **extra_abivars)
 
-    return GW_Workflow(workdir, manager, scf_strategy, nscf_strategy, scr_strategy, sigma_strategy)
+    return GW_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
+                       workdir=workdir, manager=manager)
 
-################################################################################
 
 
 def bse_with_mdf(workdir, manager, structure, pseudos, scf_kppa, nscf_nband, 
@@ -344,5 +341,5 @@ def bse_with_mdf(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 
-    return BSEMDF_Workflow(workdir, manager, scf_strategy, nscf_strategy, bse_strategy)
+    return BSEMDF_Workflow(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
 
