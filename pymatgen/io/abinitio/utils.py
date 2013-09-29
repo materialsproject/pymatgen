@@ -17,6 +17,16 @@ class File(object):
     def __repr__(self):
         return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
 
+    def __str__(self):
+        return "<%s, %s>" % (self.__class__.__name__, self.path)
+
+    def __eq__(self, other):
+        if other is None: return False
+        self.path == other.path
+                                       
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     @property
     def path(self):
         """Absolute path of the file."""
@@ -80,6 +90,16 @@ class Directory(object):
 
     def __repr__(self):
         return "<%s at %s, %s>" % (self.__class__.__name__, id(self), self.path)
+
+    def __str__(self):
+        return "<%s, %s>" % (self.__class__.__name__, self.path)
+
+    def __eq__(self, other):
+        if other is None: return False
+        self.path == other.path
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @property
     def path(self):

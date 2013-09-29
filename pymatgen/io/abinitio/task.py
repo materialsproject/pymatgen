@@ -15,14 +15,13 @@ try:
     import yaml
     from pydispatch import dispatcher
 except ImportError:
-    #warnings.warn("Error while trying to import PyYaml.")
     pass
 
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
@@ -39,11 +38,19 @@ __all__ = [
     "TaskManager",
 ]
 
+__COUNT = -1
+def get_newid():
+    """
+    Returns a new identifier used both for `Task` and `Workflow` objects.
+    """
+    return __COUNT + 1
+
 
 class FakeProcess(object):
     """
     This object is attached to a Task instance if the task has not been submitted
-    This trick allows us to simulate a process that is still running so that we can safely poll task.process.
+    This trick allows us to simulate a process that is still running so that 
+    we can safely poll task.process.
     """
     def poll(self):
         return None
@@ -60,6 +67,189 @@ class FakeProcess(object):
     @property
     def returncode(self):
         return None
+
+
+class Product(object):
+    """
+    A product represents an output file produced by ABINIT instance.
+    This file is needed to start another `Task` or another `Workflow`.
+    """
+    def __init__(self, ext, path):
+        """
+        Args:
+            ext:
+                ABINIT file extension
+            path:
+                (asbolute) filepath
+        """
+        if ext not in abi_extensions():
+            raise ValueError("Extension %s has not been registered in the internal database" % str(ext))
+
+        self.ext = ext
+        self.file = File(path)
+
+    def __str__(self):
+        return "File=%s, Ext=%s, " % (self.file.path, self.ext)
+
+    @property
+    def filepath(self):
+        """Absolute path of the file."""
+        return self.file.path
+
+    def get_abivars(self):
+        """
+        Returns a dictionary with the ABINIT variables that 
+        must be used to make the code use this file.
+        """
+        return irdvars_for_ext(self.ext)
+
+
+class Node(object):
+    """
+    Abstract class defining the interface that must be implemented
+    by the nodes of the calculation.
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractproperty
+    def id(self):
+        """Node identifier."""
+
+    #@abc.abstractproperty
+    #def workdir(self):
+    #    """Absolute path of the working directory."""
+
+    #def __hash__(self):
+    #    return hash(self.workdir)
+
+    @property
+    def deps(self):
+        """
+        List of `Dependency` objects defining the dependencies 
+        of this `Node`. Empty list if this `Node` does not have dependencies.
+        """
+        self._deps
+
+    @property
+    def deps_status(self):
+        """Returns a list with the status of the dependencies."""
+        if not self.deps:
+            return [self.S_OK]
+                                                                  
+        return [d.status for d in self.deps]
+
+    def depends_on(self, other):
+        """True if this node depends on an another node."""
+        return other in self.deps
+
+    def show_dependencies(self):
+        print("Node %s depends on:" % str(self))
+        for i, dep in enumerate(self.deps):
+            print("%d) %s, status=%s" % (i, str(dep)), str(dep.status))
+
+    #@abc.abstractmethod
+    #def connect_signals():
+    #    """Connect the signals."""
+
+    #@abc.abstractmethod
+    #def set_status(self, status):
+    #    """Set the status of the `Node`."""
+    #
+    #@abc.abstractproperty
+    #def status(self):
+    #    """Return the status of the `Node`."""
+
+    #@abc.abstractmethod
+    #def check_status(self, status):
+    #    """Check the status of the `Node`."""
+
+
+class Dependency(object):
+    """
+    This object describes the dependencies among the nodes of a calculation.
+
+    A `Dependency` has a node that produces a list of products (files) that are
+    reused by the other tasks belonging to a `Workflow`.
+    One usually creates the object by calling work.register 
+
+    Example:
+
+        # Register the SCF task in work.
+        scf_task = work.register(scf_strategy)
+
+        # Register the NSCF calculation and its dependency on the SCF run.
+        nscf_task = work.register(nscf_strategy, deps={scf_task: "DEN"})
+    """
+    def __init__(self, node, exts=None):
+        """
+        Args:
+            node:
+                The task or the worfklow associated to the dependency.
+            exts:
+                Extensions of the output files that are needed for running the other tasks.
+        """
+        self._node, self._products = node, []
+
+        if exts is not None:
+            for ext in list_strings(exts):
+                prod = Product(ext, node.odata_path_from_ext(ext))
+                self._products.append(prod)
+
+    def __repr__(self):
+        s = "%s\nProduced by node:\n %s " % ("\n".join(repr(p) for p in self.products), repr(self.node))
+        return s
+
+    def __str__(self):
+        s = "%s \nProduced by node %s " % ("\n".join(str(p) for p in self.products), str(self.node))
+        return s
+
+    def __hash__(self):
+        return hash(self._node)
+
+    @property
+    def node(self):
+        """The node associated to the dependency."""
+        return self._node
+
+    @property
+    def products(self):
+        """List of files produces by self."""
+        return self._products
+
+    def get_abivars(self):
+        """
+        Returns a dictionary with the ABINIT variables that must
+        be added to the input file in order to connect the two calculations.
+        """
+        abivars = {}
+        for prod in self.products:
+            abivars.update(prod.get_abivars())
+
+        return abivars
+
+    def get_filepaths_and_exts(self):
+        """Returns the paths of the output files produced by self and its extensions"""
+        filepaths = [prod.filepath for prod in self._products]
+        exts = [prod.ext for prod in self._products]
+
+        return filepaths, exts
+
+    @property
+    def status(self):
+        """The status of the dependency, i.e. the status of the node"""
+        return self.node.status
+
+    #@property
+    #def workdir(self):
+    #    return self.node.workdir
+
+    #@property
+    #def workflow(self):
+    #    try:
+    #        return self.node.workflow
+    #    except AttributeError:
+    #        assert isinstance(self.node, Workflow)
+    #        return self
 
 
 def task_factory(strategy, workdir, manager):
@@ -96,10 +286,10 @@ class TaskError(Exception):
 
 
 class TaskRestartError(TaskError):
-    """Exception raised by task.restart"""
+    """Exception raised while trying to restart the `Task`."""
 
 
-class Task(object):
+class Task(Node):
     __metaclass__ = abc.ABCMeta
 
     Error = TaskError
@@ -130,6 +320,8 @@ class Task(object):
     def __init__(self):
         # Set the initial status.
         self.set_status(self.S_INIT)
+
+        self._id = get_newid()
 
         # Number of restarts effectuated and max number (-1 --> no limit).
         self.num_restarts = 0
@@ -248,10 +440,6 @@ class Task(object):
         """Task identifier."""
         return self._id
 
-    def set_id(self, id):
-        """Set the task identifier."""
-        self._id = id
-
     @property
     def queue_id(self):
         """Queue identifier returned by the Queue manager. None if not set"""
@@ -293,10 +481,6 @@ class Task(object):
     def str_status(self):
         """String representation of the status."""
         return self.STATUS2STR[self.status]
-
-    def depends_on(self, obj):
-        """True if self depends on the object obj."""
-        return obj in self.deps
 
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
@@ -413,22 +597,6 @@ class Task(object):
         # 4) Assume the job is still running.
         return self.set_status(self.S_RUN)
 
-    @property
-    def deps(self):
-        """
-        Iterable with the list of dependencie.
-        Empty list if self is not connected to other tasks.
-        """
-        return self._deps
-
-    @property
-    def deps_status(self):
-        """Returns a list with the status of the dependencies."""
-        if not self.deps:
-            return [self.S_OK]
-
-        return [d.status for d in self.deps]
-
     #@property
     #def is_allocated(self):
     #    """True if the task has been allocated, i.e. if it has been submitted or if it's running."""
@@ -476,7 +644,7 @@ class Task(object):
         infile = "in_" + abiext
         infile = self.indir.path_in(infile)
 
-        # Link path to dst if dst link does not exist.
+        # Link path to dest if dest link does not exist.
         # else check that it points to the expected file.
         logger.debug("Linking path %s --> %s" % (filepath, infile))
         print("Linking path %s --> %s" % (filepath, infile))
@@ -501,29 +669,29 @@ class Task(object):
             #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
-                dst = self.idata_path_from_ext(ext)
+                dest = self.idata_path_from_ext(ext)
 
                 if not os.path.exists(path): 
                     # Try netcdf file.
                     # TODO: this case should be treated in a cleaner way.
                     path += "-etsf.nc"
                     if os.path.exists(path):
-                        dst += "-etsf.nc"
+                        dest += "-etsf.nc"
 
                 if not os.path.exists(path):
                     err_msg = "%s is needed by this task but it does not exist" % path
                     logger.critical(err_msg)
                     raise self.Error(err_msg)
 
-                # Link path to dst if dst link does not exist.
+                # Link path to dest if dest link does not exist.
                 # else check that it points to the expected file.
-                logger.debug("Linking path %s --> %s" % (path, dst))
+                logger.debug("Linking path %s --> %s" % (path, dest))
 
-                if not os.path.exists(dst):
-                    os.symlink(path, dst)
+                if not os.path.exists(dest):
+                    os.symlink(path, dest)
                 else:
-                    if os.path.realpath(dst) != path:
-                        raise self.Error("dst %s does not point to path %s" % (dst, path))
+                    if os.path.realpath(dest) != path:
+                        raise self.Error("dest %s does not point to path %s" % (dest, path))
 
     def is_converged(self):
         """Return True if the calculation is converged."""
@@ -654,19 +822,19 @@ class Task(object):
             "task_events"    : self.events.to_dict
         })
 
-    def move(self, dst, isabspath=False):
+    def move(self, dest, isabspath=False):
         """
         Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
         The destination path must not already exist. If the destination already exists
         but is not a directory, it may be overwritten depending on os.rename() semantics.
 
-        Be default, dst is located in the parent directory of self.workdir, use isabspath=True
+        Be default, dest is located in the parent directory of self.workdir, use isabspath=True
         to specify an absolute path.
         """
         if not isabspath:
-            dst = os.path.join(os.path.dirname(self.workdir), dst)
+            dest = os.path.join(os.path.dirname(self.workdir), dest)
 
-        shutil.move(self.workdir, dst)
+        shutil.move(self.workdir, dest)
 
 
 class AbinitTask(Task):
@@ -684,7 +852,7 @@ class AbinitTask(Task):
     #OUT = "out"
     #TMP = "tmp"
 
-    def __init__(self, strategy, workdir, manager, **kwargs):
+    def __init__(self, strategy, workdir=None, manager=None):
         """
         Args:
             strategy: 
@@ -700,14 +868,30 @@ class AbinitTask(Task):
         """
         super(AbinitTask, self).__init__()
 
-        self.workdir = os.path.abspath(workdir)
-
+        # Save the strategy to use to generate the input file.
+        # FIXME
+        #self.strategy = strategy.deepcopy()
         self.strategy = strategy
-
-        self.manager = manager
 
         # List of dependencies of the task.
         self._deps = []
+
+        if workdir is not None:
+            self.set_workdir(workdir)
+
+        if manager is not None:
+            self.set_manager(manager)
+        else:
+            self.set_manager(TaskManager.sequential())
+
+    def set_manager(self, manager):
+        """Set the `TaskManager` to use to launch the Task."""
+        self.manager = manager.deepcopy()
+
+    def set_workdir(self, workdir):
+        """Set the working directory. Cannot be set more than once."""
+        assert not hasattr(self, "workdir")
+        self.workdir = os.path.abspath(workdir)
 
         # Files required for the execution.
         self.input_file = File(os.path.join(self.workdir, "run.abi"))
@@ -745,7 +929,7 @@ class AbinitTask(Task):
             self.strategy.add_extra_abivars(d.get_abivars())
 
     @classmethod
-    def from_input(cls, abinit_input, workdir, manager, **kwargs):
+    def from_input(cls, abinit_input, workdir=None, manager=None):
         """
         Create an instance of `AbinitTask` from an ABINIT input.
     
@@ -756,16 +940,12 @@ class AbinitTask(Task):
                 Path to the working directory.
             manager:
                 `TaskManager` object.
-            policy:
-                `TaskPolicy` object.
-            kwargs:
-                keyword arguments (not used here)
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
         from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
 
-        return cls(strategy, workdir, manager, **kwargs)
+        return cls(strategy, workdir=workdir, manager=manager)
 
     @property
     def executable(self):
