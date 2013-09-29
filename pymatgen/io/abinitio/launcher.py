@@ -3,6 +3,7 @@ from __future__ import division, print_function
 
 import os 
 import abc
+import time
 
 from subprocess import Popen, PIPE
 
@@ -218,7 +219,7 @@ class PyResourceManager(object):
                 break
 
             if task is None:
-                import time
+
                 time.sleep(self.sleep_time)
                 self.work.check_status()
 
@@ -263,9 +264,9 @@ class PyLauncher(object):
 
             if task is None:
                 logger.debug("No task to run! Possible deadlock")
-                #raise self.Error("No task to run!. Possible deadlock")
                                                             
             else:
+                logger.debug("Starting task %s" % task)
                 task.start()
                 nlaunch += 1
                                                             
@@ -278,15 +279,22 @@ class PyLauncher(object):
         return nlaunch 
 
     def rapidfire(self):
-        nlaunch = 0
+        nlaunch, launched = 0, []
 
         work = self.work
         while True:
             try:
                 task = work.fetch_task_to_run()
+
                 if task is None:
+                    logger.debug("fetch_task_to_run returned None.")
                     break
+
+                logger.debug("Starting task %s" % task)
+                assert task not in launched
+                launched.append(task)
                 task.start()
+
                 nlaunch += 1
 
             except StopIteration:

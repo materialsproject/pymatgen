@@ -13,6 +13,7 @@ import copy
 import numpy as np
 try:
     import yaml
+    from pydispatch import dispatcher
 except ImportError:
     #warnings.warn("Error while trying to import PyYaml.")
     pass
@@ -61,7 +62,7 @@ class FakeProcess(object):
         return None
 
 
-def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
+def task_factory(strategy, workdir, manager):
     """Factory function for Task instances."""
     # Instanciate subclasses depending on the runlevel.
     # so that we can implement methods such as restart, check_convergence
@@ -78,7 +79,7 @@ def task_factory(strategy, workdir, manager, task_id=1, links=None, **kwargs):
        None: AbinitTask       # Input file with multiple datasets or unregistered runlevel
     }
 
-    return classes[strategy.runlevel](strategy, workdir, manager, task_id=task_id, links=links, **kwargs)
+    return classes[strategy.runlevel](strategy, workdir, manager)
 
 
 class TaskError(Exception):
@@ -96,7 +97,7 @@ class Task(object):
 
     # Possible status of the task.
     S_INIT = 1    # Task has been initialized
-    S_READY = 2   # Task is ready for submission (all the links of the task have status S_OK)
+    S_READY = 2   # Task is ready for submission (all the depencies of the task have status S_OK)
     S_SUB = 4     # Task has been submitted.
     S_RUN = 8     # Task is running.
     S_DONE = 16   # Task done, This does not imply that results are ok or that the calculation completed successfully
@@ -128,19 +129,11 @@ class Task(object):
         # Used to push additional info on the task during its execution. 
         self.history = collections.deque(maxlen=50)
 
-        # TODO
-        #self.observers = []
-        #def add_observer(self, observer):
-        #def remove_observer(self, observer):
-        #def notify_observers(self):
-        #    for observer in self.observers:
-        #        observer.notify(self)
-
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
 
     def __str__(self):
-        return "<%s, workdir=%s>" % (self.__class__.__name__, os.path.basename(self.workdir))
+        return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
 
     def __getstate__(self):
         """
@@ -222,14 +215,14 @@ class Task(object):
         Returns:
             0 on success, 1 if reset failed.
         """
+        # Can only reset tasks that are done.
         if self.status < self.S_DONE:
-            # Can only reset tasks that are done.
             return 1
-        else:
-            self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
-            # TODO: Here I need a reference to the workflow.
-            #self.workflow.check_status()
-            return 0
+
+        self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        self.workflow.check_status()
+
+        return 0
 
     @property
     def id(self):
@@ -283,6 +276,7 @@ class Task(object):
         return self.STATUS2STR[self.status]
 
     def __eq__(self, other):
+        if not hasattr(other, "workdir"): return False
         return self.workdir == other.workdir
 
     def __ne__(self, other):
@@ -293,7 +287,7 @@ class Task(object):
 
     def depends_on(self, obj):
         """True if self depends on the object obj."""
-        return obj in self.links
+        return obj in self.deps
 
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
@@ -307,6 +301,10 @@ class Task(object):
 
         self._status = status
 
+        if status == self.S_OK:
+            print("sender %s sends signal S_OK: %s" % (self, hash(status)))
+            dispatcher.send(signal=Task.S_OK, sender=self)
+
         if changed:
             if status == self.S_SUB: 
                 self._submission_time = time.time()
@@ -317,9 +315,6 @@ class Task(object):
 
             if status == self.S_ERROR:
                 self.history.append("Error info:\n %s" % str(info_msg))
-
-            # Notify the observers
-            #self.notify_observers(self)
 
         return status
 
@@ -413,20 +408,20 @@ class Task(object):
         return self.set_status(self.S_RUN)
 
     @property
-    def links(self):
+    def deps(self):
         """
-        Iterable with the links of the status. 
+        Iterable with the list of dependencie.
         Empty list if self is not connected to other tasks.
         """
-        return self._links
+        return self._deps
 
     @property
-    def links_status(self):
-        """Returns a list with the status of the links."""
-        if not self.links:
+    def deps_status(self):
+        """Returns a list with the status of the dependencies."""
+        if not self.deps:
             return [self.S_OK]
 
-        return [l.status for l in self.links]
+        return [d.status for d in self.deps]
 
     #@property
     #def is_allocated(self):
@@ -440,8 +435,8 @@ class Task(object):
 
     @property
     def can_run(self):
-        """The task can run if its status is S_READY and all the other links (if any) are done!"""
-        all_ok = all([stat == self.S_OK for stat in self.links_status])
+        """The task can run if its status is S_READY and all the other depencies (if any) are done!"""
+        all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return (self.status < self.S_SUB) and all_ok
 
     def out_to_in(self, out_file):
@@ -478,6 +473,7 @@ class Task(object):
         # Link path to dst if dst link does not exist.
         # else check that it points to the expected file.
         logger.debug("Linking path %s --> %s" % (filepath, infile))
+        print("Linking path %s --> %s" % (filepath, infile))
                                                              
         if not os.path.exists(infile):
             os.symlink(filepath, infile)
@@ -485,10 +481,17 @@ class Task(object):
             if os.path.realpath(infile) != filepath:
                 raise self.Error("infile %s does not point to filepath %s" % (infile, filepath))
 
-    def connect(self):
-        """Create symbolic links to the output files produced by the other tasks."""
-        for link in self.links:
-            filepaths, exts = link.get_filepaths_and_exts()
+    def make_links(self):
+        """
+        Create symbolic links to the output files produced by the other tasks.
+
+        ..warning:
+            
+            This method should be called only when the calculation is READY because
+            it uses a heuristic approach to find the file to link.
+        """
+        for dep in self.deps:
+            filepaths, exts = dep.get_filepaths_and_exts()
             #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
@@ -553,17 +556,18 @@ class Task(object):
             0 if succes, 1 if restart was not possible.
         """
         if not self.is_converged():
-           if self.num_restarts == self.max_num_restarts:
-               return 1
+            if self.num_restarts == self.max_num_restarts:
+                logger.info("Reached maximum number of restarts. Returning")
+                return 1
 
-           try:
-               self.restart()
+            try:
+                self.restart()
     
-           except TaskRestartError as exc:
-               info_msg = "calculation not converged but restart was not possible!\n" + str(exc) 
-               logger.debug(info_msg)
-               self.set_status(self.S_ERROR, info_msg=info_msg)
-               return 1
+            except TaskRestartError as exc:
+                info_msg = "Calculation not converged but restart was not possible!\nException: " + str(exc) 
+                logger.debug(info_msg)
+                self.set_status(self.S_ERROR, info_msg=info_msg)
+                return 1
      
         return 0
 
@@ -576,7 +580,7 @@ class Task(object):
         This method calls self.setup after having performed additional operations
         such as the creation of the symbolic links needed to connect different tasks.
         """
-        self.connect()
+        self.make_links()
         self.setup(*args, **kwargs)
 
     def get_event_report(self):
@@ -674,7 +678,7 @@ class AbinitTask(Task):
     #OUT = "out"
     #TMP = "tmp"
 
-    def __init__(self, strategy, workdir, manager, task_id=1, links=None, **kwargs):
+    def __init__(self, strategy, workdir, manager, **kwargs):
         """
         Args:
             strategy: 
@@ -685,11 +689,6 @@ class AbinitTask(Task):
                 `TaskManager` object.
             policy:
                 `TaskPolicy` object.
-            task_id:
-                Task identifier (must be unique if self belongs to a `Workflow`).
-            links:
-                List of `Link` objects specifying the dependencies of the task.
-                Used for tasks belonging to a `Workflow`.
             kwargs:
                 keyword arguments (not used for the time being)
         """
@@ -701,19 +700,8 @@ class AbinitTask(Task):
 
         self.manager = manager
 
-        self.set_id(task_id)
-
-        # Connect this task to the other tasks 
-        # (needed if are creating a Work instance with dependencies
-        self._links = []
-        if links is not None: 
-            if not isinstance(links, collections.Iterable):
-                links = [links,]
-
-            self._links = links
-            for link in links:
-                logger.debug("Adding abivars %s " % str(link.get_abivars()))
-                self.strategy.add_extra_abivars(link.get_abivars())
+        # List of dependencies of the task.
+        self._deps = []
 
         # Files required for the execution.
         self.input_file = File(os.path.join(self.workdir, "run.abi"))
@@ -732,8 +720,26 @@ class AbinitTask(Task):
         self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
         self.qout_file = File(os.path.join(self.workdir, "queue.out"))
 
+    def add_deps(self, deps):
+        """
+        Args:
+            deps:
+                List of `Dependency` objects specifying the dependencies of the task.
+                Used for tasks belonging to a `Workflow`.
+        """
+        # Connect this task to the other tasks 
+        # (needed if are creating a Work instance with dependencies
+        if not isinstance(deps, (list, tuple)):
+            deps = [deps]
+                                                                             
+        self._deps.extend(deps)
+
+        for d in deps:
+            logger.debug("Adding abivars %s " % str(d.get_abivars()))
+            self.strategy.add_extra_abivars(d.get_abivars())
+
     @classmethod
-    def from_input(cls, abinit_input, workdir, manager, task_id=1, links=None, **kwargs):
+    def from_input(cls, abinit_input, workdir, manager, **kwargs):
         """
         Create an instance of `AbinitTask` from an ABINIT input.
     
@@ -746,11 +752,6 @@ class AbinitTask(Task):
                 `TaskManager` object.
             policy:
                 `TaskPolicy` object.
-            task_id:
-                Task identifier (must be unique if self belongs to a `Workflow`).
-            links:
-                List of `Link` objects specifying the dependencies of the task.
-                Used for tasks belonging to a `Workflow`.
             kwargs:
                 keyword arguments (not used here)
         """
@@ -758,7 +759,7 @@ class AbinitTask(Task):
         from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
 
-        return cls(strategy, workdir, manager, task_id=task_id, links=links, **kwargs)
+        return cls(strategy, workdir, manager, **kwargs)
 
     @property
     def executable(self):
@@ -768,15 +769,15 @@ class AbinitTask(Task):
         except AttributeError:
             return "abinit"
 
-    #def set_name(name):
-    #    self._name = name
+    def set_name(name):
+        self._name = name
 
     @property
     def name(self):
-        return self.workdir
-        #try:
-        #    return self._name
-        #except AttributeError:
+        try:
+            return self._name
+        except AttributeError:
+            return self.workdir
 
     @property
     def short_name(self):
@@ -965,6 +966,9 @@ class AbinitTask(Task):
             - call the _setup method
             - execute the job file by executing/submitting the job script.
         """
+        #FIXME
+        self.set_status(self.S_SUB)
+
         self.build(*args, **kwargs)
 
         self._setup(*args, **kwargs)
