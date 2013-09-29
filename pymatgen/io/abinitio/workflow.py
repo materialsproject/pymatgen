@@ -27,7 +27,7 @@ from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
 from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask
 from pymatgen.io.abinitio.strategies import Strategy
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_extensions
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
 from pymatgen.io.abinitio.abiobjects import Smearing, AbiStructure, KSampling, Electrons
 from pymatgen.io.abinitio.pseudos import Pseudo
@@ -50,15 +50,25 @@ __all__ = [
 
 class Product(object):
     """
-    A product represents a file produced by an `AbinitTask` instance, file
-    that is needed by another task in order to start the calculation.
+    A product represents an output file produced by ABINIT instance.
+    This file is needed to start another `Task` or another `Workflow`.
     """
     def __init__(self, ext, path):
+        """
+        Args:
+            ext:
+                ABINIT file extension
+            path:
+                (asbolute) filepath
+        """
+        if ext not in abi_extensions():
+            raise ValueError("Extension %s has not been registered in the internal database" % str(ext))
+
         self.ext = ext
         self.file = File(path)
 
     def __str__(self):
-        return "file=%s, ext=%s, " % (self.file.path, self.ext)
+        return "File=%s, Ext=%s, " % (self.file.path, self.ext)
 
     @property
     def filepath(self):
@@ -73,13 +83,61 @@ class Product(object):
         return irdvars_for_ext(self.ext)
 
 
+class Node(object):
+    """
+    Abstract class defining the interface that must be implemented
+    by the nodes of the calculation.
+    """
+    __metaclass__ = abc.ABCMeta
+
+    @abc.abstractproperty
+    def workdir(self):
+        """Absolute path of the working directory."""
+
+    def __hash__(self):
+        return hash(self.workdir)
+
+    @abc.abstractproperty
+    def deps(self):
+        """
+        List of `Dependency` objects defining the dependencies 
+        of this `Node`. Empty list if this `Node` does not have dependencies.
+        """
+
+    def depends_on(self, other):
+        """True if this node depends on an another node."""
+        return other in self.deps
+
+    #def show_dependencies(self):
+    #    print("Node %s depends on:" % str(self))
+    #    for i, dep in enumerate(self.deps):
+    #        print("%d) %s, status=%s" % (i, str(dep)), str(dep.status))
+
+    #@abc.abstractmethod
+    #def connect_signals():
+    #    """Connect the signals."""
+
+    #@abc.abstractmethod
+    #def set_status(self, status):
+    #    """Set the status of the `Node`."""
+    #
+    #@abc.abstractproperty
+    #def status(self):
+    #    """Return the status of the `Node`."""
+
+    #@abc.abstractmethod
+    #def check_status(self, status):
+    #    """Check the status of the `Node`."""
+
+
+
 class Dependency(object):
     """
-    This object describes the dependencies among the tasks contained in a `Workflow` instance.
+    This object describes the dependencies among the nodes of a calculatio.
 
     A `Dependency` has a node that produces a list of products (files) that are
     reused by the other tasks belonging to a `Workflow`.
-    One usually creates the object by calling work.register and produces_exts.
+    One usually creates the object by calling work.register 
 
     Example:
 
@@ -148,17 +206,17 @@ class Dependency(object):
         """The status of the dependency, i.e. the status of the node"""
         return self.node.status
 
-    @property
-    def workdir(self):
-        return self.node.workdir
+    #@property
+    #def workdir(self):
+    #    return self.node.workdir
 
-    @property
-    def workflow(self):
-        try:
-            return self.node.workflow
-        except AttributeError:
-            assert isinstance(self.node, Workflow)
-            return self
+    #@property
+    #def workflow(self):
+    #    try:
+    #        return self.node.workflow
+    #    except AttributeError:
+    #        assert isinstance(self.node, Workflow)
+    #        return self
 
 
 class WorkflowError(Exception):
@@ -172,6 +230,12 @@ class BaseWorkflow(object):
 
     # Basename of the pickle database.
     PICKLE_FNAME = "__workflow__.pickle"
+
+    #W_INIT
+    #W_READY
+    #W_DONE
+    #W_ERROR
+    #W_OK 
 
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
@@ -330,7 +394,7 @@ class BaseWorkflow(object):
 
     def on_ok(self, sender):
         """
-        This callback is called when one task reaches S_OK.
+        This callback is called when one task reaches status S_OK.
         """
         logger.debug("in on_ok with sender %s" % sender)
 
@@ -462,9 +526,22 @@ class Workflow(BaseWorkflow):
         """True if all the `Task` in the `Workflow` are done."""
         return all([task.status >= Task.S_DONE for task in self])
 
+    @property
+    def isnc(self):
+        """True if norm-conserving calculation."""
+        return all(task.isnc for task in self)
+
+    @property
+    def ispaw(self):
+        """True if PAW calculation."""
+        return all(task.ispaw for task in self)
+
     #@property
     #def status(self):
-    #    """The status of the workflow equal to the most restricting status of the tasks."""
+    #    """
+    #    The status of the workflow equal to the most restricting 
+    #    status of the tasks.
+    #    """
     #    return min(task.status for task in self)
 
     def status_counter(self):
@@ -552,6 +629,7 @@ class Workflow(BaseWorkflow):
         for task in self:
             task.build(*args, **kwargs)
 
+        # Connect signals within the workflow.
         self.connect_signals()
 
     @property
@@ -569,9 +647,17 @@ class Workflow(BaseWorkflow):
             only_min:
                 If True, the minimum of the status is returned.
         """
+        if len(self) == 0:
+            # The workflow will be created in the future.
+            if only_min:
+                return Task.S_INIT
+            else:
+                return [Task.S_INIT]
+
         self.check_status()
 
         status_list = [task.status for task in self]
+        #print("status_list", status_list)
 
         if only_min:
             return min(status_list)
@@ -1113,13 +1199,9 @@ class PseudoIterativeConvergence(IterativeWorkflow):
 
 class BandStructure(Workflow):
     """Workflow for band structure calculations."""
-    def __init__(self, workdir, manager, scf_strategy, nscf_strategy, dos_strategy=None):
+    def __init__(self, scf_strategy, nscf_strategy, dos_strategy=None, workdir=None, manager=None):
         """
         Args:
-            workdir:
-                Working directory.
-            manager:
-                `TaskManager` object.
             scf_strategy:
                 `SCFStrategy` instance
             nscf_strategy:
@@ -1127,23 +1209,28 @@ class BandStructure(Workflow):
             dos_strategy:
                 `NSCFStrategy` instance defining the DOS calculation. 
                 DOS is computed only if dos_strategy is not None.
+            workdir:
+                Working directory.
+            manager:
+                `TaskManager` object.
         """
-        super(BandStructure, self).__init__(workdir, manager)
+        super(BandStructure, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        scf_task = self.register(scf_strategy)
+        self.scf_task = scf_task = self.register(scf_strategy)
 
         # Register the NSCF run and its dependency
-        self.register(nscf_strategy, deps={scf_task: "DEN"})
+        self.nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
 
         # Add DOS computation
+        self.dos_task = None
         if dos_strategy is not None:
-            self.register(dos_strategy, deps={scf_task: "DEN"})
+            self.dos_task = self.register(dos_strategy, deps={scf_task: "DEN"})
 
 
 class Relaxation(Workflow):
 
-    def __init__(self, workdir, manager, relax_strategy):
+    def __init__(self, relax_strategy, workdir=None, manager=None):
         """
         Args:
             workdir:
@@ -1153,7 +1240,7 @@ class Relaxation(Workflow):
             relax_strategy:
                 `RelaxStrategy` instance
         """
-        super(Relaxation, self).__init__(workdir, manager)
+        super(Relaxation, self).__init__(workdir=workdir, manager=manager)
 
         task = self.register(relax_strategy)
 
@@ -1258,16 +1345,12 @@ class DeltaTest(Workflow):
 
 class GW_Workflow(Workflow):
 
-    def __init__(self, workdir, manager, scf_strategy, nscf_strategy,
-                 scr_strategy, sigma_strategy):
+    def __init__(self, scf_strategy, nscf_strategy, scr_strategy, sigma_strategy,
+                workdir=None, manager=None):
         """
         Workflow for GW calculations.
 
         Args:
-            workdir:
-                Working directory of the calculation.
-            manager:
-                `TaskManager` object.
             scf_strategy:
                 `SCFStrategy` instance
             nscf_strategy:
@@ -1276,52 +1359,56 @@ class GW_Workflow(Workflow):
                 Strategy for the screening run.
             sigma_strategy:
                 Strategy for the self-energy run.
+            workdir:
+                Working directory of the calculation.
+            manager:
+                `TaskManager` object.
         """
-        super(GW_Workflow, self).__init__(workdir, manager)
+        super(GW_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        scf_task = self.register(scf_strategy)
+        self.scf_task = scf_task = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
+        self.nscf_task = nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
 
         # Register the SCREENING run.
-        screen_task = self.register(scr_strategy, deps={nscf_task: "WFK"})
+        self.scr_task = scr_task = self.register(scr_strategy, deps={nscf_task: "WFK"})
 
         # Register the SIGMA run.
-        self.register(sigma_strategy, deps={nscf_task: "WFK", screen_task: "SCR"})
+        self.sigma_task = self.register(sigma_strategy, deps={nscf_task: "WFK", scr_task: "SCR"})
 
 
 class BSEMDF_Workflow(Workflow):
 
-    def __init__(self, workdir, manager, scf_strategy, nscf_strategy, bse_strategy):
+    def __init__(self, scf_strategy, nscf_strategy, bse_strategy, workdir=None, manager=None):
         """
         Workflow for simple BSE calculations in which the self-energy corrections 
         are approximated by the scissors operator and the screening in modeled 
         with the model dielectric function.
 
         Args:
-            workdir:
-                Working directory of the calculation.
-            manager:
-                `TaskManager`.
             scf_strategy:
                 ScfStrategy instance
             nscf_strategy:
                 NscfStrategy instance
             bse_strategy:
                 BSEStrategy instance.
+            workdir:
+                Working directory of the calculation.
+            manager:
+                `TaskManager`.
         """
-        super(BSEMDF_Workflow, self).__init__(workdir, manager)
+        super(BSEMDF_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        scf_task = self.register(scf_strategy)
+        self.scf_task = scf_task = self.register(scf_strategy)
 
         # Construct the input for the NSCF run.
-        nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
+        self.nscf_task = nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
 
         # Construct the input for the BSE run.
-        bse_task = self.register(bse_strategy, deps={nscf_task: "WFK"})
+        self.bse_task = bse_task = self.register(bse_strategy, deps={nscf_task: "WFK"})
 
 
 class WorkFlowResults(dict, MSONable):
