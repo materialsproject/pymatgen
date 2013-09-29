@@ -226,7 +226,6 @@ class DataPersistenceTest(PymatgenTest):
                 with open(tmpfile, "r") as fh:
                     new_obj = pickle.load(fh)
 
-
                 for old_item, new_item in zip(obj, new_obj):
                     self.assert_equal(old_item, new_item)
                     self.assertTrue(str(old_item) == str(new_item))
