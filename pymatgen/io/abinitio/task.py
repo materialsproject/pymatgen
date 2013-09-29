@@ -82,6 +82,15 @@ def task_factory(strategy, workdir, manager):
     return classes[strategy.runlevel](strategy, workdir, manager)
 
 
+#class Signal(object):
+#    def send(self)
+#        dispatcher.send(signal=self, sender=self)
+#        #dispatcher.send(signal=_Any, sender=_Anonymous, *arguments, **named)
+
+
+#class TaskStatus(Signal)
+
+
 class TaskError(Exception):
     """Base Exception for `Task` methods"""
 
@@ -128,6 +137,16 @@ class Task(object):
 
         # Used to push additional info on the task during its execution. 
         self.history = collections.deque(maxlen=50)
+
+    def __eq__(self, other):
+        if not hasattr(other, "workdir"): return False
+        return self.workdir == other.workdir
+                                                       
+    def __ne__(self, other):
+        return not self.__eq__(other)
+                                                       
+    def __hash__(self):
+        return hash(self.workdir)
 
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
@@ -275,16 +294,6 @@ class Task(object):
         """String representation of the status."""
         return self.STATUS2STR[self.status]
 
-    def __eq__(self, other):
-        if not hasattr(other, "workdir"): return False
-        return self.workdir == other.workdir
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        return hash(self.workdir)
-
     def depends_on(self, obj):
         """True if self depends on the object obj."""
         return obj in self.deps
@@ -323,9 +332,6 @@ class Task(object):
         This function check the status of the task by inspecting the output and the 
         error files produced by the application and by the queue manager.
         """
-        #if min_stat is not None:
-        #    if self.status > min_stat:
-        #        return
         if self.status < self.S_SUB:
             return
 
@@ -830,20 +836,6 @@ class AbinitTask(Task):
         return "\n".join(lines)
 
     @property
-    def to_dict(self):
-        raise NotImplementedError("")
-        d = {k: v.to_dict for k, v in self.items()}
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        d["strategy"] = self.strategy 
-        d["workdir"] = workdir 
-        return d
-                                                                    
-    @staticmethod
-    def from_dict(d):
-        raise NotImplementedError("")
-
-    @property
     def isnc(self):
         """True if norm-conserving calculation."""
         return all(p.isnc for p in self.pseudos)
@@ -1152,6 +1144,7 @@ class AbinitPhononTask(AbinitTask):
 
         # Now we can resubmit the job.
         self._restart()
+
 
 class BseTask(AbinitTask):
     """
