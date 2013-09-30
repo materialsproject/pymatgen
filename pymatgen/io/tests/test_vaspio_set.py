@@ -37,6 +37,22 @@ class MITMPVaspInputSetTest(unittest.TestCase):
             {"NBANDS": 50}, mode="Uniform")
         self.mpnscfparamsetl = MPNonSCFVaspInputSet(
             {"NBANDS": 60}, mode="Line")
+        
+    def test_get_poscar(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["Fe", "Mn"], coords)
+        
+        s_unsorted = self.mitparamset_unsorted.get_poscar(struct).structure
+        s_sorted = self.mitparamset.get_poscar(struct).structure
+        
+        self.assertEqual(s_unsorted[0].specie.symbol, 'Fe')
+        self.assertEqual(s_sorted[0].specie.symbol, 'Mn')
+        
 
     def test_get_potcar_symbols(self):
         syms = self.paramset.get_potcar_symbols(self.struct)
