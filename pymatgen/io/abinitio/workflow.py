@@ -25,7 +25,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask, get_newid, Dependency, Node
+from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask, Dependency, Node, ScfTask, NscfTask
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -90,17 +90,8 @@ class BaseWorkflow(Node):
         """
         return [task.communicate(input) for task in self]
 
-    def __eq__(self, other):
-        if not hasattr(other, "workdir"): return False
-        return self.workdir == other.workdir
-                                              
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        return hash(self.workdir)
-
     def show_intrawork_deps(self):
+        """Show the dependencies within the `Workflow`."""
         table = [["Task #"] + [str(i) for i in range(len(self))]]
 
         for ii, task1 in enumerate(self):
@@ -195,6 +186,38 @@ class BaseWorkflow(Node):
     def _setup(self, *args, **kwargs):
         self.setup(*args, **kwargs)
 
+    def connect_signals(self):
+        """
+        Connect the signals within the workflow.
+        self is responsible for catching the important signals raised from 
+        its task and raise new signals when some particular condition occurs.
+        """
+        for task in self:
+            dispatcher.connect(self.on_ok, signal=task.S_OK, sender=task)
+
+    def on_ok(self, sender):
+        """
+        This callback is called when one task reaches status S_OK.
+        """
+        logger.debug("in on_ok with sender %s" % sender)
+
+        all_ok = all(task.status == task.S_OK for task in self)
+
+        if all_ok: 
+
+            if self.finalized:
+                return AttrDict(returncode=0, message="Workflow has been already finalized")
+            else:
+                results = AttrDict(**self.on_all_ok())
+                self._finalized = True
+                # Signal to possible observers that the `Workflow` reached S_OK
+                print("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
+                dispatcher.send(signal=Task.S_OK, sender=self)
+
+                return results
+
+        return AttrDict(returncode=1, message="Not all tasks are OK!")
+
     def on_all_ok(self):
         """
         This method is called once the `workflow` is completed i.e. when all the tasks 
@@ -210,31 +233,6 @@ class BaseWorkflow(Node):
         return dict(returncode=0, 
                     message="Calling on_all_ok of the base class!",
                     )
-
-    def on_ok(self, sender):
-        """
-        This callback is called when one task reaches status S_OK.
-        """
-        logger.debug("in on_ok with sender %s" % sender)
-
-        all_ok = all(task.status == Task.S_OK for task in self)
-
-        if all_ok: 
-            if self.finalized:
-                return AttrDict(returncode=0, message="Workflow has been already finalized")
-            else:
-                results = AttrDict(**self.on_all_ok())
-                self._finalized = True
-                print("finalized: sender %s sends signal S_OK" % str(self))
-                dispatcher.send(signal=Task.S_OK, sender=self)
-                return results
-
-        return AttrDict(returncode=1, message="Not all tasks are OK!")
-
-    def connect_signals(self):
-        """Connect the signals within the workflow."""
-        for task in self:
-            dispatcher.connect(self.on_ok, signal=Task.S_OK, sender=task)
 
     def get_results(self, *args, **kwargs):
         """
@@ -271,18 +269,18 @@ class Workflow(BaseWorkflow):
             manager:
                 `TaskManager` object.
         """
-        self._id = get_newid()
+        super(Workflow, self).__init__()
 
         self._tasks = []
-
-        # Dict with the dependencies of each task, indexed by task.id
-        self._deps_dict = collections.defaultdict(list)
 
         if workdir is not None:
             self.set_workdir(workdir)
 
         if manager is not None:
             self.set_manager(manager)
+
+        # Used to push additional info on the task during its execution. 
+        #self.history = collections.deque(maxlen=50)
 
     @property
     def id(self):
@@ -304,7 +302,9 @@ class Workflow(BaseWorkflow):
 
     def set_workdir(self, workdir):
         """Set the working directory. Cannot be set more than once."""
-        assert not hasattr(self, "workdir")
+        if hasattr(self, "workdir"):
+            assert self.workdir == workdir
+
         self.workdir = os.path.abspath(workdir)
                                                                        
         # Directories with (input|output|temporary) data.
@@ -324,23 +324,23 @@ class Workflow(BaseWorkflow):
     def __getitem__(self, slice):
         return self._tasks[slice]
 
-    def __repr__(self):
-        return "<%s at %s, workdir = %s>" % (self.__class__.__name__, id(self), self.workdir)
-
-    def __str__(self):
-        return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
-
     def chunks(self, chunk_size):
         """Yield successive chunks of tasks of lenght chunk_size."""
         for tasks in chunks(self, chunk_size):
             yield tasks
 
-    def odata_path_from_ext(self, ext):
+    def opath_from_ext(self, ext):
         """
         Returns the path of the output file with extension ext.
         Use it when the file does not exist yet.
         """
-        #FIXME
+        return self.indir.path_in("in_" + ext)
+
+    def opath_from_ext(self, ext):
+        """
+        Returns the path of the output file with extension ext.
+        Use it when the file does not exist yet.
+        """
         return self.outdir.path_in("out_" + ext)
 
     @property
@@ -382,17 +382,18 @@ class Workflow(BaseWorkflow):
 
         return counter
 
-    #def finalize(self):
-    #    for i, task in enumerate(self):
-    #        if not hasattr(task, "manager"):
-    #            task.set_manager(self.manager)
+    def allocate(self):
+        for i, task in enumerate(self):
 
-    #        task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
+            if not hasattr(task, "manager"):
+                task.set_manager(self.manager)
 
-    #        if not hasattr(task, "workdir"):
-    #            task.set_workdir(task_workdir)
-    #        else:
-    #            assert task.workdir == task_workdir
+            task_workdir = os.path.join(self.workdir, "task_" + str(i))
+
+            if not hasattr(task, "workdir"):
+                task.set_workdir(task_workdir)
+            else:
+                assert task.workdir == task_workdir
 
 
     def register(self, obj, deps=None, manager=None, task_class=None):
@@ -416,10 +417,9 @@ class Workflow(BaseWorkflow):
         Returns:   
             `Task` object
         """
-        task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
-
-        # Make a deepcopy since manager is mutable and we might change it at run-time.
-        #manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
+        task_workdir = None
+        if hasattr(self, "workdir"):
+            task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
 
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
@@ -428,9 +428,6 @@ class Workflow(BaseWorkflow):
         else:
             # Create the new task from the input. Note that no subclasses are instanciated here.
             task = AbinitTask.from_input(obj, task_workdir, manager)
-
-        # Keep a referece to the workflow
-        #task.workflow = self
 
         # Set the class
         if task_class is not None:
@@ -441,9 +438,6 @@ class Workflow(BaseWorkflow):
         # Handle possible dependencies.
         if deps is not None:
             deps = [Dependency(node, exts) for (node, exts) in deps.items()]
-            logger.debug("task %s needs\n %s" % (str(task), [str(l) for l in deps]))
-
-            self._deps_dict[task].extend(deps)
             task.add_deps(deps)
 
         return task
@@ -1057,15 +1051,16 @@ class BandStructureWorkflow(Workflow):
         super(BandStructureWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = scf_task = self.register(scf_strategy)
+        self.scf_task = self.register(scf_strategy, task_class=ScfTask)
 
         # Register the NSCF run and its dependency
-        self.nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
+        self.nscf_task = self.register(nscf_strategy, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
         # Add DOS computation
         self.dos_task = None
+
         if dos_strategy is not None:
-            self.dos_task = self.register(dos_strategy, deps={scf_task: "DEN"})
+            self.dos_task = self.register(dos_strategy, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
 
 class RelaxationWorkflow(Workflow):
@@ -1134,7 +1129,7 @@ class DeltaTestWorkflow(Workflow):
                                        accuracy=accuracy, spin_mode=spin_mode,
                                        smearing=smearing, **extra_abivars)
 
-            self.register(scf_strategy)
+            self.register(scf_strategy, task_class=ScfTask)
 
     def get_results(self, *args, **kwargs):
         num_sites = self._input_structure.num_sites
@@ -1207,16 +1202,16 @@ class GW_Workflow(Workflow):
         super(GW_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = scf_task = self.register(scf_strategy)
+        self.scf_task = self.register(scf_strategy, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
+        self.nscf_task = self.register(nscf_strategy, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
         # Register the SCREENING run.
-        self.scr_task = scr_task = self.register(scr_strategy, deps={nscf_task: "WFK"})
+        self.scr_task = self.register(scr_strategy, deps={self.nscf_task: "WFK"})
 
         # Register the SIGMA run.
-        self.sigma_task = self.register(sigma_strategy, deps={nscf_task: "WFK", scr_task: "SCR"})
+        self.sigma_task = self.register(sigma_strategy, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
 
 
 class BSEMDF_Workflow(Workflow):
@@ -1242,13 +1237,13 @@ class BSEMDF_Workflow(Workflow):
         super(BSEMDF_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = scf_task = self.register(scf_strategy)
+        self.scf_task = self.register(scf_strategy, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = nscf_task = self.register(nscf_strategy, deps={scf_task: "DEN"})
+        self.nscf_task = self.register(nscf_strategy, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
         # Construct the input for the BSE run.
-        self.bse_task = bse_task = self.register(bse_strategy, deps={nscf_task: "WFK"})
+        self.bse_task =  self.register(bse_strategy, deps={self.nscf_task: "WFK"}) #task_class=HaydBseTask
 
 
 class WorkflowResults(dict, MSONable):

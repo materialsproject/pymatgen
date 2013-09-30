@@ -27,8 +27,6 @@ class WorkflowTestCase(unittest.TestCase):
         print(repr(pptest_wf))
         print(pptest_wf)
 
-        #pptest_wf.show_inputs()
-
         self.assertTrue(isinstance(pptest_wf, collections.Iterable))
         self.assertTrue(pptest_wf.isnc)
 
@@ -37,5 +35,4 @@ class WorkflowTestCase(unittest.TestCase):
         pptest_wf.rmtree()
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

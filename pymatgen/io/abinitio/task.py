@@ -38,12 +38,15 @@ __all__ = [
     "TaskManager",
 ]
 
-__COUNT = -1
-def get_newid():
+_COUNT = -1
+
+def get_newnode_id():
     """
     Returns a new identifier used both for `Task` and `Workflow` objects.
     """
-    return __COUNT + 1
+    global _COUNT
+    _COUNT += 1
+    return _COUNT
 
 
 class FakeProcess(object):
@@ -89,14 +92,14 @@ class Product(object):
         self.file = File(path)
 
     def __str__(self):
-        return "File=%s, Ext=%s, " % (self.file.path, self.ext)
+        return "File=%s, Extension=%s, " % (self.file.path, self.ext)
 
     @property
     def filepath(self):
         """Absolute path of the file."""
         return self.file.path
 
-    def get_abivars(self):
+    def connecting_vars(self):
         """
         Returns a dictionary with the ABINIT variables that 
         must be used to make the code use this file.
@@ -111,16 +114,40 @@ class Node(object):
     """
     __metaclass__ = abc.ABCMeta
 
-    @abc.abstractproperty
-    def id(self):
+    def __init__(self):
+        self._node_id = get_newnode_id()
+
+        # List of dependencies
+        self._deps = []
+
+    @property
+    def node_id(self):
         """Node identifier."""
+        return self._node_id
+
+    def set_node_id(self, node_id):
+        """Set the node identifier. Use it carefully!"""
+        self.node_id = node_id
 
     #@abc.abstractproperty
-    #def workdir(self):
-    #    """Absolute path of the working directory."""
+    #def path(self):
 
-    #def __hash__(self):
-    #    return hash(self.workdir)
+    def __eq__(self, other):
+        if not isinstance(other, Node):
+            return False
+        return self.node_id == other.node_id
+                                                       
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return self.node_id 
+
+    def __repr__(self):
+        return "<%s, node_id %s, workdir=%s>" % (self.__class__.__name__, self.node_id, self.workdir)
+                                                                                            
+    def __str__(self):
+        return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
 
     @property
     def deps(self):
@@ -128,7 +155,30 @@ class Node(object):
         List of `Dependency` objects defining the dependencies 
         of this `Node`. Empty list if this `Node` does not have dependencies.
         """
-        self._deps
+        return self._deps
+
+    def add_deps(self, deps):
+        """
+        Args:
+            deps:
+                List of `Dependency` objects specifying the dependencies of the task.
+                Used for tasks belonging to a `Workflow`.
+        """
+        # Connect this task to the other tasks 
+        # (needed if are creating a Work instance with dependencies
+        if not isinstance(deps, (list, tuple)):
+            deps = [deps]
+
+        for d in deps:
+            assert isinstance(d, Dependency)
+                                                                             
+        self._deps.extend(deps)
+                                                                                      
+        # Add the variables needed to connect the node.
+        #for d in deps:
+        #    vars = d.connecting_vars()
+        #    logger.debug("Adding connecting vars %s " % str(vars))
+        #    self.strategy.add_extra_abivars(vars)
 
     @property
     def deps_status(self):
@@ -139,17 +189,13 @@ class Node(object):
         return [d.status for d in self.deps]
 
     def depends_on(self, other):
-        """True if this node depends on an another node."""
-        return other in self.deps
+        """True if this node depends on the other node."""
+        return other in [d.node for d in self.deps]
 
     def show_dependencies(self):
-        print("Node %s depends on:" % str(self))
+        print("Dependencies of node %s :" % str(self))
         for i, dep in enumerate(self.deps):
-            print("%d) %s, status=%s" % (i, str(dep)), str(dep.status))
-
-    #@abc.abstractmethod
-    #def connect_signals():
-    #    """Connect the signals."""
+            print("%d) %s, status=%s" % (i, str(dep.node)), str(dep.status))
 
     #@abc.abstractmethod
     #def set_status(self, status):
@@ -162,6 +208,10 @@ class Node(object):
     #@abc.abstractmethod
     #def check_status(self, status):
     #    """Check the status of the `Node`."""
+
+    #@abc.abstractmethod
+    #def connect_signals():
+    #    """Connect the signals."""
 
 
 class Dependency(object):
@@ -188,23 +238,21 @@ class Dependency(object):
             exts:
                 Extensions of the output files that are needed for running the other tasks.
         """
-        self._node, self._products = node, []
+        self._node = node
 
-        if exts is not None:
-            for ext in list_strings(exts):
-                prod = Product(ext, node.odata_path_from_ext(ext))
-                self._products.append(prod)
+        if exts and is_string(exts):
+            exts = exts.split()
 
-    def __repr__(self):
-        s = "%s\nProduced by node:\n %s " % ("\n".join(repr(p) for p in self.products), repr(self.node))
-        return s
-
-    def __str__(self):
-        s = "%s \nProduced by node %s " % ("\n".join(str(p) for p in self.products), str(self.node))
-        return s
+        self.exts = exts or []
 
     def __hash__(self):
         return hash(self._node)
+
+    def __repr__(self):
+        return "Node %s will produce: %s " % (repr(self.node), repr(self.exts))
+
+    def __str__(self):
+        return "Node %s will produce: %s " % (str(self.node), str(self.exts))
 
     @property
     def node(self):
@@ -212,44 +260,60 @@ class Dependency(object):
         return self._node
 
     @property
-    def products(self):
-        """List of files produces by self."""
-        return self._products
+    def status(self):
+        """The status of the dependency, i.e. the status of the node."""
+        return self.node.status
 
-    def get_abivars(self):
+   # def ofiles_and_vars(self):
+   #     """
+   #     Returns a the list of output files produced by this dependency 
+   #     and a dictionary with the ABINIT variables to use to read these files.
+   #
+   #     .. note:
+   #        this method must be called at run-time because it scans the 
+   #        output directory of the dependency.
+   #     """
+   #     ofiles, vars = [], {}
+   #     for ext in self.exts:
+   #         ofile = self.node.outdir.has_abiext(ext)
+   #         if ofile:
+   #             ofiles.append(ofile)
+   #             vars.update(irdvars_for_ext(ext))
+   #         else:
+   #            warnings.want("Could not find extension %s in the outdir of %s" % (ext, self.node)
+   #
+   #     return ofiles, vars
+
+    @property
+    def products(self):
+        """List of output files produces by self."""
+        try:
+            return self._products
+        except:
+            self._products = []
+            for ext in self.exts:
+                prod = Product(ext, self.node.opath_from_ext(ext))
+                self._products.append(prod)
+
+            return self._products
+
+    def connecting_vars(self):
         """
-        Returns a dictionary with the ABINIT variables that must
-        be added to the input file in order to connect the two calculations.
+        Returns a dictionary with the variables that must be added to the 
+        input file in order to connect the two calculations.
         """
         abivars = {}
         for prod in self.products:
-            abivars.update(prod.get_abivars())
+            abivars.update(prod.connecting_vars())
 
         return abivars
 
     def get_filepaths_and_exts(self):
         """Returns the paths of the output files produced by self and its extensions"""
-        filepaths = [prod.filepath for prod in self._products]
-        exts = [prod.ext for prod in self._products]
+        filepaths = [prod.filepath for prod in self.products]
+        exts = [prod.ext for prod in self.products]
 
         return filepaths, exts
-
-    @property
-    def status(self):
-        """The status of the dependency, i.e. the status of the node"""
-        return self.node.status
-
-    #@property
-    #def workdir(self):
-    #    return self.node.workdir
-
-    #@property
-    #def workflow(self):
-    #    try:
-    #        return self.node.workflow
-    #    except AttributeError:
-    #        assert isinstance(self.node, Workflow)
-    #        return self
 
 
 def task_factory(strategy, workdir, manager):
@@ -277,8 +341,7 @@ def task_factory(strategy, workdir, manager):
 #        dispatcher.send(signal=self, sender=self)
 #        #dispatcher.send(signal=_Any, sender=_Anonymous, *arguments, **named)
 
-
-#class TaskStatus(Signal)
+#class Status(Signal)
 
 
 class TaskError(Exception):
@@ -294,15 +357,15 @@ class Task(Node):
 
     Error = TaskError
 
-    # Possible status of the task.
-    S_INIT = 1    # Task has been initialized
-    S_READY = 2   # Task is ready for submission (all the depencies of the task have status S_OK)
-    S_SUB = 4     # Task has been submitted.
-    S_RUN = 8     # Task is running.
-    S_DONE = 16   # Task done, This does not imply that results are ok or that the calculation completed successfully
-    S_ERROR = 32  # Task raised some kind of Error (the submission process, the queue manager or ABINIT).
+    # Possible status of the node.
+    S_INIT = 1           # Node has been initialized
+    S_READY = 2          # Node is ready i.e. all the depencies of the node have status S_OK
+    S_SUB = 4            # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    S_RUN = 8            # Node is running.
+    S_DONE = 16          # Node done, This does not imply that results are ok or that the calculation completed successfully
+    S_ERROR = 32         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
     #S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
-    S_OK = 64     # Task completed successfully.
+    S_OK = 64            # Execution completed successfully.
 
     STATUS2STR = collections.OrderedDict([
         (S_INIT, "Initialized"),
@@ -318,10 +381,10 @@ class Task(Node):
     POSSIBLE_STATUS = STATUS2STR.keys()
 
     def __init__(self):
+        super(Task, self).__init__()
+
         # Set the initial status.
         self.set_status(self.S_INIT)
-
-        self._id = get_newid()
 
         # Number of restarts effectuated and max number (-1 --> no limit).
         self.num_restarts = 0
@@ -329,22 +392,6 @@ class Task(Node):
 
         # Used to push additional info on the task during its execution. 
         self.history = collections.deque(maxlen=50)
-
-    def __eq__(self, other):
-        if not hasattr(other, "workdir"): return False
-        return self.workdir == other.workdir
-                                                       
-    def __ne__(self, other):
-        return not self.__eq__(other)
-                                                       
-    def __hash__(self):
-        return hash(self.workdir)
-
-    def __repr__(self):
-        return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
-
-    def __str__(self):
-        return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
 
     def __getstate__(self):
         """
@@ -431,14 +478,9 @@ class Task(Node):
             return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
-        self.workflow.check_status()
+        #self.workflow.check_status()
 
         return 0
-
-    @property
-    def id(self):
-        """Task identifier."""
-        return self._id
 
     @property
     def queue_id(self):
@@ -484,9 +526,7 @@ class Task(Node):
 
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
-
-        if status not in self.POSSIBLE_STATUS:
-            raise RuntimeError("Unknown status: %s" % status)
+        assert status in self.POSSIBLE_STATUS
 
         changed = False
         if hasattr(self, "_status"):
@@ -495,7 +535,7 @@ class Task(Node):
         self._status = status
 
         if status == self.S_OK:
-            print("sender %s sends signal S_OK: %s" % (self, hash(status)))
+            logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=Task.S_OK, sender=self)
 
         if changed:
@@ -599,7 +639,10 @@ class Task(Node):
 
     #@property
     #def is_allocated(self):
-    #    """True if the task has been allocated, i.e. if it has been submitted or if it's running."""
+    #    """
+    #    True if the task has been allocated, 
+    #    i.e. if it has been submitted or if it's running.
+    #    """
     #    return self.status in [self.S_SUB, self.S_RUN]
 
     @property
@@ -664,12 +707,15 @@ class Task(Node):
             This method should be called only when the calculation is READY because
             it uses a heuristic approach to find the file to link.
         """
+        #if self.status != self.S_READY:
+        #    return
+
         for dep in self.deps:
             filepaths, exts = dep.get_filepaths_and_exts()
             #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
-                dest = self.idata_path_from_ext(ext)
+                dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path): 
                     # Try netcdf file.
@@ -755,6 +801,7 @@ class Task(Node):
         such as the creation of the symbolic links needed to connect different tasks.
         """
         self.make_links()
+
         self.setup(*args, **kwargs)
 
     def get_event_report(self):
@@ -873,9 +920,6 @@ class AbinitTask(Task):
         #self.strategy = strategy.deepcopy()
         self.strategy = strategy
 
-        # List of dependencies of the task.
-        self._deps = []
-
         if workdir is not None:
             self.set_workdir(workdir)
 
@@ -909,24 +953,6 @@ class AbinitTask(Task):
         # stderr and output file of the queue manager.
         self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
         self.qout_file = File(os.path.join(self.workdir, "queue.out"))
-
-    def add_deps(self, deps):
-        """
-        Args:
-            deps:
-                List of `Dependency` objects specifying the dependencies of the task.
-                Used for tasks belonging to a `Workflow`.
-        """
-        # Connect this task to the other tasks 
-        # (needed if are creating a Work instance with dependencies
-        if not isinstance(deps, (list, tuple)):
-            deps = [deps]
-                                                                             
-        self._deps.extend(deps)
-
-        for d in deps:
-            logger.debug("Adding abivars %s " % str(d.get_abivars()))
-            self.strategy.add_extra_abivars(d.get_abivars())
 
     @classmethod
     def from_input(cls, abinit_input, workdir=None, manager=None):
@@ -977,14 +1003,14 @@ class AbinitTask(Task):
             # Attach a fake process so that we can poll it.
             return FakeProcess()
 
-    def idata_path_from_ext(self, ext):
+    def ipath_from_ext(self, ext):
         """
         Returns the path of the input file with extension ext.
         Use it when the file does not exist yet.
         """
         return os.path.join(self.workdir, self.prefix.idata + "_" + ext)
 
-    def odata_path_from_ext(self, ext):
+    def opath_from_ext(self, ext):
         """
         Returns the path of the output file with extension ext.
         Use it when the file does not exist yet.
@@ -1068,10 +1094,6 @@ class AbinitTask(Task):
         Creates the working directory and the input files of the `Task`.
         It does not overwrite files if they already exist.
         """
-        # Top-level dir
-        if not os.path.exists(self.workdir):
-            os.makedirs(self.workdir)
-
         # Create dirs for input, output and tmp data.
         self.indir.makedirs()
         self.outdir.makedirs()
@@ -1139,11 +1161,20 @@ class AbinitTask(Task):
             - execute the job file by executing/submitting the job script.
         """
         #FIXME
+        assert self._status < self.S_SUB
+
         self.set_status(self.S_SUB)
 
         self.build(*args, **kwargs)
 
         self._setup(*args, **kwargs)
+
+        # Add the variables needed to connect the node.
+        for d in self.deps:
+            vars = d.connecting_vars()
+            logger.debug("Adding connecting vars %s " % str(vars))
+            self.strategy.add_extra_abivars(vars)
+
 
         # Automatic parallelization
         self.manager.autoparal(self)
@@ -1206,7 +1237,6 @@ class ScfTask(AbinitTask):
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
-        #print(self.strategy.make_input())
 
         # Now we can resubmit the job.
         self._restart()
