@@ -1,12 +1,10 @@
-#!/usr/bin/env python
+"""Tools for the submission of Tasks."""
 from __future__ import division, print_function
 
 import os 
-import abc
 import time
 
 from subprocess import Popen, PIPE
-
 from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
 
@@ -16,10 +14,13 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "ScriptEditor",
+    "PyLauncher",
 ]
 
 class ScriptEditor(object):
-    """Simple editor that simplifies the writing of shell scripts"""
+    """
+    Simple editor that simplifies the writing of shell scripts
+    """
     _shell = '/bin/bash'
 
     def __init__(self):
@@ -185,13 +186,21 @@ class PyResourceManager(object):
 
     def __init__(self, work, max_ncpus, sleep_time=20):
         """
-            Args:
-                work:
-                    Work instance.
-                max_ncpus: 
-                    The maximum number of CPUs that can be used.
-                sleep_time:
-                    Time delay (seconds) before trying to start a new task.
+        This object submits the tasks contained in a `Workflow`
+        inside an infinite loop. Therefore it is mainly used 
+        when we are running in interative mode and we have to 
+        execute several small jobs without having to pass throuh
+        the queue resource manager. Its main goal is organizing
+        the execution of the tasks so that we don't exceed the 
+        computing resources at hand.
+
+        Args:
+            work:
+                `Workflow` instance.
+            max_ncpus: 
+                The maximum number of CPUs that can be used at any given time.
+            sleep_time:
+                Time delay (seconds) before trying to start a new `Task`.
         """
         self.work = work
 
@@ -235,13 +244,6 @@ class PyResourceManager(object):
         # Wait until all tasks are completed.
         self.work.wait()
 
-        #if any([t.status != t.S_DONE for t in self]):
-        #   for task in self:
-        #       print([link for link in task._links])
-        #       #print([link_stat==task.S_DONE for link_stat in task.links_status])
-        #       msg = "Deadlock, likely due to task dependencies: status %s" % str([t.status for t in self]))
-        #       self.Error(msg)
-
         return self.work.returncodes
 
 
@@ -249,13 +251,29 @@ class PyLauncherError(Exception):
     """Error class for PyLauncher."""
 
 class PyLauncher(object):
+    """
+    This object handle the sumbmission of the `Task` in a `Workflow`
+    """
 
     Error = PyLauncherError
 
     def __init__(self, work):
+        """
+        Initialize the object
+
+        Args:
+            work:
+                `Workflow` object
+        """
         self.work = work
 
     def single_shot(self):
+        """
+        Run the fist `Task than is ready for execution.
+        
+        Returns:
+            Number of jobs launched.
+        """
         work = self.work
         nlaunch = 0
 
@@ -279,12 +297,20 @@ class PyLauncher(object):
         return nlaunch 
 
     def rapidfire(self):
+        """
+        Keep on submitting `Tasks` until we are out of jobs or 
+        no job is ready to run.
+        
+        Returns:
+            The number of tasks launched.
+        """
         nlaunch, launched = 0, []
 
         work = self.work
         while True:
             try:
                 task = work.fetch_task_to_run()
+                #work.check_status()
 
                 if task is None:
                     logger.debug("fetch_task_to_run returned None.")
