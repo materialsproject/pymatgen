@@ -42,7 +42,11 @@ _COUNT = -1
 
 def get_newnode_id():
     """
-    Returns a new identifier used both for `Task` and `Workflow` objects.
+    Returns a new node identifier used both for `Task` and `Workflow` objects.
+
+    .. warnings:
+        The id is unique inside the same python process so be careful when 
+        Workflows and Task are constructed at run-time or when threads are used.
     """
     global _COUNT
     _COUNT += 1
@@ -109,12 +113,16 @@ class Product(object):
 
 class Node(object):
     """
-    Abstract class defining the interface that must be implemented
-    by the nodes of the calculation.
+    Abstract class defining the interface that must be 
+    implemented by the nodes of the calculation.
+
+    Nodes are hashable and can be tested for equality
+    (both operation use the node identifier.)
     """
     __metaclass__ = abc.ABCMeta
 
     def __init__(self):
+        # Node identifier.
         self._node_id = get_newnode_id()
 
         # List of dependencies
@@ -127,10 +135,10 @@ class Node(object):
 
     def set_node_id(self, node_id):
         """Set the node identifier. Use it carefully!"""
-        self.node_id = node_id
+        self._node_id = node_id
 
     #@abc.abstractproperty
-    #def path(self):
+    #def workdir(self):
 
     def __eq__(self, other):
         if not isinstance(other, Node):
@@ -150,6 +158,10 @@ class Node(object):
         return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
 
     @property
+    def has_subnodes(self):
+        return isinstance(self, collections.Iterable)
+
+    @property
     def deps(self):
         """
         List of `Dependency` objects defining the dependencies 
@@ -159,26 +171,49 @@ class Node(object):
 
     def add_deps(self, deps):
         """
+        Add a list of dependencies to the `Node`.
+
         Args:
             deps:
-                List of `Dependency` objects specifying the dependencies of the task.
-                Used for tasks belonging to a `Workflow`.
+                List of `Dependency` objects specifying the 
+                dependencies of the node.
         """
-        # Connect this task to the other tasks 
-        # (needed if are creating a Work instance with dependencies
+        # We want a list
         if not isinstance(deps, (list, tuple)):
             deps = [deps]
 
-        for d in deps:
-            assert isinstance(d, Dependency)
-                                                                             
+        assert all(isinstance(d, Dependency) for d in deps)
+
+        # Add the dependencies to the node
         self._deps.extend(deps)
+
+        if self.has_subnodes:
+            # This means that the node contains sub-nodes 
+            # that should inherit the same dependency.
+            for task in self:
+                task.add_deps(deps)
+
+    def remove_deps(self, deps):
+        """
+        Remove a list of dependencies from the `Node`.
+
+        Args:
+            deps:
+                List of `Dependency` objects specifying the 
+                dependencies of the node.
+        """
+        if not isinstance(deps, (list, tuple)):
+            deps = [deps]
                                                                                       
-        # Add the variables needed to connect the node.
-        #for d in deps:
-        #    vars = d.connecting_vars()
-        #    logger.debug("Adding connecting vars %s " % str(vars))
-        #    self.strategy.add_extra_abivars(vars)
+        assert all(isinstance(d, Dependency) for d in deps)
+
+        self._deps = [d for d in self._deps if d not in deps]
+                                                                                      
+        if self.has_subnodes:
+            # This means that the node consists of sub-nodes 
+            # that should remove the same list of dependencies.
+            for task in self:
+                task.remove_deps(deps)                                                                                                                                        
 
     @property
     def deps_status(self):
@@ -192,18 +227,23 @@ class Node(object):
         """True if this node depends on the other node."""
         return other in [d.node for d in self.deps]
 
-    def show_dependencies(self):
-        print("Dependencies of node %s :" % str(self))
+    def str_deps(self):
+        lines = []
+        app = lines.append
+
+        app("Dependencies of node %s:" % str(self))
         for i, dep in enumerate(self.deps):
-            print("%d) %s, status=%s" % (i, str(dep.node)), str(dep.status))
+            app("%d) %s, status=%s" % (i, str(dep.node), str(dep.status)))
+
+        return "\n".join(lines)
 
     #@abc.abstractmethod
     #def set_status(self, status):
     #    """Set the status of the `Node`."""
     #
-    #@abc.abstractproperty
     #def status(self):
     #    """Return the status of the `Node`."""
+    #   return self._status
 
     #@abc.abstractmethod
     #def check_status(self, status):
@@ -218,8 +258,8 @@ class Dependency(object):
     """
     This object describes the dependencies among the nodes of a calculation.
 
-    A `Dependency` has a node that produces a list of products (files) that are
-    reused by the other tasks belonging to a `Workflow`.
+    A `Dependency` consists of a `Node` that produces a list of products (files) 
+    that are reused by the other nodes (`Task` or `Workflow`).
     One usually creates the object by calling work.register 
 
     Example:
@@ -300,13 +340,13 @@ class Dependency(object):
     def connecting_vars(self):
         """
         Returns a dictionary with the variables that must be added to the 
-        input file in order to connect the two calculations.
+        input file in order to connect this `Node` to its dependencies.
         """
-        abivars = {}
+        vars = {}
         for prod in self.products:
-            abivars.update(prod.connecting_vars())
+            vars.update(prod.connecting_vars())
 
-        return abivars
+        return vars
 
     def get_filepaths_and_exts(self):
         """Returns the paths of the output files produced by self and its extensions"""
@@ -338,10 +378,34 @@ def task_factory(strategy, workdir, manager):
 
 #class Signal(object):
 #    def send(self)
-#        dispatcher.send(signal=self, sender=self)
-#        #dispatcher.send(signal=_Any, sender=_Anonymous, *arguments, **named)
+#        dispatcher.send(signal=self, sender=self, *arguments, **named):
+#        dispatcher.send(signal=self, sender=_Anonymous, *arguments, **named)
+#    def connect(self, func, sender):
+#         dispatcher.connect(func, signal=self, sender=sender)
 
-#class Status(Signal)
+#class Status(int, Signal)
+#def add_status(cls):
+
+# Possible status of the node.
+S_INIT = 1           # Node has been initialized
+S_READY = 2          # Node is ready i.e. all the depencies of the node have status S_OK
+S_SUB = 4            # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+S_RUN = 8            # Node is running.
+S_DONE = 16          # Node done, This does not imply that results are ok or that the calculation completed successfully
+S_ERROR = 32         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+#S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
+S_OK = 64            # Execution completed successfully.
+
+STATUS2STR = collections.OrderedDict([
+    (S_INIT, "Initialized"),
+    (S_READY, "Ready"),
+    (S_SUB, "Submitted"),
+    (S_RUN, "Running"),
+    (S_DONE, "Done"),
+    (S_ERROR, "Error"),
+    #(S_UNCONVERGED, "Unconverged"),
+    (S_OK, "Completed"),
+])
 
 
 class TaskError(Exception):
@@ -358,27 +422,14 @@ class Task(Node):
     Error = TaskError
 
     # Possible status of the node.
-    S_INIT = 1           # Node has been initialized
-    S_READY = 2          # Node is ready i.e. all the depencies of the node have status S_OK
-    S_SUB = 4            # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    S_RUN = 8            # Node is running.
-    S_DONE = 16          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    S_ERROR = 32         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    #S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
-    S_OK = 64            # Execution completed successfully.
-
-    STATUS2STR = collections.OrderedDict([
-        (S_INIT, "Initialized"),
-        (S_READY, "Ready"),
-        (S_SUB, "Submitted"),
-        (S_RUN, "Running"),
-        (S_DONE, "Done"),
-        (S_ERROR, "Error"),
-        #(S_UNCONVERGED, "Unconverged"),
-        (S_OK, "Completed"),
-    ])
-
-    POSSIBLE_STATUS = STATUS2STR.keys()
+    S_INIT = S_INIT = 1           # Node has been initialized
+    S_READY = S_READY = 2          # Node is ready i.e. all the depencies of the node have status S_OK
+    S_SUB = S_SUB = 4            # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    S_RUN = S_RUN = 8            # Node is running.
+    S_DONE = S_DONE = 16          # Node done, This does not imply that results are ok or that the calculation completed successfully
+    S_ERROR = S_ERROR = 32         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+    #S_UNCONVERGED = 32   ##S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
+    S_OK = S_OK = 64            # Execution completed successfully.
 
     def __init__(self):
         super(Task, self).__init__()
@@ -522,11 +573,11 @@ class Task(Node):
     @property
     def str_status(self):
         """String representation of the status."""
-        return self.STATUS2STR[self.status]
+        return STATUS2STR[self.status]
 
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
-        assert status in self.POSSIBLE_STATUS
+        assert status in STATUS2STR
 
         changed = False
         if hasattr(self, "_status"):
@@ -1205,18 +1256,16 @@ class ScfTask(AbinitTask):
     """
     Self-consistent GS calculation.
     """
+    #CONVERGENCE_CHECKER
+
     def is_converged(self):
         """Return True if the calculation is converged."""
         return False
-        #return True
         #raise NotImplementedError("")
 
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
-        #if report.warnings:
-        #    return False
-
         #return True
 
     def restart(self):
@@ -1249,15 +1298,10 @@ class NscfTask(AbinitTask):
     def is_converged(self):
         """Return True if the calculation is converged."""
         return False
-        #return True
         raise NotImplementedError("")
         report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
-        if report.warnings:
-            return False
-
-        return True
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -1292,8 +1336,6 @@ class AbinitRelaxTask(AbinitTask):
         #if report.warnings:
         #    return False
 
-        #return True
-                                                                                            
     def restart(self):
         # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
         # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
@@ -1329,11 +1371,7 @@ class AbinitPhononTask(AbinitTask):
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
-        #if report.warnings:
-        #    return False
 
-        #return True
-                                                                                            
     def restart(self):
         # Phonon calculations can be restarted only if we have the 1WFK file or the 1DEN file.
         # from which we can read the first-order wavefunctions or the first order density.

@@ -212,6 +212,7 @@ class BaseWorkflow(Node):
                 self._finalized = True
                 # Signal to possible observers that the `Workflow` reached S_OK
                 print("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
+                print("Workflow %s status = %s" % (str(self), self.status))
                 dispatcher.send(signal=Task.S_OK, sender=self)
 
                 return results
@@ -473,6 +474,8 @@ class Workflow(BaseWorkflow):
         """
         return self.get_all_status(only_min=True)
 
+    #def set_status(self, status):
+
     def get_all_status(self, only_min=False):
         """
         Returns a list with the status of the tasks in self.
@@ -618,23 +621,23 @@ class Workflow(BaseWorkflow):
 
 class IterativeWorkflow(Workflow):
     """
-    This object defines a workflow that produces tasks until a particular 
-    condition is satisfied (mainly used for simple convergence studies).
+    This object defines a `Workflow` that produces `Tasks` until a particular 
+    condition is satisfied (mainly used for convergence studies or iterative algorithms.)
     """
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, workdir, manager, strategy_generator, max_niter=25):
+    def __init__(self, strategy_generator, max_niter=25, workdir=None, manager=None):
         """
         Args:
-            workdir:
-                Working directory.
             strategy_generator:
-                Strategy generator.
-            manager:
-                `TaskManager` class.
+                Generator object that produces `Strategy` objects.
             max_niter:
                 Maximum number of iterations. A negative value or zero value
                 is equivalent to having an infinite number of iterations.
+            workdir:
+                Working directory.
+            manager:
+                `TaskManager` class.
         """
         super(IterativeWorkflow, self).__init__(workdir, manager)
 
@@ -645,7 +648,7 @@ class IterativeWorkflow(Workflow):
 
     def next_task(self):
         """
-        Generate and register a new task
+        Generate and register a new `Task`.
 
         Returns: 
             New `Task` object
@@ -654,7 +657,7 @@ class IterativeWorkflow(Workflow):
             next_strategy = next(self.strategy_generator)
 
         except StopIteration:
-            raise StopIteration
+            raise
 
         self.register(next_strategy)
         assert len(self) == self.niter
@@ -699,6 +702,7 @@ class IterativeWorkflow(Workflow):
         The dictionary must contains an entry "converged" that evaluates to
         True if the iteration should be stopped.
         """
+
 
 def check_conv(values, tol, min_numpts=1, mode="abs", vinf=None):
     """
@@ -965,8 +969,8 @@ class PseudoIterativeConvergence(IterativeWorkflow):
             for ecut in self.ecut_iterator:
                 yield self.strategy_with_ecut(ecut)
 
-        super(PseudoIterativeConvergence, self).__init__(
-            workdir, manager, strategy_generator(), max_niter=max_niter)
+        super(PseudoIterativeConvergence, self).__init__(strategy_generator(), 
+              max_niter=max_niter, workdir=workdir, manager=manager, )
 
         if not self.isnc:
             raise NotImplementedError("PAW convergence tests are not supported yet")
