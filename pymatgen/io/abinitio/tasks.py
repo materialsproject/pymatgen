@@ -20,7 +20,6 @@ except ImportError:
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
-
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
@@ -147,11 +146,11 @@ S_OK = Status(8)
 
 class Node(object):
     """
-    Abstract class defining the interface that must be 
+    Abstract base class defining the interface that must be 
     implemented by the nodes of the calculation.
 
     Nodes are hashable and can be tested for equality
-    (both operation use the node identifier.)
+    (both operation use the node identifier).
     """
     __metaclass__ = abc.ABCMeta
 
@@ -175,18 +174,6 @@ class Node(object):
         # Used to push additional info during the  execution. 
         self.history = collections.deque(maxlen=50)
 
-    @property
-    def node_id(self):
-        """Node identifier."""
-        return self._node_id
-
-    def set_node_id(self, node_id):
-        """Set the node identifier. Use it carefully!"""
-        self._node_id = node_id
-
-    #@abc.abstractproperty
-    #def workdir(self):
-
     def __eq__(self, other):
         if not isinstance(other, Node):
             return False
@@ -196,7 +183,7 @@ class Node(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return self.node_id 
+        return hash(self.node_id)
 
     def __repr__(self):
         return "<%s, node_id %s, workdir=%s>" % (self.__class__.__name__, self.node_id, self.workdir)
@@ -205,7 +192,20 @@ class Node(object):
         return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
 
     @property
+    def node_id(self):
+        """Node identifier."""
+        return self._node_id
+                                                         
+    def set_node_id(self, node_id):
+        """Set the node identifier. Use it carefully!"""
+        self._node_id = node_id
+                                                         
+    #@abc.abstractproperty
+    #def workdir(self):
+
+    @property
     def has_subnodes(self):
+        """True if self contains sub-nodes e.g. `Workflow` object."""
         return isinstance(self, collections.Iterable)
 
     @property
@@ -306,7 +306,7 @@ class Dependency(object):
     This object describes the dependencies among the nodes of a calculation.
 
     A `Dependency` consists of a `Node` that produces a list of products (files) 
-    that are reused by the other nodes (`Task` or `Workflow`).
+    that are used by the other nodes (`Task` or `Workflow`) to start the calculation.
     One usually creates the object by calling work.register 
 
     Example:
@@ -314,7 +314,7 @@ class Dependency(object):
         # Register the SCF task in work.
         scf_task = work.register(scf_strategy)
 
-        # Register the NSCF calculation and its dependency on the SCF run.
+        # Register the NSCF calculation and its dependency on the SCF run via deps.
         nscf_task = work.register(nscf_strategy, deps={scf_task: "DEN"})
     """
     def __init__(self, node, exts=None):
@@ -1003,7 +1003,7 @@ class AbinitTask(Task):
 
     @property
     def executable(self):
-        """path to the executable required for running the Task."""
+        """Path to the executable required for running the Task."""
         try:
             return self._executable
         except AttributeError:
@@ -1230,7 +1230,7 @@ class AbinitTask(Task):
 
 class ScfTask(AbinitTask):
     """
-    Self-consistent GS calculation.
+    Self-consistent ground-state calculation.
     """
     def is_converged(self):
         """Return True if the calculation is converged."""
@@ -1244,8 +1244,7 @@ class ScfTask(AbinitTask):
 
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
-
-        # Prefer WFK over DEN since we can reuse the wavefunctions.
+        # Prefer WFK over DEN files since we can reuse the wavefunctions.
         for ext in ["WFK", "DEN"]:
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
@@ -1763,6 +1762,7 @@ class TaskManager(object):
             if isinstance(policy, TaskPolicy):
                 self.policy = policy
             else:
+                # Assume dict-like object.
                 self.policy = TaskPolicy(**policy) 
 
     def __str__(self):
