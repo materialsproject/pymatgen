@@ -12,7 +12,7 @@ from pymatgen.io.abinitio.abiobjects import (Smearing, KSampling, Screening,
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
-from pymatgen.io.abinitio.workflow import (PseudoIterativeConvergence, 
+from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence, 
     PseudoConvergence, BandStructureWorkflow, GW_Workflow, BSEMDF_Workflow)
 
 __author__ = "Matteo Giantomassi"

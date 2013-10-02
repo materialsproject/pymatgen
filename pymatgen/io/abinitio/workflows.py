@@ -25,7 +25,8 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.task import task_factory, Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask
+from pymatgen.io.abinitio.tasks import (task_factory, Task, AbinitTask, Dependency, 
+                                        Node, ScfTask, NscfTask, HaydockBseTask)
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -46,6 +47,12 @@ __maintainer__ = "Matteo Giantomassi"
 __all__ = [
     "Workflow",
     "IterativeWorkflow",
+    "BandStructureWorkflow",
+#    "RelaxationWorkflow",
+#    "DeltaTestWorkflow"
+#    "GW_Workflow",
+#    "BSEMDF_Workflow",
+    "AbinitFlow",
 ]
 
 
@@ -630,11 +637,6 @@ class Workflow(BaseWorkflow):
         parser.parse(filenames)
                                                                            
         return parser
-
-
-
-
-
 
 
 class IterativeWorkflow(Workflow):
