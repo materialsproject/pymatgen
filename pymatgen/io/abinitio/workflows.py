@@ -66,9 +66,6 @@ class BaseWorkflow(Node):
 
     Error = WorkflowError
 
-    # Basename of the pickle database.
-    PICKLE_FNAME = "__workflow__.pickle"
-
     # interface modeled after subprocess.Popen
     @abc.abstractproperty
     def processes(self):
@@ -130,12 +127,7 @@ class BaseWorkflow(Node):
         A CPUS is reserved if it's still not running but 
         we have submitted the task to the queue manager.
         """
-        ncpus = 0
-        for task in self:
-            if task.status == task.S_SUB:
-                ncpus += task.tot_ncpus
-
-        return ncpus
+        return sum(task.tot_ncpus for task in self if task.status == task.S_SUB)
 
     @property
     def ncpus_allocated(self):
@@ -144,12 +136,7 @@ class BaseWorkflow(Node):
         A CPU is allocated if it's running a task or if we have
         submitted a task to the queue manager but the job is still pending.
         """
-        ncpus = 0
-        for task in self:
-            if task.status in [task.S_SUB, task.S_RUN]:
-                ncpus += task.tot_ncpus
-                                                                  
-        return ncpus
+        return sum(task.tot_ncpus for task in self if task.status in [task.S_SUB, task.S_RUN])
 
     @property
     def ncpus_inuse(self):
@@ -157,12 +144,7 @@ class BaseWorkflow(Node):
         Returns the number of CPUs used in this moment.
         A CPU is used if there's a job that is running on it.
         """
-        ncpus = 0
-        for task in self:
-            if task.status == task.S_RUN:
-                ncpus += task.tot_ncpus
-                                                                  
-        return ncpus
+        return sum(task.tot_ncpus for task in self if task.status == task.S_RUN)
 
     def fetch_task_to_run(self):
         """
@@ -172,7 +154,6 @@ class BaseWorkflow(Node):
         Raises:
             `StopIteration` if all tasks are done.
         """
-        #self.check_status()
 
         # All the tasks are done so raise an exception 
         # that will be handled by the client code.
@@ -256,18 +237,6 @@ class BaseWorkflow(Node):
         """
         return WorkFlowResults(task_results={task.name: task.results for task in self})
 
-    def build_and_pickle_dump(self, protocol=-1):
-        self.build()
-        self.pickle_dump(protocol=protocol)
-
-    def pickle_dump(self, protocol=-1):
-        """Save the status of the object in pickle format."""
-        filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
-
-        # TODO atomic transaction.
-        with open(filepath, mode="w" if protocol == 0 else "wb" ) as fh:
-            pickle.dump(self, fh, protocol=protocol)
-    
 
 class Workflow(BaseWorkflow):
     """
@@ -376,14 +345,6 @@ class Workflow(BaseWorkflow):
         """True if PAW calculation."""
         return all(task.ispaw for task in self)
 
-    #@property
-    #def status(self):
-    #    """
-    #    The status of the `Workflow` equal to the most 
-    #    restricting status of the tasks.
-    #    """
-    #    return min(task.status for task in self)
-
     def status_counter(self):
         """
         Returns a `Counter` object that counts the number of task with 
@@ -426,8 +387,7 @@ class Workflow(BaseWorkflow):
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
                 the `TaskManager` specified during the creation of the `Workflow`.
             task_class:
-                `AbinitTask` subclass to instanciate. 
-                 Mainly used if the workflow is not able to find it automatically.
+                Task subclass to instantiate. Default: `AbinitTask` 
 
         Returns:   
             `Task` object
@@ -445,7 +405,6 @@ class Workflow(BaseWorkflow):
             task = task_class(obj, task_workdir, manager)
 
         else:
-            # Create the new task from the input. Note that no subclasses are instanciated here.
             task = task_class.from_input(obj, task_workdir, manager)
 
         self._tasks.append(task)
@@ -523,7 +482,7 @@ class Workflow(BaseWorkflow):
 
         # Take into account possible dependencies.
         for task in self:
-            if task.status <= task.S_SUB and all([status == task.S_OK for status in task.deps_status]): 
+            if task.status <= task.S_SUB and all(status == task.S_OK for status in task.deps_status): 
                 task.set_status(task.S_READY)
 
     def rmtree(self, exclude_wildcard=""):
@@ -633,9 +592,13 @@ class Workflow(BaseWorkflow):
         return cls.from_dict(json_load(filename))
 
     def parse_timers(self):
-        """Parse the TIMER section reported in the ABINIT output files."""
+        """
+        Parse the TIMER section reported in the ABINIT output files.
 
-        filenames = [task.output_file.path for task in self]
+        Returns:
+            `AbinitTimerParser` object
+        """
+        filenames = filter(os.path.exists, [task.output_file.path for task in self])
                                                                            
         parser = AbinitTimerParser()
         parser.parse(filenames)
@@ -1017,6 +980,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
             "prtwf": 0,
             "toldfe": self.toldfe,
         }
+
         strategy = ScfStrategy(boxed_atom, self.pseudo, gamma_only,
                                spin_mode=self.spin_mode, smearing=self.smearing,
                                charge=0.0, scf_algorithm=None,
@@ -1329,11 +1293,11 @@ class WorkflowResults(dict, MSONable):
 class AbinitFlow(collections.Iterable):
     """
     This object is a container of workflows. Its main task is managing the 
-    possible inter-depencies among the workflows and the generation of
+    possible inter-depencies among the workflows and the creation of
     dynamic worflows that are generates by callabacks registered by the user.
     """
-    #PICKLE_FNAME = "__AbinitFlow__.pickle"
-    PICKLE_FNAME = "__workflow__.pickle"
+    #VERSION = "0.1"
+    PICKLE_FNAME = "__AbinitFlow__.pickle"
 
     def __init__(self, workdir, manager):
         """
