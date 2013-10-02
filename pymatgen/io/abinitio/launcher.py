@@ -250,22 +250,23 @@ class PyResourceManager(object):
 class PyLauncherError(Exception):
     """Error class for PyLauncher."""
 
+
 class PyLauncher(object):
     """
-    This object handle the sumbmission of the `Task` in a `Workflow`
+    This object handle the sumbmission of the tasks in a `AbinitFlow`
     """
 
     Error = PyLauncherError
 
-    def __init__(self, work):
+    def __init__(self, flow):
         """
         Initialize the object
 
         Args:
-            work:
-                `Workflow` object
+            flow:
+                `AbinitFlow` object
         """
-        self.work = work
+        self.flow = flow
 
     def single_shot(self):
         """
@@ -274,59 +275,69 @@ class PyLauncher(object):
         Returns:
             Number of jobs launched.
         """
-        work = self.work
         nlaunch = 0
 
-        try:
-            task = work.fetch_task_to_run()
+        for work in self.flow:
+            try:
+                task = work.fetch_task_to_run()
 
-            if task is None:
-                logger.debug("No task to run! Possible deadlock")
-                                                            
-            else:
-                logger.debug("Starting task %s" % task)
-                task.start()
-                nlaunch += 1
-                                                            
-        except StopIteration:
-            logger.debug("Out of tasks.")
+                if task is None:
+                    logger.debug("No task to run! Possible deadlock")
+                                                                
+                else:
+                    logger.debug("Starting task %s" % task)
+                    task.start()
+                    nlaunch += 1
+                                                                
+            except StopIteration:
+                logger.debug("Out of tasks.")
 
-        finally:
-            work.pickle_dump()
+            finally:
+                self.flow.pickle_dump()
 
         return nlaunch 
 
-    def rapidfire(self):
+    def rapidfire(self, max_nlaunch=-1):
         """
-        Keep on submitting `Tasks` until we are out of jobs or 
-        no job is ready to run.
+        Keep on submitting `Tasks` until we are out of jobs or no job is ready to run.
+
+        Args:
+            max_nlaunch:
+                Maximum number of launches. default: no limit.
         
         Returns:
             The number of tasks launched.
         """
         nlaunch, launched = 0, []
 
-        work = self.work
-        while True:
-            try:
-                task = work.fetch_task_to_run()
-                #work.check_status()
+        for work in self.flow:
 
-                if task is None:
-                    logger.debug("fetch_task_to_run returned None.")
-                    break
-
-                logger.debug("Starting task %s" % task)
-                assert task not in launched
-                launched.append(task)
-                task.start()
-
-                nlaunch += 1
-
-            except StopIteration:
-                logger.debug("Out of tasks.")
+            if nlaunch == max_nlaunch:
                 break
 
-        work.pickle_dump()
+            while True:
+                try:
+                    task = work.fetch_task_to_run()
+                    #work.check_status()
+
+                    if task is None:
+                        logger.debug("fetch_task_to_run returned None.")
+                        break
+
+                    logger.debug("Starting task %s" % task)
+                    assert task not in launched
+                    launched.append(task)
+                    task.start()
+
+                    nlaunch += 1
+
+                    if nlaunch == max_nlaunch:
+                        break
+
+                except StopIteration:
+                    logger.debug("Out of tasks.")
+                    break
+
+        self.flow.pickle_dump()
 
         return nlaunch 
