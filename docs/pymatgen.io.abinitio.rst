@@ -17,6 +17,14 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`abitimer` Module
+------------------------
+
+.. automodule:: pymatgen.io.abinitio.abitimer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`calculations` Module
 --------------------------
 

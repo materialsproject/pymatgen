@@ -34,7 +34,6 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
-    "task_factory",
     "TaskManager",
 ]
 
@@ -111,6 +110,41 @@ class Product(object):
         return irdvars_for_ext(self.ext)
 
 
+#class Signal(object):
+#    def send(self)
+#        dispatcher.send(signal=self, sender=self, *arguments, **named):
+#        dispatcher.send(signal=self, sender=_Anonymous, *arguments, **named)
+#    def connect(self, func, sender):
+#         dispatcher.connect(func, signal=self, sender=sender)
+
+# Possible status of the node.
+STATUS2STR = collections.OrderedDict([
+    (1, "Initialized"),      # Node has been initialized
+    (2, "Ready"),            # Node is ready i.e. all the depencies of the node have status S_OK
+    (3, "Submitted"),        # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    (4, "Running"),          # Node is running.
+    (5, "Done"),             # Node done, This does not imply that results are ok or that the calculation completed successfully
+    (6, "Error"),            # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+    #(7, "Unconverged"),     # This usually means that an iterative algorithm didn't converge.
+    (8, "Completed"),        # Execution completed successfully.
+])
+
+class Status(int):
+    def __repr__(self):
+        return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
+
+    def __str__(self):
+        return STATUS2STR[self]
+
+S_INIT = Status(1)
+S_READY = Status(2)
+S_SUB = Status(3)
+S_RUN = Status(4)
+S_DONE = Status(5)
+S_ERROR = Status(6)
+#S_UNCONVERGED = Status(7)
+S_OK = Status(8)
+
 class Node(object):
     """
     Abstract class defining the interface that must be 
@@ -121,12 +155,25 @@ class Node(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    ## Possible status of the node.
+    S_INIT = S_INIT            # Node has been initialized
+    S_READY = S_READY          # Node is ready i.e. all the depencies of the node have status S_OK
+    S_SUB = S_SUB           # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    S_RUN = S_RUN             # Node is running.
+    S_DONE = S_DONE           # Node done, This does not imply that results are ok or that the calculation completed successfully
+    S_ERROR = S_ERROR          # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+    #S_UNCONVERGED   ##S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
+    S_OK = S_OK            # Execution completed successfully.
+
     def __init__(self):
         # Node identifier.
         self._node_id = get_newnode_id()
 
         # List of dependencies
         self._deps = []
+
+        # Used to push additional info during the  execution. 
+        self.history = collections.deque(maxlen=50)
 
     @property
     def node_id(self):
@@ -356,58 +403,6 @@ class Dependency(object):
         return filepaths, exts
 
 
-def task_factory(strategy, workdir, manager):
-    """Factory function for Task instances."""
-    # Instanciate subclasses depending on the runlevel.
-    # so that we can implement methods such as restart, check_convergence
-    # whose implementation depends on the type of calculation.
-    classes = {
-       "scf": ScfTask,
-       "nscf": NscfTask,
-       # TODO
-       "relax": AbinitTask,
-       "dfpt": AbinitTask,
-       "screening": AbinitTask,
-       "sigma": AbinitTask,
-       "bse": AbinitTask,
-       None: AbinitTask       # Input file with multiple datasets or unregistered runlevel
-    }
-
-    return classes[strategy.runlevel](strategy, workdir, manager)
-
-
-#class Signal(object):
-#    def send(self)
-#        dispatcher.send(signal=self, sender=self, *arguments, **named):
-#        dispatcher.send(signal=self, sender=_Anonymous, *arguments, **named)
-#    def connect(self, func, sender):
-#         dispatcher.connect(func, signal=self, sender=sender)
-
-#class Status(int, Signal)
-#def add_status(cls):
-
-# Possible status of the node.
-S_INIT = 1           # Node has been initialized
-S_READY = 2          # Node is ready i.e. all the depencies of the node have status S_OK
-S_SUB = 4            # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-S_RUN = 8            # Node is running.
-S_DONE = 16          # Node done, This does not imply that results are ok or that the calculation completed successfully
-S_ERROR = 32         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-#S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
-S_OK = 64            # Execution completed successfully.
-
-STATUS2STR = collections.OrderedDict([
-    (S_INIT, "Initialized"),
-    (S_READY, "Ready"),
-    (S_SUB, "Submitted"),
-    (S_RUN, "Running"),
-    (S_DONE, "Done"),
-    (S_ERROR, "Error"),
-    #(S_UNCONVERGED, "Unconverged"),
-    (S_OK, "Completed"),
-])
-
-
 class TaskError(Exception):
     """Base Exception for `Task` methods"""
 
@@ -421,16 +416,6 @@ class Task(Node):
 
     Error = TaskError
 
-    # Possible status of the node.
-    S_INIT = S_INIT = 1           # Node has been initialized
-    S_READY = S_READY = 2          # Node is ready i.e. all the depencies of the node have status S_OK
-    S_SUB = S_SUB = 4            # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    S_RUN = S_RUN = 8            # Node is running.
-    S_DONE = S_DONE = 16          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    S_ERROR = S_ERROR = 32         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    #S_UNCONVERGED = 32   ##S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
-    S_OK = S_OK = 64            # Execution completed successfully.
-
     def __init__(self):
         super(Task, self).__init__()
 
@@ -440,9 +425,6 @@ class Task(Node):
         # Number of restarts effectuated and max number (-1 --> no limit).
         self.num_restarts = 0
         self.max_num_restarts = -1
-
-        # Used to push additional info on the task during its execution. 
-        self.history = collections.deque(maxlen=50)
 
     def __getstate__(self):
         """
@@ -570,11 +552,6 @@ class Task(Node):
         """Gives the status of the task."""
         return self._status
 
-    @property
-    def str_status(self):
-        """String representation of the status."""
-        return STATUS2STR[self.status]
-
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
         assert status in STATUS2STR
@@ -587,7 +564,7 @@ class Task(Node):
 
         if status == self.S_OK:
             logger.debug("Task %s broadcasts signal S_OK" % self)
-            dispatcher.send(signal=Task.S_OK, sender=self)
+            dispatcher.send(signal=self.S_OK, sender=self)
 
         if changed:
             if status == self.S_SUB: 
@@ -758,7 +735,7 @@ class Task(Node):
             This method should be called only when the calculation is READY because
             it uses a heuristic approach to find the file to link.
         """
-        #if self.status != self.S_READY:
+        #if self.status >= self.S_SUB:
         #    return
 
         for dep in self.deps:
@@ -802,8 +779,8 @@ class Task(Node):
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
         # Increase the counter and relaunch the task.
-        self.num_restarts += 1
         self.start()
+        self.num_restarts += 1
         return 0
 
     def restart(self):
@@ -835,7 +812,7 @@ class Task(Node):
                 self.restart()
     
             except TaskRestartError as exc:
-                info_msg = "Calculation not converged but restart was not possible!\nException: " + str(exc) 
+                info_msg = "Calculation not converged but restart was not possible!\nException: %s" % exc
                 logger.debug(info_msg)
                 self.set_status(self.S_ERROR, info_msg=info_msg)
                 return 1
@@ -920,16 +897,16 @@ class Task(Node):
             "task_events"    : self.events.to_dict
         })
 
-    def move(self, dest, isabspath=False):
+    def move(self, dest, is_abspath=False):
         """
         Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
         The destination path must not already exist. If the destination already exists
         but is not a directory, it may be overwritten depending on os.rename() semantics.
 
-        Be default, dest is located in the parent directory of self.workdir, use isabspath=True
+        Be default, dest is located in the parent directory of self.workdir, use is_abspath=True
         to specify an absolute path.
         """
-        if not isabspath:
+        if not is_abspath:
             dest = os.path.join(os.path.dirname(self.workdir), dest)
 
         shutil.move(self.workdir, dest)
@@ -954,7 +931,7 @@ class AbinitTask(Task):
         """
         Args:
             strategy: 
-                `Strategy` instance describing the calculation.
+                Input file or `Strategy` instance defining the calculation.
             workdir:
                 Path to the working directory.
             manager:
@@ -1256,8 +1233,6 @@ class ScfTask(AbinitTask):
     """
     Self-consistent GS calculation.
     """
-    #CONVERGENCE_CHECKER
-
     def is_converged(self):
         """Return True if the calculation is converged."""
         return False
@@ -1617,7 +1592,7 @@ class ParalHintsParser(object):
             # Empy section ==> User didn't enable Yaml in ABINIT.
             raise self.Error("%s\n contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
 
-        s = "".join(l for l in lines[start+1:end])
+        s = "".join(lines[start+1:end])
 
         try:
             d = yaml.load(s)

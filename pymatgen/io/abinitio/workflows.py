@@ -6,6 +6,7 @@ from __future__ import division, print_function
 import sys
 import os
 import shutil
+import time
 import abc
 import collections
 import functools
@@ -25,7 +26,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.tasks import (task_factory, Task, AbinitTask, Dependency, 
+from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, 
                                         Node, ScfTask, NscfTask, HaydockBseTask)
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
@@ -50,8 +51,8 @@ __all__ = [
     "BandStructureWorkflow",
 #    "RelaxationWorkflow",
 #    "DeltaTestWorkflow"
-#    "GW_Workflow",
-#    "BSEMDF_Workflow",
+    "GW_Workflow",
+    "BSEMDF_Workflow",
     "AbinitFlow",
 ]
 
@@ -165,22 +166,23 @@ class BaseWorkflow(Node):
 
     def fetch_task_to_run(self):
         """
-        Returns the first task that is ready to run or None if no task can be submitted at present"
+        Returns the first task that is ready to run or 
+        None if no task can be submitted at present"
 
         Raises:
             `StopIteration` if all tasks are done.
         """
-        self.check_status()
-
-        for task in self:
-            if task.can_run:
-                #print(task, task.str_status, [task.deps_status])
-                return task
+        #self.check_status()
 
         # All the tasks are done so raise an exception 
         # that will be handled by the client code.
         if all([task.is_completed for task in self]):
             raise StopIteration("All tasks completed.")
+
+        for task in self:
+            if task.can_run:
+                #print(task, str(task.status), [task.deps_status])
+                return task
 
         # No task found, this usually happens when we have dependencies. 
         # Beware of possible deadlocks here!
@@ -215,13 +217,16 @@ class BaseWorkflow(Node):
 
             if self.finalized:
                 return AttrDict(returncode=0, message="Workflow has been already finalized")
+
             else:
                 results = AttrDict(**self.on_all_ok())
                 self._finalized = True
                 # Signal to possible observers that the `Workflow` reached S_OK
                 print("Workflow %s is finalized and broadcasts signal S_OK" % str(self))
                 print("Workflow %s status = %s" % (str(self), self.status))
-                dispatcher.send(signal=Task.S_OK, sender=self)
+                dispatcher.send(signal=self.S_OK, sender=self)
+
+                self.history.append("Finalized on %s" % time.asctime())
 
                 return results
 
@@ -287,9 +292,6 @@ class Workflow(BaseWorkflow):
 
         if manager is not None:
             self.set_manager(manager)
-
-        # Used to push additional info on the task during its execution. 
-        #self.history = collections.deque(maxlen=50)
 
     @property
     def id(self):
@@ -360,7 +362,7 @@ class Workflow(BaseWorkflow):
     @property
     def all_done(self):
         """True if all the `Task` in the `Workflow` are done."""
-        return all([task.status >= Task.S_DONE for task in self])
+        return all([task.status >= task.S_DONE for task in self])
 
     @property
     def isnc(self):
@@ -388,7 +390,7 @@ class Workflow(BaseWorkflow):
         counter = collections.Counter() 
 
         for task in self:
-            counter[task.str_status] += 1
+            counter[str(task.status)] += 1
 
         return counter
 
@@ -432,17 +434,17 @@ class Workflow(BaseWorkflow):
         if hasattr(self, "workdir"):
             task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
 
+        # Set the class
+        if task_class is None:
+            task_class = AbinitTask
+
         if isinstance(obj, Strategy):
             # Create the new task (note the factory so that we create subclasses easily).
-            task = task_factory(obj, task_workdir, manager)
+            task = task_class(obj, task_workdir, manager)
 
         else:
             # Create the new task from the input. Note that no subclasses are instanciated here.
-            task = AbinitTask.from_input(obj, task_workdir, manager)
-
-        # Set the class
-        if task_class is not None:
-            task.__class__ = task_class
+            task = task_class.from_input(obj, task_workdir, manager)
 
         self._tasks.append(task)
 
@@ -1369,6 +1371,32 @@ class AbinitFlow(collections.Iterable):
         """List of `Workflow` objects."""
         return self._works
 
+    @property
+    def ncpus_reserved(self):
+        """
+        Returns the number of CPUs reserved in this moment.
+        A CPUS is reserved if it's still not running but 
+        we have submitted the task to the queue manager.
+        """
+        return sum(work.ncpus_reverved for work in self)
+
+    @property
+    def ncpus_allocated(self):
+        """
+        Returns the number of CPUs allocated in this moment.
+        A CPU is allocated if it's running a task or if we have
+        submitted a task to the queue manager but the job is still pending.
+        """
+        return sum(work.ncpus_allocated for work in self)
+
+    @property
+    def ncpus_inuse(self):
+        """
+        Returns the number of CPUs used in this moment.
+        A CPU is used if there's a job that is running on it.
+        """
+        return sum(work.ncpus_inuse for work in self)
+
     def used_ids(self):
         """
         Returns a set with all the ids used so far to identify `Task` and `Workflow`.
@@ -1591,6 +1619,15 @@ class AbinitFlow(collections.Iterable):
 class Callback(object):
 
     def __init__(self, func, work, deps, cbk_data):
+        """
+        Initialize the callback.
+
+        Args:
+            func:
+            work:
+            deps:
+            cbk_data:
+        """
         self.func  = func
         self.work = work
         self.deps = deps
@@ -1598,6 +1635,7 @@ class Callback(object):
         self._disabled = False
 
     def __call__(self, flow):
+        """Execute the callback."""
         if self.can_execute():
             print("in callback")
             #print("in callback with sender %s, signal %s" % (sender, signal))
@@ -1608,10 +1646,20 @@ class Callback(object):
             raise Exception("Cannot execute")
 
     def can_execute(self):
+        """True if we can execut the callback."""
         return not self._disabled and [dep.status == Task.S_OK  for dep in self.deps]
 
     def disable(self):
+        """
+        True if the callback has been disabled.
+        This usually happens when the callback has been executed.
+        """
         self._disabled = True
 
     def handle_sender(self, sender):
+        """
+        True if the callback is associated to the sender
+        i.e. if the node who sent the signal appears in the 
+        dependecies of the callback.
+        """
         return sender in [d.node for d in self.deps]
