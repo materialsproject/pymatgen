@@ -270,74 +270,93 @@ class PyLauncher(object):
 
     def single_shot(self):
         """
-        Run the fist `Task than is ready for execution.
+        Run the first `Task than is ready for execution.
         
         Returns:
             Number of jobs launched.
         """
-        nlaunch = 0
+        num_launched = 0
 
+        # Get the tasks that can be executed in each workflow.
+        tasks = []
         for work in self.flow:
             try:
                 task = work.fetch_task_to_run()
 
-                if task is None:
-                    logger.debug("No task to run! Possible deadlock")
-                                                                
+                if task is not None:
+                    tasks.append(task)
                 else:
-                    logger.debug("Starting task %s" % task)
-                    task.start()
-                    nlaunch += 1
-                                                                
+                    logger.debug("No task to run! Possible deadlock")
+
             except StopIteration:
-                logger.debug("Out of tasks.")
+                logger.info("Out of tasks.")
 
-            finally:
-                self.flow.pickle_dump()
+        # Submit the tasks and update the database.
+        if tasks:
+            for task in tasks:
+                task.start()
+                num_launched += 1
+            
+            self.flow.pickle_dump()
 
-        return nlaunch 
+        return num_launched 
 
-    def rapidfire(self, max_nlaunch=-1):
+    def rapidfire(self, max_nlaunch=-1):  #nlaunches=0, max_loops=-1, sleep_time=None
         """
-        Keep on submitting `Tasks` until we are out of jobs or no job is ready to run.
+        Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
         Args:
             max_nlaunch:
                 Maximum number of launches. default: no limit.
+
+        nlaunches: 
+            0 means 'until completion', -1 or "infinite" means to loop forever
+        max_loops: 
+            maximum number of loops
+        sleep_time: 
+            secs to sleep between rapidfire loop iterations
         
         Returns:
             The number of tasks launched.
         """
-        nlaunch, launched = 0, []
+        #sleep_time = sleep_time if sleep_time else FWConfig().RAPIDFIRE_SLEEP_SECS
+        #nlaunches = -1 if nlaunches == 'infinite' else int(nlaunches)
+        #num_launched = 0
+        #num_loops = 0
+        num_launched, launched = 0, []
 
         for work in self.flow:
-
-            if nlaunch == max_nlaunch:
+            if num_launched == max_nlaunch: 
                 break
 
             while True:
                 try:
                     task = work.fetch_task_to_run()
-                    #work.check_status()
+                    #flow.check_status()
 
                     if task is None:
                         logger.debug("fetch_task_to_run returned None.")
                         break
 
                     logger.debug("Starting task %s" % task)
-                    assert task not in launched
-                    launched.append(task)
+                    if task in launched:
+                        err_msg = "task %s in already in launched %s" % (str(task), str(launched))
+                        raise RuntimeError(err_msg)
+
                     task.start()
+                    launched.append(task)
 
-                    nlaunch += 1
+                    num_launched += 1
 
-                    if nlaunch == max_nlaunch:
+                    if num_launched == max_nlaunch:
                         break
 
                 except StopIteration:
                     logger.debug("Out of tasks.")
                     break
 
-        self.flow.pickle_dump()
+        # Update the database.
+        if num_launched:
+            self.flow.pickle_dump()
 
-        return nlaunch 
+        return num_launched 
