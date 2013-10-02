@@ -1203,7 +1203,6 @@ class AbinitTask(Task):
             logger.debug("Adding connecting vars %s " % str(vars))
             self.strategy.add_extra_abivars(vars)
 
-
         # Automatic parallelization
         self.manager.autoparal(self)
 
@@ -1729,6 +1728,15 @@ class TaskPolicy(object):
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
 
+    def __str__(self):
+        lines = [self.__class__.__name__ + ":"]
+        app = lines.append
+        for k, v in self.__dict__.items():
+            if k.startswith("_"): continue
+            app("%s: %s" % (k, v))
+
+        return "\n".join(lines)
+
 
 class TaskManager(object):
     """
@@ -1879,7 +1887,9 @@ class TaskManager(object):
         policy = self.policy
 
         if policy.autoparal == 0 or policy.max_ncpus is None: 
+            print(policy.autoparal, policy.max_ncpus)
             # nothing to do
+            print("returning from autoparal with None, None")
             return None, None
 
         assert policy.autoparal == 1

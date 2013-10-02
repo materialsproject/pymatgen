@@ -310,6 +310,8 @@ class Workflow(BaseWorkflow):
     def set_manager(self, manager):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
+        for task in self:
+            task.set_manager(manager)
 
     def set_workdir(self, workdir):
         """Set the working directory. Cannot be set more than once."""
@@ -1495,6 +1497,7 @@ class AbinitFlow(collections.Iterable):
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
         manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
+        print("flow manager", manager)
 
         work.set_workdir(work_workdir)
         work.set_manager(manager)
