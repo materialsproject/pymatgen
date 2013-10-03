@@ -428,9 +428,21 @@ class NwOutputTest(unittest.TestCase):
         self.assertTrue(nwo.data[-1]["has_error"])
         self.assertEqual(nwo.data[-1]["errors"][0], "autoz error")
 
-        nwo = NwOutput(os.path.join(test_dir, "anthrachinon_wfs_16_ethyl.nwout"))
+        nwo = NwOutput(os.path.join(test_dir,
+                       "anthrachinon_wfs_16_ethyl.nwout"))
         self.assertTrue(nwo.data[-1]["has_error"])
-        self.assertEqual(nwo.data[-1]["errors"][0], "Geometry optimization failed")
+        self.assertEqual(nwo.data[-1]["errors"][0],
+                         "Geometry optimization failed")
+        nwo = NwOutput(os.path.join(test_dir,
+                       "anthrachinon_wfs_15_carboxyl.nwout"))
+        self.assertEqual(nwo.data[1]['frequencies'][0][0], -70.47)
+        self.assertEqual(len(nwo.data[1]['frequencies'][0][1]), 27)
+        self.assertEqual(nwo.data[1]['frequencies'][-1][0], 3696.74)
+        self.assertEqual(nwo.data[1]['frequencies'][-1][1][-1],
+                         (0.20498, -0.94542, -0.00073))
+
+
+
 
 
 if __name__ == "__main__":
