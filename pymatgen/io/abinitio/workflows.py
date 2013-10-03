@@ -1460,7 +1460,7 @@ class AbinitFlow(collections.Iterable):
             work_dir = "work_"+str(len(self))
 
         # Directory of the workflow.
-        work_workdir = os.path.join(self.workdir, work_dir))
+        work_workdir = os.path.join(self.workdir, work_dir)
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
         manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
