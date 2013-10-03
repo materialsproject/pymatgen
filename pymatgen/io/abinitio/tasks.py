@@ -648,7 +648,7 @@ class Task(Node):
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
         if report.errors or report.bugs:
             logger.critical("Found Errors or Bugs in ABINIT main output!")
-            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bus))
+            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
         if self.stderr_file.exists:
@@ -686,8 +686,8 @@ class Task(Node):
 
     def out_to_in(self, out_file):
         """
-        Move an output file to the indata directory and rename the final 
-        file so that ABINIT will read it as an input data file.
+        Move an output file to the output data directory of the `Task` 
+        and rename the file so that ABINIT will read it as an input data file.
 
         Returns:
             The absolute path of the new file in the indata directory.
@@ -779,8 +779,9 @@ class Task(Node):
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
         # Increase the counter and relaunch the task.
-        self.start()
         self.num_restarts += 1
+        self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
+        self.start()
         return 0
 
     def restart(self):
@@ -903,8 +904,8 @@ class Task(Node):
         The destination path must not already exist. If the destination already exists
         but is not a directory, it may be overwritten depending on os.rename() semantics.
 
-        Be default, dest is located in the parent directory of self.workdir, use is_abspath=True
-        to specify an absolute path.
+        Be default, dest is located in the parent directory of self.workdir.
+        Use is_abspath=True to specify an absolute path.
         """
         if not is_abspath:
             dest = os.path.join(os.path.dirname(self.workdir), dest)
@@ -1230,7 +1231,8 @@ class AbinitTask(Task):
 
 class ScfTask(AbinitTask):
     """
-    Self-consistent ground-state calculation.
+    Self-consistent ground-state calculations.
+    Provide support for in-place restart via (WFK|DEN) files
     """
     def is_converged(self):
         """Return True if the calculation is converged."""
@@ -1267,6 +1269,7 @@ class ScfTask(AbinitTask):
 class NscfTask(AbinitTask):
     """
     Non-Self-consistent GS calculation.
+    Provide in-place restart via WFK files
     """
     def is_converged(self):
         """Return True if the calculation is converged."""
@@ -1295,7 +1298,7 @@ class NscfTask(AbinitTask):
         self._restart()
 
 
-class AbinitRelaxTask(AbinitTask):
+class RelaxTask(AbinitTask):
     """
     Structural optimization.
     """
@@ -1313,6 +1316,10 @@ class AbinitRelaxTask(AbinitTask):
         # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
         # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         # Prefer WFK over other files since we can reuse the wavefunctions.
+
+        # Read the new structure from the GSR file.
+        #new_structure = Structure.from_file(self.outdir.has_abiext("GSR"))
+        #self.strategy.replace_structure(new_structure)
 
         for ext in ["WFK", "DEN", "GSR"]:
             ofile = self.outdir.has_abiext(ext)
@@ -1333,9 +1340,10 @@ class AbinitRelaxTask(AbinitTask):
         self._restart()
 
 
-class AbinitPhononTask(AbinitTask):
+class PhononTask(AbinitTask):
     """
-    DFPT calculation for a single atomic perturbation.
+    DFPT calculations for a single atomic perturbation.
+    Provide support for in-place restart via (1WFK|1DEN) files
     """
     def is_converged(self):
         """Return True if the calculation is converged."""
@@ -1367,6 +1375,38 @@ class AbinitPhononTask(AbinitTask):
         self._restart()
 
 
+class GW0_Task(AbinitTask):
+    """
+    Tasks for SIGMA calculations employing the self-consistent GW0 approximation 
+    Provide support for in-place restart via QPS files
+    """
+    def is_converged(self):
+        """Return True if the calculation is converged."""
+        raise NotImplementedError("")
+        return False
+        #report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+
+    def restart(self):
+        # GW0 calculations can be restarted only if we have the QPS file 
+        # from which we can read the results of the previous step.
+        ext = "QPS"
+        restart_file = self.outdir.has_abiext(ext)
+        irdvars = irdvars_for_ext(ext)
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find the QPS file to restart from.")
+
+        self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
 class BseTask(AbinitTask):
     """
     Task for Bethe-Salpeter calculations.
@@ -1384,7 +1424,10 @@ class BseTask(AbinitTask):
 
 
 class HaydockBseTask(BseTask):
-    """Bethe-Salpeter calculations with Haydock iterative scheme."""
+    """
+    Bethe-Salpeter calculations with Haydock iterative scheme.
+    Provide in-place restart via (BSR|BSC) files
+    """
     def is_converged(self):
         """Return True if the calculation is converged."""
         return False

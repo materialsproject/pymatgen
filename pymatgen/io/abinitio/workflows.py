@@ -26,8 +26,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, 
-                                        Node, ScfTask, NscfTask, HaydockBseTask)
+from pymatgen.io.abinitio.tasks import (AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask)
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -49,9 +48,9 @@ __all__ = [
     "Workflow",
     "IterativeWorkflow",
     "BandStructureWorkflow",
-#    "RelaxationWorkflow",
-#    "DeltaTestWorkflow"
-    "GW_Workflow",
+    #"RelaxationWorkflow",
+    #"DeltaTestWorkflow"
+    "G0W0_Workflow",
     "BSEMDF_Workflow",
     "AbinitFlow",
 ]
@@ -154,10 +153,9 @@ class BaseWorkflow(Node):
         Raises:
             `StopIteration` if all tasks are done.
         """
-
         # All the tasks are done so raise an exception 
         # that will be handled by the client code.
-        if all([task.is_completed for task in self]):
+        if all(task.is_completed for task in self):
             raise StopIteration("All tasks completed.")
 
         for task in self:
@@ -229,7 +227,7 @@ class BaseWorkflow(Node):
                     message="Calling on_all_ok of the base class!",
                     )
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
         """
         Method called once the calculations are completed.
 
@@ -333,7 +331,7 @@ class Workflow(BaseWorkflow):
     @property
     def all_done(self):
         """True if all the `Task` in the `Workflow` are done."""
-        return all([task.status >= task.S_DONE for task in self])
+        return all(task.status >= task.S_DONE for task in self)
 
     @property
     def isnc(self):
@@ -460,9 +458,9 @@ class Workflow(BaseWorkflow):
         if len(self) == 0:
             # The workflow will be created in the future.
             if only_min:
-                return Task.S_INIT
+                return self.S_INIT
             else:
-                return [Task.S_INIT]
+                return [self.S_INIT]
 
         self.check_status()
 
@@ -630,8 +628,18 @@ class IterativeWorkflow(Workflow):
 
         self.strategy_generator = strategy_generator
 
-        self.max_niter = max_niter
+        self._max_niter = max_niter
         self.niter = 0
+
+    @property
+    def max_niter(self):
+        return self._max_niter
+
+    #def set_max_niter(self, max_niter):
+    #    self._max_niter = max_niter
+
+    #def set_inputs(self, inputs):
+    #    self.strategy_generator = list(inputs)
 
     def next_task(self):
         """
@@ -891,7 +899,7 @@ class PseudoConvergence(Workflow):
             self.ecut_list.append(ecut)
             self.register(strategy)
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
 
         # Get the results of the tasks.
         wf_results = super(PseudoConvergence, self).get_results()
@@ -1000,7 +1008,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
     def exit_iteration(self, *args, **kwargs):
         return self.check_etotal_convergence(self, *args, **kwargs)
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
         """Return the results of the tasks."""
         wf_results = super(PseudoIterativeConvergence, self).get_results()
 
@@ -1123,7 +1131,7 @@ class DeltaTestWorkflow(Workflow):
 
             self.register(scf_input, task_class=ScfTask)
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
         num_sites = self._input_structure.num_sites
 
         etotal = ArrayWithUnit(self.read_etotal(), "Ha").to("eV")
@@ -1136,7 +1144,6 @@ class DeltaTestWorkflow(Workflow):
             "natom"     : num_sites,
             "dojo_level": 1,
         })
-
 
         try:
             #eos_fit = EOS.Murnaghan().fit(self.volumes/num_sites, etotal/num_sites)
@@ -1170,12 +1177,13 @@ class DeltaTestWorkflow(Workflow):
         return wf_results
 
 
-class GW_Workflow(Workflow):
+#class FullG0W0_Workflow(Workflow):
+class G0W0_Workflow(Workflow):
 
-    def __init__(self, scf_input, nscf_input, scr_input, sigma_strategy,
-                workdir=None, manager=None):
+    def __init__(self, scf_input, nscf_input, scr_input, sigma_input,
+                 workdir=None, manager=None):
         """
-        Workflow for GW calculations.
+        Workflow for G0W0 calculations.
 
         Args:
             scf_input:
@@ -1184,14 +1192,14 @@ class GW_Workflow(Workflow):
                 Input for the NSCF run or `NSCFStrategy` object.
             scr_input:
                 Input for the screening run or `ScrStrategy` object 
-            sigma_strategy:
+            sigma_input:
                 Strategy for the self-energy run.
             workdir:
                 Working directory of the calculation.
             manager:
                 `TaskManager` object.
         """
-        super(GW_Workflow, self).__init__(workdir=workdir, manager=manager)
+        super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register(scf_input, task_class=ScfTask)
@@ -1203,7 +1211,53 @@ class GW_Workflow(Workflow):
         self.scr_task = self.register(scr_input, deps={self.nscf_task: "WFK"})
 
         # Register the SIGMA run.
-        self.sigma_task = self.register(sigma_strategy, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+
+
+#class GW_Workflow(Workflow):
+#
+#    def __init__(self, nscf_task, scr_input, sigma_input, workdir=None, manager=None):
+#        """
+#        Workflow for G0W0 calculations.
+#
+#        Args:
+#            scr_input:
+#                Input for the screening run or `ScrStrategy` object 
+#            sigma_input:
+#                Strategy for the self-energy run.
+#            workdir:
+#                Working directory of the calculation.
+#            manager:
+#                `TaskManager` object.
+#        """
+#        super(GW_Workflow, self).__init__(workdir=workdir, manager=manager)
+#
+#        # Register the SCREENING run.
+#        self.scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+#
+#        # Register the SIGMA run.
+#        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+#
+#    def restart(self):
+#        ext = "QPS"
+#        qps_file = self.sigma_task.outdir.has_abiext(ext)
+#        irdvars = irdvars_for_ext(ext)
+#
+#        if not qps_file:
+#            raise TaskRestartError("Cannot find the QPS file to restart from.")
+#
+#        # Move the QPS file produced by the SIGMA task to the indir of the SCR task.
+#        restart_file = self.scr_task.indir.path_in(os.path.basename(qps_file)
+#        shutil.move(qps_file, restart_file)
+#
+#        # Add the appropriate variable for reading the QPS file.
+#        self.scr_task.strategy.add_extra_abivars(irdvars)
+#        self.sigma_task.strategy.add_extra_abivars(irdvars)
+#
+#        # Now we can resubmit the job.
+#        #for task in self.
+#        #    task.reset()
+#        self._restart()
 
 
 class BSEMDF_Workflow(Workflow):
@@ -1296,7 +1350,8 @@ class AbinitFlow(collections.Iterable):
     possible inter-depencies among the workflows and the creation of
     dynamic worflows that are generates by callabacks registered by the user.
     """
-    #VERSION = "0.1"
+    VERSION = "0.1"
+
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
     def __init__(self, workdir, manager):
@@ -1334,7 +1389,7 @@ class AbinitFlow(collections.Iterable):
 
     @property
     def works(self):
-        """List of `Workflow` objects."""
+        """List of `Workflow` objects contained in self.."""
         return self._works
 
     @property
@@ -1408,7 +1463,6 @@ class AbinitFlow(collections.Iterable):
             pickle.dump(self, fh, protocol=protocol)
 
         # Atomic transaction.
-        #import shutil
         #filepath_new = filepath + ".new"
         #filepath_save = filepath + ".save"
         #shutil.copyfile(filepath, filepath_save)
@@ -1418,7 +1472,7 @@ class AbinitFlow(collections.Iterable):
         #        pickle.dump(self, fh, protocol=protocol)
 
         #    os.rename(filepath_new, filepath)
-        #except:
+        #except IOError:
         #    os.rename(filepath_save, filepath)
         #finally:
         #    try
@@ -1482,7 +1536,7 @@ class AbinitFlow(collections.Iterable):
             cbk:
                 Callback function.
             cbk_data
-                Callback function.
+                Additional data pased to the callback function.
             deps:
                 List of `Dependency` objects specifying the dependency of the workflow.
             work_class:
@@ -1494,6 +1548,7 @@ class AbinitFlow(collections.Iterable):
         Returns:   
             The `Workflow` that will be finalized by the callback.
         """
+        # TODO: pass a workflow factory instead of a class
         # Directory of the workflow.
         work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
                                                                                                             
@@ -1530,6 +1585,10 @@ class AbinitFlow(collections.Iterable):
             work.show_intrawork_deps()
 
     def on_dep_ok(self, signal, sender):
+        # TODO
+        # Replace this callback with dynamic dispatch
+        # on_all_S_OK for workflow
+        # on_S_OK for task
         print("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
 
         for i, cbk in enumerate(self._callbacks):
@@ -1557,6 +1616,9 @@ class AbinitFlow(collections.Iterable):
 
             # Update the database.
             self.pickle_dump()
+
+    #def finalize(self):
+    #    """This method is called when the flow is completed."""
 
     def connect_signals(self):
         """
@@ -1591,9 +1653,13 @@ class Callback(object):
 
         Args:
             func:
+                The function to execute. Must have signature .... TODO
             work:
+                Reference to the `Workflow` that will be filled.
             deps:
+                List of dependencies associated to the callback
             cbk_data:
+                Additional data to pass to the callback.
         """
         self.func  = func
         self.work = work
@@ -1614,7 +1680,7 @@ class Callback(object):
 
     def can_execute(self):
         """True if we can execut the callback."""
-        return not self._disabled and [dep.status == Task.S_OK  for dep in self.deps]
+        return not self._disabled and [dep.status == dep.node.S_OK  for dep in self.deps]
 
     def disable(self):
         """

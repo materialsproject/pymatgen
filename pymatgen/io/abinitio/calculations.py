@@ -13,7 +13,7 @@ from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
 from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence, 
-    PseudoConvergence, BandStructureWorkflow, GW_Workflow, BSEMDF_Workflow)
+    PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -258,8 +258,8 @@ def g0w0_with_ppmodel(workdir, manager, structure, pseudos, scf_kppa,
     sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
                                         **extra_abivars)
 
-    return GW_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
-                       workdir=workdir, manager=manager)
+    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
+                         workdir=workdir, manager=manager)
 
 
 
