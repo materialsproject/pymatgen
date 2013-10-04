@@ -5,6 +5,7 @@ This module implements input and output processing from Nwchem.
 """
 
 from __future__ import division
+import itertools
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -522,6 +523,7 @@ class NwOutput(object):
 
         data = {}
         energies = []
+        frequencies = None
         corrections = {}
         molecules = []
         species = []
@@ -529,6 +531,7 @@ class NwOutput(object):
         errors = []
         basis_set = {}
         parse_geom = False
+        parse_freq = False
         parse_bset = False
         job_type = ""
         for l in output.split("\n"):
@@ -547,6 +550,18 @@ class NwOutput(object):
                         species.append(m.group(1).capitalize())
                         coords.append([float(m.group(2)), float(m.group(3)),
                                        float(m.group(4))])
+            if parse_freq:
+                if len(l.strip()) == 0:
+                    if len(frequencies[-1][1]) == 0:
+                        continue
+                    else:
+                        parse_freq = False
+                else:
+                    vibs = [float(vib) for vib in l.strip().split()[1:]]
+                    num_vibs = len(vibs)
+                    for mode, dis in zip(frequencies[-num_vibs:], vibs):
+                        mode[1].append(dis)
+
             elif parse_bset:
                 if l.strip() == "":
                     parse_bset = False
@@ -585,6 +600,12 @@ class NwOutput(object):
                     parse_geom = True
                 elif l.find("Summary of \"ao basis\"") != -1:
                     parse_bset = True
+                elif l.find("P.Frequency") != -1:
+                    parse_freq = True
+                    if not frequencies:
+                        frequencies = []
+                    frequencies.extend([(float(freq), []) for freq
+                                        in l.strip().split()[1:]])
                 elif job_type == "" and l.strip().startswith("NWChem"):
                     job_type = l.strip()
                     if job_type == "NWChem DFT Module" and \
@@ -595,12 +616,15 @@ class NwOutput(object):
                     if m:
                         corrections[m.group(1)] = FloatWithUnit(
                             m.group(2), "kJ mol^-1").to("eV atom^-1")
-
+        if frequencies:
+            for freq, mode in frequencies:
+                mode[:] = zip(*[iter(mode)]*3)
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
                      "molecules": molecules,
                      "basis_set": basis_set,
                      "errors": errors,
-                     "has_error": len(errors) > 0})
+                     "has_error": len(errors) > 0,
+                     "frequencies": frequencies})
 
         return data
