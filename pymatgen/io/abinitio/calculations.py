@@ -307,7 +307,7 @@ def bse_with_mdf(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
         charge:
             Electronic charge added to the unit cell.
         scf_algorithm:
-            Algorithm used for solving of the SCF cycle.
+            Algorithm used for solving the SCF cycle.
         **extra_abivars
             Dictionary with extra variables passed to ABINIT.
     """

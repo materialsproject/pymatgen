@@ -767,10 +767,10 @@ class Task(Node):
                     if os.path.realpath(dest) != path:
                         raise self.Error("dest %s does not point to path %s" % (dest, path))
 
-    def is_converged(self):
-        """Return True if the calculation is converged."""
-        logger.debug("is_converged  method of the base class will always return True")
-        return True
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        logger.debug("not_converged method of the base class will always return False")
+        return False
 
     def _restart(self):
         """
@@ -796,7 +796,7 @@ class Task(Node):
         Callback that is executed once the job is done. 
         The implementation of the two methods: 
 
-           - is_converged
+           - not_converged
            - restart 
            
         is delegated to the subclasses.
@@ -804,7 +804,7 @@ class Task(Node):
         Returns:
             0 if succes, 1 if restart was not possible.
         """
-        if not self.is_converged():
+        if self.not_converged():
             if self.num_restarts == self.max_num_restarts:
                 logger.info("Reached maximum number of restarts. Returning")
                 return 1
@@ -1234,15 +1234,17 @@ class ScfTask(AbinitTask):
     Self-consistent ground-state calculations.
     Provide support for in-place restart via (WFK|DEN) files
     """
-    def is_converged(self):
-        """Return True if the calculation is converged."""
-        return False
-        #raise NotImplementedError("")
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
 
-        #report = self.get_event_report()
+        report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
-        #return True
+        if report.warnings:
+            return report.warnings.filter("ScfCriticalWarning")
+
+        return False
 
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
@@ -1271,10 +1273,9 @@ class NscfTask(AbinitTask):
     Non-Self-consistent GS calculation.
     Provide in-place restart via WFK files
     """
-    def is_converged(self):
-        """Return True if the calculation is converged."""
-        return False
-        raise NotImplementedError("")
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
         report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
@@ -1302,26 +1303,45 @@ class RelaxTask(AbinitTask):
     """
     Structural optimization.
     """
-    def is_converged(self):
-        """Return True if the calculation is converged."""
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
         # TODO: 
-        raise NotImplementedError("getucell_path is not supported")
+        return True
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
         #if report.warnings:
         #    return False
 
+    def set_initial_structure(self, structure):
+        #TODO
+        self.strategy.set_structure(structure)
+
+    def read_final_structure(self):
+        """Read the final structure from the GSR file and save it in self.final_structure."""
+        gsr_file = self.outdir.has_abiext("GSR")
+        if not gsr_file:
+            raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
+                                                                                                         
+        with ETSF_reader(gsr_file) as r:
+            self.final_structure = r.read_structure()
+
+        return self.final_structure
+
     def restart(self):
+        raise NotImplementedError("")
+        # Change the initial structure.
+        try:
+            structure = self.read_final_structure()
+        except TaskRestartError:
+            raise
+
+        self.set_initial_structure(structure)
+
         # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
         # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         # Prefer WFK over other files since we can reuse the wavefunctions.
-
-        # Read the new structure from the GSR file.
-        #new_structure = Structure.from_file(self.outdir.has_abiext("GSR"))
-        #self.strategy.replace_structure(new_structure)
-
-        for ext in ["WFK", "DEN", "GSR"]:
+        for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
                 irdvars = irdvars_for_ext(ext)
@@ -1331,7 +1351,7 @@ class RelaxTask(AbinitTask):
                 break
 
         if not ofile:
-            raise TaskRestartError("Cannot find the WFK|DEN|GSR file to restart from.")
+            raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -1340,15 +1360,19 @@ class RelaxTask(AbinitTask):
         self._restart()
 
 
+class DDK_Task(AbinitTask):
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return False
+
 class PhononTask(AbinitTask):
     """
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WFK|1DEN) files
     """
-    def is_converged(self):
-        """Return True if the calculation is converged."""
-        raise NotImplementedError("")
-        return False
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
@@ -1375,21 +1399,20 @@ class PhononTask(AbinitTask):
         self._restart()
 
 
-class GW0_Task(AbinitTask):
+class G_Task(AbinitTask):
     """
-    Tasks for SIGMA calculations employing the self-consistent GW0 approximation 
+    Tasks for SIGMA calculations employing the self-consistent G approximation 
     Provide support for in-place restart via QPS files
     """
-    def is_converged(self):
-        """Return True if the calculation is converged."""
-        raise NotImplementedError("")
-        return False
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
 
     def restart(self):
-        # GW0 calculations can be restarted only if we have the QPS file 
+        # G calculations can be restarted only if we have the QPS file 
         # from which we can read the results of the previous step.
         ext = "QPS"
         restart_file = self.outdir.has_abiext(ext)
@@ -1428,9 +1451,9 @@ class HaydockBseTask(BseTask):
     Bethe-Salpeter calculations with Haydock iterative scheme.
     Provide in-place restart via (BSR|BSC) files
     """
-    def is_converged(self):
-        """Return True if the calculation is converged."""
-        return False
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
         #raise NotImplementedError("")
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
@@ -1556,7 +1579,7 @@ class ParalConf(AttrDict):
 
     Example:
 
-        <RUN_HINTS>
+        --- ! RUN_HINTS
         header: 
             version: 1
             autoparal: 1
@@ -1574,8 +1597,7 @@ class ParalConf(AttrDict):
                       varname2: varvalue2
                       }
             -
-                 ...
-        </RUN_HINTS>
+        ...
 
     For paral_kgb we have:
     nproc     npkpt  npspinor    npband     npfft    bandpp    weight   
@@ -1638,7 +1660,7 @@ class ParalHintsParser(object):
         try:
             d = yaml.load(s)
         except Exception as exc:
-            raise self.Error("Malformatted Yaml section in file %s:\n %s" % (filename, str(exc)))
+            raise self.Error("Malformatted Yaml document in file %s:\n %s" % (filename, str(exc)))
 
         return ParalHints(header=d["header"], confs=d["configurations"])
 
@@ -1880,11 +1902,13 @@ class TaskManager(object):
         """
         Returns a new `TaskManager` with the same parameters as self but replace the `QueueAdapter` 
         with a `ShellAdapter` with mpi_ncpus so that we can submit the job without passing through the queue.
+        Replace self.policy with a `TaskPolicy` with autoparal==0.
         """
         cls = self.__class__
         qad = self.qadapter
 
-        policy = self.policy if policy is None else policy
+        #policy = self.policy if policy is None else policy
+        policy = TaskPolicy(autoparal=0) if policy is None else policy
 
         new = cls("shell", qparams={"MPI_NCPUS": mpi_ncpus}, setup=qad.setup, modules=qad.modules, 
                   shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
