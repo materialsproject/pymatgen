@@ -49,6 +49,14 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`flows` Module
+--------------------
+
+.. automodule:: pymatgen.io.abinitio.flows
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`launcher` Module
 ----------------------
 
