@@ -97,7 +97,7 @@ class NetcdfReader(object):
 
     #@staticmethod
     #def pathjoin(*args):
-    #    return "/".join([arg for arg in args])
+    #    return "/".join(args)
 
     def walk_tree(self, top=None):
         """
@@ -244,7 +244,7 @@ class ETSF_Reader(NetcdfReader):
             symbols = self.read_value("chemical_symbols")
             self._chemical_symbols = []
             for s in symbols:
-                self._chemical_symbols.append("".join(c for c in s))
+                self._chemical_symbols.append("".join(s))
 
         return self._chemical_symbols
 
