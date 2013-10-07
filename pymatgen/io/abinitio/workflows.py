@@ -48,8 +48,8 @@ __all__ = [
     "Workflow",
     "IterativeWorkflow",
     "BandStructureWorkflow",
-    #"RelaxationWorkflow",
-    #"DeltaTestWorkflow"
+    #"RelaxWorkflow",
+    #"DeltaFactorWorkflow"
     "G0W0_Workflow",
     "BSEMDF_Workflow",
     "AbinitFlow",
@@ -1053,40 +1053,45 @@ class BandStructureWorkflow(Workflow):
         # Register the GS-SCF run.
         self.scf_task = self.register(scf_input, task_class=ScfTask)
 
-        # Register the NSCF run and its dependency
+        # Register the NSCF run and its dependency.
         self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
-        # Add DOS computation
+        # Add DOS computation if requested.
         self.dos_task = None
-
         if dos_input is not None:
             self.dos_task = self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
 
-class RelaxationWorkflow(Workflow):
+class RelaxWorkflow(Workflow):
 
-    def __init__(self, relax_input, workdir=None, manager=None):
+    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
         """
         Args:
             workdir:
                 Working directory.
             manager:
                 `TaskManager` object.
-            relax_input:
-                Input for the relaxation run or `RelaxStrategy` object.
+            ion_input:
+                Input for the relaxation of the ions (cell is fixed)
+            ioncell_input:
+                Input for the relaxation of the ions and the unit cell.
         """
-        super(Relaxation, self).__init__(workdir=workdir, manager=manager)
+        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
 
-        task = self.register(relax_input)
+        self.ion_task = self.register(ion_input, task_class=RelaxTask)
+
+        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
+        # TODO
+        # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
 
 
-class DeltaTestWorkflow(Workflow):
+class DeltaFactorWorkflow(Workflow):
 
-    def __init__(self, workdir, manager, structure_or_cif, pseudos, kppa,
+    def __init__(self, workdir, manager, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
-        super(DeltaTest, self).__init__(workdir, manager)
+        super(DeltaFactor, self).__init__(workdir, manager)
 
         if isinstance(structure_or_cif, Structure):
             structure = structure_or_cif
@@ -1106,18 +1111,17 @@ class DeltaTestWorkflow(Workflow):
         self.volumes = v0 * np.arange(94, 108, 2) / 100.
 
         for vol in self.volumes:
-
             new_lattice = structure.lattice.scale(vol)
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
             new_structure = AbiStructure.asabistructure(new_structure)
 
-            extra_abivars = {
-                "ecutsm": ecutsm,
-                "toldfe": toldfe,
-                "prtwf" : 0,
-                "paral_kgb": 0,
-            }
+            extra_abivars = dict(
+                ecutsm=ecutsm,
+                toldfe=toldfe,
+                prtwf=0,
+                paral_kgb=0,
+            )
 
             if ecut is not None:
                 extra_abivars.update({"ecut": ecut})
@@ -1125,7 +1129,7 @@ class DeltaTestWorkflow(Workflow):
             ksampling = KSampling.automatic_density(new_structure, kppa,
                                                     chksymbreak=chksymbreak)
 
-            scf_input = ScfStrategy(new_structure, pseudos, ksampling,
+            scf_input = ScfStrategy(new_structure, pseudo, ksampling,
                                     accuracy=accuracy, spin_mode=spin_mode,
                                     smearing=smearing, **extra_abivars)
 
@@ -1136,7 +1140,7 @@ class DeltaTestWorkflow(Workflow):
 
         etotal = ArrayWithUnit(self.read_etotal(), "Ha").to("eV")
 
-        wf_results = super(DeltaTest, self).get_results()
+        wf_results = super(DeltaFactorWorkflow, self).get_results()
 
         wf_results.update({
             "etotal"    : list(etotal),
@@ -1177,7 +1181,6 @@ class DeltaTestWorkflow(Workflow):
         return wf_results
 
 
-#class FullG0W0_Workflow(Workflow):
 class G0W0_Workflow(Workflow):
 
     def __init__(self, scf_input, nscf_input, scr_input, sigma_input,
@@ -1214,9 +1217,9 @@ class G0W0_Workflow(Workflow):
         self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
 
 
-#class GW_Workflow(Workflow):
+#class SCGW_Workflow(Workflow):
 #
-#    def __init__(self, nscf_task, scr_input, sigma_input, workdir=None, manager=None):
+#    def __init__(self, scr_input, sigma_input, workdir=None, manager=None):
 #        """
 #        Workflow for G0W0 calculations.
 #
@@ -1230,13 +1233,16 @@ class G0W0_Workflow(Workflow):
 #            manager:
 #                `TaskManager` object.
 #        """
-#        super(GW_Workflow, self).__init__(workdir=workdir, manager=manager)
+#        super(SCGW_Workflow, self).__init__(workdir=workdir, manager=manager)
 #
 #        # Register the SCREENING run.
 #        self.scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
 #
 #        # Register the SIGMA run.
 #        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+#
+#    def is_converged(self):
+#       return self.sigma_task.is_converged()
 #
 #    def restart(self):
 #        ext = "QPS"
@@ -1246,9 +1252,12 @@ class G0W0_Workflow(Workflow):
 #        if not qps_file:
 #            raise TaskRestartError("Cannot find the QPS file to restart from.")
 #
-#        # Move the QPS file produced by the SIGMA task to the indir of the SCR task.
-#        restart_file = self.scr_task.indir.path_in(os.path.basename(qps_file)
-#        shutil.move(qps_file, restart_file)
+#        # Move the QPS file produced by the SIGMA task to 
+#        # the indir of the SCR task and the indir of the SIGMA task.
+#        scr_infile = self.scr_task.indir.path_in(os.path.basename(qps_file)
+#        sigma_infile = self.sigma_task.indir.path_in(os.path.basename(qps_file)
+#        shutil.copy(qps_file, scr_infile)
+#        shutil.move(qps_file, sigma_infile)
 #
 #        # Add the appropriate variable for reading the QPS file.
 #        self.scr_task.strategy.add_extra_abivars(irdvars)
@@ -1372,6 +1381,11 @@ class AbinitFlow(collections.Iterable):
         # List of callbacks that must be executed when the dependencies reach S_OK
         self._callbacks = []
 
+        # Directories with (input|output|temporary) data.
+        self.indir = Directory(os.path.join(self.workdir, "indata"))
+        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
+        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
 
@@ -1448,6 +1462,10 @@ class AbinitFlow(collections.Iterable):
             work.check_status()
 
     def build(self, *args, **kwargs):
+        self.indir.makedirs()
+        self.outdir.makedirs()
+        self.tmpdir.makedirs()
+
         for work in self:
             work.build(*args, **kwargs)
 
@@ -1492,6 +1510,31 @@ class AbinitFlow(collections.Iterable):
         flow.connect_signals()
         return flow
 
+    def register_task(self, input, deps=None, manager=None, task_class=None):
+        """
+        Utility function that generates a `Workflow` made of a single task
+
+        Args:
+            input:
+                Abinit Input file or `Strategy` object.
+            deps:
+                List of `Dependency` objects specifying the dependency of this node.
+                An empy list of deps implies that this node has no dependencies.
+            manager:
+                The `TaskManager` responsible for the submission of the task. 
+                If manager is None, we use the `TaskManager` specified during the creation of the workflow.
+            task_class:
+                Task subclass to instantiate. Default: `AbinitTask` 
+
+        Returns:   
+            The generated `Task`.
+        """
+        work = Workflow(manager=manager)
+        task = work.register(input, deps=deps, task_class=task_class)
+
+        self.register_work(work)
+        return task
+
     def register_work(self, work, deps=None, manager=None):
         """
         Register a new `Workflow` and add it to the internal list, 
@@ -1530,7 +1573,7 @@ class AbinitFlow(collections.Iterable):
 
     def register_cbk(self, cbk, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the Task of the workflow.
+        Registers a callback function that will generate the Task of the Workflow.
 
         Args:
             cbk:
@@ -1693,6 +1736,6 @@ class Callback(object):
         """
         True if the callback is associated to the sender
         i.e. if the node who sent the signal appears in the 
-        dependecies of the callback.
+        dependencies of the callback.
         """
         return sender in [d.node for d in self.deps]

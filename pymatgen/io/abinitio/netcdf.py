@@ -50,8 +50,6 @@ def as_ncreader(file):
 def as_etsfreader(file):
     return _asreader(file, ETSF_Reader)
 
-################################################################################
-
 
 class NetcdfReaderError(Exception):
     """Base error class for NetcdfReader"""
@@ -267,8 +265,6 @@ class ETSF_Reader(NetcdfReader):
 
         return structure_from_etsf_file(self)
 
-
-################################################################################
 
 def structure_from_etsf_file(ncdata, site_properties=None):
     """
