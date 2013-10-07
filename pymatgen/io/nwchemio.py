@@ -619,8 +619,6 @@ class NwOutput(object):
         if frequencies:
             for freq, mode in frequencies:
                 mode[:] = zip(*[iter(mode)]*3)
-            if frequencies[0][0] < 0:
-                errors.append("Imaginary Frequency")
         data.update({"job_type": job_type, "energies": energies,
                      "corrections": corrections,
                      "molecules": molecules,
