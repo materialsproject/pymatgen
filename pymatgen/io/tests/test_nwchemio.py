@@ -440,6 +440,8 @@ class NwOutputTest(unittest.TestCase):
         self.assertEqual(nwo.data[1]['frequencies'][-1][0], 3696.74)
         self.assertEqual(nwo.data[1]['frequencies'][-1][1][-1],
                          (0.20498, -0.94542, -0.00073))
+        self.assertTrue(nwo.data[1]["has_error"])
+        self.assertEqual(nwo.data[1]["errors"][0], "Imaginary Frequency")
 
 
 
