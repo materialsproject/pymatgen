@@ -506,7 +506,7 @@ def _dict_from_lines(lines, key_nums, sep=None):
         line = lines[i]
 
         tokens = [t.strip() for t in line.split()]
-        values, keys = tokens[:nk], "".join([t for t in tokens[nk:]])
+        values, keys = tokens[:nk], "".join(tokens[nk:])
         keys = keys.split(",")
 
         if sep is not None:

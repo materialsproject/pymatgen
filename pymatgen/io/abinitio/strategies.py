@@ -18,32 +18,14 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
-##########################################################################################
-
-# TODO
-#class ScfStrategyFactory(object):
-#    """
-#    Abstract factory for strategies. Returns a concrete factory
-#
-#    Example: abstract_factory = ScfStrategyFactory()
-#        factory = abstract_factory()
-#        scf_strategy = factory.make_strategy()
-#    """
-#    __metaclass__ = abc.ABCMeta
-#        
-#    #def __init__(self, mode, accuracy):
-#        # Dict with Ground-State strategy subclasses
-#        gs_subclasses = {}
-#        for klass in Scftrategy.__subclasses__():
-#            gs_subclasses[klass.__name__] = klass
-
 
 def select_pseudos(pseudos, structure):
     """
     Given a list of pseudos and a pymatgen structure, extract the pseudopotentials 
     for the calculation (useful when we receive an entire periodic table).
 
-    Raises ValueError if no pseudo or multiple occurrences are found.
+    Raises:
+        ValueError if no pseudo or multiple occurrences are found.
     """
     table = PseudoTable.astable(pseudos)
 
@@ -251,35 +233,10 @@ class Strategy(object):
         for key in keys:
             self.extra_abivars.pop(key)
 
-    #def iocontrol(self):
-    #    "Dictionary with variables controlling the IO"
-    #    ptrwf = self.extra_abivars.get("prtwf")
-    #    
-    #    d = {"prtwf" : prtwf if prtwf is not None else 0
-    #         "prtden": 1,
-    #         "prtgkk": 1 if self.runlevel == "dfpt" else None
-    #        }
-    #    return d
-
-    #def speedup(self):
-    #    "Dictionary with the variables that have a significant impact on the WallTime."
-    #     boxcutmin = self.extra_abivars.get("boxcutmin")
-    #     if boxcutmin is None and self.accuracy == "low": boxcutime = 0.75
-
-    #    "optforces": None if (self.need_forces or want_forces) else 2,
-    #    "optstress": None if (self.need_stress or want_stress) else 0,
-
-    #    d = {"boxcutmin": boxcutmin,
-    #         "optforces": optforces, 
-    #         "optstress": optstress, 
-    #        }
-    #    return d
-
     @abc.abstractmethod
     def make_input(self, *args, **kwargs):
         """Returns an Input instance."""
 
-##########################################################################################
 
 class ScfStrategy(Strategy):
     """
@@ -346,7 +303,6 @@ class ScfStrategy(Strategy):
         input = InputWriter(self.structure, self.electrons, self.ksampling, **extra)
         return input.get_string()
 
-##########################################################################################
 
 class NscfStrategy(Strategy):
     """
@@ -412,7 +368,6 @@ class NscfStrategy(Strategy):
         input = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
         return input.get_string()
 
-##########################################################################################
 
 class RelaxStrategy(ScfStrategy):
     """Extends ScfStrategy by adding an algorithm for the structural relaxation."""
@@ -462,7 +417,6 @@ class RelaxStrategy(ScfStrategy):
 
         return input_str
 
-##########################################################################################
 
 class ScreeningStrategy(Strategy):
     """Strategy for Screening calculations."""
@@ -527,7 +481,6 @@ class ScreeningStrategy(Strategy):
         input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
         return input.get_string()
 
-##########################################################################################
 
 class SelfEnergyStrategy(Strategy):
     """Strategy for self-energy calculations."""
@@ -592,7 +545,6 @@ class SelfEnergyStrategy(Strategy):
         input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
         return input.get_string()
 
-##########################################################################################
 
 class MDFBSE_Strategy(Strategy):
     """
@@ -656,7 +608,6 @@ class MDFBSE_Strategy(Strategy):
         input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
         return input.get_string()
 
-##########################################################################################
 
 
 class InputWriter(object): 
@@ -726,14 +677,14 @@ class InputWriter(object):
         if isinstance(value, collections.Iterable) and not is_string(value):
             arr = np.array(value)
             if len(arr.shape) in [0,1]: # scalar or vector.
-                token = [key, " ".join([str(i) for i in arr])]
+                token = [key, " ".join(str(i) for i in arr)]
                                                                                    
             else: 
                 # array --> matrix 
                 matrix = np.reshape(arr, (-1, arr.shape[-1])) 
                 lines  = []
                 for (idx, row) in enumerate(matrix):
-                    lines.append(" ".join([str(i) for i in row]))
+                    lines.append(" ".join(str(i) for i in row))
                 token = [key +"\n", "\n".join(lines)]
 
         else:

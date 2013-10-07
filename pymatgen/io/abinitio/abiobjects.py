@@ -421,13 +421,13 @@ class AbiStructure(Structure, AbivarAble):
 
         #lines = []
         #for vec in Ang2Bohr(self.lattice.matrix):
-        #    lines.append(" ".join([fmt(c) for c in vec]))
+        #    lines.append(" ".join(fmt(c) for c in vec))
         #rprim = "\n" + "\n".join(lines)
 
         #lines = []
         #for (i, site) in enumerate(self):
         #    coords = site.frac_coords
-        #    lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
+        #    lines.append( " ".join(fmt(c) for c in coords) + " # " + site.species_string )
         #xred = '\n' + "\n".join(lines)
 
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
@@ -1660,7 +1660,7 @@ class IFC(AbivarAble):
             qpath = np.reshape(qpath, (-1,3))
             d.update({
                 "nqpath": len(qpath),
-                "qpath" : "\n".join(["%f %f %f" % tuple(q) for q in qpath]),
+                "qpath" : "\n".join("%f %f %f" % tuple(q) for q in qpath),
             })
 
         # Phonon DOS calculations.
