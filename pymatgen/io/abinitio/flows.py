@@ -14,7 +14,7 @@ except ImportError:
     pass
 
 #from pymatgen.util.string_utils import list_strings, pprint_table
-#from pymatgen.io.abinitio.tasks import (AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask)
+from pymatgen.io.abinitio.tasks import Dependency #, Node, ScfTask, NscfTask, HaydockBseTask)
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.workflows import Workflow
 
@@ -237,7 +237,6 @@ class AbinitFlow(collections.Iterable):
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
         manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
-        #print("flow manager", manager)
 
         work.set_workdir(work_workdir)
         work.set_manager(manager)
