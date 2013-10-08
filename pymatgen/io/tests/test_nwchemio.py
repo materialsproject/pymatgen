@@ -392,23 +392,23 @@ class NwOutputTest(unittest.TestCase):
         self.assertAlmostEqual(-1102.622361621359, nwo.data[0]["energies"][-1])
         self.assertAlmostEqual(-1102.9985415777337, nwo.data[2]["energies"][-1])
         self.assertAlmostEqual(-11156.353144819144,
-                               nwo_cosmo.data[5]["energies"][0])
+                               nwo_cosmo.data[5]["energies"][0]["cosmo scf"])
         self.assertAlmostEqual(-11153.37324779646,
-                               nwo_cosmo.data[5]["energies"][1])
+                               nwo_cosmo.data[5]["energies"][0]["gas phase"])
         self.assertAlmostEqual(-11156.353144818084,
-                               nwo_cosmo.data[5]["energies"][2])
+                               nwo_cosmo.data[5]["energies"][0]["sol phase"])
         self.assertAlmostEqual(-11168.818445621277,
-                               nwo_cosmo.data[6]["energies"][0])
+                               nwo_cosmo.data[6]["energies"][0]["cosmo scf"])
         self.assertAlmostEqual(-11166.361953878302,
-                               nwo_cosmo.data[6]["energies"][1])
+                               nwo_cosmo.data[6]["energies"][0]['gas phase'])
         self.assertAlmostEqual(-11168.818445621277,
-                               nwo_cosmo.data[6]["energies"][2])
+                               nwo_cosmo.data[6]["energies"][0]['sol phase'])
         self.assertAlmostEqual(-11165.227470577684,
-                               nwo_cosmo.data[7]["energies"][0])
+                               nwo_cosmo.data[7]["energies"][0]['cosmo scf'])
         self.assertAlmostEqual(-11165.02495508804,
-                               nwo_cosmo.data[7]["energies"][1])
+                               nwo_cosmo.data[7]["energies"][0]['gas phase'])
         self.assertAlmostEqual(-11165.227470576949,
-                               nwo_cosmo.data[7]["energies"][2])
+                               nwo_cosmo.data[7]["energies"][0]['sol phase'])
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
