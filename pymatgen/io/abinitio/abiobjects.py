@@ -24,8 +24,6 @@ from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
 
-###############################################################################
-
 
 class AbivarAble(object):
     """
@@ -61,7 +59,6 @@ class DefaultVariable(object):
 MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
-###############################################################################
 
 
 class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
@@ -104,8 +101,6 @@ _mode2spinvars = {
     "spinor"      : SpinMode("spinor"      , 1, 2, 4),
     "spinor_nomag": SpinMode("spinor_nomag", 1, 2, 1),
 }
-
-###############################################################################
 
 
 class Smearing(AbivarAble, MSONable):
@@ -207,7 +202,6 @@ class Smearing(AbivarAble, MSONable):
     def from_dict(d):
         return Smearing(d["occopt"], d["tsmear"])
 
-###############################################################################
 
 
 class ElectronsAlgorithm(dict, AbivarAble):
@@ -236,8 +230,6 @@ class ElectronsAlgorithm(dict, AbivarAble):
 
     def to_abivars(self):
         return self.copy()
-
-###############################################################################
 
 
 class Electrons(AbivarAble):
@@ -324,8 +316,6 @@ class Electrons(AbivarAble):
 
         abivars["#comment"] = self.comment
         return abivars
-
-#########################################################################################
 
 
 def asabistructure(obj):
@@ -431,13 +421,13 @@ class AbiStructure(Structure, AbivarAble):
 
         #lines = []
         #for vec in Ang2Bohr(self.lattice.matrix):
-        #    lines.append(" ".join([fmt(c) for c in vec]))
+        #    lines.append(" ".join(fmt(c) for c in vec))
         #rprim = "\n" + "\n".join(lines)
 
         #lines = []
         #for (i, site) in enumerate(self):
         #    coords = site.frac_coords
-        #    lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
+        #    lines.append( " ".join(fmt(c) for c in coords) + " # " + site.species_string )
         #xred = '\n' + "\n".join(lines)
 
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
@@ -452,8 +442,6 @@ class AbiStructure(Structure, AbivarAble):
             "xred"  : xred,
             "znucl" : znucl_type,
         }
-
-##########################################################################################
 
 
 class KSampling(AbivarAble):
@@ -815,7 +803,6 @@ class KSampling(AbivarAble):
     def to_abivars(self):
         return self.abivars
 
-##########################################################################################
 
 
 class Constraints(AbivarAble):
@@ -925,8 +912,6 @@ class RelaxationMethod(AbivarAble):
 
         return abivars
 
-##########################################################################################
-
 
 class PPModel(AbivarAble, MSONable):
     """
@@ -1021,7 +1006,6 @@ class PPModel(AbivarAble, MSONable):
     def from_dict(d):
         return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
 
-##########################################################################################
 
 
 class HilbertTransform(AbivarAble):
@@ -1042,7 +1026,6 @@ class HilbertTransform(AbivarAble):
         return {"spmeth"  : self.spmeth,
                 "nomegasf": self.nomegasf,}
 
-##########################################################################################
 
 
 class ModelDielectricFunction(AbivarAble):
@@ -1091,8 +1074,6 @@ class CDFrequencyMesh(AbivarAble):
             "freqim_alpha": self.freqim_alpha
         }
         return abivars
-
-##########################################################################################
 
 
 class Screening(AbivarAble):
@@ -1210,8 +1191,6 @@ class Screening(AbivarAble):
             abivars.update(self.wmesh.to_abivars())
 
         return abivars
-
-##########################################################################################
 
 
 class SelfEnergy(AbivarAble):
@@ -1336,8 +1315,6 @@ class SelfEnergy(AbivarAble):
             abivars.update(self.ppmodel.to_abivars())
 
         return abivars
-
-##########################################################################################
 
 
 class ExcHamiltonian(AbivarAble):
@@ -1486,7 +1463,6 @@ class ExcHamiltonian(AbivarAble):
 
         return abivars
 
-##########################################################################################
 
 
 class Perturbation(AbivarAble):
@@ -1551,7 +1527,6 @@ class PhononPerturbation(Perturbation):
         # nqpt    1        # One wavevector is to be considered
         # qpt     0 0 0    # This wavevector is q=0 (Gamma)
         # kptopt  2        # Automatic generation of k points (time-reversal symmetry only)
-
         abivars = super(PhononPertubation, self).to_abivars()
 
         abivars.extend(dict(
@@ -1586,10 +1561,12 @@ class DDKPerturbation(Perturbation):
         ))
         return abivars
 
-#class ElectricPertunation(Perturbation):
+
+#class ElectricPertubation(Perturbation):
 #    def __init__(self, rfdir):
 #        # Calculation at the Gamma point
 #        super(ElectricPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
+
 
 #class ElasticPertubation(Perturbation):
 #    def __init__(self, rfdir):
@@ -1597,19 +1574,17 @@ class DDKPerturbation(Perturbation):
 #        super(ElasticPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
 
 
-def irred_perturbations(input, qpoint):
-    """
-    This function returns the list of irreducible perturbations at the given q-point.
-    """
-    # Call abinit to get the irred perturbations.
-    # TODO
-    #pert_info = get_pert_info()
+#def irred_perturbations(input, qpoint):
+#    """
+#    This function returns the list of irreducible perturbations at the given q-point.
+#    """
+#    # Call abinit to get the irred perturbations.
+#    #pert_info = get_pert_info()
+#
+#    # Initialize the list of irreducible perturbations.
+#    perts = []
+#    return perts
 
-    # Initialize the list of irreducible perturbations.
-    perts = []
-    return perts
-
-##########################################################################################
 
 class IFC(AbivarAble):
     """
@@ -1685,7 +1660,7 @@ class IFC(AbivarAble):
             qpath = np.reshape(qpath, (-1,3))
             d.update({
                 "nqpath": len(qpath),
-                "qpath" : "\n".join(["%f %f %f" % tuple(q) for q in qpath]),
+                "qpath" : "\n".join("%f %f %f" % tuple(q) for q in qpath),
             })
 
         # Phonon DOS calculations.

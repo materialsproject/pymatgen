@@ -18,24 +18,24 @@ class AbinitEvent(MSONable):
     """
     Example (YAML syntax)::
 
-        ---
-        # Normal warning without any handler.
-        Warning:
-            message: "This is a normal warning that won't trigger any handler in the python code!"
-            src_file: routine_name
-            src_line:  112
+        Normal warning without any handler:
+
+        --- !Warning
+        message: "This is a normal warning that won't trigger any handler in the python code!"
+        src_file: routine_name
+        src_line:  112
         ...
 
-        ---
-        # Critical warning that will trigger some action in the python code.
-        ScfCriticalWarning:
-            message: "The human-readable message goes here!"
-            src_file: foo.F90
-            src_line: 112
-            tolname: tolwfr
-            actual_tol: 1.0e-8
-            required_tol: 1.0e-10
-            nstep: 50
+        Critical warning that will trigger some action in the python code.
+
+        --- !ScfCriticalWarning
+        message: "The human-readable message goes here!"
+        src_file: foo.F90
+        src_line: 112
+        tolname: tolwfr
+        actual_tol: 1.0e-8
+        required_tol: 1.0e-10
+        nstep: 50
         ...
 
     The algorithm to extract the YAML sections is very simple.
@@ -326,7 +326,7 @@ class EventParser(object):
                 handle = handlers.get(exc_case(line))
                 if handle is None: continue
                 context = lines[lineno: min(lineno+nafter, nlines)]
-                handle((lineno, "".join([c for c in context])))
+                handle((lineno, "".join(c for c in context)))
 
         events = EventReport(filename)
 
@@ -364,7 +364,6 @@ class EventParser(object):
         with open(filename) as fh:
             in_event, s = False, None
             for l, line in enumerate(fh):
-
                 if MAGIC in line:
                     run_completed = True
 

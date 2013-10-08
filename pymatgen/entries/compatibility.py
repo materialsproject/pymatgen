@@ -194,7 +194,8 @@ class AqueousCorrection(Correction):
                     - entry.uncorrected_energy
             else:
                 entry.correction += cpdenergies[rform] * comp.num_atoms
-
+        if not rform == "H2O":
+            entry.correction += 0.5 * 2.46 * min(comp["H"]/2.0, comp["O"])
         return entry
 
 

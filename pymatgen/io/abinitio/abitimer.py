@@ -522,9 +522,9 @@ class AbinitTimerSection(object):
         string = ""
 
         if with_header:
-            string += "# " + " ".join([at for at in AbinitTimerSection.FIELDS]) + "\n"
+            string += "# " + " ".join(at for at in AbinitTimerSection.FIELDS) + "\n"
 
-        string += ", ".join([str(v) for v in self.to_tuple()]) + "\n"
+        string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string
 
     def __str__(self):
