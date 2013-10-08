@@ -1579,7 +1579,7 @@ class ParalConf(AttrDict):
 
     Example:
 
-        --- ! RUN_HINTS
+        --- !Autoparal
         header: 
             version: 1
             autoparal: 1
@@ -1634,8 +1634,8 @@ class ParalHintsParser(object):
         Read the <RUN_HINTS> section from file filename
         Assumes the file contains only one section.
         """
-        START_TAG = "<RUN_HINTS>"
-        END_TAG = "</RUN_HINTS>"
+        START_TAG = "--- !Autoparal"
+        END_TAG = "..."
 
         with open(filename, "r") as fh:
             lines = fh.readlines()
@@ -1644,16 +1644,16 @@ class ParalHintsParser(object):
         for i, line in enumerate(lines):
             if START_TAG in line:
                 start = i
-            elif END_TAG in line:
+            if start is not None and END_TAG in line:
                 end = i
                 break
 
         if start is None or end is None:
-            raise self.Error("%s\n does not contain any valid RUN_HINTS section" % filename)
+            raise self.Error("%s\n does not contain any valid %s section" % (START_TAG, filename))
 
         if start == end:
             # Empy section ==> User didn't enable Yaml in ABINIT.
-            raise self.Error("%s\n contains an empty RUN_HINTS section. Enable Yaml support in ABINIT" % filename)
+            raise self.Error("%s\n contains an empty %s document. Enable Yaml support in ABINIT" % (START_TAG, filename))
 
         s = "".join(lines[start+1:end])
 

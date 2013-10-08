@@ -1088,7 +1088,7 @@ class DeltaFactorWorkflow(Workflow):
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
-        super(DeltaFactor, self).__init__(workdir, manager)
+        super(DeltaFactorWorkflow, self).__init__(workdir, manager)
 
         if isinstance(structure_or_cif, Structure):
             structure = structure_or_cif
