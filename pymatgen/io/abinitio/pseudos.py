@@ -27,7 +27,6 @@ __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
-##########################################################################################
 # Tools and helper functions.
 
 class FrozenDict(dict):
@@ -102,7 +101,6 @@ def read_dojo_report(filename):
 #
 #    #def to_file(self, path):
 
-##########################################################################################
 
 _PTABLE = PeriodicTable()
 
@@ -336,7 +334,6 @@ class Pseudo(object):
     #        hasher.update(fh.read())
     #        return hasher.hexdigest()
 
-##########################################################################################
 
 class NcPseudo(object):
     """
@@ -357,7 +354,6 @@ class NcPseudo(object):
         """True if the pseudo is generated with non-linear core correction."""
         return self.nlcc_radius > 0.0
 
-##########################################################################################
 
 class PawPseudo(object):
     """
@@ -370,7 +366,6 @@ class PawPseudo(object):
     def paw_radius(self):
         """Radius of the PAW sphere in a.u."""
 
-##########################################################################################
 
 class AbinitPseudo(Pseudo):
     """
@@ -420,7 +415,6 @@ class AbinitPseudo(Pseudo):
     def l_local(self):
         return self._lloc
 
-##########################################################################################
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     """
@@ -455,7 +449,6 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     def nlcc_radius(self):
         return self._rchrg
 
-##########################################################################################
 
 class PawAbinitPseudo(PawPseudo, AbinitPseudo):
     """Paw pseudopotential in the Abinit format."""
@@ -466,7 +459,6 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     #def orbitals(self):
 
-##########################################################################################
 
 class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
@@ -480,7 +472,6 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     def from_dict(cls, d):
         return cls(**{k: v for k,v in d.items() if not k.startswith("@")})
 
-##########################################################################################
 
 def _dict_from_lines(lines, key_nums, sep=None):
     """
@@ -492,7 +483,11 @@ def _dict_from_lines(lines, key_nums, sep=None):
     sep is a string denoting the character that separates the keys from the value (None if
     no separator is present).
 
-    Return dict{key1 : value1, key2 : value2, ...}
+    Returns:
+        dict{key1 : value1, key2 : value2, ...}
+
+    Raises:
+        ValueError if parsing fails.
     """
     if is_string(lines):
         lines = [lines]
@@ -511,24 +506,23 @@ def _dict_from_lines(lines, key_nums, sep=None):
         line = lines[i]
 
         tokens = [t.strip() for t in line.split()]
-        values, keys = tokens[:nk], "".join([t for t in tokens[nk:]])
+        values, keys = tokens[:nk], "".join(tokens[nk:])
         keys = keys.split(",")
 
         if sep is not None:
             check = keys[0][0]
             if check != sep:
-                raise RuntimeError("Expecting sep %s, got %s" % (sep, check))
+                raise ValueError("Expecting sep %s, got %s" % (sep, check))
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            raise RuntimeError("%s: %s\n %s len(keys) != len(value) %s" %
-                (filename, line, keys, values))
+            msg = "%s\n %s len(keys) != len(value) %s" % (line, keys, values)
+            raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
 
     return kwargs
 
-##########################################################################################
 
 class AbinitHeader(dict):
     """Dictionary whose keys can be also accessed as attributes."""
@@ -543,7 +537,6 @@ class AbinitHeader(dict):
             except KeyError as exc:
                 raise AttributeError(str(exc))
 
-##########################################################################################
 
 def _int_from_str(string):
     """
@@ -621,7 +614,12 @@ class NcAbinitHeader(AbinitHeader):
         # 1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
         lines = _read_nlines(filename, -1)
 
-        header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
+        try:
+            header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
+        except ValueError:
+            # The last record with rchrg ... seems to be optional.
+            header = _dict_from_lines(lines[:3], [0, 3, 6])
+
         summary = lines[0]
 
         header["dojo_report"] = read_dojo_report(filename)
@@ -699,7 +697,6 @@ class NcAbinitHeader(AbinitHeader):
 
         return NcAbinitHeader(summary, **header)
 
-##########################################################################################
 
 class PawAbinitHeader(AbinitHeader):
     """
@@ -803,10 +800,10 @@ class PawAbinitHeader(AbinitHeader):
 
         return PawAbinitHeader(summary, **header)
 
-##########################################################################################
 
 class PseudoParserError(Exception):
     """Base Error class for the exceptions raised by `PseudoParser`"""
+
 
 class PseudoParser(object):
     """
@@ -958,7 +955,8 @@ class PseudoParser(object):
             header = parsers[ppdesc.name](path, ppdesc)
 
         except Exception as exc:
-            raise self.Error(filename + ": " + str(exc))
+            raise 
+            raise self.Error(path + ": " + str(exc))
 
         root, ext = os.path.splitext(path)
 
@@ -979,7 +977,6 @@ class PseudoParser(object):
 
         return pseudo
 
-##########################################################################################
 
 class PseudoTable(collections.Sequence):
     """
@@ -1064,11 +1061,15 @@ class PseudoTable(collections.Sequence):
     def __repr__(self):
         return "<%s at %s>" % (self.__class__.__name__, id(self))
 
-    #def __str__(self):
-    #    strio = StringIO.StringIO()
-    #    self.print_table(stream=strio)
-    #    strio.seek(0)
-    #    return strio.read()
+    def __str__(self):
+        lines = []
+        app = lines.append
+        app("<%s, len=%d>" % (self.__class__.__name__, len(self)))
+
+        for pseudo in self:
+            app(str(pseudo))
+
+        return "\n".join(lines)
 
     @property
     def allnc(self):

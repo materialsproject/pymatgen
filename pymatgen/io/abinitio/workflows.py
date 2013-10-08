@@ -1,5 +1,5 @@
 """
-Abinit workflows
+Abinit Workflows
 """
 from __future__ import division, print_function
 
@@ -9,9 +9,7 @@ import shutil
 import time
 import abc
 import collections
-import functools
 import numpy as np
-import cPickle as pickle
 
 try:
     from pydispatch import dispatcher
@@ -26,8 +24,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, 
-                                        Node, ScfTask, NscfTask, HaydockBseTask)
+from pymatgen.io.abinitio.tasks import (AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask)
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -49,11 +46,10 @@ __all__ = [
     "Workflow",
     "IterativeWorkflow",
     "BandStructureWorkflow",
-#    "RelaxationWorkflow",
-#    "DeltaTestWorkflow"
-    "GW_Workflow",
+    #"RelaxWorkflow",
+    #"DeltaFactorWorkflow"
+    "G0W0_Workflow",
     "BSEMDF_Workflow",
-    "AbinitFlow",
 ]
 
 
@@ -154,10 +150,9 @@ class BaseWorkflow(Node):
         Raises:
             `StopIteration` if all tasks are done.
         """
-
         # All the tasks are done so raise an exception 
         # that will be handled by the client code.
-        if all([task.is_completed for task in self]):
+        if all(task.is_completed for task in self):
             raise StopIteration("All tasks completed.")
 
         for task in self:
@@ -229,7 +224,7 @@ class BaseWorkflow(Node):
                     message="Calling on_all_ok of the base class!",
                     )
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
         """
         Method called once the calculations are completed.
 
@@ -333,7 +328,7 @@ class Workflow(BaseWorkflow):
     @property
     def all_done(self):
         """True if all the `Task` in the `Workflow` are done."""
-        return all([task.status >= task.S_DONE for task in self])
+        return all(task.status >= task.S_DONE for task in self)
 
     @property
     def isnc(self):
@@ -460,9 +455,9 @@ class Workflow(BaseWorkflow):
         if len(self) == 0:
             # The workflow will be created in the future.
             if only_min:
-                return Task.S_INIT
+                return self.S_INIT
             else:
-                return [Task.S_INIT]
+                return [self.S_INIT]
 
         self.check_status()
 
@@ -630,8 +625,18 @@ class IterativeWorkflow(Workflow):
 
         self.strategy_generator = strategy_generator
 
-        self.max_niter = max_niter
+        self._max_niter = max_niter
         self.niter = 0
+
+    @property
+    def max_niter(self):
+        return self._max_niter
+
+    #def set_max_niter(self, max_niter):
+    #    self._max_niter = max_niter
+
+    #def set_inputs(self, inputs):
+    #    self.strategy_generator = list(inputs)
 
     def next_task(self):
         """
@@ -891,7 +896,7 @@ class PseudoConvergence(Workflow):
             self.ecut_list.append(ecut)
             self.register(strategy)
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
 
         # Get the results of the tasks.
         wf_results = super(PseudoConvergence, self).get_results()
@@ -1000,7 +1005,7 @@ class PseudoIterativeConvergence(IterativeWorkflow):
     def exit_iteration(self, *args, **kwargs):
         return self.check_etotal_convergence(self, *args, **kwargs)
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
         """Return the results of the tasks."""
         wf_results = super(PseudoIterativeConvergence, self).get_results()
 
@@ -1045,40 +1050,45 @@ class BandStructureWorkflow(Workflow):
         # Register the GS-SCF run.
         self.scf_task = self.register(scf_input, task_class=ScfTask)
 
-        # Register the NSCF run and its dependency
+        # Register the NSCF run and its dependency.
         self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
-        # Add DOS computation
+        # Add DOS computation if requested.
         self.dos_task = None
-
         if dos_input is not None:
             self.dos_task = self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
 
-class RelaxationWorkflow(Workflow):
+class RelaxWorkflow(Workflow):
 
-    def __init__(self, relax_input, workdir=None, manager=None):
+    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
         """
         Args:
             workdir:
                 Working directory.
             manager:
                 `TaskManager` object.
-            relax_input:
-                Input for the relaxation run or `RelaxStrategy` object.
+            ion_input:
+                Input for the relaxation of the ions (cell is fixed)
+            ioncell_input:
+                Input for the relaxation of the ions and the unit cell.
         """
-        super(Relaxation, self).__init__(workdir=workdir, manager=manager)
+        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
 
-        task = self.register(relax_input)
+        self.ion_task = self.register(ion_input, task_class=RelaxTask)
+
+        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
+        # TODO
+        # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
 
 
-class DeltaTestWorkflow(Workflow):
+class DeltaFactorWorkflow(Workflow):
 
-    def __init__(self, workdir, manager, structure_or_cif, pseudos, kppa,
+    def __init__(self, workdir, manager, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
 
-        super(DeltaTest, self).__init__(workdir, manager)
+        super(DeltaFactor, self).__init__(workdir, manager)
 
         if isinstance(structure_or_cif, Structure):
             structure = structure_or_cif
@@ -1098,18 +1108,17 @@ class DeltaTestWorkflow(Workflow):
         self.volumes = v0 * np.arange(94, 108, 2) / 100.
 
         for vol in self.volumes:
-
             new_lattice = structure.lattice.scale(vol)
 
             new_structure = Structure(new_lattice, structure.species, structure.frac_coords)
             new_structure = AbiStructure.asabistructure(new_structure)
 
-            extra_abivars = {
-                "ecutsm": ecutsm,
-                "toldfe": toldfe,
-                "prtwf" : 0,
-                "paral_kgb": 0,
-            }
+            extra_abivars = dict(
+                ecutsm=ecutsm,
+                toldfe=toldfe,
+                prtwf=0,
+                paral_kgb=0,
+            )
 
             if ecut is not None:
                 extra_abivars.update({"ecut": ecut})
@@ -1117,18 +1126,18 @@ class DeltaTestWorkflow(Workflow):
             ksampling = KSampling.automatic_density(new_structure, kppa,
                                                     chksymbreak=chksymbreak)
 
-            scf_input = ScfStrategy(new_structure, pseudos, ksampling,
+            scf_input = ScfStrategy(new_structure, pseudo, ksampling,
                                     accuracy=accuracy, spin_mode=spin_mode,
                                     smearing=smearing, **extra_abivars)
 
             self.register(scf_input, task_class=ScfTask)
 
-    def get_results(self, *args, **kwargs):
+    def get_results(self):
         num_sites = self._input_structure.num_sites
 
         etotal = ArrayWithUnit(self.read_etotal(), "Ha").to("eV")
 
-        wf_results = super(DeltaTest, self).get_results()
+        wf_results = super(DeltaFactorWorkflow, self).get_results()
 
         wf_results.update({
             "etotal"    : list(etotal),
@@ -1136,7 +1145,6 @@ class DeltaTestWorkflow(Workflow):
             "natom"     : num_sites,
             "dojo_level": 1,
         })
-
 
         try:
             #eos_fit = EOS.Murnaghan().fit(self.volumes/num_sites, etotal/num_sites)
@@ -1170,12 +1178,12 @@ class DeltaTestWorkflow(Workflow):
         return wf_results
 
 
-class GW_Workflow(Workflow):
+class G0W0_Workflow(Workflow):
 
-    def __init__(self, scf_input, nscf_input, scr_input, sigma_strategy,
-                workdir=None, manager=None):
+    def __init__(self, scf_input, nscf_input, scr_input, sigma_input,
+                 workdir=None, manager=None):
         """
-        Workflow for GW calculations.
+        Workflow for G0W0 calculations.
 
         Args:
             scf_input:
@@ -1184,14 +1192,14 @@ class GW_Workflow(Workflow):
                 Input for the NSCF run or `NSCFStrategy` object.
             scr_input:
                 Input for the screening run or `ScrStrategy` object 
-            sigma_strategy:
+            sigma_input:
                 Strategy for the self-energy run.
             workdir:
                 Working directory of the calculation.
             manager:
                 `TaskManager` object.
         """
-        super(GW_Workflow, self).__init__(workdir=workdir, manager=manager)
+        super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
         self.scf_task = self.register(scf_input, task_class=ScfTask)
@@ -1203,7 +1211,59 @@ class GW_Workflow(Workflow):
         self.scr_task = self.register(scr_input, deps={self.nscf_task: "WFK"})
 
         # Register the SIGMA run.
-        self.sigma_task = self.register(sigma_strategy, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+
+
+#class SCGW_Workflow(Workflow):
+#
+#    def __init__(self, scr_input, sigma_input, workdir=None, manager=None):
+#        """
+#        Workflow for G0W0 calculations.
+#
+#        Args:
+#            scr_input:
+#                Input for the screening run or `ScrStrategy` object 
+#            sigma_input:
+#                Strategy for the self-energy run.
+#            workdir:
+#                Working directory of the calculation.
+#            manager:
+#                `TaskManager` object.
+#        """
+#        super(SCGW_Workflow, self).__init__(workdir=workdir, manager=manager)
+#
+#        # Register the SCREENING run.
+#        self.scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+#
+#        # Register the SIGMA run.
+#        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+#
+#    def is_converged(self):
+#       return self.sigma_task.is_converged()
+#
+#    def restart(self):
+#        ext = "QPS"
+#        qps_file = self.sigma_task.outdir.has_abiext(ext)
+#        irdvars = irdvars_for_ext(ext)
+#
+#        if not qps_file:
+#            raise TaskRestartError("Cannot find the QPS file to restart from.")
+#
+#        # Move the QPS file produced by the SIGMA task to 
+#        # the indir of the SCR task and the indir of the SIGMA task.
+#        scr_infile = self.scr_task.indir.path_in(os.path.basename(qps_file)
+#        sigma_infile = self.sigma_task.indir.path_in(os.path.basename(qps_file)
+#        shutil.copy(qps_file, scr_infile)
+#        shutil.move(qps_file, sigma_infile)
+#
+#        # Add the appropriate variable for reading the QPS file.
+#        self.scr_task.strategy.add_extra_abivars(irdvars)
+#        self.sigma_task.strategy.add_extra_abivars(irdvars)
+#
+#        # Now we can resubmit the job.
+#        #for task in self.
+#        #    task.reset()
+#        self._restart()
 
 
 class BSEMDF_Workflow(Workflow):
@@ -1286,350 +1346,6 @@ class WorkflowResults(dict, MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        mydict = {k: v for k,v in d.items() if k not in ["@module", "@class",]}
+        mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
         return cls(mydict)
 
-
-class AbinitFlow(collections.Iterable):
-    """
-    This object is a container of workflows. Its main task is managing the 
-    possible inter-depencies among the workflows and the creation of
-    dynamic worflows that are generates by callabacks registered by the user.
-    """
-    #VERSION = "0.1"
-    PICKLE_FNAME = "__AbinitFlow__.pickle"
-
-    def __init__(self, workdir, manager):
-        """
-        Args:
-            workdir:
-                String specifying the directory where the workflows will be produced.
-            manager:
-                `TaskManager` object responsible for the submission of the jobs.
-        """
-        self.workdir = os.path.abspath(workdir)
-
-        self.manager = manager.deepcopy()
-
-        # List of workflows.
-        self._works = []
-
-        # List of callbacks that must be executed when the dependencies reach S_OK
-        self._callbacks = []
-
-    def __repr__(self):
-        return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
-
-    def __str__(self):
-        return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
-
-    def __len__(self):
-        return len(self.works)
-
-    def __iter__(self):
-        return self.works.__iter__()
-
-    def __getitem__(self, slice):
-        return self.works[slice]
-
-    @property
-    def works(self):
-        """List of `Workflow` objects."""
-        return self._works
-
-    @property
-    def ncpus_reserved(self):
-        """
-        Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if it's still not running but 
-        we have submitted the task to the queue manager.
-        """
-        return sum(work.ncpus_reverved for work in self)
-
-    @property
-    def ncpus_allocated(self):
-        """
-        Returns the number of CPUs allocated in this moment.
-        A CPU is allocated if it's running a task or if we have
-        submitted a task to the queue manager but the job is still pending.
-        """
-        return sum(work.ncpus_allocated for work in self)
-
-    @property
-    def ncpus_inuse(self):
-        """
-        Returns the number of CPUs used in this moment.
-        A CPU is used if there's a job that is running on it.
-        """
-        return sum(work.ncpus_inuse for work in self)
-
-    def used_ids(self):
-        """
-        Returns a set with all the ids used so far to identify `Task` and `Workflow`.
-        """
-        ids = []
-        for work in self:
-            ids.append(work.node_id)
-            for task in work:
-                ids.append(task.node_id)
-
-        used_ids = set(ids)
-        assert len(ids_set) == len(ids)
-
-        return used_ids
-
-    def generate_new_nodeid(self):
-        """Returns an unused node identifier."""
-        used_ids = self.used_ids()
-
-        import itertools
-        for nid in intertools.count():
-            if nid not in used_ids:
-                return nid
-
-    def check_status(self):
-        """Check the status of the workflows in self."""
-        for work in self:
-            work.check_status()
-
-    def build(self, *args, **kwargs):
-        for work in self:
-            work.build(*args, **kwargs)
-
-    def build_and_pickle_dump(self, protocol=-1):
-        self.build()
-        self.pickle_dump(protocol=protocol)
-
-    def pickle_dump(self, protocol=-1):
-        """Save the status of the object in pickle format."""
-        filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
-
-        with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-            pickle.dump(self, fh, protocol=protocol)
-
-        # Atomic transaction.
-        #import shutil
-        #filepath_new = filepath + ".new"
-        #filepath_save = filepath + ".save"
-        #shutil.copyfile(filepath, filepath_save)
-
-        #try:
-        #    with open(filepath_new, mode="w" if protocol == 0 else "wb") as fh:
-        #        pickle.dump(self, fh, protocol=protocol)
-
-        #    os.rename(filepath_new, filepath)
-        #except:
-        #    os.rename(filepath_save, filepath)
-        #finally:
-        #    try
-        #        os.remove(filepath_save)
-        #    except:
-        #        pass
-        #    try
-        #        os.remove(filepath_new)
-        #    except:
-        #        pass
-
-    @staticmethod
-    def pickle_load(filepath):
-        with open(filepath, "rb") as fh:
-            flow = pickle.load(fh)
-
-        flow.connect_signals()
-        return flow
-
-    def register_work(self, work, deps=None, manager=None, work_dir=None):
-        """
-        Register a new `Workflow` and add it to the internal list, 
-        taking into account possible dependencies.
-
-        Args:
-            work:
-                `Workflow` object.
-            deps:
-                List of `Dependency` objects specifying the dependency of this node.
-                An empy list of deps implies that this node has no dependencies.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the workflow.
-
-        Returns:   
-            The workflow.
-        """
-        if not work_dir:
-            work_dir = "work_"+str(len(self))
-
-        # Directory of the workflow.
-        work_workdir = os.path.join(self.workdir, work_dir)
-
-        # Make a deepcopy since manager is mutable and we might change it at run-time.
-        manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
-        print("flow manager", manager)
-
-        work.set_workdir(work_workdir)
-        work.set_manager(manager)
-
-        self.works.append(work)
-
-        if deps:
-            deps = [Dependency(node, exts) for node, exts in deps.items()]
-            work.add_deps(deps)
-
-        return work
-
-    def register_cbk(self, cbk, cbk_data, deps, work_class, manager=None):
-        """
-        Registers a callback function that will generate the Task of the workflow.
-
-        Args:
-            cbk:
-                Callback function.
-            cbk_data
-                Callback function.
-            deps:
-                List of `Dependency` objects specifying the dependency of the workflow.
-            work_class:
-                `Workflow` class to instantiate.
-            manager:
-                The `TaskManager` responsible for the submission of the task. 
-                If manager is None, we use the `TaskManager` specified during the creation of the `Flow`.
-                                                                                                            
-        Returns:   
-            The `Workflow` that will be finalized by the callback.
-        """
-        # Directory of the workflow.
-        work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
-                                                                                                            
-        # Make a deepcopy since manager is mutable and we might change it at run-time.
-        manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
-                                                                                                            
-        # Create an empty workflow and register the callback
-        work = work_class(workdir=work_workdir, manager=manager)
-        
-        self._works.append(work)
-                                                                                                            
-        deps = [Dependency(node, exts) for node, exts in deps.items()]
-        if not deps:
-            raise ValueError("A callback must have deps!")
-
-        work.add_deps(deps)
-
-        # Wrap the callable in a Callback object and save 
-        # useful info such as the index of the workflow and the callback data.
-        cbk = Callback(cbk, work, deps=deps, cbk_data=cbk_data)
-                                                                                                            
-        self._callbacks.append(cbk)
-                                                                                                            
-        return work
-
-    def allocate(self):
-        for work in self:
-            work.allocate()
-
-        return self
-
-    def show_dependencies(self):
-        for work in self:
-            work.show_intrawork_deps()
-
-    def on_dep_ok(self, signal, sender):
-        print("on_dep_ok with sender %s, signal %s" % (str(sender), signal))
-
-        for i, cbk in enumerate(self._callbacks):
-
-            if not cbk.handle_sender(sender):
-                print("Do not handle")
-                continue
-
-            if not cbk.can_execute():
-                print("cannot execute")
-                continue 
-
-            # Execute the callback to generate the workflow.
-            print("about to build new workflow")
-            #empty_work = self._works[cbk.w_idx]
-
-            # TODO better treatment of ids
-            # Make sure the new workflow has the same id as the previous one.
-            #new_work_idx = cbk.w_idx
-            work = cbk(flow=self)
-            work.add_deps(cbk.deps)
-
-            # Disable the callback.
-            cbk.disable()
-
-            # Update the database.
-            self.pickle_dump()
-
-    def connect_signals(self):
-        """
-        Connect the signals within the workflow.
-        self is responsible for catching the important signals raised from 
-        its task and raise new signals when some particular condition occurs.
-        """
-        # Connect the signals inside each Workflow.
-        for work in self:
-            work.connect_signals()
-
-        # Observe the nodes that must reach S_OK in order to call the callbacks.
-        for cbk in self._callbacks:
-            for dep in cbk.deps:
-                print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
-                dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
-
-        self.show_receivers()
-
-    def show_receivers(self, sender=dispatcher.Any, signal=dispatcher.Any):
-        print("*** live receivers ***")
-        for rec in dispatcher.liveReceivers(dispatcher.getReceivers(sender, signal)):
-            print("receiver -->", rec)
-        print("*** end live receivers ***")
-
-
-class Callback(object):
-
-    def __init__(self, func, work, deps, cbk_data):
-        """
-        Initialize the callback.
-
-        Args:
-            func:
-            work:
-            deps:
-            cbk_data:
-        """
-        self.func  = func
-        self.work = work
-        self.deps = deps
-        self.cbk_data = cbk_data or {}
-        self._disabled = False
-
-    def __call__(self, flow):
-        """Execute the callback."""
-        if self.can_execute():
-            print("in callback")
-            #print("in callback with sender %s, signal %s" % (sender, signal))
-            cbk_data = self.cbk_data.copy()
-            #cbk_data["_w_idx"] = self.w_idx
-            return self.func(flow=flow, work=self.work, cbk_data=cbk_data)
-        else:
-            raise Exception("Cannot execute")
-
-    def can_execute(self):
-        """True if we can execut the callback."""
-        return not self._disabled and [dep.status == Task.S_OK  for dep in self.deps]
-
-    def disable(self):
-        """
-        True if the callback has been disabled.
-        This usually happens when the callback has been executed.
-        """
-        self._disabled = True
-
-    def handle_sender(self, sender):
-        """
-        True if the callback is associated to the sender
-        i.e. if the node who sent the signal appears in the 
-        dependecies of the callback.
-        """
-        return sender in [d.node for d in self.deps]

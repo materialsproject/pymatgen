@@ -83,6 +83,7 @@ class ExecWrapper(object):
 class MrgscrError(Exception):
     """Error class for Mrgscr"""
 
+
 class Mrgscr(ExecWrapper):
     _name = "mrgscr"
 
