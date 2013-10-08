@@ -582,11 +582,13 @@ class NwOutput(object):
 
                 m = energy_gas_patt.search(l)
                 if m:
-                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+                    energies.append({"gas phase":
+                                     Energy(m.group(1), "Ha").to("eV")})
 
                 m = energy_sol_patt.search(l)
                 if m:
-                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+                    energies.append({"sol phase":
+                                     Energy(m.group(1), "Ha").to("eV")})
 
                 m = preamble_patt.search(l)
                 if m:
