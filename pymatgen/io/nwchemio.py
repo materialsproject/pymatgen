@@ -582,11 +582,17 @@ class NwOutput(object):
 
                 m = energy_gas_patt.search(l)
                 if m:
-                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+                    cosmo_scf_energy = energies[-1]
+                    energies[-1] = dict()
+                    energies[-1].update({"cosmo scf": cosmo_scf_energy})
+                    energies[-1].update({"gas phase":
+                                         Energy(m.group(1), "Ha").to("eV")})
+
 
                 m = energy_sol_patt.search(l)
                 if m:
-                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+                    energies[-1].update({"sol phase":
+                                     Energy(m.group(1), "Ha").to("eV")})
 
                 m = preamble_patt.search(l)
                 if m:
