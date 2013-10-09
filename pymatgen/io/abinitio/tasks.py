@@ -927,14 +927,12 @@ class Task(Node):
             This method should be called only when the calculation is READY because
             it uses a heuristic approach to find the file to link.
         """
-        #if self.status >= self.S_SUB:
-        #    return
-
         for dep in self.deps:
             filepaths, exts = dep.get_filepaths_and_exts()
             #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
+                print("need path %s with ext %s" % (path, ext))
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path): 
@@ -1276,7 +1274,7 @@ class OpticsTask(Task):
         try:
             return self._executable
         except AttributeError:
-            return "optics"
+            return "optic"
 
     @classmethod
     def from_input(cls, optics_input, workdir=None, manager=None):
@@ -1317,6 +1315,13 @@ class OpticsTask(Task):
 
     def setup(self, *args, **kwargs):
         """Public method called before submitting the task."""
+
+    def make_links(self):
+        """
+        Optics allows the user to specify the file paths in the input file.
+        """
+        #for dep in self.deps:
+        #    print dep.node.outdir.has_abifile
 
 
 # TODO
@@ -1474,7 +1479,7 @@ class DDK_Task(AbinitTask):
 
         for old, new in old2new.items():
             print("will rename", old, new)
-            #os.rename(old, new)
+            os.rename(old, new)
                                                                 
         return dict(returncode=0, 
                     message="Calling on_all_ok of the base class!")

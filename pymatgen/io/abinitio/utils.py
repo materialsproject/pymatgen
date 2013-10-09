@@ -266,10 +266,10 @@ class FilepathFixer(object):
     >>> fixer = FilepathFixer()
 
     >>> fixer.fix_paths('/foo/out_1WF17')
-    {'/foo/out_1WF17': '/foo/out_17_1WF'}
+    {'/foo/out_1WF17': '/foo/out_1WF'}
 
     >>> fixer.fix_paths('/foo/out_1WF5.nc')
-    {'/foo/out_1WF5.nc': '/foo/out_5_1WF.nc'}
+    {'/foo/out_1WF.nc': '/foo/out_1WF.nc'}
     """
     def __init__(self):
         # dictionary mapping the *official* file extension to
@@ -284,7 +284,7 @@ class FilepathFixer(object):
     def _fix_1WF(match):
         root, pert, ncext = match.groups()
         if ncext is None: ncext = ""
-        return root + pert + "_1WF" + ncext
+        return root + "1WF" + ncext
 
     def _fix_path(self, path):
         for ext, regex in self.regs.items():
