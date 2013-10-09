@@ -70,6 +70,13 @@ class OpticsInput(object):
     def make_input(self):
         return self.string
 
+    def add_extra_abivars(self, abivars):
+        """
+        Connection is explicit via the input file.
+        since we can pass the paths of the output files 
+        produced by the previous runs.
+        """
+
 
 class Strategy(object):
     """
