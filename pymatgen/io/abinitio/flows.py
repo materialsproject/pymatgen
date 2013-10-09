@@ -214,7 +214,7 @@ class AbinitFlow(collections.Iterable):
         self.register_work(work)
         return task
 
-    def register_work(self, work, deps=None, manager=None):
+    def register_work(self, work, deps=None, manager=None, workdir=None):
         """
         Register a new `Workflow` and add it to the internal list, 
         taking into account possible dependencies.
@@ -228,12 +228,17 @@ class AbinitFlow(collections.Iterable):
             manager:
                 The `TaskManager` responsible for the submission of the task. 
                 If manager is None, we use the `TaskManager` specified during the creation of the workflow.
+            workdir:
+                The name of the directory used for the `Workflow`.
 
         Returns:   
             The workflow.
         """
         # Directory of the workflow.
-        work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
+        if workdir is None:
+            work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
+        else:
+            work_workdir = os.path.join(self.workdir, os.path.basenane(workdir))
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
         manager = self.manager.deepcopy() if manager is None else manager.deepcopy()

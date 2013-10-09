@@ -20,7 +20,7 @@ except ImportError:
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
 
@@ -34,6 +34,14 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "TaskManager",
+    "ScfTask",
+    "NscfTask",
+    "RelaxTask",
+    "DDK_Task",
+    "PhononTask",
+    "G_Task",
+    "HaydockBseTask",
+    "OpticsTask",
 ]
 
 _COUNT = -1
@@ -141,8 +149,9 @@ S_SUB = Status(3)
 S_RUN = Status(4)
 S_DONE = Status(5)
 S_ERROR = Status(6)
-#S_UNCONVERGED = Status(7)
+S_UNCONVERGED = Status(7)
 S_OK = Status(8)
+
 
 class Node(object):
     """
@@ -155,14 +164,14 @@ class Node(object):
     __metaclass__ = abc.ABCMeta
 
     ## Possible status of the node.
-    S_INIT = S_INIT            # Node has been initialized
-    S_READY = S_READY          # Node is ready i.e. all the depencies of the node have status S_OK
-    S_SUB = S_SUB           # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    S_RUN = S_RUN             # Node is running.
-    S_DONE = S_DONE           # Node done, This does not imply that results are ok or that the calculation completed successfully
-    S_ERROR = S_ERROR          # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    #S_UNCONVERGED   ##S_UNCONVERGED = 32  # This usually means that an iterative algorithm didn't converge.
-    S_OK = S_OK            # Execution completed successfully.
+    S_INIT = S_INIT                # Node has been initialized
+    S_READY = S_READY              # Node is ready i.e. all the depencies of the node have status S_OK
+    S_SUB = S_SUB                  # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    S_RUN = S_RUN                  # Node is running.
+    S_DONE = S_DONE                # Node done, This does not imply that results are ok or that the calculation completed successfully
+    S_ERROR = S_ERROR              # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+    S_UNCONVERGED = S_UNCONVERGED  # This usually means that an iterative algorithm didn't converge.
+    S_OK = S_OK                    # Execution completed successfully.
 
     def __init__(self):
         # Node identifier.
@@ -173,6 +182,9 @@ class Node(object):
 
         # Used to push additional info during the  execution. 
         self.history = collections.deque(maxlen=50)
+
+        # Set to true if the node has been finalized.
+        self._finalized = False
 
     def __eq__(self, other):
         if not isinstance(other, Node):
@@ -199,6 +211,16 @@ class Node(object):
     def set_node_id(self, node_id):
         """Set the node identifier. Use it carefully!"""
         self._node_id = node_id
+
+    @property
+    def finalized(self):
+        """True if the `Workflow` has been finalized."""
+        return self._finalized
+
+    @finalized.setter
+    def finalize(self, boolean):
+        self._finalized = boolean
+        self.history.append("Finalized on %s" % time.asctime())
                                                          
     #@abc.abstractproperty
     #def workdir(self):
@@ -416,8 +438,38 @@ class Task(Node):
 
     Error = TaskError
 
-    def __init__(self):
+    # Prefixes for Abinit (input, output, temporary) files.
+    Prefix = collections.namedtuple("Prefix", "idata odata tdata")
+    pj = os.path.join
+
+    prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
+    del Prefix, pj
+
+    def __init__(self, strategy, workdir=None, manager=None):
+        """
+        Args:
+            strategy: 
+                Input file or `Strategy` instance defining the calculation.
+            workdir:
+                Path to the working directory.
+            manager:
+                `TaskManager` object.
+        """
+        # Init the node
         super(Task, self).__init__()
+
+        # Save the strategy to use to generate the input file.
+        # FIXME
+        #self.strategy = strategy.deepcopy()
+        self.strategy = strategy
+                                                               
+        if workdir is not None:
+            self.set_workdir(workdir)
+                                                               
+        if manager is not None:
+            self.set_manager(manager)
+        else:
+            self.set_manager(TaskManager.sequential())
 
         # Set the initial status.
         self.set_status(self.S_INIT)
@@ -436,6 +488,51 @@ class Task(Node):
         """
         return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
+    def set_workdir(self, workdir):
+        """Set the working directory. Cannot be set more than once."""
+        assert not hasattr(self, "workdir")
+        self.workdir = os.path.abspath(workdir)
+
+        # Files required for the execution.
+        self.input_file = File(os.path.join(self.workdir, "run.abi"))
+        self.output_file = File(os.path.join(self.workdir, "run.abo"))
+        self.files_file = File(os.path.join(self.workdir, "run.files"))
+        self.job_file = File(os.path.join(self.workdir, "job.sh"))
+        self.log_file = File(os.path.join(self.workdir, "run.log"))
+        self.stderr_file = File(os.path.join(self.workdir, "run.err"))
+
+        # Directories with input|output|temporary data.
+        self.indir = Directory(os.path.join(self.workdir, "indata"))
+        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
+        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
+        # stderr and output file of the queue manager.
+        self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
+        self.qout_file = File(os.path.join(self.workdir, "queue.out"))
+
+    def set_manager(self, manager):
+        """Set the `TaskManager` to use to launch the Task."""
+        self.manager = manager.deepcopy()
+
+    def make_input(self):
+        """Construct and write the input file of the calculation."""
+        return self.strategy.make_input()
+
+    def ipath_from_ext(self, ext):
+        """
+        Returns the path of the input file with extension ext.
+        Use it when the file does not exist yet.
+        """
+        return os.path.join(self.workdir, self.prefix.idata + "_" + ext)
+
+    def opath_from_ext(self, ext):
+        """
+        Returns the path of the output file with extension ext.
+        Use it when the file does not exist yet.
+        """
+        return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
+
+
     @abc.abstractproperty
     def executable(self):
         """
@@ -446,10 +543,119 @@ class Task(Node):
         """Set the executable associate to this task."""
         self._executable = executable
 
-    # Interface modeled after subprocess.Popen
-    @abc.abstractproperty
+    def set_name(name):
+        self._name = name
+
+    @property
+    def name(self):
+        try:
+            return self._name
+        except AttributeError:
+            return self.workdir
+
+    @property
+    def short_name(self):
+        return os.path.basename(self.workdir)
+
+    @property
     def process(self):
-        """Return an object that supports the `subprocess.Popen` protocol."""
+        try:
+            return self._process
+        except AttributeError:
+            # Attach a fake process so that we can poll it.
+            return FakeProcess()
+
+    #@property
+    #def is_allocated(self):
+    #    """
+    #    True if the task has been allocated, 
+    #    i.e. if it has been submitted or if it's running.
+    #    """
+    #    return self.status in [self.S_SUB, self.S_RUN]
+
+    @property
+    def is_completed(self):
+        """True if the task has been executed."""
+        return self.status >= self.S_DONE
+
+    @property
+    def can_run(self):
+        """The task can run if its status is S_READY and all the other depencies (if any) are done!"""
+        all_ok = all([stat == self.S_OK for stat in self.deps_status])
+        return (self.status < self.S_SUB) and all_ok
+
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        logger.debug("not_converged method of the base class will always return False")
+        return False
+
+    def on_ok(self):
+        """
+        This method is called once the `Task` has reached status S_OK. 
+        Subclasses should provide their own implementation
+
+        Returns:
+            Dictionary that must contain at least the following entries:
+                returncode:
+                    0 on success. 
+                message: 
+                    a string that should provide a human-readable description of what has been performed.
+        """
+        return dict(returncode=0, 
+                    message="Calling on_all_ok of the base class!")
+
+    # Interface modeled after subprocess.Popen
+    #@abc.abstractproperty
+    #def process(self):
+    #    """Return an object that supports the `subprocess.Popen` protocol."""
+
+    def _restart(self):
+        """
+        Called by restart once we have finished preparing the task for restarting.
+        """
+        self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
+
+        # Increase the counter and relaunch the task.
+        self.num_restarts += 1
+        self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
+        self.start()
+        return 0
+
+    def restart(self):
+        """
+        Restart the calculation. This method is called if the calculation is not converged 
+        and we can restart the task. See restart_if_needed.
+        """
+        logger.debug("Calling the **empty** restart method of the base class")
+
+    def restart_if_needed(self):
+        """
+        Callback that is executed once the job is done. 
+        The implementation of the two methods: 
+
+           - not_converged
+           - restart 
+           
+        is delegated to the subclasses.
+
+        Returns:
+            0 if succes, 1 if restart was not possible.
+        """
+        if self.not_converged():
+            if self.num_restarts == self.max_num_restarts:
+                logger.info("Reached maximum number of restarts. Returning")
+                return 1
+
+            try:
+                self.restart()
+    
+            except TaskRestartError as exc:
+                info_msg = "Calculation not converged but restart was not possible!\nException: %s" % exc
+                logger.debug(info_msg)
+                self.set_status(self.S_ERROR, info_msg=info_msg)
+                return 1
+     
+        return 0
 
     def poll(self):
         """Check if child process has terminated. Set and return returncode attribute."""
@@ -563,6 +769,11 @@ class Task(Node):
         self._status = status
 
         if status == self.S_OK:
+            # Finalize the task.
+            if not self.finalized:
+                self.on_ok()
+                self._finalized = True
+
             logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=self.S_OK, sender=self)
 
@@ -665,25 +876,6 @@ class Task(Node):
         # 4) Assume the job is still running.
         return self.set_status(self.S_RUN)
 
-    #@property
-    #def is_allocated(self):
-    #    """
-    #    True if the task has been allocated, 
-    #    i.e. if it has been submitted or if it's running.
-    #    """
-    #    return self.status in [self.S_SUB, self.S_RUN]
-
-    @property
-    def is_completed(self):
-        """True if the task has been executed."""
-        return self.status >= self.S_DONE
-
-    @property
-    def can_run(self):
-        """The task can run if its status is S_READY and all the other depencies (if any) are done!"""
-        all_ok = all([stat == self.S_OK for stat in self.deps_status])
-        return (self.status < self.S_SUB) and all_ok
-
     def out_to_in(self, out_file):
         """
         Move an output file to the output data directory of the `Task` 
@@ -766,59 +958,6 @@ class Task(Node):
                 else:
                     if os.path.realpath(dest) != path:
                         raise self.Error("dest %s does not point to path %s" % (dest, path))
-
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        logger.debug("not_converged method of the base class will always return False")
-        return False
-
-    def _restart(self):
-        """
-        Called by restart once we have finished preparing the task for restarting.
-        """
-        self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
-
-        # Increase the counter and relaunch the task.
-        self.num_restarts += 1
-        self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
-        self.start()
-        return 0
-
-    def restart(self):
-        """
-        Restart the calculation. This method is called if the calculation is not converged 
-        and we can restart the task. See restart_if_needed.
-        """
-        logger.debug("Calling the **empty** restart method of the base class")
-
-    def restart_if_needed(self):
-        """
-        Callback that is executed once the job is done. 
-        The implementation of the two methods: 
-
-           - not_converged
-           - restart 
-           
-        is delegated to the subclasses.
-
-        Returns:
-            0 if succes, 1 if restart was not possible.
-        """
-        if self.not_converged():
-            if self.num_restarts == self.max_num_restarts:
-                logger.info("Reached maximum number of restarts. Returning")
-                return 1
-
-            try:
-                self.restart()
-    
-            except TaskRestartError as exc:
-                info_msg = "Calculation not converged but restart was not possible!\nException: %s" % exc
-                logger.debug(info_msg)
-                self.set_status(self.S_ERROR, info_msg=info_msg)
-                return 1
-     
-        return 0
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -911,178 +1050,6 @@ class Task(Node):
             dest = os.path.join(os.path.dirname(self.workdir), dest)
 
         shutil.move(self.workdir, dest)
-
-
-class AbinitTask(Task):
-    """
-    Base class defining an ABINIT calculation
-    """
-    # Prefixes for Abinit (input, output, temporary) files.
-    Prefix = collections.namedtuple("Prefix", "idata odata tdata")
-    pj = os.path.join
-
-    prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
-    del Prefix, pj
-
-    #IN = "in"
-    #OUT = "out"
-    #TMP = "tmp"
-
-    def __init__(self, strategy, workdir=None, manager=None):
-        """
-        Args:
-            strategy: 
-                Input file or `Strategy` instance defining the calculation.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
-            policy:
-                `TaskPolicy` object.
-            kwargs:
-                keyword arguments (not used for the time being)
-        """
-        super(AbinitTask, self).__init__()
-
-        # Save the strategy to use to generate the input file.
-        # FIXME
-        #self.strategy = strategy.deepcopy()
-        self.strategy = strategy
-
-        if workdir is not None:
-            self.set_workdir(workdir)
-
-        if manager is not None:
-            self.set_manager(manager)
-        else:
-            self.set_manager(TaskManager.sequential())
-
-    def set_manager(self, manager):
-        """Set the `TaskManager` to use to launch the Task."""
-        self.manager = manager.deepcopy()
-
-    def set_workdir(self, workdir):
-        """Set the working directory. Cannot be set more than once."""
-        assert not hasattr(self, "workdir")
-        self.workdir = os.path.abspath(workdir)
-
-        # Files required for the execution.
-        self.input_file = File(os.path.join(self.workdir, "run.abi"))
-        self.output_file = File(os.path.join(self.workdir, "run.abo"))
-        self.files_file = File(os.path.join(self.workdir, "run.files"))
-        self.job_file = File(os.path.join(self.workdir, "job.sh"))
-        self.log_file = File(os.path.join(self.workdir, "run.log"))
-        self.stderr_file = File(os.path.join(self.workdir, "run.err"))
-
-        # Directories with input|output|temporary data.
-        self.indir = Directory(os.path.join(self.workdir, "indata"))
-        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
-        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
-
-        # stderr and output file of the queue manager.
-        self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
-        self.qout_file = File(os.path.join(self.workdir, "queue.out"))
-
-    @classmethod
-    def from_input(cls, abinit_input, workdir=None, manager=None):
-        """
-        Create an instance of `AbinitTask` from an ABINIT input.
-    
-        Args:
-            abinit_input:
-                `AbinitInput` object.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
-        """
-        # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        from pymatgen.io.abinitio.strategies import StrategyWithInput
-        strategy = StrategyWithInput(abinit_input)
-
-        return cls(strategy, workdir=workdir, manager=manager)
-
-    @property
-    def executable(self):
-        """Path to the executable required for running the Task."""
-        try:
-            return self._executable
-        except AttributeError:
-            return "abinit"
-
-    def set_name(name):
-        self._name = name
-
-    @property
-    def name(self):
-        try:
-            return self._name
-        except AttributeError:
-            return self.workdir
-
-    @property
-    def short_name(self):
-        return os.path.basename(self.workdir)
-
-    @property
-    def process(self):
-        try:
-            return self._process
-        except AttributeError:
-            # Attach a fake process so that we can poll it.
-            return FakeProcess()
-
-    def ipath_from_ext(self, ext):
-        """
-        Returns the path of the input file with extension ext.
-        Use it when the file does not exist yet.
-        """
-        return os.path.join(self.workdir, self.prefix.idata + "_" + ext)
-
-    def opath_from_ext(self, ext):
-        """
-        Returns the path of the output file with extension ext.
-        Use it when the file does not exist yet.
-        """
-        return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
-
-    @property
-    def pseudos(self):
-        """List of pseudos used in the calculation."""
-        return self.strategy.pseudos
-
-    @property
-    def filesfile_string(self):
-        """String with the list of files and prefixex needed to execute ABINIT."""
-        lines = []
-        app = lines.append
-        pj = os.path.join
-
-        app(self.input_file.path)                 # Path to the input file
-        app(self.output_file.path)                # Path to the output file
-        app(pj(self.workdir, self.prefix.idata))  # Prefix for input data
-        app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
-        app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
-
-        # Paths to the pseudopotential files.
-        for pseudo in self.pseudos:
-            app(pseudo.path)
-
-        return "\n".join(lines)
-
-    @property
-    def isnc(self):
-        """True if norm-conserving calculation."""
-        return all(p.isnc for p in self.pseudos)
-
-    @property
-    def ispaw(self):
-        """True if PAW calculation"""
-        return all(p.ispaw for p in self.pseudos)
-
-    def make_input(self):
-        """Construct and write the input file of the calculation."""
-        return self.strategy.make_input()
 
     def in_files(self):
         """Return all the input data files used."""
@@ -1219,6 +1186,137 @@ class AbinitTask(Task):
         """
         self.start(*args, **kwargs)
         return self.wait()
+
+
+class AbinitTask(Task):
+    """
+    Base class defining an ABINIT calculation
+    """
+
+
+
+
+
+
+
+    #IN = "in"
+    #OUT = "out"
+    #TMP = "tmp"
+
+    #def __init__(self, strategy, workdir=None, manager=None):
+    #    super(AbinitTask, self).__init__(strategy, workdir=workdir, manager=manager)
+
+    @classmethod
+    def from_input(cls, abinit_input, workdir=None, manager=None):
+        """
+        Create an instance of `AbinitTask` from an ABINIT input.
+    
+        Args:
+            abinit_input:
+                `AbinitInput` object.
+            workdir:
+                Path to the working directory.
+            manager:
+                `TaskManager` object.
+        """
+        # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+        from pymatgen.io.abinitio.strategies import StrategyWithInput
+        strategy = StrategyWithInput(abinit_input)
+
+        return cls(strategy, workdir=workdir, manager=manager)
+
+    @property
+    def executable(self):
+        """Path to the executable required for running the Task."""
+        try:
+            return self._executable
+        except AttributeError:
+            return "abinit"
+
+    @property
+    def pseudos(self):
+        """List of pseudos used in the calculation."""
+        return self.strategy.pseudos
+
+    @property
+    def isnc(self):
+        """True if norm-conserving calculation."""
+        return all(p.isnc for p in self.pseudos)
+
+    @property
+    def ispaw(self):
+        """True if PAW calculation"""
+        return all(p.ispaw for p in self.pseudos)
+
+    @property
+    def filesfile_string(self):
+        """String with the list of files and prefixex needed to execute ABINIT."""
+        lines = []
+        app = lines.append
+        pj = os.path.join
+
+        app(self.input_file.path)                 # Path to the input file
+        app(self.output_file.path)                # Path to the output file
+        app(pj(self.workdir, self.prefix.idata))  # Prefix for input data
+        app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
+        app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
+
+        # Paths to the pseudopotential files.
+        for pseudo in self.pseudos:
+            app(pseudo.path)
+
+        return "\n".join(lines)
+
+
+class OpticsTask(Task):
+
+    @property
+    def executable(self):
+        """Path to the executable required for running the Task."""
+        try:
+            return self._executable
+        except AttributeError:
+            return "optics"
+
+    @classmethod
+    def from_input(cls, optics_input, workdir=None, manager=None):
+        """
+        Create an instance of `OpticsTask` from an Optics input.
+    
+        Args:
+            optics_input:
+                `OpticsInput` object.
+            workdir:
+                Path to the working directory.
+            manager:
+                `TaskManager` object.
+        """
+        from pymatgen.io.abinitio.strategies import OpticsInput
+        strategy = OpticsInput(optics_input)
+
+        return cls(strategy, workdir=workdir, manager=manager)
+
+    @property
+    def filesfile_string(self):
+        """String with the list of files and prefixex needed to execute ABINIT."""
+        lines = []
+        app = lines.append
+        pj = os.path.join
+
+        #optic.in     ! Name of input file
+        #optic.out    ! Unused
+        #optic        ! Root name for all files that will be produced
+
+        app(self.input_file.path)                 # Path to the input file
+        app(self.output_file.path)                # Path to the output file
+        #app(pj(self.workdir, self.prefix.idata))  # Prefix for input data
+        #app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
+        #app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
+
+        return "\n".join(lines)
+
+    def setup(self, *args, **kwargs):
+        """Public method called before submitting the task."""
 
 
 # TODO
@@ -1361,9 +1459,26 @@ class RelaxTask(AbinitTask):
 
 
 class DDK_Task(AbinitTask):
+
     def not_converged(self):
         """Return True if the calculation is not converged."""
         return False
+
+    def on_ok(self):
+        filepaths = self.outdir.list_filepaths()
+        print("in DDK ok")
+        print("filepaths", filepaths)
+
+        old2new = FilepathFixer().fix_paths(filepaths)
+        print("old2new", old2new)
+
+        for old, new in old2new.items():
+            print("will rename", old, new)
+            #os.rename(old, new)
+                                                                
+        return dict(returncode=0, 
+                    message="Calling on_all_ok of the base class!")
+
 
 class PhononTask(AbinitTask):
     """
