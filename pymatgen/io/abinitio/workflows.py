@@ -202,8 +202,6 @@ class BaseWorkflow(Node):
                 print("Workflow %s status = %s" % (str(self), self.status))
                 dispatcher.send(signal=self.S_OK, sender=self)
 
-                self.history.append("Finalized on %s" % time.asctime())
-
                 return results
 
         return AttrDict(returncode=1, message="Not all tasks are OK!")
@@ -257,19 +255,18 @@ class Workflow(BaseWorkflow):
         if manager is not None:
             self.set_manager(manager)
 
-    @property
-    def id(self):
-        """Task identifier."""
-        return self._id
+    #@property
+    #def id(self):
+    #    """Task identifier."""
+    #    return self._id
 
-    @property
-    def finalized(self):
-        """True if the `Workflow` has been finalized."""
-        try:
-            return self._finalized
-
-        except AttributeError:
-            return False
+    #@property
+    #def finalized(self):
+    #    """True if the `Workflow` has been finalized."""
+    #    try:
+    #        return self._finalized
+    #    except AttributeError:
+    #        return False
 
     def set_manager(self, manager):
         """Set the `TaskManager` to use to launch the Task."""

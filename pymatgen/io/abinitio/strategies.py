@@ -63,6 +63,14 @@ class StrategyWithInput(object):
         return str(self.abinit_input)
 
 
+class OpticsInput(object):
+    def __init__(self, string):
+        self.string = string
+
+    def make_input(self):
+        return self.string
+
+
 class Strategy(object):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
