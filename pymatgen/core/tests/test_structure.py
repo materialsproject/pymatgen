@@ -401,6 +401,15 @@ class StructureTest(PymatgenTest):
         self.assertArrayAlmostEqual(self.structure.lattice.abc,
                                     [15.360792, 35.195996, 7.680396], 5)
 
+    def test_disordered_supercell_primitive_cell(self):
+        l = Lattice.cubic(2)
+        f = [[0.5, 0.5, 0.5]]
+        sp = [{'Si': 0.54738}]
+        s = Structure(l, sp, f)
+        #this supercell often breaks things
+        s.make_supercell([[0,-1,1],[-1,1,0],[1,1,1]])
+        self.assertEqual(len(s.get_primitive_structure()), 1)
+
     def test_another_supercell(self):
         #this is included b/c for some reason the old algo was failing on it
         s = self.structure.copy()
