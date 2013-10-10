@@ -232,6 +232,18 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords, 
                                                     [0,0,0.175])), 1)
         
+    def test_get_supercell_matrix(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                              primitive_cell=False, scale=True, 
+                              attempt_supercell=True)
+        l = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(l, ['Si', 'Si', 'Ag'], 
+                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s1.make_supercell([2,1,1])
+        s2 = Structure(l, ['Si', 'Si', 'Ag'], 
+                       [[0,0.1,0],[0,0.1,-0.95],[-.7,.5,.375]])
+        result = sm.get_supercell_matrix(s1, s2)
+        self.assertTrue((result == [[-2,0,0],[0,1,0],[0,0,1]]).all())
     
     def test_subset(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 

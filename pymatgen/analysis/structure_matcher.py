@@ -886,10 +886,30 @@ class StructureMatcher(MSONable):
             return None
         else:
             return min_mapping
+        
+    def get_supercell_matrix(self, supercell, struct):
+        """
+        Returns the supercell matrix for transforming struct to supercell. This
+        can be used for very distorted 'supercells' where the primitive cell
+        is hard to find
+        """
+        if self._primitive_cell:
+            raise ValueError("get_supercell_matrix cannot be used with the "
+                             "primitive cell option")
+        if self._supercell and struct.num_sites > supercell.num_sites:
+            raise ValueError("The non-supercell must be put onto the basis"
+                             " of the supercell, not the other way around")
+        match = self._find_match(supercell, struct, break_on_match=False,
+                                 use_rms=True, niggli=False)
+        if match is None:
+            return None
+
+        return np.round(np.dot(match[2].matrix, 
+                               struct.lattice.inv_matrix)).astype('int')
 
     def get_s2_like_s1(self, struct1, struct2):
         """
-        performs transformations on struct2 to put it in a basis similar to
+        Performs transformations on struct2 to put it in a basis similar to
         struct1 (without changing any of the inter-site distances)
         """
         if self._primitive_cell:
@@ -907,6 +927,7 @@ class StructureMatcher(MSONable):
             return None
         scale_matrix = np.round(
             np.dot(match[2].matrix, struct2.lattice.inv_matrix)).astype('int')
+        
         temp = struct2.copy()
         temp.make_supercell(scale_matrix)
         fc = temp.frac_coords + match[3]
