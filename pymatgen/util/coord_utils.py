@@ -184,7 +184,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
             Second set of fractional coordinates.
 
     Returns:
-        array of displacement vectors
+        array of displacement vectors from fcoords1 to fcoords2
+        first index is fcoords1 index, second is fcoords2 index
     """
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)

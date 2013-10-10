@@ -5,7 +5,7 @@ import json
 import numpy as np
 
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
-    ElementComparator, FrameworkComparator
+    ElementComparator, FrameworkComparator, OrderDisorderElementComparator
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.smartio import read_structure
@@ -281,7 +281,61 @@ class StructureMatcherTest(unittest.TestCase):
         s2 = Structure(l, ['Si', 'Si'], 
                        [[0,0.1,0],[-.7,.5,.4]])
         self.assertEqual(sm.get_s2_like_s1(s1, s2), None)
-
+    
+    def test_disordered_primitive_to_ordered_supercell(self):
+        sm_atoms = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                                    primitive_cell=False, scale=True, 
+                                    attempt_supercell=True,
+                                    allow_subset=True,
+                                    supercell_size = 'num_atoms',
+                                    comparator=OrderDisorderElementComparator())
+        sm_sites = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                                    primitive_cell=False, scale=True, 
+                                    attempt_supercell=True,
+                                    allow_subset=True,
+                                    supercell_size = 'num_sites',
+                                    comparator=OrderDisorderElementComparator())
+        lp = Lattice.orthorhombic(10, 20, 30)
+        pcoords = [[0,   0,   0],
+                   [0.5, 0.5, 0.5]]
+        ls = Lattice.orthorhombic(20,20,30)
+        scoords = [[0,    0,   0],
+                   [0.75, 0.5, 0.5]]
+        s1 = Structure(lp, [{'Na':0.5}, {'Cl':0.5}], pcoords)
+        s2 = Structure(ls, ['Na', 'Cl'], scoords)
+        
+        self.assertFalse(sm_sites.fit(s1, s2))
+        self.assertTrue(sm_atoms.fit(s1, s2))
+        self.assertRaises(ValueError, sm_atoms.get_s2_like_s1, s1, s2) 
+        self.assertEqual(len(sm_atoms.get_s2_like_s1(s2, s1)), 4)
+        
+    def test_ordered_primitive_to_disordered_supercell(self):
+        sm_atoms = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                                    primitive_cell=False, scale=True, 
+                                    attempt_supercell=True,
+                                    allow_subset=True,
+                                    supercell_size = 'num_atoms',
+                                    comparator=OrderDisorderElementComparator())
+        sm_sites = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, 
+                                    primitive_cell=False, scale=True, 
+                                    attempt_supercell=True,
+                                    allow_subset=True,
+                                    supercell_size = 'num_sites',
+                                    comparator=OrderDisorderElementComparator())
+        lp = Lattice.orthorhombic(10, 20, 30)
+        pcoords = [[0,   0,   0],
+                   [0.5, 0.5, 0.5]]
+        ls = Lattice.orthorhombic(20,20,30)
+        scoords = [[0,    0,   0],
+                   [0.5,  0,   0],
+                   [0.25, 0.5, 0.5],
+                   [0.75, 0.5, 0.5]]
+        s1 = Structure(lp, ['Na', 'Cl'], pcoords)
+        s2 = Structure(ls, [{'Na':0.5}, {'Na':0.5}, {'Cl':0.5}, {'Cl':0.5}], scoords)
+        
+        self.assertTrue(sm_sites.fit(s1, s2))
+        self.assertFalse(sm_atoms.fit(s1, s2))
+    
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
@@ -289,6 +343,7 @@ class StructureMatcherTest(unittest.TestCase):
         s2 = read_structure(os.path.join(test_dir, "Na2Fe2PNO4Se4.cif"))
         self.assertAlmostEqual(sm.fit_with_electronegativity(s1, s2),
                                {Composition('S'): Composition('Se'), Composition('As'): Composition('N')})
+    
 
 if __name__ == '__main__':
     unittest.main()
