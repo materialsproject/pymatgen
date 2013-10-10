@@ -26,6 +26,7 @@ import random
 
 import numpy as np
 
+from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
@@ -822,16 +823,16 @@ class IStructure(SiteCollection, MSONable):
             guaranteed to have len(new structure) <= len(structure).
         """
         original_volume = self.volume
-        (reduced_formula, num_fu) =\
-            self.composition.get_reduced_composition_and_factor()
-
-        min_vol = original_volume * 0.5 / num_fu
 
         #get the possible symmetry vectors
         sites = sorted(self._sites, key=lambda site: site.species_string)
         grouped_sites = [list(a[1]) for a
                          in itertools.groupby(sites,
                                               key=lambda s: s.species_string)]
+
+        num_fu = reduce(gcd, map(len, grouped_sites))
+        min_vol = original_volume * 0.5 / num_fu
+
         min_site_list = min(grouped_sites, key=lambda group: len(group))
 
         min_site_list = [site.to_unit_cell for site in min_site_list]
