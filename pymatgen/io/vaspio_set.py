@@ -47,12 +47,13 @@ class AbstractVaspInputSet(MSONable):
     fashion for any structure.
     """
     __metaclass__ = abc.ABCMeta
-
+    
+    @abc.abstractmethod
     def get_poscar(self, structure):
         """
         Returns Poscar from a structure.
         """
-        return Poscar(structure)
+        return
 
     @abc.abstractmethod
     def get_kpoints(self, structure):
@@ -271,6 +272,11 @@ class DictVaspInputSet(AbstractVaspInputSet):
             incar['NUPDOWN'] = nupdown
 
         return incar
+    
+    def get_poscar(self, structure):
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
+        return Poscar(structure)
 
     def get_potcar(self, structure):
         if self.sort_structure:
