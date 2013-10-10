@@ -209,7 +209,8 @@ class FrameworkComparator(AbstractComparator):
 
 class OrderDisorderElementComparator(AbstractComparator):
     """
-    A Comparator that matches sites, regardless of species.
+    A Comparator that matches sites, given some overlap in the element
+    composition
     """
 
     def are_equal(self, sp1, sp2):
@@ -295,7 +296,7 @@ class StructureMatcher(MSONable):
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
                  scale=True, attempt_supercell=False, allow_subset=False,
-                 comparator=SpeciesComparator()):
+                 comparator=SpeciesComparator(), supercell_size = 'num_sites'):
         """
         Args:
             ltol:
@@ -336,6 +337,12 @@ class StructureMatcher(MSONable):
                 supplying a comparison function is that it is not possible to
                 pickle a function, which makes it otherwise difficult to use
                 StructureMatcher with Python's multiprocessing.
+            supercell_size:
+                Method to use for determining the size of a supercell (if
+                applicable). Possible values are:
+                    num_sites
+                    num_atoms
+                    volume
         """
         self.ltol = ltol
         self.stol = stol
@@ -344,10 +351,22 @@ class StructureMatcher(MSONable):
         self._primitive_cell = primitive_cell
         self._scale = scale
         self._supercell = attempt_supercell
+        self._supercell_size = supercell_size
         self._subset = allow_subset
-        if attempt_supercell and allow_subset:
-            raise ValueError("attempt_supercell cannot be combined with "
-                             "allow_subset")
+        
+    def _get_supercell_size(self, target_s, s):
+        """
+        Returns the unrounded number of units of s in target_s
+        """
+        if self._supercell_size == 'num_sites':
+            fu = target_s.num_sites / s.num_sites
+        elif self._supercell_size == 'num_atoms':
+            fu = target_s.composition.num_atoms / s.composition.num_atoms
+        elif self._supercell_size == 'volume':
+            fu = target_s.volume / s.volume
+        else:
+            raise ValueError('invalid argument for supercell_size')
+        return fu
 
     def _get_lattices(self, target_s, s, supercell_size=1):
         """
@@ -415,9 +434,17 @@ class StructureMatcher(MSONable):
             yield nl
 
     def _cmp_fractional_struct(self, s1, s2, frac_tol, mask):
+        #ensure that we always calculate distances from the subset
+        #to the superset
+        if len(s1) > len(s2):
+            s_superset, s_subset = s1, s2
+        else:
+            s_superset, s_subset = s2, s1
+            mask = mask.T
         #compares the fractional coordinates
-        mask_val = 3 * len(s1)
-        dist = s2[:, None] - s1[None, :]
+        mask_val = 3 * len(s_superset)
+        #distance from subset to superset
+        dist = s_superset[None, :] - s_subset[:, None]
         dist = abs(dist - np.round(dist))
         dist[np.where(dist > frac_tol[None, None, :])] = mask_val
         cost = np.sum(dist, axis=-1)
@@ -425,7 +452,7 @@ class StructureMatcher(MSONable):
         if np.max(np.min(cost, axis=1)) >= mask_val:
             return False
         if self._subset:
-            n = len(s1)
+            n = len(s_superset)
             square_cost = np.zeros((n, n))
             square_cost[:cost.shape[0], :cost.shape[1]] = cost
             cost = square_cost
@@ -437,37 +464,46 @@ class StructureMatcher(MSONable):
     def _cart_dists(self, s1, s2, l1, l2, mask):
         """
         Finds the cartesian distances normalized by (V/Natom) ^ 1/3
-        between s1 and s2 on the average lattice of l1 and l2
-        s1 and s2 are lists of fractional coordinates. Minimizes the
-        RMS distance of the matching with an additional translation
-        (but doesn't change the mapping)
+        between two structures on the average lattice of l1 and l2
+        s_superset and s_subset are lists of fractional coordinates. 
+        Minimizes the RMS distance of the matching with an additional 
+        translation (but doesn't change the mapping)
         returns distances, fractional_translation vector
         """
+        #ensure that we always calculate distances from the subset
+        #to the superset
+        if len(s1) > len(s2):
+            s_superset, s_subset, mult = s1, s2, 1
+        else:
+            s_superset, s_subset, mult = s2, s1, -1
+            mask = mask.T
         #create the average lattice
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
         avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
-        norm_length = (avg_lattice.volume / len(s1)) ** (1 / 3)
+        norm_length = (avg_lattice.volume / len(s_superset)) ** (1 / 3)
         mask_val = 1e20 * norm_length * self.stol
 
-        all_d_2 = np.zeros([len(s1), len(s1)])
-        vec_matrix = np.zeros([len(s1), len(s1), 3])
+        all_d_2 = np.zeros([len(s_superset), len(s_superset)])
+        vec_matrix = np.zeros([len(s_superset), len(s_superset), 3])
 
-        vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
-        vec_matrix[:len(s2)] = vecs
+        #vectors from subset to superset
+        #1st index subset, 2nd index superset
+        vecs = pbc_shortest_vectors(avg_lattice, s_subset, s_superset)
+        vec_matrix[:len(s_subset), :len(s_superset)] = vecs
         vec_matrix[mask] = mask_val
         d_2 = (np.sum(vecs ** 2, axis=-1))
-        all_d_2[:len(s2)] = d_2
+        all_d_2[:len(s_subset), :len(s_superset)] = d_2
         all_d_2[mask] = mask_val
-
         lin = LinearAssignment(all_d_2)
-        inds = np.arange(len(s2))
-        shortest_vecs = vec_matrix[inds, lin.solution[:len(s2)], :]
+        inds = np.arange(len(s_subset))
+        #shortest vectors from the subset to the superset
+        shortest_vecs = vec_matrix[inds, lin.solution[:len(s_subset)], :]
         translation = np.average(shortest_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
         shortest_distances = np.sum((shortest_vecs - translation) ** 2,
                                     -1) ** 0.5
-        return shortest_distances / norm_length, f_translation
+        return shortest_distances / norm_length, f_translation * mult
 
     def fit(self, struct1, struct2):
         """
@@ -552,21 +588,18 @@ class StructureMatcher(MSONable):
             struct2 = struct2.get_primitive_structure()
 
         if self._supercell:
+            fu = self._get_supercell_size(struct1, struct2)
             #force struct1 to be the larger one
-            if struct2.num_sites > struct1.num_sites:
+            if fu < 1:
                 struct2, struct1 = struct1, struct2
-            fu = struct1.num_sites // struct2.num_sites
+                fu = 1 / fu
+            fu = int(round(fu))
         else:
             fu = 1
 
-        # Check that the number of sites is correct
-        if self._subset:
-            if struct2.num_sites > struct1.num_sites:
-                struct2, struct1 = struct1, struct2
-                #can't do the check until we group with the comparator
-        else:
-            if struct1.num_sites != struct2.num_sites * fu:
-                return None
+        #can't do the check until we group with the comparator
+        if self._subset == False and struct1.num_sites != struct2.num_sites * fu:
+            return None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -587,8 +620,8 @@ class StructureMatcher(MSONable):
             struct2.modify_lattice(nl2)
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        normalization = ((2 * struct2.num_sites) /
-                         (struct1.volume + struct2.volume)) ** (1 / 3)
+        normalization = ((2 * struct2.num_sites * fu) /
+                         (struct1.volume + struct2.volume * fu)) ** (1 / 3)
         frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * \
                    self.stol / ((1 - self.ltol) * np.pi) / normalization
 
@@ -602,7 +635,13 @@ class StructureMatcher(MSONable):
                         site2.species_and_occu, site1.species_and_occu)
                 i += 1
 
-        #print LinearAssignment(mask).min_cost
+        #check that there is some valid mapping between sites
+        nmax = max(mask.shape)
+        sq_mask = np.zeros((nmax, nmax))
+        sq_mask[mask] = 10000
+        if LinearAssignment(sq_mask).min_cost > 0:
+            return None
+
         #find the best sites for the translation vector
         num_s1_invalid_matches = np.sum(mask, axis=1)
         s2_translation_index = np.argmax(num_s1_invalid_matches)
@@ -891,12 +930,12 @@ class StructureMatcher(MSONable):
         """
         Returns the supercell matrix for transforming struct to supercell. This
         can be used for very distorted 'supercells' where the primitive cell
-        is hard to find
+        is impossible to find
         """
         if self._primitive_cell:
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
-        if self._supercell and struct.num_sites > supercell.num_sites:
+        if self._supercell and self._get_supercell_size(supercell, struct) <= 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         match = self._find_match(supercell, struct, break_on_match=False,
@@ -915,7 +954,7 @@ class StructureMatcher(MSONable):
         if self._primitive_cell:
             raise ValueError("get_s2_like_s1 cannot be used with the primitive"
                              " cell option")
-        if self._supercell and struct2.num_sites > struct1.num_sites:
+        if self._supercell and self._get_supercell_size(struct1, struct2) <= 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         if self._subset and struct2.num_sites > struct1.num_sites:
@@ -927,7 +966,7 @@ class StructureMatcher(MSONable):
             return None
         scale_matrix = np.round(
             np.dot(match[2].matrix, struct2.lattice.inv_matrix)).astype('int')
-        
+
         temp = struct2.copy()
         temp.make_supercell(scale_matrix)
         fc = temp.frac_coords + match[3]
