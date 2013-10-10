@@ -743,26 +743,6 @@ class Dependency(object):
         """The status of the dependency, i.e. the status of the node."""
         return self.node.status
 
-   # def ofiles_and_vars(self):
-   #     """
-   #     Returns a the list of output files produced by this dependency 
-   #     and a dictionary with the ABINIT variables to use to read these files.
-   #
-   #     .. note:
-   #        this method must be called at run-time because it scans the 
-   #        output directory of the dependency.
-   #     """
-   #     ofiles, vars = [], {}
-   #     for ext in self.exts:
-   #         ofile = self.node.outdir.has_abiext(ext)
-   #         if ofile:
-   #             ofiles.append(ofile)
-   #             vars.update(irdvars_for_ext(ext))
-   #         else:
-   #            warnings.want("Could not find extension %s in the outdir of %s" % (ext, self.node)
-   #
-   #     return ofiles, vars
-
     @property
     def products(self):
         """List of output files produces by self."""
@@ -795,13 +775,6 @@ class Dependency(object):
         return filepaths, exts
 
 
-#class Signal(object):
-#    def send(self)
-#        dispatcher.send(signal=self, sender=self, *arguments, **named):
-#        dispatcher.send(signal=self, sender=_Anonymous, *arguments, **named)
-#    def connect(self, func, sender):
-#         dispatcher.connect(func, signal=self, sender=sender)
-
 # Possible status of the node.
 STATUS2STR = collections.OrderedDict([
     (1, "Initialized"),   # Node has been initialized
@@ -821,15 +794,6 @@ class Status(int):
     def __str__(self):
         return STATUS2STR[self]
 
-S_INIT = Status(1)
-S_READY = Status(2)
-S_SUB = Status(3)
-S_RUN = Status(4)
-S_DONE = Status(5)
-S_ERROR = Status(6)
-S_UNCONVERGED = Status(7)
-S_OK = Status(8)
-
 
 class Node(object):
     """
@@ -842,14 +806,14 @@ class Node(object):
     __metaclass__ = abc.ABCMeta
 
     # Possible status of the node.
-    S_INIT = S_INIT                
-    S_READY = S_READY              
-    S_SUB = S_SUB                  
-    S_RUN = S_RUN                  
-    S_DONE = S_DONE                
-    S_ERROR = S_ERROR              
-    S_UNCONVERGED = S_UNCONVERGED  
-    S_OK = S_OK                    
+    S_INIT = Status(1)
+    S_READY = Status(2)
+    S_SUB = Status(3)
+    S_RUN = Status(4)
+    S_DONE = Status(5)
+    S_ERROR = Status(6)
+    S_UNCONVERGED = Status(7)
+    S_OK = Status(8)
 
     def __init__(self):
         # Node identifier.
@@ -867,7 +831,8 @@ class Node(object):
     def __eq__(self, other):
         if not isinstance(other, Node):
             return False
-        return self.node_id == other.node_id
+
+        return self.node_id == other.node_id and self.__class__ == other.__class__
                                                        
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1007,6 +972,29 @@ class Node(object):
     #@abc.abstractmethod
     #def connect_signals():
     #    """Connect the signals."""
+
+
+class FileNode(Node):
+    """
+    A node of the calculation consisting of an already existing file
+    """
+    def __init__(self, filepath):
+        super(FileNode, self).__init__()
+        self.filepath = os.path.abspath(filepath)
+        self.workdir = os.path.dirname(self.filepath)
+        self.set_node_id(self.filepath)
+        self._finalized = True
+        self.status = self.S_OK
+
+        self.outdir = Directory(self.workdir)
+
+    def opath_from_ext(self, ext):
+        """
+        Returns the path of the output file with extension ext.
+        Use it when the file does not exist yet.
+        """
+        return self.filepath
+        #return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
 
 class TaskError(Exception):
@@ -1201,17 +1189,17 @@ class Task(Node):
         return dict(returncode=0, 
                     message="Calling on_all_ok of the base class!")
 
-    # Interface modeled after subprocess.Popen
-    #@abc.abstractproperty
-    #def process(self):
-    #    """Return an object that supports the `subprocess.Popen` protocol."""
-
     def fix_ofiles(self):
+        """
+        This method is called when the task reaches S_OK.
+        It changes the extension of particular output files
+        produced by Abinit so that the 'official' extension
+        is preserved e.g. out_1WF14 --> out_1WF
+        """
         filepaths = self.outdir.list_filepaths()
-        logger.info("in fix_ofiled with filepaths %s" % filepaths) 
+        logger.info("in fix_ofiles with filepaths %s" % filepaths) 
 
         old2new = FilepathFixer().fix_paths(filepaths)
-        print("old2new", old2new)
 
         for old, new in old2new.items():
             logger.debug("will rename old %s to new %s" % (old, new))
@@ -1800,9 +1788,6 @@ class AbinitTask(Task):
     #OUT = "out"
     #TMP = "tmp"
 
-    #def __init__(self, strategy, workdir=None, manager=None):
-    #    super(AbinitTask, self).__init__(strategy, workdir=workdir, manager=manager)
-
     @classmethod
     def from_input(cls, abinit_input, workdir=None, manager=None):
         """
@@ -2175,33 +2160,39 @@ class OpticTask(Task):
     # all the executables in Abinit should signal the successful completion with the same format.
     # possibly with YAML
 
-    def __init__(self, optic_input, nscf_task, ddk_tasks, workdir=None, manager=None):
+    def __init__(self, optic_input, nscf_node, ddk_nodes, workdir=None, manager=None):
         """
         Create an instance of `OpticTask` from an string containing the input.
     
         Args:
             optic_input:
                 string with the optic variables (filepaths will be added at run time).
-            nscf_task:
+            nscf_node:
                 The NSCF task that will produce thw WFK file.
-            ddk_tasks:
+            ddk_nodes:
                 List of `DDK_Task` nodes that will produce the DDK files.
             workdir:
                 Path to the working directory.
             manager:
                 `TaskManager` object.
         """
-        deps = {task: "1WF" for task in ddk_tasks}
-        deps.update({nscf_task: "WFK"})
+        if is_string(nscf_node):
+            assert all(is_string(f) for f in ddk_nodes)
+            nscf_node = FileNode(nscf_node)
+            ddk_nodes = [FileNode(fname) for fname in ddk_nodes]
+
+        deps = {task: "1WF" for task in ddk_nodes}
+        deps.update({nscf_node: "WFK"})
+        print("deps",deps)
 
         from pymatgen.io.abinitio.strategies import OpticInput
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
         # Keep a reference to the nscf_task and the ddk tasks
-        self.nscf_task = nscf_task
-        self.ddk_tasks = ddk_tasks
-        assert len(ddk_tasks) == 3
+        self.nscf_node = nscf_node
+        self.ddk_nodes = ddk_nodes
+        assert len(ddk_nodes) == 3
 
     @property
     def executable(self):
@@ -2230,12 +2221,12 @@ class OpticTask(Task):
     @property
     def wfk_filepath(self):
         """Returns (at runtime) the absolute path of the WFK file produced by the NSCF run."""
-        return self.nscf_task.outdir.has_abiext("WFK")
+        return self.nscf_node.outdir.has_abiext("WFK")
 
     @property
     def ddk_filepaths(self):
         """Returns (at runtime) the absolute path of the DDK files produced by the DDK runs."""
-        return [ddk_task.outdir.has_abiext("1WF") for ddk_task in self.ddk_tasks]
+        return [ddk_task.outdir.has_abiext("1WF") for ddk_task in self.ddk_nodes]
 
     def make_input(self):
         """Construct and write the input file of the calculation."""
