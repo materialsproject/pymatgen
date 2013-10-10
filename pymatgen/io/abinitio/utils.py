@@ -9,8 +9,7 @@ from pymatgen.util.string_utils import list_strings, StringColorizer
 class File(object):
     """
     Very simple class used to store file basenames, absolute paths and directory names.
-
-    Provides wrappers for the most commonly used os.path functions.
+    Provides wrappers for the most commonly used functions defined in os.path.
     """
     def __init__(self, path):
         self._path = os.path.abspath(path)
@@ -84,7 +83,7 @@ class File(object):
 class Directory(object):
     """
     Very simple class that provides helper functions
-    wrapping the most commonly used functions of os.path.
+    wrapping the most commonly used functions defined in os.path.
     """
     def __init__(self, path):
         self._path = os.path.abspath(path)
@@ -251,7 +250,7 @@ class FilepathFixer(object):
     Having a one-to-one mapping between file extension and data format
     is indeed fundamental for the correct behaviour of abinitio since:
 
-        - We locate the output file by just inspecting the extesion
+        - We locate the output file by just inspecting the extension
 
         - We select the variables that must be added to the input file
           on the basis of the extension specified by the user during 
@@ -279,12 +278,19 @@ class FilepathFixer(object):
         self.regs = regs = {}
         import re
         regs["1WF"] = re.compile("(\w+_)1WF(\d+)(.nc)?$")
+        regs["1DEN"] = re.compile("(\w+_)1DEN(\d+)(.nc)?$")
 
     @staticmethod
     def _fix_1WF(match):
         root, pert, ncext = match.groups()
         if ncext is None: ncext = ""
         return root + "1WF" + ncext
+
+    @staticmethod
+    def _fix_1DEN(match):
+        root, pert, ncext = match.groups()
+        if ncext is None: ncext = ""
+        return root + "1DEN" + ncext
 
     def _fix_path(self, path):
         for ext, regex in self.regs.items():
@@ -313,8 +319,8 @@ class FilepathFixer(object):
 
             if newpath is not None:
                 assert ext not in fixed_exts
-                old2new[path] = newpath
                 fixed_exts.append(ext)
+                old2new[path] = newpath
 
         return old2new
 

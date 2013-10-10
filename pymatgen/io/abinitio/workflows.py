@@ -24,7 +24,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.tasks import (AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask)
+from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask)
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -350,8 +350,8 @@ class Workflow(BaseWorkflow):
         return counter
 
     def allocate(self):
-        for i, task in enumerate(self):
 
+        for i, task in enumerate(self):
             if not hasattr(task, "manager"):
                 task.set_manager(self.manager)
 
@@ -362,7 +362,6 @@ class Workflow(BaseWorkflow):
             else:
                 if task.workdir != task_workdir:
                     raise ValueError("task.workdir != task_workdir: %s, %s" % (task.workdir, task_workdir))
-
 
     def register(self, obj, deps=None, manager=None, task_class=None):
         """
@@ -388,16 +387,20 @@ class Workflow(BaseWorkflow):
         if hasattr(self, "workdir"):
             task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
 
-        # Set the class
-        if task_class is None:
-            task_class = AbinitTask
-
-        if isinstance(obj, Strategy):
-            # Create the new task (note the factory so that we create subclasses easily).
-            task = task_class(obj, task_workdir, manager)
+        if isinstance(obj, Task):
+            task = obj
 
         else:
-            task = task_class.from_input(obj, task_workdir, manager)
+            # Set the class
+            if task_class is None:
+                task_class = AbinitTask
+
+            if isinstance(obj, Strategy):
+                # Create the new task (note the factory so that we create subclasses easily).
+                task = task_class(obj, task_workdir, manager)
+
+            else:
+                task = task_class.from_input(obj, task_workdir, manager)
 
         self._tasks.append(task)
 

@@ -13,8 +13,7 @@ try:
 except ImportError:
     pass
 
-#from pymatgen.util.string_utils import list_strings, pprint_table
-from pymatgen.io.abinitio.tasks import Dependency #, Node, ScfTask, NscfTask, HaydockBseTask)
+from pymatgen.io.abinitio.tasks import Dependency 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.workflows import Workflow
 
@@ -195,7 +194,7 @@ class AbinitFlow(collections.Iterable):
 
         Args:
             input:
-                Abinit Input file or `Strategy` object.
+                Abinit Input file or `Strategy` object of `Task` object.
             deps:
                 List of `Dependency` objects specifying the dependency of this node.
                 An empy list of deps implies that this node has no dependencies.
