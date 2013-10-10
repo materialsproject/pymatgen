@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.6
+------
+1. Bug fix for VASP io set introduced by the default to sorting of structure
+   sites when generating VASP input.
+
 v2.8.4
 ------
 1. Completely revamped Compatibility/Correction system which improves
