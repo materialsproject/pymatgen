@@ -42,6 +42,7 @@ __all__ = [
     "G_Task",
     "HaydockBseTask",
     "OpticTask",
+    "AnaddbTask",
 ]
 
 
@@ -980,13 +981,24 @@ class FileNode(Node):
     """
     def __init__(self, filepath):
         super(FileNode, self).__init__()
+
         self.filepath = os.path.abspath(filepath)
+        if not os.path.exists(self.filepath):
+            err_msg = "File %s \n must exist when the FileNode is initialized" % self.filepath
+            raise ValueError(err_msg)
+
         self.workdir = os.path.dirname(self.filepath)
         self.set_node_id(self.filepath)
         self._finalized = True
         self.status = self.S_OK
 
+        # TODO monkey patch outdir.has_abifile
         self.outdir = Directory(self.workdir)
+
+        #def has_abifile(self, ext):
+        #    print("in monkey")
+        #    return self.filepath
+        #self.outdir.has_abifile = has_abifile
 
     def opath_from_ext(self, ext):
         """
@@ -2189,10 +2201,17 @@ class OpticTask(Task):
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
+
+
         # Keep a reference to the nscf_task and the ddk tasks
         self.nscf_node = nscf_node
         self.ddk_nodes = ddk_nodes
         assert len(ddk_nodes) == 3
+
+    def set_workdir(self, workdir):
+        super(OpticTask, self).set_workdir(workdir)
+        # The log file of optics is actually the main output file --> swap the files.
+        #self.output_file, self.log_file = self.log_file, self.output_file
 
     @property
     def executable(self):
@@ -2213,7 +2232,7 @@ class OpticTask(Task):
         #optic.out    ! Unused
         #optic        ! Root name for all files that will be produced
         app(self.input_file.path)                 # Path to the input file
-        app(self.output_file.path)                # Path to the output file
+        app(pj(self.workdir, "unused"))           # Path to the output file
         app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
 
         return "\n".join(lines)
@@ -2253,7 +2272,6 @@ class AnaddbTask(Task):
     # FIx the problem with report.is_completed
     # all the executables in Abinit should signal the successful completion with the same format.
     # possibly with YAML
-
     def __init__(self, anaddb_input, ddb_node, 
                  gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
         """
@@ -2279,21 +2297,22 @@ class AnaddbTask(Task):
                 `TaskManager` object.
         """
         # Keep a reference to the nodes.
-        self.ddb_node = ddb_node
+        if is_string(ddb_node): ddb_node = FileNode(ddb_node)
         deps = {ddb_node: "DDB"}
+        self.ddb_node = ddb_node
 
-        self.ggk_node = ggk_node
-        if ggk_node is not None:
-            deps.update({gkk_node: "GKK"})
+        if is_string(gkk_node): gkk_node = FileNode(gkk_node)
+        if gkk_node is not None: deps.update({gkk_node: "GKK"})
+        self.gkk_node = gkk_node
 
         # TODO: I never used it!
+        if is_string(md_node): md_node = FileNode(md_node)
+        if md_node is not None: deps.update({md_node: "MD"})
         self.md_node = md_node
-        if md_node is not None:
-            deps.update({md_node: "MD"})
 
+        if is_string(ddk_node): ddk_node = FileNode(ddk_node)
+        if ddk_node is not None: deps.update({ddk_node: "1WF"})
         self.ddk_node = ddk_node
-        if ddk_node is not None:
-            deps_update({ddk_node: "1WF"})
                                                                                                         
         # TODO
         #from pymatgen.io.abinitio.strategies import AnaddbInput
@@ -2326,7 +2345,7 @@ class AnaddbTask(Task):
         return "\n".join(lines)
 
     @property
-    def ddb_filepath(self, ddb_file):
+    def ddb_filepath(self):
         """Returns (at runtime) the absolute path of the input DDB file."""
         path = self.ddb_node.outdir.has_abiext("DDB")
         return path if path else "DDB_FILE_DOES_NOT_EXIST"

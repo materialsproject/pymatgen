@@ -386,7 +386,7 @@ class Callback(object):
             cbk_data:
                 Additional data to pass to the callback.
         """
-        self.func  = func
+        self.func = func
         self.work = work
         self.deps = deps
         self.cbk_data = cbk_data or {}
