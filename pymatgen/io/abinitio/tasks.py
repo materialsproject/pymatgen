@@ -41,1584 +41,8 @@ __all__ = [
     "PhononTask",
     "G_Task",
     "HaydockBseTask",
-    "OpticsTask",
+    "OpticTask",
 ]
-
-_COUNT = -1
-
-def get_newnode_id():
-    """
-    Returns a new node identifier used both for `Task` and `Workflow` objects.
-
-    .. warnings:
-        The id is unique inside the same python process so be careful when 
-        Workflows and Task are constructed at run-time or when threads are used.
-    """
-    global _COUNT
-    _COUNT += 1
-    return _COUNT
-
-
-class FakeProcess(object):
-    """
-    This object is attached to a Task instance if the task has not been submitted
-    This trick allows us to simulate a process that is still running so that 
-    we can safely poll task.process.
-    """
-    def poll(self):
-        return None
-
-    def wait(self):
-        raise RuntimeError("Cannot wait a FakeProcess")
-
-    def communicate(self, input=None):
-        raise RuntimeError("Cannot communicate with a FakeProcess")
-
-    def kill(self):
-        raise RuntimeError("Cannot kill a FakeProcess")
-
-    @property
-    def returncode(self):
-        return None
-
-
-class Product(object):
-    """
-    A product represents an output file produced by ABINIT instance.
-    This file is needed to start another `Task` or another `Workflow`.
-    """
-    def __init__(self, ext, path):
-        """
-        Args:
-            ext:
-                ABINIT file extension
-            path:
-                (asbolute) filepath
-        """
-        if ext not in abi_extensions():
-            raise ValueError("Extension %s has not been registered in the internal database" % str(ext))
-
-        self.ext = ext
-        self.file = File(path)
-
-    def __str__(self):
-        return "File=%s, Extension=%s, " % (self.file.path, self.ext)
-
-    @property
-    def filepath(self):
-        """Absolute path of the file."""
-        return self.file.path
-
-    def connecting_vars(self):
-        """
-        Returns a dictionary with the ABINIT variables that 
-        must be used to make the code use this file.
-        """
-        return irdvars_for_ext(self.ext)
-
-
-#class Signal(object):
-#    def send(self)
-#        dispatcher.send(signal=self, sender=self, *arguments, **named):
-#        dispatcher.send(signal=self, sender=_Anonymous, *arguments, **named)
-#    def connect(self, func, sender):
-#         dispatcher.connect(func, signal=self, sender=sender)
-
-# Possible status of the node.
-STATUS2STR = collections.OrderedDict([
-    (1, "Initialized"),      # Node has been initialized
-    (2, "Ready"),            # Node is ready i.e. all the depencies of the node have status S_OK
-    (3, "Submitted"),        # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    (4, "Running"),          # Node is running.
-    (5, "Done"),             # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (6, "Error"),            # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    #(7, "Unconverged"),     # This usually means that an iterative algorithm didn't converge.
-    (8, "Completed"),        # Execution completed successfully.
-])
-
-class Status(int):
-    def __repr__(self):
-        return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
-
-    def __str__(self):
-        return STATUS2STR[self]
-
-S_INIT = Status(1)
-S_READY = Status(2)
-S_SUB = Status(3)
-S_RUN = Status(4)
-S_DONE = Status(5)
-S_ERROR = Status(6)
-S_UNCONVERGED = Status(7)
-S_OK = Status(8)
-
-
-class Node(object):
-    """
-    Abstract base class defining the interface that must be 
-    implemented by the nodes of the calculation.
-
-    Nodes are hashable and can be tested for equality
-    (both operation use the node identifier).
-    """
-    __metaclass__ = abc.ABCMeta
-
-    ## Possible status of the node.
-    S_INIT = S_INIT                # Node has been initialized
-    S_READY = S_READY              # Node is ready i.e. all the depencies of the node have status S_OK
-    S_SUB = S_SUB                  # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    S_RUN = S_RUN                  # Node is running.
-    S_DONE = S_DONE                # Node done, This does not imply that results are ok or that the calculation completed successfully
-    S_ERROR = S_ERROR              # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    S_UNCONVERGED = S_UNCONVERGED  # This usually means that an iterative algorithm didn't converge.
-    S_OK = S_OK                    # Execution completed successfully.
-
-    def __init__(self):
-        # Node identifier.
-        self._node_id = get_newnode_id()
-
-        # List of dependencies
-        self._deps = []
-
-        # Used to push additional info during the  execution. 
-        self.history = collections.deque(maxlen=50)
-
-        # Set to true if the node has been finalized.
-        self._finalized = False
-
-    def __eq__(self, other):
-        if not isinstance(other, Node):
-            return False
-        return self.node_id == other.node_id
-                                                       
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __hash__(self):
-        return hash(self.node_id)
-
-    def __repr__(self):
-        return "<%s, node_id %s, workdir=%s>" % (self.__class__.__name__, self.node_id, self.workdir)
-                                                                                            
-    def __str__(self):
-        return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
-
-    @property
-    def node_id(self):
-        """Node identifier."""
-        return self._node_id
-                                                         
-    def set_node_id(self, node_id):
-        """Set the node identifier. Use it carefully!"""
-        self._node_id = node_id
-
-    @property
-    def finalized(self):
-        """True if the `Workflow` has been finalized."""
-        return self._finalized
-
-    @finalized.setter
-    def finalize(self, boolean):
-        self._finalized = boolean
-        self.history.append("Finalized on %s" % time.asctime())
-                                                         
-    #@abc.abstractproperty
-    #def workdir(self):
-
-    @property
-    def has_subnodes(self):
-        """True if self contains sub-nodes e.g. `Workflow` object."""
-        return isinstance(self, collections.Iterable)
-
-    @property
-    def deps(self):
-        """
-        List of `Dependency` objects defining the dependencies 
-        of this `Node`. Empty list if this `Node` does not have dependencies.
-        """
-        return self._deps
-
-    def add_deps(self, deps):
-        """
-        Add a list of dependencies to the `Node`.
-
-        Args:
-            deps:
-                List of `Dependency` objects specifying the 
-                dependencies of the node.
-        """
-        # We want a list
-        if not isinstance(deps, (list, tuple)):
-            deps = [deps]
-
-        assert all(isinstance(d, Dependency) for d in deps)
-
-        # Add the dependencies to the node
-        self._deps.extend(deps)
-
-        if self.has_subnodes:
-            # This means that the node contains sub-nodes 
-            # that should inherit the same dependency.
-            for task in self:
-                task.add_deps(deps)
-
-    def remove_deps(self, deps):
-        """
-        Remove a list of dependencies from the `Node`.
-
-        Args:
-            deps:
-                List of `Dependency` objects specifying the 
-                dependencies of the node.
-        """
-        if not isinstance(deps, (list, tuple)):
-            deps = [deps]
-                                                                                      
-        assert all(isinstance(d, Dependency) for d in deps)
-
-        self._deps = [d for d in self._deps if d not in deps]
-                                                                                      
-        if self.has_subnodes:
-            # This means that the node consists of sub-nodes 
-            # that should remove the same list of dependencies.
-            for task in self:
-                task.remove_deps(deps)                                                                                                                                        
-
-    @property
-    def deps_status(self):
-        """Returns a list with the status of the dependencies."""
-        if not self.deps:
-            return [self.S_OK]
-                                                                  
-        return [d.status for d in self.deps]
-
-    def depends_on(self, other):
-        """True if this node depends on the other node."""
-        return other in [d.node for d in self.deps]
-
-    def str_deps(self):
-        lines = []
-        app = lines.append
-
-        app("Dependencies of node %s:" % str(self))
-        for i, dep in enumerate(self.deps):
-            app("%d) %s, status=%s" % (i, str(dep.node), str(dep.status)))
-
-        return "\n".join(lines)
-
-    #@abc.abstractmethod
-    #def set_status(self, status):
-    #    """Set the status of the `Node`."""
-    #
-    #def status(self):
-    #    """Return the status of the `Node`."""
-    #   return self._status
-
-    #@abc.abstractmethod
-    #def check_status(self, status):
-    #    """Check the status of the `Node`."""
-
-    #@abc.abstractmethod
-    #def connect_signals():
-    #    """Connect the signals."""
-
-
-class Dependency(object):
-    """
-    This object describes the dependencies among the nodes of a calculation.
-
-    A `Dependency` consists of a `Node` that produces a list of products (files) 
-    that are used by the other nodes (`Task` or `Workflow`) to start the calculation.
-    One usually creates the object by calling work.register 
-
-    Example:
-
-        # Register the SCF task in work.
-        scf_task = work.register(scf_strategy)
-
-        # Register the NSCF calculation and its dependency on the SCF run via deps.
-        nscf_task = work.register(nscf_strategy, deps={scf_task: "DEN"})
-    """
-    def __init__(self, node, exts=None):
-        """
-        Args:
-            node:
-                The task or the worfklow associated to the dependency.
-            exts:
-                Extensions of the output files that are needed for running the other tasks.
-        """
-        self._node = node
-
-        if exts and is_string(exts):
-            exts = exts.split()
-
-        self.exts = exts or []
-
-    def __hash__(self):
-        return hash(self._node)
-
-    def __repr__(self):
-        return "Node %s will produce: %s " % (repr(self.node), repr(self.exts))
-
-    def __str__(self):
-        return "Node %s will produce: %s " % (str(self.node), str(self.exts))
-
-    @property
-    def node(self):
-        """The node associated to the dependency."""
-        return self._node
-
-    @property
-    def status(self):
-        """The status of the dependency, i.e. the status of the node."""
-        return self.node.status
-
-   # def ofiles_and_vars(self):
-   #     """
-   #     Returns a the list of output files produced by this dependency 
-   #     and a dictionary with the ABINIT variables to use to read these files.
-   #
-   #     .. note:
-   #        this method must be called at run-time because it scans the 
-   #        output directory of the dependency.
-   #     """
-   #     ofiles, vars = [], {}
-   #     for ext in self.exts:
-   #         ofile = self.node.outdir.has_abiext(ext)
-   #         if ofile:
-   #             ofiles.append(ofile)
-   #             vars.update(irdvars_for_ext(ext))
-   #         else:
-   #            warnings.want("Could not find extension %s in the outdir of %s" % (ext, self.node)
-   #
-   #     return ofiles, vars
-
-    @property
-    def products(self):
-        """List of output files produces by self."""
-        try:
-            return self._products
-        except:
-            self._products = []
-            for ext in self.exts:
-                prod = Product(ext, self.node.opath_from_ext(ext))
-                self._products.append(prod)
-
-            return self._products
-
-    def connecting_vars(self):
-        """
-        Returns a dictionary with the variables that must be added to the 
-        input file in order to connect this `Node` to its dependencies.
-        """
-        vars = {}
-        for prod in self.products:
-            vars.update(prod.connecting_vars())
-
-        return vars
-
-    def get_filepaths_and_exts(self):
-        """Returns the paths of the output files produced by self and its extensions"""
-        filepaths = [prod.filepath for prod in self.products]
-        exts = [prod.ext for prod in self.products]
-
-        return filepaths, exts
-
-
-class TaskError(Exception):
-    """Base Exception for `Task` methods"""
-
-
-class TaskRestartError(TaskError):
-    """Exception raised while trying to restart the `Task`."""
-
-
-class Task(Node):
-    __metaclass__ = abc.ABCMeta
-
-    Error = TaskError
-
-    # Prefixes for Abinit (input, output, temporary) files.
-    Prefix = collections.namedtuple("Prefix", "idata odata tdata")
-    pj = os.path.join
-
-    prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
-    del Prefix, pj
-
-    def __init__(self, strategy, workdir=None, manager=None):
-        """
-        Args:
-            strategy: 
-                Input file or `Strategy` instance defining the calculation.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
-        """
-        # Init the node
-        super(Task, self).__init__()
-
-        # Save the strategy to use to generate the input file.
-        # FIXME
-        #self.strategy = strategy.deepcopy()
-        self.strategy = strategy
-                                                               
-        if workdir is not None:
-            self.set_workdir(workdir)
-                                                               
-        if manager is not None:
-            self.set_manager(manager)
-        else:
-            self.set_manager(TaskManager.sequential())
-
-        # Set the initial status.
-        self.set_status(self.S_INIT)
-
-        # Number of restarts effectuated and max number (-1 --> no limit).
-        self.num_restarts = 0
-        self.max_num_restarts = -1
-
-    def __getstate__(self):
-        """
-        Return state is pickled as the contents for the instance.
-                                                                                      
-        In this case we just remove the process since Subprocess objects cannot be pickled.
-        This is the reason why we have to store the returncode in self._returncode instead
-        of using self.process.returncode.
-        """
-        return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
-
-    def set_workdir(self, workdir):
-        """Set the working directory. Cannot be set more than once."""
-        assert not hasattr(self, "workdir")
-        self.workdir = os.path.abspath(workdir)
-
-        # Files required for the execution.
-        self.input_file = File(os.path.join(self.workdir, "run.abi"))
-        self.output_file = File(os.path.join(self.workdir, "run.abo"))
-        self.files_file = File(os.path.join(self.workdir, "run.files"))
-        self.job_file = File(os.path.join(self.workdir, "job.sh"))
-        self.log_file = File(os.path.join(self.workdir, "run.log"))
-        self.stderr_file = File(os.path.join(self.workdir, "run.err"))
-
-        # Directories with input|output|temporary data.
-        self.indir = Directory(os.path.join(self.workdir, "indata"))
-        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
-        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
-
-        # stderr and output file of the queue manager.
-        self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
-        self.qout_file = File(os.path.join(self.workdir, "queue.out"))
-
-    def set_manager(self, manager):
-        """Set the `TaskManager` to use to launch the Task."""
-        self.manager = manager.deepcopy()
-
-    def make_input(self):
-        """Construct and write the input file of the calculation."""
-        return self.strategy.make_input()
-
-    def ipath_from_ext(self, ext):
-        """
-        Returns the path of the input file with extension ext.
-        Use it when the file does not exist yet.
-        """
-        return os.path.join(self.workdir, self.prefix.idata + "_" + ext)
-
-    def opath_from_ext(self, ext):
-        """
-        Returns the path of the output file with extension ext.
-        Use it when the file does not exist yet.
-        """
-        return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
-
-
-    @abc.abstractproperty
-    def executable(self):
-        """
-        Path to the executable associated to the task (internally stored in self._executable).
-        """
-
-    def set_executable(self, executable):
-        """Set the executable associate to this task."""
-        self._executable = executable
-
-    def set_name(name):
-        self._name = name
-
-    @property
-    def name(self):
-        try:
-            return self._name
-        except AttributeError:
-            return self.workdir
-
-    @property
-    def short_name(self):
-        return os.path.basename(self.workdir)
-
-    @property
-    def process(self):
-        try:
-            return self._process
-        except AttributeError:
-            # Attach a fake process so that we can poll it.
-            return FakeProcess()
-
-    #@property
-    #def is_allocated(self):
-    #    """
-    #    True if the task has been allocated, 
-    #    i.e. if it has been submitted or if it's running.
-    #    """
-    #    return self.status in [self.S_SUB, self.S_RUN]
-
-    @property
-    def is_completed(self):
-        """True if the task has been executed."""
-        return self.status >= self.S_DONE
-
-    @property
-    def can_run(self):
-        """The task can run if its status is S_READY and all the other depencies (if any) are done!"""
-        all_ok = all([stat == self.S_OK for stat in self.deps_status])
-        return (self.status < self.S_SUB) and all_ok
-
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        logger.debug("not_converged method of the base class will always return False")
-        return False
-
-    def on_ok(self):
-        """
-        This method is called once the `Task` has reached status S_OK. 
-        Subclasses should provide their own implementation
-
-        Returns:
-            Dictionary that must contain at least the following entries:
-                returncode:
-                    0 on success. 
-                message: 
-                    a string that should provide a human-readable description of what has been performed.
-        """
-        return dict(returncode=0, 
-                    message="Calling on_all_ok of the base class!")
-
-    # Interface modeled after subprocess.Popen
-    #@abc.abstractproperty
-    #def process(self):
-    #    """Return an object that supports the `subprocess.Popen` protocol."""
-
-    def _restart(self):
-        """
-        Called by restart once we have finished preparing the task for restarting.
-        """
-        self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
-
-        # Increase the counter and relaunch the task.
-        self.num_restarts += 1
-        self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
-        self.start()
-        return 0
-
-    def restart(self):
-        """
-        Restart the calculation. This method is called if the calculation is not converged 
-        and we can restart the task. See restart_if_needed.
-        """
-        logger.debug("Calling the **empty** restart method of the base class")
-
-    def restart_if_needed(self):
-        """
-        Callback that is executed once the job is done. 
-        The implementation of the two methods: 
-
-           - not_converged
-           - restart 
-           
-        is delegated to the subclasses.
-
-        Returns:
-            0 if succes, 1 if restart was not possible.
-        """
-        if self.not_converged():
-            if self.num_restarts == self.max_num_restarts:
-                logger.info("Reached maximum number of restarts. Returning")
-                return 1
-
-            try:
-                self.restart()
-    
-            except TaskRestartError as exc:
-                info_msg = "Calculation not converged but restart was not possible!\nException: %s" % exc
-                logger.debug(info_msg)
-                self.set_status(self.S_ERROR, info_msg=info_msg)
-                return 1
-     
-        return 0
-
-    def poll(self):
-        """Check if child process has terminated. Set and return returncode attribute."""
-        self._returncode = self.process.poll()
-
-        if self._returncode is not None:
-            self.set_status(self.S_DONE)
-
-        return self._returncode
-
-    def wait(self):
-        """Wait for child process to terminate. Set and return returncode attribute."""
-        self._returncode = self.process.wait()
-        self.set_status(self.S_DONE)
-
-        return self._returncode
-
-    def communicate(self, input=None):
-        """
-        Interact with process: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached. 
-        Wait for process to terminate. The optional input argument should be a string to be sent to the 
-        child process, or None, if no data should be sent to the child.
-
-        communicate() returns a tuple (stdoutdata, stderrdata).
-        """
-        stdoutdata, stderrdata = self.process.communicate(input=input)
-        self._returncode = self.process.returncode
-        self.set_status(self.S_DONE)
-
-        return stdoutdata, stderrdata 
-
-    def kill(self):
-        """Kill the child."""
-        self.process.kill()
-        self._returncode = self.process.returncode
-
-    @property
-    def returncode(self):
-        """
-        The child return code, set by poll() and wait() (and indirectly by communicate()). 
-        A None value indicates that the process hasn't terminated yet.
-        A negative value -N indicates that the child was terminated by signal N (Unix only).
-        """
-        try: 
-            return self._returncode
-        except AttributeError:
-            return 0
-
-    def reset(self):
-        """
-        Reset the task. Mainly used if we made a silly mistake in the initial
-        setup of the queue manager and we want to fix it and rerun the task.
-
-        Returns:
-            0 on success, 1 if reset failed.
-        """
-        # Can only reset tasks that are done.
-        if self.status < self.S_DONE:
-            return 1
-
-        self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
-        #self.workflow.check_status()
-
-        return 0
-
-    @property
-    def queue_id(self):
-        """Queue identifier returned by the Queue manager. None if not set"""
-        try:
-            return self._queue_id
-        except AttributeError:
-            return None
-
-    def set_queue_id(self, queue_id):
-        """Set the task identifier."""
-        self._queue_id = queue_id
-
-    @property
-    def has_queue_manager(self):
-        """True if we are submitting jobs via a queue manager."""
-        return self.manager.qadapter.QTYPE.lower() != "shell"
-
-    @property
-    def tot_ncpus(self):
-        """Total number of CPUs used to run the task."""
-        return self.manager.tot_ncpus
-                                                         
-    @property
-    def mpi_ncpus(self):
-        """Number of CPUs used for MPI."""
-        return self.manager.mpi_ncpus
-                                                         
-    @property
-    def omp_ncpus(self):
-        """Number of CPUs used for OpenMP."""
-        return self.manager.omp_ncpus
-
-    @property
-    def status(self):
-        """Gives the status of the task."""
-        return self._status
-
-    def set_status(self, status, info_msg=None):
-        """Set the status of the task."""
-        assert status in STATUS2STR
-
-        changed = False
-        if hasattr(self, "_status"):
-            changed = status != self._status
-
-        self._status = status
-
-        if status == self.S_OK:
-            # Finalize the task.
-            if not self.finalized:
-                self.on_ok()
-                self._finalized = True
-
-            logger.debug("Task %s broadcasts signal S_OK" % self)
-            dispatcher.send(signal=self.S_OK, sender=self)
-
-        if changed:
-            if status == self.S_SUB: 
-                self._submission_time = time.time()
-                self.history.append("Submitted on %s" % time.asctime())
-
-            if status == self.S_OK:
-                self.history.append("Completed on %s" % time.asctime())
-
-            if status == self.S_ERROR:
-                self.history.append("Error info:\n %s" % str(info_msg))
-
-        return status
-
-    def check_status(self):
-        """
-        This function check the status of the task by inspecting the output and the 
-        error files produced by the application and by the queue manager.
-        """
-        if self.status < self.S_SUB:
-            return
-
-        # Check the returncode of the process first.
-        if self.returncode != 0:
-            return self.set_status(self.S_ERROR, info_msg="return code %s" % self.returncode)
-
-        # Start to check when the output file has been created.
-        if not self.output_file.exists:
-            logger.debug("output_file does not exists")
-
-            if not self.stderr_file.exists and not self.qerr_file.exists:
-                # The job is still in the queue.
-                return self.status
-
-            else:
-                # Analyze the standard error of the executable:
-                if self.stderr_file.exists:
-                    err_msg = self.stderr_file.read()
-                    if err_msg:
-                        logger.critical("executable stderr:\n" + err_msg)
-                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-
-                # Analyze the error file of the resource manager.
-                if self.qerr_file.exists:
-                    err_info = self.qerr_file.read()
-                    if err_info:
-                        logger.critical("queue stderr:\n" + err_msg)
-                        return self.set_status(self.S_ERROR, info_msg=err_info)
-
-                return self.status
-
-        # Check if the run completed successfully.
-        parser = EventParser()
-
-        try:
-            report = parser.parse(self.output_file.path)
-
-        except parser.Error as exc:
-            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return self.set_status(self.S_ERROR, info_msg=str(exc))
-
-        if report.run_completed:
-            return self.set_status(self.S_OK)
-
-        # This is the delicate part since we have to discern among different possibilities:
-        #
-        # 1) Calculation stopped due to an Abinit Error or Bug.
-        #
-        # 2) Segmentation fault that (by definition) was not handled by ABINIT.
-        #    In this case we check if the ABINIT standard error is not empty.
-        #    hoping that nobody has written to sdterr (e.g. libraries in debug mode)
-        #
-        # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
-        #    In this case we check if the error file of the queue manager is not empty.
-        #    Also in this case we *assume* that there's something wrong if the stderr of the queue manager is not empty
-        # 
-        # 4) Calculation is still running!
-        #
-        # Point 2) and 3) are the most complicated since there's no standard!
-
-        # 1) Search for possible errors or bugs in the ABINIT **output** file.
-        if report.errors or report.bugs:
-            logger.critical("Found Errors or Bugs in ABINIT main output!")
-            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
-
-        # 2) Analyze the stderr file for Fortran runtime errors.
-        if self.stderr_file.exists:
-            err_info = self.stderr_file.read()
-            if err_info:
-                return self.set_status(self.S_ERROR, info_msg=err_info)
-
-        # 3) Analyze the error file of the resource manager.
-        if self.qerr_file.exists:
-            err_info = self.qerr_file.read()
-            if err_info:
-                return self.set_status(self.S_ERROR, info_msg=err_info)
-
-        # 4) Assume the job is still running.
-        return self.set_status(self.S_RUN)
-
-    def out_to_in(self, out_file):
-        """
-        Move an output file to the output data directory of the `Task` 
-        and rename the file so that ABINIT will read it as an input data file.
-
-        Returns:
-            The absolute path of the new file in the indata directory.
-        """
-        in_file = os.path.basename(out_file).replace("out", "in", 1)
-        dest = os.path.join(self.indir.path, in_file)
-                                                                           
-        if os.path.exists(dest) and not os.path.islink(dest):
-           logger.warning("Will overwrite %s with %s" % (dest, out_file))
-                                                                           
-        os.rename(out_file, dest)
-        return dest
-
-    def inlink_file(self, filepath):
-        """
-        Create a symbolic link to the specified file in the 
-        directory containing the input files of the task.
-        """
-        if not os.path.exists(filepath): 
-            logger.debug("Creating symbolic link to not existent file %s" % filepath)
-
-        # Extract the Abinit extension and add the prefix for input files.
-        root, abiext = abi_splitext(filepath)
-
-        infile = "in_" + abiext
-        infile = self.indir.path_in(infile)
-
-        # Link path to dest if dest link does not exist.
-        # else check that it points to the expected file.
-        logger.debug("Linking path %s --> %s" % (filepath, infile))
-        print("Linking path %s --> %s" % (filepath, infile))
-                                                             
-        if not os.path.exists(infile):
-            os.symlink(filepath, infile)
-        else:
-            if os.path.realpath(infile) != filepath:
-                raise self.Error("infile %s does not point to filepath %s" % (infile, filepath))
-
-    def make_links(self):
-        """
-        Create symbolic links to the output files produced by the other tasks.
-
-        ..warning:
-            
-            This method should be called only when the calculation is READY because
-            it uses a heuristic approach to find the file to link.
-        """
-        for dep in self.deps:
-            filepaths, exts = dep.get_filepaths_and_exts()
-            #print(filepaths, exts)
-
-            for (path, ext) in zip(filepaths, exts):
-                print("need path %s with ext %s" % (path, ext))
-                dest = self.ipath_from_ext(ext)
-
-                if not os.path.exists(path): 
-                    # Try netcdf file.
-                    # TODO: this case should be treated in a cleaner way.
-                    path += "-etsf.nc"
-                    if os.path.exists(path):
-                        dest += "-etsf.nc"
-
-                if not os.path.exists(path):
-                    err_msg = "%s is needed by this task but it does not exist" % path
-                    logger.critical(err_msg)
-                    raise self.Error(err_msg)
-
-                # Link path to dest if dest link does not exist.
-                # else check that it points to the expected file.
-                logger.debug("Linking path %s --> %s" % (path, dest))
-
-                if not os.path.exists(dest):
-                    os.symlink(path, dest)
-                else:
-                    if os.path.realpath(dest) != path:
-                        raise self.Error("dest %s does not point to path %s" % (dest, path))
-
-    @abc.abstractmethod
-    def setup(self, *args, **kwargs):
-        """Public method called before submitting the task."""
-
-    def _setup(self, *args, **kwargs):
-        """
-        This method calls self.setup after having performed additional operations
-        such as the creation of the symbolic links needed to connect different tasks.
-        """
-        self.make_links()
-
-        self.setup(*args, **kwargs)
-
-    def get_event_report(self):
-        return self.parse_events()
-
-    def parse_events(self):
-        """
-        Analyzes the main output for possible errors or warnings.
-
-        Returns:
-            `EventReport` instance or None if the main output file does not exist.
-        """
-        if not os.path.exists(self.output_file.path):
-            return None
-
-        parser = EventParser()
-        try:
-            return parser.parse(self.output_file.path)
-
-        except parser.Error as exc:
-            # Return a report with an error entry with info on the exception.
-            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return parser.report_exception(self.output_file.path, exc)
-
-    @property
-    def events(self):
-        """List of errors or warnings reported by ABINIT."""
-        if self.status is None or self.status < self.S_DONE:
-            raise self.Error(
-                "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
-        try:
-            return self._events
-        except AttributeError:
-            self._events = self.parse_events()
-            return self._events
-
-    @property
-    def results(self):
-        """The results produced by the task. Set by get_results"""
-        try:
-            return self._results
-
-        except AttributeError:
-            self._results = self.get_results()
-            return self._results 
-
-    def get_results(self, *args, **kwargs):
-        """
-        Method called once the calculation is completed, 
-        Updates self._results and returns TaskResults instance.
-        Subclasses should extend this method (if needed) by adding 
-        specialized code that performs some kind of post-processing.
-        """
-        # Check whether the process completed.
-        if self.returncode is None:
-            raise self.Error("return code is None, you should call wait, communitate or poll")
-
-        if self.status is None or self.status < self.S_DONE:
-            raise self.Error("Task is not completed")
-
-        return TaskResults({
-            "task_name"      : self.name,
-            "task_returncode": self.returncode,
-            "task_status"    : self.status,
-            "task_events"    : self.events.to_dict
-        })
-
-    def move(self, dest, is_abspath=False):
-        """
-        Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
-        The destination path must not already exist. If the destination already exists
-        but is not a directory, it may be overwritten depending on os.rename() semantics.
-
-        Be default, dest is located in the parent directory of self.workdir.
-        Use is_abspath=True to specify an absolute path.
-        """
-        if not is_abspath:
-            dest = os.path.join(os.path.dirname(self.workdir), dest)
-
-        shutil.move(self.workdir, dest)
-
-    def in_files(self):
-        """Return all the input data files used."""
-        return self.indir.list_filepaths()
-
-    def out_files(self):
-        """Return all the output data files produced."""
-        return self.outdir.list_filepaths()
-
-    def tmp_files(self):
-        """Return all the input data files produced."""
-        return self.tmpdir.list_filepaths()
-
-    def path_in_workdir(self, filename):
-        """Create the absolute path of filename in the top-level working directory."""
-        return os.path.join(self.workdir, filename)
-
-    def rename(self, src_basename, dest_basename, datadir="outdir"):
-        """
-        Rename a file located in datadir.
-
-        src_basename and dest_basename are the basename of the source file
-        and of the destination file, respectively.
-        """
-        directory = {
-            "indir": self.indir,
-            "outdir": self.outdir,
-            "tmpdir": self.tmpdir,
-        }[datadir]
-
-        src = directory.path_in(src_basename)
-        dest = directory.path_in(dest_basename)
-
-        os.rename(src, dest)
-
-    def build(self, *args, **kwargs):
-        """
-        Creates the working directory and the input files of the `Task`.
-        It does not overwrite files if they already exist.
-        """
-        # Create dirs for input, output and tmp data.
-        self.indir.makedirs()
-        self.outdir.makedirs()
-        self.tmpdir.makedirs()
-
-        # Write files file and input file.
-        if not self.files_file.exists:
-            self.files_file.write(self.filesfile_string)
-
-        self.input_file.write(self.make_input())
-
-        self.manager.write_jobfile(self)
-
-    def rmtree(self, exclude_wildcard=""):
-        """
-        Remove all files and directories in the working directory
-
-        Args:
-            exclude_wildcard:
-                Optional string with regular expressions separated by |.
-                Files matching one of the regular expressions will be preserved.
-                example: exclude_wildcard="*.nc|*.txt" preserves all the files
-                whose extension is in ["nc", "txt"].
-        """
-        if not exclude_wildcard:
-            shutil.rmtree(self.workdir)
-
-        else:
-            w = WildCard(exclude_wildcards)
-
-            for dirpath, dirnames, filenames in os.walk(self.workdir):
-                for fname in filenames:
-                    filepath = os.path.join(dirpath, fname)
-                    if not w.match(fname):
-                        os.remove(filepath)
-
-    def remove_files(self, *filenames):
-        """Remove all the files listed in filenames."""
-        filenames = list_strings(filenames)
-
-        for dirpath, dirnames, fnames in os.walk(self.workdir):
-            for fname in fnames:
-                if fname in filenames:
-                    filepath = os.path.join(dirpath, fname)
-                    os.remove(filepath)
-
-    # TODO Remove this methods. use Directory directly.
-    def rm_indatadir(self):
-        """Remove the directory with the input files (indata dir)."""
-        self.indir.rmtree()
-
-    def rm_tmpdatadir(self):
-        """Remove the directory with the temporary files."""
-        self.tmpdir.rmtree()
-
-    def setup(self, *args, **kwargs):
-        pass
-
-    def start(self, *args, **kwargs):
-        """
-        Starts the calculation by performing the following steps:
-
-            - build dirs and files
-            - call the _setup method
-            - execute the job file by executing/submitting the job script.
-        """
-        #FIXME
-        assert self._status < self.S_SUB
-
-        self.set_status(self.S_SUB)
-
-        self.build(*args, **kwargs)
-
-        self._setup(*args, **kwargs)
-
-        # Add the variables needed to connect the node.
-        for d in self.deps:
-            vars = d.connecting_vars()
-            logger.debug("Adding connecting vars %s " % str(vars))
-            self.strategy.add_extra_abivars(vars)
-
-        # Automatic parallelization
-        self.manager.autoparal(self)
-
-        # Start the calculation in a subprocess and return.
-        self._process = self.manager.launch(self)
-
-    def start_and_wait(self, *args, **kwargs):
-        """
-        Helper method to start the task and wait.
-
-        Mainly used when we are submitting the task via the shell
-        without passing through a queue manager.
-        """
-        self.start(*args, **kwargs)
-        return self.wait()
-
-
-class AbinitTask(Task):
-    """
-    Base class defining an ABINIT calculation
-    """
-
-
-
-
-
-
-
-    #IN = "in"
-    #OUT = "out"
-    #TMP = "tmp"
-
-    #def __init__(self, strategy, workdir=None, manager=None):
-    #    super(AbinitTask, self).__init__(strategy, workdir=workdir, manager=manager)
-
-    @classmethod
-    def from_input(cls, abinit_input, workdir=None, manager=None):
-        """
-        Create an instance of `AbinitTask` from an ABINIT input.
-    
-        Args:
-            abinit_input:
-                `AbinitInput` object.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
-        """
-        # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        from pymatgen.io.abinitio.strategies import StrategyWithInput
-        strategy = StrategyWithInput(abinit_input)
-
-        return cls(strategy, workdir=workdir, manager=manager)
-
-    @property
-    def executable(self):
-        """Path to the executable required for running the Task."""
-        try:
-            return self._executable
-        except AttributeError:
-            return "abinit"
-
-    @property
-    def pseudos(self):
-        """List of pseudos used in the calculation."""
-        return self.strategy.pseudos
-
-    @property
-    def isnc(self):
-        """True if norm-conserving calculation."""
-        return all(p.isnc for p in self.pseudos)
-
-    @property
-    def ispaw(self):
-        """True if PAW calculation"""
-        return all(p.ispaw for p in self.pseudos)
-
-    @property
-    def filesfile_string(self):
-        """String with the list of files and prefixex needed to execute ABINIT."""
-        lines = []
-        app = lines.append
-        pj = os.path.join
-
-        app(self.input_file.path)                 # Path to the input file
-        app(self.output_file.path)                # Path to the output file
-        app(pj(self.workdir, self.prefix.idata))  # Prefix for input data
-        app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
-        app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
-
-        # Paths to the pseudopotential files.
-        for pseudo in self.pseudos:
-            app(pseudo.path)
-
-        return "\n".join(lines)
-
-
-class OpticsTask(Task):
-
-    @property
-    def executable(self):
-        """Path to the executable required for running the Task."""
-        try:
-            return self._executable
-        except AttributeError:
-            return "optic"
-
-    @classmethod
-    def from_input(cls, optics_input, workdir=None, manager=None):
-        """
-        Create an instance of `OpticsTask` from an Optics input.
-    
-        Args:
-            optics_input:
-                `OpticsInput` object.
-            workdir:
-                Path to the working directory.
-            manager:
-                `TaskManager` object.
-        """
-        from pymatgen.io.abinitio.strategies import OpticsInput
-        strategy = OpticsInput(optics_input)
-
-        return cls(strategy, workdir=workdir, manager=manager)
-
-    @property
-    def filesfile_string(self):
-        """String with the list of files and prefixex needed to execute ABINIT."""
-        lines = []
-        app = lines.append
-        pj = os.path.join
-
-        #optic.in     ! Name of input file
-        #optic.out    ! Unused
-        #optic        ! Root name for all files that will be produced
-
-        app(self.input_file.path)                 # Path to the input file
-        app(self.output_file.path)                # Path to the output file
-        #app(pj(self.workdir, self.prefix.idata))  # Prefix for input data
-        #app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
-        #app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
-
-        return "\n".join(lines)
-
-    def setup(self, *args, **kwargs):
-        """Public method called before submitting the task."""
-
-    def make_links(self):
-        """
-        Optics allows the user to specify the file paths in the input file.
-        """
-        #for dep in self.deps:
-        #    print dep.node.outdir.has_abifile
-
-
-# TODO
-# Enable restarting capabilites:
-# Before doing so I need:
-#   1) Preliminary standardization of the ABINT events and critical WARNINGS (YAML)
-#   2) Change the parser so that we can use strings in the input file.
-#      We need this change for restarting structural relaxations so that we can read 
-#      the initial structure from file.
-
-class ScfTask(AbinitTask):
-    """
-    Self-consistent ground-state calculations.
-    Provide support for in-place restart via (WFK|DEN) files
-    """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-
-        report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        if report.warnings:
-            return report.warnings.filter("ScfCriticalWarning")
-
-        return False
-
-    def restart(self):
-        """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
-        # Prefer WFK over DEN files since we can reuse the wavefunctions.
-        for ext in ["WFK", "DEN"]:
-            restart_file = self.outdir.has_abiext(ext)
-            irdvars = irdvars_for_ext(ext)
-            if restart_file:
-                break
-
-        if not restart_file:
-            raise TaskRestartError("Cannot find WFK or DEN file to restart from.")
-
-        # Move out --> in.
-        self.out_to_in(restart_file)
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
-
-        # Now we can resubmit the job.
-        self._restart()
-
-
-class NscfTask(AbinitTask):
-    """
-    Non-Self-consistent GS calculation.
-    Provide in-place restart via WFK files
-    """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-
-    def restart(self):
-        """NSCF calculations can be restarted only if we have the WFK file."""
-        ext = "WFK"
-        restart_file = self.outdir.has_abiext(ext)
-        irdvars = irdvars_for_ext(ext)
-
-        if not restart_file:
-            raise TaskRestartError("Cannot find the WFK file to restart from.")
-
-        # Move out --> in.
-        self.out_to_in(restart_file)
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
-
-        # Now we can resubmit the job.
-        self._restart()
-
-
-class RelaxTask(AbinitTask):
-    """
-    Structural optimization.
-    """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        # TODO: 
-        return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        #if report.warnings:
-        #    return False
-
-    def set_initial_structure(self, structure):
-        #TODO
-        self.strategy.set_structure(structure)
-
-    def read_final_structure(self):
-        """Read the final structure from the GSR file and save it in self.final_structure."""
-        gsr_file = self.outdir.has_abiext("GSR")
-        if not gsr_file:
-            raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
-                                                                                                         
-        with ETSF_reader(gsr_file) as r:
-            self.final_structure = r.read_structure()
-
-        return self.final_structure
-
-    def restart(self):
-        raise NotImplementedError("")
-        # Change the initial structure.
-        try:
-            structure = self.read_final_structure()
-        except TaskRestartError:
-            raise
-
-        self.set_initial_structure(structure)
-
-        # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
-        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
-        # Prefer WFK over other files since we can reuse the wavefunctions.
-        for ext in ["WFK", "DEN"]:
-            ofile = self.outdir.has_abiext(ext)
-            if ofile:
-                irdvars = irdvars_for_ext(ext)
-                infile = self.out_to_in(ofile)
-                # We will read the unit cell from this file
-                irdvars["getucell_path"] = infile
-                break
-
-        if not ofile:
-            raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
-
-        # Now we can resubmit the job.
-        self._restart()
-
-
-class DDK_Task(AbinitTask):
-
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return False
-
-    def on_ok(self):
-        filepaths = self.outdir.list_filepaths()
-        print("in DDK ok")
-        print("filepaths", filepaths)
-
-        old2new = FilepathFixer().fix_paths(filepaths)
-        print("old2new", old2new)
-
-        for old, new in old2new.items():
-            print("will rename", old, new)
-            os.rename(old, new)
-                                                                
-        return dict(returncode=0, 
-                    message="Calling on_all_ok of the base class!")
-
-
-class PhononTask(AbinitTask):
-    """
-    DFPT calculations for a single atomic perturbation.
-    Provide support for in-place restart via (1WFK|1DEN) files
-    """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-
-    def restart(self):
-        # Phonon calculations can be restarted only if we have the 1WFK file or the 1DEN file.
-        # from which we can read the first-order wavefunctions or the first order density.
-        # Prefer 1WFK over 1DEN since we can reuse the wavefunctions.
-        for ext in ["1WFK", "1DEN"]:
-            restart_file = self.outdir.has_abiext(ext)
-            irdvars = irdvars_for_ext(ext)
-            if restart_file:
-                break
-
-        if not restart_file:
-            raise TaskRestartError("Cannot find the 1WFK|1DEN|file to restart from.")
-
-        self.out_to_in(restart_file)
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
-
-        # Now we can resubmit the job.
-        self._restart()
-
-
-class G_Task(AbinitTask):
-    """
-    Tasks for SIGMA calculations employing the self-consistent G approximation 
-    Provide support for in-place restart via QPS files
-    """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-
-    def restart(self):
-        # G calculations can be restarted only if we have the QPS file 
-        # from which we can read the results of the previous step.
-        ext = "QPS"
-        restart_file = self.outdir.has_abiext(ext)
-        irdvars = irdvars_for_ext(ext)
-
-        if not restart_file:
-            raise TaskRestartError("Cannot find the QPS file to restart from.")
-
-        self.out_to_in(restart_file)
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
-
-        # Now we can resubmit the job.
-        self._restart()
-
-
-class BseTask(AbinitTask):
-    """
-    Task for Bethe-Salpeter calculations.
-
-    .. note:
-
-        The BSE codes provides both iterative and direct schemes
-        for the computation of the dielectric function. 
-        The direct diagonalization cannot be restarted whereas 
-        Haydock and CG support restarting.
-    """
-
-#class CgBseTask(BseTask):
-#    """Bethe-Salpeter calculations with the conjugate-gradient method."""
-
-
-class HaydockBseTask(BseTask):
-    """
-    Bethe-Salpeter calculations with Haydock iterative scheme.
-    Provide in-place restart via (BSR|BSC) files
-    """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        #raise NotImplementedError("")
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        if report.warnings:
-            return False
-
-        return True
-                                                                                            
-    def restart(self):
-        # BSE calculations with Haydock can be restarted only if we have the 
-        # excitonic Hamiltonian and the HAYDR_SAVE file.
-        # TODO: This version seems to work but the main output file is truncated
-        # the log file is complete though.
-        irdvars = {}
-
-        # Move the BSE blocks to indata.
-        count = 0
-        for ext in ["BSR", "BSC"]:
-            ofile = self.outdir.has_abiext(ext)
-            if ofile:
-                count += 1
-                irdvars.update(irdvars_for_ext(ext))
-                self.out_to_in(ofile)
-
-        if not count:
-            raise TaskRestartError("Cannot find the BSR|BSC file to restart from.")
-
-        # Rename HAYDR_SAVE files
-        count = 0
-        for ext in ["HAYDR_SAVE", "HAYDC_SAVE"]:
-            ofile = self.outdir.has_abiext(ext)
-            if ofile:
-                count += 1
-                irdvars.update(irdvars_for_ext(ext))
-                self.out_to_in(ofile)
-
-        if not count:
-            raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
-
-        # Add the appropriate variable for restarting.
-        self.strategy.add_extra_abivars(irdvars)
-
-        # Now we can resubmit the job.
-        self._restart()
 
 
 class TaskResults(dict, MSONable):
@@ -1981,8 +405,9 @@ class TaskManager(object):
     #        return cls.from_file(path)
 
     #    Try in the configuration directory.
+    #    home = os.getenv("HOME")
     #    path = os.path.join(home, fname)
-    #    if os.path.exists(home, path):
+    #    if os.path.exists(path):
     #        return cls.from_file(path)
     #
     #    raise RuntimeError("Cannot locate %s neither in current directory nor in home directory" % fname)
@@ -2025,16 +450,14 @@ class TaskManager(object):
         Replace self.policy with a `TaskPolicy` with autoparal==0.
         """
         cls = self.__class__
-        qad = self.qadapter
+        qad = self.qadapter.deepcopy()
 
-        #policy = self.policy if policy is None else policy
         policy = TaskPolicy(autoparal=0) if policy is None else policy
 
         new = cls("shell", qparams={"MPI_NCPUS": mpi_ncpus}, setup=qad.setup, modules=qad.modules, 
                   shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy)
 
-        new.set_mpi_ncpus(mpi_ncpus)
         return new
 
     def copy(self):
@@ -2196,3 +619,1750 @@ class TaskManager(object):
         task.set_queue_id(queue_id)
 
         return process
+
+_COUNT = -1
+
+def get_newnode_id():
+    """
+    Returns a new node identifier used both for `Task` and `Workflow` objects.
+
+    .. warnings:
+        The id is unique inside the same python process so be careful when 
+        Workflows and Task are constructed at run-time or when threads are used.
+    """
+    global _COUNT
+    _COUNT += 1
+    return _COUNT
+
+
+class FakeProcess(object):
+    """
+    This object is attached to a Task instance if the task has not been submitted
+    This trick allows us to simulate a process that is still running so that 
+    we can safely poll task.process.
+    """
+    def poll(self):
+        return None
+
+    def wait(self):
+        raise RuntimeError("Cannot wait a FakeProcess")
+
+    def communicate(self, input=None):
+        raise RuntimeError("Cannot communicate with a FakeProcess")
+
+    def kill(self):
+        raise RuntimeError("Cannot kill a FakeProcess")
+
+    @property
+    def returncode(self):
+        return None
+
+
+class Product(object):
+    """
+    A product represents an output file produced by ABINIT instance.
+    This file is needed to start another `Task` or another `Workflow`.
+    """
+    def __init__(self, ext, path):
+        """
+        Args:
+            ext:
+                ABINIT file extension
+            path:
+                (asbolute) filepath
+        """
+        if ext not in abi_extensions():
+            raise ValueError("Extension %s has not been registered in the internal database" % str(ext))
+
+        self.ext = ext
+        self.file = File(path)
+
+    def __str__(self):
+        return "File=%s, Extension=%s, " % (self.file.path, self.ext)
+
+    @property
+    def filepath(self):
+        """Absolute path of the file."""
+        return self.file.path
+
+    def connecting_vars(self):
+        """
+        Returns a dictionary with the ABINIT variables that 
+        must be used to make the code use this file.
+        """
+        return irdvars_for_ext(self.ext)
+
+
+class Dependency(object):
+    """
+    This object describes the dependencies among the nodes of a calculation.
+
+    A `Dependency` consists of a `Node` that produces a list of products (files) 
+    that are used by the other nodes (`Task` or `Workflow`) to start the calculation.
+    One usually creates the object by calling work.register 
+
+    Example:
+
+        # Register the SCF task in work.
+        scf_task = work.register(scf_strategy)
+
+        # Register the NSCF calculation and its dependency on the SCF run via deps.
+        nscf_task = work.register(nscf_strategy, deps={scf_task: "DEN"})
+    """
+    def __init__(self, node, exts=None):
+        """
+        Args:
+            node:
+                The task or the worfklow associated to the dependency.
+            exts:
+                Extensions of the output files that are needed for running the other tasks.
+        """
+        self._node = node
+
+        if exts and is_string(exts):
+            exts = exts.split()
+
+        self.exts = exts or []
+
+    def __hash__(self):
+        return hash(self._node)
+
+    def __repr__(self):
+        return "Node %s will produce: %s " % (repr(self.node), repr(self.exts))
+
+    def __str__(self):
+        return "Node %s will produce: %s " % (str(self.node), str(self.exts))
+
+    @property
+    def node(self):
+        """The node associated to the dependency."""
+        return self._node
+
+    @property
+    def status(self):
+        """The status of the dependency, i.e. the status of the node."""
+        return self.node.status
+
+   # def ofiles_and_vars(self):
+   #     """
+   #     Returns a the list of output files produced by this dependency 
+   #     and a dictionary with the ABINIT variables to use to read these files.
+   #
+   #     .. note:
+   #        this method must be called at run-time because it scans the 
+   #        output directory of the dependency.
+   #     """
+   #     ofiles, vars = [], {}
+   #     for ext in self.exts:
+   #         ofile = self.node.outdir.has_abiext(ext)
+   #         if ofile:
+   #             ofiles.append(ofile)
+   #             vars.update(irdvars_for_ext(ext))
+   #         else:
+   #            warnings.want("Could not find extension %s in the outdir of %s" % (ext, self.node)
+   #
+   #     return ofiles, vars
+
+    @property
+    def products(self):
+        """List of output files produces by self."""
+        try:
+            return self._products
+        except:
+            self._products = []
+            for ext in self.exts:
+                prod = Product(ext, self.node.opath_from_ext(ext))
+                self._products.append(prod)
+
+            return self._products
+
+    def connecting_vars(self):
+        """
+        Returns a dictionary with the variables that must be added to the 
+        input file in order to connect this `Node` to its dependencies.
+        """
+        vars = {}
+        for prod in self.products:
+            vars.update(prod.connecting_vars())
+
+        return vars
+
+    def get_filepaths_and_exts(self):
+        """Returns the paths of the output files produced by self and its extensions"""
+        filepaths = [prod.filepath for prod in self.products]
+        exts = [prod.ext for prod in self.products]
+
+        return filepaths, exts
+
+
+#class Signal(object):
+#    def send(self)
+#        dispatcher.send(signal=self, sender=self, *arguments, **named):
+#        dispatcher.send(signal=self, sender=_Anonymous, *arguments, **named)
+#    def connect(self, func, sender):
+#         dispatcher.connect(func, signal=self, sender=sender)
+
+# Possible status of the node.
+STATUS2STR = collections.OrderedDict([
+    (1, "Initialized"),   # Node has been initialized
+    (2, "Ready"),         # Node is ready i.e. all the depencies of the node have status S_OK
+    (3, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    (4, "Running"),       # Node is running.
+    (5, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
+    (6, "Error"),         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+    (7, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
+    (8, "Completed"),     # Execution completed successfully.
+])
+
+class Status(int):
+    def __repr__(self):
+        return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
+
+    def __str__(self):
+        return STATUS2STR[self]
+
+S_INIT = Status(1)
+S_READY = Status(2)
+S_SUB = Status(3)
+S_RUN = Status(4)
+S_DONE = Status(5)
+S_ERROR = Status(6)
+S_UNCONVERGED = Status(7)
+S_OK = Status(8)
+
+
+class Node(object):
+    """
+    Abstract base class defining the interface that must be 
+    implemented by the nodes of the calculation.
+
+    Nodes are hashable and can be tested for equality
+    (both operation use the node identifier).
+    """
+    __metaclass__ = abc.ABCMeta
+
+    # Possible status of the node.
+    S_INIT = S_INIT                
+    S_READY = S_READY              
+    S_SUB = S_SUB                  
+    S_RUN = S_RUN                  
+    S_DONE = S_DONE                
+    S_ERROR = S_ERROR              
+    S_UNCONVERGED = S_UNCONVERGED  
+    S_OK = S_OK                    
+
+    def __init__(self):
+        # Node identifier.
+        self._node_id = get_newnode_id()
+
+        # List of dependencies
+        self._deps = []
+
+        # Used to push additional info during the execution. 
+        self.history = collections.deque(maxlen=50)
+
+        # Set to true if the node has been finalized.
+        self._finalized = False
+
+    def __eq__(self, other):
+        if not isinstance(other, Node):
+            return False
+        return self.node_id == other.node_id
+                                                       
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(self.node_id)
+
+    def __repr__(self):
+        try:
+            return "<%s, node_id %s, workdir=%s>" % (self.__class__.__name__, self.node_id, self.workdir)
+        except AttributeError:
+            # this usually happens when workdir has not been initialized
+            return "<%s, node_id %s, workdir=None>" % (self.__class__.__name__, self.node_id)
+                                                                                            
+    def __str__(self):
+        try:
+            return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
+        except AttributeError:
+            # this usually happens when workdir has not been initialized
+            return "<%s, workdir=None>" % self.__class__.__name__
+
+    @property
+    def node_id(self):
+        """Node identifier."""
+        return self._node_id
+                                                         
+    def set_node_id(self, node_id):
+        """Set the node identifier. Use it carefully!"""
+        self._node_id = node_id
+
+    @property
+    def finalized(self):
+        """True if the `Workflow` has been finalized."""
+        return self._finalized
+
+    @finalized.setter
+    def finalize(self, boolean):
+        self._finalized = boolean
+        self.history.append("Finalized on %s" % time.asctime())
+                                                         
+    #@abc.abstractproperty
+    #def workdir(self):
+
+    @property
+    def has_subnodes(self):
+        """True if self contains sub-nodes e.g. `Workflow` object."""
+        return isinstance(self, collections.Iterable)
+
+    @property
+    def deps(self):
+        """
+        List of `Dependency` objects defining the dependencies 
+        of this `Node`. Empty list if this `Node` does not have dependencies.
+        """
+        return self._deps
+
+    def add_deps(self, deps):
+        """
+        Add a list of dependencies to the `Node`.
+
+        Args:
+            deps:
+                List of `Dependency` objects specifying the 
+                dependencies of the node.
+        """
+        # We want a list
+        if not isinstance(deps, (list, tuple)):
+            deps = [deps]
+
+        assert all(isinstance(d, Dependency) for d in deps)
+
+        # Add the dependencies to the node
+        self._deps.extend(deps)
+
+        if self.has_subnodes:
+            # This means that the node contains sub-nodes 
+            # that should inherit the same dependency.
+            for task in self:
+                task.add_deps(deps)
+
+    def remove_deps(self, deps):
+        """
+        Remove a list of dependencies from the `Node`.
+
+        Args:
+            deps:
+                List of `Dependency` objects specifying the 
+                dependencies of the node.
+        """
+        if not isinstance(deps, (list, tuple)):
+            deps = [deps]
+                                                                                      
+        assert all(isinstance(d, Dependency) for d in deps)
+
+        self._deps = [d for d in self._deps if d not in deps]
+                                                                                      
+        if self.has_subnodes:
+            # This means that the node consists of sub-nodes 
+            # that should remove the same list of dependencies.
+            for task in self:
+                task.remove_deps(deps)                                                                                                                                        
+
+    @property
+    def deps_status(self):
+        """Returns a list with the status of the dependencies."""
+        if not self.deps:
+            return [self.S_OK]
+                                                                  
+        return [d.status for d in self.deps]
+
+    def depends_on(self, other):
+        """True if this node depends on the other node."""
+        return other in [d.node for d in self.deps]
+
+    def str_deps(self):
+        lines = []
+        app = lines.append
+
+        app("Dependencies of node %s:" % str(self))
+        for i, dep in enumerate(self.deps):
+            app("%d) %s, status=%s" % (i, str(dep.node), str(dep.status)))
+
+        return "\n".join(lines)
+
+    #@abc.abstractmethod
+    #def set_status(self, status):
+    #    """Set the status of the `Node`."""
+    #
+    #def status(self):
+    #    """Return the status of the `Node`."""
+    #   return self._status
+
+    #@abc.abstractmethod
+    #def check_status(self, status):
+    #    """Check the status of the `Node`."""
+
+    #@abc.abstractmethod
+    #def connect_signals():
+    #    """Connect the signals."""
+
+
+class TaskError(Exception):
+    """Base Exception for `Task` methods"""
+
+
+class TaskRestartError(TaskError):
+    """Exception raised while trying to restart the `Task`."""
+
+
+class Task(Node):
+    __metaclass__ = abc.ABCMeta
+
+    Error = TaskError
+
+    # Prefixes for Abinit (input, output, temporary) files.
+    Prefix = collections.namedtuple("Prefix", "idata odata tdata")
+    pj = os.path.join
+
+    prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
+    del Prefix, pj
+
+    def __init__(self, strategy, workdir=None, manager=None, deps=None):
+        """
+        Args:
+            strategy: 
+                Input file or `Strategy` instance defining the calculation.
+            workdir:
+                Path to the working directory.
+            manager:
+                `TaskManager` object.
+            deps:
+                Dictionary specifying the dependency of this node.
+                None means that this obj has no dependency.
+        """
+        # Init the node
+        super(Task, self).__init__()
+
+        # Save the strategy to use to generate the input file.
+        # FIXME
+        #self.strategy = strategy.deepcopy()
+        self.strategy = strategy
+                                                               
+        if workdir is not None:
+            self.set_workdir(workdir)
+                                                               
+        if manager is not None:
+            self.set_manager(manager)
+        else:
+            self.set_manager(TaskManager.sequential())
+
+        # Handle possible dependencies.
+        if deps:
+            deps = [Dependency(node, exts) for (node, exts) in deps.items()]
+            self.add_deps(deps)
+
+        # Set the initial status.
+        self.set_status(self.S_INIT)
+
+        # Number of restarts effectuated and max number (-1 --> no limit).
+        self.num_restarts = 0
+        self.max_num_restarts = -1
+
+    def __getstate__(self):
+        """
+        Return state is pickled as the contents for the instance.
+                                                                                      
+        In this case we just remove the process since Subprocess objects cannot be pickled.
+        This is the reason why we have to store the returncode in self._returncode instead
+        of using self.process.returncode.
+        """
+        return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
+
+    def set_workdir(self, workdir):
+        """Set the working directory. Cannot be set more than once."""
+        assert not hasattr(self, "workdir")
+        self.workdir = os.path.abspath(workdir)
+
+        # Files required for the execution.
+        self.input_file = File(os.path.join(self.workdir, "run.abi"))
+        self.output_file = File(os.path.join(self.workdir, "run.abo"))
+        self.files_file = File(os.path.join(self.workdir, "run.files"))
+        self.job_file = File(os.path.join(self.workdir, "job.sh"))
+        self.log_file = File(os.path.join(self.workdir, "run.log"))
+        self.stderr_file = File(os.path.join(self.workdir, "run.err"))
+
+        # Directories with input|output|temporary data.
+        self.indir = Directory(os.path.join(self.workdir, "indata"))
+        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
+        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
+        # stderr and output file of the queue manager.
+        self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
+        self.qout_file = File(os.path.join(self.workdir, "queue.out"))
+
+    def set_manager(self, manager):
+        """Set the `TaskManager` to use to launch the Task."""
+        self.manager = manager.deepcopy()
+
+    def make_input(self):
+        """Construct and write the input file of the calculation."""
+        return self.strategy.make_input()
+
+    def ipath_from_ext(self, ext):
+        """
+        Returns the path of the input file with extension ext.
+        Use it when the file does not exist yet.
+        """
+        return os.path.join(self.workdir, self.prefix.idata + "_" + ext)
+
+    def opath_from_ext(self, ext):
+        """
+        Returns the path of the output file with extension ext.
+        Use it when the file does not exist yet.
+        """
+        return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
+
+    @abc.abstractproperty
+    def executable(self):
+        """
+        Path to the executable associated to the task (internally stored in self._executable).
+        """
+
+    def set_executable(self, executable):
+        """Set the executable associate to this task."""
+        self._executable = executable
+
+    def set_name(name):
+        self._name = name
+
+    @property
+    def name(self):
+        try:
+            return self._name
+        except AttributeError:
+            return self.workdir
+
+    @property
+    def short_name(self):
+        return os.path.basename(self.workdir)
+
+    @property
+    def process(self):
+        try:
+            return self._process
+        except AttributeError:
+            # Attach a fake process so that we can poll it.
+            return FakeProcess()
+
+    #@property
+    #def is_allocated(self):
+    #    """
+    #    True if the task has been allocated, 
+    #    i.e. if it has been submitted or if it's running.
+    #    """
+    #    return self.status in [self.S_SUB, self.S_RUN]
+
+    @property
+    def is_completed(self):
+        """True if the task has been executed."""
+        return self.status >= self.S_DONE
+
+    @property
+    def can_run(self):
+        """The task can run if its status is < S_SUB and all the other depencies (if any) are done!"""
+        all_ok = all([stat == self.S_OK for stat in self.deps_status])
+        return self.status < self.S_SUB and all_ok
+
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        logger.debug("not_converged method of the base class will always return False")
+        return False
+
+    def _on_ok(self):
+        self.fix_ofiles()
+        results = self.on_ok()
+        self._finalized = True
+        return results
+
+    def on_ok(self):
+        """
+        This method is called once the `Task` has reached status S_OK. 
+        Subclasses should provide their own implementation
+
+        Returns:
+            Dictionary that must contain at least the following entries:
+                returncode:
+                    0 on success. 
+                message: 
+                    a string that should provide a human-readable description of what has been performed.
+        """
+        return dict(returncode=0, 
+                    message="Calling on_all_ok of the base class!")
+
+    # Interface modeled after subprocess.Popen
+    #@abc.abstractproperty
+    #def process(self):
+    #    """Return an object that supports the `subprocess.Popen` protocol."""
+
+    def fix_ofiles(self):
+        filepaths = self.outdir.list_filepaths()
+        logger.info("in fix_ofiled with filepaths %s" % filepaths) 
+
+        old2new = FilepathFixer().fix_paths(filepaths)
+        print("old2new", old2new)
+
+        for old, new in old2new.items():
+            logger.debug("will rename old %s to new %s" % (old, new))
+            os.rename(old, new)
+
+    def _restart(self):
+        """
+        Called by restart once we have finished preparing the task for restarting.
+        """
+        self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
+
+        # Increase the counter and relaunch the task.
+        self.num_restarts += 1
+        self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
+        self.start()
+        return 0
+
+    def restart(self):
+        """
+        Restart the calculation. This method is called if the calculation is not converged 
+        and we can restart the task. See restart_if_needed.
+        """
+        logger.debug("Calling the **empty** restart method of the base class")
+
+    def restart_if_needed(self):
+        """
+        Callback that is executed once the job is done. 
+        The implementation of the two methods: 
+
+           - not_converged
+           - restart 
+           
+        is delegated to the subclasses.
+
+        Returns:
+            0 if succes, 1 if restart was not possible.
+        """
+        if self.not_converged():
+            if self.num_restarts == self.max_num_restarts:
+                logger.info("Reached maximum number of restarts. Returning")
+                return 1
+
+            try:
+                self.restart()
+    
+            except TaskRestartError as exc:
+                info_msg = "Calculation not converged but restart was not possible!\nException: %s" % exc
+                logger.debug(info_msg)
+                self.set_status(self.S_ERROR, info_msg=info_msg)
+                return 1
+     
+        return 0
+
+    def poll(self):
+        """Check if child process has terminated. Set and return returncode attribute."""
+        self._returncode = self.process.poll()
+
+        if self._returncode is not None:
+            self.set_status(self.S_DONE)
+
+        return self._returncode
+
+    def wait(self):
+        """Wait for child process to terminate. Set and return returncode attribute."""
+        self._returncode = self.process.wait()
+        self.set_status(self.S_DONE)
+
+        return self._returncode
+
+    def communicate(self, input=None):
+        """
+        Interact with process: Send data to stdin. Read data from stdout and stderr, until end-of-file is reached. 
+        Wait for process to terminate. The optional input argument should be a string to be sent to the 
+        child process, or None, if no data should be sent to the child.
+
+        communicate() returns a tuple (stdoutdata, stderrdata).
+        """
+        stdoutdata, stderrdata = self.process.communicate(input=input)
+        self._returncode = self.process.returncode
+        self.set_status(self.S_DONE)
+
+        return stdoutdata, stderrdata 
+
+    def kill(self):
+        """Kill the child."""
+        self.process.kill()
+        self._returncode = self.process.returncode
+
+    @property
+    def returncode(self):
+        """
+        The child return code, set by poll() and wait() (and indirectly by communicate()). 
+        A None value indicates that the process hasn't terminated yet.
+        A negative value -N indicates that the child was terminated by signal N (Unix only).
+        """
+        try: 
+            return self._returncode
+        except AttributeError:
+            return 0
+
+    def reset(self):
+        """
+        Reset the task. Mainly used if we made a silly mistake in the initial
+        setup of the queue manager and we want to fix it and rerun the task.
+
+        Returns:
+            0 on success, 1 if reset failed.
+        """
+        # Can only reset tasks that are done.
+        if self.status < self.S_DONE:
+            return 1
+
+        self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        #self.workflow.check_status()
+
+        return 0
+
+    @property
+    def queue_id(self):
+        """Queue identifier returned by the Queue manager. None if not set"""
+        try:
+            return self._queue_id
+        except AttributeError:
+            return None
+
+    def set_queue_id(self, queue_id):
+        """Set the task identifier."""
+        self._queue_id = queue_id
+
+    @property
+    def has_queue_manager(self):
+        """True if we are submitting jobs via a queue manager."""
+        return self.manager.qadapter.QTYPE.lower() != "shell"
+
+    @property
+    def tot_ncpus(self):
+        """Total number of CPUs used to run the task."""
+        return self.manager.tot_ncpus
+                                                         
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.manager.mpi_ncpus
+                                                         
+    @property
+    def omp_ncpus(self):
+        """Number of CPUs used for OpenMP."""
+        return self.manager.omp_ncpus
+
+    @property
+    def status(self):
+        """Gives the status of the task."""
+        return self._status
+
+    def set_status(self, status, info_msg=None):
+        """Set the status of the task."""
+        assert status in STATUS2STR
+
+        changed = False
+        if hasattr(self, "_status"):
+            changed = status != self._status
+
+        self._status = status
+
+        if status == self.S_OK:
+            # Finalize the task.
+            if not self.finalized:
+                self._on_ok()
+
+            logger.debug("Task %s broadcasts signal S_OK" % self)
+            dispatcher.send(signal=self.S_OK, sender=self)
+
+        if changed:
+            if status == self.S_SUB: 
+                self._submission_time = time.time()
+                self.history.append("Submitted on %s" % time.asctime())
+
+            if status == self.S_OK:
+                self.history.append("Completed on %s" % time.asctime())
+
+            if status == self.S_ERROR:
+                self.history.append("Error info:\n %s" % str(info_msg))
+
+        return status
+
+    def check_status(self):
+        """
+        This function check the status of the task by inspecting the output and the 
+        error files produced by the application and by the queue manager.
+        """
+        if self.status < self.S_SUB:
+            return
+
+        # Check the returncode of the process first.
+        if self.returncode != 0:
+            return self.set_status(self.S_ERROR, info_msg="return code %s" % self.returncode)
+
+        # Start to check when the output file has been created.
+        if not self.output_file.exists:
+            logger.debug("output_file does not exists")
+
+            if not self.stderr_file.exists and not self.qerr_file.exists:
+                # The job is still in the queue.
+                return self.status
+
+            else:
+                # Analyze the standard error of the executable:
+                if self.stderr_file.exists:
+                    err_msg = self.stderr_file.read()
+                    if err_msg:
+                        logger.critical("executable stderr:\n" + err_msg)
+                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+
+                # Analyze the error file of the resource manager.
+                if self.qerr_file.exists:
+                    err_info = self.qerr_file.read()
+                    if err_info:
+                        logger.critical("queue stderr:\n" + err_msg)
+                        return self.set_status(self.S_ERROR, info_msg=err_info)
+
+                return self.status
+
+        # Check if the run completed successfully.
+        parser = EventParser()
+
+        try:
+            report = parser.parse(self.output_file.path)
+
+        except parser.Error as exc:
+            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
+            return self.set_status(self.S_ERROR, info_msg=str(exc))
+
+        if report.run_completed:
+            return self.set_status(self.S_OK)
+
+        # This is the delicate part since we have to discern among different possibilities:
+        #
+        # 1) Calculation stopped due to an Abinit Error or Bug.
+        #
+        # 2) Segmentation fault that (by definition) was not handled by ABINIT.
+        #    In this case we check if the ABINIT standard error is not empty.
+        #    hoping that nobody has written to sdterr (e.g. libraries in debug mode)
+        #
+        # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
+        #    In this case we check if the error file of the queue manager is not empty.
+        #    Also in this case we *assume* that there's something wrong if the stderr of the queue manager is not empty
+        # 
+        # 4) Calculation is still running!
+        #
+        # Point 2) and 3) are the most complicated since there's no standard!
+
+        # 1) Search for possible errors or bugs in the ABINIT **output** file.
+        if report.errors or report.bugs:
+            logger.critical("Found Errors or Bugs in ABINIT main output!")
+            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
+
+        # 2) Analyze the stderr file for Fortran runtime errors.
+        if self.stderr_file.exists:
+            err_info = self.stderr_file.read()
+            if err_info:
+                return self.set_status(self.S_ERROR, info_msg=err_info)
+
+        # 3) Analyze the error file of the resource manager.
+        if self.qerr_file.exists:
+            err_info = self.qerr_file.read()
+            if err_info:
+                return self.set_status(self.S_ERROR, info_msg=err_info)
+
+        # 4) Assume the job is still running.
+        return self.set_status(self.S_RUN)
+
+    def out_to_in(self, out_file):
+        """
+        Move an output file to the output data directory of the `Task` 
+        and rename the file so that ABINIT will read it as an input data file.
+
+        Returns:
+            The absolute path of the new file in the indata directory.
+        """
+        in_file = os.path.basename(out_file).replace("out", "in", 1)
+        dest = os.path.join(self.indir.path, in_file)
+                                                                           
+        if os.path.exists(dest) and not os.path.islink(dest):
+           logger.warning("Will overwrite %s with %s" % (dest, out_file))
+                                                                           
+        os.rename(out_file, dest)
+        return dest
+
+    def inlink_file(self, filepath):
+        """
+        Create a symbolic link to the specified file in the 
+        directory containing the input files of the task.
+        """
+        if not os.path.exists(filepath): 
+            logger.debug("Creating symbolic link to not existent file %s" % filepath)
+
+        # Extract the Abinit extension and add the prefix for input files.
+        root, abiext = abi_splitext(filepath)
+
+        infile = "in_" + abiext
+        infile = self.indir.path_in(infile)
+
+        # Link path to dest if dest link does not exist.
+        # else check that it points to the expected file.
+        logger.debug("Linking path %s --> %s" % (filepath, infile))
+        print("Linking path %s --> %s" % (filepath, infile))
+                                                             
+        if not os.path.exists(infile):
+            os.symlink(filepath, infile)
+        else:
+            if os.path.realpath(infile) != filepath:
+                raise self.Error("infile %s does not point to filepath %s" % (infile, filepath))
+
+    def make_links(self):
+        """
+        Create symbolic links to the output files produced by the other tasks.
+
+        ..warning:
+            
+            This method should be called only when the calculation is READY because
+            it uses a heuristic approach to find the file to link.
+        """
+        for dep in self.deps:
+            filepaths, exts = dep.get_filepaths_and_exts()
+            #print(filepaths, exts)
+
+            for (path, ext) in zip(filepaths, exts):
+                print("need path %s with ext %s" % (path, ext))
+                dest = self.ipath_from_ext(ext)
+
+                if not os.path.exists(path): 
+                    # Try netcdf file.
+                    # TODO: this case should be treated in a cleaner way.
+                    path += "-etsf.nc"
+                    if os.path.exists(path):
+                        dest += "-etsf.nc"
+
+                if not os.path.exists(path):
+                    err_msg = "%s is needed by this task but it does not exist" % path
+                    logger.critical(err_msg)
+                    raise self.Error(err_msg)
+
+                # Link path to dest if dest link does not exist.
+                # else check that it points to the expected file.
+                logger.debug("Linking path %s --> %s" % (path, dest))
+
+                if not os.path.exists(dest):
+                    os.symlink(path, dest)
+                else:
+                    if os.path.realpath(dest) != path:
+                        raise self.Error("dest %s does not point to path %s" % (dest, path))
+
+    @abc.abstractmethod
+    def setup(self):
+        """Public method called before submitting the task."""
+
+    def _setup(self):
+        """
+        This method calls self.setup after having performed additional operations
+        such as the creation of the symbolic links needed to connect different tasks.
+        """
+        self.make_links()
+        self.setup()
+
+    def get_event_report(self):
+        return self.parse_events()
+
+    def parse_events(self):
+        """
+        Analyzes the main output for possible errors or warnings.
+
+        Returns:
+            `EventReport` instance or None if the main output file does not exist.
+        """
+        if not os.path.exists(self.output_file.path):
+            return None
+
+        parser = EventParser()
+        try:
+            return parser.parse(self.output_file.path)
+
+        except parser.Error as exc:
+            # Return a report with an error entry with info on the exception.
+            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
+            return parser.report_exception(self.output_file.path, exc)
+
+    @property
+    def events(self):
+        """List of errors or warnings reported by ABINIT."""
+        if self.status is None or self.status < self.S_DONE:
+            raise self.Error(
+                "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
+        try:
+            return self._events
+        except AttributeError:
+            self._events = self.parse_events()
+            return self._events
+
+    @property
+    def results(self):
+        """The results produced by the task. Set by get_results"""
+        try:
+            return self._results
+
+        except AttributeError:
+            self._results = self.get_results()
+            return self._results 
+
+    def get_results(self, *args, **kwargs):
+        """
+        Method called once the calculation is completed, 
+        Updates self._results and returns TaskResults instance.
+        Subclasses should extend this method (if needed) by adding 
+        specialized code that performs some kind of post-processing.
+        """
+        # Check whether the process completed.
+        if self.returncode is None:
+            raise self.Error("return code is None, you should call wait, communitate or poll")
+
+        if self.status is None or self.status < self.S_DONE:
+            raise self.Error("Task is not completed")
+
+        return TaskResults({
+            "task_name"      : self.name,
+            "task_returncode": self.returncode,
+            "task_status"    : self.status,
+            "task_events"    : self.events.to_dict
+        })
+
+    def move(self, dest, is_abspath=False):
+        """
+        Recursively move self.workdir to another location. This is similar to the Unix "mv" command.
+        The destination path must not already exist. If the destination already exists
+        but is not a directory, it may be overwritten depending on os.rename() semantics.
+
+        Be default, dest is located in the parent directory of self.workdir.
+        Use is_abspath=True to specify an absolute path.
+        """
+        if not is_abspath:
+            dest = os.path.join(os.path.dirname(self.workdir), dest)
+
+        shutil.move(self.workdir, dest)
+
+    def in_files(self):
+        """Return all the input data files used."""
+        return self.indir.list_filepaths()
+
+    def out_files(self):
+        """Return all the output data files produced."""
+        return self.outdir.list_filepaths()
+
+    def tmp_files(self):
+        """Return all the input data files produced."""
+        return self.tmpdir.list_filepaths()
+
+    def path_in_workdir(self, filename):
+        """Create the absolute path of filename in the top-level working directory."""
+        return os.path.join(self.workdir, filename)
+
+    def rename(self, src_basename, dest_basename, datadir="outdir"):
+        """
+        Rename a file located in datadir.
+
+        src_basename and dest_basename are the basename of the source file
+        and of the destination file, respectively.
+        """
+        directory = {
+            "indir": self.indir,
+            "outdir": self.outdir,
+            "tmpdir": self.tmpdir,
+        }[datadir]
+
+        src = directory.path_in(src_basename)
+        dest = directory.path_in(dest_basename)
+
+        os.rename(src, dest)
+
+    def build(self, *args, **kwargs):
+        """
+        Creates the working directory and the input files of the `Task`.
+        It does not overwrite files if they already exist.
+        """
+        # Create dirs for input, output and tmp data.
+        self.indir.makedirs()
+        self.outdir.makedirs()
+        self.tmpdir.makedirs()
+
+        # Write files file and input file.
+        if not self.files_file.exists:
+            self.files_file.write(self.filesfile_string)
+
+        self.input_file.write(self.make_input())
+
+        self.manager.write_jobfile(self)
+
+    def rmtree(self, exclude_wildcard=""):
+        """
+        Remove all files and directories in the working directory
+
+        Args:
+            exclude_wildcard:
+                Optional string with regular expressions separated by |.
+                Files matching one of the regular expressions will be preserved.
+                example: exclude_wildcard="*.nc|*.txt" preserves all the files
+                whose extension is in ["nc", "txt"].
+        """
+        if not exclude_wildcard:
+            shutil.rmtree(self.workdir)
+
+        else:
+            w = WildCard(exclude_wildcards)
+
+            for dirpath, dirnames, filenames in os.walk(self.workdir):
+                for fname in filenames:
+                    filepath = os.path.join(dirpath, fname)
+                    if not w.match(fname):
+                        os.remove(filepath)
+
+    def remove_files(self, *filenames):
+        """Remove all the files listed in filenames."""
+        filenames = list_strings(filenames)
+
+        for dirpath, dirnames, fnames in os.walk(self.workdir):
+            for fname in fnames:
+                if fname in filenames:
+                    filepath = os.path.join(dirpath, fname)
+                    os.remove(filepath)
+
+    # TODO Remove this methods. use Directory directly.
+    def rm_indatadir(self):
+        """Remove the directory with the input files (indata dir)."""
+        self.indir.rmtree()
+
+    def rm_tmpdatadir(self):
+        """Remove the directory with the temporary files."""
+        self.tmpdir.rmtree()
+
+    def setup(self):
+        """Base class does not provide any hook."""
+
+    def start(self, *args, **kwargs):
+        """
+        Starts the calculation by performing the following steps:
+
+            - build dirs and files
+            - call the _setup method
+            - execute the job file by executing/submitting the job script.
+        """
+        if self._status >= self.S_SUB:
+            raise self.Error("Task status: %s" % str(self.status))
+
+        self.set_status(self.S_SUB)
+
+        self.build(*args, **kwargs)
+
+        self._setup()
+
+        # Add the variables needed to connect the node.
+        for d in self.deps:
+            vars = d.connecting_vars()
+            logger.debug("Adding connecting vars %s " % str(vars))
+            self.strategy.add_extra_abivars(vars)
+
+        # Automatic parallelization
+        self.manager.autoparal(self)
+
+        # Start the calculation in a subprocess and return.
+        self._process = self.manager.launch(self)
+
+    def start_and_wait(self, *args, **kwargs):
+        """
+        Helper method to start the task and wait.
+
+        Mainly used when we are submitting the task via the shell
+        without passing through a queue manager.
+        """
+        self.start(*args, **kwargs)
+        return self.wait()
+
+
+class AbinitTask(Task):
+    """
+    Base class defining an ABINIT calculation
+    """
+    #IN = "in"
+    #OUT = "out"
+    #TMP = "tmp"
+
+    #def __init__(self, strategy, workdir=None, manager=None):
+    #    super(AbinitTask, self).__init__(strategy, workdir=workdir, manager=manager)
+
+    @classmethod
+    def from_input(cls, abinit_input, workdir=None, manager=None):
+        """
+        Create an instance of `AbinitTask` from an ABINIT input.
+    
+        Args:
+            abinit_input:
+                `AbinitInput` object.
+            workdir:
+                Path to the working directory.
+            manager:
+                `TaskManager` object.
+        """
+        # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+        from pymatgen.io.abinitio.strategies import StrategyWithInput
+        strategy = StrategyWithInput(abinit_input)
+
+        return cls(strategy, workdir=workdir, manager=manager)
+
+    def setup(self):
+        """
+        Abinit has the very *bad* habit of changing the file extension by appending the characters in [A,B ..., Z] 
+        to the output file, and this breaks a lot of code that relies of the use of a unique file extension.
+        Here we fix this issue by renaming run.abo to run.abo_[number] if the output file "run.abo" already
+        exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90. 
+        God rot the FORTRAN committee who was not able to give Fortran a decent standard library as well as $Windows$ OS!
+        I don't really care if Fortran2003 provides support for OOP programming. 
+        What I need is a standardized interface to communicate with the OS!
+        """
+        if self.output_file.exists:
+            # Find the index of the last file (if any) and push.
+            # TODO: Maybe it's better to use run.abo --> run(1).abo
+            fnames = [f for f in os.listdir(self.workdir) if f.startswith(self.output_file.basename)]
+            nums = [int(f) for f in [f.split("_")[-1] for f in fnames] if f.isdigit()]
+            last = max(nums) if nums else 0
+            new_path = self.output_file.path + "_" + str(last+1)
+
+            # Call os.rename and are done! It's really amazing the that I can write Fortran code that runs on 10**3 processors 
+            # whereas a simple mv in F90 requires a lot of unportable tricks (where unportable means "not supported by $windows$").
+            print("Will rename %s to %s" % (self.output_file.path, new_path))
+            os.rename(self.output_file.path, new_path)
+
+    @property
+    def executable(self):
+        """Path to the executable required for running the Task."""
+        try:
+            return self._executable
+        except AttributeError:
+            return "abinit"
+
+    @property
+    def pseudos(self):
+        """List of pseudos used in the calculation."""
+        return self.strategy.pseudos
+
+    @property
+    def isnc(self):
+        """True if norm-conserving calculation."""
+        return all(p.isnc for p in self.pseudos)
+
+    @property
+    def ispaw(self):
+        """True if PAW calculation"""
+        return all(p.ispaw for p in self.pseudos)
+
+    @property
+    def filesfile_string(self):
+        """String with the list of files and prefixex needed to execute ABINIT."""
+        lines = []
+        app = lines.append
+        pj = os.path.join
+
+        app(self.input_file.path)                 # Path to the input file
+        app(self.output_file.path)                # Path to the output file
+        app(pj(self.workdir, self.prefix.idata))  # Prefix for input data
+        app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
+        app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
+
+        # Paths to the pseudopotential files.
+        for pseudo in self.pseudos:
+            app(pseudo.path)
+
+        return "\n".join(lines)
+
+# TODO
+# Enable restarting capabilites:
+# Before doing so I need:
+#   1) Preliminary standardization of the ABINT events and critical WARNINGS (YAML)
+#   2) Change the parser so that we can use strings in the input file.
+#      We need this change for restarting structural relaxations so that we can read 
+#      the initial structure from file.
+
+class ScfTask(AbinitTask):
+    """
+    Self-consistent ground-state calculations.
+    Provide support for in-place restart via (WFK|DEN) files
+    """
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
+
+        report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+        if report.warnings:
+            return report.warnings.filter("ScfCriticalWarning")
+
+        return False
+
+    def restart(self):
+        """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
+        # Prefer WFK over DEN files since we can reuse the wavefunctions.
+        for ext in ["WFK", "DEN"]:
+            restart_file = self.outdir.has_abiext(ext)
+            irdvars = irdvars_for_ext(ext)
+            if restart_file:
+                break
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find WFK or DEN file to restart from.")
+
+        # Move out --> in.
+        self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+class NscfTask(AbinitTask):
+    """
+    Non-Self-consistent GS calculation.
+    Provide in-place restart via WFK files
+    """
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
+        report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+
+    def restart(self):
+        """NSCF calculations can be restarted only if we have the WFK file."""
+        ext = "WFK"
+        restart_file = self.outdir.has_abiext(ext)
+        irdvars = irdvars_for_ext(ext)
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find the WFK file to restart from.")
+
+        # Move out --> in.
+        self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+class RelaxTask(AbinitTask):
+    """
+    Structural optimization.
+    """
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        # TODO: 
+        return True
+        #report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+        #if report.warnings:
+        #    return False
+
+    def set_initial_structure(self, structure):
+        #TODO
+        self.strategy.set_structure(structure)
+
+    def read_final_structure(self):
+        """Read the final structure from the GSR file and save it in self.final_structure."""
+        gsr_file = self.outdir.has_abiext("GSR")
+        if not gsr_file:
+            raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
+                                                                                                         
+        with ETSF_reader(gsr_file) as r:
+            self.final_structure = r.read_structure()
+
+        return self.final_structure
+
+    def restart(self):
+        raise NotImplementedError("")
+        # Change the initial structure.
+        try:
+            structure = self.read_final_structure()
+        except TaskRestartError:
+            raise
+
+        self.set_initial_structure(structure)
+
+        # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
+        # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
+        # Prefer WFK over other files since we can reuse the wavefunctions.
+        for ext in ["WFK", "DEN"]:
+            ofile = self.outdir.has_abiext(ext)
+            if ofile:
+                irdvars = irdvars_for_ext(ext)
+                infile = self.out_to_in(ofile)
+                # We will read the unit cell from this file
+                irdvars["getucell_path"] = infile
+                break
+
+        if not ofile:
+            raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+class DDK_Task(AbinitTask):
+
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return False
+
+
+class PhononTask(AbinitTask):
+    """
+    DFPT calculations for a single atomic perturbation.
+    Provide support for in-place restart via (1WF|1DEN) files
+    """
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
+        #report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+
+    def restart(self):
+        # Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
+        # from which we can read the first-order wavefunctions or the first order density.
+        # Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        for ext in ["1WF", "1DEN"]:
+            restart_file = self.outdir.has_abiext(ext)
+            irdvars = irdvars_for_ext(ext)
+            if restart_file:
+                break
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find the 1WF|1DEN|file to restart from.")
+
+        self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+class G_Task(AbinitTask):
+    """
+    Tasks for SIGMA calculations employing the self-consistent G approximation 
+    Provide support for in-place restart via QPS files
+    """
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
+        #report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+
+    def restart(self):
+        # G calculations can be restarted only if we have the QPS file 
+        # from which we can read the results of the previous step.
+        ext = "QPS"
+        restart_file = self.outdir.has_abiext(ext)
+        irdvars = irdvars_for_ext(ext)
+
+        if not restart_file:
+            raise TaskRestartError("Cannot find the QPS file to restart from.")
+
+        self.out_to_in(restart_file)
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+class BseTask(AbinitTask):
+    """
+    Task for Bethe-Salpeter calculations.
+
+    .. note:
+
+        The BSE codes provides both iterative and direct schemes
+        for the computation of the dielectric function. 
+        The direct diagonalization cannot be restarted whereas 
+        Haydock and CG support restarting.
+    """
+
+#class CgBseTask(BseTask):
+#    """Bethe-Salpeter calculations with the conjugate-gradient method."""
+
+
+class HaydockBseTask(BseTask):
+    """
+    Bethe-Salpeter calculations with Haydock iterative scheme.
+    Provide in-place restart via (BSR|BSC) files
+    """
+    def not_converged(self):
+        """Return True if the calculation is not converged."""
+        return True
+        #raise NotImplementedError("")
+        #report = self.get_event_report()
+        # If we have critical warnings that are registered 
+        # for this task we trigger the restart.
+        if report.warnings:
+            return False
+
+        return True
+                                                                                            
+    def restart(self):
+        # BSE calculations with Haydock can be restarted only if we have the 
+        # excitonic Hamiltonian and the HAYDR_SAVE file.
+        # TODO: This version seems to work but the main output file is truncated
+        # the log file is complete though.
+        irdvars = {}
+
+        # Move the BSE blocks to indata.
+        count = 0
+        for ext in ["BSR", "BSC"]:
+            ofile = self.outdir.has_abiext(ext)
+            if ofile:
+                count += 1
+                irdvars.update(irdvars_for_ext(ext))
+                self.out_to_in(ofile)
+
+        if not count:
+            raise TaskRestartError("Cannot find the BSR|BSC file to restart from.")
+
+        # Rename HAYDR_SAVE files
+        count = 0
+        for ext in ["HAYDR_SAVE", "HAYDC_SAVE"]:
+            ofile = self.outdir.has_abiext(ext)
+            if ofile:
+                count += 1
+                irdvars.update(irdvars_for_ext(ext))
+                self.out_to_in(ofile)
+
+        if not count:
+            raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
+
+        # Add the appropriate variable for restarting.
+        self.strategy.add_extra_abivars(irdvars)
+
+        # Now we can resubmit the job.
+        self._restart()
+
+
+class OpticTask(Task):
+    # TODO
+    # FIx the problem with report.is_completed
+    # all the executables in Abinit should signal the successful completion with the same format.
+    # possibly with YAML
+
+    def __init__(self, optic_input, nscf_task, ddk_tasks, workdir=None, manager=None):
+        """
+        Create an instance of `OpticTask` from an string containing the input.
+    
+        Args:
+            optic_input:
+                string with the optic variables (filepaths will be added at run time).
+            nscf_task:
+                The NSCF task that will produce thw WFK file.
+            ddk_tasks:
+                List of `DDK_Task` nodes that will produce the DDK files.
+            workdir:
+                Path to the working directory.
+            manager:
+                `TaskManager` object.
+        """
+        deps = {task: "1WF" for task in ddk_tasks}
+        deps.update({nscf_task: "WFK"})
+
+        from pymatgen.io.abinitio.strategies import OpticInput
+        strategy = OpticInput(optic_input)
+        super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
+
+        # Keep a reference to the nscf_task and the ddk tasks
+        self.nscf_task = nscf_task
+        self.ddk_tasks = ddk_tasks
+        assert len(ddk_tasks) == 3
+
+    @property
+    def executable(self):
+        """Path to the executable required for running the `OpticTask`."""
+        try:
+            return self._executable
+        except AttributeError:
+            return "optic"
+
+    @property
+    def filesfile_string(self):
+        """String with the list of files and prefixex needed to execute ABINIT."""
+        lines = []
+        app = lines.append
+        pj = os.path.join
+
+        #optic.in     ! Name of input file
+        #optic.out    ! Unused
+        #optic        ! Root name for all files that will be produced
+        app(self.input_file.path)                 # Path to the input file
+        app(self.output_file.path)                # Path to the output file
+        app(pj(self.workdir, self.prefix.odata))  # Prefix for output data
+
+        return "\n".join(lines)
+
+    @property
+    def wfk_filepath(self):
+        """Returns (at runtime) the absolute path of the WFK file produced by the NSCF run."""
+        return self.nscf_task.outdir.has_abiext("WFK")
+
+    @property
+    def ddk_filepaths(self):
+        """Returns (at runtime) the absolute path of the DDK files produced by the DDK runs."""
+        return [ddk_task.outdir.has_abiext("1WF") for ddk_task in self.ddk_tasks]
+
+    def make_input(self):
+        """Construct and write the input file of the calculation."""
+        # Set the file paths.
+        files = "\n".join(self.ddk_filepaths + [self.wfk_filepath]) + "\n"
+
+        # Get the input specified by the user
+        user_inp = self.strategy.make_input()
+
+        # Join them.
+        return files + user_inp
+
+    def setup(self):
+        """Public method called before submitting the task."""
+
+    def make_links(self):
+        """
+        Optic allows the user to specify the paths of the input file.
+        hence we don't need to create symbolic links.
+        """
+
+class AnaddbTask(Task):
+    # TODO
+    # FIx the problem with report.is_completed
+    # all the executables in Abinit should signal the successful completion with the same format.
+    # possibly with YAML
+
+    def __init__(self, anaddb_input, ddb_node, 
+                 gkk_node=None, md_node=None, ddk_node=None, workdir=None, manager=None):
+        """
+        Create an instance of `AnaddbTask` from an string containing the input.
+
+        Args:
+            anaddb_input:
+                string with the anaddb variables.
+            ddb_node:
+                The node that will produce the DDB file (can be either `Task` or `Workflow` object)
+            gkk_node:
+                The node that will produce the GKK file (can be either `Task` or `Workflow` object)
+                optional.
+            md_node:
+                The node that will produce the MD file (can be either `Task` or `Workflow` object)
+                optional.
+            gkk_node:
+                The node that will produce the GKK file (can be either `Task` or `Workflow` object)
+                optional.
+            workdir:
+                Path to the working directory.
+            manager:
+                `TaskManager` object.
+        """
+        # Keep a reference to the nodes.
+        self.ddb_node = ddb_node
+        deps = {ddb_node: "DDB"}
+
+        self.ggk_node = ggk_node
+        if ggk_node is not None:
+            deps.update({gkk_node: "GKK"})
+
+        # TODO: I never used it!
+        self.md_node = md_node
+        if md_node is not None:
+            deps.update({md_node: "MD"})
+
+        self.ddk_node = ddk_node
+        if ddk_node is not None:
+            deps_update({ddk_node: "1WF"})
+                                                                                                        
+        # TODO
+        #from pymatgen.io.abinitio.strategies import AnaddbInput
+        #strategy = AnaddbInput(anaddb_input)
+        #super(AnaddbTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
+
+    @property
+    def executable(self):
+        """Path to the executable required for running the `AnaddbTask`."""
+        try:
+            return self._executable
+        except AttributeError:
+            return "anaddb"
+
+    @property
+    def filesfile_string(self):
+        """String with the list of files and prefixes needed to execute ABINIT."""
+        lines = []
+        app = lines.append
+
+        app(self.input_file.path)          # 1) Path of the input file
+        app(self.output_file.path)         # 2) Path of the output file
+        app(self.ddb_filepath)             # 3) Input derivative database e.g. t13.ddb.in
+        app(self.md_filepath)              # 4) Output molecular dynamics e.g. t13.md
+        app(self.gkk_filepath)             # 5) Input elphon matrix elements  (GKK file)
+        # FIXME check this one
+        app(self.outdir.pathjoin("out"))   # 6) Base name for elphon output files e.g. t13
+        app(self.ddk_filepath)             # 7) File containing ddk filenames for elphon/transport.
+
+        return "\n".join(lines)
+
+    @property
+    def ddb_filepath(self, ddb_file):
+        """Returns (at runtime) the absolute path of the input DDB file."""
+        path = self.ddb_node.outdir.has_abiext("DDB")
+        return path if path else "DDB_FILE_DOES_NOT_EXIST"
+
+    @property
+    def md_filepath(self):
+        """Returns (at runtime) the absolute path of the input MD file."""
+        path = self.md_node.outdir.has_abiext("MD")
+        return path if path else "MD_FILE_DOES_NOT_EXIST"
+
+    @property
+    def gkk_filepath(self):
+        """Returns (at runtime) the absolute path of the input GKK file."""
+        path = self.gkk_node.outdir.has_abiext("GKK")
+        return path if path else "GKK_FILE_DOES_NOT_EXIST"
+
+    @property
+    def ddk_filepath(self):
+        """Returns (at runtime) the absolute path of the input DKK file."""
+        path = self.ddk_node.outdir.has_abiext("1WK")
+        return path if path else "DDK_FILE_DOES_NOT_EXIST"
+
+    def setup(self):
+        """Public method called before submitting the task."""
+
+    def make_links(self):
+        """
+        Anaddb allows the user to specify the paths of the input file.
+        hence we don't need to create symbolic links.
+        """

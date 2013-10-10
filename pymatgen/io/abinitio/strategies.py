@@ -42,42 +42,6 @@ def select_pseudos(pseudos, structure):
     return PseudoTable(pseudos)
 
 
-class StrategyWithInput(object):
-    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-    def __init__(self, abinit_input):
-        self.abinit_input = abinit_input
-                                         
-    @property
-    def pseudos(self):
-        return self.abinit_input.pseudos
-
-    def add_extra_abivars(self, abivars):
-        """Add variables (dict) to extra_abivars."""
-        self.abinit_input.set_variables(**abivars)
-
-    def remove_extra_abivars(self, keys):
-        """Remove variables from extra_abivars."""
-        self.abinit_input.remove_variables(keys)
-                                         
-    def make_input(self):
-        return str(self.abinit_input)
-
-
-class OpticsInput(object):
-    def __init__(self, string):
-        self.string = string
-
-    def make_input(self):
-        return self.string
-
-    def add_extra_abivars(self, abivars):
-        """
-        Connection is explicit via the input file.
-        since we can pass the paths of the output files 
-        produced by the previous runs.
-        """
-
-
 class Strategy(object):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
@@ -740,3 +704,39 @@ class InputWriter(object):
         else:
             return str_delimited(lines, header=None, delimiter=5*" ")
 
+
+class StrategyWithInput(object):
+    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+    def __init__(self, abinit_input):
+        self.abinit_input = abinit_input
+                                         
+    @property
+    def pseudos(self):
+        return self.abinit_input.pseudos
+
+    def add_extra_abivars(self, abivars):
+        """Add variables (dict) to extra_abivars."""
+        self.abinit_input.set_variables(**abivars)
+
+    def remove_extra_abivars(self, keys):
+        """Remove variables from extra_abivars."""
+        self.abinit_input.remove_variables(keys)
+                                         
+    def make_input(self):
+        return str(self.abinit_input)
+
+
+class OpticInput(object):
+
+    def __init__(self, string):
+        self.string = string
+
+    def make_input(self):
+        return str(self.string)
+
+    def add_extra_abivars(self, abivars):
+        """
+        Connection is explicit via the input file.
+        since we can pass the paths of the output files 
+        produced by the previous runs.
+        """
