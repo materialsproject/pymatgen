@@ -145,11 +145,11 @@ class Mrggkk(ExecWrapper):
 
     Error = MrggkkError
 
-    def merge(self, gswfk_file, dfpt_files, gkk_files, out_fname, binascii=0, cwd=None):
+    def merge(self, gswfk_file, dfpt_files, gkk_files, out_gkk, binascii=0, cwd=None):
         """Merge DDB file, return the absolute path of the new database."""
         raise NotImplementedError("This method should be tested")
 
-        out_fname = out_fname if cwd is None else os.path.join(os.path.abspath(cwd), out_fname)
+        out_gkk = out_gkk if cwd is None else os.path.join(os.path.abspath(cwd), out_gkk)
 
         # We work with absolute paths.
         gswfk_file = absath(gswfk_file)
@@ -158,7 +158,7 @@ class Mrggkk(ExecWrapper):
 
         if self.verbose:
             print("Will merge %d 1WF files, %d GKK file in output %s" %
-                  (len(dfpt_nfiles), (len_gkk_files), out_fname))
+                  (len(dfpt_nfiles), (len_gkk_files), out_gkk))
 
             for (i, f) in enumerate(dfpt_files): 
                 print(" [%d] 1WF %s" % (i, f))
@@ -174,7 +174,7 @@ class Mrggkk(ExecWrapper):
 
         inp = StringIO.StringIO()
 
-        inp.write(out_fname + "\n")        # Name of the output file
+        inp.write(out_gkk + "\n")        # Name of the output file
         inp.write(str(binascii) + "\n")    # Integer flag: 0 --> binary output, 1 --> ascii formatted output
         inp.write(gswfk_file + "\n")       # Name of the groud state wavefunction file WF
 
@@ -201,7 +201,7 @@ class Mrggkk(ExecWrapper):
         except self.Error:
             raise
 
-        return out_fname
+        return out_gkk
 
 
 class MrgddbError(Exception):

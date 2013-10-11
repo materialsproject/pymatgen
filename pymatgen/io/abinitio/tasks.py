@@ -357,6 +357,8 @@ class TaskManager(object):
     A `TaskManager` has a `TaskPolicy` that governs the specification of the 
     parameters for the parallel executions.
     """
+    YAML_FILE = "taskmanager.yaml"
+
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None, policy=None):
 
@@ -397,21 +399,30 @@ class TaskManager(object):
 
         return cls.from_dict(d)
 
-    #@classmethod
-    #def from_user_config(cls):
-    #    Try in the current directory.
-    #    fname = "taskmanager.yaml"
-    #    path = os.path.join(os.getcwd(), fname)
-    #    if os.path.exists(path):
-    #        return cls.from_file(path)
+    @classmethod
+    def from_user_config(cls):
+        """
+        Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
+        Search first in the workind directory and then in the configuration
+        directory of abipy.
 
-    #    Try in the configuration directory.
-    #    home = os.getenv("HOME")
-    #    path = os.path.join(home, fname)
-    #    if os.path.exists(path):
-    #        return cls.from_file(path)
-    #
-    #    raise RuntimeError("Cannot locate %s neither in current directory nor in home directory" % fname)
+        Raises:
+            RuntimeError if file is not found.
+        """
+        Try in the current directory.
+        path = os.path.join(os.getcwd(), self.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+
+        # Try in the configuration directory.
+        #home = os.getenv("HOME")
+        #path = os.path.join(home, self.YAML_FILE)
+
+        #if os.path.exists(path):
+        #    return cls.from_file(path)
+    
+        raise RuntimeError("Cannot locate %s neither in current directory nor the in home directory" % self.YAML_FILE)
 
     @classmethod 
     def sequential(cls):
@@ -850,7 +861,7 @@ class Node(object):
                                                                                             
     def __str__(self):
         try:
-            return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
+            return "<%s, workdir=%s>" % (self.__class__.__name__, os.path.relpath(self.workdir))
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, workdir=None>" % self.__class__.__name__
@@ -1760,7 +1771,7 @@ class Task(Node):
     def setup(self):
         """Base class does not provide any hook."""
 
-    def start(self, *args, **kwargs):
+    def start(self):
         """
         Starts the calculation by performing the following steps:
 
@@ -1773,7 +1784,7 @@ class Task(Node):
 
         self.set_status(self.S_SUB)
 
-        self.build(*args, **kwargs)
+        self.build()
 
         self._setup()
 
