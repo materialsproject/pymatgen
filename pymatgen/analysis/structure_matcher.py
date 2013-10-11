@@ -682,25 +682,6 @@ class StructureMatcher(MSONable):
         if best_match and best_match[0] < self.stol:
             return best_match
 
-    def find_indexes(self, s_list, group_list):
-        """
-        Given a list of structures, return list of indices where each
-        structure appears in group_list.
-
-        Args:
-            s_list:
-                list of structures to check
-            group_list:
-                list to find structures in
-        """
-        inds = [-1] * len(s_list)
-        for j in range(len(s_list)):
-            for i in range(len(group_list)):
-                if s_list[j] in group_list[i]:
-                    inds[j] = i
-                    break
-        return inds
-
     def group_structures(self, s_list):
         """
         Given a list of structures, use fit to group
@@ -725,15 +706,15 @@ class StructureMatcher(MSONable):
         #For each pre-grouped list of structures, perform actual matching.
         for k, g in itertools.groupby(sorted_s_list,
                                       key=self._comparator.get_structure_hash):
-            g = list(g)
-            group_list = [[g[0]]]
-            for i, j in itertools.combinations(range(len(g)), 2):
-                s1_ind, s2_ind = self.find_indexes([g[i], g[j]], group_list)
-                if s2_ind == -1 and self.fit(g[i], g[j]):
-                    group_list[s1_ind].append(g[j])
-                elif (j - i) == 1 and s2_ind == -1:
-                    group_list.append([g[j]])
-            all_groups.extend(group_list)
+            unmatched = list(g)
+            while len(unmatched) > 0:
+                ref = unmatched[0]
+                matches = [ref]
+                for i in xrange(1, len(unmatched)):
+                    if self.fit(ref, unmatched[i]):
+                        matches.append(unmatched[i])
+                unmatched = filter(lambda x: x not in matches, unmatched)
+                all_groups.append(matches)
         return all_groups
 
     @property
