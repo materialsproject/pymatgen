@@ -153,11 +153,22 @@ class AbinitFlow(collections.Iterable):
             work.build(*args, **kwargs)
 
     def build_and_pickle_dump(self):
+        """
+        Build dirs and file of the `Flow` and save the object in pickle format.
+
+        Returns:
+            0 if success
+        """
         self.build()
-        self.pickle_dump()
+        return self.pickle_dump()
 
     def pickle_dump(self):
-        """Save the status of the object in pickle format."""
+        """
+        Save the status of the object in pickle format.
+
+        Returns:
+            0 if success
+        """
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
@@ -185,6 +196,7 @@ class AbinitFlow(collections.Iterable):
         #        os.remove(filepath_new)
         #    except:
         #        pass
+        return 0
 
     @staticmethod
     def pickle_load(filepath):
