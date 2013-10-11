@@ -47,7 +47,7 @@ __all__ = [
     "IterativeWorkflow",
     "BandStructureWorkflow",
     #"RelaxWorkflow",
-    #"DeltaFactorWorkflow"
+    "DeltaFactorWorkflow",
     "G0W0_Workflow",
     "BSEMDF_Workflow",
 ]
@@ -228,7 +228,7 @@ class BaseWorkflow(Node):
 
         The base version returns a dictionary task_name : TaskResults for each task in self.
         """
-        return WorkFlowResults(task_results={task.name: task.results for task in self})
+        return WorkflowResults(task_results={task.name: task.results for task in self})
 
 
 class Workflow(BaseWorkflow):
@@ -1084,17 +1084,32 @@ class RelaxWorkflow(Workflow):
 
 class DeltaFactorWorkflow(Workflow):
 
-    def __init__(self, workdir, manager, structure_or_cif, pseudo, kppa,
+    def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
-                 accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0): # FIXME Hack
+                 accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
+                 # FIXME Hack in chksymbreack
+        """
+        Build a `Workflow` for the computation of the deltafactor.
 
-        super(DeltaFactorWorkflow, self).__init__(workdir, manager)
+        Args:   
+            structure_or_cif:
+            pseudo:
+            kppa:
+            spin_mode="polarized":
+            toldfe=1.e-8:
+            smearing="fermi_dirac:0.1 eV":
+            workdir:
+            manager:
+        """
+        super(DeltaFactorWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         if isinstance(structure_or_cif, Structure):
             structure = structure_or_cif
         else:
             # Assume CIF file
             structure = read_structure(structure_or_cif)
+
+        self.pseudo = Pseudo.aspseudo(pseudo)
 
         structure = AbiStructure.asabistructure(structure)
 
@@ -1126,7 +1141,7 @@ class DeltaFactorWorkflow(Workflow):
             ksampling = KSampling.automatic_density(new_structure, kppa,
                                                     chksymbreak=chksymbreak)
 
-            scf_input = ScfStrategy(new_structure, pseudo, ksampling,
+            scf_input = ScfStrategy(new_structure, self.pseudo, ksampling,
                                     accuracy=accuracy, spin_mode=spin_mode,
                                     smearing=smearing, **extra_abivars)
 
@@ -1153,8 +1168,18 @@ class DeltaFactorWorkflow(Workflow):
 
             # Use same fit as the one employed for the deltafactor.
             eos_fit = EOS.DeltaFactor().fit(self.volumes/num_sites, etotal/num_sites)
-            #print("delta",eos_fit)
-            eos_fit.plot(show=False, savefig=self.path_in_workdir("eos.pdf"))
+
+            eos_fit.plot(show=False, savefig=self.outdir.path_in("eos.pdf"))
+
+            # Get reference results (Wien2K).
+            from pseudo_dojo.refdata.deltafactor import df_database, df_compute
+            wien2k = df_database().get_entry(self.pseudo.symbol)
+                                                                                                 
+            # Compute deltafactor estimator.
+            dfact = df_compute(wien2k.v0, wien2k.b0_GPa, wien2k.b1, eos_fit.v0, eos_fit.b0_GPa, eos_fit.b1, b0_GPa=True)
+
+            print("delta",eos_fit)
+            print("Deltafactor = %.3f meV" % dfact)
 
             wf_results.update({
                 "v0": eos_fit.v0,
@@ -1166,17 +1191,31 @@ class DeltaFactorWorkflow(Workflow):
         except EOS.Error as exc:
             wf_results.push_exceptions(exc)
 
-        if kwargs.get("json_dump", True):
-            wf_results.json_dump(self.path_in_workdir("results.json"))
+        #if kwargs.get("json_dump", True):
+        #    wf_results.json_dump(self.path_in_workdir("results.json"))
 
         # Write data for the computation of the delta factor
-        with open(self.path_in_workdir("deltadata.txt"), "w") as fh:
+        with open(self.outdir.path_in("deltadata.txt"), "w") as fh:
+            fh.write("# Deltafactor = %s meV\n" % dfact)
             fh.write("# Volume/natom [Ang^3] Etotal/natom [eV]\n")
             for (v, e) in zip(self.volumes, etotal):
                 fh.write("%s %s\n" % (v/num_sites, e/num_sites))
 
         return wf_results
 
+    def on_all_ok(self):
+        return self.get_results()
+
+    #def make_report(self, results, **kwargs):
+    #    d = dict(v0=v0,
+    #             b0_GPa=b0_GPa,
+    #             b1=b1,
+    #             dfact=dfact
+    #            )
+    #    if results.exceptions:
+    #        d["_exceptions"] = str(results.exceptions)
+    #                                                                                         
+    #    d = {self.accuracy: d}
 
 class G0W0_Workflow(Workflow):
 
