@@ -42,13 +42,16 @@ class AbinitFlow(collections.Iterable):
 
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
-    def __init__(self, workdir, manager):
+    def __init__(self, workdir, manager, pickle_protocol=-1):
         """
         Args:
             workdir:
                 String specifying the directory where the workflows will be produced.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
+            pickle_procol:
+                Pickel protocol version used for saving the status of the object.
+                -1 denotes the latest version supported by the python interpreter.
         """
         self.workdir = os.path.abspath(workdir)
 
@@ -65,7 +68,7 @@ class AbinitFlow(collections.Iterable):
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
-        self.pickle_protocol = -1
+        self.pickle_protocol = int(pickle_protocol)
 
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
@@ -364,7 +367,7 @@ class AbinitFlow(collections.Iterable):
                 print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
-        self.show_receivers()
+        #self.show_receivers()
 
     def show_receivers(self, sender=dispatcher.Any, signal=dispatcher.Any):
         print("*** live receivers ***")

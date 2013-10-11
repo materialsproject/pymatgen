@@ -1093,13 +1093,17 @@ class DeltaFactorWorkflow(Workflow):
 
         Args:   
             structure_or_cif:
+                Structure objec or string with the path of the CIF file.
             pseudo:
+                String with the name of the pseudopotential file or `Pseudo` object.` object.` object.` 
             kppa:
             spin_mode="polarized":
             toldfe=1.e-8:
             smearing="fermi_dirac:0.1 eV":
             workdir:
+                String specifing the working directory.
             manager:
+                `TaskManager` responsible for the submission of the tasks.
         """
         super(DeltaFactorWorkflow, self).__init__(workdir=workdir, manager=manager)
 
