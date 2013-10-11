@@ -65,6 +65,8 @@ class AbinitFlow(collections.Iterable):
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
+        self.pickle_protocol = -1
+
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
 
@@ -147,12 +149,13 @@ class AbinitFlow(collections.Iterable):
         for work in self:
             work.build(*args, **kwargs)
 
-    def build_and_pickle_dump(self, protocol=-1):
+    def build_and_pickle_dump(self):
         self.build()
-        self.pickle_dump(protocol=protocol)
+        self.pickle_dump()
 
-    def pickle_dump(self, protocol=-1):
+    def pickle_dump(self):
         """Save the status of the object in pickle format."""
+        protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
         with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
