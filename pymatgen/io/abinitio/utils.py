@@ -189,6 +189,9 @@ _EXT2VARS = {
     "BSC": {"irdbscoup": 1},
     "HAYDR_SAVE": {"irdhaydock": 1},
     "DDK": {"irdddk": 1},
+    "DDB": {},
+    "GKK": {},
+    "DKK": {},
 }
 
 def irdvars_for_ext(ext):

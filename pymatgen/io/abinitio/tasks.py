@@ -498,9 +498,9 @@ class TaskManager(object):
         policy = self.policy
 
         if policy.autoparal == 0 or policy.max_ncpus is None: 
-            print(policy.autoparal, policy.max_ncpus)
+            #print(policy.autoparal, policy.max_ncpus)
             # nothing to do
-            print("returning from autoparal with None, None")
+            #print("returning from autoparal with None, None")
             return None, None
 
         assert policy.autoparal == 1
@@ -974,6 +974,17 @@ class Node(object):
     #def connect_signals():
     #    """Connect the signals."""
 
+class FakeDirectory(Directory):
+
+    def __init__(self, dirname, filepath):
+        Directory.__init__(self, dirname)
+        self.filepath = filepath
+
+    def has_abiext(self, ext):
+        """Redefine has_abiext so that we only check self.filepath."""
+        if self.filepath.endswith(ext) or self.filepath.endswith(ext + ".nc"):
+            return self.filepath
+        return ""
 
 class FileNode(Node):
     """
@@ -992,13 +1003,10 @@ class FileNode(Node):
         self._finalized = True
         self.status = self.S_OK
 
-        # TODO monkey patch outdir.has_abifile
-        self.outdir = Directory(self.workdir)
+        self.outdir = FakeDirectory(self.workdir, self.filepath)
 
-        #def has_abifile(self, ext):
-        #    print("in monkey")
-        #    return self.filepath
-        #self.outdir.has_abifile = has_abifile
+        #import types
+        #self.outdir.has_abiext = types.MethodType(has_abiext, self.outdir)
 
     def opath_from_ext(self, ext):
         """
@@ -2201,8 +2209,6 @@ class OpticTask(Task):
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
-
-
         # Keep a reference to the nscf_task and the ddk tasks
         self.nscf_node = nscf_node
         self.ddk_nodes = ddk_nodes
@@ -2311,13 +2317,13 @@ class AnaddbTask(Task):
         self.md_node = md_node
 
         if is_string(ddk_node): ddk_node = FileNode(ddk_node)
-        if ddk_node is not None: deps.update({ddk_node: "1WF"})
+        if ddk_node is not None: deps.update({ddk_node: "DDK"})
         self.ddk_node = ddk_node
                                                                                                         
         # TODO
-        #from pymatgen.io.abinitio.strategies import AnaddbInput
-        #strategy = AnaddbInput(anaddb_input)
-        #super(AnaddbTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
+        from pymatgen.io.abinitio.strategies import AnaddbInput
+        strategy = AnaddbInput(anaddb_input)
+        super(AnaddbTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
     @property
     def executable(self):
@@ -2339,7 +2345,7 @@ class AnaddbTask(Task):
         app(self.md_filepath)              # 4) Output molecular dynamics e.g. t13.md
         app(self.gkk_filepath)             # 5) Input elphon matrix elements  (GKK file)
         # FIXME check this one
-        app(self.outdir.pathjoin("out"))   # 6) Base name for elphon output files e.g. t13
+        app(self.outdir.path_join("out"))  # 6) Base name for elphon output files e.g. t13
         app(self.ddk_filepath)             # 7) File containing ddk filenames for elphon/transport.
 
         return "\n".join(lines)
@@ -2353,19 +2359,28 @@ class AnaddbTask(Task):
     @property
     def md_filepath(self):
         """Returns (at runtime) the absolute path of the input MD file."""
+        if self.md_node is None:
+            return "MD_FILE_DOES_NOT_EXIST"
+
         path = self.md_node.outdir.has_abiext("MD")
         return path if path else "MD_FILE_DOES_NOT_EXIST"
 
     @property
     def gkk_filepath(self):
         """Returns (at runtime) the absolute path of the input GKK file."""
+        if self.gkk_node is None:
+            return "GKK_FILE_DOES_NOT_EXIST"
+
         path = self.gkk_node.outdir.has_abiext("GKK")
         return path if path else "GKK_FILE_DOES_NOT_EXIST"
 
     @property
     def ddk_filepath(self):
         """Returns (at runtime) the absolute path of the input DKK file."""
-        path = self.ddk_node.outdir.has_abiext("1WK")
+        if self.ddk_node is None:
+            return "DDK_FILE_DOES_NOT_EXIST"
+
+        path = self.ddk_node.outdir.has_abiext("DDK")
         return path if path else "DDK_FILE_DOES_NOT_EXIST"
 
     def setup(self):
