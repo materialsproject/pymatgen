@@ -25,7 +25,7 @@ def select_pseudos(pseudos, structure):
     for the calculation (useful when we receive an entire periodic table).
 
     Raises:
-        ValueError if no pseudo or multiple occurrences are found.
+        ValueError if no pseudo is found or multiple occurrences are found.
     """
     table = PseudoTable.astable(pseudos)
 
@@ -40,27 +40,6 @@ def select_pseudos(pseudos, structure):
         pseudos.append(pseudos_for_type[0])
                                                                                  
     return PseudoTable(pseudos)
-
-
-class StrategyWithInput(object):
-    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-    def __init__(self, abinit_input):
-        self.abinit_input = abinit_input
-                                         
-    @property
-    def pseudos(self):
-        return self.abinit_input.pseudos
-
-    def add_extra_abivars(self, abivars):
-        """Add variables (dict) to extra_abivars."""
-        self.abinit_input.set_variables(**abivars)
-
-    def remove_extra_abivars(self, keys):
-        """Remove variables from extra_abivars."""
-        self.abinit_input.remove_variables(keys)
-                                         
-    def make_input(self):
-        return str(self.abinit_input)
 
 
 class Strategy(object):
@@ -585,12 +564,13 @@ class MDFBSE_Strategy(Strategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
-                                   smearing  = scf_electrons.smearing,
-                                   nband     = exc_ham.nband,
-                                   charge    = scf_electrons.charge,
-                                   comment   = None,
-                                  )
+        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
+                                   smearing=scf_electrons.smearing,
+                                   nband=exc_ham.nband,
+                                   charge= scf_electrons.charge,
+                                   comment=None,
+                                    )
+                                  
     @property
     def runlevel(self):
         return "bse"
@@ -627,7 +607,7 @@ class InputWriter(object):
                 self.add_extra_abivars(arg)
 
         for (k,v) in kwargs.items():
-            self.add_extra_abivars({k:v})
+            self.add_extra_abivars({k: v})
 
     def __str__(self):
         """String representation (the section of the abinit input file)."""
@@ -725,3 +705,99 @@ class InputWriter(object):
         else:
             return str_delimited(lines, header=None, delimiter=5*" ")
 
+
+class StrategyWithInput(object):
+    # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
+    def __init__(self, abinit_input):
+        self.abinit_input = abinit_input
+                                         
+    @property
+    def pseudos(self):
+        return self.abinit_input.pseudos
+
+    def add_extra_abivars(self, abivars):
+        """Add variables (dict) to extra_abivars."""
+        self.abinit_input.set_variables(**abivars)
+
+    def remove_extra_abivars(self, keys):
+        """Remove variables from extra_abivars."""
+        self.abinit_input.remove_variables(keys)
+                                         
+    def make_input(self):
+        return str(self.abinit_input)
+
+
+class OpticInput(object):
+    """
+    abo_1WF7      ! Name of the first d/dk response wavefunction file, produced by abinit
+    abo_1WF8      ! Name of the second d/dk response wavefunction file, produced by abinit
+    abo_1WF9      ! Name of the third d/dk response wavefunction file, produced by abinit
+    abo_WFK       ! Name of the ground-state wavefunction file, produced by abinit
+    0.01          ! Value of the *smearing factor*, in Hartree
+    0.010   1     ! frequency *step* and *maximum* frequency (Ha)
+    0.000         ! *Scissor* shift if needed, in Hartree
+    0.001         ! *Tolerance* on closeness of singularities (in Hartree)
+    3             ! *Number of components* of linear optic tensor to be computed
+    11 33 23      ! Linear *coefficients* to be computed (x=1, y=2, z=3)
+    2             ! Number of components of nonlinear optic tensor to be computed
+    123 222       ! Non-linear coefficients to be computed
+    """
+    def __init__(self, string):
+        self.string = string
+
+    #def _init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components, 
+    #            nonlinear_components=None, ddk_files=None,  wfk=None)
+    #            ): 
+    #    self.vars = vars = collections.OrderedDict()
+
+    #    if ddk_files is not None:
+    #        assert len(ddk_files) == 3
+    #        assert wfk is not None
+    #        for dir, ddk in zip(["x", "y", "z"], ddk_files):
+    #            vars["ddk_" + dir] = os.path.abspath(ddk)
+
+    #    if wfk is not None
+    #        vars["wfk"] = os.path.abspath(wfk)
+
+    #    vars["zcut"] = zcut
+    #    vars["wmesh"] = " ".join(map(str, (wstep, wmax)))
+    #    vars["sing_tol"] = sing_tol
+
+    #    vars["num_lin_comp"] = len(linear_components)
+    #    vars["lin_comp"] = " ".join(str(c) for c in linear_components)
+
+    #    vars["num_nonlin_comp"] = len(non_linear_components)
+    #    vars["nonlin_comp"] = " ".join(str(c) for c in nonlinear_components)
+
+    def to_string(self):
+        return self.string
+
+    def make_input(self):
+        return self.to_string()
+
+    def add_extra_abivars(self, abivars):
+        """
+        Connection is explicit via the input file
+        since we can pass the paths of the output files 
+        produced by the previous runs.
+        """
+
+class AnaddbInput(object):
+
+    def __init__(self, string):
+        self.string = string
+
+    def to_string(self):
+        return self.string
+
+    def make_input(self):
+        return self.to_string()
+
+    def add_extra_abivars(self, abivars):
+        """
+        Connection is explicit via the input file
+        since we can pass the paths of the output files 
+        produced by the previous runs.
+        """
+
+    #def set_qpath(self):

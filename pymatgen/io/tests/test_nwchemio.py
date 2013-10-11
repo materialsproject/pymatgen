@@ -392,23 +392,23 @@ class NwOutputTest(unittest.TestCase):
         self.assertAlmostEqual(-1102.622361621359, nwo.data[0]["energies"][-1])
         self.assertAlmostEqual(-1102.9985415777337, nwo.data[2]["energies"][-1])
         self.assertAlmostEqual(-11156.353144819144,
-                               nwo_cosmo.data[5]["energies"][0])
+                               nwo_cosmo.data[5]["energies"][0]["cosmo scf"])
         self.assertAlmostEqual(-11153.37324779646,
-                               nwo_cosmo.data[5]["energies"][1])
+                               nwo_cosmo.data[5]["energies"][0]["gas phase"])
         self.assertAlmostEqual(-11156.353144818084,
-                               nwo_cosmo.data[5]["energies"][2])
+                               nwo_cosmo.data[5]["energies"][0]["sol phase"])
         self.assertAlmostEqual(-11168.818445621277,
-                               nwo_cosmo.data[6]["energies"][0])
+                               nwo_cosmo.data[6]["energies"][0]["cosmo scf"])
         self.assertAlmostEqual(-11166.361953878302,
-                               nwo_cosmo.data[6]["energies"][1])
+                               nwo_cosmo.data[6]["energies"][0]['gas phase'])
         self.assertAlmostEqual(-11168.818445621277,
-                               nwo_cosmo.data[6]["energies"][2])
+                               nwo_cosmo.data[6]["energies"][0]['sol phase'])
         self.assertAlmostEqual(-11165.227470577684,
-                               nwo_cosmo.data[7]["energies"][0])
+                               nwo_cosmo.data[7]["energies"][0]['cosmo scf'])
         self.assertAlmostEqual(-11165.02495508804,
-                               nwo_cosmo.data[7]["energies"][1])
+                               nwo_cosmo.data[7]["energies"][0]['gas phase'])
         self.assertAlmostEqual(-11165.227470576949,
-                               nwo_cosmo.data[7]["energies"][2])
+                               nwo_cosmo.data[7]["energies"][0]['sol phase'])
         ie = (nwo.data[4]["energies"][-1] - nwo.data[2]["energies"][-1])
         ea = (nwo.data[2]["energies"][-1] - nwo.data[3]["energies"][-1])
         self.assertAlmostEqual(0.7575358046858582, ie)
@@ -428,9 +428,21 @@ class NwOutputTest(unittest.TestCase):
         self.assertTrue(nwo.data[-1]["has_error"])
         self.assertEqual(nwo.data[-1]["errors"][0], "autoz error")
 
-        nwo = NwOutput(os.path.join(test_dir, "anthrachinon_wfs_16_ethyl.nwout"))
+        nwo = NwOutput(os.path.join(test_dir,
+                       "anthrachinon_wfs_16_ethyl.nwout"))
         self.assertTrue(nwo.data[-1]["has_error"])
-        self.assertEqual(nwo.data[-1]["errors"][0], "Geometry optimization failed")
+        self.assertEqual(nwo.data[-1]["errors"][0],
+                         "Geometry optimization failed")
+        nwo = NwOutput(os.path.join(test_dir,
+                       "anthrachinon_wfs_15_carboxyl.nwout"))
+        self.assertEqual(nwo.data[1]['frequencies'][0][0], -70.47)
+        self.assertEqual(len(nwo.data[1]['frequencies'][0][1]), 27)
+        self.assertEqual(nwo.data[1]['frequencies'][-1][0], 3696.74)
+        self.assertEqual(nwo.data[1]['frequencies'][-1][1][-1],
+                         (0.20498, -0.94542, -0.00073))
+
+
+
 
 
 if __name__ == "__main__":

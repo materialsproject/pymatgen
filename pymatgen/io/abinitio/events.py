@@ -28,7 +28,7 @@ class AbinitEvent(MSONable):
 
         Critical warning that will trigger some action in the python code.
 
-        --- !ScfCriticalWarning
+        --- !ScfConvergeWarning
         message: "The human-readable message goes here!"
         src_file: foo.F90
         src_line: 112
@@ -355,6 +355,41 @@ class EventParser(object):
 
         START_TAG = "<Event>"
         STOP_TAG = "<\Event>"
+
+        exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
+
+        # Find YAML documents with events
+        def is_event_start(line):
+            if not line.startswith("..."):
+                return False
+
+            i = line.index("!")
+            if i == -1: return False
+
+            class_name = line[i:]
+            if filter(class_name.endswith, exc_cases):
+                return True
+
+            return False
+
+        doc_list = []
+        with open(filename, "r") as fh:
+            in_event = False
+            for line in fh:
+
+                if is_event_start(line):
+                    in_event = False
+                    doc_list.append(doc)
+
+                if is_event_start(line):
+                    in_event = True
+                    doc = []
+
+                if in_event:
+                    doc.append(line)
+
+        if doc:
+            doc_list.append(doc)
 
         events = EventReport(filename)
 

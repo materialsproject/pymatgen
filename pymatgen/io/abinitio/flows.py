@@ -13,8 +13,7 @@ try:
 except ImportError:
     pass
 
-#from pymatgen.util.string_utils import list_strings, pprint_table
-#from pymatgen.io.abinitio.tasks import (AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask)
+from pymatgen.io.abinitio.tasks import Dependency 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.workflows import Workflow
 
@@ -43,13 +42,16 @@ class AbinitFlow(collections.Iterable):
 
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
-    def __init__(self, workdir, manager):
+    def __init__(self, workdir, manager, pickle_protocol=-1):
         """
         Args:
             workdir:
                 String specifying the directory where the workflows will be produced.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
+            pickle_procol:
+                Pickel protocol version used for saving the status of the object.
+                -1 denotes the latest version supported by the python interpreter.
         """
         self.workdir = os.path.abspath(workdir)
 
@@ -65,6 +67,8 @@ class AbinitFlow(collections.Iterable):
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
+        self.pickle_protocol = int(pickle_protocol)
 
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
@@ -148,12 +152,13 @@ class AbinitFlow(collections.Iterable):
         for work in self:
             work.build(*args, **kwargs)
 
-    def build_and_pickle_dump(self, protocol=-1):
+    def build_and_pickle_dump(self):
         self.build()
-        self.pickle_dump(protocol=protocol)
+        self.pickle_dump()
 
-    def pickle_dump(self, protocol=-1):
+    def pickle_dump(self):
         """Save the status of the object in pickle format."""
+        protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
         with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
@@ -195,7 +200,7 @@ class AbinitFlow(collections.Iterable):
 
         Args:
             input:
-                Abinit Input file or `Strategy` object.
+                Abinit Input file or `Strategy` object of `Task` object.
             deps:
                 List of `Dependency` objects specifying the dependency of this node.
                 An empy list of deps implies that this node has no dependencies.
@@ -214,7 +219,7 @@ class AbinitFlow(collections.Iterable):
         self.register_work(work)
         return task
 
-    def register_work(self, work, deps=None, manager=None):
+    def register_work(self, work, deps=None, manager=None, workdir=None):
         """
         Register a new `Workflow` and add it to the internal list, 
         taking into account possible dependencies.
@@ -228,16 +233,20 @@ class AbinitFlow(collections.Iterable):
             manager:
                 The `TaskManager` responsible for the submission of the task. 
                 If manager is None, we use the `TaskManager` specified during the creation of the workflow.
+            workdir:
+                The name of the directory used for the `Workflow`.
 
         Returns:   
             The workflow.
         """
         # Directory of the workflow.
-        work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
+        if workdir is None:
+            work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
+        else:
+            work_workdir = os.path.join(self.workdir, os.path.basenane(workdir))
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
         manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
-        #print("flow manager", manager)
 
         work.set_workdir(work_workdir)
         work.set_manager(manager)
@@ -358,7 +367,7 @@ class AbinitFlow(collections.Iterable):
                 print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
-        self.show_receivers()
+        #self.show_receivers()
 
     def show_receivers(self, sender=dispatcher.Any, signal=dispatcher.Any):
         print("*** live receivers ***")
@@ -383,7 +392,7 @@ class Callback(object):
             cbk_data:
                 Additional data to pass to the callback.
         """
-        self.func  = func
+        self.func = func
         self.work = work
         self.deps = deps
         self.cbk_data = cbk_data or {}
