@@ -59,7 +59,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             self._species = Composition({smart_element_or_specie(k): v
                                          for k, v in atoms_n_occu.items()})
             totaloccu = self._species.num_atoms
-            if totaloccu > 1:
+            if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             self._is_ordered = (totaloccu == 1 and len(self._species) == 1)
         else:
