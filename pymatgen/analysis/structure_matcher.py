@@ -623,7 +623,7 @@ class StructureMatcher(MSONable):
         normalization = ((2 * struct2.num_sites * fu) /
                          (struct1.volume + struct2.volume * fu)) ** (1 / 3)
         frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * \
-                   self.stol / ((1 - self.ltol) * np.pi) / normalization
+            self.stol / ((1 - self.ltol) * np.pi) / normalization
 
         #make array mask
         mask = np.zeros((len(struct2) * fu, len(struct1)), dtype=np.bool)
@@ -699,21 +699,23 @@ class StructureMatcher(MSONable):
         if self._subset:
             raise ValueError("allow_subset cannot be used with"
                              " group_structures")
-            #Use structure hash to pre-group structures.
-        sorted_s_list = sorted(s_list, key=self._comparator.get_structure_hash)
+
+        #Use structure hash to pre-group structures.
+        shash = self._comparator.get_structure_hash
+        sorted_s_list = sorted(s_list, key=shash)
         all_groups = []
 
         #For each pre-grouped list of structures, perform actual matching.
-        for k, g in itertools.groupby(sorted_s_list,
-                                      key=self._comparator.get_structure_hash):
+        for k, g in itertools.groupby(sorted_s_list, key=shash):
             unmatched = list(g)
             while len(unmatched) > 0:
-                ref = unmatched[0]
+                ref = unmatched.pop(0)
                 matches = [ref]
-                for i in xrange(1, len(unmatched)):
-                    if self.fit(ref, unmatched[i]):
-                        matches.append(unmatched[i])
-                unmatched = filter(lambda x: x not in matches, unmatched)
+                inds = filter(lambda i: self.fit(ref, unmatched[i]),
+                              xrange(len(unmatched)))
+                matches.extend([unmatched[i] for i in inds])
+                unmatched = [unmatched[i] for i in xrange(len(unmatched))
+                             if i not in inds]
                 all_groups.append(matches)
         return all_groups
 
