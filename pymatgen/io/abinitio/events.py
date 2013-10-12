@@ -55,14 +55,14 @@ class AbinitEvent(MSONable):
         self.lineno  = kwargs.pop("lineno")
         self.data = kwargs
 
-    @staticmethod
-    def from_string(string, lineno):
-        """Constructs an event given a string and the line number."""
-        d = json.loads(string)
-        cls = d.pop["class"]
-        assert "lineno" not in d
-        d["lineno"] = lineno
-        return cls(d)
+    #@staticmethod
+    #def from_string(string, lineno):
+    #    """Constructs an event given a string and the line number."""
+    #    d = json.loads(string)
+    #    cls = d.pop["class"]
+    #    assert "lineno" not in d
+    #    d["lineno"] = lineno
+    #    return cls(d)
 
     def __str__(self):
         return "%s:\n%s" % (self.lineno, self.message)
@@ -136,6 +136,13 @@ class AbinitWarning(AbinitEvent):
     @property
     def iscritical(self):
         return True
+
+#class ScfConvergenceWarning(AbinitWarning):
+#class NscfConvergenceWarning(AbinitWarning):
+#class RelaxConvergenceWarning(AbinitWarning):
+#class PhononConvergenceWarning(AbinitWarning):
+#class QPSConvergenceWarning(AbinitWarning):
+#class HaydockConvergenceWarning(AbinitWarning):
 
 # Register the concrete base classes.
 _BASE_CLASSES = [
