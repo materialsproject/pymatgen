@@ -357,7 +357,7 @@ class TaskManager(object):
     A `TaskManager` has a `TaskPolicy` that governs the specification of the 
     parameters for the parallel executions.
     """
-    YAML_FILE = "taskmanager.yaml"
+    YAML_FILE = "taskmanager.yml"
 
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None, policy=None):
@@ -409,20 +409,21 @@ class TaskManager(object):
         Raises:
             RuntimeError if file is not found.
         """
-        Try in the current directory.
+        #Try in the current directory.
         path = os.path.join(os.getcwd(), self.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        #home = os.getenv("HOME")
-        #path = os.path.join(home, self.YAML_FILE)
+        home = os.getenv("HOME")
+        dirpath = os.path.join(home, ".abinit", ".abipy")
+        path = os.path.join(dirpath, self.YAML_FILE)
 
-        #if os.path.exists(path):
-        #    return cls.from_file(path)
+        if os.path.exists(path):
+            return cls.from_file(path)
     
-        raise RuntimeError("Cannot locate %s neither in current directory nor the in home directory" % self.YAML_FILE)
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (self.YAML_FILE, dirpath))
 
     @classmethod 
     def sequential(cls):
@@ -542,10 +543,7 @@ class TaskManager(object):
 
         # Remove the output file since Abinit likes to create new files 
         # with extension .outA, .outB if the file already exists.
-        try:
-            os.remove(task.output_file.path)
-        except:
-            pass
+        os.remove(task.output_file.path)
 
         # 2) Parse the autoparal configurations
         parser = ParalHintsParser()
@@ -854,7 +852,9 @@ class Node(object):
 
     def __repr__(self):
         try:
-            return "<%s, node_id %s, workdir=%s>" % (self.__class__.__name__, self.node_id, self.workdir)
+            return "<%s, node_id %s, workdir=%s>" % (
+                self.__class__.__name__, self.node_id, os.path.relpath(self.workdir))
+
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, node_id %s, workdir=None>" % (self.__class__.__name__, self.node_id)
@@ -865,6 +865,21 @@ class Node(object):
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, workdir=None>" % self.__class__.__name__
+
+    @property
+    def name(self):
+        """
+        The name of node 
+        (only used for facilitating its identification in the user interface).
+        """
+        try:
+            return self._name
+        except AttributeError:
+            return os.path.relpath(self.workdir)
+
+    def set_name(name):
+        """Set the name of the Node."""
+        self._name = name
 
     @property
     def node_id(self):
@@ -1014,10 +1029,8 @@ class FileNode(Node):
         self._finalized = True
         self.status = self.S_OK
 
+        # FIXME: Find a better aproach for this
         self.outdir = FakeDirectory(self.workdir, self.filepath)
-
-        #import types
-        #self.outdir.has_abiext = types.MethodType(has_abiext, self.outdir)
 
     def opath_from_ext(self, ext):
         """
@@ -1153,19 +1166,9 @@ class Task(Node):
         """Set the executable associate to this task."""
         self._executable = executable
 
-    def set_name(name):
-        self._name = name
-
-    @property
-    def name(self):
-        try:
-            return self._name
-        except AttributeError:
-            return self.workdir
-
-    @property
-    def short_name(self):
-        return os.path.basename(self.workdir)
+    #@property
+    #def short_name(self):
+    #    return os.path.basename(self.workdir)
 
     @property
     def process(self):
@@ -1333,7 +1336,7 @@ class Task(Node):
 
     def reset(self):
         """
-        Reset the task. Mainly used if we made a silly mistake in the initial
+        Reset the task status. Mainly used if we made a silly mistake in the initial
         setup of the queue manager and we want to fix it and rerun the task.
 
         Returns:
@@ -1595,39 +1598,46 @@ class Task(Node):
         self.make_links()
         self.setup()
 
-    def get_event_report(self):
-        return self.parse_events()
-
-    def parse_events(self):
+    def get_event_report(self, source="output"):
         """
-        Analyzes the main output for possible errors or warnings.
+        Analyzes the main output file for possible Errors or Warnings.
+
+        Args:
+            source:
+                "output" for the main output file.
+                "log" for the log file.
 
         Returns:
             `EventReport` instance or None if the main output file does not exist.
         """
-        if not os.path.exists(self.output_file.path):
+        file = {
+            "output": self.output_file,
+            "log": self.log_file,
+        }[source]
+
+        if not file.exists:
             return None
 
         parser = EventParser()
         try:
-            return parser.parse(self.output_file.path)
+            return parser.parse(file.path)
 
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
-            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return parser.report_exception(self.output_file.path, exc)
+            logger.critical("%s: Exception while parsing ABINIT events:\n %s" (file, str(exc)))
+            return parser.report_exception(file.path, exc)
 
-    @property
-    def events(self):
-        """List of errors or warnings reported by ABINIT."""
-        if self.status is None or self.status < self.S_DONE:
-            raise self.Error(
-                "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
-        try:
-            return self._events
-        except AttributeError:
-            self._events = self.parse_events()
-            return self._events
+    #@property
+    #def events(self):
+    #    """List of errors or warnings reported by ABINIT."""
+    #    if self.status is None or self.status < self.S_DONE:
+    #        raise self.Error(
+    #            "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
+    #    try:
+    #        return self._events
+    #    except AttributeError:
+    #        self._events = self.parse_events()
+    #        return self._events
 
     @property
     def results(self):
@@ -1760,13 +1770,13 @@ class Task(Node):
                     os.remove(filepath)
 
     # TODO Remove this methods. use Directory directly.
-    def rm_indatadir(self):
-        """Remove the directory with the input files (indata dir)."""
-        self.indir.rmtree()
+    #def rm_indatadir(self):
+    #    """Remove the directory with the input files (indata dir)."""
+    #    self.indir.rmtree()
 
-    def rm_tmpdatadir(self):
-        """Remove the directory with the temporary files."""
-        self.tmpdir.rmtree()
+    #def rm_tmpdatadir(self):
+    #    """Remove the directory with the temporary files."""
+    #    self.tmpdir.rmtree()
 
     def setup(self):
         """Base class does not provide any hook."""
@@ -1924,7 +1934,7 @@ class ScfTask(AbinitTask):
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
         if report.warnings:
-            return report.warnings.filter("ScfCriticalWarning")
+            return report.warnings.filter("ScfConvergenceWarning")
 
         return False
 
@@ -1959,8 +1969,11 @@ class NscfTask(AbinitTask):
         """Return True if the calculation is not converged."""
         return True
         report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
+
+        if report.warnings:
+            return report.warnings.filter("NscfConvergenceWarning")
+
+        return False
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -1989,11 +2002,13 @@ class RelaxTask(AbinitTask):
         """Return True if the calculation is not converged."""
         # TODO: 
         return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        #if report.warnings:
-        #    return False
+        report = self.get_event_report()
+
+        # What about a possible ScfConvergenceWarning?
+        if report.warnings:
+            return report.warnings.filter("RelaxConvergenceWarning")
+
+        return False
 
     def set_initial_structure(self, structure):
         #TODO
@@ -2057,9 +2072,12 @@ class PhononTask(AbinitTask):
     def not_converged(self):
         """Return True if the calculation is not converged."""
         return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
+
+        report = self.get_event_report()
+        if report.warnings:
+            return report.warnings.filter("PhononConvergenceWarning")
+
+        return False
 
     def restart(self):
         # Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
@@ -2094,6 +2112,12 @@ class G_Task(AbinitTask):
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
+
+        report = self.get_event_report()
+        if report.warnings:
+            return report.warnings.filter("QPSConvergenceWarning")
+
+        return False
 
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
@@ -2138,15 +2162,14 @@ class HaydockBseTask(BseTask):
     def not_converged(self):
         """Return True if the calculation is not converged."""
         return True
-        #raise NotImplementedError("")
         #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        if report.warnings:
-            return False
 
-        return True
-                                                                                            
+        report = self.get_event_report()
+        if report.warnings:
+            return report.warnings.filter("HaydockConvergenceWarning")
+
+        return False
+
     def restart(self):
         # BSE calculations with Haydock can be restarted only if we have the 
         # excitonic Hamiltonian and the HAYDR_SAVE file.
@@ -2240,7 +2263,7 @@ class OpticTask(Task):
 
     @property
     def filesfile_string(self):
-        """String with the list of files and prefixex needed to execute ABINIT."""
+        """String with the list of files and prefixes needed to execute ABINIT."""
         lines = []
         app = lines.append
         pj = os.path.join

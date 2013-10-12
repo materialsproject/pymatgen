@@ -1059,27 +1059,27 @@ class BandStructureWorkflow(Workflow):
             self.dos_task = self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
 
-class RelaxWorkflow(Workflow):
-
-    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
-        """
-        Args:
-            workdir:
-                Working directory.
-            manager:
-                `TaskManager` object.
-            ion_input:
-                Input for the relaxation of the ions (cell is fixed)
-            ioncell_input:
-                Input for the relaxation of the ions and the unit cell.
-        """
-        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
-
-        self.ion_task = self.register(ion_input, task_class=RelaxTask)
-
-        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
-        # TODO
-        # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
+#class RelaxWorkflow(Workflow):
+#
+#    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
+#        """
+#        Args:
+#            workdir:
+#                Working directory.
+#            manager:
+#                `TaskManager` object.
+#            ion_input:
+#                Input for the relaxation of the ions (cell is fixed)
+#            ioncell_input:
+#                Input for the relaxation of the ions and the unit cell.
+#        """
+#        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
+#
+#        self.ion_task = self.register(ion_input, task_class=RelaxTask)
+#
+#        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
+#        # TODO
+#        # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
 
 
 class DeltaFactorWorkflow(Workflow):
@@ -1281,8 +1281,8 @@ class G0W0_Workflow(Workflow):
 #        # Register the SIGMA run.
 #        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
 #
-#    def is_converged(self):
-#       return self.sigma_task.is_converged()
+#    def not_converged(self):
+#       return self.sigma_task.not_converged()
 #
 #    def restart(self):
 #        ext = "QPS"

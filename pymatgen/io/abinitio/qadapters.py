@@ -425,6 +425,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --gres=$${gres}
 #SBATCH --requeue=$${requeue}
 #SBATCH --nodelist=$${nodelist}
+#SBATCH --propagate=$${propagate}
 
 #SBATCH --output=$${_qerr_path}
 #SBATCH --error=$${_qout_path}
