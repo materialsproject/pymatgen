@@ -16,6 +16,8 @@ try:
 except ImportError:
     pass
 
+from pymatgen.io.abinitio import wrappers
+
 from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -50,6 +52,7 @@ __all__ = [
     "DeltaFactorWorkflow",
     "G0W0_Workflow",
     "BSEMDF_Workflow",
+    "PhononWorkflow",
 ]
 
 
@@ -1341,6 +1344,72 @@ class BSEMDF_Workflow(Workflow):
         self.bse_task = self.register(bse_input, deps={self.nscf_task: "WFK"}, task_class=HaydockBseTask)
 
 
+class PhononWorkflow(Workflow):
+    """
+    This workflow usually consists of nirred Phonon tasks where nirred is 
+    the number of irreducible perturbations for a given q-point.
+    It provides the callback method (on_all_ok) that calls mrgddb to merge 
+    the partial DDB files and mrgggkk to merge the GKK files.
+    """
+    def merge_ddb_files(self):
+        """
+        This method is called when all the q-points have been computed.
+        Ir runs `mrgddb` in sequential on the local machine to produce
+        the final DDB file in the outdir of the `Workflow`.
+        """
+        ddb_files = filter(None, [task.outdir.has_abiext("DDB") for task in self])
+
+        logger.debug("will call mrgddb to merge %s:\n" % str(ddb_files))
+        assert len(ddb_files) == len(self)
+
+        #if len(ddb_files) == 1:
+        # Avoid the merge. Just move the DDB file to the outdir of the workflow
+
+        # Final DDB file will be produced in the outdir of the workflow.
+        out_ddb = self.outdir.path_in("out_DDB")
+        desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
+
+        mrgddb = wrappers.Mrgddb(verbose=1)
+        mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
+
+    def merge_gkk_files(self):
+        """
+        This method is called when all the q-points have been computed.
+        Ir runs `mrgddb` in sequential on the local machine to produce
+        the final DDB file in the outdir of the `Workflow`.
+        """
+        gkk_files = filter(None, [task.outdir.has_abiext("GKK") for task in self])
+                                                                                         
+        logger.debug("will call mrggkk to merge %s:\n" % str(gkk_files))
+        assert len(gkk) == len(self)
+
+        #if len(gkk) == 1:
+        # Avoid the merge. Just move the GKK file to the outdir of the workflow
+                                                                                         
+        # Final DDB file will be produced in the outdir of the workflow.
+        out_ggk = self.outdir.path_in("out_GKK")
+
+        mrggkk = wrappers.Mrggkk(verbose=1)
+        raise NotImplementedError("Have to check mrggkk")
+        #mrggkk.merge(gswfk_file, dfpt_files, gkk_files, out_fname, binascii=0, cwd=self.outdir.path)
+
+    def on_all_ok(self):
+        """
+        This method is called when all the q-points have been computed.
+        Ir runs `mrgddb` in sequential on the local machine to produce
+        the final DDB file in the outdir of the `Workflow`.
+        """
+        self.merge_ddb_files()
+        #self.merge_gkk_files()
+
+        results = dict(
+            returncode=0,
+            message="DDB merge done",
+        )
+
+        return results
+
+
 class WorkflowResults(dict, MSONable):
     """
     Dictionary used to store some of the results produce by a Task object
@@ -1391,4 +1460,3 @@ class WorkflowResults(dict, MSONable):
     def from_dict(cls, d):
         mydict = {k: v for k, v in d.items() if k not in ["@module", "@class"]}
         return cls(mydict)
-
