@@ -9,6 +9,14 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`abiinspect` Module
+------------------------
+
+.. automodule:: pymatgen.io.abinitio.abiinspect
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`abiobjects` Module
 ------------------------
 

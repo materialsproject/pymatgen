@@ -11,6 +11,8 @@ import abc
 import warnings
 import copy
 import numpy as np
+from pymatgen.io.abinitio import abiinspect
+
 try:
     import yaml
     from pydispatch import dispatcher
@@ -23,6 +25,7 @@ from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_du
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -1959,6 +1962,17 @@ class ScfTask(AbinitTask):
         # Now we can resubmit the job.
         self._restart()
 
+    def inspect(self, **kwargs):
+        """
+        Plot the SCF cycle results with matplotlib.
+
+        Returns
+            `matplotlib` figure, None is some error occurred. 
+        """
+        scf_cycle = abiinspect.GroundStateScfCycle.from_file(self.output_file.path)
+        if scf_cycle is not None:
+            return scf_cycle.plot(**kwargs)
+
 
 class NscfTask(AbinitTask):
     """
@@ -2099,6 +2113,17 @@ class PhononTask(AbinitTask):
 
         # Now we can resubmit the job.
         self._restart()
+
+    def inspect(self, **kwargs):
+        """
+        Plot the Phonon SCF cycle results with matplotlib.
+
+        Returns
+            `matplotlib` figure, None is some error occurred. 
+        """
+        scf_cycle = abiinspect.PhononScfCycle.from_file(self.output_file.path)
+        if scf_cycle is not None:
+            return scf_cycle.plot(**kwargs)
 
 
 class G_Task(AbinitTask):
