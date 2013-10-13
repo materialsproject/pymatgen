@@ -2070,6 +2070,17 @@ class RelaxTask(AbinitTask):
         # Now we can resubmit the job.
         self._restart()
 
+    def inspect(self, **kwargs):
+        """
+        Plot the evolution of the structural relaxation with matplotlib.
+
+        Returns
+            `matplotlib` figure, None is some error occurred. 
+        """
+        relaxation = abiinspect.Relaxation.from_file(self.output_file.path)
+        if relaxation is not None:
+            return relaxation.plot(**kwargs)
+
 
 class DDK_Task(AbinitTask):
 

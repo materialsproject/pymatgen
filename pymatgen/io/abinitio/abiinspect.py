@@ -217,6 +217,19 @@ class Relaxation(collections.Iterable):
     def __len__(self):
         return self.cycles.__len__()
 
+    def __str__(self):
+        """String representation."""
+        lines = []
+        app = lines.append
+
+        for i, cycle in enumerate(self):
+            app("")
+            app("RELAXATION STEP: %d" % i)
+            app(str(cycle))
+            app("")
+
+        return "\n".join(lines)
+
     @classmethod
     def from_file(cls, filepath):
         """Initialize the object from the Abinit main output file."""
@@ -275,12 +288,12 @@ class Relaxation(collections.Iterable):
         savefig = kwargs.pop("savefig", None)
 
         history = self.history
-        print(history)
+        #print(history)
 
         relax_step = list(range(len(self)))
 
         # Build grid of plots.
-        num_plots, ncols, nrows = len(history.keys()), 1, 1
+        num_plots, ncols, nrows = len(list(history.keys())), 1, 1
         if num_plots > 1:
             ncols = 2
             nrows = (num_plots//ncols) + (num_plots % ncols)
