@@ -669,8 +669,7 @@ class StructureMatcher(MSONable):
                     distances, t = self._cart_dists(s1fc, t_s2fc, nl, nl1,
                                                     mask)
                     if use_rms:
-                        val = np.linalg.norm(distances) / len(distances) ** \
-                              0.5
+                        val = np.linalg.norm(distances) / len(distances) ** 0.5
                     else:
                         val = max(distances)
                     if best_match is None or val < best_match[0]:

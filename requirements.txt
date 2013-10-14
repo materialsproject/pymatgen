@@ -4,3 +4,4 @@ PyCifRW>=3.3
 requests>=1.0
 pybtex>=0.16
 matplotlib>1.1
+pydispatcher>=2.0
