@@ -1,5 +1,5 @@
 """
-Part of this code is based on a similar implementation preset in fireworks.
+Part of this code is based on a similar implementation preset in FireWorks (https://pypi.python.org/pypi/FireWorks).
 work done by D. Waroquiers, A. Jain, and M. Kocher'
 """
 from __future__ import print_function, division
@@ -593,7 +593,7 @@ class PbsAdapter(AbstractQueueAdapter):
         # there's a problem talking to qstat server?
         err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
                    'The error response reads: {}'.format(process[2]))
-        logger.critical(msg)
+        logger.critical(err_msg)
 
         return None
 
