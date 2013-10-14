@@ -50,3 +50,55 @@ class PymatgenTest(unittest.TestCase):
         """
         return nptu.assert_equal(actual, desired, err_msg=err_msg,
                                  verbose=verbose)
+
+
+    def serialize_with_pickle(self, objects, protocols=None):
+        """
+        Test whether the object(s) can be serialized and deserialized with pickle.
+        This method tries to serialize the objects with pickle and the protocols
+        specified in input. Then it deserializes the pickle format and compares
+        the two objects with the __eq__ operator.
+
+        Args:
+            objects:
+                Object or list of objects. 
+            protocols:
+                List of pickle protocols to test.
+
+        Returns:
+            Nested list with the objects deserialized with the specified protocols.
+        """
+        import tempfile
+        import cPickle as pickle
+
+        # Build a list even when we receive a single object.
+        if not isinstance(objects, (list, tuple)):
+            objects = [objects]
+
+        # By default, all pickle protocols are tested.
+        if protocols is None:
+            protocols = set([0, 1, 2] + [pickle.HIGHEST_PROTOCOL])
+
+        # This list will contains the object deserialized with the different protocols.
+        objects_by_protocol = []
+
+        for protocol in protocols:
+            # Serialize and deserialize the object.
+            mode = "w" if protocol == 0 else "wb"
+            fd, tmpfile = tempfile.mkstemp(text="b" not in mode)
+
+            with open(tmpfile, mode) as fh:
+                pickle.dump(objects, fh, protocol=protocol)
+
+            with open(tmpfile, "r") as fh:
+                new_objects = pickle.load(fh)
+
+            # Save the deserialized objects and test for equality.
+            objects_by_protocol.append(new_objects)
+
+            # Test for equality
+            for old_obj, new_obj in zip(objects, new_objects):
+                self.assert_equal(old_obj, new_obj)
+
+        # Return nested list so that client code can perform additional tests.
+        return objects_by_protocol

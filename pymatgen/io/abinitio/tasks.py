@@ -413,7 +413,7 @@ class TaskManager(object):
             RuntimeError if file is not found.
         """
         #Try in the current directory.
-        path = os.path.join(os.getcwd(), self.YAML_FILE)
+        path = os.path.join(os.getcwd(), cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
@@ -421,7 +421,7 @@ class TaskManager(object):
         # Try in the configuration directory.
         home = os.getenv("HOME")
         dirpath = os.path.join(home, ".abinit", ".abipy")
-        path = os.path.join(dirpath, self.YAML_FILE)
+        path = os.path.join(dirpath, cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
@@ -1350,6 +1350,8 @@ class Task(Node):
             return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+
+        # TODO send a signal to the flow 
         #self.workflow.check_status()
 
         return 0
@@ -1408,6 +1410,10 @@ class Task(Node):
 
             logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=self.S_OK, sender=self)
+
+        #if status == self.S_UNCONVERGED:
+        #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
+        #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
 
         if changed:
             if status == self.S_SUB: 
@@ -1470,7 +1476,15 @@ class Task(Node):
             return self.set_status(self.S_ERROR, info_msg=str(exc))
 
         if report.run_completed:
-            return self.set_status(self.S_OK)
+            # TODO
+            # Check if the calculation converged.
+            is_ok = True
+            #is_ok = self.check_convergence()
+
+            if is_ok:
+                return self.set_status(self.S_OK)
+            else:
+                return self.set_status(self.S_UNCONVERGED)
 
         # This is the delicate part since we have to discern among different possibilities:
         #
@@ -1857,10 +1871,10 @@ class AbinitTask(Task):
         to the output file, and this breaks a lot of code that relies of the use of a unique file extension.
         Here we fix this issue by renaming run.abo to run.abo_[number] if the output file "run.abo" already
         exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90. 
-        God rot the FORTRAN committee who was not able to give Fortran a decent standard library as well as $Windows$ OS!
-        I don't really care if Fortran2003 provides support for OOP programming. 
-        What I need is a standardized interface to communicate with the OS!
         """
+        # God rot the FORTRAN committee who was not able to give Fortran a decent standard library as well as $Windows$ OS!
+        # I don't really care if Fortran2003 provides support for OOP programming. 
+        # What I need is a standardized interface to communicate with the OS!
         if self.output_file.exists:
             # Find the index of the last file (if any) and push.
             # TODO: Maybe it's better to use run.abo --> run(1).abo
@@ -1936,10 +1950,7 @@ class ScfTask(AbinitTask):
         report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
-        if report.warnings:
-            return report.warnings.filter("ScfConvergenceWarning")
-
-        return False
+        return report.warnings.filter("ScfConvergenceWarning")
 
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
@@ -1984,10 +1995,7 @@ class NscfTask(AbinitTask):
         return True
         report = self.get_event_report()
 
-        if report.warnings:
-            return report.warnings.filter("NscfConvergenceWarning")
-
-        return False
+        return report.warnings.filter("NscfConvergenceWarning")
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -2011,58 +2019,63 @@ class NscfTask(AbinitTask):
 class RelaxTask(AbinitTask):
     """
     Structural optimization.
+
+    .. attributes:
+
+        initial_structure:
+        final_structure:
     """
+    #def __init__(self, strategy, workdir=None, manager=None, deps=None):
+    #    super(RelaxTask, self).__init__(strategy, workdir=None, manager=None, deps=None)
+
+    #    # Save the initial structure
+    #    self.initial_structure = strategy.structure
+
     def not_converged(self):
         """Return True if the calculation is not converged."""
         # TODO: 
         return True
         report = self.get_event_report()
-
         # What about a possible ScfConvergenceWarning?
-        if report.warnings:
-            return report.warnings.filter("RelaxConvergenceWarning")
+        return report.warnings.filter("RelaxConvergenceWarning")
 
-        return False
-
-    def set_initial_structure(self, structure):
-        #TODO
-        self.strategy.set_structure(structure)
+    #def change_structure(self, structure):
+    #    self.strategy.set_structure(structure)
 
     def read_final_structure(self):
         """Read the final structure from the GSR file and save it in self.final_structure."""
         gsr_file = self.outdir.has_abiext("GSR")
         if not gsr_file:
             raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
-                                                                                                         
-        with ETSF_reader(gsr_file) as r:
-            self.final_structure = r.read_structure()
 
-        return self.final_structure
+        from pymatgen.io.abinitio.netcdf import ETSF_Reader
+        with ETSF_Reader(gsr_file) as r:
+            final_structure = r.read_structure()
+
+        self.final_structure = final_structure
+        return final_structure
 
     def restart(self):
-        raise NotImplementedError("")
-        # Change the initial structure.
-        try:
-            structure = self.read_final_structure()
-        except TaskRestartError:
-            raise
-
-        self.set_initial_structure(structure)
-
+        #raise NotImplementedError("")
         # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
         # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         # Prefer WFK over other files since we can reuse the wavefunctions.
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
+                # We will read the unit cell from this file
                 irdvars = irdvars_for_ext(ext)
                 infile = self.out_to_in(ofile)
-                # We will read the unit cell from this file
-                irdvars["getucell_path"] = infile
                 break
 
         if not ofile:
             raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
+
+        # Read the relaxed structure from the output file.
+        structure = self.read_final_structure()
+                                                           
+        # Change the structure.
+        #self.change_structure(structure)
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -2097,12 +2110,8 @@ class PhononTask(AbinitTask):
     def not_converged(self):
         """Return True if the calculation is not converged."""
         return True
-
         report = self.get_event_report()
-        if report.warnings:
-            return report.warnings.filter("PhononConvergenceWarning")
-
-        return False
+        return report.warnings.filter("PhononConvergenceWarning")
 
     def restart(self):
         # Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
@@ -2148,12 +2157,8 @@ class G_Task(AbinitTask):
         #report = self.get_event_report()
         # If we have critical warnings that are registered 
         # for this task we trigger the restart.
-
         report = self.get_event_report()
-        if report.warnings:
-            return report.warnings.filter("QPSConvergenceWarning")
-
-        return False
+        return report.warnings.filter("QPSConvergenceWarning")
 
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
@@ -2198,13 +2203,8 @@ class HaydockBseTask(BseTask):
     def not_converged(self):
         """Return True if the calculation is not converged."""
         return True
-        #report = self.get_event_report()
-
         report = self.get_event_report()
-        if report.warnings:
-            return report.warnings.filter("HaydockConvergenceWarning")
-
-        return False
+        return report.warnings.filter("HaydockConvergenceWarning")
 
     def restart(self):
         # BSE calculations with Haydock can be restarted only if we have the 
@@ -2280,9 +2280,8 @@ class OpticTask(Task):
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
         # Keep a reference to the nscf_task and the ddk tasks
-        self.nscf_node = nscf_node
-        self.ddk_nodes = ddk_nodes
         assert len(ddk_nodes) == 3
+        self.nscf_node, self.ddk_nodes = nscf_node, ddk_nodes
 
     def set_workdir(self, workdir):
         super(OpticTask, self).set_workdir(workdir)
