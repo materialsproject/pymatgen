@@ -4,6 +4,7 @@ Abinit Flows
 from __future__ import division, print_function
 
 import os
+import time
 import collections
 import itertools
 import cPickle as pickle
@@ -37,6 +38,14 @@ class AbinitFlow(collections.Iterable):
     This object is a container of workflows. Its main task is managing the 
     possible inter-depencies among the workflows and the creation of
     dynamic worflows that are generates by callabacks registered by the user.
+
+    .. attributes:
+
+        creation_date:
+            String with the creation_date
+
+        pickle_protocol: 
+            Protocol for Pickle database (default: -1 i.e. latest protocol)
     """
     VERSION = "0.1"
 
@@ -54,6 +63,7 @@ class AbinitFlow(collections.Iterable):
                 -1 denotes the latest version supported by the python interpreter.
         """
         self.workdir = os.path.abspath(workdir)
+        self.creation_date = time.asctime()
 
         self.manager = manager.deepcopy()
 
@@ -85,10 +95,31 @@ class AbinitFlow(collections.Iterable):
     def __getitem__(self, slice):
         return self.works[slice]
 
+    #def __hash__(self):
+    #    return hash(self.workdir)
+
+    #def __eq__(self, other):
+    #    if other is None or not isinstance(other, Flow):
+    #        return False
+    #    return  self.workdir == other.workdir
+
+    #def __ne__(self, other):
+    #    return not self == other
+
     @property
     def works(self):
         """List of `Workflow` objects contained in self.."""
         return self._works
+
+    #@property
+    #def completed(self):
+    #    """True if all the tasks of the flow have reached S_OK."""
+    #    return all(task.status == task.S_OK for task in self.flat_tasks())
+
+    #def flat_tasks(self):
+    #    for work in self:
+    #        for task in work:
+    #            yield task
 
     @property
     def ncpus_reserved(self):
@@ -143,6 +174,16 @@ class AbinitFlow(collections.Iterable):
         """Check the status of the workflows in self."""
         for work in self:
             work.check_status()
+
+        # Test whether some task must be restarted.
+        #num_restarts = 0
+        #for work in self:
+        #    for task in work:
+        #        if task.not_converged():
+        #            retcode = task.restart_if_needed(self):
+        #            if retcode == 0: num_restarts += 1
+        #if num_restarts:
+        #    self.pickle_dump()
 
     def build(self, *args, **kwargs):
         self.indir.makedirs()

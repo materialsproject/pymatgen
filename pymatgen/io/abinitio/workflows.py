@@ -26,7 +26,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
-from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask)
+from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask, RelaxTask)
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -48,7 +48,7 @@ __all__ = [
     "Workflow",
     "IterativeWorkflow",
     "BandStructureWorkflow",
-    #"RelaxWorkflow",
+    "RelaxWorkflow",
     "DeltaFactorWorkflow",
     "G0W0_Workflow",
     "BSEMDF_Workflow",
@@ -257,19 +257,6 @@ class Workflow(BaseWorkflow):
 
         if manager is not None:
             self.set_manager(manager)
-
-    #@property
-    #def id(self):
-    #    """Task identifier."""
-    #    return self._id
-
-    #@property
-    #def finalized(self):
-    #    """True if the `Workflow` has been finalized."""
-    #    try:
-    #        return self._finalized
-    #    except AttributeError:
-    #        return False
 
     def set_manager(self, manager):
         """Set the `TaskManager` to use to launch the Task."""
@@ -536,14 +523,13 @@ class Workflow(BaseWorkflow):
 
         shutil.move(self.workdir, dest)
 
-    def submit_tasks(self, *args, **kwargs):
-        """
-        Submits the task in self.
-        """
-        for task in self:
-            task.start(*args, **kwargs)
-            # FIXME
-            task.wait()
+    #def submit_tasks(self, *args, **kwargs):
+    #    """
+    #    Submits the task in self.
+    #    """
+    #    for task in self:
+    #        task.start(*args, **kwargs)
+    #        task.wait()
 
     def start(self, *args, **kwargs):
         """
@@ -1062,27 +1048,27 @@ class BandStructureWorkflow(Workflow):
             self.dos_task = self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
 
-#class RelaxWorkflow(Workflow):
-#
-#    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
-#        """
-#        Args:
-#            workdir:
-#                Working directory.
-#            manager:
-#                `TaskManager` object.
-#            ion_input:
-#                Input for the relaxation of the ions (cell is fixed)
-#            ioncell_input:
-#                Input for the relaxation of the ions and the unit cell.
-#        """
-#        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
-#
-#        self.ion_task = self.register(ion_input, task_class=RelaxTask)
-#
-#        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
-#        # TODO
-#        # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
+class RelaxWorkflow(Workflow):
+
+    def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
+        """
+        Args:
+            ion_input:
+                Input for the relaxation of the ions (cell is fixed)
+            ioncell_input:
+                Input for the relaxation of the ions and the unit cell.
+            workdir:
+                Working directory.
+            manager:
+                `TaskManager` object.
+        """
+        super(RelaxWorkflow, self).__init__(workdir=workdir, manager=manager)
+
+        self.ion_task = self.register(ion_input, task_class=RelaxTask)
+
+        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
+        # TODO
+        # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
 
 
 class DeltaFactorWorkflow(Workflow):
@@ -1178,6 +1164,7 @@ class DeltaFactorWorkflow(Workflow):
 
             eos_fit.plot(show=False, savefig=self.outdir.path_in("eos.pdf"))
 
+            # FIXME: This object should be moved to pseudo_dojo.
             # Get reference results (Wien2K).
             from pseudo_dojo.refdata.deltafactor import df_database, df_compute
             wien2k = df_database().get_entry(self.pseudo.symbol)
