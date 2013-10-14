@@ -22,13 +22,10 @@ class WorkflowTestCase(unittest.TestCase):
         pseudo = filepath("14si.pspnc")
         ecut_list = range(10, 40, 2)
 
-        pptest_wf = PseudoConvergence(workdir, manager, pseudo,
-                                      ecut_list=ecut_list, atols_mev=(10, 1, 0.1))
+        pptest_wf = PseudoConvergence(workdir, manager, pseudo, ecut_list, atols_mev=(10, 1, 0.1))
 
         print(repr(pptest_wf))
         print(pptest_wf)
-
-        #pptest_wf.show_inputs()
 
         self.assertTrue(isinstance(pptest_wf, collections.Iterable))
         self.assertTrue(pptest_wf.isnc)
@@ -38,5 +35,4 @@ class WorkflowTestCase(unittest.TestCase):
         pptest_wf.rmtree()
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Part of this code is based on a similar implementation preset in fireworks.
 work done by D. Waroquiers, A. Jain, and M. Kocher'
@@ -8,27 +7,21 @@ from __future__ import print_function, division
 import os
 import abc
 import string
+import copy
 import functools
 import getpass
 
 from subprocess import Popen, PIPE
 from pymatgen.io.abinitio.launcher import ScriptEditor
+from pymatgen.util.string_utils import is_string
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 __all__ = [
     "MpiRunner",
-    #"ShellAdapter",
-    #"SlurmAdapter",
-    #"PbsAdapter",
 ]
-
-def is_string(obj):
-    try:
-        dummy = obj + ""
-        return True
-
-    except TypeError:
-        return False
-
 
 class Command(object):
     """
@@ -121,6 +114,7 @@ class MpiRunner(object):
 
 
 def qadapter_class(qtype):
+    """Return the concrete `Adapter` class from a string."""
     return {"shell": ShellAdapter,
             "slurm": SlurmAdapter,
             "pbs": PbsAdapter,
@@ -205,8 +199,11 @@ class AbstractQueueAdapter(object):
             if err_msg:
                 raise ValueError(err_msg)
 
-    #def copy(self):
-        #return self.__class__(qparams, setup=None, modules=None, shell_env=None, omp_env=None, pre_run=None, post_run=None, mpi_runner)
+    def copy(self):
+        return copy.copy(self)
+
+    def deepcopy(self):
+        return copy.deepcopy(self)
 
     @property
     def supported_qparams(self):
@@ -261,21 +258,7 @@ class AbstractQueueAdapter(object):
     #def set_queue_walltime(self):
     #    """Set the walltime in seconds."""
 
-    #@abc.abstractproperty
-    #def qout_path(self):
-    #    """
-    #    Absolute path to the output file produced by the queue manager. 
-    #    None if not available.
-    #    """
-
-    #@abc.abstractproperty
-    #def qerr_path(self):
-    #    """
-    #    Absolute Path to the error file produced by the queue manager. 
-    #    None if not available.
-    #    """
-
-    def _make_qheader(self, job_name):
+    def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         qtemplate = QScriptTemplate(self.QTEMPLATE)
 
@@ -286,6 +269,8 @@ class AbstractQueueAdapter(object):
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
         subs_dict['job_name'] = job_name 
+        subs_dict['_qout_path'] = qout_path
+        subs_dict['_qerr_path'] = qerr_path
 
         # might contain unused parameters as leftover $$.
         unclean_template = qtemplate.safe_substitute(subs_dict)  
@@ -298,7 +283,7 @@ class AbstractQueueAdapter(object):
 
         return '\n'.join(clean_template)
 
-    def get_script_str(self, job_name, launch_dir, executable, stdin=None, stdout=None, stderr=None):
+    def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path, stdin=None, stdout=None, stderr=None):
         """
         Returns a (multi-line) String representing the queue script, e.g. PBS script.
         Uses the template_file along with internal parameters to create the script.
@@ -306,9 +291,13 @@ class AbstractQueueAdapter(object):
         Args:
             launch_dir: 
                 (str) The directory the job will be launched in.
+            qout_path
+                Path of the Queue manager output file.
+            qerr_path:
+                Path of the Queue manager error file.
         """
         # Construct the header for the Queue Manager.
-        qheader = self._make_qheader(job_name)
+        qheader = self._make_qheader(job_name, qout_path, qerr_path)
 
         # Add the bash section.
         se = ScriptEditor()
@@ -378,6 +367,7 @@ class AbstractQueueAdapter(object):
 ####################
 
 class ShellAdapter(AbstractQueueAdapter):
+    QTYPE = "shell"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -415,6 +405,7 @@ export MPI_NCPUS=$${MPI_NCPUS}
 
 
 class SlurmAdapter(AbstractQueueAdapter):
+    QTYPE = "slurm"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -426,8 +417,18 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --partition=$${partition}
 #SBATCH --account=$${account}
 #SBATCH --job-name=$${job_name}
-#SBATCH --output=$${job_name}.qout
-#SBATCH --error=$${job_name}.qerr
+#SBATCH	--nodes=$${nodes}
+#SBATCH --mem=$${mem}
+#SBATCH --mail-user=$${mail_user}
+#SBATCH --mail-type=$${mail_type}
+#SBATCH --constraint=$${constraint}
+#SBATCH --gres=$${gres}
+#SBATCH --requeue=$${requeue}
+#SBATCH --nodelist=$${nodelist}
+#SBATCH --propagate=$${propagate}
+
+#SBATCH --output=$${_qerr_path}
+#SBATCH --error=$${_qout_path}
 
 """
 
@@ -456,12 +457,12 @@ class SlurmAdapter(AbstractQueueAdapter):
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                     queue_id = int(process.stdout.read().split()[3])
-                    print('Job submission was successful and queue_id is {}'.format(queue_id))
+                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
 
                 except:
                     # probably error parsing job code
                     queue_id = None
-                    print('Could not parse job id following slurm...')
+                    logger.warning('Could not parse job id following slurm...')
 
                 finally:
                     return process, queue_id
@@ -492,18 +493,19 @@ class SlurmAdapter(AbstractQueueAdapter):
 
             outs = process.stdout.readlines()
             njobs = len([line.split() for line in outs if username in line])
-            print('The number of jobs currently in the queue is: {}'.format(njobs))
+            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
             return njobs
 
         # there's a problem talking to squeue server?
         err_msg = ('Error trying to get the number of jobs in the queue using squeue service' + 
                    'The error response reads: {}'.format(process.stderr.read()))
-        print(err_msg)
+        logger.critical(err_msg)
 
         return None
 
 
 class PbsAdapter(AbstractQueueAdapter):
+    QTYPE = "pbs"
 
     QTEMPLATE = """\
 #!/bin/bash
@@ -514,8 +516,8 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -l mppwidth=$${mppwidth}
 #PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -N $${job_name}
-#PBS -o $${job_name}.qout
-#PBS -e $${job_name}.qerr
+#PBS -o $${_qerr_path}
+#PBS -e $${_qout_path}
 
 """
     #@property
@@ -546,11 +548,11 @@ class PbsAdapter(AbstractQueueAdapter):
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
                     queue_id = int(process.stdout.read().split('.')[0])
-                    print('Job submission was successful and queue_id is {}'.format(queue_id))
+                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
 
                 except:
                     # probably error parsing job code
-                    print("Could not parse job id following qsub...")
+                    logger.warning("Could not parse job id following qsub...")
                     queue_id = None
 
                 finally:
@@ -584,14 +586,14 @@ class PbsAdapter(AbstractQueueAdapter):
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
             outs = process[1].split('\n')
             njobs = len([line.split() for line in outs if username in line])
-            print('The number of jobs currently in the queue is: {}'.format(njobs))
+            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
 
             return njobs
 
         # there's a problem talking to qstat server?
         err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
                    'The error response reads: {}'.format(process[2]))
-        print(msg)
+        logger.critical(msg)
 
         return None
 

@@ -1,28 +1,26 @@
-#!/usr/bin/env python
+"""Tools for the submission of Tasks."""
 from __future__ import division, print_function
 
 import os 
-import abc
+import time
 
 from subprocess import Popen, PIPE
-
+from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 __all__ = [
     "ScriptEditor",
+    "PyLauncher",
 ]
 
-def is_string(obj):
-    try:
-        dummy = obj + " "
-        return True
-    except TypeError:
-        return False
-
-
 class ScriptEditor(object):
-    """Simple editor that simplifies the writing of shell scripts"""
+    """
+    Simple editor that simplifies the writing of shell scripts
+    """
     _shell = '/bin/bash'
 
     def __init__(self):
@@ -186,21 +184,28 @@ class PyResourceManager(object):
 
     Error = ResourceManagerError
 
-    def __init__(self, work, max_ncpus, sleep_time=20, verbose=0):
+    def __init__(self, work, max_ncpus, sleep_time=20):
         """
-            Args:
-                work:
-                    Work instance.
-                max_ncpus: 
-                    The maximum number of CPUs that can be used.
-                sleep_time:
-                    Time delay (seconds) before trying to start a new task.
+        This object submits the tasks contained in a `Workflow`
+        inside an infinite loop. Therefore it is mainly used 
+        when we are running in interative mode and we have to 
+        execute several small jobs without having to pass throuh
+        the queue resource manager. Its main goal is organizing
+        the execution of the tasks so that we don't exceed the 
+        computing resources at hand.
+
+        Args:
+            work:
+                `Workflow` instance.
+            max_ncpus: 
+                The maximum number of CPUs that can be used at any given time.
+            sleep_time:
+                Time delay (seconds) before trying to start a new `Task`.
         """
         self.work = work
 
         self.max_ncpus = max_ncpus 
         self.sleep_time = sleep_time
-        self.verbose = verbose
 
         for task in self.work:
             if task.tot_ncpus > self.max_ncpus:
@@ -223,28 +228,21 @@ class PyResourceManager(object):
                 break
 
             if task is None:
-                import time
+
                 time.sleep(self.sleep_time)
+                self.work.check_status()
+
             else:
                 # Check that we don't exceed the number of cpus employed, before starting.
-                if self.verbose:
-                    print("work polls %s" % polls)
-                    print("work status %s" % self.work.get_status())
+                logger.info("work polls %s" % polls)
+                logger.info("work status %s" % self.work.get_all_status())
 
-                if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
-                    if self.verbose: 
-                        print("Starting task %s" % task)
+                if (task.tot_ncpus + self.work.ncpus_allocated <= self.max_ncpus): 
+                    logger.info("Starting task %s" % task)
                     task.start()
 
         # Wait until all tasks are completed.
         self.work.wait()
-
-        #if any([t.status != t.S_DONE for t in self]):
-        #   for task in self:
-        #       print([link for link in task._links])
-        #       #print([link_stat==task.S_DONE for link_stat in task.links_status])
-        #       msg = "Deadlock, likely due to task dependencies: status %s" % str([t.status for t in self]))
-        #       self.Error(msg)
 
         return self.work.returncodes
 
@@ -252,52 +250,113 @@ class PyResourceManager(object):
 class PyLauncherError(Exception):
     """Error class for PyLauncher."""
 
+
 class PyLauncher(object):
+    """
+    This object handle the sumbmission of the tasks in a `AbinitFlow`
+    """
 
     Error = PyLauncherError
 
-    def __init__(self, work):
-        self.work = work
+    def __init__(self, flow):
+        """
+        Initialize the object
+
+        Args:
+            flow:
+                `AbinitFlow` object
+        """
+        self.flow = flow
 
     def single_shot(self):
-        work = self.work
-        nlaunch = 0
+        """
+        Run the first `Task than is ready for execution.
+        
+        Returns:
+            Number of jobs launched.
+        """
+        num_launched = 0
 
-        try:
-            task = work.fetch_task_to_run()
-            #print("got task", task)
-                                                            
-            if task is None:
-                raise self.Error("No task to run!. Possible deadlock")
-                                                            
-            else:
-                task.start()
-                nlaunch += 1
-                                                            
-        except StopIteration as exc:
-            print(str(exc))
-
-        finally:
-            work.pickle_dump()
-
-        return nlaunch 
-
-    def rapidfire(self):
-        nlaunch = 0
-
-        work = self.work
-        while True:
+        # Get the tasks that can be executed in each workflow.
+        tasks = []
+        for work in self.flow:
             try:
                 task = work.fetch_task_to_run()
-                if task is None:
-                    break
-                task.start()
-                nlaunch += 1
 
-            except StopIteration as exc:
-                #print(str(exc))
+                if task is not None:
+                    tasks.append(task)
+                else:
+                    logger.debug("No task to run! Possible deadlock")
+
+            except StopIteration:
+                logger.info("Out of tasks.")
+
+        # Submit the tasks and update the database.
+        if tasks:
+            for task in tasks:
+                task.start()
+                num_launched += 1
+            
+            self.flow.pickle_dump()
+
+        return num_launched 
+
+    def rapidfire(self, max_nlaunch=-1):  #nlaunches=0, max_loops=-1, sleep_time=None
+        """
+        Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
+
+        Args:
+            max_nlaunch:
+                Maximum number of launches. default: no limit.
+
+        nlaunches: 
+            0 means 'until completion', -1 or "infinite" means to loop forever
+        max_loops: 
+            maximum number of loops
+        sleep_time: 
+            secs to sleep between rapidfire loop iterations
+        
+        Returns:
+            The number of tasks launched.
+        """
+        #sleep_time = sleep_time if sleep_time else FWConfig().RAPIDFIRE_SLEEP_SECS
+        #nlaunches = -1 if nlaunches == 'infinite' else int(nlaunches)
+        #num_launched = 0
+        #num_loops = 0
+        num_launched, launched = 0, []
+
+        for work in self.flow:
+            if num_launched == max_nlaunch: 
                 break
 
-        work.pickle_dump()
+            while True:
+                try:
+                    task = work.fetch_task_to_run()
+                    #flow.check_status()
 
-        return nlaunch 
+                    if task is None:
+                        logger.debug("fetch_task_to_run returned None.")
+                        break
+
+                    logger.debug("Starting task %s" % task)
+                    if task in launched:
+                        err_msg = "task %s in already in launched %s" % (str(task), str(launched))
+                        raise RuntimeError(err_msg)
+
+                    task.start()
+                    launched.append(task)
+
+                    num_launched += 1
+
+                    if num_launched == max_nlaunch:
+                        break
+
+                except StopIteration:
+                    logger.debug("Out of tasks.")
+                    break
+
+        # Update the database.
+        if num_launched:
+            self.flow.pickle_dump()
+
+        return num_launched 

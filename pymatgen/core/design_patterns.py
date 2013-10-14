@@ -33,3 +33,20 @@ class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
+
+    def copy(self):
+        newd = super(AttrDict, self).copy()
+        return self.__class__(**newd)
+
+
+class NullFile(object):
+    """A file object that is associated to /dev/null."""
+    def __init__(self):
+        import os
+        return open(os.devnull, 'w')
+
+
+class NullStream(object):
+    """A fake stream with a no-op write.."""
+    def write(*args):
+        """no-op"""
