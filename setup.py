@@ -21,7 +21,7 @@ def get_spglib_ext():
     """
     spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
     if len(spglibs) == 0:
-        raise ValueError("No spglib found in dependencies/")
+        raise ValueError("No spglib found in dependencies.")
     spglibdir = spglibs[0]
 
     # set rest of spglib
