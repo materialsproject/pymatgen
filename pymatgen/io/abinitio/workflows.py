@@ -523,13 +523,14 @@ class Workflow(BaseWorkflow):
 
         shutil.move(self.workdir, dest)
 
-    #def submit_tasks(self, *args, **kwargs):
-    #    """
-    #    Submits the task in self.
-    #    """
-    #    for task in self:
-    #        task.start(*args, **kwargs)
-    #        task.wait()
+    def submit_tasks(self, *args, **kwargs):
+        """
+        Submits the task in self and wait.
+        TODO: change name.
+        """
+        for task in self:
+            task.start(*args, **kwargs)
+            task.wait()
 
     def start(self, *args, **kwargs):
         """

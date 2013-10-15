@@ -275,7 +275,7 @@ def reverse_readline(m_file, blk_size=4096, max_mem=4000000):
 
 
 class FileLockException(Exception):
-    "Exception raised by FileLock"
+    """Exception raised by FileLock."""
 
 
 class FileLock(object):

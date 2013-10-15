@@ -52,12 +52,12 @@ class PymatgenTest(unittest.TestCase):
                                  verbose=verbose)
 
 
-    def serialize_with_pickle(self, objects, protocols=None):
+    def serialize_with_pickle(self, objects, protocols=None, test_eq=True):
         """
         Test whether the object(s) can be serialized and deserialized with pickle.
         This method tries to serialize the objects with pickle and the protocols
         specified in input. Then it deserializes the pickle format and compares
-        the two objects with the __eq__ operator.
+        the two objects with the __eq__ operator if test_eq == True.
 
         Args:
             objects:
@@ -72,7 +72,9 @@ class PymatgenTest(unittest.TestCase):
         import cPickle as pickle
 
         # Build a list even when we receive a single object.
+        got_single_object = False
         if not isinstance(objects, (list, tuple)):
+            got_single_object = True
             objects = [objects]
 
         # By default, all pickle protocols are tested.
@@ -93,12 +95,16 @@ class PymatgenTest(unittest.TestCase):
             with open(tmpfile, "r") as fh:
                 new_objects = pickle.load(fh)
 
+            # Test for equality
+            if test_eq:
+                for old_obj, new_obj in zip(objects, new_objects):
+                    self.assert_equal(old_obj, new_obj)
+
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(new_objects)
 
-            # Test for equality
-            for old_obj, new_obj in zip(objects, new_objects):
-                self.assert_equal(old_obj, new_obj)
-
         # Return nested list so that client code can perform additional tests.
-        return objects_by_protocol
+        if got_single_object:
+            return [o[0] for o in objects_by_protocol]
+        else:
+            return objects_by_protocol
