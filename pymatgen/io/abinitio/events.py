@@ -6,15 +6,12 @@ from __future__ import division, print_function
 
 import os.path
 import collections
-import json
-
-from pymatgen.serializers.json_coders import MSONable
 
 __all__ = [
     "EventParser",
 ]
 
-class AbinitEvent(MSONable):
+class AbinitEvent(object):
     """
     Example (YAML syntax)::
 
@@ -55,15 +52,6 @@ class AbinitEvent(MSONable):
         self.lineno  = kwargs.pop("lineno")
         self.data = kwargs
 
-    #@staticmethod
-    #def from_string(string, lineno):
-    #    """Constructs an event given a string and the line number."""
-    #    d = json.loads(string)
-    #    cls = d.pop["class"]
-    #    assert "lineno" not in d
-    #    d["lineno"] = lineno
-    #    return cls(d)
-
     def __str__(self):
         return "%s:\n%s" % (self.lineno, self.message)
 
@@ -78,17 +66,6 @@ class AbinitEvent(MSONable):
                 return cls
         raise ValueError("Cannot determine the base class of %s" %
                          self.__class__.__name__)
-
-    @property
-    def to_dict(self):
-        d = self._kwargs.copy()
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls({k: v for (k, v) in d.items() if not k.startswith("@")})
 
     def iscritical(self):
         """
@@ -153,7 +130,7 @@ _BASE_CLASSES = [
 ]
 
 
-class EventReport(collections.Iterable, MSONable):
+class EventReport(collections.Iterable):
     """Iterable storing the events raised by an ABINIT calculation."""
 
     def __init__(self, filename, events=None):
@@ -256,20 +233,6 @@ class EventReport(collections.Iterable, MSONable):
             return [e for e in self._events_by_baseclass[base_class] if e.iscritical]
         else:
             return self._events_by_baseclass[base_class][:]
-
-    @property
-    def to_dict(self):
-        d = {}
-        d["filename"] = self.filename
-        d["events"] = [e.to_dict for e in self]
-        d["@module"] = self.__class__.__module__
-        d["@class"] = self.__class__.__name__
-        return d
-
-    @classmethod
-    def from_dict(cls, d):
-        events = [Event.from_dict(ed) for ed in d["events"]]
-        return cls(d["filename"], events=events)
 
 
 
