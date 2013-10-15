@@ -36,8 +36,8 @@ __all__ = [
 class AbinitFlow(collections.Iterable):
     """
     This object is a container of workflows. Its main task is managing the 
-    possible inter-depencies among the workflows and the creation of
-    dynamic worflows that are generates by callabacks registered by the user.
+    possible inter-depedencies among the workflows and the creation of
+    dynamic worfflows that are generates by callbacks registered by the user.
 
     .. attributes:
 
@@ -59,7 +59,7 @@ class AbinitFlow(collections.Iterable):
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
             pickle_procol:
-                Pickel protocol version used for saving the status of the object.
+                Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
         """
         self.workdir = os.path.abspath(workdir)
@@ -320,7 +320,7 @@ class AbinitFlow(collections.Iterable):
             cbk:
                 Callback function.
             cbk_data
-                Additional data pased to the callback function.
+                Additional data passed to the callback function.
             deps:
                 List of `Dependency` objects specifying the dependency of the workflow.
             work_class:
