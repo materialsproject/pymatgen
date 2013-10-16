@@ -182,6 +182,9 @@ class ParalHintsParser(object):
         Read the <RUN_HINTS> section from file filename
         Assumes the file contains only one section.
         """
+        #with YamlTokenizer(filename) as r:
+        #    doc = r.next_doc_with_tag(doc_tag)
+        #    #doc = doc.replace(doc_tag, "")
         START_TAG = "--- !Autoparal"
         END_TAG = "..."
 

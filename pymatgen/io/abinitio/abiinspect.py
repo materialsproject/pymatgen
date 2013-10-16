@@ -6,8 +6,9 @@ from __future__ import division, print_function
 
 import collections
 import numpy as np
-from StringIO import StringIO
+import yaml
 
+from StringIO import StringIO
 from pymatgen.util.string_utils import pprint_table
 
 
@@ -322,3 +323,201 @@ class Relaxation(collections.Iterable):
             fig.savefig(savefig)
 
         return fig
+
+
+class YamlTokenizer(collections.Iterator):
+    """
+    Provides context-manager support so you can use it in a with statement. 
+    """
+    def __init__(self, filename):
+        self.stream = open(filename, "r")
+        self.linepos = 0 # The position inside the file.
+
+    def __iter__(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        self.stream.close()
+
+    def seek(self, offset, whence=0):
+        """
+        seek(offset[, whence]) -> None.  Move to new file position.
+
+        Argument offset is a byte count.  Optional argument whence defaults to
+        0 (offset from start of file, offset should be >= 0); other values are 1
+        (move relative to current position, positive or negative), and 2 (move
+        relative to end of file, usually negative, although many platforms allow
+        seeking beyond the end of a file).  If the file is opened in text mode,
+        only offsets returned by tell() are legal.  Use of other offsets causes
+        undefined behavior.
+        Note that not all file objects are seekable.
+        """
+        assert offset == 0
+        self.linepos = 0
+        return self.stream.seek(offset, whence)
+
+    # Python 3 compatibility
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        """
+        Returns the first YAML document in stream.
+
+        .. warning:
+
+            Assume that the YAML document are closed explicitely with the sentinel '...'
+        """
+        in_doc, lines, doc_tag = None, [], None
+
+        for line in self.stream:
+            self.linepos += 1
+
+            if line.startswith("---"):
+                # Include only lines in the form:
+                #  "--- !tag"
+                #  "---"
+                # Other lines are spurious.
+                in_doc = False
+                l = line[3:].strip().lstrip()
+
+                if l.startswith("!"):
+                    # "--- !tag"
+                    doc_tag = l
+                    in_doc = True
+                elif not l:
+                    #  "---"
+                    in_doc = True
+                    doc_tag = None
+
+                if in_doc:
+                    lineno = self.linepos
+
+            if in_doc:
+                lines.append(line)
+
+            if in_doc and line.startswith("..."):
+                return YamlDoc(text="".join(lines), lineno=lineno, tag=doc_tag)
+
+        raise StopIteration()
+
+    def all_yaml_docs(self):
+        """
+        Returns a list with all the YAML docs found in stream. 
+        Seek the stream before returning.
+
+        .. warning:
+
+            Assume that all the YAML docs (with the exception of the last one) 
+            are closed explicitely with the sentinel '...'
+        """
+        docs = [doc for doc in self]
+        self.seek(0)
+        return docs
+
+    def next_doc_with_tag(self, doc_tag):
+        """
+        Returns the next document with the specified tag.
+        Empty string is no doc is found.
+        """
+        while True:
+            try:
+                doc = self.next()
+                if doc.tag == doc_tag:
+                    return doc
+
+            except StopIteration:
+                raise
+
+    def all_docs_with_tag(self, doc_tag):
+        """
+        Returns all the documents with the specified tag.
+        """
+        docs = []
+
+        while True:
+            try:
+                doc = self.next_doc_with(doc_tag)
+                docs.append(doc)
+
+            except StopIteration:
+                break
+
+        self.seek(0)
+        return docs
+
+
+def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
+
+    with YamlTokenizer(filename) as r:
+        doc = r.next_doc_with_tag(doc_tag)
+        d = yaml.load(doc.text_notag)
+
+        return np.array(d["reduced_coordinates_of_qpoints"])
+
+
+def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
+
+    with YamlTokenizer(filename) as r:
+        doc = r.next_doc_with_tag(doc_tag)
+        d = yaml.load(doc.text_notag)
+
+        return d["irred_perts"]
+
+class YamlDoc(object):
+    """
+    Handy object that stores that YAML document, its main tag and the 
+    position inside the file.
+    """
+    __slots__ = [
+        "text",
+        "lineno",
+        "tag",
+    ]
+
+    def __init__(self, text, lineno, tag=None):
+        """
+        Args:
+            text:
+                String with the YAML document.
+            lineno:
+                The line number where the document is located.
+            tag:
+                The YAML tag associate to the document.
+        """
+        self.text = text 
+        self.lineno = lineno
+        self.tag = tag
+
+    def __str__(self):
+        return self.text
+
+    def __eq__(self, other):
+        if other is None: return False
+        return (self.text == other.text and 
+                self.lineno == other.lineno and 
+                self.tag == other.tag) 
+
+    def __ne__(self, other):
+        return not self == other
+
+    @property
+    def text_notag(self):
+        """
+        Returns the YAML text without the tag.
+        Useful if we don't have any constructor registered for the tag
+        (we used the tag just to locate the document).
+        """
+        if self.tag is not None:
+           return self.text.replace(self.tag, "")
+        else:
+           return self.text
