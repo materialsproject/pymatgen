@@ -184,15 +184,17 @@ class BaseWorkflow(Node):
         for task in self:
             dispatcher.connect(self.on_ok, signal=task.S_OK, sender=task)
 
+    @property
+    def all_ok(self):
+        return all(task.status == task.S_OK for task in self)
+
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status S_OK.
         """
         logger.debug("in on_ok with sender %s" % sender)
 
-        all_ok = all(task.status == task.S_OK for task in self)
-
-        if all_ok: 
+        if self.all_ok: 
 
             if self.finalized:
                 return AttrDict(returncode=0, message="Workflow has been already finalized")
@@ -523,20 +525,24 @@ class Workflow(BaseWorkflow):
 
         shutil.move(self.workdir, dest)
 
-    def submit_tasks(self, *args, **kwargs):
+    def submit_tasks(self, wait=False):
         """
         Submits the task in self and wait.
         TODO: change name.
         """
         for task in self:
-            task.start(*args, **kwargs)
-            task.wait()
+            task.start()
+
+        if wait: 
+            for task in self: task.wait()
 
     def start(self, *args, **kwargs):
         """
-        Start the work. Calls build and _setup first, then the tasks are submitted.
-        Non-blocking call
+        Start the work. Calls build and _setup first, then submit the tasks.
+        Non-blocking call unless wait is set to True
         """
+        wait = kwargs.pop("wait", False)
+
         # Build dirs and files.
         self.build(*args, **kwargs)
 
@@ -544,7 +550,7 @@ class Workflow(BaseWorkflow):
         self._setup(*args, **kwargs)
 
         # Submit tasks (does not block)
-        self.submit_tasks(*args, **kwargs)
+        self.submit_tasks(wait=wait)
 
     def read_etotal(self):
         """

@@ -74,18 +74,14 @@ class PPConvergenceFactory(object):
 
 
 
-def bandstructure(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
+def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                   ndivsm, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
-                  dos_kppa=None, **extra_abivars):
+                  dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that computes that bandstructure of the material.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` instance.
         structure:
             Pymatgen structure.
         pseudos:
@@ -110,6 +106,10 @@ def bandstructure(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
         dos_kppa:
             Defines the k-point sampling used for the computation of the DOS 
             (None if DOS is not wanted).
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` instance.
         **extra_abivars:
             Dictionary with extra variables passed to ABINIT.
     """
@@ -179,19 +179,14 @@ def bandstructure(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
 
-def g0w0_with_ppmodel(workdir, manager, structure, pseudos, scf_kppa,
-                      nscf_nband, ecuteps, ecutsigx, accuracy="normal",
-                      spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None,
-                      inclvkb=2, scr_nband=None, sigma_nband=None, **extra_abivars):
+def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, 
+                      accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
+                      sigma_nband=None, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManager` instance.
         structure:
             Pymatgen structure.
         pseudos:
@@ -222,6 +217,10 @@ def g0w0_with_ppmodel(workdir, manager, structure, pseudos, scf_kppa,
             Number of bands used to compute the screening (default is nscf_nband)
         sigma_nband:
             Number of bands used to compute the self-energy (default is nscf_nband)
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` instance.
         **extra_abivars
             Dictionary with extra variables passed to ABINIT.
     """
@@ -263,20 +262,20 @@ def g0w0_with_ppmodel(workdir, manager, structure, pseudos, scf_kppa,
 
 
 
-def bse_with_mdf(workdir, manager, structure, pseudos, scf_kppa, nscf_nband, 
-                 nscf_ngkpt, nscf_shiftk, ecuteps, bs_loband, soenergy, mdf_epsinf, 
-                 accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                 charge=0.0, scf_algorithm=None, **extra_abivars):
+def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
+                 ecuteps, bs_loband, soenergy, mdf_epsinf, accuracy="normal", spin_mode="polarized", 
+                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
+                 **extra_abivars):
     """
     Returns a Work object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
     in modeled by the model dielectric function.
 
     Args:
-        workdir:
-            Working directory.
-        manager:
-            `TaskManger` instance.
+
+
+
+
         structure:
             Pymatgen structure.
         pseudos:
@@ -308,6 +307,10 @@ def bse_with_mdf(workdir, manager, structure, pseudos, scf_kppa, nscf_nband,
             Electronic charge added to the unit cell.
         scf_algorithm:
             Algorithm used for solving the SCF cycle.
+        workdir:
+            Working directory.
+        manager:
+            `TaskManger` instance.
         **extra_abivars
             Dictionary with extra variables passed to ABINIT.
     """

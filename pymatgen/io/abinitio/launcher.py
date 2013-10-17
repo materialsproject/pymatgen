@@ -75,9 +75,11 @@ class ScriptEditor(object):
         self._add("", pre="")
 
     def add_comment(self, comment):
+        """Add a comment"""
         self._add(comment, pre="# ")
 
     def load_modules(self, modules):
+        """Load the list of specified modules."""
         for module in modules:
             self.load_module(module)
 
@@ -140,111 +142,45 @@ class OmpEnv(dict):
 
     @staticmethod
     def from_file(filename, allow_empty=False):
-        from ConfigParser import SafeConfigParser, NoOptionError
-        parser = SafeConfigParser()
-        parser.read(filename)
 
-        obj = OMPEnv()
+        if filename.endswith(".ini"):
+            from ConfigParser import SafeConfigParser, NoOptionError
+            parser = SafeConfigParser()
+            parser.read(filename)
 
-        # Consistency check. Note that we only check if the option name is correct, 
-        # we do not check whether the value is correct or not.
-        if "openmp" not in parser.sections():
-            if not allow_empty:
-                raise ValueError("%s does not contain any [openmp] section" % filename) 
+            obj = OMPEnv()
+
+            # Consistency check. Note that we only check if the option name is correct, 
+            # we do not check whether the value is correct or not.
+            if "openmp" not in parser.sections():
+                if not allow_empty:
+                    raise ValueError("%s does not contain any [openmp] section" % filename) 
+                return obj
+
+            err_msg = ""
+            for key in parser.options("openmp"):
+                if key.upper() not in self._KEYS:
+                    err_msg += "unknown option %s, maybe a typo" % key
+
+            if err_msg: 
+                raise ValueError(err_msg)
+
+            for key in self._KEYS:
+                try:
+                    obj[key] = str(parser.get("openmp", key))
+                except NoOptionError:
+                    try:
+                        obj[key] = str(parser.get("openmp", key.lower()))
+                    except NoOptionError:
+                        pass
+
+            if not allow_empty and not obj:
+                raise ValueError("Refusing to return with an empty dict") 
+
             return obj
 
-        err_msg = ""
-        for key in parser.options("openmp"):
-            if key.upper() not in self._KEYS:
-                err_msg += "unknown option %s, maybe a typo" % key
-
-        if err_msg: 
-            raise ValueError(err_msg)
-
-        for key in self._KEYS:
-            try:
-                obj[key] = str(parser.get("openmp", key))
-            except NoOptionError:
-                try:
-                    obj[key] = str(parser.get("openmp", key.lower()))
-                except NoOptionError:
-                    pass
-
-        if not allow_empty and not obj:
-            raise ValueError("Refusing to return with an empty dict") 
-
-        return obj
-
-
-class ResourceManagerError(Exception):
-    """Base error class for `SimpleResourceManager."""
-
-
-class PyResourceManager(object):
-
-    Error = ResourceManagerError
-
-    def __init__(self, work, max_ncpus, sleep_time=20):
-        """
-        This object submits the tasks contained in a `Workflow`
-        inside an infinite loop. Therefore it is mainly used 
-        when we are running in interative mode and we have to 
-        execute several small jobs without having to pass throuh
-        the queue resource manager. Its main goal is organizing
-        the execution of the tasks so that we don't exceed the 
-        computing resources at hand.
-
-        Args:
-            work:
-                `Workflow` instance.
-            max_ncpus: 
-                The maximum number of CPUs that can be used at any given time.
-            sleep_time:
-                Time delay (seconds) before trying to start a new `Task`.
-        """
-        self.work = work
-
-        self.max_ncpus = max_ncpus 
-        self.sleep_time = sleep_time
-
-        for task in self.work:
-            if task.tot_ncpus > self.max_ncpus:
-                err_msg = "Task %s requires %s CPUs, but max_ncpus is %d" % (
-                    repr(task), task.tot_ncpus, max_ncpus)
-                raise self.Error(err_msg)
-
-    def run(self, *args, **kwargs):
-        """Call the start method of the object contained in work."""
-
-        if self.work.all_done:
-            return self.work.returncodes
-
-        while True:
-            polls = self.work.poll()
-            # Fetch the first task that is ready to run
-            try:
-                task = self.work.fetch_task_to_run()
-            except StopIteration:
-                break
-
-            if task is None:
-
-                time.sleep(self.sleep_time)
-                self.work.check_status()
-
-            else:
-                # Check that we don't exceed the number of cpus employed, before starting.
-                logger.info("work polls %s" % polls)
-                logger.info("work status %s" % self.work.get_all_status())
-
-                if (task.tot_ncpus + self.work.ncpus_allocated <= self.max_ncpus): 
-                    logger.info("Starting task %s" % task)
-                    task.start()
-
-        # Wait until all tasks are completed.
-        self.work.wait()
-
-        return self.work.returncodes
+        else:
+            raise NotImplementedError("Don't how how to read data from %s" % filename)
 
 
 class PyLauncherError(Exception):
@@ -253,9 +189,8 @@ class PyLauncherError(Exception):
 
 class PyLauncher(object):
     """
-    This object handle the sumbmission of the tasks in a `AbinitFlow`
+    This object handle the submission of the tasks contained in a `AbinitFlow`
     """
-
     Error = PyLauncherError
 
     def __init__(self, flow):
@@ -301,7 +236,7 @@ class PyLauncher(object):
 
         return num_launched 
 
-    def rapidfire(self, max_nlaunch=-1):  #nlaunches=0, max_loops=-1, sleep_time=None
+    def rapidfire(self, max_nlaunch=-1):  # nlaunches=0, max_loops=-1, sleep_time=None
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -360,3 +295,126 @@ class PyLauncher(object):
             self.flow.pickle_dump()
 
         return num_launched 
+
+
+class PyFlowsScheduler(object):
+
+    def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None):
+        """
+        Args:
+            weeks:
+                number of weeks to wait
+            days:
+                number of days to wait
+            hours:
+                number of hours to wait
+            minutes:
+                number of minutes to wait
+            seconds:
+                number of seconds to wait
+            start_date:
+                when to first execute the job and start the counter (default is after the given interval)
+        """
+        self.weeks = weeks
+        self.days = days
+        self.hours = hours
+        self.minutes = minutes
+        self.seconds = seconds
+        self.start_date = start_date
+
+        from apscheduler.scheduler import Scheduler
+        self.sched = Scheduler(standalone=True)
+
+        self._pidfiles2flows = {}
+
+    @property
+    def pid(self):
+        """Pid of the process"""
+        try:
+            return self._pid
+        except AttributeError:
+            self._pid = os.getpid()
+            return self._pid
+
+    def add_flow(self, flow):
+        """Add an `AbinitFlow` to the scheduler."""
+        pid_file = os.path.join(flow.workdir, "_PyFlowsScheduler.pid")
+
+        if pid_file in self._pidfiles2flows:
+            raise ValueError("Cannot add the same flow twice!")
+
+        if os.path.isfile(pid_file):
+            err_msg = ("\n"
+                "pid_file %s already exists\n"
+                "There are two possibilities:\n\n"
+                "       1) There's an another instance of PyFlowsScheduler running.\n"
+                "       2) The previous scheduler didn't exit in a clean way.\n\n"
+                "To solve case 1:\n"
+                "       Kill the previous scheduler (use `kill pid` where pid is the number reported in the file)\n"
+                "       Then you run can start the new scheduler.\n\n"
+                "To solve case 2:\n"
+                "   Remove the pid_file and rerun the scheduler.\n\n"
+                "Exiting\n" % pid_file
+                )
+            raise RuntimeError(err_msg)
+
+        else:
+            with open(pid_file, "w") as fh:
+                fh.write(str(self.pid))
+
+        self._pidfiles2flows[pid_file] = flow
+
+    @property
+    def pid_files(self):
+        """List of files with the pid. The files are located in the workdir of the flows"""
+        return self._pidfiles2flows.keys()
+
+    @property
+    def flows(self):
+        """List of `AbinitFlows`."""
+        return self._pidfiles2flows.values()
+
+    def start(self):
+        """
+        Starts the scheduler in a new thread.
+        In standalone mode, this method will block until there are no more scheduled jobs.
+        """
+        options = dict(
+             weeks=self.weeks,
+             days=self.days,
+             hours=self.hours,
+             minutes=self.minutes,
+             seconds=self.seconds,
+             start_date=self.start_date,
+        )
+
+        self.sched.add_interval_job(self._runem_all, **options)
+        self.sched.start()
+
+    def _runem_all(self):
+        """The function that will be executed by the scheduler."""
+        nlaunch, max_nlaunch, exceptions = 0, -1, []
+
+        for flow in self.flows:
+            flow.check_status()
+            try:
+                nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
+
+            except Exception as exc:
+                exceptions.append(exc)
+
+        print("num jobs launched: ", nlaunch)
+        print("exceptions: ",exceptions) 
+
+        if flow.all_ok:
+            print("all tasks in the workflows have reached S_OK. Exiting")
+            for pid_file in self.pid_files:
+                try:
+                    os.unlink(pid_file)
+                except:
+                    pass
+
+            # Shutdown the scheduler thus allowing the process to exit.
+            self.sched.shutdown(wait=False)
+
+        return len(exceptions) 

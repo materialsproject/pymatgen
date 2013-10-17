@@ -6,19 +6,25 @@ from __future__ import division, print_function
 
 import os.path
 import collections
+import yaml
+
+from pymatgen.util.string_utils import WildCard
+from pymatgen.io.abinitio.abiinspect import YamlTokenizer, YamlDoc
 
 __all__ = [
     "EventParser",
 ]
 
-class AbinitEvent(object):
+class AbinitEvent(yaml.YAMLObject):
     """
     Example (YAML syntax)::
 
         Normal warning without any handler:
 
         --- !Warning
-        message: "This is a normal warning that won't trigger any handler in the python code!"
+        message: | 
+            This is a normal warning that won't 
+            trigger any handler in the python code!
         src_file: routine_name
         src_line:  112
         ...
@@ -26,7 +32,8 @@ class AbinitEvent(object):
         Critical warning that will trigger some action in the python code.
 
         --- !ScfConvergeWarning
-        message: "The human-readable message goes here!"
+        message: |
+            The human-readable message goes here!
         src_file: foo.F90
         src_line: 112
         tolname: tolwfr
@@ -38,7 +45,7 @@ class AbinitEvent(object):
     The algorithm to extract the YAML sections is very simple.
 
     1) Find --- at the beginning of line.
-    2) If the next lines ends with "Warning:", "Error:", "Bug:", "Comment
+    2) If we have a tag that ends with "Warning", "Error", "Bug", "Comment
        we know we have encountered a new ABINIT event 
     3) The key defines the event class to instantiate.
 
@@ -46,14 +53,14 @@ class AbinitEvent(object):
     the begining of a line) since they are used to mark the beginning and 
     the end of YAML documents.
     """
-    def __init__(self, **kwargs):
-        self._kwargs = kwargs.copy()
-        self.message = kwargs.pop("message")
-        self.lineno  = kwargs.pop("lineno")
-        self.data = kwargs
+    def __init__(self, message, scr_file, src_line):
+        self.message = message
+        self.src_file = src_file
+        self.src_line = src_line
 
     def __str__(self):
-        return "%s:\n%s" % (self.lineno, self.message)
+        header = "%s:%s" % (self.src_file, self.src_line)
+        return "\n".join((header, self.message))
 
     @property
     def name(self):
@@ -61,11 +68,13 @@ class AbinitEvent(object):
 
     @property
     def baseclass(self):
+        """The baseclass of self."""
         for cls in _BASE_CLASSES:
             if isinstance(self, cls):
                 return cls
-        raise ValueError("Cannot determine the base class of %s" %
-                         self.__class__.__name__)
+
+        err_msg = "Cannot determine the base class of %s" % (self.__class__.__name__)
+        raise ValueError(err_msg)
 
     def iscritical(self):
         """
@@ -86,10 +95,13 @@ class AbinitEvent(object):
 
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
+    yaml_tag = u'!COMMENT'
 
 
 class AbinitError(AbinitEvent):
     """Base class for Error events"""
+    yaml_tag = u'!ERROR'
+
     @property
     def iscritical(self):
         return True
@@ -97,12 +109,15 @@ class AbinitError(AbinitEvent):
 
 class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
+    yaml_tag = u'!BUG'
+
     @property
     def iscritical(self):
         return True
 
 
 class AbinitWarning(AbinitEvent):
+    yaml_tag = u'!WARNING'
     """
     Base class for Warning events (the most important class).
     Developers should subclass this class to define the different exceptions
@@ -115,11 +130,22 @@ class AbinitWarning(AbinitEvent):
         return True
 
 #class ScfConvergenceWarning(AbinitWarning):
+#yaml_tag = u'ScfConvergenceWarning'
+
 #class NscfConvergenceWarning(AbinitWarning):
+#yaml_tag = u'NscfConvergenceWarning'
+
 #class RelaxConvergenceWarning(AbinitWarning):
+#yaml_tag = u'RelaxConvergenceWarning'
+
 #class PhononConvergenceWarning(AbinitWarning):
+#yaml_tag = u'PhononConvergenceWarning'
+
 #class QPSConvergenceWarning(AbinitWarning):
+#yaml_tag = u'QPSConvergenceWarning'
+
 #class HaydockConvergenceWarning(AbinitWarning):
+#yaml_tag = u'HaydockConvergenceWarning'
 
 # Register the concrete base classes.
 _BASE_CLASSES = [
@@ -156,7 +182,7 @@ class EventReport(collections.Iterable):
         return self._events.__iter__()
 
     def __str__(self):
-        lines = [self.filename+":",]
+        lines = [self.filename + ":",]
         for event in self:
             lines.append(str(event))
 
@@ -247,153 +273,45 @@ class EventParser(object):
     Error = EventParserError
 
     @staticmethod
-    def parse(filename, nafter=5):
-        """
-        Read and parse the main output file or the file produced for abinit
-
-        Args:
-            filename:
-                path to the file.
-            nafter:
-                Save nafter lines of trailing context after matching lines.
-
-        Returns:
-            `EventReport` instance.
-        """
-        filename = os.path.abspath(filename)
-
-        # TODO
-        # we have to standardize the abinit WARNING, COMMENT and ERROR  
-        # so that we can parse them easily without having to use nafter.
-
-        # Note the space after the name.
-        exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
-
-        errors, bugs, warnings, comments = [], [], [], []
-
-        handlers = {
-            "ERROR "  : errors.append,
-            "BUG "    : bugs.append,
-            "WARNING ": warnings.append,
-            "COMMENT ": comments.append,
-        }
-
-        def exc_case(line):
-            for e in exc_cases:
-                if e in line: return e
-            else:
-                return None
-
-        MAGIC = "Calculation completed."
-        run_completed = False
-
-        with open(filename, "r") as fh:
-            lines = fh.readlines()
-            nlines = len(lines)
-            for (lineno, line) in enumerate(lines):
-                if MAGIC in line:
-                    run_completed = True
-                handle = handlers.get(exc_case(line))
-                if handle is None: continue
-                context = lines[lineno: min(lineno+nafter, nlines)]
-                handle((lineno, "".join(c for c in context)))
-
-        events = EventReport(filename)
-
-        for lineno, s in errors:
-            events.append(AbinitError(lineno=lineno, message=s))
-
-        for lineno, s in bugs:
-            events.append(AbinitBug(lineno=lineno, message=s))
-
-        for lineno, s in warnings:
-            events.append(AbinitWarning(lineno=lineno, message=s))
-
-        for lineno, s in comments:
-            events.append(AbinitComment(lineno=lineno, message=s))
-
-        events.set_run_completed(run_completed)
-        return events
-
-    @staticmethod
-    def new_event_parser(filename):
+    def parse(filename):
         """
         This is the new parser, it will be used when we implement
         the new format in abinit.
         """
-        filename = os.path.abspath(filename)
-
-        START_TAG = "<Event>"
-        STOP_TAG = "<\Event>"
-
-        exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
-
-        # Find YAML documents with events
-        def is_event_start(line):
-            if not line.startswith("..."):
-                return False
-
-            i = line.index("!")
-            if i == -1: return False
-
-            class_name = line[i:]
-            if filter(class_name.endswith, exc_cases):
-                return True
-
-            return False
-
-        doc_list = []
-        with open(filename, "r") as fh:
-            in_event = False
-            for line in fh:
-
-                if is_event_start(line):
-                    in_event = False
-                    doc_list.append(doc)
-
-                if is_event_start(line):
-                    in_event = True
-                    doc = []
-
-                if in_event:
-                    doc.append(line)
-
-        if doc:
-            doc_list.append(doc)
-
-        events = EventReport(filename)
-
-        MAGIC = "Calculation completed."
         run_completed = False
+        filename = os.path.abspath(filename)
+        report = EventReport(filename)
 
+        #w = WildCard("*Error|*Warning|*Comment")
+        w = WildCard("*ERROR|*WARNING|*COMMENT")
+
+        with YamlTokenizer(filename) as tokens:
+
+            for doc in tokens:
+                #print(80*"*")
+                #print("doc.tag", doc.tag)
+                #print("doc",doc)
+                #print(80*"*")
+                if w.match(doc.tag):
+                    #print("got doc.tag", doc.tag)
+                    event = yaml.load(doc.text)
+                    event.lineno = doc.lineno
+                    report.append(event)
+
+                #if doc.tag == "!FinalSummary":
+                #    run_completed = True
+
+        # TODO: Add YAML doc with FinalSummary.
+        # Check whether the calculation completed.
+        MAGIC = "Calculation completed."
         with open(filename) as fh:
-            in_event, s = False, None
-            for l, line in enumerate(fh):
+            for line in fh:
                 if MAGIC in line:
                     run_completed = True
+                    break
 
-                if not in_event:
-                    if line.startswith(START_TAG):
-                        in_event = True
-                        if s is None:
-                            # First event found.
-                            s = ""
-                        else:
-                            # Parse the previous string to generate the appropriate event.
-                            events.append(Event.from_string(s, lineno))
-                        lineno = l
-                else:
-                    if line.startswith(STOP_TAG):
-                        in_event = False
-                    else:
-                        # Add new line.
-                        s += line
-
-            if s:
-                events.append(Event.from_string(s, lineno))
-
-            events.set_run_completed(run_completed)
-            return events
+        report.set_run_completed(run_completed)
+        return report
 
     def report_exception(self, filename, exc):
         """
@@ -401,3 +319,4 @@ class EventParser(object):
         we can report a customized `EventReport` object with info the exception.
         """
         return EventReport(filename, events=[Error(str(exc))])
+
