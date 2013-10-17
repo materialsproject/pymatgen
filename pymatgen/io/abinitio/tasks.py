@@ -20,12 +20,13 @@ except ImportError:
     pass
 
 from pymatgen.core.design_patterns import Enum, AttrDict
+from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
-
+from pymatgen.io.abinitio.netcdf import ETSF_Reader
 
 import logging
 logger = logging.getLogger(__name__)
@@ -182,6 +183,9 @@ class ParalHintsParser(object):
         Read the <RUN_HINTS> section from file filename
         Assumes the file contains only one section.
         """
+        #with YamlTokenizer(filename) as r:
+        #    doc = r.next_doc_with_tag(doc_tag)
+        #    #doc = doc.replace(doc_tag, "")
         START_TAG = "--- !Autoparal"
         END_TAG = "..."
 
@@ -633,7 +637,24 @@ class TaskManager(object):
 
         return process
 
-_COUNT = -1
+
+# The code below initializes a counter from a file when the module is imported 
+# and save the counter's updated value automatically when the program terminates 
+# without relying on the application making an explicit call into this module at termination.
+conf_dir = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+
+if not os.path.exists(conf_dir):
+    os.makedirs(conf_dir)
+
+_COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
+del conf_dir
+
+try:
+    with open(_COUNTER_FILE, "r") as fh:
+        _COUNTER = int(fh.read())
+
+except IOError:
+    _COUNTER = -1
 
 def get_newnode_id():
     """
@@ -643,9 +664,18 @@ def get_newnode_id():
         The id is unique inside the same python process so be careful when 
         Workflows and Task are constructed at run-time or when threads are used.
     """
-    global _COUNT
-    _COUNT += 1
-    return _COUNT
+    global _COUNTER
+    _COUNTER += 1
+    return _COUNTER
+
+def save_lastnode_id():
+    """Save the id of the last node created."""
+    with FileLock(_COUNTER_FILE) as lock:
+        with open(_COUNTER_FILE, "w") as fh:
+            fh.write("%d" % _COUNTER)
+
+import atexit
+atexit.register(save_lastnode_id)
 
 
 class FakeProcess(object):
@@ -2027,7 +2057,6 @@ class RelaxTask(AbinitTask):
     """
     #def __init__(self, strategy, workdir=None, manager=None, deps=None):
     #    super(RelaxTask, self).__init__(strategy, workdir=None, manager=None, deps=None)
-
     #    # Save the initial structure
     #    self.initial_structure = strategy.structure
 
@@ -2048,7 +2077,6 @@ class RelaxTask(AbinitTask):
         if not gsr_file:
             raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
 
-        from pymatgen.io.abinitio.netcdf import ETSF_Reader
         with ETSF_Reader(gsr_file) as r:
             final_structure = r.read_structure()
 
@@ -2063,7 +2091,7 @@ class RelaxTask(AbinitTask):
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
-                # We will read the unit cell from this file
+
                 irdvars = irdvars_for_ext(ext)
                 infile = self.out_to_in(ofile)
                 break
@@ -2071,7 +2099,7 @@ class RelaxTask(AbinitTask):
         if not ofile:
             raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
 
-        # Read the relaxed structure from the output file.
+        # Read the relaxed structure from the GSR file.
         structure = self.read_final_structure()
                                                            
         # Change the structure.
