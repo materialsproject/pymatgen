@@ -636,6 +636,25 @@ class TaskManager(object):
 
         return process
 
+
+#The following simple example demonstrates how a module can initialize a counter from a file 
+#when it is imported and save the counter's updated value automatically when the program terminates 
+#without relying on the application making an explicit call into this module at termination.
+#try:
+#    _count = int(open("counter").read())
+#except IOError:
+#    _count = 0
+#
+#def incrcounter(n):
+#    global _count
+#    _count = _count + n
+#
+#def savecounter():
+#    open("counter", "w").write("%d" % _count)
+#
+#import atexit
+#atexit.register(savecounter)
+
 _COUNT = -1
 
 def get_newnode_id():

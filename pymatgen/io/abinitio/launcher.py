@@ -75,9 +75,11 @@ class ScriptEditor(object):
         self._add("", pre="")
 
     def add_comment(self, comment):
+        """Add a comment"""
         self._add(comment, pre="# ")
 
     def load_modules(self, modules):
+        """Load the list of specified modules."""
         for module in modules:
             self.load_module(module)
 
@@ -140,111 +142,45 @@ class OmpEnv(dict):
 
     @staticmethod
     def from_file(filename, allow_empty=False):
-        from ConfigParser import SafeConfigParser, NoOptionError
-        parser = SafeConfigParser()
-        parser.read(filename)
 
-        obj = OMPEnv()
+        if filename.endswith(".ini"):
+            from ConfigParser import SafeConfigParser, NoOptionError
+            parser = SafeConfigParser()
+            parser.read(filename)
 
-        # Consistency check. Note that we only check if the option name is correct, 
-        # we do not check whether the value is correct or not.
-        if "openmp" not in parser.sections():
-            if not allow_empty:
-                raise ValueError("%s does not contain any [openmp] section" % filename) 
+            obj = OMPEnv()
+
+            # Consistency check. Note that we only check if the option name is correct, 
+            # we do not check whether the value is correct or not.
+            if "openmp" not in parser.sections():
+                if not allow_empty:
+                    raise ValueError("%s does not contain any [openmp] section" % filename) 
+                return obj
+
+            err_msg = ""
+            for key in parser.options("openmp"):
+                if key.upper() not in self._KEYS:
+                    err_msg += "unknown option %s, maybe a typo" % key
+
+            if err_msg: 
+                raise ValueError(err_msg)
+
+            for key in self._KEYS:
+                try:
+                    obj[key] = str(parser.get("openmp", key))
+                except NoOptionError:
+                    try:
+                        obj[key] = str(parser.get("openmp", key.lower()))
+                    except NoOptionError:
+                        pass
+
+            if not allow_empty and not obj:
+                raise ValueError("Refusing to return with an empty dict") 
+
             return obj
 
-        err_msg = ""
-        for key in parser.options("openmp"):
-            if key.upper() not in self._KEYS:
-                err_msg += "unknown option %s, maybe a typo" % key
-
-        if err_msg: 
-            raise ValueError(err_msg)
-
-        for key in self._KEYS:
-            try:
-                obj[key] = str(parser.get("openmp", key))
-            except NoOptionError:
-                try:
-                    obj[key] = str(parser.get("openmp", key.lower()))
-                except NoOptionError:
-                    pass
-
-        if not allow_empty and not obj:
-            raise ValueError("Refusing to return with an empty dict") 
-
-        return obj
-
-
-class ResourceManagerError(Exception):
-    """Base error class for `SimpleResourceManager."""
-
-
-class PyResourceManager(object):
-
-    Error = ResourceManagerError
-
-    def __init__(self, work, max_ncpus, sleep_time=20):
-        """
-        This object submits the tasks contained in a `Workflow`
-        inside an infinite loop. Therefore it is mainly used 
-        when we are running in interative mode and we have to 
-        execute several small jobs without having to pass throuh
-        the queue resource manager. Its main goal is organizing
-        the execution of the tasks so that we don't exceed the 
-        computing resources at hand.
-
-        Args:
-            work:
-                `Workflow` instance.
-            max_ncpus: 
-                The maximum number of CPUs that can be used at any given time.
-            sleep_time:
-                Time delay (seconds) before trying to start a new `Task`.
-        """
-        self.work = work
-
-        self.max_ncpus = max_ncpus 
-        self.sleep_time = sleep_time
-
-        for task in self.work:
-            if task.tot_ncpus > self.max_ncpus:
-                err_msg = "Task %s requires %s CPUs, but max_ncpus is %d" % (
-                    repr(task), task.tot_ncpus, max_ncpus)
-                raise self.Error(err_msg)
-
-    def run(self, *args, **kwargs):
-        """Call the start method of the object contained in work."""
-
-        if self.work.all_done:
-            return self.work.returncodes
-
-        while True:
-            polls = self.work.poll()
-            # Fetch the first task that is ready to run
-            try:
-                task = self.work.fetch_task_to_run()
-            except StopIteration:
-                break
-
-            if task is None:
-
-                time.sleep(self.sleep_time)
-                self.work.check_status()
-
-            else:
-                # Check that we don't exceed the number of cpus employed, before starting.
-                logger.info("work polls %s" % polls)
-                logger.info("work status %s" % self.work.get_all_status())
-
-                if (task.tot_ncpus + self.work.ncpus_allocated <= self.max_ncpus): 
-                    logger.info("Starting task %s" % task)
-                    task.start()
-
-        # Wait until all tasks are completed.
-        self.work.wait()
-
-        return self.work.returncodes
+        else:
+            raise NotImplementedError("Don't how how to read data from %s" % filename)
 
 
 class PyLauncherError(Exception):
@@ -253,9 +189,8 @@ class PyLauncherError(Exception):
 
 class PyLauncher(object):
     """
-    This object handle the sumbmission of the tasks in a `AbinitFlow`
+    This object handle the submission of the tasks contained in a `AbinitFlow`
     """
-
     Error = PyLauncherError
 
     def __init__(self, flow):
@@ -301,7 +236,7 @@ class PyLauncher(object):
 
         return num_launched 
 
-    def rapidfire(self, max_nlaunch=-1):  #nlaunches=0, max_loops=-1, sleep_time=None
+    def rapidfire(self, max_nlaunch=-1):  # nlaunches=0, max_loops=-1, sleep_time=None
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -360,3 +295,76 @@ class PyLauncher(object):
             self.flow.pickle_dump()
 
         return num_launched 
+
+
+class ResourceManagerError(Exception):
+    """Base error class for `SimpleResourceManager."""
+
+
+class PyResourceManager(object):
+
+    Error = ResourceManagerError
+
+    def __init__(self, flow, max_ncpus, sleep_time=20):
+        """
+        This object submits the tasks contained in a `Abinitflow`
+        inside an infinite loop. Therefore it is mainly used 
+        when we are running in interative mode and we have to 
+        execute several small jobs without having to pass throuh
+        the queue resource manager. Its main goal is organizing
+        the execution of the tasks so that we don't exceed the 
+        computing resources at hand.
+
+        Args:
+            flow:
+                `Abinitflow` instance.
+            max_ncpus: 
+                The maximum number of CPUs that can be used at any given time.
+            sleep_time:
+                Time delay (seconds) before trying to start a new `Task`.
+        """
+        self.flow = flow
+
+        self.max_ncpus = max_ncpus 
+        self.sleep_time = sleep_time
+
+        for work in self.flow:
+            for task in work:
+                if task.tot_ncpus > self.max_ncpus:
+                    err_msg = "Task %s requires %s CPUs, but max_ncpus is %d" % (
+                        repr(task), task.tot_ncpus, max_ncpus)
+                    raise self.Error(err_msg)
+
+    def run(self):
+        for work in self.flow:
+            self._run_work(work)
+
+    def _run_work(self, work):
+        """Call the start method of the object contained in work."""
+        if work.all_done:
+            return self.work.returncodes
+
+        while True:
+            polls = work.poll()
+            # Fetch the first task that is ready to run
+            try:
+                task = work.fetch_task_to_run()
+            except StopIteration:
+                break
+
+            if task is None:
+                time.sleep(self.sleep_time)
+                work.check_status()
+
+            else:
+                # Check that we don't exceed the number of cpus employed, before starting.
+                logger.info("work polls %s" % polls)
+                logger.info("work status %s" % work.get_all_status())
+
+                if (task.tot_ncpus + work.ncpus_allocated <= self.max_ncpus): 
+                    logger.info("Starting task %s" % task)
+                    task.start()
+
+        # Wait until all tasks are completed.
+        work.wait()
+        return work.returncodes
