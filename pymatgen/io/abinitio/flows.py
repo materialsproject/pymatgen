@@ -15,9 +15,10 @@ except ImportError:
     pass
 
 from pymatgen.util.io_utils import FileLock
-from pymatgen.io.abinitio.tasks import Dependency 
+from pymatgen.io.abinitio.tasks import Dependency, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory
-from pymatgen.io.abinitio.workflows import Workflow
+from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
+from pymatgen.io.abinitio.workflows import Workflow, PhononWorkflow
 
 import logging
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ __all__ = [
     "AbinitFlow",
     "bandstructure_flow",
     "g0w0_flow",
+    "phonon_flow",
 ]
 
 
@@ -117,7 +119,7 @@ class AbinitFlow(collections.Iterable):
     #    """True if all the tasks of the flow have reached S_OK."""
     #    return all(task.status == task.S_OK for task in self.flat_tasks())
 
-    #def flat_tasks(self):
+    #def iflat_tasks(self):
     #    for work in self:
     #        for task in work:
     #            yield task
@@ -544,4 +546,94 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_input):
     flow = AbinitFlow(workdir, manager)
     work = G0W0_Workflow(scf_input, scf_input, nscf_input, scr_input, sigma_input)
     flow.register_work(work)
+    return flow.allocate()
+
+
+def phonon_flow(workdir, manager, scf_input, ph_inputs):
+    """
+    Build an `AbinitFlow` for phonon calculations.
+
+    Args:
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` used to submit the jobs
+        scf_input:
+            Input for the GS SCF run.
+        ph_inputs:
+            List of Inputs for the phonon runs.
+
+    Returns:
+        `AbinitFlow`
+    """
+    natom = len(scf_input.structure)
+
+    # Create the container that will manage the different workflows.
+    flow = AbinitFlow(workdir, manager)
+
+    # Register the first workflow (GS calculation)
+    scf_task = flow.register_task(scf_input, task_class=ScfTask)
+
+    # Build a temporary workflow with a shell manager just to run 
+    # ABINIT to get the list of irreducible pertubations for this q-point.
+    shell_manager = manager.to_shell_manager(mpi_ncpus=1)
+
+    if not isinstance(ph_inputs, (list, tuple)):
+        ph_inputs = [ph_inputs]
+
+    for i, ph_input in enumerate(ph_inputs):
+        fake_input = ph_input.deepcopy()
+
+        # Run abinit on the front-end to get the list of irreducible pertubations.
+        tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
+        w = Workflow(workdir=tmp_dir, manager=shell_manager)
+        fake_task = w.register(fake_input)
+
+        # Use the magic value paral_rf = -1 
+        # to get the list of irreducible perturbations for this q-point.
+        vars = dict(paral_rf=-1,
+                    rfatpol=[1, natom],  # Set of atoms to displace.
+                    rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
+                   )
+
+        fake_task.strategy.add_extra_abivars(vars)
+
+        w.start(wait=True)
+
+        # Parse the file to get the perturbations.
+        irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
+        print(irred_perts)
+        w.rmtree()
+
+        # Now we can build the final list of workflows:
+        # One workflow per q-point, each workflow computes all 
+        # the irreducible perturbations for a singe q-point.
+        work_qpt = PhononWorkflow()
+
+        for irred_pert in irred_perts:
+            print(irred_pert)
+            new_input = ph_input.deepcopy()
+
+            #rfatpol   1 1   # Only the first atom is displaced
+            #rfdir   1 0 0   # Along the first reduced coordinate axis
+            qpt = irred_pert["qpt"]
+            idir = irred_pert["idir"]
+            ipert = irred_pert["ipert"]
+
+            # TODO this will work for phonons, but not for the other types of perturbations.
+            rfdir = 3 * [0]
+            rfdir[idir -1] = 1
+            rfatpol = [ipert, ipert]
+
+            new_input.set_variables(
+                #rfpert=1,
+                qpt=qpt,
+                rfdir=rfdir,
+                rfatpol=rfatpol,
+            )
+
+            work_qpt.register(new_input, deps={scf_task: "WFK"}, task_class=PhononTask)
+
+        flow.register_work(work_qpt)
+                                            
     return flow.allocate()

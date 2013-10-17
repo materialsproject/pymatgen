@@ -637,25 +637,23 @@ class TaskManager(object):
         return process
 
 
-#The following simple example demonstrates how a module can initialize a counter from a file 
-#when it is imported and save the counter's updated value automatically when the program terminates 
-#without relying on the application making an explicit call into this module at termination.
-#try:
-#    _count = int(open("counter").read())
-#except IOError:
-#    _count = 0
-#
-#def incrcounter(n):
-#    global _count
-#    _count = _count + n
-#
-#def savecounter():
-#    open("counter", "w").write("%d" % _count)
-#
-#import atexit
-#atexit.register(savecounter)
+# The code below initializes a counter from a file when the module is imported 
+# and save the counter's updated value automatically when the program terminates 
+# without relying on the application making an explicit call into this module at termination.
+conf_dir = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
 
-_COUNT = -1
+if not os.path.exists(conf_dir):
+    os.makedirs(conf_dir)
+
+_COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
+del conf_dir
+
+try:
+    with open(_COUNTER_FILE, "r") as fh:
+        _COUNTER = int(fh.read())
+
+except IOError:
+    _COUNTER = -1
 
 def get_newnode_id():
     """
@@ -665,9 +663,17 @@ def get_newnode_id():
         The id is unique inside the same python process so be careful when 
         Workflows and Task are constructed at run-time or when threads are used.
     """
-    global _COUNT
-    _COUNT += 1
-    return _COUNT
+    global _COUNTER
+    _COUNTER += 1
+    return _COUNTER
+
+def save_lastnode_id():
+    """Save the id of the last node created."""
+    with open(_COUNTER_FILE, "w") as fh:
+        fh.write("%d" % _COUNTER)
+
+import atexit
+atexit.register(save_lastnode_id)
 
 
 class FakeProcess(object):

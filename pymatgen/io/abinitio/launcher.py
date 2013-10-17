@@ -323,14 +323,53 @@ class PyFlowsScheduler(object):
         self.start_date = start_date
 
         from apscheduler.scheduler import Scheduler
-        #from apscheduler.jobstores.shelve_store import ShelveJobStore
         self.sched = Scheduler(standalone=True)
 
-        self._flows = []
+        self._pidfiles2flows = []
+
+    @property
+    def pid(self):
+        """Pid of the process"""
+        try:
+            return self._pid
+        except AttributeError:
+            self._pid = os.getpid()
+            return self._pid
 
     def add_flow(self, flow):
         """Add an `AbinitFlow` to the scheduler."""
-        self._flows.append(flow)
+        pid_file = os.path.join(flow.workdir, "_PyFlowsScheduler.pid")
+
+        if pid_file in self._pidfiles2flows:
+            raise ValueError("Cannot add the same flow twice!")
+
+        if os.path.isfile(pid_file):
+            err_msg = (
+                "pid_file %s already exists\n"
+                "There are two cases:\n"
+                "   1) There's an another instance of PyFlowsScheduler running.\n"
+                "   2) The previous scheduler didn't exit in a clean way.\n\n"
+                "To solve case 1:\n"
+                "   Stop the scheduler and restart it.\n\n"
+                "To solve case 2:\n"
+                "   Remove the pid_file but make *sure* that no other scheduler is running.\n"
+                "Exiting\n" % pid_file
+                )
+            raise RuntimeError(err_msg)
+
+        else:
+            with open(pid_file, "w") as fh:
+                fh.write(self.pid)
+
+        self._pidfiles2flows[pidfile] = flow
+
+    @property
+    def pid_files(self):
+        return self._pidfiles2flows.keys()
+
+    @property
+    def flows(self):
+        return self._pidfiles2flows.values()
 
     def start(self):
         """
@@ -353,7 +392,7 @@ class PyFlowsScheduler(object):
         """The function that will be executed by the scheduler."""
         nlaunch, max_nlaunch, exceptions = 0, -1, []
 
-        for flow in self._flows:
+        for flow in self.flows:
             flow.check_status()
             try:
                 nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
@@ -366,33 +405,10 @@ class PyFlowsScheduler(object):
 
         if flow.all_ok:
             print("all tasks in the workflows have reached S_OK. Exiting")
+            for pidfile in self.pid_files:
+                os.unlink(pid_file)
+
+            # Shutdown the scheduler thus allowing the process to exit.
             self.sched.shutdown(wait=False)
 
         return len(exceptions) 
-
-
-#def save_pid():
-#    """check-to-see-if-python-script-is-running"""
-#    pid = str(os.getpid())
-#    pid_file = os.path.join(os.env("HOME"), ".abinit", "abipy", "abidaemon.pid")
-#
-#    if os.path.isfile(pid_file):
-#        err_msg = (
-#            "pid_file %s already exists\n"
-#            "There are two cases:\n"
-#            "   1) There's an another instance of AbinitScheduler running.\n"
-#            "   2) The previous scheduler didn't exit in a clean way.\n\n"
-#            "To solve case 1:\n"
-#            "   Stop the scheduler and restart it.\n\n"
-#            "To solve case 2:\n"
-#            "   Remove the pid_file but make *sure* that no other scheduler is running.\n"
-#            "Exiting\n" % pid_file
-#            )
-#        raise RuntimeError(err_msg)
-#
-#    else:
-#        with open(pid_file, "w") as fh:
-#            fh.write(pid)
-#
-#    # Do some actual work here
-#    os.unlink(pid_file)
