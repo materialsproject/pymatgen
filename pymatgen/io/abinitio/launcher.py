@@ -325,7 +325,7 @@ class PyFlowsScheduler(object):
         from apscheduler.scheduler import Scheduler
         self.sched = Scheduler(standalone=True)
 
-        self._pidfiles2flows = []
+        self._pidfiles2flows = {}
 
     @property
     def pid(self):
@@ -344,31 +344,34 @@ class PyFlowsScheduler(object):
             raise ValueError("Cannot add the same flow twice!")
 
         if os.path.isfile(pid_file):
-            err_msg = (
+            err_msg = ("\n"
                 "pid_file %s already exists\n"
-                "There are two cases:\n"
-                "   1) There's an another instance of PyFlowsScheduler running.\n"
-                "   2) The previous scheduler didn't exit in a clean way.\n\n"
+                "There are two possibilities:\n\n"
+                "       1) There's an another instance of PyFlowsScheduler running.\n"
+                "       2) The previous scheduler didn't exit in a clean way.\n\n"
                 "To solve case 1:\n"
-                "   Stop the scheduler and restart it.\n\n"
+                "       Kill the previous scheduler (use `kill pid` where pid is the number reported in the file)\n"
+                "       Then you run can start the new scheduler.\n\n"
                 "To solve case 2:\n"
-                "   Remove the pid_file but make *sure* that no other scheduler is running.\n"
+                "   Remove the pid_file and rerun the scheduler.\n\n"
                 "Exiting\n" % pid_file
                 )
             raise RuntimeError(err_msg)
 
         else:
             with open(pid_file, "w") as fh:
-                fh.write(self.pid)
+                fh.write(str(self.pid))
 
-        self._pidfiles2flows[pidfile] = flow
+        self._pidfiles2flows[pid_file] = flow
 
     @property
     def pid_files(self):
+        """List of files with the pid. The files are located in the workdir of the flows"""
         return self._pidfiles2flows.keys()
 
     @property
     def flows(self):
+        """List of `AbinitFlows`."""
         return self._pidfiles2flows.values()
 
     def start(self):
@@ -405,7 +408,7 @@ class PyFlowsScheduler(object):
 
         if flow.all_ok:
             print("all tasks in the workflows have reached S_OK. Exiting")
-            for pidfile in self.pid_files:
+            for pid_file in self.pid_files:
                 os.unlink(pid_file)
 
             # Shutdown the scheduler thus allowing the process to exit.
