@@ -32,15 +32,12 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     Returns:
         Matplotlib plot object with properly sized fonts.
     """
+    ticksize = int(width * 2.5)
+
     golden_ratio = (math.sqrt(5) - 1.0) / 2.0
+
     if not height:
         height = int(width * golden_ratio)
-    axes = plt.gca()
-    axes.set_title(axes.get_title(), size=width * 4)
-    labelsize = int(width * 3)
-    ticksize = int(width * 2.5)
-    axes.set_xlabel(axes.get_xlabel(), size=labelsize)
-    axes.set_ylabel(axes.get_ylabel(), size=labelsize)
 
     if plt is None:
         import matplotlib.pyplot as plt
@@ -50,4 +47,13 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
         fig.set_size_inches(width, height)
     plt.xticks(fontsize=ticksize)
     plt.yticks(fontsize=ticksize)
+
+    axes = plt.gca()
+    axes.set_title(axes.get_title(), size=width * 4)
+
+    labelsize = int(width * 3)
+
+    axes.set_xlabel(axes.get_xlabel(), size=labelsize)
+    axes.set_ylabel(axes.get_ylabel(), size=labelsize)
+
     return plt
