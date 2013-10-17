@@ -20,12 +20,13 @@ except ImportError:
     pass
 
 from pymatgen.core.design_patterns import Enum, AttrDict
+from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer
 from pymatgen.io.abinitio.events import EventParser
 from pymatgen.io.abinitio.qadapters import qadapter_class
-
+from pymatgen.io.abinitio.netcdf import ETSF_Reader
 
 import logging
 logger = logging.getLogger(__name__)
@@ -669,8 +670,9 @@ def get_newnode_id():
 
 def save_lastnode_id():
     """Save the id of the last node created."""
-    with open(_COUNTER_FILE, "w") as fh:
-        fh.write("%d" % _COUNTER)
+    with FileLock(_COUNTER_FILE) as lock:
+        with open(_COUNTER_FILE, "w") as fh:
+            fh.write("%d" % _COUNTER)
 
 import atexit
 atexit.register(save_lastnode_id)
@@ -2055,7 +2057,6 @@ class RelaxTask(AbinitTask):
     """
     #def __init__(self, strategy, workdir=None, manager=None, deps=None):
     #    super(RelaxTask, self).__init__(strategy, workdir=None, manager=None, deps=None)
-
     #    # Save the initial structure
     #    self.initial_structure = strategy.structure
 
@@ -2076,7 +2077,6 @@ class RelaxTask(AbinitTask):
         if not gsr_file:
             raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
 
-        from pymatgen.io.abinitio.netcdf import ETSF_Reader
         with ETSF_Reader(gsr_file) as r:
             final_structure = r.read_structure()
 
@@ -2091,7 +2091,7 @@ class RelaxTask(AbinitTask):
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
-                # We will read the unit cell from this file
+
                 irdvars = irdvars_for_ext(ext)
                 infile = self.out_to_in(ofile)
                 break
@@ -2099,7 +2099,7 @@ class RelaxTask(AbinitTask):
         if not ofile:
             raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
 
-        # Read the relaxed structure from the output file.
+        # Read the relaxed structure from the GSR file.
         structure = self.read_final_structure()
                                                            
         # Change the structure.

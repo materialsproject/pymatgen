@@ -409,7 +409,10 @@ class PyFlowsScheduler(object):
         if flow.all_ok:
             print("all tasks in the workflows have reached S_OK. Exiting")
             for pid_file in self.pid_files:
-                os.unlink(pid_file)
+                try:
+                    os.unlink(pid_file)
+                except:
+                    pass
 
             # Shutdown the scheduler thus allowing the process to exit.
             self.sched.shutdown(wait=False)
