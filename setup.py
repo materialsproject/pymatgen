@@ -51,7 +51,7 @@ setup(
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
                     "vis": ["vtk>=6.0.0"],
-                    "abinitio": ["pydispatcher>=2.0"]},
+                    "abinitio": ["pydispatcher>=2.0", "apscheduler>=2.1.1"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg", "*.json"],

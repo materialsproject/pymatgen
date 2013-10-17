@@ -312,31 +312,31 @@ class WildCard(object):
             self.pats = wildcard.split(sep)
 
     def __str__(self):
-        return "<%s, patters = %s>" % (self.__class__.__name__, self.pats)
+        return "<%s, patterns = %s>" % (self.__class__.__name__, self.pats)
 
-    def filter(self, filenames): 
+    def filter(self, names): 
         """
-        Return a list with the filenames matching the pattern.
+        Returns a list with the names matching the pattern.
         """
-        filenames = list_strings(filenames)
+        names = list_strings(names)
 
         fnames = []
-        for f in filenames:
+        for f in names:
             for pat in self.pats:
                 if fnmatch.fnmatch(f, pat):
                     fnames.append(f)
 
         return fnames
 
-    def match(self, filename):
+    def match(self, name):
         """
-        Return True if filename matches.
+        Returns True if name matches one of the patterns.
         """
         for pat in self.pats:
-            if not fnmatch.fnmatch(filename, pat):
-                return False
+            if fnmatch.fnmatch(name, pat):
+                return True
 
-        return True
+        return False
 
 
 if __name__ == "__main__":
