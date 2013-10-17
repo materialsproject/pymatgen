@@ -14,6 +14,7 @@ try:
 except ImportError:
     pass
 
+from pymatgen.util.io_utils import FileLock
 from pymatgen.io.abinitio.tasks import Dependency 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.workflows import Workflow
@@ -213,8 +214,9 @@ class AbinitFlow(collections.Iterable):
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
-        with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
-            pickle.dump(self, fh, protocol=protocol)
+        with FileLock(filepath) as lock:
+            with open(filepath, mode="w" if protocol == 0 else "wb") as fh:
+                pickle.dump(self, fh, protocol=protocol)
 
         # Atomic transaction.
         #filepath_new = filepath + ".new"
@@ -239,12 +241,20 @@ class AbinitFlow(collections.Iterable):
         #        pass
         return 0
 
-    @staticmethod
-    def pickle_load(filepath):
-        with open(filepath, "rb") as fh:
-            flow = pickle.load(fh)
+    @classmethod
+    def pickle_load(cls, filepath):
+        """
+        Load the object from a pickle file and performs initial setup.
+        """
+        with FileLock(filepath) as lock:
+            with open(filepath, "rb") as fh:
+                flow = pickle.load(fh)
 
         flow.connect_signals()
+
+        # Recompute the status of each task since tasks that
+        # have been submitted previously might be completed.
+        flow.check_status()
         return flow
 
     def register_task(self, input, deps=None, manager=None, task_class=None):
@@ -403,6 +413,10 @@ class AbinitFlow(collections.Iterable):
 
     #def finalize(self):
     #    """This method is called when the flow is completed."""
+
+    @property
+    def all_ok(self):
+        return all(work.all_ok for work in self)
 
     def connect_signals(self):
         """

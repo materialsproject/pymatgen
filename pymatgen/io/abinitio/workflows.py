@@ -184,15 +184,17 @@ class BaseWorkflow(Node):
         for task in self:
             dispatcher.connect(self.on_ok, signal=task.S_OK, sender=task)
 
+    @property
+    def all_ok(self):
+        return all(task.status == task.S_OK for task in self)
+
     def on_ok(self, sender):
         """
         This callback is called when one task reaches status S_OK.
         """
         logger.debug("in on_ok with sender %s" % sender)
 
-        all_ok = all(task.status == task.S_OK for task in self)
-
-        if all_ok: 
+        if self.all_ok: 
 
             if self.finalized:
                 return AttrDict(returncode=0, message="Workflow has been already finalized")

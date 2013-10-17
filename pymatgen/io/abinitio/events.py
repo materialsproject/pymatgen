@@ -130,11 +130,22 @@ class AbinitWarning(AbinitEvent):
         return True
 
 #class ScfConvergenceWarning(AbinitWarning):
+#yaml_tag = u'ScfConvergenceWarning'
+
 #class NscfConvergenceWarning(AbinitWarning):
+#yaml_tag = u'NscfConvergenceWarning'
+
 #class RelaxConvergenceWarning(AbinitWarning):
+#yaml_tag = u'RelaxConvergenceWarning'
+
 #class PhononConvergenceWarning(AbinitWarning):
+#yaml_tag = u'PhononConvergenceWarning'
+
 #class QPSConvergenceWarning(AbinitWarning):
+#yaml_tag = u'QPSConvergenceWarning'
+
 #class HaydockConvergenceWarning(AbinitWarning):
+#yaml_tag = u'HaydockConvergenceWarning'
 
 # Register the concrete base classes.
 _BASE_CLASSES = [
@@ -260,70 +271,6 @@ class EventParser(object):
     Parses the output or the log file produced by abinit and extract the list of events.
     """
     Error = EventParserError
-
-    #@staticmethod
-    #def old_parse(filename, nafter=5):
-    #    """
-    #    Read and parse the main output file or the file produced for abinit
-
-    #    Args:
-    #        filename:
-    #            path to the file.
-    #        nafter:
-    #            Save nafter lines of trailing context after matching lines.
-
-    #    Returns:
-    #        `EventReport` instance.
-    #    """
-    #    filename = os.path.abspath(filename)
-
-    #    # Note the space after the name.
-    #    exc_cases = ["ERROR ", "BUG ", "WARNING ", "COMMENT "]
-
-    #    errors, bugs, warnings, comments = [], [], [], []
-
-    #    handlers = {
-    #        "ERROR "  : errors.append,
-    #        "BUG "    : bugs.append,
-    #        "WARNING ": warnings.append,
-    #        "COMMENT ": comments.append,
-    #    }
-
-    #    def exc_case(line):
-    #        for e in exc_cases:
-    #            if e in line: return e
-    #        return None
-
-    #    MAGIC = "Calculation completed."
-    #    run_completed = False
-
-    #    with open(filename, "r") as fh:
-    #        lines = fh.readlines()
-    #        nlines = len(lines)
-    #        for (lineno, line) in enumerate(lines):
-    #            if MAGIC in line:
-    #                run_completed = True
-    #            handle = handlers.get(exc_case(line))
-    #            if handle is None: continue
-    #            context = lines[lineno: min(lineno+nafter, nlines)]
-    #            handle((lineno, "".join(c for c in context)))
-
-    #    report = EventReport(filename)
-
-    #    for lineno, s in errors:
-    #        report.append(AbinitError(src_line=lineno, message=s))
-
-    #    for lineno, s in bugs:
-    #        report.append(AbinitBug(src_line=lineno, message=s))
-
-    #    for lineno, s in warnings:
-    #        report.append(AbinitWarning(src_line=lineno, message=s))
-
-    #    for lineno, s in comments:
-    #        report.append(AbinitComment(src_line=lineno, message=s))
-
-    #    report.set_run_completed(run_completed)
-    #    return report
 
     @staticmethod
     def parse(filename):
