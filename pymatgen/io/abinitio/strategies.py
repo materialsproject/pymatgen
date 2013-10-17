@@ -7,10 +7,9 @@ import copy
 import numpy as np
 
 from pprint import pprint, pformat
-
 from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
-from .abiobjects import SpinMode, Smearing, Electrons
-from .pseudos import PseudoTable
+from pymatgen.io.abinitio.abiobjects import SpinMode, Smearing, Electrons
+from pymatgen.io.abinitio.pseudos import PseudoTable
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -31,7 +30,7 @@ def select_pseudos(pseudos, structure):
 
     pseudos = []
     for typ in structure.types_of_specie:
-        # Get list of pseudopotentials in table from atom symbol.
+        # Get the list of pseudopotentials in table from atom symbol.
         pseudos_for_type = table.pseudos_with_symbol(typ)
                                                                              
         if pseudos_for_type is None or len(pseudos_for_type) != 1:
@@ -250,17 +249,17 @@ class ScfStrategy(Strategy):
 
         self.set_accuracy(accuracy)
 
-        self.structure  = structure
-        self.pseudos    = select_pseudos(pseudos, structure)
-        self.ksampling  = ksampling
+        self.structure = structure
+        self.pseudos   = select_pseudos(pseudos, structure)
+        self.ksampling = ksampling
         self.use_symmetries = use_symmetries
 
-        self.electrons  = Electrons(spin_mode = spin_mode,
-                                    smearing  = smearing,
-                                    algorithm = scf_algorithm,
-                                    nband     = None,
-                                    fband     = None,
-                                    charge    = charge,
+        self.electrons  = Electrons(spin_mode=spin_mode,
+                                    smearing=smearing,
+                                    algorithm=scf_algorithm,
+                                    nband=None,
+                                    fband=None,
+                                    charge=charge,
                                    )
 
         self.extra_abivars = extra_abivars
@@ -270,10 +269,11 @@ class ScfStrategy(Strategy):
         return "scf"
 
     def make_input(self):
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            pawecutdg=self.pawecutdg,
+        )
         extra.update(self.tolerance)
         extra.update({"nsym": 1 if not self.use_symmetries else None})
 
@@ -317,14 +317,14 @@ class NscfStrategy(Strategy):
         # Electrons used in the GS run.
         scf_electrons = scf_strategy.electrons
 
-        self.electrons  = Electrons(spin_mode = scf_electrons.spin_mode,
-                                    smearing  = scf_electrons.smearing,
-                                    algorithm = nscf_algorithm,
-                                    nband     = nscf_nband,
-                                    fband     = None,
-                                    charge    = scf_electrons.charge,
-                                    comment   = None,
-                                    #occupancies = None,
+        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
+                                   smearing=scf_electrons.smearing,
+                                   algorithm=nscf_algorithm,
+                                   nband=nscf_nband,
+                                   fband=None,
+                                   charge=scf_electrons.charge,
+                                   comment=None,
+                                   #occupancies = None,
                                    )
 
         self.extra_abivars = extra_abivars
@@ -337,10 +337,11 @@ class NscfStrategy(Strategy):
         # Initialize the system section from structure.
         scf_strategy = self.scf_strategy
 
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            pawecutdg=self.pawecutdg,
+        )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -434,11 +435,11 @@ class ScreeningStrategy(Strategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
-                                   smearing  = scf_electrons.smearing,
-                                   nband     = scr_nband,
-                                   charge    = scf_electrons.charge,
-                                   comment   = None,
+        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
+                                   smearing =scf_electrons.smearing,
+                                   nband=scr_nband,
+                                   charge=scf_electrons.charge,
+                                   comment=None,
                                   )
 
         self.extra_abivars = extra_abivars
@@ -449,11 +450,12 @@ class ScreeningStrategy(Strategy):
 
     def make_input(self):
         # FIXME
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "ecutwfn"  : self.ecut,
-                # "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            ecutwfn=self.ecut,
+            #pawecutdg=self.pawecutdg,
+        )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -513,11 +515,12 @@ class SelfEnergyStrategy(Strategy):
 
     def make_input(self):
         # FIXME
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "ecutwfn"  : self.ecut,
-                # "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            ecutwfn=self.ecut,
+            # "pawecutdg": self.pawecutdg,
+            )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -527,8 +530,8 @@ class SelfEnergyStrategy(Strategy):
 
 class MDFBSE_Strategy(Strategy):
     """
-    Strategy for Bethe-Salpeter calculation based on the model dielectric function 
-    and the scissors operator
+    Strategy for Bethe-Salpeter calculation based on the 
+    model dielectric function and the scissors operator
     """
     def __init__(self, scf_strategy, nscf_strategy, exc_ham, **extra_abivars):
         """
@@ -570,18 +573,18 @@ class MDFBSE_Strategy(Strategy):
                                    charge= scf_electrons.charge,
                                    comment=None,
                                     )
-                                  
     @property
     def runlevel(self):
         return "bse"
 
     def make_input(self):
         # FIXME
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "ecutwfn"  : self.ecut,
-                # "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            ecutwfn=self.ecut,
+            #pawecutdg=self.pawecutdg,
+        )
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -742,38 +745,54 @@ class OpticInput(object):
     2             ! Number of components of nonlinear optic tensor to be computed
     123 222       ! Non-linear coefficients to be computed
     """
+
+    # variable name --> default value.
+    _VAR_NAMES = [
+        ("ddkfile_x", None),
+        ("ddkfile_y", None),
+        ("ddkfile_z", None),
+        ("wfkfile", None),
+        ("zcut", 0.01),
+        ("wmesh", (0.010, 1)),
+        ("sing_tol", 0.001),
+        ("num_lin_comp", None),
+        ("lin_comp", None),
+        ("num_nonlin_comp", None),
+        ("nonlin_comp", None),
+    ]
+
+    def _init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components, 
+                nonlinear_components=None, ddk_files=None, wfk=None): 
+
+        self.vars = vars = collections.OrderedDict(*self._VAR_NAMES)
+
+        if ddk_files is not None:
+            assert len(ddk_files) == 3
+            assert wfk is not None
+            for dir, ddk in zip(["x", "y", "z"], ddk_files):
+                vars["ddkfile_" + dir] = os.path.abspath(ddk)
+
+        if wfk is not None:
+            vars["wfkfile"] = os.path.abspath(wfk)
+
+        vars["zcut"] = zcut
+        vars["wmesh"] = " ".join(map(str, (wstep, wmax)))
+        vars["sing_tol"] = sing_tol
+
+        vars["num_lin_comp"] = len(linear_components)
+        vars["lin_comp"] = " ".join(str(c) for c in linear_components)
+
+        vars["num_nonlin_comp"] = len(non_linear_components)
+        vars["nonlin_comp"] = " ".join(str(c) for c in nonlinear_components)
+
     def __init__(self, string):
         self.string = string
 
-    #def _init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components, 
-    #            nonlinear_components=None, ddk_files=None,  wfk=None)
-    #            ): 
-    #    self.vars = vars = collections.OrderedDict()
-
-    #    if ddk_files is not None:
-    #        assert len(ddk_files) == 3
-    #        assert wfk is not None
-    #        for dir, ddk in zip(["x", "y", "z"], ddk_files):
-    #            vars["ddk_" + dir] = os.path.abspath(ddk)
-
-    #    if wfk is not None
-    #        vars["wfk"] = os.path.abspath(wfk)
-
-    #    vars["zcut"] = zcut
-    #    vars["wmesh"] = " ".join(map(str, (wstep, wmax)))
-    #    vars["sing_tol"] = sing_tol
-
-    #    vars["num_lin_comp"] = len(linear_components)
-    #    vars["lin_comp"] = " ".join(str(c) for c in linear_components)
-
-    #    vars["num_nonlin_comp"] = len(non_linear_components)
-    #    vars["nonlin_comp"] = " ".join(str(c) for c in nonlinear_components)
-
-    def to_string(self):
+    def __str__(self):
         return self.string
 
     def make_input(self):
-        return self.to_string()
+        return str(self)
 
     def add_extra_abivars(self, abivars):
         """
@@ -782,10 +801,29 @@ class OpticInput(object):
         produced by the previous runs.
         """
 
+
 class AnaddbInput(object):
+
+    def __init__(self, structure=None, ndtset=1, comment=""):
+        """
+        Args:
+            structure:
+                Crystalline structure.
+            ndtset:
+                Number of datasets.
+            comment:
+                Optional string with a comment that will be placed at the beginning of the file.
+        """
+        self._structure = _structure
+        self.ndtset = ndset
+        self.comment = comment
 
     def __init__(self, string):
         self.string = string
+
+    @property
+    def structure(self):
+        return self._structure
 
     def to_string(self):
         return self.string
@@ -801,3 +839,32 @@ class AnaddbInput(object):
         """
 
     #def set_qpath(self):
+    #    """
+    #    nqpath 7
+    #    qpath
+    #     0.0 0.0 0.0
+    #     1/2 1/2 0.0
+    #     1   1   1
+    #     1/2 1/2 1/2
+    #     1/2 1/2 0.0
+    #     1/2 3/4 1/4
+    #     1/2 1/2 1/2
+    #     """
+
+    #def split_datasets(self):
+    #    """
+    #    Split an input file with multiple datasets into a  list of `ndtset` distinct input files.
+    #    """
+    #    # Propagate subclasses (if any)
+    #    cls = self.__class__ 
+    #    news = []
+
+    #    for i in range(self.ndtset):
+    #        my_vars = self[i+1].allvars
+    #        my_vars.pop("ndtset", None)
+
+    #        new = cls(pseudos=self.pseudos, ndtset=1)
+    #        new.set_variables(**my_vars)
+    #        news.append(new)
+    #
+    #    return news
