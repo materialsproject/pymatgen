@@ -297,74 +297,102 @@ class PyLauncher(object):
         return num_launched 
 
 
-class ResourceManagerError(Exception):
-    """Base error class for `SimpleResourceManager."""
+class PyFlowsScheduler(object):
 
-
-class PyResourceManager(object):
-
-    Error = ResourceManagerError
-
-    def __init__(self, flow, max_ncpus, sleep_time=20):
+    def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None):
         """
-        This object submits the tasks contained in a `Abinitflow`
-        inside an infinite loop. Therefore it is mainly used 
-        when we are running in interative mode and we have to 
-        execute several small jobs without having to pass throuh
-        the queue resource manager. Its main goal is organizing
-        the execution of the tasks so that we don't exceed the 
-        computing resources at hand.
-
         Args:
-            flow:
-                `Abinitflow` instance.
-            max_ncpus: 
-                The maximum number of CPUs that can be used at any given time.
-            sleep_time:
-                Time delay (seconds) before trying to start a new `Task`.
+            weeks:
+                number of weeks to wait
+            days:
+                number of days to wait
+            hours:
+                number of hours to wait
+            minutes:
+                number of minutes to wait
+            seconds:
+                number of seconds to wait
+            start_date:
+                when to first execute the job and start the counter (default is after the given interval)
         """
-        self.flow = flow
+        self.weeks = weeks
+        self.days = days
+        self.hours = hours
+        self.minutes = minutes
+        self.seconds = seconds
+        self.start_date = start_date
 
-        self.max_ncpus = max_ncpus 
-        self.sleep_time = sleep_time
+        from apscheduler.scheduler import Scheduler
+        #from apscheduler.jobstores.shelve_store import ShelveJobStore
+        self.sched = Scheduler(standalone=True)
 
-        for work in self.flow:
-            for task in work:
-                if task.tot_ncpus > self.max_ncpus:
-                    err_msg = "Task %s requires %s CPUs, but max_ncpus is %d" % (
-                        repr(task), task.tot_ncpus, max_ncpus)
-                    raise self.Error(err_msg)
+        self._flows = []
 
-    def run(self):
-        for work in self.flow:
-            self._run_work(work)
+    def add_flow(self, flow):
+        """Add an `AbinitFlow` to the scheduler."""
+        self._flows.append(flow)
 
-    def _run_work(self, work):
-        """Call the start method of the object contained in work."""
-        if work.all_done:
-            return self.work.returncodes
+    def start(self):
+        """
+        Starts the scheduler in a new thread.
+        In standalone mode, this method will block until there are no more scheduled jobs.
+        """
+        options = dict(
+             weeks=self.weeks,
+             days=self.days,
+             hours=self.hours,
+             minutes=self.minutes,
+             seconds=self.seconds,
+             start_date=self.start_date,
+        )
 
-        while True:
-            polls = work.poll()
-            # Fetch the first task that is ready to run
+        self.sched.add_interval_job(self._runem_all, **options)
+        self.sched.start()
+
+    def _runem_all(self):
+        """The function that will be executed by the scheduler."""
+        nlaunch, max_nlaunch, exceptions = 0, -1, []
+
+        for flow in self._flows:
+            flow.check_status()
             try:
-                task = work.fetch_task_to_run()
-            except StopIteration:
-                break
+                nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
 
-            if task is None:
-                time.sleep(self.sleep_time)
-                work.check_status()
+            except Exception as exc:
+                exceptions.append(exc)
 
-            else:
-                # Check that we don't exceed the number of cpus employed, before starting.
-                logger.info("work polls %s" % polls)
-                logger.info("work status %s" % work.get_all_status())
+        print("num jobs launched: ", nlaunch)
+        print("exceptions: ",exceptions) 
 
-                if (task.tot_ncpus + work.ncpus_allocated <= self.max_ncpus): 
-                    logger.info("Starting task %s" % task)
-                    task.start()
+        if flow.all_ok:
+            print("all tasks in the workflows have reached S_OK. Exiting")
+            self.sched.shutdown(wait=False)
 
-        # Wait until all tasks are completed.
-        work.wait()
-        return work.returncodes
+        return len(exceptions) 
+
+
+#def save_pid():
+#    """check-to-see-if-python-script-is-running"""
+#    pid = str(os.getpid())
+#    pid_file = os.path.join(os.env("HOME"), ".abinit", "abipy", "abidaemon.pid")
+#
+#    if os.path.isfile(pid_file):
+#        err_msg = (
+#            "pid_file %s already exists\n"
+#            "There are two cases:\n"
+#            "   1) There's an another instance of AbinitScheduler running.\n"
+#            "   2) The previous scheduler didn't exit in a clean way.\n\n"
+#            "To solve case 1:\n"
+#            "   Stop the scheduler and restart it.\n\n"
+#            "To solve case 2:\n"
+#            "   Remove the pid_file but make *sure* that no other scheduler is running.\n"
+#            "Exiting\n" % pid_file
+#            )
+#        raise RuntimeError(err_msg)
+#
+#    else:
+#        with open(pid_file, "w") as fh:
+#            fh.write(pid)
+#
+#    # Do some actual work here
+#    os.unlink(pid_file)

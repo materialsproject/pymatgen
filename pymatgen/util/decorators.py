@@ -3,7 +3,6 @@
 """
 This module contains useful decorators for a variety of functions.
 """
-
 from __future__ import division
 
 __author__ = "Shyue Ping Ong"
@@ -15,8 +14,9 @@ __date__ = "Dec 31, 2011"
 
 import logging
 import datetime
-from functools import wraps
 import warnings
+
+from functools import wraps
 
 
 def singleton(cls):
