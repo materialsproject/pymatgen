@@ -166,3 +166,16 @@ class BaderAnalysis(object):
             potcar_indices += [i] * v
         nelect = self.potcar[potcar_indices[atom_index]].nelectrons
         return self.data[atom_index]["charge"] - nelect
+
+    def get_oxidation_state_decorated_structure(self):
+        """
+        Returns an oxidation state decorated structure.
+
+        Returns:
+            Returns an oxidation state decorated structure. Requires POTCAR
+            to be supplied.
+        """
+        structure = self.chgcar.structure
+        charges = map(self.get_charge_transfer, xrange(len(structure)))
+        structure.add_oxidation_state_by_site(charges)
+        return structure
