@@ -15,10 +15,10 @@ except ImportError:
     pass
 
 from pymatgen.util.io_utils import FileLock
-from pymatgen.io.abinitio.tasks import Dependency, ScfTask, PhononTask 
+from pymatgen.io.abinitio.tasks import Dependency, Task, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
-from pymatgen.io.abinitio.workflows import Workflow, PhononWorkflow
+from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,6 +27,7 @@ __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
+
 
 __all__ = [
     "AbinitFlow",
@@ -119,10 +120,21 @@ class AbinitFlow(collections.Iterable):
     #    """True if all the tasks of the flow have reached S_OK."""
     #    return all(task.status == task.S_OK for task in self.flat_tasks())
 
-    #def iflat_tasks(self):
-    #    for work in self:
-    #        for task in work:
-    #            yield task
+    def iflat_tasks(self, status=None):
+        """
+        Generators that produces a flat sequence of task.
+        if status is not None, only the tasks with the specified status are selected.
+        """
+        if status is None:
+            for work in self:
+                for task in work:
+                    yield task
+
+        else:
+            for work in self:
+                for task in work:
+                    if task.status == status:
+                        yield task
 
     @property
     def ncpus_reserved(self):
@@ -178,15 +190,19 @@ class AbinitFlow(collections.Iterable):
         for work in self:
             work.check_status()
 
-        # Test whether some task must be restarted.
-        #num_restarts = 0
-        #for work in self:
-        #    for task in work:
-        #        if task.not_converged():
-        #            retcode = task.restart_if_needed(self):
-        #            if retcode == 0: num_restarts += 1
-        #if num_restarts:
-        #    self.pickle_dump()
+        # Test whether some task should be restarted.
+        num_restarts = 0
+        for task in self.iflat_tasks(status=Task.S_UNCONVERGED):
+            msg = "Flow will restart task %s" % task
+            print(msg)
+            logger.info(msg)
+            retcode = task.restart_if_needed()
+            if retcode == 0: 
+                num_restarts += 1
+
+        if num_restarts:
+            print("num_restarts", num_restarts)
+            self.pickle_dump()
 
     def build(self, *args, **kwargs):
         self.indir.makedirs()

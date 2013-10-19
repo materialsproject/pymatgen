@@ -1073,7 +1073,9 @@ class RelaxWorkflow(Workflow):
 
         self.ion_task = self.register(ion_input, task_class=RelaxTask)
 
-        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
+        # USe WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
+        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
+        #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
         # TODO
         # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
 
