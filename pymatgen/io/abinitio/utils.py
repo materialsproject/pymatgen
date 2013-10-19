@@ -245,7 +245,7 @@ def abi_splitext(filename):
 
     return root, ext
 
-#@singleton
+
 class FilepathFixer(object):
     """
     This object modifies the names of particular output files

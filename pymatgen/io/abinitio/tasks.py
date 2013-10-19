@@ -794,13 +794,14 @@ class Dependency(object):
 # Possible status of the node.
 STATUS2STR = collections.OrderedDict([
     (1, "Initialized"),   # Node has been initialized
-    (2, "Ready"),         # Node is ready i.e. all the depencies of the node have status S_OK
-    (3, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    (4, "Running"),       # Node is running.
-    (5, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (6, "Error"),         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    (7, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
-    (8, "Completed"),     # Execution completed successfully.
+    (2, "Locked"),        # Task is locked an must be explicitly unlocked by en external subject (Workflow).
+    (3, "Ready"),         # Node is ready i.e. all the depencies of the node have status S_OK
+    (4, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    (5, "Running"),       # Node is running.
+    (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
+    (7, "Error"),         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+    (8, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
+    (9, "Completed"),     # Execution completed successfully.
 ])
 
 class Status(int):
@@ -823,13 +824,14 @@ class Node(object):
 
     # Possible status of the node.
     S_INIT = Status(1)
-    S_READY = Status(2)
-    S_SUB = Status(3)
-    S_RUN = Status(4)
-    S_DONE = Status(5)
-    S_ERROR = Status(6)
-    S_UNCONVERGED = Status(7)
-    S_OK = Status(8)
+    S_LOCKED = Status(2)
+    S_READY = Status(3)
+    S_SUB = Status(4)
+    S_RUN = Status(5)
+    S_DONE = Status(6)
+    S_ERROR = Status(7)
+    S_UNCONVERGED = Status(8)
+    S_OK = Status(9)
 
     def __init__(self):
         # Node identifier.
@@ -1210,6 +1212,9 @@ class Task(Node):
         report = self.get_event_report()
         return report.filter_types(self.CRITICAL_EVENTS)
 
+    def _on_done(self):
+        self.fix_ofiles()
+
     def _on_ok(self):
         self.fix_ofiles()
         results = self.on_ok()
@@ -1409,6 +1414,9 @@ class Task(Node):
 
         self._status = status
 
+        if status == self.S_DONE:
+            self._on_done()
+
         if status == self.S_OK:
             #if status == self.S_UNCONVERGED:
             #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
@@ -1439,8 +1447,9 @@ class Task(Node):
         This function check the status of the task by inspecting the output and the 
         error files produced by the application and by the queue manager.
         """
-        #if self.status < self.S_SUB:
-        #    return
+        # A locked task can only be unlocked by calling set_status explicitly.
+        black_list = [self.S_LOCKED]
+        if self.status in black_list: return
 
         # Check the returncode of the process first.
         if self.returncode != 0:
@@ -1840,7 +1849,6 @@ class AbinitTask(Task):
                 `TaskManager` object.
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-
         strategy = StrategyWithInput(abinit_input)
 
         return cls(strategy, workdir=workdir, manager=manager)
@@ -2008,10 +2016,16 @@ class RelaxTask(AbinitTask):
     #    self.initial_structure = strategy.structure
 
     #def change_structure(self, structure):
+    #    """Change the input structure."""
     #    self.strategy.set_structure(structure)
 
-    def read_final_structure(self):
+    def read_final_structure(self, save=False):
         """Read the final structure from the GSR file and save it in self.final_structure."""
+        # We already have it in memory.
+        if hasattr(self, "final_structure"):
+            return self.final_structure
+        
+        # Read it from file and save it if save is True.
         gsr_file = self.outdir.has_abiext("GSR")
         if not gsr_file:
             raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
@@ -2019,11 +2033,12 @@ class RelaxTask(AbinitTask):
         with ETSF_Reader(gsr_file) as r:
             final_structure = r.read_structure()
 
-        self.final_structure = final_structure
+        if save:
+            self.final_structure = final_structure
+
         return final_structure
 
     def restart(self):
-        #raise NotImplementedError("")
         # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
         # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         # Prefer WFK over other files since we can reuse the wavefunctions.
@@ -2071,14 +2086,18 @@ class PhononTask(AbinitTask):
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WF|1DEN) files
     """
+    # TODO: 
+    # for the time being we don't discern between GS and PhononCalculations.
+    # Restarting Phonon calculation is more difficult due to the crazy rules employed in ABINIT 
     CRITICAL_EVENTS = [
-        events.PhononConvergenceWarning,
+        events.ScfConvergenceWarning,
     ]
 
     def restart(self):
         # Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
         # from which we can read the first-order wavefunctions or the first order density.
         # Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        #self.fix_ofiles()
         for ext in ["1WF", "1DEN"]:
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)

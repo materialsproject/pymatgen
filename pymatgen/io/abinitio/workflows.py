@@ -195,7 +195,6 @@ class BaseWorkflow(Node):
         logger.debug("in on_ok with sender %s" % sender)
 
         if self.all_ok: 
-
             if self.finalized:
                 return AttrDict(returncode=0, message="Workflow has been already finalized")
 
@@ -1074,11 +1073,32 @@ class RelaxWorkflow(Workflow):
         self.ion_task = self.register(ion_input, task_class=RelaxTask)
 
         # USe WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
-        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
         #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
+        self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
         # TODO
         # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
+        self.ioncell_task.set_status(self.S_LOCKED)
+        #dispatcher.connect(self.transfer_structure, signal="GotRelaxedlStructure", sender=self.ion_tak)
 
+    def on_ok(self, sender):
+        """
+        This callback is called when one task reaches status S_OK.
+        """
+        logger.debug("in on_ok with sender %s" % sender)
+
+        if sender == self.ion_task:
+            # Get the relaxed structure.
+            ion_structure = self.ion_task.read_final_structure()
+            print("ion_structure", ion_structure)
+
+            # Transfer it to the ioncell task.
+            #self.ioncell_task.set_structure(ion_structure)
+
+            # Finally unlock ioncell_task so that we can submit it.
+            self.ioncell_task.set_status(self.S_READY)
+
+        base_results = super(RelaxWorkflow, self).on_ok(sender)
+        return base_results
 
 class DeltaFactorWorkflow(Workflow):
 

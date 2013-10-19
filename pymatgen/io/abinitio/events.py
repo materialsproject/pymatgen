@@ -142,9 +142,10 @@ class RelaxConvergenceWarning(AbinitWarning):
     yaml_tag = u'!RelaxConvergenceWarning'
 
 
-class PhononConvergenceWarning(AbinitWarning):
-    """Warning raised when the phonon calculation did not converge."""
-    yaml_tag = u'!PhononConvergenceWarning'
+# TODO: for the time being we don't discern between GS and PhononCalculations.
+#class PhononConvergenceWarning(AbinitWarning):
+#    """Warning raised when the phonon calculation did not converge."""
+#    yaml_tag = u'!PhononConvergenceWarning'
 
 
 class QPSConvergenceWarning(AbinitWarning):

@@ -55,13 +55,15 @@ class AbinitFlow(collections.Iterable):
 
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
-    def __init__(self, workdir, manager, pickle_protocol=-1):
+    def __init__(self, workdir, manager, auto_restart=False, pickle_protocol=-1):
         """
         Args:
             workdir:
                 String specifying the directory where the workflows will be produced.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
+            auto_restart:
+                True if unconverged calculations should be restarted automatically.
             pickle_procol:
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
@@ -70,6 +72,7 @@ class AbinitFlow(collections.Iterable):
         self.creation_date = time.asctime()
 
         self.manager = manager.deepcopy()
+        self.auto_restart = auto_restart
 
         # List of workflows.
         self._works = []
@@ -191,18 +194,19 @@ class AbinitFlow(collections.Iterable):
             work.check_status()
 
         # Test whether some task should be restarted.
-        num_restarts = 0
-        for task in self.iflat_tasks(status=Task.S_UNCONVERGED):
-            msg = "Flow will try restart task %s" % task
-            print(msg)
-            logger.info(msg)
-            retcode = task.restart_if_needed()
-            if retcode == 0: 
-                num_restarts += 1
+        if self.auto_restart:
+            num_restarts = 0
+            for task in self.iflat_tasks(status=Task.S_UNCONVERGED):
+                msg = "Flow will try restart task %s" % task
+                print(msg)
+                logger.info(msg)
+                retcode = task.restart_if_needed()
+                if retcode == 0: 
+                    num_restarts += 1
 
-        if num_restarts:
-            print("num_restarts done successfully: ", num_restarts)
-            self.pickle_dump()
+            if num_restarts:
+                print("num_restarts done successfully: ", num_restarts)
+                self.pickle_dump()
 
     def build(self, *args, **kwargs):
         self.indir.makedirs()
