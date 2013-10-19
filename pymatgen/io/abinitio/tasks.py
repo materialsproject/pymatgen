@@ -10,11 +10,12 @@ import collections
 import abc
 import warnings
 import copy
+import yaml
 import numpy as np
 from pymatgen.io.abinitio import abiinspect
+from pymatgen.io.abinitio import events 
 
 try:
-    import yaml
     from pydispatch import dispatcher
 except ImportError:
     pass
@@ -24,9 +25,10 @@ from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer
-from pymatgen.io.abinitio.events import EventParser
+
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
+from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
 
 import logging
 logger = logging.getLogger(__name__)
@@ -135,8 +137,7 @@ class ParalConf(AttrDict):
             max_ncpus: 108
 
         configurations:
-            -
-                tot_ncpus: 2         # Total number of CPUs
+            -   tot_ncpus: 2         # Total number of CPUs
                 mpi_ncpus: 2         # Number of MPI processes.
                 omp_ncpus: 1         # Number of OMP threads (1 if not present)
                 mem_per_cpus: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
@@ -183,38 +184,11 @@ class ParalHintsParser(object):
         Read the <RUN_HINTS> section from file filename
         Assumes the file contains only one section.
         """
-        #with YamlTokenizer(filename) as r:
-        #    doc = r.next_doc_with_tag(doc_tag)
-        #    #doc = doc.replace(doc_tag, "")
-        START_TAG = "--- !Autoparal"
-        END_TAG = "..."
-
-        with open(filename, "r") as fh:
-            lines = fh.readlines()
-
-        start, end = None, None
-        for i, line in enumerate(lines):
-            if START_TAG in line:
-                start = i
-            if start is not None and END_TAG in line:
-                end = i
-                break
-
-        if start is None or end is None:
-            raise self.Error("%s\n does not contain any valid %s section" % (START_TAG, filename))
-
-        if start == end:
-            # Empy section ==> User didn't enable Yaml in ABINIT.
-            raise self.Error("%s\n contains an empty %s document. Enable Yaml support in ABINIT" % (START_TAG, filename))
-
-        s = "".join(lines[start+1:end])
-
-        try:
-            d = yaml.load(s)
-        except Exception as exc:
-            raise self.Error("Malformatted Yaml document in file %s:\n %s" % (filename, str(exc)))
-
-        return ParalHints(header=d["header"], confs=d["configurations"])
+        with abiinspect.YamlTokenizer(filename) as r:
+            doc = r.next_doc_with_tag("!Autoparal")
+            d = yaml.load(doc.text_notag)
+            #print(d)
+            return ParalHints(header=d["header"], confs=d["configurations"])
 
 
 class ParalHints(collections.Iterable):
@@ -402,9 +376,7 @@ class TaskManager(object):
     def from_file(cls, filename):
         """Read the configuration parameters from a Yaml file."""
         with open(filename, "r") as fh:
-            d = yaml.load(fh)
-
-        return cls.from_dict(d)
+            return cls.from_dict(yaml.load(fh))
 
     @classmethod
     def from_user_config(cls):
@@ -416,7 +388,7 @@ class TaskManager(object):
         Raises:
             RuntimeError if file is not found.
         """
-        #Try in the current directory.
+        # Try in the current directory.
         path = os.path.join(os.getcwd(), cls.YAML_FILE)
 
         if os.path.exists(path):
@@ -424,13 +396,13 @@ class TaskManager(object):
 
         # Try in the configuration directory.
         home = os.getenv("HOME")
-        dirpath = os.path.join(home, ".abinit", ".abipy")
+        dirpath = os.path.join(home, ".abinit", "abipy")
         path = os.path.join(dirpath, cls.YAML_FILE)
 
         if os.path.exists(path):
             return cls.from_file(path)
     
-        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (self.YAML_FILE, dirpath))
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
 
     @classmethod 
     def sequential(cls):
@@ -668,6 +640,7 @@ def get_newnode_id():
     _COUNTER += 1
     return _COUNTER
 
+
 def save_lastnode_id():
     """Save the id of the last node created."""
     with FileLock(_COUNTER_FILE) as lock:
@@ -866,7 +839,7 @@ class Node(object):
         self._deps = []
 
         # Used to push additional info during the execution. 
-        self.history = collections.deque(maxlen=50)
+        self.history = collections.deque(maxlen=100)
 
         # Set to true if the node has been finalized.
         self._finalized = False
@@ -1087,6 +1060,11 @@ class Task(Node):
 
     Error = TaskError
 
+    # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
+    # Subclasses should provide their own list if they need to check the converge status.
+    CRITICAL_EVENTS = [
+    ]
+
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
     pj = os.path.join
@@ -1199,10 +1177,6 @@ class Task(Node):
         """Set the executable associate to this task."""
         self._executable = executable
 
-    #@property
-    #def short_name(self):
-    #    return os.path.basename(self.workdir)
-
     @property
     def process(self):
         try:
@@ -1233,7 +1207,8 @@ class Task(Node):
     def not_converged(self):
         """Return True if the calculation is not converged."""
         logger.debug("not_converged method of the base class will always return False")
-        return False
+        report = self.get_event_report()
+        return report.filter_types(self.CRITICAL_EVENTS)
 
     def _on_ok(self):
         self.fix_ofiles()
@@ -1306,7 +1281,9 @@ class Task(Node):
         """
         if self.not_converged():
             if self.num_restarts == self.max_num_restarts:
-                logger.info("Reached maximum number of restarts. Returning")
+                info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
+                logger.info(info_msg)
+                self.history.append(info_msg)
                 return 1
 
             try:
@@ -1383,7 +1360,6 @@ class Task(Node):
 
         # TODO send a signal to the flow 
         #self.workflow.check_status()
-
         return 0
 
     @property
@@ -1434,16 +1410,16 @@ class Task(Node):
         self._status = status
 
         if status == self.S_OK:
+            #if status == self.S_UNCONVERGED:
+            #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
+            #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
+
             # Finalize the task.
             if not self.finalized:
                 self._on_ok()
 
             logger.debug("Task %s broadcasts signal S_OK" % self)
             dispatcher.send(signal=self.S_OK, sender=self)
-
-        #if status == self.S_UNCONVERGED:
-        #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
-        #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
 
         if changed:
             if status == self.S_SUB: 
@@ -1463,8 +1439,8 @@ class Task(Node):
         This function check the status of the task by inspecting the output and the 
         error files produced by the application and by the queue manager.
         """
-        if self.status < self.S_SUB:
-            return
+        #if self.status < self.S_SUB:
+        #    return
 
         # Check the returncode of the process first.
         if self.returncode != 0:
@@ -1496,25 +1472,17 @@ class Task(Node):
                 return self.status
 
         # Check if the run completed successfully.
-        parser = EventParser()
-
-        try:
-            report = parser.parse(self.output_file.path)
-
-        except parser.Error as exc:
-            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return self.set_status(self.S_ERROR, info_msg=str(exc))
+        report = self.get_event_report()
 
         if report.run_completed:
             # TODO
             # Check if the calculation converged.
-            is_ok = True
-            #is_ok = self.check_convergence()
+            not_ok = self.not_converged()
 
-            if is_ok:
-                return self.set_status(self.S_OK)
-            else:
+            if not_ok:
                 return self.set_status(self.S_UNCONVERGED)
+            else:
+                return self.set_status(self.S_OK)
 
         # This is the delicate part since we have to discern among different possibilities:
         #
@@ -1645,7 +1613,9 @@ class Task(Node):
         self.make_links()
         self.setup()
 
-    def get_event_report(self, source="output"):
+    # TODO: For the time being, we inspect the log file,
+    # We will start to use the output file when the migration to YAML is completed
+    def get_event_report(self, source="log"):
         """
         Analyzes the main output file for possible Errors or Warnings.
 
@@ -1665,26 +1635,15 @@ class Task(Node):
         if not file.exists:
             return None
 
-        parser = EventParser()
+        parser = events.EventParser()
         try:
             return parser.parse(file.path)
 
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
             logger.critical("%s: Exception while parsing ABINIT events:\n %s" (file, str(exc)))
+            self.set_status(self.S_ERROR, info_msg=str(exc))
             return parser.report_exception(file.path, exc)
-
-    #@property
-    #def events(self):
-    #    """List of errors or warnings reported by ABINIT."""
-    #    if self.status is None or self.status < self.S_DONE:
-    #        raise self.Error(
-    #            "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
-    #    try:
-    #        return self._events
-    #    except AttributeError:
-    #        self._events = self.parse_events()
-    #        return self._events
 
     @property
     def results(self):
@@ -1816,15 +1775,6 @@ class Task(Node):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
-    # TODO Remove this methods. use Directory directly.
-    #def rm_indatadir(self):
-    #    """Remove the directory with the input files (indata dir)."""
-    #    self.indir.rmtree()
-
-    #def rm_tmpdatadir(self):
-    #    """Remove the directory with the temporary files."""
-    #    self.tmpdir.rmtree()
-
     def setup(self):
         """Base class does not provide any hook."""
 
@@ -1890,7 +1840,7 @@ class AbinitTask(Task):
                 `TaskManager` object.
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        from pymatgen.io.abinitio.strategies import StrategyWithInput
+
         strategy = StrategyWithInput(abinit_input)
 
         return cls(strategy, workdir=workdir, manager=manager)
@@ -1973,14 +1923,9 @@ class ScfTask(AbinitTask):
     Self-consistent ground-state calculations.
     Provide support for in-place restart via (WFK|DEN) files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-
-        report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        return report.warnings.filter("ScfConvergenceWarning")
+    CRITICAL_EVENTS = [
+        events.ScfConvergenceWarning,
+    ]
 
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
@@ -2020,12 +1965,9 @@ class NscfTask(AbinitTask):
     Non-Self-consistent GS calculation.
     Provide in-place restart via WFK files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        report = self.get_event_report()
-
-        return report.warnings.filter("NscfConvergenceWarning")
+    CRITICAL_EVENTS = [
+        events.NscfConvergenceWarning,
+    ]
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -2055,18 +1997,15 @@ class RelaxTask(AbinitTask):
         initial_structure:
         final_structure:
     """
+    # What about a possible ScfConvergenceWarning?
+    CRITICAL_EVENTS = [
+        events.RelaxConvergenceWarning,
+    ]
+
     #def __init__(self, strategy, workdir=None, manager=None, deps=None):
     #    super(RelaxTask, self).__init__(strategy, workdir=None, manager=None, deps=None)
     #    # Save the initial structure
     #    self.initial_structure = strategy.structure
-
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        # TODO: 
-        return True
-        report = self.get_event_report()
-        # What about a possible ScfConvergenceWarning?
-        return report.warnings.filter("RelaxConvergenceWarning")
 
     #def change_structure(self, structure):
     #    self.strategy.set_structure(structure)
@@ -2124,10 +2063,7 @@ class RelaxTask(AbinitTask):
 
 
 class DDK_Task(AbinitTask):
-
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return False
+    """Task for DDK calculations."""
 
 
 class PhononTask(AbinitTask):
@@ -2135,11 +2071,9 @@ class PhononTask(AbinitTask):
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WF|1DEN) files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        report = self.get_event_report()
-        return report.warnings.filter("PhononConvergenceWarning")
+    CRITICAL_EVENTS = [
+        events.PhononConvergenceWarning,
+    ]
 
     def restart(self):
         # Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
@@ -2179,14 +2113,9 @@ class G_Task(AbinitTask):
     Tasks for SIGMA calculations employing the self-consistent G approximation 
     Provide support for in-place restart via QPS files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        report = self.get_event_report()
-        return report.warnings.filter("QPSConvergenceWarning")
+    CRITICAL_EVENTS = [
+        events.QPSConvergenceWarning,
+    ]
 
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
@@ -2228,11 +2157,9 @@ class HaydockBseTask(BseTask):
     Bethe-Salpeter calculations with Haydock iterative scheme.
     Provide in-place restart via (BSR|BSC) files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        report = self.get_event_report()
-        return report.warnings.filter("HaydockConvergenceWarning")
+    CRITICAL_EVENTS = [
+        events.HaydockConvergenceWarning,
+    ]
 
     def restart(self):
         # BSE calculations with Haydock can be restarted only if we have the 
@@ -2303,7 +2230,6 @@ class OpticTask(Task):
         deps.update({nscf_node: "WFK"})
         print("deps",deps)
 
-        from pymatgen.io.abinitio.strategies import OpticInput
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
@@ -2417,8 +2343,7 @@ class AnaddbTask(Task):
         if ddk_node is not None: deps.update({ddk_node: "DDK"})
         self.ddk_node = ddk_node
                                                                                                         
-        # TODO
-        from pymatgen.io.abinitio.strategies import AnaddbInput
+        # TODO Refactor this code.
         strategy = AnaddbInput(anaddb_input)
         super(AnaddbTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 

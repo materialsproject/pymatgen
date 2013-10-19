@@ -344,7 +344,8 @@ class PyFlowsScheduler(object):
             raise ValueError("Cannot add the same flow twice!")
 
         if os.path.isfile(pid_file):
-            err_msg = ("\n"
+            err_msg = (
+                "\n"
                 "pid_file %s already exists\n"
                 "There are two possibilities:\n\n"
                 "       1) There's an another instance of PyFlowsScheduler running.\n"
