@@ -2169,6 +2169,9 @@ class HaydockBseTask(BseTask):
         irdvars = {}
 
         # Move the BSE blocks to indata.
+        # This is done only once at the end of the first run.
+        # Successive restarts will use the BSR|BSC files in the indir directory
+        # to initialize the excitonic Hamiltonian
         count = 0
         for ext in ["BSR", "BSC"]:
             ofile = self.outdir.has_abiext(ext)
@@ -2178,7 +2181,17 @@ class HaydockBseTask(BseTask):
                 self.out_to_in(ofile)
 
         if not count:
-            raise TaskRestartError("Cannot find the BSR|BSC file to restart from.")
+            # outdir does not contain the BSR|BSC file.
+            # This means that num_restart > 1 and the files should
+            # be in task.indir
+            count = 0
+            for ext in ["BSR", "BSC"]:
+                ifile = self.indir.has_abiext(ext)
+                if ifile:
+                    count += 1
+
+            if not count:
+                raise TaskRestartError("Cannot find BSR|BSC files in %s" % sekf.indir)
 
         # Rename HAYDR_SAVE files
         count = 0
@@ -2190,7 +2203,7 @@ class HaydockBseTask(BseTask):
                 self.out_to_in(ofile)
 
         if not count:
-            raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
+            raise TaskRestartError("Cannot find the HAYDR_SAVE file to restart from.")
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)

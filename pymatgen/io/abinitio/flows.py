@@ -193,7 +193,7 @@ class AbinitFlow(collections.Iterable):
         # Test whether some task should be restarted.
         num_restarts = 0
         for task in self.iflat_tasks(status=Task.S_UNCONVERGED):
-            msg = "Flow will restart task %s" % task
+            msg = "Flow will try restart task %s" % task
             print(msg)
             logger.info(msg)
             retcode = task.restart_if_needed()
@@ -201,7 +201,7 @@ class AbinitFlow(collections.Iterable):
                 num_restarts += 1
 
         if num_restarts:
-            print("num_restarts", num_restarts)
+            print("num_restarts done successfully: ", num_restarts)
             self.pickle_dump()
 
     def build(self, *args, **kwargs):
