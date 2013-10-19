@@ -36,6 +36,9 @@ class BaderAnalysisTest(unittest.TestCase):
                1.3378, 1.3373, 1.3374, 1.3374, 1.3369, 1.3373, 1.3378]
         for i in range(14):
             self.assertAlmostEqual(ans[i], analysis.get_charge_transfer(i))
+        s = analysis.get_oxidation_state_decorated_structure()
+        self.assertAlmostEqual(s[0].specie.oxi_state, -1.8515)
+
 
 if __name__ == '__main__':
     unittest.main()
