@@ -2010,14 +2010,10 @@ class RelaxTask(AbinitTask):
         events.RelaxConvergenceWarning,
     ]
 
-    #def __init__(self, strategy, workdir=None, manager=None, deps=None):
-    #    super(RelaxTask, self).__init__(strategy, workdir=None, manager=None, deps=None)
-    #    # Save the initial structure
-    #    self.initial_structure = strategy.structure
-
-    #def change_structure(self, structure):
-    #    """Change the input structure."""
-    #    self.strategy.set_structure(structure)
+    def change_structure(self, structure):
+        """Change the input structure."""
+        print("changing structure")
+        self.strategy.abinit_input.set_structure(structure)
 
     def read_final_structure(self, save=False):
         """Read the final structure from the GSR file and save it in self.final_structure."""
