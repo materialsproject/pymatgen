@@ -1075,10 +1075,12 @@ class RelaxWorkflow(Workflow):
         # USe WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
         #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
         self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
-        # TODO
-        # ion_task should communicate to ioncell_task that the calculation is OK and pass the final structure.
+
+        # Lock ioncell_task as ion_task should communicate to ioncell_task that 
+        # the calculation is OK and pass the final structure.
         self.ioncell_task.set_status(self.S_LOCKED)
-        #dispatcher.connect(self.transfer_structure, signal="GotRelaxedlStructure", sender=self.ion_tak)
+
+        self.transfer_done = False
 
     def on_ok(self, sender):
         """
@@ -1086,13 +1088,14 @@ class RelaxWorkflow(Workflow):
         """
         logger.debug("in on_ok with sender %s" % sender)
 
-        if sender == self.ion_task:
+        if sender == self.ion_task and not self.transfer_done:
             # Get the relaxed structure.
             ion_structure = self.ion_task.read_final_structure()
             print("ion_structure", ion_structure)
 
-            # Transfer it to the ioncell task.
-            #self.ioncell_task.set_structure(ion_structure)
+            # Transfer it to the ioncell task (do it only once).
+            self.ioncell_task.change_structure(ion_structure)
+            self.transfer_done = True
 
             # Finally unlock ioncell_task so that we can submit it.
             self.ioncell_task.set_status(self.S_READY)
@@ -1100,12 +1103,13 @@ class RelaxWorkflow(Workflow):
         base_results = super(RelaxWorkflow, self).on_ok(sender)
         return base_results
 
+
 class DeltaFactorWorkflow(Workflow):
 
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
-                 # FIXME Hack in chksymbreack
+                 # FIXME Hack in chksymbreak
         """
         Build a `Workflow` for the computation of the deltafactor.
 
@@ -1242,7 +1246,7 @@ class DeltaFactorWorkflow(Workflow):
 
 class G0W0_Workflow(Workflow):
 
-    def __init__(self, scf_input, nscf_input, scr_input, sigma_input,
+    def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
                  workdir=None, manager=None):
         """
         Workflow for G0W0 calculations.
@@ -1254,8 +1258,8 @@ class G0W0_Workflow(Workflow):
                 Input for the NSCF run or `NSCFStrategy` object.
             scr_input:
                 Input for the screening run or `ScrStrategy` object 
-            sigma_input:
-                Strategy for the self-energy run.
+            sigma_inputs:
+                List of Strategies for the self-energy run.
             workdir:
                 Working directory of the calculation.
             manager:
@@ -1272,8 +1276,13 @@ class G0W0_Workflow(Workflow):
         # Register the SCREENING run.
         self.scr_task = self.register(scr_input, deps={self.nscf_task: "WFK"})
 
-        # Register the SIGMA run.
-        self.sigma_task = self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"})
+        # Register the SIGMA runs.
+        if not isinstance(sigma_inputs, (list, tuple)): 
+            sigma_inputs = [sigma_inputs]
+
+        self.sigma_tasks = sigma_tasks = []
+        for sigma_input in sigma_inputs:
+            sigma_tasks.append(self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"}))
 
 
 #class SCGW_Workflow(Workflow):

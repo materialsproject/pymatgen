@@ -56,7 +56,6 @@ def _magic_parser(stream, magic):
     return fields
 
 
-
 def plottable_from_outfile(filepath):
     """
     Factory function that returns a plottable object by inspecting the main output file of abinit
@@ -486,7 +485,7 @@ class YamlTokenizer(collections.Iterator):
 
 
 def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
-
+    """Read the K-points from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
@@ -495,12 +494,13 @@ def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
 
 
 def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
-
+    """Read the lisr of irreducible perturbations from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
 
         return d["irred_perts"]
+
 
 class YamlDoc(object):
     """

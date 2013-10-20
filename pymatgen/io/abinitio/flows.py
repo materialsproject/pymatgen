@@ -18,7 +18,7 @@ from pymatgen.util.io_utils import FileLock
 from pymatgen.io.abinitio.tasks import Dependency, Task, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
-from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow
+from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow
 
 import logging
 logger = logging.getLogger(__name__)
@@ -127,17 +127,18 @@ class AbinitFlow(collections.Iterable):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
+
+        Returns:
+            task, work_index, task_index
         """
         if status is None:
-            for work in self:
-                for task in work:
-                    yield task
+            for wi, work in enumerate(self):
+                for ti, task in enumerate(work):
 
-        else:
-            for work in self:
-                for task in work:
-                    if task.status == status:
-                        yield task
+                    if status is not None and task.status == status:
+                        yield task, wi, ti
+                    else:
+                        yield task, wi, ti
 
     @property
     def ncpus_reserved(self):
@@ -196,7 +197,7 @@ class AbinitFlow(collections.Iterable):
         # Test whether some task should be restarted.
         if self.auto_restart:
             num_restarts = 0
-            for task in self.iflat_tasks(status=Task.S_UNCONVERGED):
+            for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
                 msg = "Flow will try restart task %s" % task
                 print(msg)
                 logger.info(msg)
@@ -267,7 +268,25 @@ class AbinitFlow(collections.Iterable):
     def pickle_load(cls, filepath):
         """
         Load the object from a pickle file and performs initial setup.
+
+        Args:
+            filepath:
+                Filename or directory name. It filepath is a directory, we 
+                scan the directory tree starting from filepath and we 
+                read the first pickle database.
         """
+        if os.path.isdir(filepath):
+            # Walk through each directory inside path and find the pickle database.
+            for dirpath, dirnames, filenames in os.walk(filepath):
+                fnames = [f for f in filenames if f == cls.PICKLE_FNAME]
+                if fnames:
+                    assert len(fnames) == 1
+                    filepath = os.path.join(dirpath, fnames[0])
+                    break
+            else:
+                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, path)
+                raise ValueError(err_msg)
+
         with FileLock(filepath) as lock:
             with open(filepath, "rb") as fh:
                 flow = pickle.load(fh)
@@ -542,9 +561,9 @@ def bandstructure_flow(workdir, manager, scf_input, nscf_input):
     return flow.allocate()
 
 
-def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_input):
+def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_inputs):
     """
-    Build an `AbinitFlow` for one-shot G0W0 calculations.
+    Build an `AbinitFlow` for one-shot $G_0W_0$ calculations.
 
     Args:
         workdir:
@@ -557,14 +576,14 @@ def g0w0_flow(workdir, manager, scf_input, nscf_input, scr_input, sigma_input):
             Input for the NSCF run (band structure run).
         scr_input:
             Input for the SCR run.
-        sigma_input:
-            Input for the SIGMA run.
+        sigma_inputs:
+            List of inputs for the SIGMA run.
 
     Returns:
         `AbinitFlow`
     """
     flow = AbinitFlow(workdir, manager)
-    work = G0W0_Workflow(scf_input, scf_input, nscf_input, scr_input, sigma_input)
+    work = G0W0_Workflow(scf_input, nscf_input, scr_input, sigma_inputs)
     flow.register_work(work)
     return flow.allocate()
 
