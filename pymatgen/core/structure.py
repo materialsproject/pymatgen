@@ -1949,7 +1949,7 @@ class Structure(IStructure):
             volume:
                 New volume of the unit cell in A^3.
         """
-        self._lattice = self._lattice.scale(volume)
+        self.modify_lattice(self._lattice.scale(volume))
 
 
 class Molecule(IMolecule):
