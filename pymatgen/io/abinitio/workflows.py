@@ -16,8 +16,6 @@ try:
 except ImportError:
     pass
 
-from pymatgen.io.abinitio import wrappers
-
 from pymatgen.core.units import ArrayWithUnit, Ha_to_eV
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -26,6 +24,7 @@ from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.smartio import read_structure
 from pymatgen.util.num_utils import iterator_from_slice, chunks, monotonic
 from pymatgen.util.string_utils import list_strings, pprint_table, WildCard
+from pymatgen.io.abinitio import wrappers
 from pymatgen.io.abinitio.tasks import (Task, AbinitTask, Dependency, Node, ScfTask, NscfTask, HaydockBseTask, RelaxTask)
 from pymatgen.io.abinitio.strategies import Strategy
 from pymatgen.io.abinitio.utils import File, Directory
@@ -341,7 +340,11 @@ class Workflow(BaseWorkflow):
         return counter
 
     def allocate(self):
-
+        """
+        This function is called once we have completed the initialization 
+        of the `Workflow`. It sets the manager of each task (if not already done)
+        and defines the working directories of the tasks.
+        """
         for i, task in enumerate(self):
             if not hasattr(task, "manager"):
                 task.set_manager(self.manager)
@@ -574,12 +577,12 @@ class Workflow(BaseWorkflow):
 
         return etotal
 
-    def json_dump(self, filename):
-        json_pretty_dump(self.to_dict, filename)
-                                                  
-    @classmethod
-    def json_load(cls, filename):
-        return cls.from_dict(json_load(filename))
+    #def json_dump(self, filename):
+    #    json_pretty_dump(self.to_dict, filename)
+    #                                              
+    #@classmethod
+    #def json_load(cls, filename):
+    #    return cls.from_dict(json_load(filename))
 
     def parse_timers(self):
         """
@@ -1244,6 +1247,7 @@ class DeltaFactorWorkflow(Workflow):
     #                                                                                         
     #    d = {self.accuracy: d}
 
+
 class G0W0_Workflow(Workflow):
 
     def __init__(self, scf_input, nscf_input, scr_input, sigma_inputs,
@@ -1280,9 +1284,9 @@ class G0W0_Workflow(Workflow):
         if not isinstance(sigma_inputs, (list, tuple)): 
             sigma_inputs = [sigma_inputs]
 
-        self.sigma_tasks = sigma_tasks = []
+        self.sigma_tasks = []
         for sigma_input in sigma_inputs:
-            sigma_tasks.append(self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"}))
+            self.sigma_tasks.append(self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"}))
 
 
 #class SCGW_Workflow(Workflow):

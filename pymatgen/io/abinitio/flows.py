@@ -4,6 +4,7 @@ Abinit Flows
 from __future__ import division, print_function
 
 import os
+import sys
 import time
 import collections
 import itertools
@@ -15,6 +16,7 @@ except ImportError:
     pass
 
 from pymatgen.util.io_utils import FileLock
+from pymatgen.util.string_utils import pprint_table
 from pymatgen.io.abinitio.tasks import Dependency, Task, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
@@ -123,7 +125,7 @@ class AbinitFlow(collections.Iterable):
     #    """True if all the tasks of the flow have reached S_OK."""
     #    return all(task.status == task.S_OK for task in self.flat_tasks())
 
-    def iflat_tasks(self, status=None):
+    def iflat_tasks(self, status=None, op="="):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
@@ -134,10 +136,23 @@ class AbinitFlow(collections.Iterable):
         if status is None:
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
+                    yield task, wi, ti
 
-                    if status is not None and task.status == status:
-                        yield task, wi, ti
-                    else:
+        else:
+            # Get the operator from the string.
+            import operator
+            op = {
+                "=": operator.eq,
+                "!=": operator.ne,
+                ">": operator.gt,
+                ">=": operator.ge,
+                "<": operator.lt,
+                "<=": operator.le,
+            }[op]
+
+            for wi, work in enumerate(self):
+                for ti, task in enumerate(work):
+                    if op(task.status, status):
                         yield task, wi, ti
 
     @property
@@ -209,7 +224,46 @@ class AbinitFlow(collections.Iterable):
                 print("num_restarts done successfully: ", num_restarts)
                 self.pickle_dump()
 
+    def show_status(self, stream=sys.stdout):
+        """
+        Report the status of the workflows and the status 
+        of the different tasks on the specified stream.
+        """
+        for i, work in enumerate(self):
+            print(80*"=")
+            print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized) )
+
+            table = [[
+                     "Task", "Status", "Queue_id", 
+                     "Errors", "Warnings", "Comments", 
+                     "MPI", "OMP", 
+                     "num_restarts", "max_restarts", "Task Class"
+                     ]]
+
+            for task in work:
+                task_name = os.path.basename(task.name)
+
+                # Parse the events in the main output.
+                report = task.get_event_report()
+
+                events = map(str, 3*["N/A"])
+                if report is not None: 
+                    events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
+
+                cpu_info = map(str, [task.mpi_ncpus, task.omp_ncpus])
+                task_info = map(str, [task.num_restarts, task.max_num_restarts, task.__class__.__name__])
+
+                table.append(
+                    [task_name, str(task.status), str(task.queue_id)] + 
+                    events + 
+                    cpu_info + 
+                    task_info
+                    )
+
+            pprint_table(table, out=stream)
+
     def build(self, *args, **kwargs):
+        """Make directories and files of the `Flow`."""
         self.indir.makedirs()
         self.outdir.makedirs()
         self.tmpdir.makedirs()
@@ -265,15 +319,19 @@ class AbinitFlow(collections.Iterable):
         return 0
 
     @classmethod
-    def pickle_load(cls, filepath):
+    def pickle_load(cls, filepath, disable_signals=False):
         """
-        Load the object from a pickle file and performs initial setup.
+        Loads the object from a pickle file and performs initial setup.
 
         Args:
             filepath:
                 Filename or directory name. It filepath is a directory, we 
                 scan the directory tree starting from filepath and we 
                 read the first pickle database.
+            disable_signals:
+                If True, the nodes of the flow are not connected by signals.
+                This option is usually used when we want to read a flow 
+                in read-only mode and we want to avoid any possible side effect.
         """
         if os.path.isdir(filepath):
             # Walk through each directory inside path and find the pickle database.
@@ -291,7 +349,8 @@ class AbinitFlow(collections.Iterable):
             with open(filepath, "rb") as fh:
                 flow = pickle.load(fh)
 
-        flow.connect_signals()
+        if not disable_signals:
+            flow.connect_signals()
 
         # Recompute the status of each task since tasks that
         # have been submitted previously might be completed.
@@ -341,7 +400,7 @@ class AbinitFlow(collections.Iterable):
                 The name of the directory used for the `Workflow`.
 
         Returns:   
-            The workflow.
+            The registered `Workflow`.
         """
         # Directory of the workflow.
         if workdir is None:
@@ -365,7 +424,7 @@ class AbinitFlow(collections.Iterable):
 
     def register_cbk(self, cbk, cbk_data, deps, work_class, manager=None):
         """
-        Registers a callback function that will generate the Task of the Workflow.
+        Registers a callback function that will generate the `Task` of the `Workflow`.
 
         Args:
             cbk:
@@ -636,7 +695,6 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
                    )
 
         fake_task.strategy.add_extra_abivars(vars)
-
         w.start(wait=True)
 
         # Parse the file to get the perturbations.
