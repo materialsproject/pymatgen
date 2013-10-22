@@ -61,7 +61,7 @@ class TaskResults(dict, MSONable):
         "task_name",
         "task_returncode",
         "task_status",
-        "task_events",
+        #"task_events",
     ]
 
     EXC_KEY = "_exceptions"
@@ -1681,7 +1681,7 @@ class Task(Node):
             "task_name"      : self.name,
             "task_returncode": self.returncode,
             "task_status"    : self.status,
-            "task_events"    : self.events.to_dict
+            #"task_events"    : self.events.to_dict
         })
 
     def move(self, dest, is_abspath=False):
