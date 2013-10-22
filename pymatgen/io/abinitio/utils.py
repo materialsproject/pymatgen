@@ -1,9 +1,15 @@
 """Tools and helper functions for abinit calculations"""
+from __future__ import print_function, division
+
 import os.path
 import collections
 import shutil
+import operator
 
 from pymatgen.util.string_utils import list_strings, StringColorizer
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class File(object):
@@ -271,7 +277,7 @@ class FilepathFixer(object):
     {'/foo/out_1WF17': '/foo/out_1WF'}
 
     >>> fixer.fix_paths('/foo/out_1WF5.nc')
-    {'/foo/out_1WF.nc': '/foo/out_1WF.nc'}
+    {'/foo/out_1WF5.nc': '/foo/out_1WF.nc'}
     """
     def __init__(self):
         # dictionary mapping the *official* file extension to
@@ -328,37 +334,178 @@ class FilepathFixer(object):
         return old2new
 
 
-#def find_file(files, ext, prefix=None, dataset=None, image=None):
-#    """
-#    Given a list of file names, return the file with extension "_" + ext, None if not found.
-#
-#    The prefix, the dataset index and the image index can be specified
-#
-#    .. warning::
-#
-#       There are some border cases that will confuse the algorithm
-#       since the order of dataset and image is not tested.
-#       Solving this problem requires the knowledge of ndtset and nimages
-#       This code, however should work in 99.9% of the cases.
-#    """
-#    separator = "_"
-#
-#    for filename in list_strings(files):
-#        # Remove Netcdf extension (if any)
-#        f = filename[:-3] if filename.endswith(".nc") else filename
-#        if separator not in f: 
-#            continue
-#        tokens = f.split(separator)
-#
-#        if tokens[-1] == ext:
-#            found = True
-#            if prefix is not None:  
-#                found = found and filename.startswith(prefix)
-#            if dataset is not None: 
-#                found = found and "DS" + str(dataset) in tokens
-#            if image is not None:   
-#                found = found and "IMG" + str(image) in tokens
-#            if found: 
-#                return filename
-#    else:
-#        return None
+def _bop_not(obj):
+    """Boolean not."""
+    return not bool(obj)
+
+def _bop_and(obj1, obj2):
+    """Boolean and."""
+    return bool(obj1) and bool(obj2)
+
+def _bop_or(obj1, obj2):
+    """Boolean or."""
+    return bool(obj1) or bool(obj2)
+
+def _bop_divisible(num1, num2):
+    """Return True if num1 is divisible by num2."""
+    return (num1 % num2) == 0.0
+
+# Mapping string --> operator.
+_UNARY_OPS = {
+    "$not": _bop_not,
+}
+
+_BIN_OPS = {
+    "$eq": operator.eq,
+    "$ne": operator.ne,
+    "$gt": operator.gt,
+    "$ge": operator.ge,
+    "$lt": operator.lt,
+    "$le": operator.le,
+    "$divisible": _bop_divisible,
+    "$and": _bop_and,
+    "$or":  _bop_or,
+    }
+
+
+ops = _UNARY_OPS.keys() + _BIN_OPS.keys()
+
+
+def map2rpn(map, obj):
+    """
+    Convert a Mongodb-like dictionary to a RPN list of operands and operators.
+
+    Reverse Polish notation (RPN) is a mathematical notation in which every 
+    operator follows all of its operands, e.g.
+
+    3 - 4 + 5 -->   3 4 - 5 + 
+
+    >>> d = {2.0: {'$eq': 1.0}}
+    >>> map2rpn(d, None)
+    [2.0, 1.0, '$eq']
+    """
+    rpn = []
+
+    for k, v in map.items():
+
+        if k in ops:
+            if isinstance(v, collections.Mapping):
+                # e.g "$not": {"$gt": "one"}
+                # print("in op_vmap",k, v)
+                values = map2rpn(v, obj)
+                rpn.extend(values)
+                rpn.append(k)
+
+            elif isinstance(v, (list, tuple)):
+                # e.g "$and": [{"$not": {"one": 1.0}}, {"two": {"$lt": 3}}]}
+                # print("in_op_list",k, v)
+                for d in v:
+                    rpn.extend(map2rpn(d, obj))
+
+                rpn.append(k)
+
+            else: 
+                # Examples
+                # 1) "$eq"": "attribute_name"
+                # 2) "$eq"": 1.0
+                try:
+                    #print("in_otherv",k, v)
+                    rpn.append(getattr(obj, v))
+                    rpn.append(k)
+
+                except TypeError:
+                    #print("in_otherv, raised",k, v)
+                    rpn.extend([v, k])
+        else:
+            try:
+                k = getattr(obj, k)
+            except TypeError:
+                k = k
+
+            if isinstance(v, collections.Mapping):
+                # "one": {"$eq": 1.0}}
+                values = map2rpn(v, obj)
+                rpn.append(k)
+                rpn.extend(values) 
+            else:
+                #"one": 1.0 
+                rpn.extend([k, v, "$eq"])
+
+    return rpn
+
+
+def evaluate_rpn(rpn):
+    """
+    Evaluates the RPN form produced my map2rpn.
+
+    Returns:
+        bool
+    """
+    vals_stack = []
+                                                                              
+    for item in rpn:
+                                                                              
+        if item in ops:
+            # Apply the operator and push to the task.
+            v2 = vals_stack.pop()
+                                                                              
+            if item in _UNARY_OPS:
+                res = _UNARY_OPS[item](v2)
+                                                                              
+            elif item in _BIN_OPS:
+                v1 = vals_stack.pop()
+                res = _BIN_OPS[item](v1, v2)
+            else:
+                raise ValuError("%s not in unary_ops or bin_ops" % str(item))
+                                                                              
+            vals_stack.append(res)
+                                                                              
+        else:
+            # Push the operand
+            vals_stack.append(item)
+                                                                              
+        #print(vals_stack)
+                                                                              
+    assert len(vals_stack) == 1
+    assert isinstance(vals_stack[0], bool)
+                                                                              
+    return vals_stack[0]
+
+
+
+class Condition(object):
+    """
+    This object receive a dictionary that defines a boolean condition whose syntax is similar
+    to the one used in mongodb (albeit not all the operators available in mongodb are supported here).
+
+    $gt Syntax: {field: {$gt: value} }
+
+    $gt selects those documents where the value of the field is greater than (i.e. >) the specified value.
+
+    Consider the following example:
+
+    db.inventory.find( { qty: { $gt: 20 } } )
+    This query will select all documents in the inventory collection where the qty field value is greater than 20.
+
+    Syntax: { $and: [ { <expression1> }, { <expression2> } , ... , { <expressionN> } ] }
+
+    $and performs a logical AND operation on an array of two or more expressions (e.g. <expression1>, <expression2>, etc.) 
+    and selects the documents that satisfy all the expressions in the array. 
+
+    Consider the following example:
+
+    db.inventory.find( { qty: { $gt: 20 } } )
+    db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )
+    """
+    def __init__(self, cmap):
+        self.cmap = cmap
+
+    def __str__(self):
+        return str(self.cmap)
+
+    def apply(self, obj):
+        try:
+            return evaluate_rpn(map2rpn(self.cmap, obj))
+        except:
+            logger.warning("Condition.apply() raise Exception")
+            return False

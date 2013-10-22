@@ -103,6 +103,8 @@ class AbinitEvent(yaml.YAMLObject):
         return {}
 
 
+
+
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
     yaml_tag = u'!COMMENT'
@@ -111,6 +113,10 @@ class AbinitComment(AbinitEvent):
 class AbinitError(AbinitEvent):
     """Base class for Error events"""
     yaml_tag = u'!ERROR'
+
+
+class AbinitYamlError(AbinitError):
+    """Raised if the YAML parser cannot parse the document."""
 
 
 class AbinitBug(AbinitEvent):
@@ -310,7 +316,13 @@ class EventParser(object):
                 #print(80*"*")
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
-                    event = yaml.load(doc.text)
+
+                    try:
+                        event = yaml.load(doc.text)
+                    except:
+                        # Wrong YAML doc 
+                        event = AbinitYamlError(message=doc.text, scr_file="events.py", src_line=0)
+
                     event.lineno = doc.lineno
                     report.append(event)
 

@@ -12,6 +12,7 @@ import warnings
 import copy
 import yaml
 import numpy as np
+
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
 
@@ -24,7 +25,7 @@ from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
@@ -124,14 +125,14 @@ class ParalConf(AttrDict):
     """
     This object store the parameters associated to one 
     of the possible parallel configurations reported by ABINIT.
-    Essentialy it is a dictionary whose keys can be accessed as 
-    attributes. It also provides default values for selected keys
+    Essentially it is a dictionary whose values can also be accessed 
+    as attributes. It also provides default values for selected keys
     that might not be present in the ABINIT dictionary.
 
     Example:
 
         --- !Autoparal
-        header: 
+        info: 
             version: 1
             autoparal: 1
             max_ncpus: 108
@@ -172,6 +173,7 @@ class ParalConf(AttrDict):
 
     @property
     def speedup(self):
+        """Estimated speedup reported by ABINIT."""
         return self.efficiency * self.tot_ncpus
 
 
@@ -181,14 +183,19 @@ class ParalHintsParser(object):
 
     def parse(self, filename):
         """
-        Read the <RUN_HINTS> section from file filename
+        Read the AutoParal section (YAML forma) from filename.
         Assumes the file contains only one section.
         """
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
-            d = yaml.load(doc.text_notag)
-            #print(d)
-            return ParalHints(header=d["header"], confs=d["configurations"])
+
+            try:
+                d = yaml.load(doc.text_notag)
+                print(d)
+                return ParalHints(info=d["info"], confs=d["configurations"])
+
+            except:
+                raise self.Error("Wrong YAML doc:\n %s" % doc.text)
 
 
 class ParalHints(collections.Iterable):
@@ -197,8 +204,8 @@ class ParalHints(collections.Iterable):
     """
     Error = ParalHintsError
 
-    def __init__(self, header, confs):
-        self.header = header
+    def __init__(self, info, confs):
+        self.info = info
         self._confs = [ParalConf(**d) for d in confs]
 
     def __getitem__(self, key):
@@ -216,22 +223,13 @@ class ParalHints(collections.Iterable):
     def copy(self):
         return copy.copy(self)
 
-    def apply_filter(self, filter):
-        raise NotImplementedError("")
+    def select_with_condition(self, condition):
         new_confs = []
-
         for conf in self:
-            if not filter(costraint):
+            if condition.apply(obj=conf):
                 new_confs.append(conf)
 
         self._confs = new_confs
-
-    #def select(self, command)
-    #    new_confs = []
-    #    for conf in self:
-    #       if command(conf):
-    #            new_confs.append(conf)
-    #    self._confs = new_confs
 
     def sort_by_efficiency(self, reverse=False):
         """
@@ -256,9 +254,11 @@ class ParalHints(collections.Iterable):
         hints = self.copy()
 
         # First select the configurations satisfying the 
-        # constraints specified by the user (if any)
-        #for constraint in policy.constraints:
-        #    hints.apply_filter(constraint)
+        # condition specified by the user (if any)
+        if policy.condition:
+            hints.select_with_condition(policy.condition)
+            #if not hints: hints = self.copy()
+            print("after condition", hints)
 
         hints.sort_by_speedup()
 
@@ -288,11 +288,11 @@ class TaskPolicy(object):
     This object stores the parameters used by the `TaskManager` to 
     create the submission script and/or to modify the ABINIT variables 
     governing the parallel execution. A `TaskPolicy` object contains 
-    a set of variables that specify the launcher, and options
-    and constraints used to select the optimal configuration for the parallel run 
+    a set of variables that specify the launcher, as well as the options
+    and the condition used to select the optimal configuration for the parallel run 
     """
 
-    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): 
+    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, condition=None): 
         """
         Args:
             autoparal: 
@@ -301,19 +301,17 @@ class TaskPolicy(object):
                 Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
             max_ncpus:
-                Max number of CPUs that can be used (must be specifies if autoparal > 0).
+                Max number of CPUs that can be used (must be specified if autoparal > 0).
             use_fw: 
                 True if we are using fireworks.
-            constraints: 
-
-                List of constraints used to filter the autoparal configuration (Mongodb syntax)
+            condition: 
+                condition used to filter the autoparal configuration (Mongodb syntax)
         """
         self.autoparal = autoparal
         self.mode = mode 
         self.max_ncpus = max_ncpus
         self.use_fw = use_fw 
-        # TODO: Need a object to support mongodb-like queries.
-        self.constraints = constraints
+        self.condition = Condition(condition) if condition is not None else condition
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
@@ -489,9 +487,8 @@ class TaskManager(object):
         policy = self.policy
 
         if policy.autoparal == 0 or policy.max_ncpus is None: 
-            #print(policy.autoparal, policy.max_ncpus)
             # nothing to do
-            #print("returning from autoparal with None, None")
+            # print("returning from autoparal with None, None")
             return None, None
 
         assert policy.autoparal == 1
@@ -529,11 +526,13 @@ class TaskManager(object):
 
         try:
             confs = parser.parse(task.log_file.path)
+
         except parser.Error:
             return None, None
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
+        print(optimal)
 
         # 4) Change the input file and/or the submission script
         task.strategy.add_extra_abivars(optimal.vars)
@@ -599,7 +598,7 @@ class TaskManager(object):
 
         script_file = self.write_jobfile(task)
 
-        # Submit the script.
+        # Submit the task.
         task.set_status(task.S_SUB)
 
         process, queue_id = self.qadapter.submit_to_queue(script_file)
@@ -1203,7 +1202,7 @@ class Task(Node):
     @property
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other depencies (if any) are done!"""
-        all_ok = all([stat == self.S_OK for stat in self.deps_status])
+        all_ok = all(stat == self.S_OK for stat in self.deps_status)
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
