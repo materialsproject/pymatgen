@@ -7,9 +7,9 @@ calculation.
 from __future__ import division, print_function
 
 import collections
-import numpy as np
-import os.path
+import os
 import abc
+import numpy as np
 import pymatgen.core.units as units
 
 from pprint import pformat

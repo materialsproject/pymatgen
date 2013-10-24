@@ -91,13 +91,13 @@ class AbinitFlow(collections.Iterable):
         self.pickle_protocol = int(pickle_protocol)
 
         # Signal slots
-        # [node_id][SIGNAL] = handler 
+        # [node_id][SIGNAL] = list_of_signal_handlers
         #self._sig_slots =  slots = {}
         #for work in self:
-        #    slots[work] = {s: None} for s in work.S_ALL}
+        #    slots[work] = {s: [] for s in work.S_ALL}
 
         #for task in self.iflat_tasks():
-        #    slots[task] = {s: None for s in work.S_ALL}
+        #    slots[task] = {s: [] for s in work.S_ALL}
 
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
@@ -537,6 +537,26 @@ class AbinitFlow(collections.Iterable):
             for dep in cbk.deps:
                 print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
+
+        # associate to each signal the callback _on_signal
+        # (bound method of the node that will be called by `AbinitFlow`
+        # Each node will set its attribute _done_signal to True to tell
+        # the flow that this callback should be disabled.
+
+        # Register the callbacks for the Workflows.
+        #for work in self:
+        #    slot = self._sig_slots[work]
+        #    for sig in S_ALL:
+        #        done_sig = getattr(work, "_done_ " + sig, False)
+        #        if not done_sig:
+        #            cbk_name = "_on_" + _sig
+        #            cbk = getattr(work, cbk_name, None)
+        #            if cbk is None: continue
+        #            slot[work][sig].append(cbk)
+        #           print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
+        #           dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
+
+        # Register the callbacks for the Tasks.
 
         #self.show_receivers()
 
