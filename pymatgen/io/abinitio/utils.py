@@ -472,26 +472,26 @@ def evaluate_rpn(rpn):
     return vals_stack[0]
 
 
-
 class Condition(object):
     """
     This object receive a dictionary that defines a boolean condition whose syntax is similar
     to the one used in mongodb (albeit not all the operators available in mongodb are supported here).
 
-    $gt Syntax: {field: {$gt: value} }
+    Example:
+
+    $gt: {field: {$gt: value} }
 
     $gt selects those documents where the value of the field is greater than (i.e. >) the specified value.
+
+    $and performs a logical AND operation on an array of two or more expressions (e.g. <expression1>, <expression2>, etc.) 
+    and selects the documents that satisfy all the expressions in the array. 
+
+    { $and: [ { <expression1> }, { <expression2> } , ... , { <expressionN> } ] }
 
     Consider the following example:
 
     db.inventory.find( { qty: { $gt: 20 } } )
     This query will select all documents in the inventory collection where the qty field value is greater than 20.
-
-    Syntax: { $and: [ { <expression1> }, { <expression2> } , ... , { <expressionN> } ] }
-
-    $and performs a logical AND operation on an array of two or more expressions (e.g. <expression1>, <expression2>, etc.) 
-    and selects the documents that satisfy all the expressions in the array. 
-
     Consider the following example:
 
     db.inventory.find( { qty: { $gt: 20 } } )

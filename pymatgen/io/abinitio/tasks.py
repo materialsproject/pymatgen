@@ -191,7 +191,7 @@ class ParalHintsParser(object):
 
             try:
                 d = yaml.load(doc.text_notag)
-                print(d)
+                #print(d)
                 return ParalHints(info=d["info"], confs=d["configurations"])
 
             except:
@@ -258,14 +258,15 @@ class ParalHints(collections.Iterable):
         if policy.condition:
             hints.select_with_condition(policy.condition)
             #if not hints: hints = self.copy()
-            print("after condition", hints)
+            #print("after condition", hints)
 
         hints.sort_by_speedup()
 
         # If no configuration fullfills the requirements, 
         # we return the one with the highest speedup.
         if not hints:
-            self.copy().sort_by_speedup()
+            hints = self.copy()
+            hints.sort_by_speedup()
             return hints[-1].copy()
 
         # Find the optimal configuration according to policy.mode.
@@ -511,15 +512,8 @@ class TaskManager(object):
         process = seq_manager.launch(task)
         process.wait()  
 
-        # Reset the status, remove garbage files ...
-        task.set_status(task.S_READY)
-
         # Remove the variables added for the automatic parallelization
         task.strategy.remove_extra_abivars(autoparal_vars.keys())
-
-        # Remove the output file since Abinit likes to create new files 
-        # with extension .outA, .outB if the file already exists.
-        os.remove(task.output_file.path)
 
         # 2) Parse the autoparal configurations
         parser = ParalHintsParser()
@@ -532,7 +526,7 @@ class TaskManager(object):
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
-        print(optimal)
+        print("optimal Autoparal conf:\n %s" % optimal)
 
         # 4) Change the input file and/or the submission script
         task.strategy.add_extra_abivars(optimal.vars)
@@ -549,6 +543,15 @@ class TaskManager(object):
         # Change the memory per node.
         #if optimal.mem_per_cpu is not None
         #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
+
+        # Reset the status, remove garbage files ...
+        task.set_status(task.S_READY)
+
+        # Remove the output file since Abinit likes to create new files 
+        # with extension .outA, .outB if the file already exists.
+        os.remove(task.output_file.path)
+        os.remove(task.log_file.path)
+        os.remove(task.stderr_file.path)
 
         return confs, optimal
 
@@ -601,6 +604,7 @@ class TaskManager(object):
         # Submit the task.
         task.set_status(task.S_SUB)
 
+        # FIXME: CD to script file dir?
         process, queue_id = self.qadapter.submit_to_queue(script_file)
 
         # Save the queue id.
@@ -1409,25 +1413,11 @@ class Task(Node):
 
         changed = False
         if hasattr(self, "_status"):
-            changed = status != self._status
+            changed = (status != self._status)
 
         self._status = status
 
-        if status == self.S_DONE:
-            self._on_done()
-
-        if status == self.S_OK:
-            #if status == self.S_UNCONVERGED:
-            #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
-            #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
-
-            # Finalize the task.
-            if not self.finalized:
-                self._on_ok()
-
-            logger.debug("Task %s broadcasts signal S_OK" % self)
-            dispatcher.send(signal=self.S_OK, sender=self)
-
+        # Add new entry to history only if the status has changed.
         if changed:
             if status == self.S_SUB: 
                 self._submission_time = time.time()
@@ -1438,6 +1428,21 @@ class Task(Node):
 
             if status == self.S_ERROR:
                 self.history.append("Error info:\n %s" % str(info_msg))
+
+        if status == self.S_DONE:
+            self._on_done()
+                                                                                
+        if status == self.S_OK:
+            #if status == self.S_UNCONVERGED:
+            #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
+            #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
+                                                                                
+            # Finalize the task.
+            if not self.finalized:
+                self._on_ok()
+                                                                                
+            logger.debug("Task %s broadcasts signal S_OK" % self)
+            dispatcher.send(signal=self.S_OK, sender=self)
 
         return status
 
@@ -1467,14 +1472,14 @@ class Task(Node):
                 if self.stderr_file.exists:
                     err_msg = self.stderr_file.read()
                     if err_msg:
-                        logger.critical("executable stderr:\n" + err_msg)
+                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
                         return self.set_status(self.S_ERROR, info_msg=err_msg)
 
                 # Analyze the error file of the resource manager.
                 if self.qerr_file.exists:
                     err_info = self.qerr_file.read()
                     if err_info:
-                        logger.critical("queue stderr:\n" + err_msg)
+                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
                         return self.set_status(self.S_ERROR, info_msg=err_info)
 
                 return self.status
@@ -1510,7 +1515,7 @@ class Task(Node):
 
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
         if report.errors or report.bugs:
-            logger.critical("Found Errors or Bugs in ABINIT main output!")
+            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
             return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
@@ -1584,7 +1589,7 @@ class Task(Node):
             #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
-                print("need path %s with ext %s" % (path, ext))
+                logger.info("need path %s with ext %s" % (path, ext))
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path): 
@@ -1595,7 +1600,7 @@ class Task(Node):
                         dest += "-etsf.nc"
 
                 if not os.path.exists(path):
-                    err_msg = "%s is needed by this task but it does not exist" % path
+                    err_msg = "%s: %s is needed by this task but it does not exist" % (self, path)
                     logger.critical(err_msg)
                     raise self.Error(err_msg)
 
@@ -1643,13 +1648,13 @@ class Task(Node):
         if not file.exists:
             return None
 
-        parser = events.EventParser()
+        parser = events.EventsParser()
         try:
             return parser.parse(file.path)
 
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
-            logger.critical("%s: Exception while parsing ABINIT events:\n %s" (file, str(exc)))
+            logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (file, str(exc)))
             self.set_status(self.S_ERROR, info_msg=str(exc))
             return parser.report_exception(file.path, exc)
 
@@ -1797,10 +1802,7 @@ class Task(Node):
         if self._status >= self.S_SUB:
             raise self.Error("Task status: %s" % str(self.status))
 
-        self.set_status(self.S_SUB)
-
         self.build()
-
         self._setup()
 
         # Add the variables needed to connect the node.

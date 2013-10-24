@@ -12,8 +12,14 @@ from pymatgen.util.string_utils import WildCard
 from pymatgen.io.abinitio.abiinspect import YamlTokenizer, YamlDoc
 
 __all__ = [
-    "EventParser",
+    "EventsParser",
 ]
+
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
+
 
 class AbinitEvent(yaml.YAMLObject):
     """
@@ -58,7 +64,7 @@ class AbinitEvent(yaml.YAMLObject):
           the class attribute yaml_tag so that yaml.load will know how to 
           build the instance.
     """
-    def __init__(self, message, scr_file, src_line):
+    def __init__(self, message, src_file, src_line):
         """
         Basic constructor for `AbinitEvent`. 
 
@@ -102,9 +108,6 @@ class AbinitEvent(yaml.YAMLObject):
         """
         return {}
 
-
-
-
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
     yaml_tag = u'!COMMENT'
@@ -116,7 +119,7 @@ class AbinitError(AbinitEvent):
 
 
 class AbinitYamlError(AbinitError):
-    """Raised if the YAML parser cannot parse the document."""
+    """Raised if the YAML parser cannot parse the document and the doc tag is an Error."""
 
 
 class AbinitBug(AbinitEvent):
@@ -130,6 +133,11 @@ class AbinitWarning(AbinitEvent):
     Base class for Warning events (the most important class).
     Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
+    """
+
+class AbinitYamlWarning(AbinitWarning):
+    """
+    Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
     """
 
 
@@ -284,15 +292,15 @@ class EventReport(collections.Iterable):
         return evts
 
 
-class EventParserError(Exception):
-    """Base class for the exceptions raised by EventParser."""
+class EventsParserError(Exception):
+    """Base class for the exceptions raised by EventsParser."""
 
 
-class EventParser(object):
+class EventsParser(object):
     """
     Parses the output or the log file produced by abinit and extract the list of events.
     """
-    Error = EventParserError
+    Error = EventsParserError
 
     @staticmethod
     def parse(filename):
@@ -316,21 +324,28 @@ class EventParser(object):
                 #print(80*"*")
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
-
                     try:
                         event = yaml.load(doc.text)
                     except:
-                        # Wrong YAML doc 
-                        event = AbinitYamlError(message=doc.text, scr_file="events.py", src_line=0)
+                        # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
+                        message = "Malformatted YAML document at line: %d\n" % doc.lineno
+                        message += doc.text
+                        message += "Traceback:\n %s" % straceback()
+
+                        if "error" in doc.tag.lower():
+                            print("seems an error",doc.tag)
+                            event = AbinitYamlError(message=message, src_file=__file__, src_line=0)
+                        else:
+                            event = AbinitYamlWarning(message=message, src_file=__file__, src_line=0)
 
                     event.lineno = doc.lineno
                     report.append(event)
 
+                # Check whether the calculation completed.
                 if doc.tag == "!FinalSummary":
                     run_completed = True
 
         # TODO: Add YAML doc with FinalSummary.
-        # Check whether the calculation completed.
         #MAGIC = "Calculation completed."
         #with open(filename) as fh:
         #    for line in fh:
