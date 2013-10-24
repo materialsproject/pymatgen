@@ -487,9 +487,8 @@ class TaskManager(object):
         """
         policy = self.policy
 
-        if policy.autoparal == 0 or policy.max_ncpus is None: 
-            # nothing to do
-            # print("returning from autoparal with None, None")
+        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
+            logger.info("Nothing to do in autoparal, returning (None, None)")
             return None, None
 
         assert policy.autoparal == 1
@@ -1102,9 +1101,10 @@ class Task(Node):
             self.set_workdir(workdir)
                                                                
         if manager is not None:
+            print("setting manager")
             self.set_manager(manager)
-        else:
-            self.set_manager(TaskManager.sequential())
+        #else:
+        #    self.set_manager(TaskManager.sequential())
 
         # Handle possible dependencies.
         if deps:
@@ -1411,7 +1411,7 @@ class Task(Node):
         """Set the status of the task."""
         assert status in STATUS2STR
 
-        changed = False
+        changed = True
         if hasattr(self, "_status"):
             changed = (status != self._status)
 
@@ -1488,7 +1488,6 @@ class Task(Node):
         report = self.get_event_report()
 
         if report.run_completed:
-            # TODO
             # Check if the calculation converged.
             not_ok = self.not_converged()
 
@@ -2268,8 +2267,8 @@ class OpticTask(Task):
 
     def set_workdir(self, workdir):
         super(OpticTask, self).set_workdir(workdir)
-        # The log file of optics is actually the main output file --> swap the files.
-        #self.output_file, self.log_file = self.log_file, self.output_file
+        # Small hack: the log file of optics is actually the main output file. 
+        self.output_file = self.log_file
 
     @property
     def executable(self):
