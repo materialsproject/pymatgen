@@ -523,9 +523,12 @@ class YamlDoc(object):
             tag:
                 The YAML tag associate to the document.
         """
-        self.text = text 
+        # Sanitize strings: use "ignore" to skip invalid characters in .encode/.decode like
+        text = text.decode("utf-8", "ignore")
+        text = text.rstrip().lstrip()
+        self.text = text
         self.lineno = lineno
-        self.tag = tag
+        self.tag = tag.decode("utf-8", "ignore") if tag is not None else tag
 
     def __str__(self):
         return self.text

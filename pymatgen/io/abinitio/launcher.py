@@ -5,6 +5,7 @@ import os
 import time
 
 from subprocess import Popen, PIPE
+from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
 
@@ -15,7 +16,14 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "ScriptEditor",
     "PyLauncher",
+    "PyFlowsScheduler",
 ]
+
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
+
 
 class ScriptEditor(object):
     """
@@ -72,6 +80,7 @@ class ScriptEditor(object):
             self.export_envar(k, v)
 
     def add_emptyline(self):
+        """Add an empty line."""
         self._add("", pre="")
 
     def add_comment(self, comment):
@@ -142,7 +151,7 @@ class OmpEnv(dict):
 
     @staticmethod
     def from_file(filename, allow_empty=False):
-
+        """Reads the OpenMP variables from a INI file."""
         if filename.endswith(".ini"):
             from ConfigParser import SafeConfigParser, NoOptionError
             parser = SafeConfigParser()
@@ -228,9 +237,11 @@ class PyLauncher(object):
 
         # Submit the tasks and update the database.
         if tasks:
-            for task in tasks:
-                task.start()
-                num_launched += 1
+            tasks[0].start()
+            num_launched += 1
+            #for task in tasks:
+            #   task.start()
+            #   num_launched += 1
             
             self.flow.pickle_dump()
 
@@ -256,7 +267,6 @@ class PyLauncher(object):
         """
         #sleep_time = sleep_time if sleep_time else FWConfig().RAPIDFIRE_SLEEP_SECS
         #nlaunches = -1 if nlaunches == 'infinite' else int(nlaunches)
-        #num_launched = 0
         #num_loops = 0
         num_launched, launched = 0, []
 
@@ -267,7 +277,6 @@ class PyLauncher(object):
             while True:
                 try:
                     task = work.fetch_task_to_run()
-                    #flow.check_status()
 
                     if task is None:
                         logger.debug("fetch_task_to_run returned None.")
@@ -291,8 +300,9 @@ class PyLauncher(object):
                     break
 
         # Update the database.
-        if num_launched:
-            self.flow.pickle_dump()
+        #if num_launched:
+        self.flow.check_status()
+        self.flow.pickle_dump()
 
         return num_launched 
 
@@ -315,26 +325,53 @@ class PyFlowsScheduler(object):
             start_date:
                 when to first execute the job and start the counter (default is after the given interval)
         """
-        self.weeks = weeks
-        self.days = days
-        self.hours = hours
-        self.minutes = minutes
-        self.seconds = seconds
-        self.start_date = start_date
+        # Time Options passed to the scheduler.
+        self.sched_options = AttrDict(
+             weeks=weeks,
+             days=days,
+             hours=hours,
+             minutes=minutes,
+             seconds=seconds,
+             start_date=start_date,
+        )
 
         from apscheduler.scheduler import Scheduler
         self.sched = Scheduler(standalone=True)
 
         self._pidfiles2flows = {}
 
+    def __str__(self):
+        """String representation."""
+        lines = [self.__class__.__name__ + ", Pid: %d" % self.pid]
+        app = lines.append
+
+        app("Scheduler options: %s" % str(self.sched_options)) 
+
+        for flow in self.flows:
+            app(80 * "=")
+            app(str(flow))
+
+        return "\n".join(lines)
+
     @property
     def pid(self):
         """Pid of the process"""
         try:
             return self._pid
+
         except AttributeError:
             self._pid = os.getpid()
             return self._pid
+
+    @property
+    def pid_files(self):
+        """List of files with the pid. The files are located in the workdir of the flows"""
+        return self._pidfiles2flows.keys()
+                                                                                            
+    @property
+    def flows(self):
+        """List of `AbinitFlows`."""
+        return self._pidfiles2flows.values()
 
     def add_flow(self, flow):
         """Add an `AbinitFlow` to the scheduler."""
@@ -345,7 +382,6 @@ class PyFlowsScheduler(object):
 
         if os.path.isfile(pid_file):
             err_msg = (
-                "\n"
                 "pid_file %s already exists\n"
                 "There are two possibilities:\n\n"
                 "       1) There's an another instance of PyFlowsScheduler running.\n"
@@ -357,6 +393,7 @@ class PyFlowsScheduler(object):
                 "   Remove the pid_file and rerun the scheduler.\n\n"
                 "Exiting\n" % pid_file
                 )
+
             raise RuntimeError(err_msg)
 
         else:
@@ -365,31 +402,12 @@ class PyFlowsScheduler(object):
 
         self._pidfiles2flows[pid_file] = flow
 
-    @property
-    def pid_files(self):
-        """List of files with the pid. The files are located in the workdir of the flows"""
-        return self._pidfiles2flows.keys()
-
-    @property
-    def flows(self):
-        """List of `AbinitFlows`."""
-        return self._pidfiles2flows.values()
-
     def start(self):
         """
         Starts the scheduler in a new thread.
         In standalone mode, this method will block until there are no more scheduled jobs.
         """
-        options = dict(
-             weeks=self.weeks,
-             days=self.days,
-             hours=self.hours,
-             minutes=self.minutes,
-             seconds=self.seconds,
-             start_date=self.start_date,
-        )
-
-        self.sched.add_interval_job(self._runem_all, **options)
+        self.sched.add_interval_job(self._runem_all, **self.sched_options)
         self.sched.start()
 
     def _runem_all(self):
@@ -402,13 +420,24 @@ class PyFlowsScheduler(object):
                 nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
 
             except Exception as exc:
-                exceptions.append(exc)
+                exceptions.append(straceback())
+                #exceptions.append(exc)
 
-        print("num jobs launched: ", nlaunch)
-        print("exceptions: ",exceptions) 
+            finally:
+                flow.show_status()
+
+        print("Number of Tasks launched: ", nlaunch)
+        if exceptions:
+            logger.critical("Scheduler exceptions: %s" % str(exceptions))
 
         if flow.all_ok:
-            print("all tasks in the workflows have reached S_OK. Exiting")
+            msg = "All tasks in the workflow(s) have reached S_OK. Will shutdown the scheduler and exit"
+            msg = 5*"=" + msg + 5*"="
+
+            print(len(msg)* "=")
+            print(msg)
+            print(len(msg)* "=")
+
             for pid_file in self.pid_files:
                 try:
                     os.unlink(pid_file)

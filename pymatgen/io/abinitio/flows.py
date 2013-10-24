@@ -9,6 +9,7 @@ import time
 import collections
 import itertools
 import cPickle as pickle
+#import pickle as pickle
 
 try:
     from pydispatch import dispatcher
@@ -89,6 +90,15 @@ class AbinitFlow(collections.Iterable):
 
         self.pickle_protocol = int(pickle_protocol)
 
+        # Signal slots
+        # [node_id][SIGNAL] = handler 
+        #self._sig_slots =  slots = {}
+        #for work in self:
+        #    slots[work] = {s: None} for s in work.S_ALL}
+
+        #for task in self.iflat_tasks():
+        #    slots[task] = {s: None for s in work.S_ALL}
+
     def __repr__(self):
         return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
 
@@ -120,12 +130,23 @@ class AbinitFlow(collections.Iterable):
         """List of `Workflow` objects contained in self.."""
         return self._works
 
+    @property
+    def all_ok(self):
+        """True if all the tasks in workflows have reached S_OK."""
+        return all(work.all_ok for work in self)
+
     #@property
     #def completed(self):
     #    """True if all the tasks of the flow have reached S_OK."""
-    #    return all(task.status == task.S_OK for task in self.flat_tasks())
+    #    return all(task.status == task.S_OK for task in self.iflat_tasks())
 
-    def iflat_tasks(self, status=None, op="="):
+    #def iflat_tasks_wti(self, status=None, op="="):
+    #    return _iflat_tasks_wti(self, status=None, op="=", with_wti=True)
+
+    #def iflat_tasks(self, status=None, op="="):
+    #    return _iflat_tasks_wti(self, status=None, op="=", with_wti=False)
+
+    def iflat_tasks(self, status=None, op="=", with_wti=True):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
@@ -136,7 +157,10 @@ class AbinitFlow(collections.Iterable):
         if status is None:
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
-                    yield task, wi, ti
+                    if with_wti:
+                        yield task, wi, ti
+                    else:
+                        yield task
 
         else:
             # Get the operator from the string.
@@ -153,7 +177,10 @@ class AbinitFlow(collections.Iterable):
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
                     if op(task.status, status):
-                        yield task, wi, ti
+                        if with_wti:
+                            yield task, wi, ti
+                        else:
+                            yield task
 
     @property
     def ncpus_reserved(self):
@@ -181,29 +208,6 @@ class AbinitFlow(collections.Iterable):
         """
         return sum(work.ncpus_inuse for work in self)
 
-    def used_ids(self):
-        """
-        Returns a set with all the ids used so far to identify `Task` and `Workflow`.
-        """
-        ids = []
-        for work in self:
-            ids.append(work.node_id)
-            for task in work:
-                ids.append(task.node_id)
-
-        used_ids = set(ids)
-        assert len(ids_set) == len(ids)
-
-        return used_ids
-
-    def generate_new_nodeid(self):
-        """Returns an unused node identifier."""
-        used_ids = self.used_ids()
-
-        for nid in itertools.count():
-            if nid not in used_ids:
-                return nid
-
     def check_status(self):
         """Check the status of the workflows in self."""
         for work in self:
@@ -213,7 +217,7 @@ class AbinitFlow(collections.Iterable):
         if self.auto_restart:
             num_restarts = 0
             for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
-                msg = "Flow will try restart task %s" % task
+                msg = "AbinitFlow will try restart task %s" % task
                 print(msg)
                 logger.info(msg)
                 retcode = task.restart_if_needed()
@@ -469,6 +473,10 @@ class AbinitFlow(collections.Iterable):
         return work
 
     def allocate(self):
+        """
+        Allocate the `AbinitFlow` i.e. assign the `workdir` and (optionally) 
+        the `TaskManager` to the different tasks in the Flow.
+        """
         for work in self:
             work.allocate()
 
@@ -513,10 +521,6 @@ class AbinitFlow(collections.Iterable):
 
     #def finalize(self):
     #    """This method is called when the flow is completed."""
-
-    @property
-    def all_ok(self):
-        return all(work.all_ok for work in self)
 
     def connect_signals(self):
         """
