@@ -90,7 +90,10 @@ class AbinitFlow(collections.Iterable):
 
         self.pickle_protocol = int(pickle_protocol)
 
-        # Signal slots
+        # Signal slots: a dictionary with the list 
+        # of callbacks indexed by node_id and SIGNAL_TYPE.
+        # When the node changes its status, it broadcast a signal.
+        # The flow is listening to all the nodes of the calculation
         # [node_id][SIGNAL] = list_of_signal_handlers
         #self._sig_slots =  slots = {}
         #for work in self:
@@ -382,8 +385,8 @@ class AbinitFlow(collections.Iterable):
         """
         work = Workflow(manager=manager)
         task = work.register(input, deps=deps, task_class=task_class)
-
         self.register_work(work)
+
         return task
 
     def register_work(self, work, deps=None, manager=None, workdir=None):
@@ -413,10 +416,12 @@ class AbinitFlow(collections.Iterable):
             work_workdir = os.path.join(self.workdir, os.path.basenane(workdir))
 
         # Make a deepcopy since manager is mutable and we might change it at run-time.
-        manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
+        #manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
 
         work.set_workdir(work_workdir)
-        work.set_manager(manager)
+
+        if manager is not None:
+            work.set_manager(manager)
 
         self.works.append(work)
 
@@ -451,7 +456,7 @@ class AbinitFlow(collections.Iterable):
         work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
                                                                                                             
         # Make a deepcopy since manager is mutable and we might change it at run-time.
-        manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
+        #manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
                                                                                                             
         # Create an empty workflow and register the callback
         work = work_class(workdir=work_workdir, manager=manager)
@@ -478,7 +483,7 @@ class AbinitFlow(collections.Iterable):
         the `TaskManager` to the different tasks in the Flow.
         """
         for work in self:
-            work.allocate()
+            work.allocate(manager=self.manager)
 
         return self
 
@@ -538,7 +543,7 @@ class AbinitFlow(collections.Iterable):
                 print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
                 dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
 
-        # associate to each signal the callback _on_signal
+        # Associate to each signal the callback _on_signal
         # (bound method of the node that will be called by `AbinitFlow`
         # Each node will set its attribute _done_signal to True to tell
         # the flow that this callback should be disabled.
@@ -546,15 +551,15 @@ class AbinitFlow(collections.Iterable):
         # Register the callbacks for the Workflows.
         #for work in self:
         #    slot = self._sig_slots[work]
-        #    for sig in S_ALL:
-        #        done_sig = getattr(work, "_done_ " + sig, False)
+        #    for signal in S_ALL:
+        #        done_signal = getattr(work, "_done_ " + signal, False)
         #        if not done_sig:
-        #            cbk_name = "_on_" + _sig
+        #            cbk_name = "_on_" + str(signal)
         #            cbk = getattr(work, cbk_name, None)
         #            if cbk is None: continue
-        #            slot[work][sig].append(cbk)
-        #           print("connecting %s \nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
-        #           dispatcher.connect(self.on_dep_ok, signal=dep.node.S_OK, sender=dep.node, weak=False)
+        #            slot[work][signal].append(cbk)
+        #            print("connecting %s\nwith sender %s, signal %s" % (str(cbk), dep.node, dep.node.S_OK))
+        #            dispatcher.connect(self.on_dep_ok, signal=signal, sender=dep.node, weak=False)
 
         # Register the callbacks for the Tasks.
 

@@ -339,15 +339,26 @@ class Workflow(BaseWorkflow):
 
         return counter
 
-    def allocate(self):
+    def allocate(self, manager=None):
         """
         This function is called once we have completed the initialization 
         of the `Workflow`. It sets the manager of each task (if not already done)
         and defines the working directories of the tasks.
+
+        Args:
+            manager:
+                `TaskManager` object or None
         """
         for i, task in enumerate(self):
             if not hasattr(task, "manager"):
-                task.set_manager(self.manager)
+                # Set the manager
+
+                if manager is not None:
+                    # Use the one provided in input.
+                    task.set_manager(manager)
+                else:
+                    # Use the one of the workflow.
+                    task.set_manager(self.manager)
 
             task_workdir = os.path.join(self.workdir, "task_" + str(i))
 
@@ -576,13 +587,6 @@ class Workflow(BaseWorkflow):
             etotal.append(etot)
 
         return etotal
-
-    #def json_dump(self, filename):
-    #    json_pretty_dump(self.to_dict, filename)
-    #                                              
-    #@classmethod
-    #def json_load(cls, filename):
-    #    return cls.from_dict(json_load(filename))
 
     def parse_timers(self):
         """

@@ -415,21 +415,6 @@ class AbiStructure(Structure, AbivarAble):
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        #significant_figures = 12
-        #format_str = "{{:.{0}f}}".format(significant_figures)
-        #fmt = format_str.format
-
-        #lines = []
-        #for vec in Ang2Bohr(self.lattice.matrix):
-        #    lines.append(" ".join(fmt(c) for c in vec))
-        #rprim = "\n" + "\n".join(lines)
-
-        #lines = []
-        #for (i, site) in enumerate(self):
-        #    coords = site.frac_coords
-        #    lines.append( " ".join(fmt(c) for c in coords) + " # " + site.species_string )
-        #xred = '\n' + "\n".join(lines)
-
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
