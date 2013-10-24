@@ -4,10 +4,10 @@ Created on Fri Mar  8 23:14:02 CET 2013
 """
 from __future__ import division, print_function
 
-import unittest
 import os.path
 import collections
 
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import *
 
 test_dir = os.path.join(os.path.dirname(__file__))
@@ -15,7 +15,7 @@ test_dir = os.path.join(os.path.dirname(__file__))
 def filepath(basename):
     return os.path.join(test_dir, basename)
 
-class PseudoTestCase(unittest.TestCase):
+class PseudoTestCase(PymatgenTest):
 
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
@@ -51,6 +51,9 @@ class PseudoTestCase(unittest.TestCase):
                 self.assertEqual(pseudo.Z_val, 4)
                 self.assertGreaterEqual(pseudo.nlcc_radius, 0.0)
 
+                # Test pickle
+                self.serialize_with_pickle(pseudo, test_eq=False)
+
         # HGH pseudos
         pseudo = self.Si_hgh
         self.assertFalse(pseudo.has_nlcc)
@@ -73,4 +76,5 @@ class PseudoTestCase(unittest.TestCase):
     #    "Test PAW pseudopotentials"
 
 if __name__ == "__main__":
+    import unittest
     unittest.main()
