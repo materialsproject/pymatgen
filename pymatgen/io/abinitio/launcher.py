@@ -239,9 +239,6 @@ class PyLauncher(object):
         if tasks:
             tasks[0].start()
             num_launched += 1
-            #for task in tasks:
-            #   task.start()
-            #   num_launched += 1
             
             self.flow.pickle_dump()
 
@@ -340,6 +337,8 @@ class PyFlowsScheduler(object):
 
         self._pidfiles2flows = {}
 
+        self.exceptions = []
+
     def __str__(self):
         """String representation."""
         lines = [self.__class__.__name__ + ", Pid: %d" % self.pid]
@@ -416,35 +415,56 @@ class PyFlowsScheduler(object):
 
         for flow in self.flows:
             flow.check_status()
+
             try:
                 nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
 
             except Exception as exc:
                 exceptions.append(straceback())
-                #exceptions.append(exc)
 
-            finally:
-                flow.show_status()
-
-        print("Number of Tasks launched: ", nlaunch)
+        print("Number of launches: ", nlaunch)
+        flow.show_status()
+        
         if exceptions:
             logger.critical("Scheduler exceptions: %s" % str(exceptions))
 
-        if flow.all_ok:
-            msg = "All tasks in the workflow(s) have reached S_OK. Will shutdown the scheduler and exit"
+        self.exceptions.extend(exceptions)
+
+        # Too many exceptions. Shutdown the scheduler.
+        if len(self.exceptions) > 2:
+            msg = "Number of exceptions > 2. Will shutdown the scheduler and exit"
+            msg = 5*"=" + msg + 5*"="
+                                                                                      
+            print(len(msg)* "=")
+            print(msg)
+            print(len(msg)* "=")
+
+            self.shutdown()
+
+        # Mission accomplished. Shutdown the scheduler.
+        if all(flow.all_ok for flow in self.flows):
+            msg = "All tasks have reached S_OK. Will shutdown the scheduler and exit"
             msg = 5*"=" + msg + 5*"="
 
             print(len(msg)* "=")
             print(msg)
             print(len(msg)* "=")
 
-            for pid_file in self.pid_files:
-                try:
-                    os.unlink(pid_file)
-                except:
-                    pass
-
-            # Shutdown the scheduler thus allowing the process to exit.
-            self.sched.shutdown(wait=False)
+            self.shutdown()
 
         return len(exceptions) 
+
+    def shutdown(self):
+        """Shutdown the scheduler."""
+        for pid_file in self.pid_files:
+            try:
+                os.unlink(pid_file)
+            except:
+                pass
+                                                                    
+        # Save the final status of the flow.
+        for flow in self.flows:
+            flow.pickle_dump()
+                                                                    
+        # Shutdown the scheduler thus allowing the process to exit.
+        self.sched.shutdown(wait=False)

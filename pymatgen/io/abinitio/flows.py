@@ -415,9 +415,6 @@ class AbinitFlow(collections.Iterable):
         else:
             work_workdir = os.path.join(self.workdir, os.path.basenane(workdir))
 
-        # Make a deepcopy since manager is mutable and we might change it at run-time.
-        #manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
-
         work.set_workdir(work_workdir)
 
         if manager is not None:
@@ -454,10 +451,7 @@ class AbinitFlow(collections.Iterable):
         # TODO: pass a workflow factory instead of a class
         # Directory of the workflow.
         work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
-                                                                                                            
-        # Make a deepcopy since manager is mutable and we might change it at run-time.
-        #manager = self.manager.deepcopy() if manager is None else manager.deepcopy()
-                                                                                                            
+
         # Create an empty workflow and register the callback
         work = work_class(workdir=work_workdir, manager=manager)
         
@@ -477,7 +471,7 @@ class AbinitFlow(collections.Iterable):
                                                                                                             
         return work
 
-    def allocate(self):
+    def allocate(self, manager=None):
         """
         Allocate the `AbinitFlow` i.e. assign the `workdir` and (optionally) 
         the `TaskManager` to the different tasks in the Flow.
@@ -704,6 +698,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_ncpus=1)
+    print(shell_manager)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
@@ -715,6 +710,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
         w = Workflow(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
+        #print(w)
+        #print("manager",w.manager)
 
         # Use the magic value paral_rf = -1 
         # to get the list of irreducible perturbations for this q-point.
@@ -724,6 +721,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
                    )
 
         fake_task.strategy.add_extra_abivars(vars)
+        w.allocate()
         w.start(wait=True)
 
         # Parse the file to get the perturbations.

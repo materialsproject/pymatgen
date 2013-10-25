@@ -350,6 +350,7 @@ class Workflow(BaseWorkflow):
                 `TaskManager` object or None
         """
         for i, task in enumerate(self):
+            #print(hasattr(task, "manager"))
             if not hasattr(task, "manager"):
                 # Set the manager
 
@@ -1413,13 +1414,13 @@ class PhononWorkflow(Workflow):
         """
         gkk_files = filter(None, [task.outdir.has_abiext("GKK") for task in self])
                                                                                          
-        logger.debug("will call mrggkk to merge %s:\n" % str(gkk_files))
+        logger.debug("Will call mrggkk to merge %s:\n" % str(gkk_files))
         assert len(gkk) == len(self)
 
         #if len(gkk) == 1:
         # Avoid the merge. Just move the GKK file to the outdir of the workflow
                                                                                          
-        # Final DDB file will be produced in the outdir of the workflow.
+        # Final GKK file will be produced in the outdir of the workflow.
         out_ggk = self.outdir.path_in("out_GKK")
 
         mrggkk = wrappers.Mrggkk(verbose=1)
@@ -1432,7 +1433,10 @@ class PhononWorkflow(Workflow):
         Ir runs `mrgddb` in sequential on the local machine to produce
         the final DDB file in the outdir of the `Workflow`.
         """
+        # Merge DDB files.
         self.merge_ddb_files()
+
+        # Merge GKK files.
         #self.merge_gkk_files()
 
         results = dict(
