@@ -132,8 +132,8 @@ class PhaseDiagram (MSONable):
         form_e = -np.dot(data, vec)
 
         #make sure that if there are multiple entries at the same composition 
-        #within 1e-4 eV/atom of each other, only lower energy one
-        #this fixes the precision errors in the convex hull.
+        #within 1e-4 eV/atom of each other, only use the lower energy one.
+        #This fixes the precision errors in the convex hull.
         #This is significantly faster than grouping by composition and then 
         #taking the lowest energy of each group
         ind = []
