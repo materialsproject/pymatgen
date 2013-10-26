@@ -154,6 +154,11 @@ to be installed for matplotlib.
 Stable version
 --------------
 
+.. note:: Install numpy first.
+
+    You may need to install numpy before installing pymatgen as numpy's
+    distutils is needed to compile the spglib and pyhull dependencies.
+
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
 install pymatgen on any system is to use easy_install or pip, as follows::
@@ -167,10 +172,9 @@ or::
 Detailed installation instructions for various platforms (Mac and Windows)
 are given on this :doc:`page </installation>`.
 
-.. note:: Install numpy first.
-
-    You may need to install numpy before installing pymatgen as numpy's
-    distutils is needed to compile the spglib and pyhull dependencies.
+Some extra functionality (e.g., generation of POTCARs) do require additional
+setup. Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 Developmental version
 ---------------------
@@ -187,9 +191,15 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup.Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
+Running the unittests
+~~~~~~~~~~~~~~~~~~~~~
+
+To run the very comprehensive suite of unittests, make sure you have nose
+installed and then just type::
+
+    nosetests
+
+in the pymatgen root directory.
 
 Installation help
 -----------------
