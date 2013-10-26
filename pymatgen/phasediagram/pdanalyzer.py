@@ -147,10 +147,9 @@ class PDAnalyzer(object):
             decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i][0]
                       for i in xrange(len(decomp_amts))
                       if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
-            ehull = entry.energy_per_atom
-            for e, amt in decomp.items():
-                ehull -= e.energy_per_atom * amt
-            if allow_negative or ehull >= 0:
+            energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+            ehull = entry.energy_per_atom - np.dot(decomp_amts.T, energies)
+            if allow_negative or ehull >= -PDAnalyzer.numerical_tol:
                 return decomp, ehull
         raise ValueError("No valid decomp found!")
 
