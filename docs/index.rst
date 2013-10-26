@@ -191,11 +191,11 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-Running the unittests
-~~~~~~~~~~~~~~~~~~~~~
+Running unittests
+~~~~~~~~~~~~~~~~~
 
-To run the very comprehensive suite of unittests, make sure you have nose
-installed and then just type::
+To run the very comprehensive suite of unittests included with the
+developmental version, make sure you have nose installed and then just type::
 
     nosetests
 
