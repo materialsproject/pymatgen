@@ -354,6 +354,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
                        user_incar_settings=None, constrain_total_magmom=False,
                        sort_structure=True):
         """
+        Creates a DictVaspInputSet from a json file.
+        
         Args:
             name:
                 A name for the input set.

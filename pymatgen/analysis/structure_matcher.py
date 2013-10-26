@@ -339,10 +339,8 @@ class StructureMatcher(MSONable):
                 StructureMatcher with Python's multiprocessing.
             supercell_size:
                 Method to use for determining the size of a supercell (if
-                applicable). Possible values are:
-                    num_sites
-                    num_atoms
-                    volume
+                applicable). Possible values are num_sites, num_atoms or
+                volume.
         """
         self.ltol = ltol
         self.stol = stol
