@@ -52,6 +52,10 @@ def makedoc():
         local("make html")
         local("cp _static/* ../../pymatgen-docs/html/_static")
 
+        #This makes sure pymatgen.org works to redirect to the Gihub page
+        local("echo \"pymatgen.org\" > ../../pymatgen-docs/html/CNAME")
+        #Avoid ths use of jekyll so that _dir works as intended.
+        local("touch ../../pymatgen-docs/html/.nojekyll")
 
 def publish():
     local("python setup.py release")
