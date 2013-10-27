@@ -23,6 +23,7 @@ class WorkflowTestCase(PymatgenTest):
         ecut_list = range(10, 40, 2)
 
         pptest_wf = PseudoConvergence(workdir, manager, pseudo, ecut_list, atols_mev=(10, 1, 0.1))
+        pptest_wf.allocate()
 
         # Test pickle
         # FIXME: protocol 2 does not work due to __new__
@@ -35,7 +36,6 @@ class WorkflowTestCase(PymatgenTest):
         self.assertTrue(pptest_wf.isnc)
 
         pptest_wf.build()
-
         pptest_wf.rmtree()
 
 if __name__ == "__main__":
