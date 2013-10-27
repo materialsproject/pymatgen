@@ -264,6 +264,19 @@ class Workflow(BaseWorkflow):
         for task in self:
             task.set_manager(manager)
 
+    @property
+    def flow(self):
+        """The flow containing this `Workflow`."""
+        return self._flow
+
+    def set_flow(self, flow):
+        """Set the flow associated to this `Workflow`."""
+        if not hasattr(self, "_flow"):
+            self._flow = flow
+        else: 
+            if self._flow != flow:
+                raise ValueError("self._flow != flow")
+
     def set_workdir(self, workdir):
         """Set the working directory. Cannot be set more than once."""
 
@@ -1033,16 +1046,15 @@ class PseudoIterativeConvergence(IterativeWorkflow):
 
 class BandStructureWorkflow(Workflow):
     """Workflow for band structure calculations."""
-    def __init__(self, scf_input, nscf_input, dos_input=None, workdir=None, manager=None):
+    def __init__(self, scf_input, nscf_input, dos_inputs=None, workdir=None, manager=None):
         """
         Args:
             scf_input:
                 Input for the SCF run or `SCFStrategy` object.
             nscf_input:
                 Input for the NSCF run or `NSCFStrategy` object defining the band structure calculation.
-            dos_input:
-                Input for the DOS run or `NSCFStrategy` object
-                DOS is computed only if dos_input is not None.
+            dos_inputs:
+                Input(s) for the DOS. DOS is computed only if dos_inputs is not None.
             workdir:
                 Working directory.
             manager:
@@ -1057,13 +1069,22 @@ class BandStructureWorkflow(Workflow):
         self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
         # Add DOS computation if requested.
-        self.dos_task = None
-        if dos_input is not None:
-            self.dos_task = self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        if dos_inputs is not None:
+
+            if not isinstance(dos_inputs, (list, tuple)):
+                dos_inputs = [dos_inputs]
+
+            for dos_input in dos_inputs:
+                self.register(dos_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
 
 class RelaxWorkflow(Workflow):
-
+    """
+    Workflow for structural relaxations. The first task relaxes the atomic position
+    while keeping the unit cell parameters fixed. The second task uses the final 
+    structure to perform a structural relaxation in which both the atomic positions
+    and the lattice parameters are optimized.
+    """
     def __init__(self, ion_input, ioncell_input, workdir=None, manager=None):
         """
         Args:

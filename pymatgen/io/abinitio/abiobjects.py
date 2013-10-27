@@ -60,7 +60,6 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-
 class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
                AbivarAble):
     """
@@ -723,27 +722,6 @@ class KSampling(AbivarAble):
             kppa:
                 Grid density
         """
-        #raise NotImplementedError()
-        #rec_lattice = structure.lattice.reciprocal_lattice
-
-        #min_idx, min_abc = minloc(rec_lattice.abc)
-        # See np.argmax
-        #ratios = rec_lattice.abc / min_abc
-
-        #kpt_shifts = [0.5, 0.5, 0.5]
-        #kpt_shifts = np.atleast_2d(kpt_shifts)
-
-        #num_shifts = len(kpt_shifts)
-
-        #ndiv, num_points = 0, 0
-
-        #while num_points < min_npoints:
-        #    ndiv += 1
-        #    trial_divs = [int(round(n)) for n in ratios * ndiv]
-        #    # ensure that trial_divs  > 0
-        #    trial_divs = [i if i > 0 else 1 for i in trial_divs]
-        #    num_points = num_shifts * np.product(trial_divs)
-
         lattice = structure.lattice
         lengths = lattice.abc
         ngrid = kppa / structure.num_sites

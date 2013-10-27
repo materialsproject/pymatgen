@@ -18,7 +18,7 @@ except ImportError:
 
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import pprint_table
-from pymatgen.io.abinitio.tasks import Dependency, Task, ScfTask, PhononTask 
+from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
 from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow
@@ -40,7 +40,8 @@ __all__ = [
 ]
 
 
-class AbinitFlow(collections.Iterable):
+class AbinitFlow(Node):
+#class AbinitFlow(collections.Iterable):
     """
     This object is a container of workflows. Its main task is managing the 
     possible inter-depedencies among the workflows and the creation of
@@ -71,6 +72,8 @@ class AbinitFlow(collections.Iterable):
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
         """
+        super(AbinitFlow, self).__init__()
+
         self.workdir = os.path.abspath(workdir)
         self.creation_date = time.asctime()
 
@@ -102,12 +105,6 @@ class AbinitFlow(collections.Iterable):
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
 
-    def __repr__(self):
-        return "<%s at %s, workdir=%s>" % (self.__class__.__name__, id(self), self.workdir)
-
-    def __str__(self):
-        return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
-
     def __len__(self):
         return len(self.works)
 
@@ -116,17 +113,6 @@ class AbinitFlow(collections.Iterable):
 
     def __getitem__(self, slice):
         return self.works[slice]
-
-    #def __hash__(self):
-    #    return hash(self.workdir)
-
-    #def __eq__(self, other):
-    #    if other is None or not isinstance(other, Flow):
-    #        return False
-    #    return  self.workdir == other.workdir
-
-    #def __ne__(self, other):
-    #    return not self == other
 
     @property
     def works(self):
@@ -143,19 +129,27 @@ class AbinitFlow(collections.Iterable):
     #    """True if all the tasks of the flow have reached S_OK."""
     #    return all(task.status == task.S_OK for task in self.iflat_tasks())
 
-    #def iflat_tasks_wti(self, status=None, op="="):
-    #    return _iflat_tasks_wti(self, status=None, op="=", with_wti=True)
+    def iflat_tasks_wti(self, status=None, op="="):
+        """
+        Returns:
+            (task, work_index, task_index)
+        """
+        return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
 
-    #def iflat_tasks(self, status=None, op="="):
-    #    return _iflat_tasks_wti(self, status=None, op="=", with_wti=False)
+    def iflat_tasks(self, status=None, op="="):
+        """
+        Returns:
+            task
+        """
+        return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
 
-    def iflat_tasks(self, status=None, op="=", with_wti=True):
+    def _iflat_tasks_wti(self, status=None, op="=", with_wti=True):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
 
         Returns:
-            task, work_index, task_index
+            (task, work_index, task_index) if with_wti is True else task
         """
         if status is None:
             for wi, work in enumerate(self):
@@ -478,6 +472,10 @@ class AbinitFlow(collections.Iterable):
         """
         for work in self:
             work.allocate(manager=self.manager)
+            work.set_flow(self)
+
+        for task in self.iflat_tasks():
+            task.set_flow(self)
 
         return self
 
@@ -620,7 +618,7 @@ class Callback(object):
 
 
 # Factory functions.
-def bandstructure_flow(workdir, manager, scf_input, nscf_input):
+def bandstructure_flow(workdir, manager, scf_input, nscf_input, dos_inputs=None):
     """
     Build an `AbinitFlow` for band structure calculations.
 
@@ -633,12 +631,14 @@ def bandstructure_flow(workdir, manager, scf_input, nscf_input):
             Input for the GS SCF run.
         nscf_input:
             Input for the NSCF run (band structure run).
+        dos_inputs:
+            Input(s) for the NSCF run (dos run).
 
     Returns:
         `AbinitFlow`
     """
     flow = AbinitFlow(workdir, manager)
-    work = BandStructureWorkflow(scf_input, nscf_input)
+    work = BandStructureWorkflow(scf_input, nscf_input, dos_inputs=dos_inputs)
     flow.register_work(work)
     return flow.allocate()
 

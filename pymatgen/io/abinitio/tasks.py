@@ -29,7 +29,7 @@ from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_spl
 
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
+from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput, order_pseudos
 
 import logging
 logger = logging.getLogger(__name__)
@@ -985,6 +985,7 @@ class Node(object):
         return other in [d.node for d in self.deps]
 
     def str_deps(self):
+        """Return the string representation of the dependecies of the node."""
         lines = []
         app = lines.append
 
@@ -1009,6 +1010,7 @@ class Node(object):
     #@abc.abstractmethod
     #def connect_signals():
     #    """Connect the signals."""
+
 
 class FakeDirectory(Directory):
 
@@ -1154,6 +1156,19 @@ class Task(Node):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
 
+    @property
+    def flow(self):
+        """The flow containing this `Task`."""
+        return self._flow
+
+    def set_flow(self, flow):
+        """Set the flow associated to this `Task`."""
+        if not hasattr(self, "_flow"):
+            self._flow = flow
+        else: 
+            if self._flow != flow:
+                raise ValueError("self._flow != flow")
+
     def make_input(self):
         """Construct and write the input file of the calculation."""
         return self.strategy.make_input()
@@ -1265,6 +1280,7 @@ class Task(Node):
         self.num_restarts += 1
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
         self.start()
+
         return 0
 
     def restart(self):
@@ -1913,6 +1929,7 @@ class AbinitTask(Task):
         app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
 
         # Paths to the pseudopotential files.
+        # Note that here the pseudos **must** be sorted according to znucl.
         for pseudo in self.pseudos:
             app(pseudo.path)
 
