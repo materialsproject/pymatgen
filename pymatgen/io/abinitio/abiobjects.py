@@ -7,9 +7,9 @@ calculation.
 from __future__ import division, print_function
 
 import collections
-import numpy as np
-import os.path
+import os
 import abc
+import numpy as np
 import pymatgen.core.units as units
 
 from pprint import pformat
@@ -58,7 +58,6 @@ class DefaultVariable(object):
 
 MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
-
 
 
 class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
@@ -415,21 +414,6 @@ class AbiStructure(Structure, AbivarAble):
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        #significant_figures = 12
-        #format_str = "{{:.{0}f}}".format(significant_figures)
-        #fmt = format_str.format
-
-        #lines = []
-        #for vec in Ang2Bohr(self.lattice.matrix):
-        #    lines.append(" ".join(fmt(c) for c in vec))
-        #rprim = "\n" + "\n".join(lines)
-
-        #lines = []
-        #for (i, site) in enumerate(self):
-        #    coords = site.frac_coords
-        #    lines.append( " ".join(fmt(c) for c in coords) + " # " + site.species_string )
-        #xred = '\n' + "\n".join(lines)
-
         rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
         xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
@@ -738,27 +722,6 @@ class KSampling(AbivarAble):
             kppa:
                 Grid density
         """
-        #raise NotImplementedError()
-        #rec_lattice = structure.lattice.reciprocal_lattice
-
-        #min_idx, min_abc = minloc(rec_lattice.abc)
-        # See np.argmax
-        #ratios = rec_lattice.abc / min_abc
-
-        #kpt_shifts = [0.5, 0.5, 0.5]
-        #kpt_shifts = np.atleast_2d(kpt_shifts)
-
-        #num_shifts = len(kpt_shifts)
-
-        #ndiv, num_points = 0, 0
-
-        #while num_points < min_npoints:
-        #    ndiv += 1
-        #    trial_divs = [int(round(n)) for n in ratios * ndiv]
-        #    # ensure that trial_divs  > 0
-        #    trial_divs = [i if i > 0 else 1 for i in trial_divs]
-        #    num_points = num_shifts * np.product(trial_divs)
-
         lattice = structure.lattice
         lengths = lattice.abc
         ngrid = kppa / structure.num_sites
@@ -1357,7 +1320,7 @@ class ExcHamiltonian(AbivarAble):
             bs_freq_mesh:
                 Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
             mdf_epsinf: 
-                Macroscopic dielectric function :math:`\espilon_\inf` used in 
+                Macroscopic dielectric function :math:`\epsilon_\inf` used in 
                 the model dielectric function.
             exc_type:
                 Approximation used for the BSE Hamiltonian
@@ -1619,7 +1582,6 @@ class IFC(AbivarAble):
         self.nqshft = len(self.q1shft)
 
     def to_abivars(self):
-
         d = dict(
             ifcflag=self.ifcflag,
             brav=self.brav,
@@ -1634,9 +1596,11 @@ class IFC(AbivarAble):
 
         return d
 
-    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1,
-                        executable=None, verbose=0):
+    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1, 
+                         executable=None, verbose=0):
         """
+        Fourier interpolation of the IFCs.
+
         Args:
             asr:
                 Acoustic Sum Rule. 1 to impose it asymetrically.

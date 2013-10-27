@@ -56,6 +56,34 @@ def _magic_parser(stream, magic):
     return fields
 
 
+def plottable_from_outfile(filepath):
+    """
+    Factory function that returns a plottable object by inspecting the main output file of abinit
+    Returns None if it is not able to detect the class to instantiate.
+    """
+    # TODO
+    # Figure out how to detect the type of calculations
+    # without having to parse the input. Possible approach: YAML doc
+    #with YamlTokenizer(filepath) as r:
+    #    doc = r.next_doc_with_tag("!CalculationType")
+    #    d = yaml.load(doc.text_notag)
+    #    calc_type = d["calculation_type"]
+
+    #ctype2class = {
+    #    "Ground State": GroundStateScfCycle,
+    #    "Phonon": PhononScfCycle,
+    #    "Relaxation": Relaxation,
+    #}
+    #obj = ctype2class.get(calc_type, None)
+
+    obj = GroundStateScfCycle
+
+    if obj is not None:
+        return obj.from_file(filepath)
+    else:
+        return None
+
+
 class ScfCycle(collections.Mapping):
     """
     It essentially consists of a dictionary mapping string
@@ -457,7 +485,7 @@ class YamlTokenizer(collections.Iterator):
 
 
 def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
-
+    """Read the K-points from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
@@ -466,12 +494,13 @@ def yaml_read_kpoints(filename, doc_tag="!Kpoints"):
 
 
 def yaml_read_irred_perts(filename, doc_tag="!IrredPerts"):
-
+    """Read the lisr of irreducible perturbations from file."""
     with YamlTokenizer(filename) as r:
         doc = r.next_doc_with_tag(doc_tag)
         d = yaml.load(doc.text_notag)
 
         return d["irred_perts"]
+
 
 class YamlDoc(object):
     """
@@ -494,9 +523,12 @@ class YamlDoc(object):
             tag:
                 The YAML tag associate to the document.
         """
-        self.text = text 
+        # Sanitize strings: use "ignore" to skip invalid characters in .encode/.decode like
+        text = text.decode("utf-8", "ignore")
+        text = text.rstrip().lstrip()
+        self.text = text
         self.lineno = lineno
-        self.tag = tag
+        self.tag = tag.decode("utf-8", "ignore") if tag is not None else tag
 
     def __str__(self):
         return self.text

@@ -30,6 +30,10 @@ class TaskManagerTest(PymatgenTest):
         # check that the initial slurm_manger has not been modified
         self.assertTrue(slurm_manager.tot_ncpus == 2)
 
+        # Test pickle
+        self.serialize_with_pickle(slurm_manager, test_eq=False)
+
 
 if __name__ == '__main__':
+    import unittest
     unittest.main()

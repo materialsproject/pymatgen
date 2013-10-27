@@ -73,7 +73,6 @@ class PPConvergenceFactory(object):
         return workflow
 
 
-
 def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                   ndivsm, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
@@ -110,7 +109,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
             Working directory.
         manager:
             `TaskManager` instance.
-        **extra_abivars:
+        extra_abivars:
             Dictionary with extra variables passed to ABINIT.
     """
     # SCF calculation.
@@ -221,7 +220,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
             Working directory.
         manager:
             `TaskManager` instance.
-        **extra_abivars
+        extra_abivars
             Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
@@ -272,10 +271,6 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
     in modeled by the model dielectric function.
 
     Args:
-
-
-
-
         structure:
             Pymatgen structure.
         pseudos:
@@ -311,7 +306,7 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
             Working directory.
         manager:
             `TaskManger` instance.
-        **extra_abivars
+        extra_abivars:
             Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
@@ -340,7 +335,6 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
     exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode, ecuteps, bs_freq_mesh, 
                              mdf_epsinf=mdf_epsinf, exc_type="TDA", algo="haydock", with_lf=True, 
                              zcut=None)
-
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 

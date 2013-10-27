@@ -12,8 +12,14 @@ from pymatgen.util.string_utils import WildCard
 from pymatgen.io.abinitio.abiinspect import YamlTokenizer, YamlDoc
 
 __all__ = [
-    "EventParser",
+    "EventsParser",
 ]
+
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
+
 
 class AbinitEvent(yaml.YAMLObject):
     """
@@ -44,16 +50,32 @@ class AbinitEvent(yaml.YAMLObject):
 
     The algorithm to extract the YAML sections is very simple.
 
-    1) Find --- at the beginning of line.
+    1) We use YamlTokenizer to extract the documents from the output file 
     2) If we have a tag that ends with "Warning", "Error", "Bug", "Comment
        we know we have encountered a new ABINIT event 
-    3) The key defines the event class to instantiate.
+    3) We parse the document with yaml.load(doc.text) and we get the object
 
-    Note that now --- and ... become reserved words (whey they are placed at
-    the begining of a line) since they are used to mark the beginning and 
-    the end of YAML documents.
+    Note that:
+        # --- and ... become reserved words (whey they are placed at
+          the begining of a line) since they are used to mark the beginning and 
+          the end of YAML documents.
+
+        # All the possible events should subclass `AbinitEvent` and define 
+          the class attribute yaml_tag so that yaml.load will know how to 
+          build the instance.
     """
-    def __init__(self, message, scr_file, src_line):
+    def __init__(self, message, src_file, src_line):
+        """
+        Basic constructor for `AbinitEvent`. 
+
+        Args:
+            message:
+                String with human-readable message providing info on the event.
+            src_file:
+                String with the name of the Fortran file where the event is raised.
+            src_line
+                Integer giving the line number in src_file.
+        """
         self.message = message
         self.src_file = src_file
         self.src_line = src_line
@@ -64,6 +86,7 @@ class AbinitEvent(yaml.YAMLObject):
 
     @property
     def name(self):
+        """Name of the event (class name)"""
         return self.__class__.__name__
 
     @property
@@ -76,13 +99,6 @@ class AbinitEvent(yaml.YAMLObject):
         err_msg = "Cannot determine the base class of %s" % (self.__class__.__name__)
         raise ValueError(err_msg)
 
-    def iscritical(self):
-        """
-        True if event is critical namely that if this event should be analyzed in
-        more detail to understand what action should be performed
-        """
-        return False
-
     def action(self):
         """
         Returns a dictionary whose values that can be used to decide
@@ -91,7 +107,6 @@ class AbinitEvent(yaml.YAMLObject):
         be restarted or not.
         """
         return {}
-
 
 class AbinitComment(AbinitEvent):
     """Base class for Comment events"""
@@ -102,18 +117,14 @@ class AbinitError(AbinitEvent):
     """Base class for Error events"""
     yaml_tag = u'!ERROR'
 
-    @property
-    def iscritical(self):
-        return True
+
+class AbinitYamlError(AbinitError):
+    """Raised if the YAML parser cannot parse the document and the doc tag is an Error."""
 
 
 class AbinitBug(AbinitEvent):
     """Base class for Bug events"""
     yaml_tag = u'!BUG'
-
-    @property
-    def iscritical(self):
-        return True
 
 
 class AbinitWarning(AbinitEvent):
@@ -123,29 +134,43 @@ class AbinitWarning(AbinitEvent):
     Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
-    # FIXME: for the moment we tag a warning as critical, then, once we migrate to the
-    # JSON-like format, only CriticalWarnings will trigger some kind of action.
-    @property
-    def iscritical(self):
-        return True
 
-#class ScfConvergenceWarning(AbinitWarning):
-#yaml_tag = u'ScfConvergenceWarning'
+class AbinitYamlWarning(AbinitWarning):
+    """
+    Raised if the YAML parser cannot parse the document and the doc tas is a Warning.
+    """
 
-#class NscfConvergenceWarning(AbinitWarning):
-#yaml_tag = u'NscfConvergenceWarning'
 
-#class RelaxConvergenceWarning(AbinitWarning):
-#yaml_tag = u'RelaxConvergenceWarning'
+class ScfConvergenceWarning(AbinitWarning):
+    """Warning raised when the GS SCF cycle did not converge."""
+    yaml_tag = u'!ScfConvergenceWarning'
 
+
+class NscfConvergenceWarning(AbinitWarning):
+    """Warning raised when the GS NSCF cycle did not converge."""
+    yaml_tag = u'!NscfConvergenceWarning'
+
+
+class RelaxConvergenceWarning(AbinitWarning):
+    """Warning raised when the structural relaxation did not converge."""
+    yaml_tag = u'!RelaxConvergenceWarning'
+
+
+# TODO: for the time being we don't discern between GS and PhononCalculations.
 #class PhononConvergenceWarning(AbinitWarning):
-#yaml_tag = u'PhononConvergenceWarning'
+#    """Warning raised when the phonon calculation did not converge."""
+#    yaml_tag = u'!PhononConvergenceWarning'
 
-#class QPSConvergenceWarning(AbinitWarning):
-#yaml_tag = u'QPSConvergenceWarning'
 
-#class HaydockConvergenceWarning(AbinitWarning):
-#yaml_tag = u'HaydockConvergenceWarning'
+class QPSConvergenceWarning(AbinitWarning):
+    """Warning raised when the QPS iteration (GW) did not converge."""
+    yaml_tag = u'!QPSConvergenceWarning'
+
+
+class HaydockConvergenceWarning(AbinitWarning):
+    """Warning raised when the Haydock method (BSE) did not converge."""
+    yaml_tag = u'!HaydockConvergenceWarning'
+
 
 # Register the concrete base classes.
 _BASE_CLASSES = [
@@ -182,11 +207,18 @@ class EventReport(collections.Iterable):
         return self._events.__iter__()
 
     def __str__(self):
-        lines = [self.filename + ":",]
-        for event in self:
-            lines.append(str(event))
+        lines = []
+        app = lines.append
 
-        return "\n".join(l for l in lines)
+        app("Event Report for file: %s" % self.filename)
+        for i, event in enumerate(self):
+            app("%d) %s" % (i+1, str(event)))
+
+        app("num_errors: %s, num_warnings: %s, num_comments: %s" % (
+            self.num_errors, self.num_warnings, self.num_comments))
+        app("run_completed: %s" % self.run_completed)
+
+        return "\n".join(lines)
 
     def append(self, event):
         """Add an event to the list."""
@@ -206,11 +238,6 @@ class EventReport(collections.Iterable):
             return self._run_completed
         except AttributeError:
             return False
-
-    @property
-    def critical_events(self):
-        """List of critical events."""
-        return [e for e in self if e.iscritical]
 
     @property
     def comments(self):
@@ -247,30 +274,33 @@ class EventReport(collections.Iterable):
         """Number of comments reported."""
         return len(self.comments)
 
-    def select(self, base_class, only_critical=False):
+    def select(self, base_class):
         """
-        Return list of events that inherits from class base_class
+        Return the list of events that inherits from class base_class
 
         Args:
             only_critical:
                 if True, only critical events are returned.
         """
-        if only_critical:
-            return [e for e in self._events_by_baseclass[base_class] if e.iscritical]
-        else:
-            return self._events_by_baseclass[base_class][:]
+        return self._events_by_baseclass[base_class][:]
+
+    def filter_types(self, event_types):
+        evts = []
+        for event in self:
+            if type(event) in event_types:
+                evts.append(event)
+        return evts
 
 
+class EventsParserError(Exception):
+    """Base class for the exceptions raised by EventsParser."""
 
-class EventParserError(Exception):
-    """Base class for the exceptions raised by EventParser."""
 
-
-class EventParser(object):
+class EventsParser(object):
     """
     Parses the output or the log file produced by abinit and extract the list of events.
     """
-    Error = EventParserError
+    Error = EventsParserError
 
     @staticmethod
     def parse(filename):
@@ -282,8 +312,8 @@ class EventParser(object):
         filename = os.path.abspath(filename)
         report = EventReport(filename)
 
-        #w = WildCard("*Error|*Warning|*Comment")
-        w = WildCard("*ERROR|*WARNING|*COMMENT")
+        # TODO Use CamelCase for the Fortran messages.
+        w = WildCard("*Error|*Warning|*Comment|*ERROR|*WARNING|*COMMENT")
 
         with YamlTokenizer(filename) as tokens:
 
@@ -293,22 +323,35 @@ class EventParser(object):
                 #print("doc",doc)
                 #print(80*"*")
                 if w.match(doc.tag):
-                    #print("got doc.tag", doc.tag)
-                    event = yaml.load(doc.text)
+                    #print("got doc.tag", doc.tag,"--")
+                    try:
+                        event = yaml.load(doc.text)
+                    except:
+                        # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
+                        message = "Malformatted YAML document at line: %d\n" % doc.lineno
+                        message += doc.text
+                        message += "Traceback:\n %s" % straceback()
+
+                        if "error" in doc.tag.lower():
+                            print("seems an error",doc.tag)
+                            event = AbinitYamlError(message=message, src_file=__file__, src_line=0)
+                        else:
+                            event = AbinitYamlWarning(message=message, src_file=__file__, src_line=0)
+
                     event.lineno = doc.lineno
                     report.append(event)
 
-                #if doc.tag == "!FinalSummary":
-                #    run_completed = True
+                # Check whether the calculation completed.
+                if doc.tag == "!FinalSummary":
+                    run_completed = True
 
         # TODO: Add YAML doc with FinalSummary.
-        # Check whether the calculation completed.
-        MAGIC = "Calculation completed."
-        with open(filename) as fh:
-            for line in fh:
-                if MAGIC in line:
-                    run_completed = True
-                    break
+        #MAGIC = "Calculation completed."
+        #with open(filename) as fh:
+        #    for line in fh:
+        #        if MAGIC in line:
+        #            run_completed = True
+        #            break
 
         report.set_run_completed(run_completed)
         return report
