@@ -223,7 +223,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             structure = structure.get_sorted_structure()
         comp = structure.composition
         elements = sorted([el for el in comp.elements if comp[el] > 0],
-                           key=lambda el: el.X)
+                          key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
@@ -354,6 +354,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
                        user_incar_settings=None, constrain_total_magmom=False,
                        sort_structure=True):
         """
+        Creates a DictVaspInputSet from a json file.
+
         Args:
             name:
                 A name for the input set.

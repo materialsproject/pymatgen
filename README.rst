@@ -100,6 +100,13 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
+To run the very comprehensive suite of unittests, make sure you have nose
+installed and then just type::
+
+    nosetests
+
+in the pymatgen root directory.
+
 Requirements
 ============
 

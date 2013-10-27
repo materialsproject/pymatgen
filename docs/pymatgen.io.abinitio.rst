@@ -26,7 +26,7 @@ abinitio Package
     :show-inheritance:
 
 :mod:`abitimer` Module
-------------------------
+----------------------
 
 .. automodule:: pymatgen.io.abinitio.abitimer
     :members:
@@ -58,7 +58,7 @@ abinitio Package
     :show-inheritance:
 
 :mod:`flows` Module
---------------------
+-------------------
 
 .. automodule:: pymatgen.io.abinitio.flows
     :members:
@@ -105,10 +105,10 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`task` Module
-------------------
+:mod:`tasks` Module
+-------------------
 
-.. automodule:: pymatgen.io.abinitio.task
+.. automodule:: pymatgen.io.abinitio.tasks
     :members:
     :undoc-members:
     :show-inheritance:
@@ -121,10 +121,10 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`workflow` Module
-----------------------
+:mod:`workflows` Module
+-----------------------
 
-.. automodule:: pymatgen.io.abinitio.workflow
+.. automodule:: pymatgen.io.abinitio.workflows
     :members:
     :undoc-members:
     :show-inheritance:
