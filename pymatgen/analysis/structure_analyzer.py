@@ -378,6 +378,7 @@ class oxide_type_class():
     def parse_oxide(self):
         """
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+
         Returns:
             oxide_type:
                 Type of oxide - ozonide/peroxide/superoxide/hydroxide/None
