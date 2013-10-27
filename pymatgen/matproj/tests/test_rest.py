@@ -44,7 +44,7 @@ class MPResterTest(unittest.TestCase):
                  "elements", "nelements", "e_above_hull", "hubbards",
                  "is_compatible", "task_ids",
                  "density", "icsd_id", "total_magnetization"]
-        expected_vals = [-191.33812137, -6.833504334642858, -2.5532843405078913,
+        expected_vals = [-191.33812137, -6.833504334642858, -2.551358929370749,
                          28, {u'P': 4, u'Fe': 4, u'O': 16, u'Li': 4},
                          "LiFePO4", True, [u'Li', u'O', u'P', u'Fe'], 4, 0.0,
                          {u'Fe': 5.3, u'Li': 0.0, u'O': 0.0, u'P': 0.0}, True,
