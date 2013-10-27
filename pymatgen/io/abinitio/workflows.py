@@ -505,11 +505,10 @@ class Workflow(BaseWorkflow):
 
         Args:
             exclude_wildcard:
-                Optional string with regular expressions separated by |.
+                Optional string with regular expressions separated by `|`.
                 Files matching one of the regular expressions will be preserved.
                 example: exclude_wildard="*.nc|*.txt" preserves all the files
                 whose extension is in ["nc", "txt"].
-
         """
         if not exclude_wildcard:
             shutil.rmtree(self.workdir)
@@ -1101,7 +1100,7 @@ class RelaxWorkflow(Workflow):
 
         self.ion_task = self.register(ion_input, task_class=RelaxTask)
 
-        # USe WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
+        # Use WFK for the time being since I don't know why Abinit produces all these _TIM?_DEN files.
         #self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "DEN"}, task_class=RelaxTask)
         self.ioncell_task = self.register(ioncell_input, deps={self.ion_task: "WFK"}, task_class=RelaxTask)
 
@@ -1148,9 +1147,13 @@ class DeltaFactorWorkflow(Workflow):
             pseudo:
                 String with the name of the pseudopotential file or `Pseudo` object.` object.` object.` 
             kppa:
-            spin_mode="polarized":
-            toldfe=1.e-8:
-            smearing="fermi_dirac:0.1 eV":
+                Number of k-points per atom.
+            spin_mode:
+                Spin polarization mode.
+            toldfe:
+                Tolerance on the energy (Ha)
+            smearing:
+                Smearing technique.
             workdir:
                 String specifing the working directory.
             manager:

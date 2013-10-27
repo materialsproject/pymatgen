@@ -17,7 +17,7 @@ def filepath(basename):
 class WorkflowTestCase(PymatgenTest):
 
     def test_pseudoconvergence(self):
-        workdir = "test_pseudoconvergence"
+        workdir = mkdtemp(prefix="test_pseudoconvergence")
         manager = TaskManager.sequential()
         pseudo = filepath("14si.pspnc")
         ecut_list = range(10, 40, 2)
