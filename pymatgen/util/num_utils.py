@@ -135,16 +135,3 @@ def monotonic(values, mode="<", atol=1.e-8):
 
     return True
 
-
-def iround(x):
-    """
-    iround(number) -> integer
-    Round a number to the nearest integer.
-
-    >>> iround(0.49), iround(0.5)
-    (0, 1)
-    >>> iround(-0.5), iround(-0.49)
-    (-1, 0)
-    """
-    y = round(x) - 0.5
-    return int(y) + (y > 0)
