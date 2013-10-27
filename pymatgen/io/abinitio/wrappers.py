@@ -21,7 +21,7 @@ __date__ = "$Feb 21, 2013M$"
 __all__ = [
     "Mrgscr",
     "Mrggkk",
-    "Mrgdbb",
+    "Mrgddb",
     "Anaddb",
 ]
 
@@ -161,6 +161,7 @@ class Mrggkk(ExecWrapper):
             binascii:
                 Integer flat. 0 --> binary output, 1 --> ascii formatted output
             cwd:
+                Directory where the subprocess will be executed.
         """
         raise NotImplementedError("This method should be tested")
 

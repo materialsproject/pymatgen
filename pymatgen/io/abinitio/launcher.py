@@ -214,7 +214,7 @@ class PyLauncher(object):
 
     def single_shot(self):
         """
-        Run the first `Task than is ready for execution.
+        Run the first `Task` than is ready for execution.
         
         Returns:
             Number of jobs launched.

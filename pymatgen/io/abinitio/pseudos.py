@@ -1043,7 +1043,9 @@ class PseudoTable(collections.Sequence):
     """
     @classmethod
     def astable(cls, items):
-        """Return an instance of `PseudoTable from the iterable items.""" 
+        """
+        Return an instance of `PseudoTable` from the iterable items.
+        """ 
         if isinstance(items, cls): return items
         return cls(items)
 

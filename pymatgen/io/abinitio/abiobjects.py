@@ -1582,7 +1582,6 @@ class IFC(AbivarAble):
         self.nqshft = len(self.q1shft)
 
     def to_abivars(self):
-
         d = dict(
             ifcflag=self.ifcflag,
             brav=self.brav,
@@ -1597,9 +1596,11 @@ class IFC(AbivarAble):
 
         return d
 
-    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1,
-                        executable=None, verbose=0):
+    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1, 
+                         executable=None, verbose=0):
         """
+        Fourier interpolation of the IFCs.
+
         Args:
             asr:
                 Acoustic Sum Rule. 1 to impose it asymetrically.

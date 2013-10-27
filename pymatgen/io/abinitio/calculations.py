@@ -109,7 +109,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
             Working directory.
         manager:
             `TaskManager` instance.
-        **extra_abivars:
+        extra_abivars:
             Dictionary with extra variables passed to ABINIT.
     """
     # SCF calculation.
@@ -220,7 +220,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
             Working directory.
         manager:
             `TaskManager` instance.
-        **extra_abivars
+        extra_abivars
             Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
@@ -306,7 +306,7 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
             Working directory.
         manager:
             `TaskManger` instance.
-        **extra_abivars
+        extra_abivars:
             Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
