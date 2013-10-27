@@ -18,7 +18,7 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-def select_pseudos(pseudos, structure):
+def select_pseudos(pseudos, structure, ret_table=True):
     """
     Given a list of pseudos and a pymatgen structure, extract the pseudopotentials 
     for the calculation (useful when we receive an entire periodic table).
@@ -37,8 +37,15 @@ def select_pseudos(pseudos, structure):
             raise ValueError("Cannot find unique pseudo for type %s" % typ)
                                                                              
         pseudos.append(pseudos_for_type[0])
-                                                                                 
-    return PseudoTable(pseudos)
+
+    if ret_table:
+        return PseudoTable(pseudos)
+    else:
+        return pseudos
+
+
+def order_pseudos(pseudos, structure):
+    return select_pseudos(pseudos, structure, ret_table=False)
 
 
 class Strategy(object):
@@ -716,7 +723,14 @@ class StrategyWithInput(object):
                                          
     @property
     def pseudos(self):
-        return self.abinit_input.pseudos
+        # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
+        # Order pseudos
+        pseudos = self.abinit_input.pseudos
+        return order_pseudos(pseudos, self.abinit_input.structure)
+        #print("pseudos", pseudos)
+        #print("ord_pseudos", ord_pseudos)
+        #return ord_pseudos
+        #return self.abinit_input.pseudos
 
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
