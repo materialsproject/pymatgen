@@ -1320,7 +1320,7 @@ class ExcHamiltonian(AbivarAble):
             bs_freq_mesh:
                 Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
             mdf_epsinf: 
-                Macroscopic dielectric function :math:`\espilon_\inf` used in 
+                Macroscopic dielectric function :math:`\epsilon_\inf` used in 
                 the model dielectric function.
             exc_type:
                 Approximation used for the BSE Hamiltonian
