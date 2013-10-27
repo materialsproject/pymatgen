@@ -26,7 +26,7 @@ class PseudoTestCase(PymatgenTest):
         for (symbol, fnames) in nc_pseudo_fnames.items():
             for fname in fnames:
                 root, ext = os.path.splitext(fname)
-                pseudo = Pseudo.from_filename(filepath(fname))
+                pseudo = Pseudo.from_file(filepath(fname))
                 self.nc_pseudos[symbol].append(pseudo)
 
                 # Save the pseudo as instance attribute whose name 
