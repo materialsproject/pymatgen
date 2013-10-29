@@ -7,10 +7,9 @@ import copy
 import numpy as np
 
 from pprint import pprint, pformat
-
 from pymatgen.util.string_utils import str_aligned, str_delimited, is_string, list_strings
-from .abiobjects import SpinMode, Smearing, Electrons
-from .pseudos import PseudoTable
+from pymatgen.io.abinitio.abiobjects import SpinMode, Smearing, Electrons
+from pymatgen.io.abinitio.pseudos import PseudoTable
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -19,7 +18,7 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-def select_pseudos(pseudos, structure):
+def select_pseudos(pseudos, structure, ret_table=True):
     """
     Given a list of pseudos and a pymatgen structure, extract the pseudopotentials 
     for the calculation (useful when we receive an entire periodic table).
@@ -31,15 +30,22 @@ def select_pseudos(pseudos, structure):
 
     pseudos = []
     for typ in structure.types_of_specie:
-        # Get list of pseudopotentials in table from atom symbol.
+        # Get the list of pseudopotentials in table from atom symbol.
         pseudos_for_type = table.pseudos_with_symbol(typ)
                                                                              
         if pseudos_for_type is None or len(pseudos_for_type) != 1:
             raise ValueError("Cannot find unique pseudo for type %s" % typ)
                                                                              
         pseudos.append(pseudos_for_type[0])
-                                                                                 
-    return PseudoTable(pseudos)
+
+    if ret_table:
+        return PseudoTable(pseudos)
+    else:
+        return pseudos
+
+
+def order_pseudos(pseudos, structure):
+    return select_pseudos(pseudos, structure, ret_table=False)
 
 
 class Strategy(object):
@@ -250,17 +256,17 @@ class ScfStrategy(Strategy):
 
         self.set_accuracy(accuracy)
 
-        self.structure  = structure
-        self.pseudos    = select_pseudos(pseudos, structure)
-        self.ksampling  = ksampling
+        self.structure = structure
+        self.pseudos   = select_pseudos(pseudos, structure)
+        self.ksampling = ksampling
         self.use_symmetries = use_symmetries
 
-        self.electrons  = Electrons(spin_mode = spin_mode,
-                                    smearing  = smearing,
-                                    algorithm = scf_algorithm,
-                                    nband     = None,
-                                    fband     = None,
-                                    charge    = charge,
+        self.electrons  = Electrons(spin_mode=spin_mode,
+                                    smearing=smearing,
+                                    algorithm=scf_algorithm,
+                                    nband=None,
+                                    fband=None,
+                                    charge=charge,
                                    )
 
         self.extra_abivars = extra_abivars
@@ -270,10 +276,11 @@ class ScfStrategy(Strategy):
         return "scf"
 
     def make_input(self):
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            pawecutdg=self.pawecutdg,
+        )
         extra.update(self.tolerance)
         extra.update({"nsym": 1 if not self.use_symmetries else None})
 
@@ -317,14 +324,14 @@ class NscfStrategy(Strategy):
         # Electrons used in the GS run.
         scf_electrons = scf_strategy.electrons
 
-        self.electrons  = Electrons(spin_mode = scf_electrons.spin_mode,
-                                    smearing  = scf_electrons.smearing,
-                                    algorithm = nscf_algorithm,
-                                    nband     = nscf_nband,
-                                    fband     = None,
-                                    charge    = scf_electrons.charge,
-                                    comment   = None,
-                                    #occupancies = None,
+        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
+                                   smearing=scf_electrons.smearing,
+                                   algorithm=nscf_algorithm,
+                                   nband=nscf_nband,
+                                   fband=None,
+                                   charge=scf_electrons.charge,
+                                   comment=None,
+                                   #occupancies = None,
                                    )
 
         self.extra_abivars = extra_abivars
@@ -337,10 +344,11 @@ class NscfStrategy(Strategy):
         # Initialize the system section from structure.
         scf_strategy = self.scf_strategy
 
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            pawecutdg=self.pawecutdg,
+        )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -434,11 +442,11 @@ class ScreeningStrategy(Strategy):
         if not self.ksampling.is_homogeneous:
             raise ValueError("The k-sampling used for the NSCF run mush be homogeneous")
 
-        self.electrons = Electrons(spin_mode = scf_electrons.spin_mode,
-                                   smearing  = scf_electrons.smearing,
-                                   nband     = scr_nband,
-                                   charge    = scf_electrons.charge,
-                                   comment   = None,
+        self.electrons = Electrons(spin_mode=scf_electrons.spin_mode,
+                                   smearing =scf_electrons.smearing,
+                                   nband=scr_nband,
+                                   charge=scf_electrons.charge,
+                                   comment=None,
                                   )
 
         self.extra_abivars = extra_abivars
@@ -449,11 +457,12 @@ class ScreeningStrategy(Strategy):
 
     def make_input(self):
         # FIXME
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "ecutwfn"  : self.ecut,
-                # "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            ecutwfn=self.ecut,
+            #pawecutdg=self.pawecutdg,
+        )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -513,11 +522,12 @@ class SelfEnergyStrategy(Strategy):
 
     def make_input(self):
         # FIXME
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "ecutwfn"  : self.ecut,
-                # "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            ecutwfn=self.ecut,
+            # "pawecutdg": self.pawecutdg,
+            )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -527,8 +537,8 @@ class SelfEnergyStrategy(Strategy):
 
 class MDFBSE_Strategy(Strategy):
     """
-    Strategy for Bethe-Salpeter calculation based on the model dielectric function 
-    and the scissors operator
+    Strategy for Bethe-Salpeter calculation based on the 
+    model dielectric function and the scissors operator
     """
     def __init__(self, scf_strategy, nscf_strategy, exc_ham, **extra_abivars):
         """
@@ -570,18 +580,18 @@ class MDFBSE_Strategy(Strategy):
                                    charge= scf_electrons.charge,
                                    comment=None,
                                     )
-                                  
     @property
     def runlevel(self):
         return "bse"
 
     def make_input(self):
         # FIXME
-        extra = {"optdriver": self.optdriver,
-                 "ecut"     : self.ecut,
-                 "ecutwfn"  : self.ecut,
-                # "pawecutdg": self.pawecutdg,
-                }
+        extra = dict(
+            optdriver=self.optdriver,
+            ecut=self.ecut,
+            ecutwfn=self.ecut,
+            #pawecutdg=self.pawecutdg,
+        )
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
                                                                                      
@@ -713,7 +723,14 @@ class StrategyWithInput(object):
                                          
     @property
     def pseudos(self):
-        return self.abinit_input.pseudos
+        # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
+        # Order pseudos
+        pseudos = self.abinit_input.pseudos
+        return order_pseudos(pseudos, self.abinit_input.structure)
+        #print("pseudos", pseudos)
+        #print("ord_pseudos", ord_pseudos)
+        #return ord_pseudos
+        #return self.abinit_input.pseudos
 
     def add_extra_abivars(self, abivars):
         """Add variables (dict) to extra_abivars."""
@@ -726,6 +743,12 @@ class StrategyWithInput(object):
     def make_input(self):
         return str(self.abinit_input)
 
+
+class OpticVar(collections.namedtuple("OpticVar", "name value help")):
+
+    def __str__(self):
+        sval = string(self.value)
+        return (4*" ").join(sval, "!" + self.help)
 
 class OpticInput(object):
     """
@@ -742,38 +765,77 @@ class OpticInput(object):
     2             ! Number of components of nonlinear optic tensor to be computed
     123 222       ! Non-linear coefficients to be computed
     """
+
+    # variable name --> default value.
+    _VARIABLES = [
+        OpticVar("ddkfile_x", None,  "Name of the first d/dk response wavefunction file"),
+        OpticVar("ddkfile_y", None,  "Name of the second d/dk response wavefunction file"),
+        OpticVar("ddkfile_z", None,  "Name of the third d/dk response wavefunction file"),
+        OpticVar("wfkfile",   None,  "Name of the ground-state wavefunction file"),
+        OpticVar("zcut",      0.01,  "Value of the *smearing factor*, in Hartree"),
+        OpticVar("wmesh",(0.010, 1), "Frequency *step* and *maximum* frequency (Ha)"),
+        OpticVar("scissor", 0.000,   "*Scissor* shift if needed, in Hartree"),
+        OpticVar("sing_tol", 0.001,  "*Tolerance* on closeness of singularities (in Hartree)"), 
+        OpticVar("num_lin_comp", None, "*Number of components* of linear optic tensor to be computed"),
+        OpticVar("lin_comp", None,    "Linear *coefficients* to be computed (x=1, y=2, z=3)"),
+        OpticVar("num_nonlin_comp", None, "Number of components of nonlinear optic tensor to be computed"),
+        OpticVar("nonlin_comp", None, "! Non-linear coefficients to be computed"),
+    ]                                             
+
+    _VARNAMES = [v.name for v in _VARIABLES]
+
+    def __init__(self, **kwargs):
+        # Default values
+        self.vars = collections.OrderedDict((v.name, v.value) for v in _VARIABLES)
+
+        # Update the variables with the values passed by the user
+        for k, v in kwargs:
+            if k not in self.VARNAMES:
+                raise ValueError("varname %s not in %s" % (k, str(self.VARNAMES)))
+            self.vars[k] = v
+
+    def __init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components, 
+                nonlinear_components=None, ddk_files=None, wfk=None): 
+
+        self.vars = vars = collections.OrderedDict(*self.VAR_NAMES)
+
+        if ddk_files is not None:
+            assert len(ddk_files) == 3
+            assert wfk is not None
+            for dir, ddk in zip(["x", "y", "z"], ddk_files):
+                vars["ddkfile_" + dir] = os.path.abspath(ddk)
+
+        if wfk is not None:
+            vars["wfkfile"] = os.path.abspath(wfk)
+
+        vars["zcut"] = zcut
+        vars["wmesh"] = " ".join(map(str, (wstep, wmax)))
+        vars["sing_tol"] = sing_tol
+
+        vars["num_lin_comp"] = len(linear_components)
+        vars["lin_comp"] = " ".join(str(c) for c in linear_components)
+
+        vars["num_nonlin_comp"] = len(non_linear_components)
+        vars["nonlin_comp"] = " ".join(str(c) for c in nonlinear_components)
+
     def __init__(self, string):
         self.string = string
 
-    #def _init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components, 
-    #            nonlinear_components=None, ddk_files=None,  wfk=None)
-    #            ): 
-    #    self.vars = vars = collections.OrderedDict()
-
-    #    if ddk_files is not None:
-    #        assert len(ddk_files) == 3
-    #        assert wfk is not None
-    #        for dir, ddk in zip(["x", "y", "z"], ddk_files):
-    #            vars["ddk_" + dir] = os.path.abspath(ddk)
-
-    #    if wfk is not None
-    #        vars["wfk"] = os.path.abspath(wfk)
-
-    #    vars["zcut"] = zcut
-    #    vars["wmesh"] = " ".join(map(str, (wstep, wmax)))
-    #    vars["sing_tol"] = sing_tol
-
-    #    vars["num_lin_comp"] = len(linear_components)
-    #    vars["lin_comp"] = " ".join(str(c) for c in linear_components)
-
-    #    vars["num_nonlin_comp"] = len(non_linear_components)
-    #    vars["nonlin_comp"] = " ".join(str(c) for c in nonlinear_components)
-
-    def to_string(self):
+    def __str__(self):
         return self.string
 
+    def to_string(self):
+        lines = []
+        app = lines.append
+
+        for name in self.VARNAMES:
+            var = self.vars[name]
+            app(str(var))
+
+        return "\n".join(lines)
+
     def make_input(self):
-        return self.to_string()
+        return str(self)
 
     def add_extra_abivars(self, abivars):
         """
@@ -782,10 +844,29 @@ class OpticInput(object):
         produced by the previous runs.
         """
 
+
 class AnaddbInput(object):
+
+    def __init__(self, structure=None, ndtset=1, comment=""):
+        """
+        Args:
+            structure:
+                Crystalline structure.
+            ndtset:
+                Number of datasets.
+            comment:
+                Optional string with a comment that will be placed at the beginning of the file.
+        """
+        self._structure = _structure
+        self.ndtset = ndset
+        self.comment = comment
 
     def __init__(self, string):
         self.string = string
+
+    @property
+    def structure(self):
+        return self._structure
 
     def to_string(self):
         return self.string
@@ -801,3 +882,32 @@ class AnaddbInput(object):
         """
 
     #def set_qpath(self):
+    #    """
+    #    nqpath 7
+    #    qpath
+    #     0.0 0.0 0.0
+    #     1/2 1/2 0.0
+    #     1   1   1
+    #     1/2 1/2 1/2
+    #     1/2 1/2 0.0
+    #     1/2 3/4 1/4
+    #     1/2 1/2 1/2
+    #     """
+
+    #def split_datasets(self):
+    #    """
+    #    Split an input file with multiple datasets into a  list of `ndtset` distinct input files.
+    #    """
+    #    # Propagate subclasses (if any)
+    #    cls = self.__class__ 
+    #    news = []
+
+    #    for i in range(self.ndtset):
+    #        my_vars = self[i+1].allvars
+    #        my_vars.pop("ndtset", None)
+
+    #        new = cls(pseudos=self.pseudos, ndtset=1)
+    #        new.set_variables(**my_vars)
+    #        news.append(new)
+    #
+    #    return news

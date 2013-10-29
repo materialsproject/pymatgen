@@ -4,16 +4,17 @@ pseudopotentials used in Abinit, and a parser to instantiate pseudopotential obj
 """
 from __future__ import division, print_function
 
-import os
-import os.path
 import sys
+import os
 import abc
 import collections
 import json
+import warnings
 import cPickle as pickle
 import cStringIO as StringIO
 import numpy as np
 
+from pymatgen.core.design_patterns import FrozenDict
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.util.num_utils import iterator_from_slice
 from pymatgen.util.string_utils import list_strings, is_string
@@ -28,20 +29,11 @@ __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
 # Tools and helper functions.
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
 
-class FrozenDict(dict):
-    """A dictionary that does not permit to redefine its keys."""
-    def __init__(self, *args, **kwargs):
-        self.update(*args, **kwargs)
-
-    def __setitem__(self, key, val):
-        if key in self:
-            raise KeyError("Cannot overwrite existent key: %s" % str(key))
-        dict.__setitem__(self, key, val)
-
-    def update(self, *args, **kwargs):
-        for (k, v) in dict(*args, **kwargs).iteritems():
-            self[k] = v
 
 def _read_nlines(filename, nlines):
     """
@@ -69,12 +61,20 @@ _l2str = {
     6: "i",
 }
 
+_str2l = {v: k for k, v in _l2str.items()}
+
 def l2str(l):
     """Convert the angular momentum l (int) to string."""
     try:
         return _l2str[l]
     except KeyError:
         return "Unknown: received l = %s" % l
+
+
+def str2l(s):
+    """Convert a string to the angular momentum l (int)"""
+    return _str2l[s]
+
 
 def read_dojo_report(filename):
     """Helper function to read the DOJO_REPORT from file."""
@@ -123,10 +123,10 @@ class Pseudo(object):
             return obj
         else:
             # Assumes path.
-            return cls.from_filename(obj)
+            return cls.from_file(obj)
 
     @staticmethod
-    def from_filename(filename):
+    def from_file(filename):
         """
         Return a pseudopotential object from filename.
         Note: the parser knows the concrete class that should be instanciated
@@ -147,7 +147,8 @@ class Pseudo(object):
         app("  XC correlation (ixc): %s" % self._pspxc)  #FIXME
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
-        app("  radius for non-linear core correction: %s" % self.nlcc_radius)
+        if self.isnc:
+            app("  radius for non-linear core correction: %s" % self.nlcc_radius)
         app("")
 
         hint_normal = self.hint_for_accuracy()
@@ -381,7 +382,11 @@ class AbinitPseudo(Pseudo):
         """
         self.path = path
         self._summary = header.summary
-        self.dojo_report = header.dojo_report
+        if hasattr(self, "dojo_report"):
+            self.dojo_report = header.dojo_report
+        else:
+            self.dojo_report = {}
+
         #self.pspcod  = header.pspcod
 
         for (attr_name, desc) in header.items():
@@ -507,17 +512,20 @@ def _dict_from_lines(lines, key_nums, sep=None):
 
         tokens = [t.strip() for t in line.split()]
         values, keys = tokens[:nk], "".join(tokens[nk:])
+        # Sanitize keys: In some case we might string in for  foo[,bar]
+        keys.replace("[", "").replace("]", "")
         keys = keys.split(",")
 
         if sep is not None:
             check = keys[0][0]
             if check != sep:
-                raise ValueError("Expecting sep %s, got %s" % (sep, check))
+                raise ValueError("Expecting separator %s, got %s" % (sep, check))
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            msg = "%s\n %s len(keys) != len(value) %s" % (line, keys, values)
-            raise ValueError(msg)
+            msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
+            warnings.warn(msg)
+            #raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
 
@@ -579,6 +587,10 @@ class NcAbinitHeader(AbinitHeader):
     def __init__(self, summary, **kwargs):
         super(NcAbinitHeader, self).__init__()
 
+        # APE uses llocal instead of lloc.
+        if "llocal" in kwargs:
+            kwargs["lloc"] = kwargs.pop("llocal")
+
         self.summary = summary.strip()
 
         for (key, desc) in NcAbinitHeader._VARS.items():
@@ -601,8 +613,8 @@ class NcAbinitHeader(AbinitHeader):
         # Add dojo_report
         self["dojo_report"] = kwargs.pop("dojo_report", {})
 
-        if kwargs:
-            raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
+        #if kwargs:
+        #    raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
 
     @staticmethod
     def fhi_header(filename, ppdesc):
@@ -705,7 +717,7 @@ class PawAbinitHeader(AbinitHeader):
     _attr_desc = collections.namedtuple("att", "default astype")
 
     _VARS = {
-        "zatom"           : _attr_desc(None, float),
+        "zatom"           : _attr_desc(None, _int_from_str),
         "zion"            : _attr_desc(None, float),
         "pspdat"          : _attr_desc(None, float),
         "pspcod"          : _attr_desc(None, int),
@@ -731,7 +743,7 @@ class PawAbinitHeader(AbinitHeader):
 
         self.summary = summary.strip()
 
-        for (key, desc) in PawAbinitHeader._VARS.items():
+        for (key, desc) in self._VARS.items():
             default, astype = desc.default, desc.astype
 
             value = kwargs.pop(key, None)
@@ -744,7 +756,7 @@ class PawAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except:
-                    raise RuntimeError("Conversion Error for key, value %s" % (key, value))
+                    raise RuntimeError("Conversion Error for key %s, with value %s" % (key, value))
 
             self[key] = value
 
@@ -754,6 +766,19 @@ class PawAbinitHeader(AbinitHeader):
     @staticmethod
     def paw_header(filename, ppdesc):
         """Parse the PAW abinit header."""
+        #Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
+        #  28.000  18.000 20061204               : zatom,zion,pspdat
+        #  7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+        # paw3 1305                              : pspfmt,creatorID
+        #  5 13                                  : basis_size,lmn_size
+        # 0 0 1 1 2                              : orbitals
+        # 3                                      : number_of_meshes
+        # 1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
+        # 2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
+        # 3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
+        #  2.3000000000                          : r_cut(SPH)
+        # 2 0.                
+
         # Example
         #C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
         #   6.000   4.000 20090106               : zatom,zion,pspdat
@@ -770,8 +795,23 @@ class PawAbinitHeader(AbinitHeader):
         #  1.5550009124                          : r_cut(PAW)
         # 3 0.                                   : shape_type,rshape
 
-        if ppdesc.format != "paw4":
-            raise NotImplementedError("format != paw4 are not supported")
+        #Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
+        #  14.000   4.000 20120814               : zatom,zion,pspdat
+        #  7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
+        # paw5 1331                              : pspfmt,creatorID
+        #  4  8                                  : basis_size,lmn_size
+        # 0 0 1 1                                : orbitals
+        # 5                                      : number_of_meshes
+        # 1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
+        # 2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
+        # 3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
+        # 4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
+        # 5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
+        #  1.5669671236                          : r_cut(PAW)
+        # 2 0.                                   : shape_type,rshape
+        supported_formats = ["paw3", "paw4", "paw5"]
+        if ppdesc.format not in supported_formats:
+            raise NotImplementedError("format %s not in %s" % (ppdesc.format, supported_formats))
 
         lines = _read_nlines(filename, -1)
 
@@ -796,8 +836,11 @@ class PawAbinitHeader(AbinitHeader):
         #print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        header["dojo_report"] = read_dojo_report(filename)
+        report = read_dojo_report(filename)
+        if report:
+            header["dojo_report"] = report
 
+        #print("PAW header\n", header)
         return PawAbinitHeader(summary, **header)
 
 
@@ -905,9 +948,10 @@ class PseudoParser(object):
                         sys.stderr.write(msg)
                         return None
 
-                    if tokens[-1].strip() != "pspcod,pspxc,lmax,lloc,mmax,r2well":
-                        raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                        return None
+                    #if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
+                    #                              "pspcod,pspxc,lmax,llocal,mmax,r2well"]:
+                    #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
+                    #    return None
 
                     if pspcod not in self._PSPCODES:
                         raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
@@ -918,9 +962,10 @@ class PseudoParser(object):
                         # PAW -> need to know the format pspfmt
                         tokens = lines[lineno+1].split()
                         pspfmt, creatorID = tokens[:2]
-                        if tokens[-1].strip() != "pspfmt,creatorID":
-                            raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                            return None
+                        #if tokens[-1].strip() != "pspfmt,creatorID":
+                        #    raise self.Error("%s: Invalid line\n %s" % (filename, line))
+                        #    return None
+
                         ppdesc = ppdesc._replace(format = pspfmt)
 
                     return ppdesc
@@ -944,19 +989,18 @@ class PseudoParser(object):
         psp_type = ppdesc.psp_type
 
         parsers = {
-         "FHI"            : NcAbinitHeader.fhi_header,
-         "TM"             : NcAbinitHeader.tm_header,
-         "HGH"            : NcAbinitHeader.hgh_header,
-         "HGHK"           : NcAbinitHeader.hgh_header,
-         "PAW_abinit_text": PawAbinitHeader.paw_header,
+            "FHI"            : NcAbinitHeader.fhi_header,
+            "TM"             : NcAbinitHeader.tm_header,
+            "HGH"            : NcAbinitHeader.hgh_header,
+            "HGHK"           : NcAbinitHeader.hgh_header,
+            "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
 
         except Exception as exc:
-            raise 
-            raise self.Error(path + ": " + str(exc))
+            raise self.Error(path + ":\n" + straceback())
 
         root, ext = os.path.splitext(path)
 
@@ -964,6 +1008,7 @@ class PseudoParser(object):
         # The name of the input is name + ".ini"
         input = None
         input_path = root + ".ini"
+
         if os.path.exists(input_path):
             with open(input_path, 'r') as fh:
                 input = fh.read()
@@ -998,9 +1043,10 @@ class PseudoTable(collections.Sequence):
     """
     @classmethod
     def astable(cls, items):
-        """Return an instance of `PseudoTable from the iterable items.""" 
-        if isinstance(items, cls):
-            return items
+        """
+        Return an instance of `PseudoTable` from the iterable items.
+        """ 
+        if isinstance(items, cls): return items
         return cls(items)
 
     def __init__(self, pseudos):
@@ -1023,7 +1069,7 @@ class PseudoTable(collections.Sequence):
         for pseudo in pseudos:
             p = pseudo
             if not isinstance(pseudo, Pseudo):
-                p = Pseudo.from_filename(pseudo)
+                p = Pseudo.from_file(pseudo)
 
             self._pseudos_with_z[p.Z].append(p)
 
@@ -1033,6 +1079,7 @@ class PseudoTable(collections.Sequence):
             symbol = symbols[0]
             if any(symb != symbol for symb in symbols):
                 raise ValueError("All symbols must be equal while they are: %s" % str(symbols))
+
             setattr(self, symbol, pseudo_list)
 
     def __getitem__(self, Z):

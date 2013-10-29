@@ -10,19 +10,26 @@ import collections
 import abc
 import warnings
 import copy
+import yaml
 import numpy as np
+
+from pymatgen.io.abinitio import abiinspect
+from pymatgen.io.abinitio import events 
+
 try:
-    import yaml
     from pydispatch import dispatcher
 except ImportError:
     pass
 
 from pymatgen.core.design_patterns import Enum, AttrDict
+from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_load, json_pretty_dump
-from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer
-from pymatgen.io.abinitio.events import EventParser
+from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
+
 from pymatgen.io.abinitio.qadapters import qadapter_class
+from pymatgen.io.abinitio.netcdf import ETSF_Reader
+from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput, order_pseudos
 
 import logging
 logger = logging.getLogger(__name__)
@@ -54,7 +61,7 @@ class TaskResults(dict, MSONable):
         "task_name",
         "task_returncode",
         "task_status",
-        "task_events",
+        #"task_events",
     ]
 
     EXC_KEY = "_exceptions"
@@ -118,21 +125,20 @@ class ParalConf(AttrDict):
     """
     This object store the parameters associated to one 
     of the possible parallel configurations reported by ABINIT.
-    Essentialy it is a dictionary whose keys can be accessed as 
-    attributes. It also provides default values for selected keys
+    Essentially it is a dictionary whose values can also be accessed 
+    as attributes. It also provides default values for selected keys
     that might not be present in the ABINIT dictionary.
 
     Example:
 
         --- !Autoparal
-        header: 
+        info: 
             version: 1
             autoparal: 1
             max_ncpus: 108
 
         configurations:
-            -
-                tot_ncpus: 2         # Total number of CPUs
+            -   tot_ncpus: 2         # Total number of CPUs
                 mpi_ncpus: 2         # Number of MPI processes.
                 omp_ncpus: 1         # Number of OMP threads (1 if not present)
                 mem_per_cpus: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
@@ -167,6 +173,7 @@ class ParalConf(AttrDict):
 
     @property
     def speedup(self):
+        """Estimated speedup reported by ABINIT."""
         return self.efficiency * self.tot_ncpus
 
 
@@ -176,38 +183,19 @@ class ParalHintsParser(object):
 
     def parse(self, filename):
         """
-        Read the <RUN_HINTS> section from file filename
+        Read the AutoParal section (YAML forma) from filename.
         Assumes the file contains only one section.
         """
-        START_TAG = "--- !Autoparal"
-        END_TAG = "..."
+        with abiinspect.YamlTokenizer(filename) as r:
+            doc = r.next_doc_with_tag("!Autoparal")
 
-        with open(filename, "r") as fh:
-            lines = fh.readlines()
+            try:
+                d = yaml.load(doc.text_notag)
+                #print(d)
+                return ParalHints(info=d["info"], confs=d["configurations"])
 
-        start, end = None, None
-        for i, line in enumerate(lines):
-            if START_TAG in line:
-                start = i
-            if start is not None and END_TAG in line:
-                end = i
-                break
-
-        if start is None or end is None:
-            raise self.Error("%s\n does not contain any valid %s section" % (START_TAG, filename))
-
-        if start == end:
-            # Empy section ==> User didn't enable Yaml in ABINIT.
-            raise self.Error("%s\n contains an empty %s document. Enable Yaml support in ABINIT" % (START_TAG, filename))
-
-        s = "".join(lines[start+1:end])
-
-        try:
-            d = yaml.load(s)
-        except Exception as exc:
-            raise self.Error("Malformatted Yaml document in file %s:\n %s" % (filename, str(exc)))
-
-        return ParalHints(header=d["header"], confs=d["configurations"])
+            except:
+                raise self.Error("Wrong YAML doc:\n %s" % doc.text)
 
 
 class ParalHints(collections.Iterable):
@@ -216,8 +204,8 @@ class ParalHints(collections.Iterable):
     """
     Error = ParalHintsError
 
-    def __init__(self, header, confs):
-        self.header = header
+    def __init__(self, info, confs):
+        self.info = info
         self._confs = [ParalConf(**d) for d in confs]
 
     def __getitem__(self, key):
@@ -235,22 +223,13 @@ class ParalHints(collections.Iterable):
     def copy(self):
         return copy.copy(self)
 
-    def apply_filter(self, filter):
-        raise NotImplementedError("")
+    def select_with_condition(self, condition):
         new_confs = []
-
         for conf in self:
-            if not filter(costraint):
+            if condition.apply(obj=conf):
                 new_confs.append(conf)
 
         self._confs = new_confs
-
-    #def select(self, command)
-    #    new_confs = []
-    #    for conf in self:
-    #       if command(conf):
-    #            new_confs.append(conf)
-    #    self._confs = new_confs
 
     def sort_by_efficiency(self, reverse=False):
         """
@@ -275,16 +254,19 @@ class ParalHints(collections.Iterable):
         hints = self.copy()
 
         # First select the configurations satisfying the 
-        # constraints specified by the user (if any)
-        #for constraint in policy.constraints:
-        #    hints.apply_filter(constraint)
+        # condition specified by the user (if any)
+        if policy.condition:
+            hints.select_with_condition(policy.condition)
+            #if not hints: hints = self.copy()
+            #print("after condition", hints)
 
         hints.sort_by_speedup()
 
         # If no configuration fullfills the requirements, 
         # we return the one with the highest speedup.
         if not hints:
-            self.copy().sort_by_speedup()
+            hints = self.copy()
+            hints.sort_by_speedup()
             return hints[-1].copy()
 
         # Find the optimal configuration according to policy.mode.
@@ -307,11 +289,11 @@ class TaskPolicy(object):
     This object stores the parameters used by the `TaskManager` to 
     create the submission script and/or to modify the ABINIT variables 
     governing the parallel execution. A `TaskPolicy` object contains 
-    a set of variables that specify the launcher, and options
-    and constraints used to select the optimal configuration for the parallel run 
+    a set of variables that specify the launcher, as well as the options
+    and the condition used to select the optimal configuration for the parallel run 
     """
 
-    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, constraints=()): 
+    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, condition=None): 
         """
         Args:
             autoparal: 
@@ -320,19 +302,17 @@ class TaskPolicy(object):
                 Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
             max_ncpus:
-                Max number of CPUs that can be used (must be specifies if autoparal > 0).
+                Max number of CPUs that can be used (must be specified if autoparal > 0).
             use_fw: 
                 True if we are using fireworks.
-            constraints: 
-
-                List of constraints used to filter the autoparal configuration (Mongodb syntax)
+            condition: 
+                condition used to filter the autoparal configuration (Mongodb syntax)
         """
         self.autoparal = autoparal
         self.mode = mode 
         self.max_ncpus = max_ncpus
         self.use_fw = use_fw 
-        # TODO: Need a object to support mongodb-like queries.
-        self.constraints = constraints
+        self.condition = Condition(condition) if condition is not None else condition
 
         if self.autoparal and self.max_ncpus is None:
             raise ValueError("When autoparal is not zero, max_ncpus must be specified.")
@@ -357,6 +337,8 @@ class TaskManager(object):
     A `TaskManager` has a `TaskPolicy` that governs the specification of the 
     parameters for the parallel executions.
     """
+    YAML_FILE = "taskmanager.yml"
+
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None, policy=None):
 
@@ -393,25 +375,33 @@ class TaskManager(object):
     def from_file(cls, filename):
         """Read the configuration parameters from a Yaml file."""
         with open(filename, "r") as fh:
-            d = yaml.load(fh)
+            return cls.from_dict(yaml.load(fh))
 
-        return cls.from_dict(d)
+    @classmethod
+    def from_user_config(cls):
+        """
+        Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
+        Search first in the workind directory and then in the configuration
+        directory of abipy.
 
-    #@classmethod
-    #def from_user_config(cls):
-    #    Try in the current directory.
-    #    fname = "taskmanager.yaml"
-    #    path = os.path.join(os.getcwd(), fname)
-    #    if os.path.exists(path):
-    #        return cls.from_file(path)
+        Raises:
+            RuntimeError if file is not found.
+        """
+        # Try in the current directory.
+        path = os.path.join(os.getcwd(), cls.YAML_FILE)
 
-    #    Try in the configuration directory.
-    #    home = os.getenv("HOME")
-    #    path = os.path.join(home, fname)
-    #    if os.path.exists(path):
-    #        return cls.from_file(path)
-    #
-    #    raise RuntimeError("Cannot locate %s neither in current directory nor in home directory" % fname)
+        if os.path.exists(path):
+            return cls.from_file(path)
+
+        # Try in the configuration directory.
+        home = os.getenv("HOME")
+        dirpath = os.path.join(home, ".abinit", "abipy")
+        path = os.path.join(dirpath, cls.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+    
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
 
     @classmethod 
     def sequential(cls):
@@ -497,10 +487,8 @@ class TaskManager(object):
         """
         policy = self.policy
 
-        if policy.autoparal == 0 or policy.max_ncpus is None: 
-            #print(policy.autoparal, policy.max_ncpus)
-            # nothing to do
-            #print("returning from autoparal with None, None")
+        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
+            logger.info("Nothing to do in autoparal, returning (None, None)")
             return None, None
 
         assert policy.autoparal == 1
@@ -523,29 +511,21 @@ class TaskManager(object):
         process = seq_manager.launch(task)
         process.wait()  
 
-        # Reset the status, remove garbage files ...
-        task.set_status(task.S_READY)
-
         # Remove the variables added for the automatic parallelization
         task.strategy.remove_extra_abivars(autoparal_vars.keys())
-
-        # Remove the output file since Abinit likes to create new files 
-        # with extension .outA, .outB if the file already exists.
-        try:
-            os.remove(task.output_file.path)
-        except:
-            pass
 
         # 2) Parse the autoparal configurations
         parser = ParalHintsParser()
 
         try:
             confs = parser.parse(task.log_file.path)
+
         except parser.Error:
             return None, None
 
         # 3) Select the optimal configuration according to policy
         optimal = confs.select_optimal_conf(policy)
+        print("optimal Autoparal conf:\n %s" % optimal)
 
         # 4) Change the input file and/or the submission script
         task.strategy.add_extra_abivars(optimal.vars)
@@ -562,6 +542,15 @@ class TaskManager(object):
         # Change the memory per node.
         #if optimal.mem_per_cpu is not None
         #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
+
+        # Reset the status, remove garbage files ...
+        task.set_status(task.S_READY)
+
+        # Remove the output file since Abinit likes to create new files 
+        # with extension .outA, .outB if the file already exists.
+        os.remove(task.output_file.path)
+        os.remove(task.log_file.path)
+        os.remove(task.stderr_file.path)
 
         return confs, optimal
 
@@ -611,9 +600,10 @@ class TaskManager(object):
 
         script_file = self.write_jobfile(task)
 
-        # Submit the script.
+        # Submit the task.
         task.set_status(task.S_SUB)
 
+        # FIXME: CD to script file dir?
         process, queue_id = self.qadapter.submit_to_queue(script_file)
 
         # Save the queue id.
@@ -621,7 +611,24 @@ class TaskManager(object):
 
         return process
 
-_COUNT = -1
+
+# The code below initializes a counter from a file when the module is imported 
+# and save the counter's updated value automatically when the program terminates 
+# without relying on the application making an explicit call into this module at termination.
+conf_dir = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
+
+if not os.path.exists(conf_dir):
+    os.makedirs(conf_dir)
+
+_COUNTER_FILE = os.path.join(conf_dir, "nodecounter")
+del conf_dir
+
+try:
+    with open(_COUNTER_FILE, "r") as fh:
+        _COUNTER = int(fh.read())
+
+except IOError:
+    _COUNTER = -1
 
 def get_newnode_id():
     """
@@ -631,9 +638,19 @@ def get_newnode_id():
         The id is unique inside the same python process so be careful when 
         Workflows and Task are constructed at run-time or when threads are used.
     """
-    global _COUNT
-    _COUNT += 1
-    return _COUNT
+    global _COUNTER
+    _COUNTER += 1
+    return _COUNTER
+
+
+def save_lastnode_id():
+    """Save the id of the last node created."""
+    with FileLock(_COUNTER_FILE) as lock:
+        with open(_COUNTER_FILE, "w") as fh:
+            fh.write("%d" % _COUNTER)
+
+import atexit
+atexit.register(save_lastnode_id)
 
 
 class FakeProcess(object):
@@ -779,13 +796,14 @@ class Dependency(object):
 # Possible status of the node.
 STATUS2STR = collections.OrderedDict([
     (1, "Initialized"),   # Node has been initialized
-    (2, "Ready"),         # Node is ready i.e. all the depencies of the node have status S_OK
-    (3, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
-    (4, "Running"),       # Node is running.
-    (5, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (6, "Error"),         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    (7, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
-    (8, "Completed"),     # Execution completed successfully.
+    (2, "Locked"),        # Task is locked an must be explicitly unlocked by en external subject (Workflow).
+    (3, "Ready"),         # Node is ready i.e. all the depencies of the node have status S_OK
+    (4, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
+    (5, "Running"),       # Node is running.
+    (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
+    (7, "Error"),         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
+    (8, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
+    (9, "Completed"),     # Execution completed successfully.
 ])
 
 class Status(int):
@@ -808,13 +826,14 @@ class Node(object):
 
     # Possible status of the node.
     S_INIT = Status(1)
-    S_READY = Status(2)
-    S_SUB = Status(3)
-    S_RUN = Status(4)
-    S_DONE = Status(5)
-    S_ERROR = Status(6)
-    S_UNCONVERGED = Status(7)
-    S_OK = Status(8)
+    S_LOCKED = Status(2)
+    S_READY = Status(3)
+    S_SUB = Status(4)
+    S_RUN = Status(5)
+    S_DONE = Status(6)
+    S_ERROR = Status(7)
+    S_UNCONVERGED = Status(8)
+    S_OK = Status(9)
 
     def __init__(self):
         # Node identifier.
@@ -824,7 +843,7 @@ class Node(object):
         self._deps = []
 
         # Used to push additional info during the execution. 
-        self.history = collections.deque(maxlen=50)
+        self.history = collections.deque(maxlen=100)
 
         # Set to true if the node has been finalized.
         self._finalized = False
@@ -843,17 +862,34 @@ class Node(object):
 
     def __repr__(self):
         try:
-            return "<%s, node_id %s, workdir=%s>" % (self.__class__.__name__, self.node_id, self.workdir)
+            return "<%s, node_id %s, workdir=%s>" % (
+                self.__class__.__name__, self.node_id, os.path.relpath(self.workdir))
+
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, node_id %s, workdir=None>" % (self.__class__.__name__, self.node_id)
                                                                                             
     def __str__(self):
         try:
-            return "<%s, workdir=%s>" % (self.__class__.__name__, self.workdir)
+            return "<%s, workdir=%s>" % (self.__class__.__name__, os.path.relpath(self.workdir))
         except AttributeError:
             # this usually happens when workdir has not been initialized
             return "<%s, workdir=None>" % self.__class__.__name__
+
+    @property
+    def name(self):
+        """
+        The name of node 
+        (only used for facilitating its identification in the user interface).
+        """
+        try:
+            return self._name
+        except AttributeError:
+            return os.path.relpath(self.workdir)
+
+    def set_name(name):
+        """Set the name of the Node."""
+        self._name = name
 
     @property
     def node_id(self):
@@ -949,6 +985,7 @@ class Node(object):
         return other in [d.node for d in self.deps]
 
     def str_deps(self):
+        """Return the string representation of the dependecies of the node."""
         lines = []
         app = lines.append
 
@@ -973,6 +1010,7 @@ class Node(object):
     #@abc.abstractmethod
     #def connect_signals():
     #    """Connect the signals."""
+
 
 class FakeDirectory(Directory):
 
@@ -1003,10 +1041,8 @@ class FileNode(Node):
         self._finalized = True
         self.status = self.S_OK
 
+        # FIXME: Find a better aproach for this
         self.outdir = FakeDirectory(self.workdir, self.filepath)
-
-        #import types
-        #self.outdir.has_abiext = types.MethodType(has_abiext, self.outdir)
 
     def opath_from_ext(self, ext):
         """
@@ -1029,6 +1065,11 @@ class Task(Node):
     __metaclass__ = abc.ABCMeta
 
     Error = TaskError
+
+    # List of `AbinitEvent` subclasses that are tested in the not_converged method. 
+    # Subclasses should provide their own list if they need to check the converge status.
+    CRITICAL_EVENTS = [
+    ]
 
     # Prefixes for Abinit (input, output, temporary) files.
     Prefix = collections.namedtuple("Prefix", "idata odata tdata")
@@ -1062,9 +1103,10 @@ class Task(Node):
             self.set_workdir(workdir)
                                                                
         if manager is not None:
+            print("setting manager")
             self.set_manager(manager)
-        else:
-            self.set_manager(TaskManager.sequential())
+        #else:
+        #    self.set_manager(TaskManager.sequential())
 
         # Handle possible dependencies.
         if deps:
@@ -1114,6 +1156,19 @@ class Task(Node):
         """Set the `TaskManager` to use to launch the Task."""
         self.manager = manager.deepcopy()
 
+    @property
+    def flow(self):
+        """The flow containing this `Task`."""
+        return self._flow
+
+    def set_flow(self, flow):
+        """Set the flow associated to this `Task`."""
+        if not hasattr(self, "_flow"):
+            self._flow = flow
+        else: 
+            if self._flow != flow:
+                raise ValueError("self._flow != flow")
+
     def make_input(self):
         """Construct and write the input file of the calculation."""
         return self.strategy.make_input()
@@ -1142,20 +1197,6 @@ class Task(Node):
         """Set the executable associate to this task."""
         self._executable = executable
 
-    def set_name(name):
-        self._name = name
-
-    @property
-    def name(self):
-        try:
-            return self._name
-        except AttributeError:
-            return self.workdir
-
-    @property
-    def short_name(self):
-        return os.path.basename(self.workdir)
-
     @property
     def process(self):
         try:
@@ -1180,13 +1221,17 @@ class Task(Node):
     @property
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other depencies (if any) are done!"""
-        all_ok = all([stat == self.S_OK for stat in self.deps_status])
+        all_ok = all(stat == self.S_OK for stat in self.deps_status)
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
         """Return True if the calculation is not converged."""
         logger.debug("not_converged method of the base class will always return False")
-        return False
+        report = self.get_event_report()
+        return report.filter_types(self.CRITICAL_EVENTS)
+
+    def _on_done(self):
+        self.fix_ofiles()
 
     def _on_ok(self):
         self.fix_ofiles()
@@ -1235,6 +1280,7 @@ class Task(Node):
         self.num_restarts += 1
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
         self.start()
+
         return 0
 
     def restart(self):
@@ -1259,7 +1305,9 @@ class Task(Node):
         """
         if self.not_converged():
             if self.num_restarts == self.max_num_restarts:
-                logger.info("Reached maximum number of restarts. Returning")
+                info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
+                logger.info(info_msg)
+                self.history.append(info_msg)
                 return 1
 
             try:
@@ -1322,7 +1370,7 @@ class Task(Node):
 
     def reset(self):
         """
-        Reset the task. Mainly used if we made a silly mistake in the initial
+        Reset the task status. Mainly used if we made a silly mistake in the initial
         setup of the queue manager and we want to fix it and rerun the task.
 
         Returns:
@@ -1333,8 +1381,9 @@ class Task(Node):
             return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
-        #self.workflow.check_status()
 
+        # TODO send a signal to the flow 
+        #self.workflow.check_status()
         return 0
 
     @property
@@ -1378,20 +1427,13 @@ class Task(Node):
         """Set the status of the task."""
         assert status in STATUS2STR
 
-        changed = False
+        changed = True
         if hasattr(self, "_status"):
-            changed = status != self._status
+            changed = (status != self._status)
 
         self._status = status
 
-        if status == self.S_OK:
-            # Finalize the task.
-            if not self.finalized:
-                self._on_ok()
-
-            logger.debug("Task %s broadcasts signal S_OK" % self)
-            dispatcher.send(signal=self.S_OK, sender=self)
-
+        # Add new entry to history only if the status has changed.
         if changed:
             if status == self.S_SUB: 
                 self._submission_time = time.time()
@@ -1403,6 +1445,21 @@ class Task(Node):
             if status == self.S_ERROR:
                 self.history.append("Error info:\n %s" % str(info_msg))
 
+        if status == self.S_DONE:
+            self._on_done()
+                                                                                
+        if status == self.S_OK:
+            #if status == self.S_UNCONVERGED:
+            #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
+            #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
+                                                                                
+            # Finalize the task.
+            if not self.finalized:
+                self._on_ok()
+                                                                                
+            logger.debug("Task %s broadcasts signal S_OK" % self)
+            dispatcher.send(signal=self.S_OK, sender=self)
+
         return status
 
     def check_status(self):
@@ -1410,8 +1467,9 @@ class Task(Node):
         This function check the status of the task by inspecting the output and the 
         error files produced by the application and by the queue manager.
         """
-        if self.status < self.S_SUB:
-            return
+        # A locked task can only be unlocked by calling set_status explicitly.
+        black_list = [self.S_LOCKED]
+        if self.status in black_list: return
 
         # Check the returncode of the process first.
         if self.returncode != 0:
@@ -1430,30 +1488,29 @@ class Task(Node):
                 if self.stderr_file.exists:
                     err_msg = self.stderr_file.read()
                     if err_msg:
-                        logger.critical("executable stderr:\n" + err_msg)
+                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
                         return self.set_status(self.S_ERROR, info_msg=err_msg)
 
                 # Analyze the error file of the resource manager.
                 if self.qerr_file.exists:
                     err_info = self.qerr_file.read()
                     if err_info:
-                        logger.critical("queue stderr:\n" + err_msg)
+                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
                         return self.set_status(self.S_ERROR, info_msg=err_info)
 
                 return self.status
 
         # Check if the run completed successfully.
-        parser = EventParser()
-
-        try:
-            report = parser.parse(self.output_file.path)
-
-        except parser.Error as exc:
-            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return self.set_status(self.S_ERROR, info_msg=str(exc))
+        report = self.get_event_report()
 
         if report.run_completed:
-            return self.set_status(self.S_OK)
+            # Check if the calculation converged.
+            not_ok = self.not_converged()
+
+            if not_ok:
+                return self.set_status(self.S_UNCONVERGED)
+            else:
+                return self.set_status(self.S_OK)
 
         # This is the delicate part since we have to discern among different possibilities:
         #
@@ -1473,7 +1530,7 @@ class Task(Node):
 
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
         if report.errors or report.bugs:
-            logger.critical("Found Errors or Bugs in ABINIT main output!")
+            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
             return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
@@ -1547,7 +1604,7 @@ class Task(Node):
             #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
-                print("need path %s with ext %s" % (path, ext))
+                logger.info("need path %s with ext %s" % (path, ext))
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path): 
@@ -1558,7 +1615,7 @@ class Task(Node):
                         dest += "-etsf.nc"
 
                 if not os.path.exists(path):
-                    err_msg = "%s is needed by this task but it does not exist" % path
+                    err_msg = "%s: %s is needed by this task but it does not exist" % (self, path)
                     logger.critical(err_msg)
                     raise self.Error(err_msg)
 
@@ -1584,39 +1641,37 @@ class Task(Node):
         self.make_links()
         self.setup()
 
-    def get_event_report(self):
-        return self.parse_events()
-
-    def parse_events(self):
+    # TODO: For the time being, we inspect the log file,
+    # We will start to use the output file when the migration to YAML is completed
+    def get_event_report(self, source="log"):
         """
-        Analyzes the main output for possible errors or warnings.
+        Analyzes the main output file for possible Errors or Warnings.
+
+        Args:
+            source:
+                "output" for the main output file.
+                "log" for the log file.
 
         Returns:
             `EventReport` instance or None if the main output file does not exist.
         """
-        if not os.path.exists(self.output_file.path):
+        file = {
+            "output": self.output_file,
+            "log": self.log_file,
+        }[source]
+
+        if not file.exists:
             return None
 
-        parser = EventParser()
+        parser = events.EventsParser()
         try:
-            return parser.parse(self.output_file.path)
+            return parser.parse(file.path)
 
         except parser.Error as exc:
             # Return a report with an error entry with info on the exception.
-            logger.critical("Exception while parsing ABINIT events:\n" + str(exc))
-            return parser.report_exception(self.output_file.path, exc)
-
-    @property
-    def events(self):
-        """List of errors or warnings reported by ABINIT."""
-        if self.status is None or self.status < self.S_DONE:
-            raise self.Error(
-                "Task %s is not completed.\nYou cannot access its events now, use parse_events" % repr(self))
-        try:
-            return self._events
-        except AttributeError:
-            self._events = self.parse_events()
-            return self._events
+            logger.critical("%s: Exception while parsing ABINIT events:\n %s" % (file, str(exc)))
+            self.set_status(self.S_ERROR, info_msg=str(exc))
+            return parser.report_exception(file.path, exc)
 
     @property
     def results(self):
@@ -1646,7 +1701,7 @@ class Task(Node):
             "task_name"      : self.name,
             "task_returncode": self.returncode,
             "task_status"    : self.status,
-            "task_events"    : self.events.to_dict
+            #"task_events"    : self.events.to_dict
         })
 
     def move(self, dest, is_abspath=False):
@@ -1748,19 +1803,10 @@ class Task(Node):
                     filepath = os.path.join(dirpath, fname)
                     os.remove(filepath)
 
-    # TODO Remove this methods. use Directory directly.
-    def rm_indatadir(self):
-        """Remove the directory with the input files (indata dir)."""
-        self.indir.rmtree()
-
-    def rm_tmpdatadir(self):
-        """Remove the directory with the temporary files."""
-        self.tmpdir.rmtree()
-
     def setup(self):
         """Base class does not provide any hook."""
 
-    def start(self, *args, **kwargs):
+    def start(self):
         """
         Starts the calculation by performing the following steps:
 
@@ -1771,10 +1817,7 @@ class Task(Node):
         if self._status >= self.S_SUB:
             raise self.Error("Task status: %s" % str(self.status))
 
-        self.set_status(self.S_SUB)
-
-        self.build(*args, **kwargs)
-
+        self.build()
         self._setup()
 
         # Add the variables needed to connect the node.
@@ -1822,7 +1865,6 @@ class AbinitTask(Task):
                 `TaskManager` object.
         """
         # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
-        from pymatgen.io.abinitio.strategies import StrategyWithInput
         strategy = StrategyWithInput(abinit_input)
 
         return cls(strategy, workdir=workdir, manager=manager)
@@ -1833,10 +1875,10 @@ class AbinitTask(Task):
         to the output file, and this breaks a lot of code that relies of the use of a unique file extension.
         Here we fix this issue by renaming run.abo to run.abo_[number] if the output file "run.abo" already
         exists. A few lines of code in python, a lot of problems if you try to implement this trick in Fortran90. 
-        God rot the FORTRAN committee who was not able to give Fortran a decent standard library as well as $Windows$ OS!
-        I don't really care if Fortran2003 provides support for OOP programming. 
-        What I need is a standardized interface to communicate with the OS!
         """
+        # God rot the FORTRAN committee who was not able to give Fortran a decent standard library as well as $Windows$ OS!
+        # I don't really care if Fortran2003 provides support for OOP programming. 
+        # What I need is a standardized interface to communicate with the OS!
         if self.output_file.exists:
             # Find the index of the last file (if any) and push.
             # TODO: Maybe it's better to use run.abo --> run(1).abo
@@ -1887,6 +1929,7 @@ class AbinitTask(Task):
         app(pj(self.workdir, self.prefix.tdata))  # Prefix for temporary data
 
         # Paths to the pseudopotential files.
+        # Note that here the pseudos **must** be sorted according to znucl.
         for pseudo in self.pseudos:
             app(pseudo.path)
 
@@ -1905,17 +1948,9 @@ class ScfTask(AbinitTask):
     Self-consistent ground-state calculations.
     Provide support for in-place restart via (WFK|DEN) files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-
-        report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        if report.warnings:
-            return report.warnings.filter("ScfCriticalWarning")
-
-        return False
+    CRITICAL_EVENTS = [
+        events.ScfConvergenceWarning,
+    ]
 
     def restart(self):
         """SCF calculations can be restarted if we have either the WFK file or the DEN file."""
@@ -1938,18 +1973,26 @@ class ScfTask(AbinitTask):
         # Now we can resubmit the job.
         self._restart()
 
+    def inspect(self, **kwargs):
+        """
+        Plot the SCF cycle results with matplotlib.
+
+        Returns
+            `matplotlib` figure, None is some error occurred. 
+        """
+        scf_cycle = abiinspect.GroundStateScfCycle.from_file(self.output_file.path)
+        if scf_cycle is not None:
+            return scf_cycle.plot(**kwargs)
+
 
 class NscfTask(AbinitTask):
     """
     Non-Self-consistent GS calculation.
     Provide in-place restart via WFK files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
+    CRITICAL_EVENTS = [
+        events.NscfConvergenceWarning,
+    ]
 
     def restart(self):
         """NSCF calculations can be restarted only if we have the WFK file."""
@@ -1973,56 +2016,61 @@ class NscfTask(AbinitTask):
 class RelaxTask(AbinitTask):
     """
     Structural optimization.
+
+    .. attributes:
+
+        initial_structure:
+        final_structure:
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        # TODO: 
-        return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        #if report.warnings:
-        #    return False
+    # What about a possible ScfConvergenceWarning?
+    CRITICAL_EVENTS = [
+        events.RelaxConvergenceWarning,
+    ]
 
-    def set_initial_structure(self, structure):
-        #TODO
-        self.strategy.set_structure(structure)
+    def change_structure(self, structure):
+        """Change the input structure."""
+        print("changing structure")
+        self.strategy.abinit_input.set_structure(structure)
 
-    def read_final_structure(self):
+    def read_final_structure(self, save=False):
         """Read the final structure from the GSR file and save it in self.final_structure."""
+        # We already have it in memory.
+        if hasattr(self, "final_structure"):
+            return self.final_structure
+        
+        # Read it from file and save it if save is True.
         gsr_file = self.outdir.has_abiext("GSR")
         if not gsr_file:
             raise TaskRestartError("Cannot find the GSR file with the final structure to restart from.")
-                                                                                                         
-        with ETSF_reader(gsr_file) as r:
-            self.final_structure = r.read_structure()
 
-        return self.final_structure
+        with ETSF_Reader(gsr_file) as r:
+            final_structure = r.read_structure()
+
+        if save:
+            self.final_structure = final_structure
+
+        return final_structure
 
     def restart(self):
-        raise NotImplementedError("")
-        # Change the initial structure.
-        try:
-            structure = self.read_final_structure()
-        except TaskRestartError:
-            raise
-
-        self.set_initial_structure(structure)
-
         # Structure relaxations can be restarted only if we have the WFK file or the DEN or the GSR file.
         # from which we can read the last structure (mandatory) and the wavefunctions (not mandatory but useful).
         # Prefer WFK over other files since we can reuse the wavefunctions.
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
+
                 irdvars = irdvars_for_ext(ext)
                 infile = self.out_to_in(ofile)
-                # We will read the unit cell from this file
-                irdvars["getucell_path"] = infile
                 break
 
         if not ofile:
             raise TaskRestartError("Cannot find the WFK|DEN file to restart from.")
+
+        # Read the relaxed structure from the GSR file.
+        structure = self.read_final_structure()
+                                                           
+        # Change the structure.
+        #self.change_structure(structure)
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -2030,12 +2078,20 @@ class RelaxTask(AbinitTask):
         # Now we can resubmit the job.
         self._restart()
 
+    def inspect(self, **kwargs):
+        """
+        Plot the evolution of the structural relaxation with matplotlib.
+
+        Returns
+            `matplotlib` figure, None is some error occurred. 
+        """
+        relaxation = abiinspect.Relaxation.from_file(self.output_file.path)
+        if relaxation is not None:
+            return relaxation.plot(**kwargs)
+
 
 class DDK_Task(AbinitTask):
-
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return False
+    """Task for DDK calculations."""
 
 
 class PhononTask(AbinitTask):
@@ -2043,17 +2099,18 @@ class PhononTask(AbinitTask):
     DFPT calculations for a single atomic perturbation.
     Provide support for in-place restart via (1WF|1DEN) files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
+    # TODO: 
+    # for the time being we don't discern between GS and PhononCalculations.
+    # Restarting Phonon calculation is more difficult due to the crazy rules employed in ABINIT 
+    CRITICAL_EVENTS = [
+        events.ScfConvergenceWarning,
+    ]
 
     def restart(self):
         # Phonon calculations can be restarted only if we have the 1WF file or the 1DEN file.
         # from which we can read the first-order wavefunctions or the first order density.
         # Prefer 1WF over 1DEN since we can reuse the wavefunctions.
+        #self.fix_ofiles()
         for ext in ["1WF", "1DEN"]:
             restart_file = self.outdir.has_abiext(ext)
             irdvars = irdvars_for_ext(ext)
@@ -2071,18 +2128,26 @@ class PhononTask(AbinitTask):
         # Now we can resubmit the job.
         self._restart()
 
+    def inspect(self, **kwargs):
+        """
+        Plot the Phonon SCF cycle results with matplotlib.
+
+        Returns
+            `matplotlib` figure, None is some error occurred. 
+        """
+        scf_cycle = abiinspect.PhononScfCycle.from_file(self.output_file.path)
+        if scf_cycle is not None:
+            return scf_cycle.plot(**kwargs)
+
 
 class G_Task(AbinitTask):
     """
     Tasks for SIGMA calculations employing the self-consistent G approximation 
     Provide support for in-place restart via QPS files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
+    CRITICAL_EVENTS = [
+        events.QPSConvergenceWarning,
+    ]
 
     def restart(self):
         # G calculations can be restarted only if we have the QPS file 
@@ -2124,18 +2189,10 @@ class HaydockBseTask(BseTask):
     Bethe-Salpeter calculations with Haydock iterative scheme.
     Provide in-place restart via (BSR|BSC) files
     """
-    def not_converged(self):
-        """Return True if the calculation is not converged."""
-        return True
-        #raise NotImplementedError("")
-        #report = self.get_event_report()
-        # If we have critical warnings that are registered 
-        # for this task we trigger the restart.
-        if report.warnings:
-            return False
+    CRITICAL_EVENTS = [
+        events.HaydockConvergenceWarning,
+    ]
 
-        return True
-                                                                                            
     def restart(self):
         # BSE calculations with Haydock can be restarted only if we have the 
         # excitonic Hamiltonian and the HAYDR_SAVE file.
@@ -2144,6 +2201,9 @@ class HaydockBseTask(BseTask):
         irdvars = {}
 
         # Move the BSE blocks to indata.
+        # This is done only once at the end of the first run.
+        # Successive restarts will use the BSR|BSC files in the indir directory
+        # to initialize the excitonic Hamiltonian
         count = 0
         for ext in ["BSR", "BSC"]:
             ofile = self.outdir.has_abiext(ext)
@@ -2153,7 +2213,17 @@ class HaydockBseTask(BseTask):
                 self.out_to_in(ofile)
 
         if not count:
-            raise TaskRestartError("Cannot find the BSR|BSC file to restart from.")
+            # outdir does not contain the BSR|BSC file.
+            # This means that num_restart > 1 and the files should
+            # be in task.indir
+            count = 0
+            for ext in ["BSR", "BSC"]:
+                ifile = self.indir.has_abiext(ext)
+                if ifile:
+                    count += 1
+
+            if not count:
+                raise TaskRestartError("Cannot find BSR|BSC files in %s" % sekf.indir)
 
         # Rename HAYDR_SAVE files
         count = 0
@@ -2165,7 +2235,7 @@ class HaydockBseTask(BseTask):
                 self.out_to_in(ofile)
 
         if not count:
-            raise TaskRestartError("Cannot find the HAYD_SAVE file to restart from.")
+            raise TaskRestartError("Cannot find the HAYDR_SAVE file to restart from.")
 
         # Add the appropriate variable for restarting.
         self.strategy.add_extra_abivars(irdvars)
@@ -2205,19 +2275,17 @@ class OpticTask(Task):
         deps.update({nscf_node: "WFK"})
         print("deps",deps)
 
-        from pymatgen.io.abinitio.strategies import OpticInput
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
         # Keep a reference to the nscf_task and the ddk tasks
-        self.nscf_node = nscf_node
-        self.ddk_nodes = ddk_nodes
         assert len(ddk_nodes) == 3
+        self.nscf_node, self.ddk_nodes = nscf_node, ddk_nodes
 
     def set_workdir(self, workdir):
         super(OpticTask, self).set_workdir(workdir)
-        # The log file of optics is actually the main output file --> swap the files.
-        #self.output_file, self.log_file = self.log_file, self.output_file
+        # Small hack: the log file of optics is actually the main output file. 
+        self.output_file = self.log_file
 
     @property
     def executable(self):
@@ -2229,7 +2297,7 @@ class OpticTask(Task):
 
     @property
     def filesfile_string(self):
-        """String with the list of files and prefixex needed to execute ABINIT."""
+        """String with the list of files and prefixes needed to execute ABINIT."""
         lines = []
         app = lines.append
         pj = os.path.join
@@ -2320,8 +2388,7 @@ class AnaddbTask(Task):
         if ddk_node is not None: deps.update({ddk_node: "DDK"})
         self.ddk_node = ddk_node
                                                                                                         
-        # TODO
-        from pymatgen.io.abinitio.strategies import AnaddbInput
+        # TODO Refactor this code.
         strategy = AnaddbInput(anaddb_input)
         super(AnaddbTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)
 
