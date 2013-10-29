@@ -3,6 +3,7 @@ from __future__ import division, print_function
 
 import os 
 import time
+import yaml
 
 from subprocess import Popen, PIPE
 from pymatgen.core.design_patterns import AttrDict
@@ -315,9 +316,10 @@ class PyFlowsScheduler(object):
     # but there's still a lot of room for improvement.
     # The scheduler will shutdown automatically if the number of python exceptions is > MAX_NUM_PYEXC
     # or if the number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
-
     MAX_NUM_PYEXCS = 2
     MAX_NUM_ABIERRS = 0
+
+    YAML_FILE = "scheduler.yml"
 
     def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None):
         """
@@ -335,7 +337,7 @@ class PyFlowsScheduler(object):
             start_date:
                 when to first execute the job and start the counter (default is after the given interval)
         """
-        # Time Options passed to the scheduler.
+        # Options passed to the scheduler.
         self.sched_options = AttrDict(
              weeks=weeks,
              days=days,
@@ -351,6 +353,39 @@ class PyFlowsScheduler(object):
         self._pidfiles2flows = {}
 
         self.exceptions = []
+
+    @classmethod
+    def from_file(cls, filepath):
+        """Read the configuration parameters from a Yaml file."""
+        with open(filepath, "r") as fh:
+            d = yaml.load(fh)
+            return cls(**d)
+
+    @classmethod
+    def from_user_config(cls):
+        """
+        Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
+        Search first in the workind directory and then in the configuration
+        directory of abipy.
+
+        Raises:
+            RuntimeError if file is not found.
+        """
+        # Try in the current directory.
+        path = os.path.join(os.getcwd(), cls.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+
+        # Try in the configuration directory.
+        home = os.getenv("HOME")
+        dirpath = os.path.join(home, ".abinit", "abipy")
+        path = os.path.join(dirpath, cls.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+    
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
 
     def __str__(self):
         """String representation."""
