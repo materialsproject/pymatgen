@@ -47,7 +47,7 @@ class AbstractVaspInputSet(MSONable):
     fashion for any structure.
     """
     __metaclass__ = abc.ABCMeta
-    
+
     @abc.abstractmethod
     def get_poscar(self, structure):
         """
@@ -272,7 +272,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             incar['NUPDOWN'] = nupdown
 
         return incar
-    
+
     def get_poscar(self, structure):
         if self.sort_structure:
             structure = structure.get_sorted_structure()
@@ -291,7 +291,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         potcar_symbols = []
         for el in elements:
             potcar_symbols.append(self.potcar_settings[el]
-            if el in self.potcar_settings else el)
+                                  if el in self.potcar_settings else el)
         return potcar_symbols
 
     def get_kpoints(self, structure):
@@ -354,6 +354,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
                        user_incar_settings=None, constrain_total_magmom=False,
                        sort_structure=True):
         """
+        Creates a DictVaspInputSet from a json file.
+
         Args:
             name:
                 A name for the input set.
@@ -741,7 +743,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             else:
                 previous_incar.pop(incar_key, None)
 
-        # use new LDAUU when possible b/c the Poscar might have changed representation
+        # use new LDAUU when possible b/c the Poscar might have changed
+        # representation
         if previous_incar.get('LDAU'):
             u = previous_incar.get('LDAUU', [])
             j = previous_incar.get('LDAUJ', [])
@@ -847,7 +850,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                            kpts_weights=[1] * len(cart_k_points))
         else:
             num_kpoints = kpoints_density * \
-                    structure.lattice.reciprocal_lattice.volume
+                structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]

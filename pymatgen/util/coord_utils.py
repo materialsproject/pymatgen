@@ -184,7 +184,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
             Second set of fractional coordinates.
 
     Returns:
-        array of displacement vectors
+        array of displacement vectors from fcoords1 to fcoords2
+        first index is fcoords1 index, second is fcoords2 index
     """
     #ensure correct shape
     fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
@@ -343,9 +344,9 @@ def barycentric_coords(coords, simplex):
     """
     coords = np.atleast_2d(coords)
 
-    T = np.transpose(simplex[:-1, :]) - np.transpose(simplex[-1, :])[:, None]
+    t = np.transpose(simplex[:-1, :]) - np.transpose(simplex[-1, :])[:, None]
     all_but_one = np.transpose(
-        np.linalg.solve(T, np.transpose(coords - simplex[-1])))
+        np.linalg.solve(t, np.transpose(coords - simplex[-1])))
     last_coord = 1 - np.sum(all_but_one, axis=-1)[:, None]
     return np.append(all_but_one, last_coord, axis=-1)
 
