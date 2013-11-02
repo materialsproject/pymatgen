@@ -10,23 +10,18 @@ import collections
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import *
 
-test_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files'))
-
-def filepath(basename):
-    return os.path.join(test_dir, basename)
-
 class PseudoTestCase(PymatgenTest):
 
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
-        nc_pseudo_fnames["Si"] = map(filepath, ["14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi"])
+        nc_pseudo_fnames["Si"] = self.ref_files("14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi")
 
         self.nc_pseudos = collections.defaultdict(list)
 
         for (symbol, fnames) in nc_pseudo_fnames.items():
             for fname in fnames:
                 root, ext = os.path.splitext(fname)
-                pseudo = Pseudo.from_file(filepath(fname))
+                pseudo = Pseudo.from_file(self.ref_file(fname))
                 self.nc_pseudos[symbol].append(pseudo)
 
                 # Save the pseudo as instance attribute whose name 
@@ -74,7 +69,7 @@ class PseudoTestCase(PymatgenTest):
 
     def test_pawxml_pseudos(self):
         """Test O.GGA_PBE-JTH-paw.xml."""
-        oxygen = Pseudo.from_file(filepath("O.GGA_PBE-JTH-paw.xml"))
+        oxygen = Pseudo.from_file(self.ref_file("O.GGA_PBE-JTH-paw.xml"))
         print(repr(oxygen))
         print(oxygen)
 
