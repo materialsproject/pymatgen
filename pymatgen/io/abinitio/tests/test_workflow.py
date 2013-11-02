@@ -8,11 +8,10 @@ from tempfile import mkdtemp
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import *
 
-test_dir = os.path.join(os.path.dirname(__file__))
+test_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files'))
 
 def filepath(basename):
     return os.path.join(test_dir, basename)
-
 
 class WorkflowTestCase(PymatgenTest):
 
@@ -37,6 +36,7 @@ class WorkflowTestCase(PymatgenTest):
 
         pptest_wf.build()
         pptest_wf.rmtree()
+
 
 if __name__ == "__main__":
     import unittest
