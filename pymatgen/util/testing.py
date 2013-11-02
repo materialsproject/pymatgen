@@ -9,15 +9,16 @@ import os
 import unittest
 import numpy.testing.utils as nptu
 
-#_test_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", 'test_files'))
-#
-#def ref_file(basename):
-#    """Returns the absolute path of the reference file in the test_files directory."""
-#    return os.path.join(_test_files_dir, basename)
+_test_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", 'test_files'))
 
-#def ref_files(*basenames):
-#    """Returns a list with absolute paths of the reference files in the test_files directory."""
-#    return map(ref_file, *basenames)
+def ref_file(basename):
+    """Returns the absolute path of the reference file in the test_files directory."""
+    return os.path.join(_test_files_dir, basename)
+
+
+def ref_files(*basenames):
+    """Returns a list with absolute paths of the reference files in the test_files directory."""
+    return map(ref_file, basenames)
 
 
 class PymatgenTest(unittest.TestCase):
@@ -25,6 +26,14 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
+
+    @staticmethod
+    def ref_file(basename):
+        return ref_file(basename)
+
+    @staticmethod
+    def ref_files(*basenames):
+        return ref_files(*basenames)
 
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
