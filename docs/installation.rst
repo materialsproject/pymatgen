@@ -56,7 +56,7 @@ the moment) required only for certain features:
 Detailed installation instructions
 ==================================
 
-Mac OSX (tested on 10.6-10.7)
+Mac OSX (tested on 10.6-10.9)
 -----------------------------
 
 For Macs, the initial installation steps can be a bit complicated because
@@ -66,10 +66,16 @@ pymatgen usage.
 
 1. Download and install the basic compilers needed:
     a. Xcode - This provides the gcc compiler. Get it from the App Store.
-       Afer installation, start XCode, go to Preferences->Downloads and install
-       the Command Line Tools. Note that this download and install takes a long
-       time. You may need to quit Xcode and reopen if the Command Line Tools
-       option does not appear.
+        i.  *OSX < 10.9*. After installation, start XCode,
+            go to Preferences->Downloads and install the Command Line Tools.
+            You may need to quit Xcode and reopen if the Command Line Tools
+            option does not appear.
+        ii. *OSX 10.9*. The command line tools for OSX Mavericks is no longer
+            provided as an option under Xcode downloads. To install command
+            line tools, type the following in a terminal::
+
+               xcode-select --install
+
     b. Gfortran 4.6.2+ - Get an installer at
        http://gcc.gnu.org/wiki/GFortranBinaries#MacOS.
 2. It is recommended that you install the latest copy of Python 2.7+ (not 3+),

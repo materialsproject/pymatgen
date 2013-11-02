@@ -57,6 +57,7 @@ def makedoc():
         #Avoid ths use of jekyll so that _dir works as intended.
         local("touch _build/html/.nojekyll")
 
+
 def publish():
     local("python setup.py release")
 
