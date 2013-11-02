@@ -745,7 +745,6 @@ class StrategyWithInput(object):
 
 
 class OpticVar(collections.namedtuple("OpticVar", "name value help")):
-
     def __str__(self):
         sval = string(self.value)
         return (4*" ").join(sval, "!" + self.help)

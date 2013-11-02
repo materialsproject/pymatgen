@@ -364,8 +364,8 @@ class PyFlowsScheduler(object):
     @classmethod
     def from_user_config(cls):
         """
-        Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
-        Search first in the workind directory and then in the configuration
+        Initialize the `PyFlowsScheduler` from the YAML file 'scheduler.yml'.
+        Search first in the working directory and then in the configuration
         directory of abipy.
 
         Raises:
