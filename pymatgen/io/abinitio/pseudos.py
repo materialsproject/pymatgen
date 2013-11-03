@@ -1048,7 +1048,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
         atom_attrib = root.find("atom").attrib
 
         #self._symbol = atom_attrib["symbol"]
-        self._zatom, self.core, self.valence = map(float, [atom_attrib["Z"], atom_attrib["core"], atom_attrib["valence"]])
+        self._zatom = int(float(atom_attrib["Z"]))
+        self.core, self.valence = map(float, [atom_attrib["core"], atom_attrib["valence"]])
 
         #xc_info = root.find("atom").attrib
         #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
@@ -1570,6 +1571,7 @@ class PseudoTable(collections.Sequence):
         try:
             return getattr(self, str(symbol))
         except AttributeError:
+            #raise
             return []
 
     def pseudo_from_name(self, name):
@@ -1623,25 +1625,25 @@ class PseudoTable(collections.Sequence):
                     print("format",format,"args",values)
                     raise
 
-    def print_table(self, stream=sys.stdout, filter_function=None):
-        """
-        A pretty ASCII printer for the periodic table, based on some filter_function.
+    #def print_table(self, stream=sys.stdout, filter_function=None):
+    #    """
+    #    A pretty ASCII printer for the periodic table, based on some filter_function.
 
-        Args:
-            filter_function:
-                A filtering function that take a Pseudo as input and returns a boolean.
-                For example, setting filter_function = lambda el: el.Z_val > 2 will print
-                a periodic table containing only pseudos with Z_val > 2.
-        """
-        for row in range(1, 10):
-            rowstr = []
-            for group in range(1, 19):
-                el = Element.from_row_and_group(row, group)
-                if el and ((not filter_function) or filter_function(el)):
-                    rowstr.append("{:3s}".format(el.symbol))
-                else:
-                    rowstr.append("   ")
-            print(" ".join(rowstr))
+    #    Args:
+    #        filter_function:
+    #            A filtering function that take a Pseudo as input and returns a boolean.
+    #            For example, setting filter_function = lambda el: el.Z_val > 2 will print
+    #            a periodic table containing only pseudos with Z_val > 2.
+    #    """
+    #    for row in range(1, 10):
+    #        rowstr = []
+    #        for group in range(1, 19):
+    #            el = Element.from_row_and_group(row, group)
+    #            if el and ((not filter_function) or filter_function(el)):
+    #                rowstr.append("{:3s}".format(el.symbol))
+    #            else:
+    #                rowstr.append("   ")
+    #        print(" ".join(rowstr))
 
     def sorted(self, attrname, reverse=False):
         """Sort the table according to the value of attribute attrname."""

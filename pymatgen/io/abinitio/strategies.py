@@ -29,12 +29,15 @@ def select_pseudos(pseudos, structure, ret_table=True):
     table = PseudoTable.astable(pseudos)
 
     pseudos = []
-    for typ in structure.types_of_specie:
+    for symbol in structure.types_of_specie:
         # Get the list of pseudopotentials in table from atom symbol.
-        pseudos_for_type = table.pseudos_with_symbol(typ)
+        pseudos_for_type = table.pseudos_with_symbol(symbol)
                                                                              
-        if pseudos_for_type is None or len(pseudos_for_type) != 1:
-            raise ValueError("Cannot find unique pseudo for type %s" % typ)
+        if not pseudos_for_type:
+            raise ValueError("Cannot find pseudo for symbol %s" % symbol)
+
+        if len(pseudos_for_type) > 1:
+            raise ValueError("Find multiple pseudos for symbol %s" % symbol)
                                                                              
         pseudos.append(pseudos_for_type[0])
 
