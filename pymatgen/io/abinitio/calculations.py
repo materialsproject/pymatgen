@@ -134,7 +134,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 
         dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 
-    return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_input=dos_strategy, 
+    return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
                                  workdir=workdir, manager=manager)
 
 
