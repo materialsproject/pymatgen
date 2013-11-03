@@ -309,9 +309,11 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     # I need an abipy structure since I need to_abivars and other methods.
     #from pymatgen.io.abinitio.abiobjects import AbiStructure
     #structure.__class__ = AbiStructure
-
-    from abipy.core.structure import Structure as AbipyStructure
-    structure.__class__ = AbipyStructure
+    try:
+        from abipy.core.structure import Structure as AbipyStructure
+        structure.__class__ = AbipyStructure
+    except ImportError:
+        pass
 
     if closeit:
         ncdata.close()
