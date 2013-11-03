@@ -1136,7 +1136,7 @@ class DeltaFactorWorkflow(Workflow):
 
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
-                 accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
+                 accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
                  # FIXME Hack in chksymbreak
         """
         Build a `Workflow` for the computation of the deltafactor.
@@ -1187,6 +1187,7 @@ class DeltaFactorWorkflow(Workflow):
             new_structure = AbiStructure.asabistructure(new_structure)
 
             extra_abivars = dict(
+                pawecutdg=pawecutdg,
                 ecutsm=ecutsm,
                 toldfe=toldfe,
                 prtwf=0,
