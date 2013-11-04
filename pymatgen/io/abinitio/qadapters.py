@@ -266,6 +266,19 @@ class AbstractQueueAdapter(object):
     #def set_queue_walltime(self):
     #    """Set the walltime in seconds."""
 
+    #@abc.abstractproperty
+    #def mem_per_cpu(self):
+    #    """The memory per CPU in Megabytes."""
+                                                
+    #@abc.abstractmethod
+    #def set_mem_per_cpu(self, mem_mb):
+    #    """Set the memory per CPU in Megabytes"""
+
+    #@property
+    #def tot_mem(self):
+    #    """Total memory required by the job n Megabytes."""
+    #    return self.mem_per_cpu * self.mpi_ncpus
+
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         qtemplate = QScriptTemplate(self.QTEMPLATE)
@@ -427,6 +440,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --job-name=$${job_name}
 #SBATCH	--nodes=$${nodes}
 #SBATCH --mem=$${mem}
+#SBATCH --mem-per-cpu=$${mem_per_cpu}
 #SBATCH --mail-user=$${mail_user}
 #SBATCH --mail-type=$${mail_type}
 #SBATCH --constraint=$${constraint}
