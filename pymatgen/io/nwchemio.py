@@ -311,8 +311,8 @@ class NwInput(MSONable):
                 Addition list of option to be supplied to the symmetry.
                 E.g. ["c1"] to turn off the symmetry
             memory_options:
-                memory controlling options. dict.
-                E.g {"total":"1000mb", "stack":"400mb"}
+                memory controlling options. str.
+                E.g "total 1000 mb stack 400 mb"
         """
         self._mol = mol
         self.directives = directives if directives is not None else []
@@ -331,8 +331,7 @@ class NwInput(MSONable):
     def __str__(self):
         o = []
         if self.memory_options:
-            o.append(' '.join(['memory'] +
-                              list(itertools.chain(*self.memory_options.items()))))
+            o.append('memory ' + self.memory_options)
         for d in self.directives:
             o.append("{} {}".format(d[0], d[1]))
         o.append("geometry "
@@ -449,7 +448,7 @@ class NwInput(MSONable):
                            operation=toks[2], basis_set=basis_set,
                            theory_directives=theory_directives.get(toks[1])))
             elif toks[0].lower() == "memory":
-                    memory_options = dict(zip(*[iter(toks[1:])]*2))
+                    memory_options = ' '.join(toks[1:])
             else:
                 directives.append(l.strip().split())
 
