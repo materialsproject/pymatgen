@@ -146,7 +146,7 @@ class ParalConf(AttrDict):
             -   tot_ncpus: 2         # Total number of CPUs
                 mpi_ncpus: 2         # Number of MPI processes.
                 omp_ncpus: 1         # Number of OMP threads (1 if not present)
-                mem_per_cpu: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
+                mem_per_cpu: 10     # Estimated memory requirement per MPI processor in Megabytes.
                 efficiency: 0.4      # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
                 vars: {              # Dictionary with the variables that should be added to the input.
                       varname1: varvalue1
@@ -472,10 +472,9 @@ class TaskManager(object):
         """Set the number of OpenMp threads to use."""
         self.qadapter.set_omp_ncpus(omp_ncpus)
 
-    # TODO
-    #def set_mem_per_cpu(self, mem_per_cpu):
-    #    """Set the memory (in gigabytes) per CPU."""
-    #    self.qadapter.set_mem_per_cpu(mem_per_cpu)
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory (in Megabytes) per CPU."""
+        self.qadapter.set_mem_per_cpu(mem_mb)
 
     def autoparal(self, task):
         """
