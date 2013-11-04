@@ -52,6 +52,11 @@ __all__ = [
     "AnaddbTask",
 ]
 
+# Tools and helper functions.
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
 
 class TaskResults(dict, MSONable):
     """
@@ -141,7 +146,7 @@ class ParalConf(AttrDict):
             -   tot_ncpus: 2         # Total number of CPUs
                 mpi_ncpus: 2         # Number of MPI processes.
                 omp_ncpus: 1         # Number of OMP threads (1 if not present)
-                mem_per_cpus: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
+                mem_per_cpu: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
                 efficiency: 0.4      # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
                 vars: {              # Dictionary with the variables that should be added to the input.
                       varname1: varvalue1
@@ -485,10 +490,12 @@ class TaskManager(object):
            autoparal and optimal is the optimal configuration selected.
            Returns (None, None) if some problem occurred.
         """
+        #print("in autoparal")
         policy = self.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
             logger.info("Nothing to do in autoparal, returning (None, None)")
+            print("Returning from autoparal with None")
             return None, None
 
         assert policy.autoparal == 1
@@ -502,6 +509,7 @@ class TaskManager(object):
 
         task.strategy.add_extra_abivars(autoparal_vars)
         task.build()
+        #print("after build")
 
         # Build a simple manager to run the job in a shell subprocess on the frontend
         # we don't want to make a request to the queue manager for this simple job!
@@ -509,18 +517,23 @@ class TaskManager(object):
 
         # Return code is always != 0 
         process = seq_manager.launch(task)
+        #print("launched")
         process.wait()  
 
         # Remove the variables added for the automatic parallelization
         task.strategy.remove_extra_abivars(autoparal_vars.keys())
 
         # 2) Parse the autoparal configurations
+        #print("parsing")
         parser = ParalHintsParser()
 
         try:
             confs = parser.parse(task.log_file.path)
+            print("confs", confs)
 
         except parser.Error:
+            print("Error while parsing Autoparal section:\n%s" % straceback())
+            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
             return None, None
 
         # 3) Select the optimal configuration according to policy

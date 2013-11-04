@@ -8,17 +8,10 @@ from pymatgen import Structure
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import ETSF_Reader
 
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
-
 try:
     import netCDF4
 except ImportError:
     netCDF4 = None
-
-
-def filepath(basename):
-    return os.path.join(test_dir, basename)
 
 
 class ETSF_Reader_TestCase(PymatgenTest):
@@ -27,7 +20,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
         formulas = ["Si2",]
         self.GSR_paths = d = {}
         for formula in formulas:
-            d[formula] = filepath(formula + "_GSR.nc")
+            d[formula] = self.ref_file(formula + "_GSR.nc")
 
     @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
     def test_read_Si2(self):
