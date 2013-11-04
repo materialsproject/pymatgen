@@ -41,7 +41,6 @@ __all__ = [
 
 
 class AbinitFlow(Node):
-#class AbinitFlow(collections.Iterable):
     """
     This object is a container of workflows. Its main task is managing the 
     possible inter-depedencies among the workflows and the creation of
@@ -124,6 +123,11 @@ class AbinitFlow(Node):
         """True if all the tasks in workflows have reached S_OK."""
         return all(work.all_ok for work in self)
 
+    @property
+    def num_tasks_with_error(self):
+        """The number of tasks whose status is `S_ERROR`."""
+        return len(list(self.iflat_tasks(status=self.S_ERROR, op="=")))
+
     #@property
     #def completed(self):
     #    """True if all the tasks of the flow have reached S_OK."""
@@ -178,6 +182,19 @@ class AbinitFlow(Node):
                             yield task, wi, ti
                         else:
                             yield task
+
+    @property
+    def status_counter(self):
+        """
+        Returns a `Counter` object that counts the number of task with 
+        given status (use the string representation of the status as key).
+        """
+        # Count the number of tasks with given status in each workflow.
+        counter = self[0].status_counter
+        for work in self[1:]:
+            counter += work.status_counter
+
+        return counter
 
     @property
     def ncpus_reserved(self):

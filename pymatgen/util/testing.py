@@ -5,8 +5,20 @@ This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
 right away.
 """
+import os
 import unittest
 import numpy.testing.utils as nptu
+
+_test_files_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", 'test_files'))
+
+def ref_file(basename):
+    """Returns the absolute path of the reference file in the test_files directory."""
+    return os.path.join(_test_files_dir, basename)
+
+
+def ref_files(*basenames):
+    """Returns a list with absolute paths of the reference files in the test_files directory."""
+    return map(ref_file, basenames)
 
 
 class PymatgenTest(unittest.TestCase):
@@ -14,6 +26,14 @@ class PymatgenTest(unittest.TestCase):
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
+
+    @staticmethod
+    def ref_file(basename):
+        return ref_file(basename)
+
+    @staticmethod
+    def ref_files(*basenames):
+        return ref_files(*basenames)
 
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
@@ -69,7 +89,9 @@ class PymatgenTest(unittest.TestCase):
             Nested list with the objects deserialized with the specified protocols.
         """
         import tempfile
-        import cPickle as pickle
+        # Use the python version so that we get the traceback in case of errors 
+        import pickle as pickle  
+        #import cPickle as pickle
 
         # Build a list even when we receive a single object.
         got_single_object = False
