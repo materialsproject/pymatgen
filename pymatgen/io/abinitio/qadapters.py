@@ -270,9 +270,9 @@ class AbstractQueueAdapter(object):
     #def mem_per_cpu(self):
     #    """The memory per CPU in Megabytes."""
                                                 
-    #@abc.abstractmethod
-    #def set_mem_per_cpu(self, mem_mb):
-    #    """Set the memory per CPU in Megabytes"""
+    @abc.abstractmethod
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
 
     #@property
     #def tot_mem(self):
@@ -406,6 +406,9 @@ export MPI_NCPUS=$${MPI_NCPUS}
         """Set the number of CPUs used for MPI."""
         self.qparams["MPI_NCPUS"] = mpi_ncpus
 
+    def set_mem_per_cpu(self, mem_mb):
+        """mem_per_cpu is not available in ShellAdapter."""
+
     def submit_to_queue(self, script_file):
 
         if not os.path.exists(script_file):
@@ -462,6 +465,12 @@ class SlurmAdapter(AbstractQueueAdapter):
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
         self.qparams["ntasks"] = mpi_ncpus
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+        self.qparams["mem_per_cpu"] = mem_mb
+        # Remove mem if it's defined.
+        self.qparams.pop("mem", None)
 
     def submit_to_queue(self, script_file):
 
@@ -553,6 +562,13 @@ class PbsAdapter(AbstractQueueAdapter):
 
         ppnode = self.qparams.get("ppn")
         self.qparams["nodes"] = mpi_ncpus // ppnode 
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+        raise NotImplementedError("")
+        #self.qparams["mem_per_cpu"] = mem_mb
+        ## Remove mem if it's defined.
+        #self.qparams.pop("mem", None)
 
     def submit_to_queue(self, script_file):
 
