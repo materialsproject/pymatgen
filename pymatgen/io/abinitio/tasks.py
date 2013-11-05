@@ -199,10 +199,13 @@ class ParalHintsParser(object):
         """
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
+            #print(d)
+
+            #with open(os.path.join(os.path.dirname(filename), "autoparal.yml"), "w") as fh:
+            #    fh.write(doc.text)
 
             try:
                 d = yaml.load(doc.text_notag)
-                #print(d)
                 return ParalHints(info=d["info"], confs=d["configurations"])
 
             except:
@@ -556,7 +559,7 @@ class TaskManager(object):
 
         try:
             confs = parser.parse(task.log_file.path)
-            print("confs", confs)
+            #print("confs", confs)
 
         except parser.Error:
             print("Error while parsing Autoparal section:\n%s" % straceback())
