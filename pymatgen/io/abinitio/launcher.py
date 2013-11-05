@@ -3,6 +3,7 @@ from __future__ import division, print_function
 
 import os 
 import time
+import yaml
 
 from subprocess import Popen, PIPE
 from pymatgen.core.design_patterns import AttrDict
@@ -305,6 +306,20 @@ class PyLauncher(object):
 
 
 class PyFlowsScheduler(object):
+    """
+    This object schedules the submission of the tasks in an `AbinitFlow`.
+    """
+    # There are two types of errors that migh happen during the execution of the jobs: Python exceptions and Abinit Errors.
+    # Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
+    # The set of Abinit Error is much much broader. It includes wrong input data, segmentation
+    # faults, problem with the resource manager, etc. Abinitio tries to handle the most common cases
+    # but there's still a lot of room for improvement.
+    # The scheduler will shutdown automatically if the number of python exceptions is > MAX_NUM_PYEXC
+    # or if the number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
+    MAX_NUM_PYEXCS = 2
+    MAX_NUM_ABIERRS = 0
+
+    YAML_FILE = "scheduler.yml"
 
     def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None):
         """
@@ -322,7 +337,7 @@ class PyFlowsScheduler(object):
             start_date:
                 when to first execute the job and start the counter (default is after the given interval)
         """
-        # Time Options passed to the scheduler.
+        # Options passed to the scheduler.
         self.sched_options = AttrDict(
              weeks=weeks,
              days=days,
@@ -338,6 +353,39 @@ class PyFlowsScheduler(object):
         self._pidfiles2flows = {}
 
         self.exceptions = []
+
+    @classmethod
+    def from_file(cls, filepath):
+        """Read the configuration parameters from a Yaml file."""
+        with open(filepath, "r") as fh:
+            d = yaml.load(fh)
+            return cls(**d)
+
+    @classmethod
+    def from_user_config(cls):
+        """
+        Initialize the `PyFlowsScheduler` from the YAML file 'scheduler.yml'.
+        Search first in the working directory and then in the configuration
+        directory of abipy.
+
+        Raises:
+            RuntimeError if file is not found.
+        """
+        # Try in the current directory.
+        path = os.path.join(os.getcwd(), cls.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+
+        # Try in the configuration directory.
+        home = os.getenv("HOME")
+        dirpath = os.path.join(home, ".abinit", "abipy")
+        path = os.path.join(dirpath, cls.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+    
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
 
     def __str__(self):
         """String representation."""
@@ -431,14 +479,28 @@ class PyFlowsScheduler(object):
         self.exceptions.extend(exceptions)
 
         # Too many exceptions. Shutdown the scheduler.
-        if len(self.exceptions) > 2:
-            msg = "Number of exceptions > 2. Will shutdown the scheduler and exit"
+        if len(self.exceptions) > self.MAX_NUM_PYEXCS:
+            msg = "Number of exceptions %s > %s.\nWill shutdown the scheduler and exit" % (
+                len(self.exceptions), self.MAX_NUM_PYEXCS)
             msg = 5*"=" + msg + 5*"="
                                                                                       
             print(len(msg)* "=")
             print(msg)
             print(len(msg)* "=")
 
+            self.shutdown()
+
+        # Count the number of tasks with status == S_ERROR:
+        num_errors = sum([flow.num_tasks_with_error for flow in self.flows])
+        if num_errors > self.MAX_NUM_ABIERRS:
+            msg = "Number of task with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
+                num_errors, self.MAX_NUM_ABIERRS)
+            msg = 5*"=" + msg + 5*"="
+                                                                                      
+            print(len(msg)* "=")
+            print(msg)
+            print(len(msg)* "=")
+                                                                                            
             self.shutdown()
 
         # Mission accomplished. Shutdown the scheduler.

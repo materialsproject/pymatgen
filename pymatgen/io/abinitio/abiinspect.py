@@ -91,6 +91,7 @@ class ScfCycle(collections.Mapping):
     """
     def __init__(self, fields):
         self.fields = fields
+        #print(fields)
 
         all_lens = [len(lst) for lst in self.values()]
         self.num_iterations = all_lens[0]
@@ -175,9 +176,6 @@ class ScfCycle(collections.Mapping):
         fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, squeeze=False)
         ax_list = ax_list.ravel()
 
-        if (num_plots % ncols) != 0:
-            ax_list[-1].axis('off')
-
         if title:
             fig.suptitle(title)
 
@@ -194,7 +192,15 @@ class ScfCycle(collections.Mapping):
                 # Don't show the first iteration since it's not very useful.
                 xx, yy = xx[1:] + 1, values[1:]
 
+            print("xx ",xx)
+            print("yy ",yy)
+
             ax.plot(xx, yy, "-o", lw=2.0)
+
+        # Get around a bug in matplotlib.
+        if (num_plots % ncols) != 0:
+            ax_list[-1].plot(xx, yy, lw=0.0)
+            ax_list[-1].axis('off')
 
         if show:
             plt.show()

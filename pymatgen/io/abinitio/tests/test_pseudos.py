@@ -10,23 +10,18 @@ import collections
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import *
 
-test_dir = os.path.join(os.path.dirname(__file__))
-
-def filepath(basename):
-    return os.path.join(test_dir, basename)
-
 class PseudoTestCase(PymatgenTest):
 
     def setUp(self):
         nc_pseudo_fnames = collections.defaultdict(list)
-        nc_pseudo_fnames["Si"] = ["14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi"]
+        nc_pseudo_fnames["Si"] = self.ref_files("14si.pspnc",  "14si.4.hgh", "14-Si.LDA.fhi")
 
         self.nc_pseudos = collections.defaultdict(list)
 
         for (symbol, fnames) in nc_pseudo_fnames.items():
             for fname in fnames:
                 root, ext = os.path.splitext(fname)
-                pseudo = Pseudo.from_file(filepath(fname))
+                pseudo = Pseudo.from_file(self.ref_file(fname))
                 self.nc_pseudos[symbol].append(pseudo)
 
                 # Save the pseudo as instance attribute whose name 
@@ -38,7 +33,7 @@ class PseudoTestCase(PymatgenTest):
                 setattr(self, attr_name, pseudo)
 
     def test_nc_pseudos(self):
-        "Test norm-conserving pseudopotentials"
+        """Test norm-conserving pseudopotentials"""
 
         for (symbol, pseudos) in self.nc_pseudos.items():
             for pseudo in pseudos:
@@ -72,8 +67,35 @@ class PseudoTestCase(PymatgenTest):
         self.assertEqual(pseudo.l_max, 3)
         self.assertEqual(pseudo.l_local, 2)
 
-    #def test_paw_pseudos(self):
-    #    "Test PAW pseudopotentials"
+    def test_pawxml_pseudos(self):
+        """Test O.GGA_PBE-JTH-paw.xml."""
+        oxygen = Pseudo.from_file(self.ref_file("O.GGA_PBE-JTH-paw.xml"))
+        print(repr(oxygen))
+        print(oxygen)
+
+        self.assertTrue(oxygen.ispaw)
+        self.assertTrue(oxygen.symbol == "O" and 
+                       (oxygen.Z, oxygen.core, oxygen.valence) == (8, 2, 6),
+                        oxygen.Z_val == 6,
+                       )
+
+        self.assert_almost_equal(oxygen.paw_radius, 1.4146523028)
+
+        # Test pickle
+        new_objs = self.serialize_with_pickle(oxygen, test_eq=False)
+
+        for o in new_objs:
+            print(repr(o))
+            print(o)
+                                                                                 
+            self.assertTrue(o.ispaw)
+            self.assertTrue(o.symbol == "O" and 
+                           (o.Z, o.core, o.valence) == (8, 2, 6),
+                            o.Z_val == 6,
+                           )
+                                                                                 
+            self.assert_almost_equal(o.paw_radius, 1.4146523028)
+
 
 if __name__ == "__main__":
     import unittest

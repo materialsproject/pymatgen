@@ -8,18 +8,12 @@ from tempfile import mkdtemp
 from pymatgen.util.testing import PymatgenTest
 from pymatgen.io.abinitio import *
 
-test_dir = os.path.join(os.path.dirname(__file__))
-
-def filepath(basename):
-    return os.path.join(test_dir, basename)
-
-
 class WorkflowTestCase(PymatgenTest):
 
     def test_pseudoconvergence(self):
         workdir = mkdtemp(prefix="test_pseudoconvergence")
         manager = TaskManager.sequential()
-        pseudo = filepath("14si.pspnc")
+        pseudo = self.ref_file("14si.pspnc")
         ecut_list = range(10, 40, 2)
 
         pptest_wf = PseudoConvergence(workdir, manager, pseudo, ecut_list, atols_mev=(10, 1, 0.1))
@@ -37,6 +31,7 @@ class WorkflowTestCase(PymatgenTest):
 
         pptest_wf.build()
         pptest_wf.rmtree()
+
 
 if __name__ == "__main__":
     import unittest
