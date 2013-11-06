@@ -13,6 +13,12 @@ try:
 except ImportError:
     netCDF4 = None
 
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
+
+def ref_file(filename):
+    return os.path.join(_test_dir, filename)
+
 
 class ETSF_Reader_TestCase(PymatgenTest):
 
@@ -20,7 +26,7 @@ class ETSF_Reader_TestCase(PymatgenTest):
         formulas = ["Si2",]
         self.GSR_paths = d = {}
         for formula in formulas:
-            d[formula] = self.ref_file(formula + "_GSR.nc")
+            d[formula] = ref_file(formula + "_GSR.nc")
 
     @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
     def test_read_Si2(self):
