@@ -340,6 +340,7 @@ class Workflow(BaseWorkflow):
         """True if PAW calculation."""
         return all(task.ispaw for task in self)
 
+    @property
     def status_counter(self):
         """
         Returns a `Counter` object that counts the number of task with 
@@ -1067,9 +1068,8 @@ class BandStructureWorkflow(Workflow):
         # Register the NSCF run and its dependency.
         self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
 
-        # Add DOS computation if requested.
+        # Add DOS computation(s) if requested.
         if dos_inputs is not None:
-
             if not isinstance(dos_inputs, (list, tuple)):
                 dos_inputs = [dos_inputs]
 
@@ -1136,7 +1136,7 @@ class DeltaFactorWorkflow(Workflow):
 
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
-                 accuracy="normal", ecut=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
+                 accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
                  # FIXME Hack in chksymbreak
         """
         Build a `Workflow` for the computation of the deltafactor.
@@ -1187,6 +1187,7 @@ class DeltaFactorWorkflow(Workflow):
             new_structure = AbiStructure.asabistructure(new_structure)
 
             extra_abivars = dict(
+                pawecutdg=pawecutdg,
                 ecutsm=ecutsm,
                 toldfe=toldfe,
                 prtwf=0,
@@ -1301,13 +1302,13 @@ class G0W0_Workflow(Workflow):
         super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = self.register(scf_input, task_class=ScfTask)
+        self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = self.register(nscf_input, deps={self.scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
 
         # Register the SCREENING run.
-        self.scr_task = self.register(scr_input, deps={self.nscf_task: "WFK"})
+        self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
@@ -1315,7 +1316,7 @@ class G0W0_Workflow(Workflow):
 
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
-            self.sigma_tasks.append(self.register(sigma_input, deps={self.nscf_task: "WFK", self.scr_task: "SCR"}))
+            self.sigma_tasks.append(self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"}))
 
 
 #class SCGW_Workflow(Workflow):

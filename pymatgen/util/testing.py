@@ -5,6 +5,7 @@ This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
 right away.
 """
+import os
 import unittest
 import numpy.testing.utils as nptu
 
@@ -69,7 +70,9 @@ class PymatgenTest(unittest.TestCase):
             Nested list with the objects deserialized with the specified protocols.
         """
         import tempfile
-        import cPickle as pickle
+        # Use the python version so that we get the traceback in case of errors 
+        import pickle as pickle  
+        #import cPickle as pickle
 
         # Build a list even when we receive a single object.
         got_single_object = False
