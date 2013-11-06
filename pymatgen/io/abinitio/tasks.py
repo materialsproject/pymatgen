@@ -146,7 +146,7 @@ class ParalConf(AttrDict):
             -   tot_ncpus: 2         # Total number of CPUs
                 mpi_ncpus: 2         # Number of MPI processes.
                 omp_ncpus: 1         # Number of OMP threads (1 if not present)
-                mem_per_cpu: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)
+                mem_per_cpu: 10     # Estimated memory requirement per MPI processor in Megabytes.
                 efficiency: 0.4      # 1.0 corresponds to an "expected" optimal efficiency (strong scaling).
                 vars: {              # Dictionary with the variables that should be added to the input.
                       varname1: varvalue1
@@ -181,6 +181,12 @@ class ParalConf(AttrDict):
         """Estimated speedup reported by ABINIT."""
         return self.efficiency * self.tot_ncpus
 
+    @property
+    def tot_mem(self):
+        """Estimated total memory in Mbs (computed from mem_per_cpu)"""
+        return self.mem_per_cpu * self.tot_ncpus
+
+
 
 class ParalHintsParser(object):
 
@@ -193,10 +199,13 @@ class ParalHintsParser(object):
         """
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
+            #print(d)
+
+            #with open(os.path.join(os.path.dirname(filename), "autoparal.yml"), "w") as fh:
+            #    fh.write(doc.text)
 
             try:
                 d = yaml.load(doc.text_notag)
-                #print(d)
                 return ParalHints(info=d["info"], confs=d["configurations"])
 
             except:
@@ -229,6 +238,12 @@ class ParalHints(collections.Iterable):
         return copy.copy(self)
 
     def select_with_condition(self, condition):
+        """
+        Remove all the configurations that do not satisfy the given condition.
+
+            Args:
+                `Condition` object with operators expressed with a Mongodb-like syntax
+        """
         new_confs = []
         for conf in self:
             if condition.apply(obj=conf):
@@ -250,11 +265,21 @@ class ParalHints(collections.Iterable):
         """
         self._confs.sort(key=lambda c: c.speedup, reverse=reverse)
 
-    #def sort_by_mem_cpu(self, reverse=False):
-    #    self._confs.sort(key=lambda c: c.mem_per_cpus, reverse=reverse)
+    def sort_by_mem_cpu(self, reverse=False):
+        """
+        Sort the configurations in place so that conf with lowest memory per CPU
+        appears in the first positions.
+        """
+        # Avoid sorting if mem_per_cpu is not available.
+        has_mem_info = any(c.mem_per_cpu > 0.0 for c in self)
+
+        if has_mem_info:
+            self._confs.sort(key=lambda c: c.mem_per_cpu, reverse=reverse)
 
     def select_optimal_conf(self, policy):
-        """Find the optimal configuration according on policy."""
+        """
+        Find the optimal configuration according to the `TaskPolicy` policy.
+        """
         # Make a copy since we are gonna change the object in place.
         hints = self.copy()
 
@@ -265,27 +290,33 @@ class ParalHints(collections.Iterable):
             #if not hints: hints = self.copy()
             #print("after condition", hints)
 
-        hints.sort_by_speedup()
+            # If no configuration fullfills the requirements, 
+            # we return the one with the highest speedup.
+            if not hints:
+                hints = self.copy()
+                hints.sort_by_speedup()
+                return hints[-1].copy()
 
-        # If no configuration fullfills the requirements, 
-        # we return the one with the highest speedup.
-        if not hints:
-            hints = self.copy()
-            hints.sort_by_speedup()
-            return hints[-1].copy()
+        hints.sort_by_speedup()
 
         # Find the optimal configuration according to policy.mode.
         #mode = policy.mode
         #if mode in ["default", "aggressive"]:
-        #    hints.sort_by_spedup(reverse=True)
+        #    hints.sort_by_spedup()
+
         #elif mode == "conservative":
-        #    hints.sort_by_efficiency(reverse=True)
+        #    hints.sort_by_efficiency()
+        #    # Remove tot_ncpus == 1
+        #    hints.pop(tot_ncpus==1)
+        #    if not hints:
+
         #else:
         #    raise ValueError("Wrong value for mode: %s" % str(mode))
 
         # Return a copy of the configuration.
         optimal = hints[-1].copy()
         logger.debug("Will relaunch the job with optimized parameters:\n %s" % str(optimal))
+
         return optimal
 
 
@@ -472,10 +503,9 @@ class TaskManager(object):
         """Set the number of OpenMp threads to use."""
         self.qadapter.set_omp_ncpus(omp_ncpus)
 
-    # TODO
-    #def set_mem_per_cpu(self, mem_per_cpu):
-    #    """Set the memory (in gigabytes) per CPU."""
-    #    self.qadapter.set_mem_per_cpu(mem_per_cpu)
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory (in Megabytes) per CPU."""
+        self.qadapter.set_mem_per_cpu(mem_mb)
 
     def autoparal(self, task):
         """
@@ -529,7 +559,7 @@ class TaskManager(object):
 
         try:
             confs = parser.parse(task.log_file.path)
-            print("confs", confs)
+            #print("confs", confs)
 
         except parser.Error:
             print("Error while parsing Autoparal section:\n%s" % straceback())
@@ -553,8 +583,8 @@ class TaskManager(object):
         #    self.qadapter.disable_omp()
 
         # Change the memory per node.
-        #if optimal.mem_per_cpu is not None
-        #    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)
+        if optimal.mem_per_cpu:
+            self.set_mem_per_cpu(optimal.mem_per_cpu)
 
         # Reset the status, remove garbage files ...
         task.set_status(task.S_READY)
@@ -820,6 +850,7 @@ STATUS2STR = collections.OrderedDict([
 ])
 
 class Status(int):
+    """This object is an integer representing the status of the `Node`."""
     def __repr__(self):
         return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
 
@@ -892,7 +923,7 @@ class Node(object):
     @property
     def name(self):
         """
-        The name of node 
+        The name of the node 
         (only used for facilitating its identification in the user interface).
         """
         try:
@@ -1036,6 +1067,7 @@ class FakeDirectory(Directory):
         if self.filepath.endswith(ext) or self.filepath.endswith(ext + ".nc"):
             return self.filepath
         return ""
+
 
 class FileNode(Node):
     """
