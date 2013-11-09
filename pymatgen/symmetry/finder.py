@@ -769,7 +769,10 @@ class SymmetryFinder(object):
 
 def get_point_group(rotations):
     """
-    Return point group in international table symbol and number.
+    Returns:
+        (pointgroup_symbol, pointgroup_number, transformation_matrix)
+    
+    symbol and number are those used in international table.
     The symbols are mapped to the numbers as follows:
     1   "1    "
     2   "-1   "
@@ -804,7 +807,6 @@ def get_point_group(rotations):
     31  "-43m "
     32  "m-3m "
     """
-    if rotations.dtype == "float64":
-        rotations = np.int_(rotations)
-        # (symbol, pointgroup_number, transformation_matrix)
+    # Convert to Python int compatible
+    rotations = np.int_(rotations)
     return spg.pointgroup(rotations)
