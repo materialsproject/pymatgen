@@ -41,6 +41,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "TaskManager",
+    "ParalHintsParser",
     "ScfTask",
     "NscfTask",
     "RelaxTask",
@@ -199,8 +200,8 @@ class ParalHintsParser(object):
         """
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
-            #print(d)
 
+            #print(doc.text)
             #with open(os.path.join(os.path.dirname(filename), "autoparal.yml"), "w") as fh:
             #    fh.write(doc.text)
 
@@ -245,8 +246,11 @@ class ParalHints(collections.Iterable):
                 `Condition` object with operators expressed with a Mongodb-like syntax
         """
         new_confs = []
+
         for conf in self:
-            if condition.apply(obj=conf):
+            add_it = condition.apply(obj=conf)
+            #print("add_it", add_it, "conf", conf)
+            if add_it:
                 new_confs.append(conf)
 
         self._confs = new_confs
@@ -281,18 +285,22 @@ class ParalHints(collections.Iterable):
         Find the optimal configuration according to the `TaskPolicy` policy.
         """
         # Make a copy since we are gonna change the object in place.
-        hints = self.copy()
+        #hints = self.copy()
+
+        hints = ParalHints(self.info, confs=[c for c in self if c.tot_ncpus <= policy.max_ncpus])
+        #print(hints)
 
         # First select the configurations satisfying the 
         # condition specified by the user (if any)
         if policy.condition:
+            print("condition",policy.condition)
             hints.select_with_condition(policy.condition)
-            #if not hints: hints = self.copy()
-            #print("after condition", hints)
+            print("after condition", hints)
 
             # If no configuration fullfills the requirements, 
             # we return the one with the highest speedup.
             if not hints:
+                #print("no configuration")
                 hints = self.copy()
                 hints.sort_by_speedup()
                 return hints[-1].copy()
@@ -315,7 +323,7 @@ class ParalHints(collections.Iterable):
 
         # Return a copy of the configuration.
         optimal = hints[-1].copy()
-        logger.debug("Will relaunch the job with optimized parameters:\n %s" % str(optimal))
+        logger.debug("Will relaunch the job with optimized parameters:\n %s" % optimal)
 
         return optimal
 
@@ -560,6 +568,7 @@ class TaskManager(object):
         try:
             confs = parser.parse(task.log_file.path)
             #print("confs", confs)
+            #task.autoparal_confs = confs 
 
         except parser.Error:
             print("Error while parsing Autoparal section:\n%s" % straceback())
