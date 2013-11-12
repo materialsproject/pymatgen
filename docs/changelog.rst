@@ -1,6 +1,53 @@
 Change log
 ==========
 
+v2.8.6
+------
+1. Bug fix for VASP io set introduced by the default to sorting of structure
+   sites when generating VASP input.
+
+v2.8.4
+------
+1. Completely revamped Compatibility/Correction system which improves
+   readability (Shyue Ping Ong/Anubhav Jain/Sai Jayaraman). This change is
+   backwards compatible for the most part.
+
+v2.8.3
+------
+1. Big fix release for json dumping for unitized floats.
+
+v2.8.2
+------
+1. Bug fix release to improve CIF parsing for more non-standard CIF files.
+   In particular, non-ascii characters are removed and _cgraph* fields are
+   removed prior to parsing for better support in PyCiFRW.
+
+v2.8.1
+------
+1. Bug fix release. Incorrect units assigned for ionic radii.
+2. Improved nwchemio supports COSMO and ESP calculations (Nav Rajput).
+
+v2.8.0
+------
+1. **Units**. Pymatgen now has a new system of managing units,
+   defined in pymatgen.core.units. Typical energy, length, time,
+   temperature and charge units are supported. Units subclass float,
+   which makes the usage transparent in all functions. The value that they
+   being are in terms of conversions between different units and addition and
+   subtraction of different units of the same type. Some basic quantities
+   like ionic radii and atomic masses are now returned in unitized forms for
+   easy conversion. Please see :mod:`pymatgen.core.units` and the
+   :doc:`examples </examples>` for a demonstration of house to use units in
+   pymatgen.
+2. **Minor backwards-incompatible change**. Structures are now sorted by
+   default when generating VASP input files using vaspio_set. Old behavior can
+   be obtained by setting sort_structure=False in the constructor. This is
+   typically the desired behavior and prevents the generation of large
+   POTCARs when atomic species are not grouped together.
+3. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
+   terminal atoms properly.
+4. Additional conversion tools for ABINIT (by Matteo Giantomassi).
+
 v2.7.9
 ------
 1. Minor bug fix release to fix pyhull dependencies to be more friendly.

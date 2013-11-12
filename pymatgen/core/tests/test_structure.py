@@ -370,11 +370,23 @@ class StructureTest(PymatgenTest):
              [2.217138, -0.000000, 3.135509]], 5)
 
     def test_apply_strain(self):
+        initial_coord = self.structure[1].coords
         self.structure.apply_strain(0.01)
         self.assertAlmostEqual(
             self.structure.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
+        self.assertArrayAlmostEqual(self.structure[1].coords,
+            initial_coord * 1.01)
 
+    def test_scale_lattice(self):
+        initial_coord = self.structure[1].coords
+        self.structure.scale_lattice(self.structure.volume * 1.01 ** 3)
+        self.assertArrayAlmostEqual(
+            self.structure.lattice.abc,
+            (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
+        self.assertArrayAlmostEqual(self.structure[1].coords,
+            initial_coord * 1.01)
+    
     def test_translate_sites(self):
         self.structure.translate_sites([0, 1], [0.5, 0.5, 0.5],
                                        frac_coords=True)
@@ -400,6 +412,15 @@ class StructureTest(PymatgenTest):
         self.assertEqual(self.structure.formula, "Si32")
         self.assertArrayAlmostEqual(self.structure.lattice.abc,
                                     [15.360792, 35.195996, 7.680396], 5)
+
+    def test_disordered_supercell_primitive_cell(self):
+        l = Lattice.cubic(2)
+        f = [[0.5, 0.5, 0.5]]
+        sp = [{'Si': 0.54738}]
+        s = Structure(l, sp, f)
+        #this supercell often breaks things
+        s.make_supercell([[0,-1,1],[-1,1,0],[1,1,1]])
+        self.assertEqual(len(s.get_primitive_structure()), 1)
 
     def test_another_supercell(self):
         #this is included b/c for some reason the old algo was failing on it

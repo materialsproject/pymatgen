@@ -1,6 +1,13 @@
 """
-Part of this code is based on a similar implementation preset in fireworks.
-work done by D. Waroquiers, A. Jain, and M. Kocher'
+Part of this code is based on a similar implementation present in FireWorks (https://pypi.python.org/pypi/FireWorks).
+Work done by D. Waroquiers, A. Jain, and M. Kocher.
+
+The main difference wrt the Fireworks implementation is that the QueueAdapter
+objects provide a programmatic interface for setting important attributes 
+such as the number of MPI nodes, the number of OMP threads and the memory requirements.
+This programmatic interface is used by the `TaskManager` for optimizing the parameters
+of the run before submitting the job (Abinit provides the autoparal option that 
+allows one to get a list of parallel configuration and their expected efficiency).
 """
 from __future__ import print_function, division
 
@@ -21,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "MpiRunner",
+    "qadapter_class",
 ]
 
 class Command(object):
@@ -258,6 +266,19 @@ class AbstractQueueAdapter(object):
     #def set_queue_walltime(self):
     #    """Set the walltime in seconds."""
 
+    #@abc.abstractproperty
+    #def mem_per_cpu(self):
+    #    """The memory per CPU in Megabytes."""
+                                                
+    @abc.abstractmethod
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+
+    #@property
+    #def tot_mem(self):
+    #    """Total memory required by the job n Megabytes."""
+    #    return self.mem_per_cpu * self.mpi_ncpus
+
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         qtemplate = QScriptTemplate(self.QTEMPLATE)
@@ -385,6 +406,9 @@ export MPI_NCPUS=$${MPI_NCPUS}
         """Set the number of CPUs used for MPI."""
         self.qparams["MPI_NCPUS"] = mpi_ncpus
 
+    def set_mem_per_cpu(self, mem_mb):
+        """mem_per_cpu is not available in ShellAdapter."""
+
     def submit_to_queue(self, script_file):
 
         if not os.path.exists(script_file):
@@ -419,12 +443,14 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --job-name=$${job_name}
 #SBATCH	--nodes=$${nodes}
 #SBATCH --mem=$${mem}
+#SBATCH --mem-per-cpu=$${mem_per_cpu}
 #SBATCH --mail-user=$${mail_user}
 #SBATCH --mail-type=$${mail_type}
 #SBATCH --constraint=$${constraint}
 #SBATCH --gres=$${gres}
 #SBATCH --requeue=$${requeue}
 #SBATCH --nodelist=$${nodelist}
+#SBATCH --propagate=$${propagate}
 
 #SBATCH --output=$${_qerr_path}
 #SBATCH --error=$${_qout_path}
@@ -439,6 +465,12 @@ class SlurmAdapter(AbstractQueueAdapter):
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
         self.qparams["ntasks"] = mpi_ncpus
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+        self.qparams["mem_per_cpu"] = mem_mb
+        # Remove mem if it's defined.
+        self.qparams.pop("mem", None)
 
     def submit_to_queue(self, script_file):
 
@@ -519,17 +551,24 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -e $${_qout_path}
 
 """
-    #@property
-    #def mpi_ncpus(self):
-    #    """Number of CPUs used for MPI."""
-    #    return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
                                                     
-    #def set_mpi_ncpus(self, mpi_ncpus):
-    #    """Set the number of CPUs used for MPI."""
-    #    if "ppn" not in self.qparams:
-    #       self.qparams["ppn"] = 1
-    #    ppnode = self.qparams.get("ppn")
-    #    self.qparams["nodes"] = mpi_ncpus // ppnode 
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of CPUs used for MPI."""
+        if "ppn" not in self.qparams: self.qparams["ppn"] = 1
+
+        ppnode = self.qparams.get("ppn")
+        self.qparams["nodes"] = mpi_ncpus // ppnode 
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+        raise NotImplementedError("")
+        #self.qparams["mem_per_cpu"] = mem_mb
+        ## Remove mem if it's defined.
+        #self.qparams.pop("mem", None)
 
     def submit_to_queue(self, script_file):
 
@@ -592,7 +631,7 @@ class PbsAdapter(AbstractQueueAdapter):
         # there's a problem talking to qstat server?
         err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
                    'The error response reads: {}'.format(process[2]))
-        logger.critical(msg)
+        logger.critical(err_msg)
 
         return None
 

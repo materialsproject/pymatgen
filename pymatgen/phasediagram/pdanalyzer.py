@@ -143,14 +143,13 @@ class PDAnalyzer(object):
             comp_list = [self._pd.qhull_entries[i].composition for i in facet]
             m = self._make_comp_matrix(comp_list)
             compm = self._make_comp_matrix([entry.composition])
-            decomp_amts = np.linalg.solve(m.T, compm.T)
-            decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i][0]
+            decomp_amts = np.linalg.solve(m.T, compm.T)[:,0]
+            decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
                       for i in xrange(len(decomp_amts))
-                      if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
-            ehull = entry.energy_per_atom
-            for e, amt in decomp.items():
-                ehull -= e.energy_per_atom * amt
-            if allow_negative or ehull >= 0:
+                      if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}
+            energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+            ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
+            if allow_negative or ehull >= -PDAnalyzer.numerical_tol:
                 return decomp, ehull
         raise ValueError("No valid decomp found!")
 
