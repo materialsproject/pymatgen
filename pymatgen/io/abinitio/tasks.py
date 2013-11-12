@@ -413,6 +413,7 @@ class TaskManager(object):
 
     @classmethod
     def from_dict(cls, d):
+        """Create an instance from a dictionary."""
         return cls(**d)
 
     @classmethod
@@ -493,6 +494,14 @@ class TaskManager(object):
                   shell_env=qad.shell_env, omp_env=qad.omp_env, pre_run=qad.pre_run, 
                   post_run=qad.post_run, mpi_runner=qad.mpi_runner, policy=policy)
 
+        return new
+
+    def new_with_policy(self, policy):
+        """
+        Returns a new `TaskManager` with same parameters as self except for policy.
+        """
+        new = self.deepcopy()
+        new.policy = policy
         return new
 
     def copy(self):
