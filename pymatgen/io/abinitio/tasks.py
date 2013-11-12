@@ -1205,6 +1205,7 @@ class Task(Node):
         self.job_file = File(os.path.join(self.workdir, "job.sh"))
         self.log_file = File(os.path.join(self.workdir, "run.log"))
         self.stderr_file = File(os.path.join(self.workdir, "run.err"))
+        self.start_lockfile = File(os.path.join(self.workdir, "__startlock__"))
 
         # Directories with input|output|temporary data.
         self.indir = Directory(os.path.join(self.workdir, "indata"))
@@ -1284,7 +1285,7 @@ class Task(Node):
     @property
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other depencies (if any) are done!"""
-        all_ok = all(stat == self.S_OK for stat in self.deps_status)
+        all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
@@ -1444,6 +1445,7 @@ class Task(Node):
             return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        self.start_lockfile.remove()
 
         # TODO send a signal to the flow 
         #self.workflow.check_status()
@@ -1877,8 +1879,17 @@ class Task(Node):
             - call the _setup method
             - execute the job file by executing/submitting the job script.
         """
-        if self._status >= self.S_SUB:
+        if self.status >= self.S_SUB:
             raise self.Error("Task status: %s" % str(self.status))
+
+        if self.start_lockfile.exists:
+            err_msg = "Found lock file: %s" % self.start_lockfile
+            logger.debug(err_msg)
+            #raise self.Error(err_msg)
+            return
+
+        else:
+            self.start_lockfile.write("Started on %s" % time.asctime())
 
         self.build()
         self._setup()
