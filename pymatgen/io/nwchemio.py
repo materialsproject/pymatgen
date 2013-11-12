@@ -290,7 +290,8 @@ class NwInput(MSONable):
 
     def __init__(self, mol, tasks, directives=None,
                  geometry_options=("units", "angstroms"),
-                 symmetry_options=None):
+                 symmetry_options=None,
+                 memory_options=None):
         """
         Args:
             mol:
@@ -309,12 +310,16 @@ class NwInput(MSONable):
             symmetry_options:
                 Addition list of option to be supplied to the symmetry.
                 E.g. ["c1"] to turn off the symmetry
+            memory_options:
+                memory controlling options. str.
+                E.g "total 1000 mb stack 400 mb"
         """
         self._mol = mol
         self.directives = directives if directives is not None else []
         self.tasks = tasks
         self.geometry_options = geometry_options
         self.symmetry_options = symmetry_options
+        self.memory_options = memory_options
 
     @property
     def molecule(self):
@@ -325,6 +330,8 @@ class NwInput(MSONable):
 
     def __str__(self):
         o = []
+        if self.memory_options:
+            o.append('memory ' + self.memory_options)
         for d in self.directives:
             o.append("{} {}".format(d[0], d[1]))
         o.append("geometry "
@@ -351,7 +358,8 @@ class NwInput(MSONable):
             "tasks": [t.to_dict for t in self.tasks],
             "directives": [list(t) for t in self.directives],
             "geometry_options": list(self.geometry_options),
-            "symmetry_options": self.symmetry_options
+            "symmetry_options": self.symmetry_options,
+            "memory_options": self.memory_options
         }
 
     @classmethod
@@ -360,7 +368,8 @@ class NwInput(MSONable):
                        tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
                        directives=[tuple(li) for li in d["directives"]],
                        geometry_options=d["geometry_options"],
-                       symmetry_options=d["symmetry_options"])
+                       symmetry_options=d["symmetry_options"],
+                       memory_options=d["memory_options"])
 
     @classmethod
     def from_string(cls, string_input):
@@ -384,6 +393,7 @@ class NwInput(MSONable):
         theory_directives = {}
         geom_options = None
         symmetry_options = None
+        memory_options = None
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
             l = lines.pop(0).strip()
@@ -437,12 +447,15 @@ class NwInput(MSONable):
                            title=title, theory=toks[1],
                            operation=toks[2], basis_set=basis_set,
                            theory_directives=theory_directives.get(toks[1])))
+            elif toks[0].lower() == "memory":
+                    memory_options = ' '.join(toks[1:])
             else:
                 directives.append(l.strip().split())
 
         return NwInput(mol, tasks=tasks, directives=directives,
                        geometry_options=geom_options,
-                       symmetry_options=symmetry_options)
+                       symmetry_options=symmetry_options,
+                       memory_options=memory_options)
 
     @classmethod
     def from_file(cls, filename):

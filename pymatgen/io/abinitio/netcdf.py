@@ -9,6 +9,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.decorators import requires
 
+
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -303,6 +304,16 @@ def structure_from_etsf_file(ncdata, site_properties=None):
             d[property] = ncdata.read_value(prop)
 
     structure = Structure(lattice, species, red_coords, site_properties=d)
+
+    # Quick and dirty hack.
+    # I need an abipy structure since I need to_abivars and other methods.
+    #from pymatgen.io.abinitio.abiobjects import AbiStructure
+    #structure.__class__ = AbiStructure
+    try:
+        from abipy.core.structure import Structure as AbipyStructure
+        structure.__class__ = AbipyStructure
+    except ImportError:
+        pass
 
     if closeit:
         ncdata.close()

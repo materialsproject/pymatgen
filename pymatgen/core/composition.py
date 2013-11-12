@@ -76,8 +76,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
     that formula output does not write LiO instead of Li2O2 for example.
     """
     special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
-                        "HO": "H2O2", "O": "O2", "F": "F2", "N": "N2",
-                        "Cl": "Cl2", "H": "H2"}
+                        "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
+                        "O": "O2",  "N": "N2", "Cl": "Cl2", "H": "H2"}
 
     def __init__(self, *args, **kwargs):
         """
@@ -741,8 +741,7 @@ def reduce_formula(sym_amt):
     syms = sorted(sym_amt.keys(),
                   key=lambda s: smart_element_or_specie(s).X)
 
-    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance,
-                  syms)
+    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance, syms)
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           smart_element_or_specie(syms[num_el - 1]).X

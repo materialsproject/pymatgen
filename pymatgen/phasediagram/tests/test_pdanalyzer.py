@@ -1,6 +1,8 @@
 import unittest
 import os
 
+from numbers import Number
+
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
@@ -22,8 +24,9 @@ class  PDAnalyzerTest(unittest.TestCase):
                             "Stable entries should have e above hull of zero!")
         for entry in self.pd.all_entries:
             if entry not in self.pd.stable_entries:
-                self.assertGreaterEqual(self.analyzer.get_e_above_hull(entry),
-                                        0)
+                e_ah = self.analyzer.get_e_above_hull(entry)
+                self.assertGreaterEqual(e_ah, 0)
+                self.assertTrue(isinstance(e_ah, Number))
 
     def test_get_equilibrium_reaction_energy(self):
         for entry in self.pd.stable_entries:

@@ -136,23 +136,58 @@ def monotonic(values, mode="<", atol=1.e-8):
     return True
 
 
-#def listify(obj):
-#    """
-#    Transform any object, iterable or not, to a list. 
-#    Returns obj if object is Iterable with the exception of 
-#    single string that is converted to list.
-#    """
-#    if is_string(obj)
-#       return [obj]
-#
-#    if isinstance(obj, collections.Iterable):
-#        if isinstance(obj, tuple):
-#            return list(obj)
-#        else:
-#            return obj
-#
-#    elif isinstance(obj, collections.Iterator):
-#        return list(obj)
-#
-#    else:
-#        return [obj]
+def iuptri(items, diago=True, with_inds=False):
+    """
+    A generator that yields the upper triangle of the matrix (items x items)
+
+    Args:
+        items:
+            Iterable object with elements [e0, e1, ...]
+        diago:
+            False if diagonal matrix elements should be excluded
+        with_inds:
+            If True, (i,j) (e_i, e_j) is returned else (e_i, e_j)
+
+    >>> for (ij, mate) in iuptri([0,1], with_inds=True): 
+    ...     print("ij:", ij, "mate:", mate)
+    ij: (0, 0) mate: (0, 0)
+    ij: (0, 1) mate: (0, 1)
+    ij: (1, 1) mate: (1, 1)
+    """
+    for (ii, item1) in enumerate(items):
+        for (jj, item2) in enumerate(items):
+            do_yield = (jj >= ii) if diago else (jj > ii)
+            if do_yield:
+                if with_inds:
+                    yield (ii, jj), (item1, item2)
+                else:
+                    yield item1, item2
+
+
+def ilotri(items, diago=True, with_inds=False):
+    """
+    A generator that yields the lower triangle of the matrix (items x items)
+
+    Args:
+        items:
+            Iterable object with elements [e0, e1, ...]
+        diago:
+            False if diagonal matrix elements should be excluded
+        with_inds:
+            If True, (i,j) (e_i, e_j) is returned else (e_i, e_j)
+
+    >>> for (ij, mate) in ilotri([0,1], with_inds=True): 
+    ...     print("ij:", ij, "mate:", mate)
+    ij: (0, 0) mate: (0, 0)
+    ij: (1, 0) mate: (1, 0)
+    ij: (1, 1) mate: (1, 1)
+    """
+    for (ii, item1) in enumerate(items):
+        for (jj, item2) in enumerate(items):
+            do_yield = (jj <= ii) if diago else (jj < ii)
+            if do_yield:
+                if with_inds:
+                    yield (ii, jj), (item1, item2)
+                else:
+                    yield item1, item2
+

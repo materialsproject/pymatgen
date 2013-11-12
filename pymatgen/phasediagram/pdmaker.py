@@ -106,9 +106,6 @@ class PhaseDiagram (MSONable):
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
         elements = list(elements)
-        # Qhull seems to be sensitive to choice of independent composition
-        # components due to numerical issues in higher dimensions. The
-        # code permutes the element sequence until one that works is found.
         dim = len(elements)
         el_refs = {}
         for el in elements:
@@ -130,12 +127,34 @@ class PhaseDiagram (MSONable):
         data = np.array(data)
         self.all_entries_hulldata = data[:, 1:]
 
-        # Calculate formation energies and remove positive formation energy
-        # entries
+        #use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
-        ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
+
+        #make sure that if there are multiple entries at the same composition 
+        #within 1e-4 eV/atom of each other, only use the lower energy one.
+        #This fixes the precision errors in the convex hull.
+        #This is significantly faster than grouping by composition and then 
+        #taking the lowest energy of each group
+        ind = []
+        prev_c = [] #compositions within 1e-4 of current entry
+        prev_e = [] #energies of those compositions
+        for i in np.argsort([e.energy_per_atom for e in entries]):
+            if form_e[i] > -self.formation_energy_tol:
+                continue
+            epa = entries[i].energy_per_atom
+            #trim the front of the lists
+            while prev_e and epa > 1e-4 + prev_e[0]:
+                prev_c.pop(0)
+                prev_e.pop(0)
+            if entries[i].composition not in prev_c:
+                ind.append(i)
+            prev_e.append(epa)
+            prev_c.append(entries[i].composition)
+
+        #add the elemental references
         ind.extend(map(entries.index, el_refs.values()))
+
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
 
