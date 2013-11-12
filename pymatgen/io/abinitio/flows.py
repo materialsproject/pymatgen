@@ -424,7 +424,7 @@ class AbinitFlow(Node):
         if workdir is None:
             work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
         else:
-            work_workdir = os.path.join(self.workdir, os.path.basenane(workdir))
+            work_workdir = os.path.join(self.workdir, os.path.basename(workdir))
 
         work.set_workdir(work_workdir)
 
