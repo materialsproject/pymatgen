@@ -561,7 +561,7 @@ class PyFlowsScheduler(object):
         if num_errors > self.MAX_NUM_ABIERRS:
             err_msg = "Number of task with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
                 num_errors, self.MAX_NUM_ABIERRS)
-            err_msg = 5*"=" + msg + 5*"="
+            err_msg = 5*"=" + err_msg + 5*"="
 
             message += err_msg
 
