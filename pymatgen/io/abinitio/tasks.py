@@ -607,7 +607,8 @@ class TaskManager(object):
         #    self.qadapter.disable_omp()
 
         # Change the memory per node if automemory evaluates to True.
-        mem_per_cpu = optimal.mem_per_cpu:
+        mem_per_cpu = optimal.mem_per_cpu
+
         if policy.automemory and mem_per_cpu:
             #mem_per_cpu = max(mem_per_cpu, policy.automemory)
             self.set_mem_per_cpu(mem_per_cpu)
