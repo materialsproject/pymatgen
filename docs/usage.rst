@@ -407,19 +407,19 @@ examples below, the user's Materials API key is designated as "USER_API_KEY".
 The MPRester provides many convenience methods, but we will just highlight
 a few key methods here.
 
-To obtain information on a material with Materials Project Id 1234, one can use
-the following::
+To obtain information on a material with Materials Project Id "mp-1234",
+one can use the following::
 
     with MPRester("USER_API_KEY") as m:
 
         #Structure for material id
-        structure = m.get_structure_by_material_id(1234)
+        structure = m.get_structure_by_material_id("mp-1234")
 
         #Dos for material id
-        dos = m.get_dos_by_material_id(1234)
+        dos = m.get_dos_by_material_id("mp-1234")
 
         #Bandstructure for material id
-        bandstructure = m.get_bandstructure_by_material_id(1234)
+        bandstructure = m.get_bandstructure_by_material_id("mp-1234")
 
 The Materials API also allows for query of data by formulas::
 

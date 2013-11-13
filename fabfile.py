@@ -21,6 +21,9 @@ from pymatgen import __version__ as ver
 
 
 def makedoc():
+    with lcd("examples"):
+        local("ipython nbconvert --to html *.ipynb")
+        local("mv *.html ../docs/_static")
     with lcd("docs"):
         local("sphinx-apidoc -o . -f ../pymatgen")
         local("rm pymatgen.*.tests.rst")
@@ -46,9 +49,13 @@ def makedoc():
 
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
-
         local("make html")
         local("cp _static/* _build/html/_static")
+
+        #This makes sure pymatgen.org works to redirect to the Gihub page
+        local("echo \"pymatgen.org\" > _build/html/CNAME")
+        #Avoid ths use of jekyll so that _dir works as intended.
+        local("touch _build/html/.nojekyll")
 
 
 def publish():
@@ -60,20 +67,22 @@ def test():
 
 
 def setver():
-    local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup".format(ver))
+    local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
+          .format(ver))
     local("mv newsetup setup.py")
 
 
-def update_dev_doc():
+def update_doc():
     makedoc()
-    with lcd("../docs/pymatgen/html/"):
+    with lcd("docs/_build/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")
 
 
 def log_ver():
-    filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public", "pymatgen", ver)
+    filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
+                            "pymatgen", ver)
     with open(filepath, "w") as f:
         f.write("Release")
 
@@ -81,6 +90,6 @@ def log_ver():
 def release():
     setver()
     test()
-    makedoc()
     publish()
     log_ver()
+    update_doc()

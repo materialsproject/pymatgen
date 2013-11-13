@@ -4,7 +4,7 @@
 This module defines the VaspInputSet abstract base class and a concrete
 implementation for the parameters used by the Materials Project and the MIT
 high throughput project.  The basic concept behind an input set is to specify
-a scheme to generate a consistent set of Vasp inputs from a structure
+a scheme to generate a consistent set of VASP inputs from a structure
 without further user intervention. This ensures comparability across
 runs.
 """
@@ -15,25 +15,28 @@ __author__ = "Shyue Ping Ong, Wei Chen, Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Nov 16, 2011"
 
 import os
 import abc
-import ConfigParser
 import json
 import re
+from functools import partial
 
+from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
 from pymatgen.io.vaspio.vasp_output import Vasprun, Outcar
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from pymatgen.util.decorators import deprecated
 from pymatgen import write_structure
 import traceback
 import numpy as np
 import shutil
+
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class AbstractVaspInputSet(MSONable):
@@ -45,11 +48,12 @@ class AbstractVaspInputSet(MSONable):
     """
     __metaclass__ = abc.ABCMeta
 
+    @abc.abstractmethod
     def get_poscar(self, structure):
         """
         Returns Poscar from a structure.
         """
-        return Poscar(structure)
+        return
 
     @abc.abstractmethod
     def get_kpoints(self, structure):
@@ -169,17 +173,21 @@ class DictVaspInputSet(AbstractVaspInputSet):
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
-
-
     """
 
-    def __init__(self, name, config_dict, constrain_total_magmom=False):
+    def __init__(self, name, config_dict, hubbard_off=False,
+                 user_incar_settings=None,
+                 constrain_total_magmom=False, sort_structure=True):
         """
         Args:
             name:
-                The name in the config file.
+                A name fo the input set.
             config_dict:
                 The config dictionary to use.
+            hubbard_off:
+                Whether to turn off Hubbard U if it is specified in
+                config_dict. Defaults to False, i.e., follow settings in
+                config_dict.
             user_incar_settings:
                 User INCAR settings. This allows a user to override INCAR
                 settings, e.g., setting a different MAGMOM for various elements
@@ -188,15 +196,31 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 Whether to constrain the total magmom (NUPDOWN in INCAR) to be
                 the sum of the expected MAGMOM for all species. Defaults to
                 False.
+            sort_structure:
+                Whether to sort the structure (using the default sort
+                order of electronegativity) before generating input files.
+                Defaults to True, the behavior you would want most of the
+                time. This ensures that similar atomic species are grouped
+                together.
         """
         self.name = name
         self.potcar_settings = config_dict["POTCAR"]
         self.kpoints_settings = config_dict['KPOINTS']
         self.incar_settings = config_dict['INCAR']
         self.set_nupdown = constrain_total_magmom
+        self.sort_structure = sort_structure
+        self.hubbard_off = hubbard_off
+        if hubbard_off:
+            for k in self.incar_settings.keys():
+                if k.startswith("LDAU"):
+                    del self.incar_settings[k]
+        if user_incar_settings:
+            self.incar_settings.update(user_incar_settings)
 
     def get_incar(self, structure):
         incar = Incar()
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
         comp = structure.composition
         elements = sorted([el for el in comp.elements if comp[el] > 0],
                           key=lambda el: el.X)
@@ -249,10 +273,19 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
         return incar
 
+    def get_poscar(self, structure):
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
+        return Poscar(structure)
+
     def get_potcar(self, structure):
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
         return Potcar(self.get_potcar_symbols(structure))
 
     def get_potcar_symbols(self, structure):
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
         p = self.get_poscar(structure)
         elements = p.site_symbols
         potcar_symbols = []
@@ -270,6 +303,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
             Uses a simple approach scaling the number of divisions along each
             reciprocal lattice vector proportional to its length.
         """
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
         dens = int(self.kpoints_settings['grid_density'])
         return Kpoints.automatic_density(structure, dens)
 
@@ -300,33 +335,36 @@ class DictVaspInputSet(AbstractVaspInputSet):
         return {
             "name": self.name,
             "config_dict": config_dict,
+            "hubbard_off": self.hubbard_off,
             "constrain_total_magmom": self.set_nupdown,
+            "sort_structure": self.sort_structure,
             "@class": self.__class__.__name__,
-            "@module": self.__module__.__name__,
+            "@module": self.__class__.__module__,
         }
 
     @classmethod
     def from_dict(cls, d):
         return cls(d["name"], d["config_dict"],
-                   d["constrain_total_magmom"])
+                   hubbard_off=d.get("hubbard_off", False),
+                   constrain_total_magmom=d["constrain_total_magmom"],
+                   sort_structure=d.get("sort_structure", True))
 
-
-class VaspInputSet(DictVaspInputSet):
-    """
-    Standard implementation of VaspInputSet that uses a config file to
-    initialize settings. See DictVaspInputSet for specific details regarding
-    how MAGMOM, LDAU settings are set.
-    """
-
-    def __init__(self, name, config_file, user_incar_settings=None,
-                 constrain_total_magmom=False):
+    @staticmethod
+    def from_json_file(name, json_file, hubbard_off=False,
+                       user_incar_settings=None, constrain_total_magmom=False,
+                       sort_structure=True):
         """
+        Creates a DictVaspInputSet from a json file.
+
         Args:
             name:
-                The name in the config file.
-            config_file:
-                The config file to use. If None (the default), a default config
-                file containing Materials Project and MIT parameters is used.
+                A name for the input set.
+            json_file:
+                An actual file containing the settings.
+            hubbard_off:
+                Whether to turn off Hubbard U if it is specified in
+                config_dict. Defaults to False, i.e., follow settings in
+                config_dict.
             user_incar_settings:
                 User INCAR settings. This allows a user to override INCAR
                 settings, e.g., setting a different MAGMOM for various elements
@@ -335,188 +373,88 @@ class VaspInputSet(DictVaspInputSet):
                 Whether to constrain the total magmom (NUPDOWN in INCAR) to be
                 the sum of the expected MAGMOM for all species. Defaults to
                 False.
+            sort_structure:
+                Whether to sort the structure (using the default sort
+                order of electronegativity) before generating input files.
+                Defaults to True, the behavior you would want most of the
+                time. This ensures that similar atomic species are grouped
+                together.
         """
-        self.name = name
-        self.config_file = config_file
-        self._config = ConfigParser.SafeConfigParser()
-        self._config.optionxform = str
-        with open(config_file, "r") as f:
-            self._config.readfp(f)
-
-        self.user_incar_settings = user_incar_settings
-        potcar_settings = dict(self._config.items(self.name + 'POTCAR'))
-        kpoints_settings = dict(self._config.items(self.name + 'KPOINTS'))
-        incar_settings = dict(self._config.items(self.name + 'INCAR'))
-        for key in ['MAGMOM', 'LDAUU', 'LDAUJ', 'LDAUL']:
-            if key in incar_settings:
-                incar_settings[key] = json.loads(incar_settings[key])
-        if user_incar_settings:
-            incar_settings.update(user_incar_settings)
-        DictVaspInputSet.__init__(
-            self, name, {"INCAR": incar_settings, "KPOINTS": kpoints_settings,
-                         "POTCAR": potcar_settings},
-            constrain_total_magmom=constrain_total_magmom)
-
-    @property
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "config_file": self.config_file,
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__module__.__name__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(d["name"], d["config_file"],
-                   user_incar_settings=d["user_incar_settings"],
-                   constrain_total_magmom=d["constrain_total_magmom"])
+        with open(json_file) as f:
+            return DictVaspInputSet(
+                name, json.load(f),
+                hubbard_off=hubbard_off,
+                constrain_total_magmom=constrain_total_magmom,
+                user_incar_settings=user_incar_settings,
+                sort_structure=sort_structure)
 
 
-class MITVaspInputSet(VaspInputSet):
-    """
-    Standard implementation of VaspInputSet utilizing parameters in the MIT
-    High-throughput project.
-    The parameters are chosen specifically for a high-throughput project,
-    which means in general pseudopotentials with fewer electrons were chosen.
+MITVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT",
+                          os.path.join(MODULE_DIR, "MITVaspInputSet.json"))
+"""
+Standard implementation of VaspInputSet utilizing parameters in the MIT
+High-throughput project.
+The parameters are chosen specifically for a high-throughput project,
+which means in general pseudopotentials with fewer electrons were chosen.
 
-    Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer,
-    T. Mueller, K. A. Persson, G. Ceder. A high-throughput infrastructure for
-    density functional theory calculations. Computational Materials Science,
-    2011, 50(8), 2295-2310.
-    doi:10.1016/j.commatsci.2011.02.023 for more information.
-    """
+Please refer::
 
-    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MIT", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
-        self.user_incar_settings = user_incar_settings
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
+    A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
+    K. A. Persson, G. Ceder. A high-throughput infrastructure for density
+    functional theory calculations. Computational Materials Science,
+    2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023
 
-    @property
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
+for more information. Supports the same kwargs as :class:`JSONVaspInputSet`.
+"""
 
-    @classmethod
-    def from_dict(cls, d):
-        return cls(user_incar_settings=d["user_incar_settings"],
-                   constrain_total_magmom=d["constrain_total_magmom"])
+MITGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT GGA",
+                             os.path.join(MODULE_DIR, "MITVaspInputSet.json"),
+                             hubbard_off=True)
+"""
+GGA (no U) version of MITVaspInputSet.
+Supports the same kwargs as :class:`JSONVaspInputSet`.
+"""
+
+MITHSEVaspInputSet = partial(
+    DictVaspInputSet.from_json_file, "MIT HSE",
+    os.path.join(MODULE_DIR, "MITHSEVaspInputSet.json"))
+"""
+Typical implementation of input set for a HSE run using MIT parameters.
+Supports the same kwargs as :class:`JSONVaspInputSet`.
+"""
 
 
-class MITGGAVaspInputSet(VaspInputSet):
-    """
-    Typical implementation of input set for a GGA run based on MIT parameters.
-    """
-
-    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MIT GGA", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
-        self.user_incar_settings = user_incar_settings
-        # INCAR settings to override for GGA runs, since we are basing off a
-        # GGA+U inputset
-        self.incar_settings['LDAU'] = False
-        if 'LDAUU' in self.incar_settings:
-            # technically not needed, but clarifies INCAR
-            del self.incar_settings['LDAUU']
-            del self.incar_settings['LDAUJ']
-            del self.incar_settings['LDAUL']
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
-    @property
-    def to_dict(self):
-        return {
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(user_incar_settings=d["user_incar_settings"],
-                   constrain_total_magmom=d["constrain_total_magmom"])
-
-
-class MITHSEVaspInputSet(VaspInputSet):
-    """
-    Typical implementation of input set for a HSE run.
-    """
-
-    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITHSEVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MIT HSE", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
-        self.user_incar_settings = user_incar_settings
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
-    @property
-    def to_dict(self):
-        return {
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(user_incar_settings=d["user_incar_settings"],
-                   constrain_total_magmom=d["constrain_total_magmom"])
-
-
-class MITNEBVaspInputSet(VaspInputSet):
+class MITNEBVaspInputSet(DictVaspInputSet):
     """
     Class for writing NEB inputs.
     """
 
-    def __init__(self, user_incar_settings=None, constrain_total_magmom=False,
-                 ggau=True, nimages=8):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
+    def __init__(self, nimages=8, **kwargs):
+        """
+        Args:
+            nimages:
+                Number of NEB images (excluding start and ending structures).
+            **kwargs:
+                Other kwargs supported by :class:`JSONVaspInputSet`.
+        """
+        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MIT NEB", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
-        self.user_incar_settings = user_incar_settings
-        #incar settings
-        incar_settings = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2}
-        self.incar_settings.update(incar_settings)
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-        if not ggau:
-            self.incar_settings['LDAU'] = False
-            if 'LDAUU' in self.incar_settings:
-                # technically not needed, but clarifies INCAR
-                del self.incar_settings['LDAUU']
-                del self.incar_settings['LDAUJ']
-                del self.incar_settings['LDAUL']
+                self, "MIT NEB", json.load(f), **kwargs)
+        self.nimages = nimages
+        # NEB settings
+        self.incar_settings.update(
+            {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2})
 
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
         """
-        Writes a set of VASP input to a directory.
+        NEB inputs has a special directory structure where inputs are in 00,
+        01, 02, ....
 
         Args:
             structures:
-                list of Structure objects. There should be nimages+2 structures
+                list of Structure objects. There should be nimages + 2
+                structures (including start and end structures).
             output_dir:
                 Directory to output the VASP input files
             make_dir_if_not_present:
@@ -529,12 +467,10 @@ class MITNEBVaspInputSet(VaspInputSet):
             raise ValueError('incorrect number of structures')
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        self.get_incar(structures[0]).write_file(os.path.join(output_dir,
-                                                              'INCAR'))
-        self.get_kpoints(structures[0]).write_file(os.path.join(output_dir,
-                                                                'KPOINTS'))
-        self.get_potcar(structures[0]).write_file(os.path.join(output_dir,
-                                                               'POTCAR'))
+        s0 = structures[0]
+        self.get_incar(s0).write_file(os.path.join(output_dir, 'INCAR'))
+        self.get_kpoints(s0).write_file(os.path.join(output_dir, 'KPOINTS'))
+        self.get_potcar(s0).write_file(os.path.join(output_dir, 'POTCAR'))
         for i, s in enumerate(structures):
             d = os.path.join(output_dir, str(i).zfill(2))
             if make_dir_if_not_present and not os.path.exists(d):
@@ -545,32 +481,29 @@ class MITNEBVaspInputSet(VaspInputSet):
 
     @property
     def to_dict(self):
-        return {
-            "name": self.name,
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "ggau": self.ggau,
-            "nimages": self.nimages,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
+        d = super(MITNEBVaspInputSet, self).to_dict
+        d["nimages"] = self.nimages
+        return d
 
     @classmethod
     def from_dict(cls, d):
-        return cls(user_incar_settings=d["user_incar_settings"],
+        return cls(user_incar_settings=d.get("user_incar_settings", None),
                    constrain_total_magmom=d["constrain_total_magmom"],
-                   ggau=d["ggau"],
+                   sort_structure=d.get("sort_structure", True),
+                   hubbard_off=d.get("hubbard_off", False),
                    nimages=d["nimages"])
 
 
-class MITMDVaspInputSet(VaspInputSet):
+class MITMDVaspInputSet(DictVaspInputSet):
     """
     Class for writing a vasp md run. This DOES NOT do multiple stage
     runs.
     """
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
-                 prec="Low", ggau=False, user_incar_settings=None):
+                 hubbard_off=True, spin_polarized=False,
+                 sort_structure=False, user_incar_settings=None,
+                 **kwargs):
         """
         Args:
             start_temp:
@@ -582,151 +515,94 @@ class MITMDVaspInputSet(VaspInputSet):
             time_step:
                 The time step for the simulation. The POTIM parameter.
                 Defaults to 2fs.
-            prec:
-                precision - Normal or LOW. Defaults to Low.
-            ggau:
-                whether to use +U or not. Defaults to False.
+            hubbard_off:
+                Whether to turn off Hubbard U. Defaults to *True* (different
+                behavior from standard input sets) for MD runs.
+            sort_structure:
+                Whether to sort structure. Defaults to False (different
+                behavior from standard input sets).
             user_incar_settings:
-                dictionary of incar settings to override
+                Settings to override the default incar settings (as a dict)
+            **kwargs:
+                Other kwargs supported by :class:`DictVaspInputSet`.
         """
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MITVaspInputSet.json")) as f:
+        #MD default settings
+        defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
+                    'EDIFF': 0.000001, 'LSCALU': False, 'LCHARG': False,
+                    'LPLANE': False, 'LWAVE': True, 'ICHARG': 0, 'ISMEAR': 0,
+                    'SIGMA': 0.05, 'NELMIN': 4, 'LREAL': True, 'BMIX': 1,
+                    'MAXMIX': 20, 'NELM': 500, 'NSIM': 4, 'ISYM': 0,
+                    'ISIF': 0, 'IBRION': 0, 'NBLOCK': 1, 'KBLOCK': 100,
+                    'SMASS': 0, 'POTIM': time_step, 'PREC': 'Normal',
+                    'ISPIN': 2 if spin_polarized else 1}
+
+        #override default settings with user supplied settings
+        if user_incar_settings:
+            defaults.update(user_incar_settings)
+        with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MITMD", json.load(f))
+                self, "MIT MD", json.load(f),
+                hubbard_off=hubbard_off, sort_structure=sort_structure,
+                user_incar_settings=defaults, **kwargs)
+
         self.start_temp = start_temp
         self.end_temp = end_temp
         self.nsteps = nsteps
         self.time_step = time_step
-        self.prec = prec
-        self.ggau = ggau
-        self.user_incar_settings = user_incar_settings
+        self.spin_polarized = spin_polarized
+        self.user_incar_settings = user_incar_settings or {}
 
-        #Optimized parameters for MD simulations.
-        incar_settings = {'TEBEG': start_temp, 'TEEND': end_temp,
-                          'NSW': nsteps, 'PREC': prec,
-                          'EDIFF': 0.000001, 'LSCALU': False,
-                          'LCHARG': False, 'LPLANE': False,
-                          'LWAVE': False, "ICHARG": 1, "ISMEAR": 0,
-                          "SIGMA": 0.05, "NELMIN": 4, "LREAL": True,
-                          "BMIX": 1, "MAXMIX": 20, "NELM": 500, "NSIM": 4,
-                          "ISYM": 0, "ISIF": 0, "IBRION": 0, "NBLOCK": 1,
-                          "KBLOCK": 100, "SMASS": 0, "POTIM": time_step}
-
-        self.incar_settings.update(incar_settings)
-
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
-        if not ggau:
-            self.incar_settings['LDAU'] = False
-            if 'LDAUU' in self.incar_settings:
-                # technically not needed, but clarifies INCAR
-                del self.incar_settings['LDAUU']
-                del self.incar_settings['LDAUJ']
-                del self.incar_settings['LDAUL']
+        #use VASP default ENCUT
+        if 'ENCUT' not in self.user_incar_settings:
+            del self.incar_settings['ENCUT']
 
     def get_kpoints(self, structure):
         return Kpoints.gamma_automatic()
 
     @property
     def to_dict(self):
-        return {
+        d = super(MITMDVaspInputSet, self).to_dict
+        d.update({
             "start_temp": self.start_temp,
             "end_temp": self.end_temp,
             "nsteps": self.nsteps,
             "time_step": self.time_step,
-            "ggau": self.ggau,
-            "prec": self.prec,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
+            "spin_polarized": self.spin_polarized,
+            "user_incar_settings": self.user_incar_settings
+        })
+        return d
 
     @classmethod
     def from_dict(cls, d):
         return cls(start_temp=d["start_temp"], end_temp=d["end_temp"],
                    nsteps=d["nsteps"], time_step=d["time_step"],
-                   prec=d["prec"], ggau=d["ggau"],
-                   user_incar_settings=d["user_incar_settings"])
+                   hubbard_off=d.get("hubbard_off", False),
+                   user_incar_settings=d["user_incar_settings"],
+                   spin_polarized=d.get("spin_polarized", False),
+                   constrain_total_magmom=d["constrain_total_magmom"],
+                   sort_structure=d.get("sort_structure", True))
 
 
-class MPVaspInputSet(DictVaspInputSet):
-    """
-    Implementation of VaspInputSet utilizing parameters in the public
-    Materials Project. Typically, the pseudopotentials chosen contain more
-    electrons than the MIT parameters, and the k-point grid is ~50% more dense.
-    The LDAUU parameters are also different due to the different psps used,
-    which result in different fitted values (even though the methodology of
-    fitting is exactly the same as the MIT scheme).
-    """
+MPVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP",
+                         os.path.join(MODULE_DIR, "MPVaspInputSet.json"))
+"""
+Implementation of VaspInputSet utilizing parameters in the public
+Materials Project. Typically, the pseudopotentials chosen contain more
+electrons than the MIT parameters, and the k-point grid is ~50% more dense.
+The LDAUU parameters are also different due to the different psps used,
+which result in different fitted values. Supports the same kwargs as
+:class:`JSONVaspInputSet`.
+"""
 
-    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MaterialsProject", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
-        self.user_incar_settings = user_incar_settings
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
-    @property
-    def to_dict(self):
-        return {
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(
-            user_incar_settings=d["user_incar_settings"],
-            constrain_total_magmom=d["constrain_total_magmom"])
+MPGGAVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP GGA",
+                            os.path.join(MODULE_DIR, "MPVaspInputSet.json"),
+                            hubbard_off=True)
+"""
+Same as the MPVaspInput set, but the +U is enforced to be turned off.
+"""
 
 
-class MPGGAVaspInputSet(DictVaspInputSet):
-    """
-    Same as the MaterialsProjectVaspInput set, but the +U is enforced to be
-    turned off.
-    """
-
-    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MaterialsProject GGA", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
-
-        self.user_incar_settings = user_incar_settings
-        # INCAR settings to override for GGA runs, since we are basing off a
-        # GGA+U inputset
-        self.incar_settings['LDAU'] = False
-        if 'LDAUU' in self.incar_settings:
-            # technically not needed, but clarifies INCAR
-            del self.incar_settings['LDAUU']
-            del self.incar_settings['LDAUJ']
-            del self.incar_settings['LDAUL']
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
-
-    @property
-    def to_dict(self):
-        return {
-            "constrain_total_magmom": self.set_nupdown,
-            "user_incar_settings": self.user_incar_settings,
-            "@class": self.__class__.__name__,
-            "@module": self.__class__.__module__,
-        }
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(user_incar_settings=d["user_incar_settings"],
-                   constrain_total_magmom=d["constrain_total_magmom"])
-
-
-class MPStaticVaspInputSet(MPVaspInputSet):
+class MPStaticVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static calculations that typically follow relaxation runs.
@@ -734,21 +610,13 @@ class MPStaticVaspInputSet(MPVaspInputSet):
     the input set to inherit most of the functions.
     """
 
-    def __init__(self, user_incar_settings=None, constrain_total_magmom=False):
+    def __init__(self, *args, **kwargs):
         """
-        Args:
-            user_incar_settings:
-                A dict specify customized settings for INCAR
+        Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
-                self, "MaterialsProject Static", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
-
-        self.user_incar_settings = user_incar_settings
-        if user_incar_settings:
-            self.incar_settings.update(user_incar_settings)
+                self, "MP Static", json.load(f), **kwargs)
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
@@ -770,6 +638,10 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             kpoints_density * structure.lattice.reciprocal_lattice.volume * \
             structure.num_sites
         return super(MPStaticVaspInputSet, self).get_kpoints(structure)
+
+    def get_poscar(self, structure):
+        sym_finder = SymmetryFinder(structure, symprec=0.01)
+        return Poscar(sym_finder.get_primitive_standard_structure())
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
@@ -848,28 +720,41 @@ class MPStaticVaspInputSet(MPVaspInputSet):
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
-            previous_incar = Incar.from_file(os.path.join(previous_vasp_dir,
-                                                          "INCAR"))
-            kpoints = Kpoints.from_file(os.path.join(previous_vasp_dir,
-                                                     "KPOINTS"))
+            previous_incar = vasp_run.incar
+            previous_kpoints = vasp_run.kpoints
+            previous_final_structure = vasp_run.final_structure
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
-
-        structure = MPStaticVaspInputSet.get_structure(
-            vasp_run, outcar)
+        structure = MPStaticVaspInputSet.get_structure(vasp_run, outcar)
         mpsvip = MPStaticVaspInputSet()
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
-        new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
+        #new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
+        new_incar = mpsvip.get_incar(structure)
 
         # Use previous run INCAR and override necessary parameters
         previous_incar.update({"IBRION": -1, "ISMEAR": -5, "LAECHG": True,
                                "LCHARG": True, "LORBIT": 11, "LVHAR": True,
                                "LWAVE": False, "NSW": 0, "ICHARG": 0})
 
+        for incar_key in ["MAGMOM", "NUPDOWN"]:
+            if new_incar.get(incar_key, None):
+                previous_incar.update({incar_key: new_incar[incar_key]})
+            else:
+                previous_incar.pop(incar_key, None)
+
+        # use new LDAUU when possible b/c the Poscar might have changed
+        # representation
+        if previous_incar.get('LDAU'):
+            u = previous_incar.get('LDAUU', [])
+            j = previous_incar.get('LDAUJ', [])
+            if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
+                for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
+                    previous_incar.update({tag: new_incar[tag]})
+
         # Compare ediff between previous and staticinputset values,
-        # choose the tigher ediff
-        previous_incar.update({"EDIFF": min(previous_incar["EDIFF"],
+        # choose the tighter ediff
+        previous_incar.update({"EDIFF": min(previous_incar.get("EDIFF", 1),
                                             new_incar["EDIFF"])})
 
         # add user settings
@@ -878,14 +763,24 @@ class MPStaticVaspInputSet(MPVaspInputSet):
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Prefer to use k-point scheme from previous run
-        kpoints_out = Kpoints.from_file(os.path.join(output_dir, "KPOINTS"))
-        if kpoints.style != kpoints_out.style and \
-                SymmetryFinder(structure, 0.01).get_lattice_type() != \
-                "hexagonal":
-            k_div = (kp + 1 if kp % 2 == 1 else kp
-                     for kp in kpoints_out.kpts[0])
-            Kpoints.monkhorst_automatic(k_div).write_file(
-                os.path.join(output_dir, "KPOINTS"))
+        previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
+            previous_final_structure.lattice.reciprocal_lattice.volume
+        new_kpoints_density = max(previous_kpoints_density, 90)
+        new_kpoints = mpsvip.get_kpoints(structure,
+                                         kpoints_density=new_kpoints_density)
+        if previous_kpoints.style[0] != new_kpoints.style[0]:
+            if previous_kpoints.style[0] == "M" and \
+                    SymmetryFinder(structure, 0.01).get_lattice_type() != \
+                    "hexagonal":
+                k_div = (kp + 1 if kp % 2 == 1 else kp
+                         for kp in new_kpoints.kpts[0])
+                Kpoints.monkhorst_automatic(k_div). \
+                    write_file(os.path.join(output_dir, "KPOINTS"))
+            else:
+                Kpoints.gamma_automatic(new_kpoints.kpts[0]). \
+                    write_file(os.path.join(output_dir, "KPOINTS"))
+        else:
+            new_kpoints.write_file(os.path.join(output_dir, "KPOINTS"))
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
@@ -898,7 +793,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
 
     def __init__(self, user_incar_settings, mode="Line",
-                 constrain_total_magmom=False):
+                 constrain_total_magmom=False, sort_structure=False):
         """
         Args:
             user_incar_settings:
@@ -909,15 +804,15 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 Line: Generate k-points along symmetry lines for bandstructure
                 Uniform: Generate uniform k-points grids for DOS
         """
-        module_dir = os.path.dirname(os.path.abspath(__file__))
         self.mode = mode
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
-        with open(os.path.join(module_dir, "MPVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MaterialsProject Static", json.load(f),
-                constrain_total_magmom=constrain_total_magmom)
+                constrain_total_magmom=constrain_total_magmom,
+                sort_structure=sort_structure)
         self.user_incar_settings = user_incar_settings
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001, "LCHARG": False,
@@ -1037,30 +932,6 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                                    + str(e))
 
 
-@deprecated(MPVaspInputSet)
-class MaterialsProjectVaspInputSet(MPVaspInputSet):
-    """
-    A direct subclass of MPVaspInputSet (for backwards compatibility).
-
-    .. deprecated:: v2.6.7
-
-        Use MPVaspInputSet instead.
-    """
-    pass
-
-
-@deprecated(MPGGAVaspInputSet)
-class MaterialsProjectGGAVaspInputSet(MPGGAVaspInputSet):
-    """
-    A direct subclass of MPGGAVaspInputSet (for backwards compatibility).
-
-    .. deprecated:: v2.6.7
-
-        Use MPGGAVaspInputSet instead.
-    """
-    pass
-
-
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
                            sanitize=False, include_cif=False):
@@ -1102,8 +973,6 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
             s, dirname, make_dir_if_not_present=make_dir_if_not_present
         )
         if include_cif:
-            from pymatgen.io.cifio import CifWriter
-
             writer = CifWriter(s)
-            writer.write_file(os.path.join(dirname,
-                                           "{}_{}.cif".format(formula, i)))
+            writer.write_file(os.path.join(
+                dirname, "{}_{}.cif".format(formula, i)))

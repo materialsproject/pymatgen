@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Jul 17, 2012"
 
 import collections
@@ -59,7 +59,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             self._species = Composition({smart_element_or_specie(k): v
                                          for k, v in atoms_n_occu.items()})
             totaloccu = self._species.num_atoms
-            if totaloccu > 1:
+            if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             self._is_ordered = (totaloccu == 1 and len(self._species) == 1)
         else:

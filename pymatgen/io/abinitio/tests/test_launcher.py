@@ -3,9 +3,7 @@ from __future__ import division, print_function
 
 import unittest
 
-from pymatgen.io.abinitio.launcher import *
-
-##########################################################################################
+from pymatgen.io.abinitio.launcher import ScriptEditor
 
 class ScriptEditorTest(unittest.TestCase):
 
@@ -20,16 +18,7 @@ class ScriptEditorTest(unittest.TestCase):
         se.load_modules(["module1", "module2"])
         print(se.get_script_str())
 
-##########################################################################################
 
-class ShellLauncherTest(unittest.TestCase):
-
-    def test_base(self):
-        "base test"
-        launcher = ShellLauncher("job.sh")
-        print(launcher.get_script_str())
-
-##########################################################################################
 
 if __name__ == '__main__':
     unittest.main()

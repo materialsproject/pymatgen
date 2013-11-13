@@ -124,8 +124,8 @@ class PointGroupAnalyzer(object):
                 c = site.coords
                 wt = site.species_and_occu.weight
                 for i in xrange(3):
-                    inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 +
-                                                  c[(i + 2) % 3] ** 2)
+                    inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2
+                                                  + c[(i + 2) % 3] ** 2)
                 for i, j in itertools.combinations(xrange(3), 2):
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
@@ -456,6 +456,8 @@ class PointGroupAnalyzer(object):
         return True
 
 
+@requires(spcluster is not None, "Cannot import scipy. cluster_sites require "
+                                 "scipy.cluster.")
 def cluster_sites(mol, tol):
     """
     Cluster sites based on distance and species type.

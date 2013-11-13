@@ -17,7 +17,7 @@ import unittest
 import os
 import numpy as np
 
-from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
+from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
 from pymatgen import Composition, Structure, zopen
@@ -120,6 +120,30 @@ direct
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
 
+        #Vasp 4 type with symbols at the end.
+        poscar_string = """Test1
+1.0
+-3.840198 0.000000 0.000000
+1.920099 3.325710 0.000000
+0.000000 -2.217138 3.135509
+1 1
+direct
+0.000000 0.000000 0.000000 Si
+0.750000 0.500000 0.750000 F"""
+
+        expected = """Test1
+1.0
+3.840198 -0.000000 -0.000000
+-1.920099 -3.325710 -0.000000
+-0.000000 2.217138 -3.135509
+Si F
+1 1
+direct
+0.000000 0.000000 0.000000 Si
+0.750000 0.500000 0.750000 F"""
+        poscar = Poscar.from_string(poscar_string)
+        self.assertEqual(str(poscar), expected)
+
     def test_from_md_run(self):
         #Parsing from an MD type run with velocities
         p = Poscar.from_file(os.path.join(test_dir, "CONTCAR.MD"),
@@ -155,7 +179,7 @@ direct
             self.assertAlmostEqual(
                 x, 0, 7, 'Velocities initialized with a net momentum')
 
-        temperature = struct[0].specie.atomic_mass * AMU_TO_KG * \
+        temperature = struct[0].specie.atomic_mass.to("kg") * \
             np.sum(v ** 2) / (3 * BOLTZMANN_CONST) * 1e10
         self.assertAlmostEqual(temperature, 900, 4,
                                'Temperature instantiated incorrectly')
@@ -263,7 +287,7 @@ class KpointsTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'POSCAR')
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
-        self.assertEqual(kpoints.kpts, [[2, 3, 4]])
+        self.assertEqual(kpoints.kpts, [[2, 4, 4]])
 
     def test_to_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])

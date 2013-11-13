@@ -12,7 +12,7 @@ __credits__ = "Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.2"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 30, 2012"
 
@@ -24,8 +24,8 @@ import itertools
 import warnings
 import xml.sax.handler
 import StringIO
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 import numpy as np
 
@@ -33,6 +33,7 @@ from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, \
     clean_json, reverse_readline
 from pymatgen.core.structure import Structure
+from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
@@ -191,7 +192,7 @@ class Vasprun(object):
                 parse_projected_eigen=parse_projected_eigen
             )
             if ionic_step_skip is None:
-                parser = xml.sax.parse(f, handler)
+                xml.sax.parse(f, handler)
             else:
                 #remove parts of the xml file and parse the string
                 run = f.read()
@@ -200,8 +201,8 @@ class Vasprun(object):
                 #add the last step from the run
                 if steps[-1] != new_steps[-1]:
                     new_steps.append(steps[-1])
-                parser = xml.sax.parseString("<calculation>".join(new_steps),
-                                             handler)
+                xml.sax.parseString("<calculation>".join(new_steps),
+                                    handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(handler, k))
 
@@ -219,6 +220,7 @@ class Vasprun(object):
         return len(self.ionic_steps) < nsw or nsw < 1
 
     @property
+    @unitized("eV")
     def final_energy(self):
         """
         Final energy from the vasp run.
@@ -609,10 +611,26 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
 
         #will be set to true if there is an error parsing the Dos.
         self.dos_has_errors = False
-        self.state = defaultdict(bool)
+
+        # The internal _state attribute stores the current state of parsing.
+        # It is essentially a dict of {str: boolean}. The handler sets a
+        # particular key (e.g., "calculation") to True when the start
+        # element is encountered and False when the endElement is found.
+        self._state = defaultdict(bool)
 
     def startElement(self, name, attributes):
-        self.state[name] = attributes.get("name", True)
+        """
+        Detect the various starting elements and call the appropriate init
+        fucntions. The parsing is broken down into two basic blocks for
+        clarity:
+
+        1. The input stage, where all the run parameters are read. Note that
+           the vasprun.xml contains far more information about run
+           parameters than present in the INCAR.
+        2. The calc stage, where all the ionic steps are read with the
+           structure at each stage, with the DOS, bandstructure, etc.
+        """
+        self._state[name] = attributes.get("name", True)
         self.read_val = False
 
         #Nested if loops makes reading much faster.
@@ -623,8 +641,44 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         if self.read_val:
             self.val = StringIO.StringIO()
 
+    def characters(self, data):
+        """
+        Logic to read in characters when the parser is in certain states.
+        """
+        if self.read_val:
+            self.val.write(data)
+        if self.read_lattice:
+            self.latticestr.write(data)
+        elif self.read_positions:
+            self.posstr.write(data)
+        elif self.read_rec_lattice:
+            self.latticerec.write(data)
+
+    def endElement(self, name):
+        """
+        Calls the appropriate internal object creation methods when a
+        closing element is encountered. For example, a "</structure>" will
+        create a Structure object and append it to the list of structures.
+        """
+        if not self.input_read:
+            self._read_input(name)
+        else:
+            if self.read_structure:
+                self._read_structure(name)
+            elif self.read_diel:
+                self._read_diel(name)
+            elif self.read_dos:
+                self._read_dos(name)
+            elif self.read_eigen:
+                self._read_eigen(name)
+            elif self.read_projected_eigen:
+                self._read_projected_eigen(name)
+            elif self.read_calculation:
+                self._read_calc(name)
+        self._state[name] = False
+
     def _init_input(self, name, attributes):
-        state = self.state
+        state = self._state
         if (name == "i" or name == "v") and \
                 (state["incar"] or state["parameters"]):
             self.incar_param = attributes["name"]
@@ -647,7 +701,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_val = True
 
     def _init_calc(self, name, attributes):
-        state = self.state
+        state = self._state
         if self.read_structure and name == "v":
             if state["varray"] == "basis":
                 self.read_lattice = True
@@ -735,18 +789,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         elif name == "varray" and (state["varray"] in ["forces", "stress"]):
             self.posstr = StringIO.StringIO()
 
-    def characters(self, data):
-        if self.read_val:
-            self.val.write(data)
-        if self.read_lattice:
-            self.latticestr.write(data)
-        elif self.read_positions:
-            self.posstr.write(data)
-        elif self.read_rec_lattice:
-            self.latticerec.write(data)
-
     def _read_input(self, name):
-        state = self.state
+        state = self._state
         if name == "i":
             if state["incar"]:
                 self.incar[self.incar_param] = \
@@ -802,7 +846,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                             map(float, self.val.getvalue().split()))
 
     def _read_calc(self, name):
-        state = self.state
+        state = self._state
         if name == "i" and state["scstep"]:
             self.scstep[state["i"]] = float(self.val.getvalue())
         elif name == "scstep":
@@ -845,7 +889,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_rec_lattice = False
 
     def _read_diel(self, name):
-        state = self.state
+        state = self._state
         if name == "r" and (state["imag"] or state["real"]):
             tok = self.val.getvalue().split()
             self.diel_energies_val.append(float(tok[0]))
@@ -865,7 +909,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_diel = False
 
     def _read_dos(self, name):
-        state = self.state
+        state = self._state
         try:
             if name == "i" and state["i"] == "efermi":
                 self.efermi = float(self.val.getvalue().strip())
@@ -920,7 +964,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.dos_has_errors = True
 
     def _read_eigen(self, name):
-        state = self.state
+        state = self._state
         if name == "r" and str(state["set"]).startswith("kpoint"):
             tok = self.val.getvalue().split()
             self.raw_data.append(map(float, tok))
@@ -934,7 +978,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_eigen = False
 
     def _read_projected_eigen(self, name):
-        state = self.state
+        state = self._state
         if name == "r" and str(state["set"]).startswith("band"):
             tok = self.val.getvalue().split()
             self.raw_data.append({Orbital.from_vasp_index(i): float(val)
@@ -955,24 +999,6 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             logger.debug("Finished reading projected eigenvalues. "
                          "No. eigen = {}".format(len(self.eigenvalues)))
             self.read_projected_eigen = False
-
-    def endElement(self, name):
-        if not self.input_read:
-            self._read_input(name)
-        else:
-            if self.read_structure:
-                self._read_structure(name)
-            elif self.read_diel:
-                self._read_diel(name)
-            elif self.read_dos:
-                self._read_dos(name)
-            elif self.read_eigen:
-                self._read_eigen(name)
-            elif self.read_projected_eigen:
-                self._read_projected_eigen(name)
-            elif self.read_calculation:
-                self._read_calc(name)
-        self.state[name] = False
 
 
 def parse_parameters(val_type, val):
@@ -1998,6 +2024,7 @@ class Oszicar(object):
         return tuple(all_energies)
 
     @property
+    @unitized("eV")
     def final_energy(self):
         """
         Final energy from run.

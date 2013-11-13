@@ -5,12 +5,13 @@ Wrapper classes for Cif input and output from Structures.
 """
 
 from __future__ import division
+from pymatgen.symmetry.finder import SymmetryFinder
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
@@ -27,6 +28,7 @@ import numpy as np
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.util.io_utils import zopen
 from pymatgen.util.coord_utils import in_coord_list_pbc
+from pymatgen.util.string_utils import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
@@ -51,7 +53,9 @@ class CifParser(object):
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
             with zopen(filename, "r") as f:
-                self._cif = CifFile.ReadCif(f)
+                # We use this round-about way to clean up the CIF first.
+                stream = cStringIO.StringIO(_clean_cif(f.read()))
+                self._cif = CifFile.ReadCif(stream)
         else:
             self._cif = CifFile.ReadCif(filename)
 
@@ -70,8 +74,8 @@ class CifParser(object):
         Returns:
             CifParser
         """
-        output = cStringIO.StringIO(cif_string)
-        return CifParser(output, occupancy_tolerance)
+        stream = cStringIO.StringIO(_clean_cif(cif_string))
+        return CifParser(stream, occupancy_tolerance)
 
     def _unique_coords(self, coord_in):
         """
@@ -89,9 +93,9 @@ class CifParser(object):
         """
         Generate structure from part of the cif.
         """
-        lengths = [float_from_str(data["_cell_length_" + i])
+        lengths = [str2float(data["_cell_length_" + i])
                    for i in ["a", "b", "c"]]
-        angles = [float_from_str(data["_cell_angle_" + i])
+        angles = [str2float(data["_cell_angle_" + i])
                   for i in ["alpha", "beta", "gamma"]]
         lattice = Lattice.from_lengths_and_angles(lengths, angles)
         try:
@@ -112,9 +116,10 @@ class CifParser(object):
             return ""
 
         try:
-            oxi_states = {data["_atom_type_symbol"][i]:
-                          float_from_str(data["_atom_type_oxidation_number"][i])
-                          for i in xrange(len(data["_atom_type_symbol"]))}
+            oxi_states = {
+                data["_atom_type_symbol"][i]:
+                str2float(data["_atom_type_oxidation_number"][i])
+                for i in xrange(len(data["_atom_type_symbol"]))}
         except (ValueError, KeyError):
             oxi_states = None
 
@@ -127,11 +132,11 @@ class CifParser(object):
                             oxi_states[data["_atom_site_type_symbol"][i]])
             else:
                 el = Element(symbol)
-            x = float_from_str(data["_atom_site_fract_x"][i])
-            y = float_from_str(data["_atom_site_fract_y"][i])
-            z = float_from_str(data["_atom_site_fract_z"][i])
+            x = str2float(data["_atom_site_fract_x"][i])
+            y = str2float(data["_atom_site_fract_y"][i])
+            z = str2float(data["_atom_site_fract_z"][i])
             try:
-                occu = float_from_str(data["_atom_site_occupancy"][i])
+                occu = str2float(data["_atom_site_occupancy"][i])
             except (KeyError, ValueError):
                 occu = 1
             if occu > 0:
@@ -158,7 +163,7 @@ class CifParser(object):
 
         struct = Structure(lattice, allspecies, allcoords)
         if primitive:
-            struct = struct.get_primitive_structure()
+            struct = struct.get_primitive_structure().get_reduced_structure()
         return struct.get_sorted_structure()
 
     def get_structures(self, primitive=True):
@@ -178,7 +183,7 @@ class CifParser(object):
         for k, v in self._cif.items():
             try:
                 structures.append(self._get_structure(v, primitive))
-            except KeyError as ex:
+            except KeyError:
                 pass
         return structures
 
@@ -197,7 +202,7 @@ class CifWriter:
     A wrapper around PyCifRW to write CIF files from pymatgen structures.
     """
 
-    def __init__(self, struct):
+    def __init__(self, struct, find_spacegroup=False):
         """
         Args:
             struct:
@@ -207,13 +212,17 @@ class CifWriter:
         latt = struct.lattice
         comp = struct.composition
         no_oxi_comp = Composition(comp.formula)
-        block["_symmetry_space_group_name_H-M"] = "P 1"
+        spacegroup = ("P 1", 1)
+        if find_spacegroup:
+            sf = SymmetryFinder(struct, 0.001)
+            spacegroup = (sf.get_spacegroup_symbol(), sf.get_spacegroup_number())
+        block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ['a', 'b', 'c']:
             block["_cell_length_" + cell_attr] = str(getattr(latt, cell_attr))
         for cell_attr in ['alpha', 'beta', 'gamma']:
-            block["_cell_angle_" + cell_attr] = str(getattr(latt, cell_attr))
+            block["_cell_angle_" + cell_attr] = float(getattr(latt, cell_attr))
         block["_chemical_name_systematic"] = "Generated by pymatgen"
-        block["_symmetry_Int_Tables_number"] = 1
+        block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = str(no_oxi_comp
                                                     .reduced_formula)
         block["_chemical_formula_sum"] = str(no_oxi_comp.formula)
@@ -305,7 +314,31 @@ class CifWriter:
             f.write(self.__str__())
 
 
-def float_from_str(text):
+def _clean_cif(s):
+    """
+    Removes non-ASCII and some unsupported _cgraph fields from the cif
+    string
+    """
+    clean = []
+    lines = s.split("\n")
+    skip = False
+    while len(lines) > 0:
+        l = lines.pop(0)
+        if skip:
+            if l.strip().startswith("_") or l.strip() == "loop_":
+                skip = False
+            else:
+                continue
+
+        if l.strip().startswith("_cgraph"):
+            skip = True
+        elif not l.strip().startswith("_eof"):
+            clean.append(remove_non_ascii(l))
+
+    return "\n".join(clean)
+
+
+def str2float(text):
     """
     Remove uncertainty brackets from strings and return the float.
     """

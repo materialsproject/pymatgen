@@ -4,28 +4,25 @@
 Low-level objects providing an abstraction for the objects involved in the
 calculation.
 """
-
 from __future__ import division, print_function
 
 import collections
-import numpy as np
-import os.path
+import os
 import abc
+import numpy as np
+import pymatgen.core.units as units
 
 from pprint import pformat
-
 from pymatgen.util.decorators import singleton
+from pymatgen.util.string_utils import is_string
 from pymatgen.core.design_patterns import Enum, AttrDict
-from pymatgen.core.units import any2Ha
-from pymatgen.core.physical_constants import Ang2Bohr, Bohr2Ang
+from pymatgen.core.units import ArrayWithUnit
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
-
-###############################################################################
 
 
 class AbivarAble(object):
@@ -61,8 +58,6 @@ class DefaultVariable(object):
 
 MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
-
-###############################################################################
 
 
 class SpinMode(collections.namedtuple('SpinMode', "mode nsppol nspinor nspden"),
@@ -106,8 +101,6 @@ _mode2spinvars = {
     "spinor_nomag": SpinMode("spinor_nomag", 1, 2, 1),
 }
 
-###############################################################################
-
 
 class Smearing(AbivarAble, MSONable):
     """
@@ -135,11 +128,8 @@ class Smearing(AbivarAble, MSONable):
         return s
 
     def __eq__(self, other):
-        if other is None:
-            return False
-        else:
-            return (self.occopt == other.occopt and
-                    np.allclose(self.tsmear, other.tsmear))
+        return (self.occopt == other.occopt and 
+                np.allclose(self.tsmear, other.tsmear))
 
     def __ne__(self, other):
         return not self == other
@@ -158,7 +148,11 @@ class Smearing(AbivarAble, MSONable):
             * Smearing instance
             * "name:tsmear"  e.g. "gaussian:0.004"  (Hartree units)
             * "name:tsmear units" e.g. "gaussian:0.1 eV"
+            * None --> no smearing
         """
+        if obj is None:
+            return Smearing.nosmearing()
+
         if isinstance(obj, cls):
             return obj
 
@@ -173,8 +167,8 @@ class Smearing(AbivarAble, MSONable):
             try:
                 tsmear = float(tsmear)
             except ValueError:
-                tsmear, units = tsmear.split()
-                tsmear = any2Ha(units)(float(tsmear))
+                tsmear, unit = tsmear.split()
+                tsmear = units.Energy(float(tsmear), unit).to("Ha")
 
             return cls(occopt, tsmear)
 
@@ -207,7 +201,6 @@ class Smearing(AbivarAble, MSONable):
     def from_dict(d):
         return Smearing(d["occopt"], d["tsmear"])
 
-###############################################################################
 
 
 class ElectronsAlgorithm(dict, AbivarAble):
@@ -236,8 +229,6 @@ class ElectronsAlgorithm(dict, AbivarAble):
 
     def to_abivars(self):
         return self.copy()
-
-###############################################################################
 
 
 class Electrons(AbivarAble):
@@ -325,8 +316,6 @@ class Electrons(AbivarAble):
         abivars["#comment"] = self.comment
         return abivars
 
-#########################################################################################
-
 
 def asabistructure(obj):
     """
@@ -343,13 +332,13 @@ def asabistructure(obj):
         # Promote
         return AbiStructure(obj)
 
-    if isinstance(obj, str):
+    if is_string(obj):
         # Handle file paths.
         if os.path.isfile(obj):
 
             if obj.endswith(".nc"):
                 structure = structure_from_etsf_file(obj)
-                print(structure._sites)
+                #print(structure._sites)
             else:
                 structure = read_structure(obj)
 
@@ -391,7 +380,7 @@ class AbiStructure(Structure, AbivarAble):
 
         molecule = Molecule([p.symbol for p in pseudos], cart_coords)
 
-        l = Bohr2Ang(acell)
+        l = ArrayWithUnit(acell, "bohr").to("ang")
 
         structure = molecule.get_boxed_structure(l[0], l[1], l[2])
 
@@ -425,20 +414,8 @@ class AbiStructure(Structure, AbivarAble):
         for (atm_idx, site) in enumerate(self):
             typat[atm_idx] = types_of_specie.index(site.specie) + 1
 
-        significant_figures = 12
-        format_str = "{{:.{0}f}}".format(significant_figures)
-        fmt = format_str.format
-
-        lines = []
-        for vec in Ang2Bohr(self.lattice.matrix):
-            lines.append(" ".join([fmt(c) for c in vec]))
-        rprim = "\n" + "\n".join(lines)
-
-        lines = []
-        for (i, site) in enumerate(self):
-            coords = site.frac_coords
-            lines.append( " ".join([fmt(c) for c in coords]) + " # " + site.species_string )
-        xred = '\n' + "\n".join(lines)
+        rprim = ArrayWithUnit(self.lattice.matrix, "ang").to("bohr")
+        xred = np.reshape([site.frac_coords for site in self], (-1,3))
 
         return {
             "acell" : 3 * [1.0],
@@ -449,8 +426,6 @@ class AbiStructure(Structure, AbivarAble):
             "xred"  : xred,
             "znucl" : znucl_type,
         }
-
-##########################################################################################
 
 
 class KSampling(AbivarAble):
@@ -554,7 +529,7 @@ class KSampling(AbivarAble):
                 raise ValueError("For Path mode, num_kpts must be specified and >0")
 
             kptbounds = np.reshape(kpts, (-1,3,))
-            print("in path with kptbound: %s " % kptbounds)
+            #print("in path with kptbound: %s " % kptbounds)
 
             abivars.update({
                 "ndivsm"   : num_kpts,
@@ -712,7 +687,7 @@ class KSampling(AbivarAble):
             kpath_bounds = []
             for label in kpath_labels:
                 red_coord = sp.kpath["kpoints"][label]
-                print("label %s, red_coord %s" % (label, red_coord))
+                #print("label %s, red_coord %s" % (label, red_coord))
                 kpath_bounds.append(red_coord)
 
         return cls(mode     = KSampling.modes.path,
@@ -747,27 +722,6 @@ class KSampling(AbivarAble):
             kppa:
                 Grid density
         """
-        #raise NotImplementedError()
-        #rec_lattice = structure.lattice.reciprocal_lattice
-
-        #min_idx, min_abc = minloc(rec_lattice.abc)
-        # See np.argmax
-        #ratios = rec_lattice.abc / min_abc
-
-        #kpt_shifts = [0.5, 0.5, 0.5]
-        #kpt_shifts = np.atleast_2d(kpt_shifts)
-
-        #num_shifts = len(kpt_shifts)
-
-        #ndiv, num_points = 0, 0
-
-        #while num_points < min_npoints:
-        #    ndiv += 1
-        #    trial_divs = [int(round(n)) for n in ratios * ndiv]
-        #    # ensure that trial_divs  > 0
-        #    trial_divs = [i if i > 0 else 1 for i in trial_divs]
-        #    num_points = num_shifts * np.product(trial_divs)
-
         lattice = structure.lattice
         lengths = lattice.abc
         ngrid = kppa / structure.num_sites
@@ -812,7 +766,6 @@ class KSampling(AbivarAble):
     def to_abivars(self):
         return self.abivars
 
-##########################################################################################
 
 
 class Constraints(AbivarAble):
@@ -922,8 +875,6 @@ class RelaxationMethod(AbivarAble):
 
         return abivars
 
-##########################################################################################
-
 
 class PPModel(AbivarAble, MSONable):
     """
@@ -962,8 +913,8 @@ class PPModel(AbivarAble, MSONable):
             try:
                 plasmon_freq = float(plasmon_freq)
             except ValueError:
-                plasmon_freq, units = plasmon_freq.split()
-                plasmon_freq = any2Ha(units)(float(plasmon_freq))
+                plasmon_freq, unit = plasmon_freq.split()
+                plasmon_freq = units.Energy(float(plasmon_freq), unit).to("Ha")
 
         return cls(mode=mode, plasmon_freq=plasmon_freq)
 
@@ -1018,7 +969,6 @@ class PPModel(AbivarAble, MSONable):
     def from_dict(d):
         return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
 
-##########################################################################################
 
 
 class HilbertTransform(AbivarAble):
@@ -1039,7 +989,6 @@ class HilbertTransform(AbivarAble):
         return {"spmeth"  : self.spmeth,
                 "nomegasf": self.nomegasf,}
 
-##########################################################################################
 
 
 class ModelDielectricFunction(AbivarAble):
@@ -1088,8 +1037,6 @@ class CDFrequencyMesh(AbivarAble):
             "freqim_alpha": self.freqim_alpha
         }
         return abivars
-
-##########################################################################################
 
 
 class Screening(AbivarAble):
@@ -1207,8 +1154,6 @@ class Screening(AbivarAble):
             abivars.update(self.wmesh.to_abivars())
 
         return abivars
-
-##########################################################################################
 
 
 class SelfEnergy(AbivarAble):
@@ -1334,8 +1279,6 @@ class SelfEnergy(AbivarAble):
 
         return abivars
 
-##########################################################################################
-
 
 class ExcHamiltonian(AbivarAble):
     """This object contains the parameters for the solution of the Bethe-Salpeter equation."""
@@ -1377,7 +1320,7 @@ class ExcHamiltonian(AbivarAble):
             bs_freq_mesh:
                 Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
             mdf_epsinf: 
-                Macroscopic dielectric function :math:`\espilon_\inf` used in 
+                Macroscopic dielectric function :math:`\epsilon_\inf` used in 
                 the model dielectric function.
             exc_type:
                 Approximation used for the BSE Hamiltonian
@@ -1483,7 +1426,6 @@ class ExcHamiltonian(AbivarAble):
 
         return abivars
 
-##########################################################################################
 
 
 class Perturbation(AbivarAble):
@@ -1548,7 +1490,6 @@ class PhononPerturbation(Perturbation):
         # nqpt    1        # One wavevector is to be considered
         # qpt     0 0 0    # This wavevector is q=0 (Gamma)
         # kptopt  2        # Automatic generation of k points (time-reversal symmetry only)
-
         abivars = super(PhononPertubation, self).to_abivars()
 
         abivars.extend(dict(
@@ -1583,10 +1524,12 @@ class DDKPerturbation(Perturbation):
         ))
         return abivars
 
-#class ElectricPertunation(Perturbation):
+
+#class ElectricPertubation(Perturbation):
 #    def __init__(self, rfdir):
 #        # Calculation at the Gamma point
 #        super(ElectricPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
+
 
 #class ElasticPertubation(Perturbation):
 #    def __init__(self, rfdir):
@@ -1594,19 +1537,17 @@ class DDKPerturbation(Perturbation):
 #        super(ElasticPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
 
 
-def irred_perturbations(input, qpoint):
-    """
-    This function returns the list of irreducible perturbations at the given q-point.
-    """
-    # Call abinit to get the irred perturbations.
-    # TODO
-    #pert_info = get_pert_info()
+#def irred_perturbations(input, qpoint):
+#    """
+#    This function returns the list of irreducible perturbations at the given q-point.
+#    """
+#    # Call abinit to get the irred perturbations.
+#    #pert_info = get_pert_info()
+#
+#    # Initialize the list of irreducible perturbations.
+#    perts = []
+#    return perts
 
-    # Initialize the list of irreducible perturbations.
-    perts = []
-    return perts
-
-##########################################################################################
 
 class IFC(AbivarAble):
     """
@@ -1641,7 +1582,6 @@ class IFC(AbivarAble):
         self.nqshft = len(self.q1shft)
 
     def to_abivars(self):
-
         d = dict(
             ifcflag=self.ifcflag,
             brav=self.brav,
@@ -1656,9 +1596,11 @@ class IFC(AbivarAble):
 
         return d
 
-    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1,
-                        executable=None, verbose=0):
+    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1, 
+                         executable=None, verbose=0):
         """
+        Fourier interpolation of the IFCs.
+
         Args:
             asr:
                 Acoustic Sum Rule. 1 to impose it asymetrically.
@@ -1682,7 +1624,7 @@ class IFC(AbivarAble):
             qpath = np.reshape(qpath, (-1,3))
             d.update({
                 "nqpath": len(qpath),
-                "qpath" : "\n".join(["%f %f %f" % tuple(q) for q in qpath]),
+                "qpath" : "\n".join("%f %f %f" % tuple(q) for q in qpath),
             })
 
         # Phonon DOS calculations.

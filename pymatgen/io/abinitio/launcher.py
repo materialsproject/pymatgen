@@ -1,25 +1,35 @@
-#!/usr/bin/env python
+"""Tools for the submission of Tasks."""
 from __future__ import division, print_function
 
 import os 
-import os.path
-import copy 
-import collections
-import abc
+import time
+import yaml
 
 from subprocess import Popen, PIPE
-
+from pymatgen.core.design_patterns import AttrDict
+from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 __all__ = [
     "ScriptEditor",
-    "ShellLauncher",
+    "PyLauncher",
+    "PyFlowsScheduler",
 ]
 
-# =========================================================================== #
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
+
 
 class ScriptEditor(object):
-    """Simple editor that simplifies the writing of shell scripts"""
+    """
+    Simple editor that simplifies the writing of shell scripts
+    """
     _shell = '/bin/bash'
 
     def __init__(self):
@@ -30,7 +40,7 @@ class ScriptEditor(object):
         return self._shell
 
     def _add(self, text, pre=""):
-        if isinstance(text, str):
+        if is_string(text):
             self._lines.append(pre+text)
         else:
             self._lines.extend([pre + t for t in text])
@@ -47,12 +57,16 @@ class ScriptEditor(object):
         self._lines.append('#!' + self.shell)
 
     def declare_var(self, key, val):
-        """Return a lines setting a variable."""
-        line = key + '=' + str(val)
+        """Declare a env variable. If val is None the variable is unset."""
+        if val is not None:
+            line = "export " + key + '=' + str(val)
+        else:
+            line = "unset " + key 
+
         self._add(line)
 
     def declare_vars(self, d):
-        """Declare the variabled defined in d (dict)"""
+        """Declare the variables defined in the dictionary d."""
         for k,v in d.items():
             self.declare_var(k, v)
 
@@ -67,12 +81,15 @@ class ScriptEditor(object):
             self.export_envar(k, v)
 
     def add_emptyline(self):
+        """Add an empty line."""
         self._add("", pre="")
 
     def add_comment(self, comment):
+        """Add a comment"""
         self._add(comment, pre="# ")
 
     def load_modules(self, modules):
+        """Load the list of specified modules."""
         for module in modules:
             self.load_module(module)
 
@@ -92,12 +109,11 @@ class ScriptEditor(object):
             self.reset()
         return s
 
-##########################################################################################
 
-class OMPEnv(dict):
+class OmpEnv(dict):
     """
-    Dictionary with the OpenMP environment variables"
-    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables"
+    Dictionary with the OpenMP environment variables
+    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables
     """
     _KEYS = [
        "OMP_SCHEDULE",
@@ -117,330 +133,400 @@ class OMPEnv(dict):
         """ 
         Constructor method inherited from dictionary:
                                                    
-        >>> OMPEnv(OMP_NUM_THREADS=1)
+        >>> OmpEnv(OMP_NUM_THREADS=1)
         {'OMP_NUM_THREADS': '1'}
                                                    
         To create an instance from an INI file, use:
-           OMPEnv.from_filename(filename)
+           OmpEnv.from_file(filename)
         """
         self.update(*args, **kwargs)
 
         err_msg = ""
         for key, value in self.items():
             self[key] = str(value)
-            if key not in OMPEnv._KEYS:
-                err_msg += "unknown option %s" % key
+            if key not in self._KEYS:
+                err_msg += "unknown option %s\n" % key
 
         if err_msg: 
             raise ValueError(err_msg)
 
     @staticmethod
-    def from_filename(filename, allow_empty=False):
-        from ConfigParser import SafeConfigParser, NoOptionError
-        parser = SafeConfigParser()
-        parser.read(filename)
+    def from_file(filename, allow_empty=False):
+        """Reads the OpenMP variables from a INI file."""
+        if filename.endswith(".ini"):
+            from ConfigParser import SafeConfigParser, NoOptionError
+            parser = SafeConfigParser()
+            parser.read(filename)
 
-        obj = OMPEnv()
+            obj = OMPEnv()
 
-        # Consistency check. Note that we only check if the option name is correct, 
-        # we do not check whether the value is correct or not.
-        if "openmp" not in parser.sections():
-            if not allow_empty:
-                raise ValueError("%s does not contain any [openmp] section" % filename) 
+            # Consistency check. Note that we only check if the option name is correct, 
+            # we do not check whether the value is correct or not.
+            if "openmp" not in parser.sections():
+                if not allow_empty:
+                    raise ValueError("%s does not contain any [openmp] section" % filename) 
+                return obj
+
+            err_msg = ""
+            for key in parser.options("openmp"):
+                if key.upper() not in self._KEYS:
+                    err_msg += "unknown option %s, maybe a typo" % key
+
+            if err_msg: 
+                raise ValueError(err_msg)
+
+            for key in self._KEYS:
+                try:
+                    obj[key] = str(parser.get("openmp", key))
+                except NoOptionError:
+                    try:
+                        obj[key] = str(parser.get("openmp", key.lower()))
+                    except NoOptionError:
+                        pass
+
+            if not allow_empty and not obj:
+                raise ValueError("Refusing to return with an empty dict") 
+
             return obj
 
-        err_msg = ""
-        for key in parser.options("openmp"):
-            if key.upper() not in OMPEnv._KEYS:
-                err_msg += "unknown option %s, maybe a typo" % key
-
-        if err_msg: 
-            raise ValueError(err_msg)
-
-        for key in OMPEnv._KEYS:
-            try:
-                obj[key] = str(parser.get("openmp", key))
-            except NoOptionError:
-                try:
-                    obj[key] = str(parser.get("openmp", key.lower()))
-                except NoOptionError:
-                    pass
-
-        if not allow_empty and not obj:
-            raise ValueError("Refusing to return with an empty dict") 
-
-        return obj
-
-##########################################################################################
-
-class TaskLauncher(object):
-    """Abstract class for a task launcher."""
-    __metaclass__ = abc.ABCMeta
-
-    @staticmethod
-    def from_launcher_type(launcher_type):
-        """Returns the subclass from a string giving its type."""
-        classes = []
-        for cls in TaskLauncher.__subclasses__():
-           if cls._type == launcher_type:
-               classes.append(cls)
-        if len(classes) != 1:
-            raise ValueError("Cannot find class from launcher_type %s" % launcher_type)
-
-        return classes[0]
-
-    def __init__(self, path, **kwargs):
-        """
-        Args:
-            path:
-                Path to the script file.
-            stdin:
-                The input file to feed in the executable as the standard input. Mandatory.
-            stdout:
-                The file into which the standard output is redirected. Default is 'log'.
-            stderr:
-                The file into which the standard error is redirected. Default is 'stderr'.
-            bindir:
-                The directory in which to look for binaries. Default is "".
-            modules:
-                The modules which will be loaded with 'module load'. Default is None
-            pre_lines:
-                Lines before the main execution. Default is []
-            post_lines:
-                Lines after the main execution. Default is [].
-            exe:
-                The name of the binary to be executed 
-                (located in bindir or in $PATH if not bindir). Default is abinit.
-            mpirun:
-                The mpi runner.
-                E.g. 'mpirun -n 6'. Default is None.
-            mpi_ncpus
-                Number of MPI processes (default 1)
-            omp_env
-                Dictionary with the OMP environment variables. Default is {}
-            vars:
-                Dictionary {varname:varvalue} with variable declaration.
-        """
-        self.jobfile    = File(path)
-        self.stdin      = kwargs.get("stdin",  "abi.files")
-        self.stdout     = kwargs.get("stdout", "abi.log")
-        self.stderr     = kwargs.get("stderr", "abi.err")
-        self.bindir     = kwargs.get("bindir", "")
-        self.exe        = os.path.join(self.bindir, kwargs.get("exe", "abinit"))
-        self.mpirun     = kwargs.get("mpirun", "")
-        self.mpi_ncpus  = kwargs.get("mpi_ncpus", 1)
-        self.omp_env    = kwargs.get("omp_env", {})
-        if self.omp_env:
-            self.omp_env = OMPEnv(self.omp_env)
-        self.vars         = kwargs.get("vars", {})
-        self.modules      = kwargs.get("modules", [])
-        self.envars       = kwargs.get("envars", {})
-        self.pre_lines    = kwargs.get("pre_lines", [])
-        self.post_lines   = kwargs.get("post_lines", [])
-        self.queue_params = kwargs.get("queue_params", {})
-
-    @property
-    def tot_ncpus(self):
-        """Total number of CPUs employed"""
-        return self.mpi_ncpus * self.omp_ncpus 
-
-    @property
-    def has_mpirun(self):
-        """True if we are using a mpirunner"""
-        return bool(self.mpirun)
-
-    @property
-    def has_omp(self):
-        """True if we are using OMP threads"""
-        return hasattr(self,"omp_env") and bool(getattr(self, "omp_env"))
-                                                      
-    @property
-    def omp_ncpus(self):
-        """Number of OMP threads."""
-        if self.has_omp:
-            return self.omp_env["OMP_NUM_THREADS"]
         else:
-            return 1
+            raise NotImplementedError("Don't how how to read data from %s" % filename)
 
-    def get_script_str(self):
-        """Returns a string wth the script."""
-        se = ScriptEditor()
 
-        se.shebang()
+class PyLauncherError(Exception):
+    """Error class for PyLauncher."""
 
-        # Submission instructions for the queue manager.
-        se.add_lines(self.make_rsmheader())
 
-        se.add_comment("Variable declarations")
-        vars = self.vars.copy()
+class PyLauncher(object):
+    """
+    This object handle the submission of the tasks contained in a `AbinitFlow`
+    """
+    Error = PyLauncherError
 
-        vars.update({
-                "EXECUTABLE": self.exe,
-                "STDIN"     : self.stdin,
-                "STDOUT"    : self.stdout,
-                "STDERR"    : self.stderr,
-                "MPIRUN"    : self.mpirun,
-                "MPI_NCPUS" : self.mpi_ncpus,
-               })
-
-        se.declare_vars(vars)
-
-        se.add_comment("Modules")
-        se.load_modules(self.modules)
-
-        se.add_comment("Environment")
-        se.export_envars(self.envars)
-
-        if self.has_omp:
-            se.export_envars(self.omp_env)
-
-        se.add_comment("Commands before execution")
-        se.add_lines(self.pre_lines)
-
-        # Execution line
-        # TODO: better treatment of mpirun syntax.
-        if self.mpirun:
-            se.add_line('$MPIRUN -n $MPI_NCPUS $EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
-        else:
-            se.add_line('$EXECUTABLE < $STDIN > $STDOUT 2> $STDERR')
-
-        se.add_comment("Commands after execution")
-        se.add_lines(self.post_lines)
-
-        return se.get_script_str()
-
-    def write_script(self, overwrite=True):
-        """Writes the script file."""
-        #if not self.jobfile.exists:
-        #    os.makedirs(self.jobfile.dirname)
-
-        #if self.jobfile.exists and not overwrite:
-        #    raise ValueError("%s already exists, cannot overwrite" % self.jobfile.path)
-
-        with open(self.jobfile.path, 'w') as f:
-            f.write(self.get_script_str())
-
-    # TODO
-    #@abc.abstractproperty
-    #def has_resource_manager(self):
-    #    "True if job submission is handled by a resource manager."
-    #    #return self.launcher not in ["shell",]
-
-    @abc.abstractmethod
-    def make_rsmheader(self):
-        """Return a list of string with the options passed to the resource manager"""
-
-    @abc.abstractmethod
-    def launch(self, task, *args, **kwargs):
+    def __init__(self, flow):
         """
-        Run the script in a subprocess, returns a Popen-like object.
+        Initialize the object
 
         Args:
-            task:
-                Task instance. launch should call task.set_status to modify the status 
-                of the object. 
-                task.set_status(Task.S_SUB) is called before submitting the task
-                task.set_status(Task.S_RUN) is called once the task has started to run.
+            flow:
+                `AbinitFlow` object
         """
+        self.flow = flow
 
-##########################################################################################
-# Concrete classes
-
-class ShellLauncher(TaskLauncher):
-    _type = "shell"
-
-    def make_rsmheader(self):
-        return []
-
-    def launch(self, task, *args, **kwargs):
-        self.write_script()
-
-        task.set_status(task.S_SUB)
-        process = Popen(("/bin/bash", self.jobfile.path), cwd=self.jobfile.dirname, stderr=PIPE)
-        task.set_status(task.S_RUN)
-
-        return process
-
-##########################################################################################
-
-#class SlurmLauncher(TaskLauncher):
-#    _type = "slurm"
-#
-#    def make_rsmheader(self):
-#        raise NotImplementedError()
-#
-#    def launch(self, *args, **kwargs):
-#        """
-#        Run the script in a subprocess, returns a Popen-like object.
-#        This is a very delicate part. Hopefully fireworks will help solve the problem!
-#        """
-#        raise NotImplementedError()
-
-##########################################################################################
-
-
-class SimpleResourceManagerError(Exception):
-    """Base error class for `SimpleResourceManager."""
-
-
-class SimpleResourceManager(object):
-
-    Error = SimpleResourceManagerError
-
-    def __init__(self, work, max_ncpus, sleep_time=20, verbose=0):
+    def single_shot(self):
         """
-            Args:
-                work:
-                    Work instance.
-                max_ncpus: 
-                    The maximum number of CPUs that can be used.
-                sleep_time:
-                    Time delay (seconds) before trying to start a new task.
+        Run the first `Task` than is ready for execution.
+        
+        Returns:
+            Number of jobs launched.
         """
-        self.work = work
-        self.max_ncpus = max_ncpus 
-        self.sleep_time = sleep_time
-        self.verbose = verbose
+        num_launched = 0
 
-        for task in self.work:
-            if task.tot_ncpus > self.max_ncpus:
-                err_msg = "Task %s requires %s CPUs, but max_ncpus is %d" % (
-                    repr(task), task.tot_ncpus, max_ncpus)
-                raise self.Error(err_msg)
-
-    def run(self, *args, **kwargs):
-        """Call the start method of the object contained in work."""
-        while True:
-            polls = self.work.poll()
-            # Fetch the first task that is ready to run
+        # Get the tasks that can be executed in each workflow.
+        tasks = []
+        for work in self.flow:
             try:
-                task = self.work.fetch_task_to_run()
+                task = work.fetch_task_to_run()
+
+                if task is not None:
+                    tasks.append(task)
+                else:
+                    logger.debug("No task to run! Possible deadlock")
+
             except StopIteration:
+                logger.info("Out of tasks.")
+
+        # Submit the tasks and update the database.
+        if tasks:
+            tasks[0].start()
+            num_launched += 1
+            
+            self.flow.pickle_dump()
+
+        return num_launched 
+
+    def rapidfire(self, max_nlaunch=-1):  # nlaunches=0, max_loops=-1, sleep_time=None
+        """
+        Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
+
+        Args:
+            max_nlaunch:
+                Maximum number of launches. default: no limit.
+
+        nlaunches: 
+            0 means 'until completion', -1 or "infinite" means to loop forever
+        max_loops: 
+            maximum number of loops
+        sleep_time: 
+            secs to sleep between rapidfire loop iterations
+        
+        Returns:
+            The number of tasks launched.
+        """
+        #sleep_time = sleep_time if sleep_time else FWConfig().RAPIDFIRE_SLEEP_SECS
+        #nlaunches = -1 if nlaunches == 'infinite' else int(nlaunches)
+        #num_loops = 0
+        num_launched, launched = 0, []
+
+        for work in self.flow:
+            if num_launched == max_nlaunch: 
                 break
 
-            if task is None:
-                import time
-                time.sleep(self.sleep_time)
-            else:
-                # Check that we don't exceed the number of cpus employed, before starting.
-                if self.verbose:
-                    print("work polls %s" % polls)
-                    print("work status %s" % self.work.get_status())
+            while True:
+                try:
+                    task = work.fetch_task_to_run()
 
-                if (task.tot_ncpus + self.work.ncpus_reserved <= self.max_ncpus): 
-                    if self.verbose: print("Starting task %s" % task)
+                    if task is None:
+                        logger.debug("fetch_task_to_run returned None.")
+                        break
+
+                    logger.debug("Starting task %s" % task)
+                    if task in launched:
+                        err_msg = "task %s in already in launched %s" % (str(task), str(launched))
+                        raise RuntimeError(err_msg)
+
                     task.start()
+                    launched.append(task)
 
-        # Wait until all tasks are completed.
-        self.work.wait()
+                    num_launched += 1
 
-        #if any([t.status != t.S_DONE for t in self]):
-        #   for task in self:
-        #       print([link for link in task._links])
-        #       #print([link_stat==task.S_DONE for link_stat in task.links_status])
-        #       msg = "Deadlock, likely due to task dependencies: status %s" % str([t.status for t in self]))
-        #       self.Error(msg)
+                    if num_launched == max_nlaunch:
+                        break
 
-        return self.work.returncodes
+                except StopIteration:
+                    logger.debug("Out of tasks.")
+                    break
 
-##########################################################################################
+        # Update the database.
+        #if num_launched:
+        self.flow.check_status()
+        self.flow.pickle_dump()
+
+        return num_launched 
+
+
+class PyFlowsScheduler(object):
+    """
+    This object schedules the submission of the tasks in an `AbinitFlow`.
+    """
+    # There are two types of errors that migh happen during the execution of the jobs: Python exceptions and Abinit Errors.
+    # Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
+    # The set of Abinit Error is much much broader. It includes wrong input data, segmentation
+    # faults, problem with the resource manager, etc. Abinitio tries to handle the most common cases
+    # but there's still a lot of room for improvement.
+    # The scheduler will shutdown automatically if the number of python exceptions is > MAX_NUM_PYEXC
+    # or if the number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
+    MAX_NUM_PYEXCS = 2
+    MAX_NUM_ABIERRS = 0
+
+    YAML_FILE = "scheduler.yml"
+
+    def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None):
+        """
+        Args:
+            weeks:
+                number of weeks to wait
+            days:
+                number of days to wait
+            hours:
+                number of hours to wait
+            minutes:
+                number of minutes to wait
+            seconds:
+                number of seconds to wait
+            start_date:
+                when to first execute the job and start the counter (default is after the given interval)
+        """
+        # Options passed to the scheduler.
+        self.sched_options = AttrDict(
+             weeks=weeks,
+             days=days,
+             hours=hours,
+             minutes=minutes,
+             seconds=seconds,
+             start_date=start_date,
+        )
+
+        from apscheduler.scheduler import Scheduler
+        self.sched = Scheduler(standalone=True)
+
+        self._pidfiles2flows = {}
+
+        self.exceptions = []
+
+    @classmethod
+    def from_file(cls, filepath):
+        """Read the configuration parameters from a Yaml file."""
+        with open(filepath, "r") as fh:
+            d = yaml.load(fh)
+            return cls(**d)
+
+    @classmethod
+    def from_user_config(cls):
+        """
+        Initialize the `PyFlowsScheduler` from the YAML file 'scheduler.yml'.
+        Search first in the working directory and then in the configuration
+        directory of abipy.
+
+        Raises:
+            RuntimeError if file is not found.
+        """
+        # Try in the current directory.
+        path = os.path.join(os.getcwd(), cls.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+
+        # Try in the configuration directory.
+        home = os.getenv("HOME")
+        dirpath = os.path.join(home, ".abinit", "abipy")
+        path = os.path.join(dirpath, cls.YAML_FILE)
+
+        if os.path.exists(path):
+            return cls.from_file(path)
+    
+        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
+
+    def __str__(self):
+        """String representation."""
+        lines = [self.__class__.__name__ + ", Pid: %d" % self.pid]
+        app = lines.append
+
+        app("Scheduler options: %s" % str(self.sched_options)) 
+
+        for flow in self.flows:
+            app(80 * "=")
+            app(str(flow))
+
+        return "\n".join(lines)
+
+    @property
+    def pid(self):
+        """Pid of the process"""
+        try:
+            return self._pid
+
+        except AttributeError:
+            self._pid = os.getpid()
+            return self._pid
+
+    @property
+    def pid_files(self):
+        """List of files with the pid. The files are located in the workdir of the flows"""
+        return self._pidfiles2flows.keys()
+                                                                                            
+    @property
+    def flows(self):
+        """List of `AbinitFlows`."""
+        return self._pidfiles2flows.values()
+
+    def add_flow(self, flow):
+        """Add an `AbinitFlow` to the scheduler."""
+        pid_file = os.path.join(flow.workdir, "_PyFlowsScheduler.pid")
+
+        if pid_file in self._pidfiles2flows:
+            raise ValueError("Cannot add the same flow twice!")
+
+        if os.path.isfile(pid_file):
+            err_msg = (
+                "pid_file %s already exists\n"
+                "There are two possibilities:\n\n"
+                "       1) There's an another instance of PyFlowsScheduler running.\n"
+                "       2) The previous scheduler didn't exit in a clean way.\n\n"
+                "To solve case 1:\n"
+                "       Kill the previous scheduler (use `kill pid` where pid is the number reported in the file)\n"
+                "       Then you run can start the new scheduler.\n\n"
+                "To solve case 2:\n"
+                "   Remove the pid_file and rerun the scheduler.\n\n"
+                "Exiting\n" % pid_file
+                )
+
+            raise RuntimeError(err_msg)
+
+        else:
+            with open(pid_file, "w") as fh:
+                fh.write(str(self.pid))
+
+        self._pidfiles2flows[pid_file] = flow
+
+    def start(self):
+        """
+        Starts the scheduler in a new thread.
+        In standalone mode, this method will block until there are no more scheduled jobs.
+        """
+        self.sched.add_interval_job(self._runem_all, **self.sched_options)
+        self.sched.start()
+
+    def _runem_all(self):
+        """The function that will be executed by the scheduler."""
+        nlaunch, max_nlaunch, exceptions = 0, -1, []
+
+        for flow in self.flows:
+            flow.check_status()
+
+            try:
+                nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
+
+            except Exception as exc:
+                exceptions.append(straceback())
+
+        print("Number of launches: ", nlaunch)
+        flow.show_status()
+        
+        if exceptions:
+            logger.critical("Scheduler exceptions: %s" % str(exceptions))
+
+        self.exceptions.extend(exceptions)
+
+        # Too many exceptions. Shutdown the scheduler.
+        if len(self.exceptions) > self.MAX_NUM_PYEXCS:
+            msg = "Number of exceptions %s > %s.\nWill shutdown the scheduler and exit" % (
+                len(self.exceptions), self.MAX_NUM_PYEXCS)
+            msg = 5*"=" + msg + 5*"="
+                                                                                      
+            print(len(msg)* "=")
+            print(msg)
+            print(len(msg)* "=")
+
+            self.shutdown()
+
+        # Count the number of tasks with status == S_ERROR:
+        num_errors = sum([flow.num_tasks_with_error for flow in self.flows])
+        if num_errors > self.MAX_NUM_ABIERRS:
+            msg = "Number of task with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
+                num_errors, self.MAX_NUM_ABIERRS)
+            msg = 5*"=" + msg + 5*"="
+                                                                                      
+            print(len(msg)* "=")
+            print(msg)
+            print(len(msg)* "=")
+                                                                                            
+            self.shutdown()
+
+        # Mission accomplished. Shutdown the scheduler.
+        if all(flow.all_ok for flow in self.flows):
+            msg = "All tasks have reached S_OK. Will shutdown the scheduler and exit"
+            msg = 5*"=" + msg + 5*"="
+
+            print(len(msg)* "=")
+            print(msg)
+            print(len(msg)* "=")
+
+            self.shutdown()
+
+        return len(exceptions) 
+
+    def shutdown(self):
+        """Shutdown the scheduler."""
+        for pid_file in self.pid_files:
+            try:
+                os.unlink(pid_file)
+            except:
+                pass
+                                                                    
+        # Save the final status of the flow.
+        for flow in self.flows:
+            flow.pickle_dump()
+                                                                    
+        # Shutdown the scheduler thus allowing the process to exit.
+        self.sched.shutdown(wait=False)

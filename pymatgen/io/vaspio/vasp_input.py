@@ -12,7 +12,7 @@ __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, " + \
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 16, 2012"
 
@@ -26,7 +26,8 @@ import logging
 import numpy as np
 from numpy.linalg import det
 
-from pymatgen.core.physical_constants import AMU_TO_KG, BOLTZMANN_CONST
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
@@ -228,8 +229,8 @@ class Poscar(MSONable):
         Returns:
             Poscar object.
         """
-
-        chunks = re.split("^\s*$", data.rstrip(), flags=re.MULTILINE)
+        #"^\s*$" doesn't match lines with no whitespace
+        chunks = re.split("\n\s*\n", data.rstrip(), flags=re.MULTILINE)
         if chunks[0] == "":
             chunks.pop(0)
             chunks[0] = "\n" + chunks[0]
@@ -356,7 +357,15 @@ class Poscar(MSONable):
         Returns:
             String representation of POSCAR.
         """
-        lines = [self.comment, "1.0", str(self.structure.lattice)]
+
+        # This corrects for VASP really annoying bug of crashing on lattices
+        # which have triple product < 0. We will just invert the lattice
+        # vectors.
+        latt = self.structure.lattice
+        if np.linalg.det(latt.matrix) < 0:
+            latt = Lattice(-latt.matrix)
+
+        lines = [self.comment, "1.0", str(latt)]
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join([str(x) for x in self.natoms]))
@@ -443,9 +452,8 @@ class Poscar(MSONable):
         velocities = np.random.randn(len(self.structure), 3)
 
         #in AMU, (N,1) array
-        atomic_masses = np.array([site.specie.atomic_mass
+        atomic_masses = np.array([site.specie.atomic_mass.to("kg")
                                   for site in self.structure])
-        atomic_masses *= AMU_TO_KG  # in Kg
         dof = 3 * len(self.structure) - 3
 
         #scale velocities due to atomic masses
@@ -642,8 +650,6 @@ class Incar(dict):
             val = int(val)
             return val
         except ValueError:
-            if key == "LORBIT":
-               print val
             pass
 
         try:
@@ -873,8 +879,8 @@ class Kpoints(MSONable):
         ngrid = kppa / structure.num_sites
 
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
+        num_div = [int(round(mult / l)) for l in lengths]
 
-        num_div = [int(round(1 / lengths[i] * mult)) for i in xrange(3)]
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
@@ -891,11 +897,15 @@ class Kpoints(MSONable):
                         and abs(lengths[right_angles[0]] -
                                 lengths[right_angles[1]]) < hex_length_tol)
 
-        all_odd = all([i % 2 == 1 for i in num_div])
+        # VASP documentation recommends to use even grids for n <= 8 and odd
+        # grids for n > 8.
+        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
-        style = Kpoints.supported_modes.Monkhorst
-        if all_odd or is_hexagonal:
+        has_odd = any([i % 2 == 1 for i in num_div])
+        if has_odd or is_hexagonal:
             style = Kpoints.supported_modes.Gamma
+        else:
+            style = Kpoints.supported_modes.Monkhorst
 
         comment = "pymatgen generated KPOINTS with grid density = " + \
             "{} / atom".format(kppa)

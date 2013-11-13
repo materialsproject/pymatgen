@@ -1,8 +1,8 @@
 .DS_Store
 pymatgen.egg-info
 dependencies/PyCifRW-3.3/PyCifRW.egg-info
-dependencies/spglib-1.2.2/pyspglib.egg-info
-dependencies/spglib-1.2.2/build
+dependencies/spglib*/pyspglib.egg-info
+dependencies/spglib*/build
 *.o
 *.so
 *.pyc
@@ -18,3 +18,6 @@ build
 .idea
 distribute*.egg
 distribute*.tar.gz
+.ipynb_checkpoints
+
+gulptmp_4_1

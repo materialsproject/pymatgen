@@ -6,28 +6,27 @@ import numpy as np
 
 from pymatgen import Structure
 from pymatgen.util.testing import PymatgenTest
-from pymatgen.io.abinitio import GSR_Reader
-
-test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
-                        'test_files')
+from pymatgen.io.abinitio import ETSF_Reader
 
 try:
     import netCDF4
 except ImportError:
     netCDF4 = None
 
+_test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
-def filepath(basename):
-    return os.path.join(test_dir, basename)
+def ref_file(filename):
+    return os.path.join(_test_dir, filename)
 
 
-class GSR_Reader_TestCase(PymatgenTest):
+class ETSF_Reader_TestCase(PymatgenTest):
 
     def setUp(self):
         formulas = ["Si2",]
         self.GSR_paths = d = {}
         for formula in formulas:
-            d[formula] = filepath(formula + "_GSR.nc")
+            d[formula] = ref_file(formula + "_GSR.nc")
 
     @unittest.skipIf(netCDF4 is None, "Requires Netcdf4")
     def test_read_Si2(self):
@@ -48,7 +47,7 @@ class GSR_Reader_TestCase(PymatgenTest):
                                              5.125, 5.125, 0], (3,3)),
         }
 
-        with GSR_Reader(path) as data:
+        with ETSF_Reader(path) as data:
 
             self.assertEqual(data.ngroups, 1)
 
@@ -70,11 +69,11 @@ class GSR_Reader_TestCase(PymatgenTest):
                 self.assert_almost_equal(value, float_ref)
 
             # Reading non-existent variables or dims should raise
-            # a subclass of NetcdReder.
-            with self.assertRaises(GSR_Reader.Error):
+            # a subclass of NetcdReaderError
+            with self.assertRaises(data.Error):
                 data.read_value("foobar")
 
-            with self.assertRaises(GSR_Reader.Error):
+            with self.assertRaises(data.Error):
                 data.read_dimvalue("foobar")
 
             data.print_tree()

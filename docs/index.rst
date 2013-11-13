@@ -72,32 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.7.9
+v2.8.7
 ------
-1. Minor bug fix release to fix pyhull dependencies to be more friendly.
-2. Improved structure matcher that allows for more flexible matching. New
-   matching between ordered and disordered comparator.
-
-v2.7.7
--------
-1. Beta new Gulp Caller and Zeo++ interface classes (Bharat . Zeo++ is an open
-   source software for performing high-throughput geometry-based analysis of
-   porous materials and their voids. Please see
-   http://www.maciejharanczyk.info/Zeopp/about.html.
-2. Specify version of distribute to 0.6.34 for better compatibility.
-
-v2.7.6
-------
-1. Support for VTK 6.x in structure visualization.
-2. Updated install instructions for openbabel.
-3. Preliminary pourbaix analysis (Sai Jayaratnam).
-
-v2.7.5
-------
-1. Vastly improved Nwchem IO (by Shyue Ping Ong).
-2. Much improved ABINIT support (by Matteo Giantomassi).
-
-
+1. Massive update to pymatgen.io.abinitio package (by Matteo Giantomassi).
+2. Bug fixes for StructureMatcher's group_structure.
+3. Misc bug fixes and cleanup.
 
 :doc:`Older versions </changelog>`
 
@@ -134,6 +113,11 @@ to be installed for matplotlib.
 Stable version
 --------------
 
+.. note:: Install numpy first.
+
+    You may need to install numpy before installing pymatgen as numpy's
+    distutils is needed to compile the spglib and pyhull dependencies.
+
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
 install pymatgen on any system is to use easy_install or pip, as follows::
@@ -147,10 +131,9 @@ or::
 Detailed installation instructions for various platforms (Mac and Windows)
 are given on this :doc:`page </installation>`.
 
-.. note:: Install numpy first.
-
-    You may need to install numpy before installing pymatgen as numpy's
-    distutils is needed to compile the spglib and pyhull dependencies.
+Some extra functionality (e.g., generation of POTCARs) do require additional
+setup. Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 Developmental version
 ---------------------
@@ -167,9 +150,15 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup.Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
+Running unittests
+~~~~~~~~~~~~~~~~~
+
+To run the very comprehensive suite of unittests included with the
+developmental version, make sure you have nose installed and then just type::
+
+    nosetests
+
+in the pymatgen root directory.
 
 Installation help
 -----------------
@@ -196,7 +185,7 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
-Basic usage
+Quick start
 -----------
 
 Useful aliases for commonly used objects are now provided. Supported objects
@@ -252,14 +241,37 @@ some quick examples of the core capabilities and objects:
 
 The above illustrates only the most basic capabilities of pymatgen.
 
+Examples
+--------
+
+A good way to explore the functionality of pymatgen is to look at examples.
+Please check out the ipython notebooks at our :doc:`examples page </examples>`.
+
+Usage guide
+-----------
+
+Users are also strongly encouraged to explore the :doc:`usage pages </usage>`
+(toc given below).
+
+.. toctree::
+   :maxdepth: 2
+
+   usage
+
+API documentation
+-----------------
+
+For detailed documentation of all modules and classes, please refer to the
+:doc:`API docs </modules>`.
+
 matgenie.py - Command line tool
 -------------------------------
 
 To demonstrate the capabilities of pymatgen and to make it easy for users to
 quickly use the functionality, pymatgen comes with a set of useful scripts
-that utilize the library to perform all kinds of analyses. You can find these
-scripts in `scripts directory of pymatgen's github repo
-<https://github.com/materialsproject/pymatgen/tree/master/scripts>`_.
+that utilize the library to perform all kinds of analyses. These are
+installed to your path by default when you install pymatgen through the
+typical installation routes.
 
 Here, we will discuss the most versatile of these scripts, known as
 matgenie.py. The typical usage of matgenie.py is::
@@ -311,26 +323,6 @@ Upon installing pymatgen in the usual manner, the "ipmg" script will be
 installed. Running ipmg will bring users into a custom ipython environment
 where the most commonly used pymatgen objects (see Aliases below) are
 automatically loaded into the environment.
-
-Tutorials, Examples and API docs
---------------------------------
-
-Users are strongly encouraged to explore the detailed :doc:`usage pages
-</usage>` (toc given below).
-
-.. toctree::
-   :maxdepth: 2
-
-   usage
-
-A good way to explore the functionality of pymatgen is to look at examples.
-We have created a `Github wiki page
-<https://github.com/materialsproject/pymatgen/wiki>`_ to allow users to share
-their Github gists performing various kinds of functions with pymatgen.
-Please feel free to check them out and we welcome your contributions as well!
-
-For detailed documentation of all modules and classes, please refer to the
-:doc:`pymatgen API docs </modules>`.
 
 Add-ons
 -------

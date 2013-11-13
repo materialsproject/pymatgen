@@ -8,7 +8,7 @@ __author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
@@ -275,7 +275,7 @@ def reverse_readline(m_file, blk_size=4096, max_mem=4000000):
 
 
 class FileLockException(Exception):
-    pass
+    """Exception raised by FileLock."""
 
 
 class FileLock(object):
@@ -286,6 +286,7 @@ class FileLock(object):
     Taken from http://www.evanfosmark.com/2009/01/cross-platform-file-locking
     -support-in-python/
     """
+    Error = FileLockException
 
     def __init__(self, file_name, timeout=10, delay=.05):
         """
