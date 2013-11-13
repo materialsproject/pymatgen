@@ -167,6 +167,13 @@ class BaseWorkflow(Node):
         logger.warning("Possible deadlock in fetch_task_to_run!")
         return None
 
+    def fetch_alltasks_to_run(self):
+        """
+        Returns a list with all the tasks that can be submitted.
+        Empty list if not task has been found.
+        """
+        return [task for task in self if task.can_run]
+
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
         """Method called before submitting the calculations."""

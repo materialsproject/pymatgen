@@ -3,6 +3,7 @@ from __future__ import division, print_function
 
 import os 
 import time
+import collections
 import yaml
 
 from subprocess import Popen, PIPE
@@ -231,10 +232,12 @@ class PyLauncher(object):
                 if task is not None:
                     tasks.append(task)
                 else:
+                    # No task found, this usually happens when we have dependencies. 
+                    # Beware of possible deadlocks here!
                     logger.debug("No task to run! Possible deadlock")
 
             except StopIteration:
-                logger.info("Out of tasks.")
+                logger.info("All tasks completeeed.")
 
         # Submit the tasks and update the database.
         if tasks:
@@ -337,18 +340,23 @@ class PyLauncher(object):
     def fetch_tasks_to_run(self):
         """
         Return the list of tasks that can be submitted.
+        Empty list if no task has been found.
         """
         tasks_to_run = []
+
         for work in self.flow:
             try:
                 task = work.fetch_task_to_run()
                                                                                                    
-                if task is None:
-                    logger.debug("fetch_task_to_run returned None.")
-                else:
+                if task is not None:
                     tasks_to_run.append(task)
-                                                                                                    
+                else:
+                    # No task found, this usually happens when we have dependencies. 
+                    # Beware of possible deadlocks here!
+                    logger.debug("fetch_task_to_run returned None.")
+
             except StopIteration:
+                # All the tasks in work are done.
                 logger.debug("Out of tasks in work %s" % work)
 
         return tasks_to_run
@@ -369,6 +377,7 @@ class PyFlowsScheduler(object):
     MAX_NUM_PYEXCS = 2
     MAX_NUM_ABIERRS = 0
 
+    # Configuration file.
     YAML_FILE = "scheduler.yml"
 
     def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None):
@@ -400,9 +409,15 @@ class PyFlowsScheduler(object):
         from apscheduler.scheduler import Scheduler
         self.sched = Scheduler(standalone=True)
 
+        # Map filename --> flow.
         self._pidfiles2flows = {}
 
-        self.exceptions = []
+        # Used to keep track of the exceptions raised 
+        # while the scheduler is running
+        self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS+10)
+
+        # Used to push additional info during the execution. 
+        self.history = collections.deque(maxlen=100)
 
     @classmethod
     def from_file(cls, filepath):
@@ -497,7 +512,7 @@ class PyFlowsScheduler(object):
             with open(pid_file, "w") as fh:
                 fh.write(str(self.pid))
 
-        self._pidfiles2flows[pid_file] = flow
+            self._pidfiles2flows[pid_file] = flow
 
     def start(self):
         """
@@ -515,8 +530,10 @@ class PyFlowsScheduler(object):
 
         self.sched.start()
 
+        self.history.append("Submitted on %s" % time.asctime())
+
     def _runem_all(self):
-        nlaunch, max_nlaunch, exceptions = 0, -1, []
+        nlaunch, max_nlaunch, excs = 0, -1, []
 
         for flow in self.flows:
             flow.check_status()
@@ -524,16 +541,15 @@ class PyFlowsScheduler(object):
             try:
                 nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
 
-            except Exception as exc:
-                exceptions.append(straceback())
+            except Exception:
+                excs.append(straceback())
 
         print("Number of launches: ", nlaunch)
         flow.show_status()
         
-        if exceptions:
-            logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(exceptions))
-
-        self.exceptions.extend(exceptions)
+        if excs:
+            logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
+            self.exceptions.extend(excs)
 
     def _callback(self):
         """The function that will be executed by the scheduler."""
@@ -551,10 +567,10 @@ class PyFlowsScheduler(object):
 
             self.shutdown()
 
-        # Count the number of tasks with status == S_ERROR:
+        # Count the number of tasks with status == S_ERROR.
         num_errors = sum([flow.num_tasks_with_error for flow in self.flows])
 
-        # Count the number of tasks with status == S_ERROR:
+        # Count the number of tasks with status == S_UNCONVERGED.
         num_unconverged = sum([flow.num_tasks_unconverged for flow in self.flows])
 
         message = ""
@@ -572,9 +588,10 @@ class PyFlowsScheduler(object):
                 % num_unconverged)
             err_msg = 5*"=" + err_msg + 5*"="
 
-            message += err_msg
+            message += "\n" + err_msg
 
         if message:
+            # Something wrong. Quit
             print(len(message)* "=")
             print(message)
             print(len(message)* "=")
@@ -596,7 +613,7 @@ class PyFlowsScheduler(object):
 
     def cleanup(self):
         """
-        Cleanup routine: remove pid files and save the pickle database
+        Cleanup routine: remove the pid files and save the pickle database
         """
         for pid_file in self.pid_files:
             try:
@@ -614,3 +631,66 @@ class PyFlowsScheduler(object):
 
         # Shutdown the scheduler thus allowing the process to exit.
         self.sched.shutdown(wait=False)
+
+        self.history.append("Completed on %s" % time.asctime())
+
+        #self.run_time = (now - self.start_time)
+        #try:
+        #    self.send_mail()
+        #except:
+        #     self.exceptions.append(straceback())
+
+        # Write text file with the list of exceptions:
+        #if self.exceptions:
+        #    with open(,"w") as fh:
+        #        fh.writelines(self.exceptions)
+
+    def send_mail(self):
+        if self.mailto is None: 
+            return
+
+        # Import smtplib for the actual sending function
+        import smtplib
+        # Import the email modules we'll need
+        from email.mime.text import MIMEText
+        from socket import gethostname
+
+        host = gethostname()
+        username = os.getlogin()
+
+        server = smtplib.SMTP("localhost")
+        #to_addrs = ["one@one.org","two@two.org","three@three.org","four@four.org"]
+
+        msg = """\
+        From: Me@my.org
+        Subject: testin'...
+        
+        This is a test"""
+
+        from_addr = "me@my.org"
+        err_data = server.sendmail(from_addr, self.mailto, msg)
+        #{ "three@three.org" : ( 550 ,"User unknown" ) }
+
+        if err_data:
+            self.exceptions.append("sendmail error:\n%s" % str(err_data))
+
+        server.quit()
+
+        # Open a plain text file for reading.  For this example, assume that
+        # the text file contains only ASCII characters.
+        #fp = open(textfile, 'rb')
+        # Create a text/plain message
+        msg = MIMEText(fp.read())
+        #fp.close()
+
+        # me == the sender's email address
+        # you == the recipient's email address
+        msg['Subject'] = 'The contents of %s' % textfile
+        msg['From'] = me
+        msg['To'] = you
+
+        # Send the message via our own SMTP server, but don't include the envelope header.
+        server = smtplib.SMTP('localhost')
+        server.sendmail(me, [you], msg.as_string())
+        server.quit()
+
