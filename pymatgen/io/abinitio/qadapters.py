@@ -468,7 +468,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
-        self.qparams["mem_per_cpu"] = mem_mb
+        self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
         self.qparams.pop("mem", None)
 
