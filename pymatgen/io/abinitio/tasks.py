@@ -337,11 +337,16 @@ class TaskPolicy(object):
     and the condition used to select the optimal configuration for the parallel run 
     """
 
-    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, condition=None): 
+    def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None, use_fw=False, condition=None): 
         """
         Args:
             autoparal: 
                 Value of ABINIT autoparal input variable. None to disable the autoparal feature.
+            automemory:
+                int defining the memory policy. 
+                If > 0 the memory requirements will be computed at run-time from the autoparal section
+                produced by ABINIT. In this case, the job script will report the autoparal memory
+                instead of the one specified by the user.
             mode:
                 Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
@@ -353,6 +358,7 @@ class TaskPolicy(object):
                 condition used to filter the autoparal configuration (Mongodb syntax)
         """
         self.autoparal = autoparal
+        self.automemory = automemory
         self.mode = mode 
         self.max_ncpus = max_ncpus
         self.use_fw = use_fw 
@@ -600,9 +606,11 @@ class TaskManager(object):
         #else:
         #    self.qadapter.disable_omp()
 
-        # Change the memory per node.
-        if optimal.mem_per_cpu:
-            self.set_mem_per_cpu(optimal.mem_per_cpu)
+        # Change the memory per node if automemory evaluates to True.
+        mem_per_cpu = optimal.mem_per_cpu:
+        if policy.automemory and mem_per_cpu:
+            #mem_per_cpu = max(mem_per_cpu, policy.automemory)
+            self.set_mem_per_cpu(mem_per_cpu)
 
         # Reset the status, remove garbage files ...
         task.set_status(task.S_READY)
