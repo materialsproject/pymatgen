@@ -8,6 +8,7 @@ import sys
 import time
 import collections
 import itertools
+import warnings
 import cPickle as pickle
 #import pickle as pickle
 
@@ -140,15 +141,22 @@ class AbinitFlow(Node):
 
     def iflat_tasks_wti(self, status=None, op="="):
         """
-        Returns:
+        Generator to iterate over all the tasks of the `Flow`.
+        Yields
+
             (task, work_index, task_index)
+
+        If status is not None, only the tasks whose status satisfies
+        the condition (task.status op status) are selected
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
 
     def iflat_tasks(self, status=None, op="="):
         """
-        Returns:
-            task
+        Generator to iterate over all the tasks of the `Flow`.
+
+        If status is not None, only the tasks whose status satisfies
+        the condition (task.status op status) are selected
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
 
@@ -256,11 +264,10 @@ class AbinitFlow(Node):
             print(80*"=")
             print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized) )
 
-            table = [[
-                     "Task", "Status", "Queue_id", 
-                     "Errors", "Warnings", "Comments", 
-                     "MPI", "OMP", 
-                     "num_restarts", "max_restarts", "Task Class"
+            table = [["Task", "Status", "Queue_id", 
+                      "Errors", "Warnings", "Comments", 
+                      "MPI", "OMP", 
+                      "num_restarts", "max_restarts", "Task Class"
                      ]]
 
             for task in work:
@@ -371,6 +378,13 @@ class AbinitFlow(Node):
         with FileLock(filepath) as lock:
             with open(filepath, "rb") as fh:
                 flow = pickle.load(fh)
+
+        # Check if versions match.
+        if flow.VERSION != cls.VERSION:
+            msg = ("File flow version %s != latest version %s\n."
+                   "Regerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
+            warnings.warn(msg)
+            
 
         if not disable_signals:
             flow.connect_signals()
