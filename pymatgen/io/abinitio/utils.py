@@ -85,6 +85,13 @@ class File(object):
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
 
+    def remove(self):
+        """Remove the file."""
+        try:
+            os.remove(self.path)
+        except:
+            pass
+
 
 class Directory(object):
     """
