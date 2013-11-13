@@ -454,11 +454,18 @@ class PyFlowsScheduler(object):
         Starts the scheduler in a new thread.
         In standalone mode, this method will block until there are no more scheduled jobs.
         """
-        self.sched.add_interval_job(self._runem_all, **self.sched_options)
+        self.sched.add_interval_job(self._callback, **self.sched_options)
+
+        # Try to run the job immediately. If something goes wrong 
+        # return without initializing the scheduler.
+        retcode = self._runem_all()
+        if retcode:
+            self.cleanup()
+            return retcode
+
         self.sched.start()
 
     def _runem_all(self):
-        """The function that will be executed by the scheduler."""
         nlaunch, max_nlaunch, exceptions = 0, -1, []
 
         for flow in self.flows:
@@ -477,6 +484,10 @@ class PyFlowsScheduler(object):
             logger.critical("Scheduler exceptions: %s" % str(exceptions))
 
         self.exceptions.extend(exceptions)
+
+    def _callback(self):
+        """The function that will be executed by the scheduler."""
+        self._runem_all()
 
         # Too many exceptions. Shutdown the scheduler.
         if len(self.exceptions) > self.MAX_NUM_PYEXCS:
@@ -514,10 +525,12 @@ class PyFlowsScheduler(object):
 
             self.shutdown()
 
-        return len(exceptions) 
+        return len(self.exceptions) 
 
-    def shutdown(self):
-        """Shutdown the scheduler."""
+    def cleanup(self):
+        """
+        Cleanup routine: remove pid files and save the pickle database
+        """
         for pid_file in self.pid_files:
             try:
                 os.unlink(pid_file)
@@ -527,6 +540,10 @@ class PyFlowsScheduler(object):
         # Save the final status of the flow.
         for flow in self.flows:
             flow.pickle_dump()
-                                                                    
+
+    def shutdown(self):
+        """Shutdown the scheduler."""
+        self.cleanup()
+
         # Shutdown the scheduler thus allowing the process to exit.
         self.sched.shutdown(wait=False)
