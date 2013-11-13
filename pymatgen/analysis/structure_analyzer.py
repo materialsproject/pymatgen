@@ -6,11 +6,11 @@ This module provides classes to perform topological analyses of structures.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Geoffroy Hautier"
+__author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
@@ -22,6 +22,8 @@ import collections
 from warnings import warn
 from pyhull.voronoi import VoronoiTess
 from pymatgen import PeriodicSite
+from pymatgen.util.coord_utils import pbc_all_distances
+from pymatgen import Element, Specie, Composition
 
 
 class VoronoiCoordFinder(object):
@@ -332,7 +334,7 @@ def solid_angle(center, coords):
     return phi + (3 - len(r)) * math.pi
 
 
-def contains_peroxide(structure, relative_cutoff=1.2):
+def contains_peroxide(structure, relative_cutoff=1.1):
     """
     Determines if a structure contains peroxide anions.
 
@@ -347,15 +349,119 @@ def contains_peroxide(structure, relative_cutoff=1.2):
     Returns:
         Boolean indicating if structure contains a peroxide anion.
     """
-    max_dist = relative_cutoff * 1.49
-    o_sites = []
-    for site in structure:
-        syms = [sp.symbol for sp in site.species_and_occu.keys()]
-        if "O" in syms:
-            o_sites.append(site)
+    ox_type = oxide_type(structure, relative_cutoff)
+    if ox_type is "peroxide":
+        return True
+    else:
+        return False
 
-    for i, j in itertools.combinations(o_sites, 2):
-        if i.distance(j) < max_dist:
-            return True
 
-    return False
+class oxide_type_class():
+    """
+    Separate class for determining oxide type.
+    """
+    def __init__(self, structure, relative_cutoff=1.1):
+        """
+        Args:
+            structure:
+                Input structure.
+            relative_cutoff:
+                Relative_cutoff * act. cutoff stipulates the max. distance two
+                O atoms must be from each other. Default value is 1.1. At most
+                1.1 is recommended, nothing larger, otherwise the script cannot
+                distinguish between superoxides and peroxides.
+        """
+        self.structure = structure
+        self.relative_cutoff = relative_cutoff
+        self.oxide_type, self.nbonds = self.parse_oxide()
+
+    def parse_oxide(self):
+        """
+        Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+
+        Returns:
+            oxide_type:
+                Type of oxide - ozonide/peroxide/superoxide/hydroxide/None
+            nbonds:
+                Number of peroxide/superoxide/hydroxide bonds in structure
+        """
+
+        structure = self.structure
+        relative_cutoff = self.relative_cutoff
+        o_sites_frac_coords = []
+        h_sites_frac_coords = []
+        lattice = structure.lattice
+
+        if isinstance(structure.composition.elements[0], Element):
+            comp = structure.composition
+        elif isinstance(structure.composition.elements[0], Specie):
+            elmap = collections.defaultdict(float)
+            for site in structure:
+                for species, occu in site.species_and_occu.items():
+                    elmap[species.element] += occu
+            comp = Composition(elmap)
+        if Element("O") not in comp or comp.is_element:
+            return "None", 0
+
+        for site in structure:
+            syms = [sp. symbol for sp in site.species_and_occu.keys()]
+            if "O" in syms:
+                o_sites_frac_coords.append(site.frac_coords)
+            if "H" in syms:
+                h_sites_frac_coords.append(site.frac_coords)
+
+        if h_sites_frac_coords:
+            dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords,
+                                            h_sites_frac_coords)
+            if np.any(dist_matrix < relative_cutoff * 0.93):
+                return "hydroxide", len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0
+        dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords,
+                                        o_sites_frac_coords)
+        np.fill_diagonal(dist_matrix, 1000)
+        is_superoxide = False
+        is_peroxide = False
+        is_ozonide = False
+        if np.any(dist_matrix < relative_cutoff * 1.35):
+            bond_atoms = np.where(dist_matrix < relative_cutoff * 1.35)[0]
+            is_superoxide = True
+        elif np.any(dist_matrix < relative_cutoff * 1.49):
+            is_peroxide = True
+            bond_atoms = np.where(dist_matrix < relative_cutoff * 1.49)[0]
+        if is_superoxide:
+            if len(bond_atoms) > len(set(bond_atoms)):
+                is_superoxide = False
+                is_ozonide = True
+        try:
+            nbonds = len(set(bond_atoms))
+        except UnboundLocalError:
+            nbonds = 0.0
+        if is_ozonide:
+            str_oxide = "ozonide"
+        elif is_superoxide:
+            str_oxide = "superoxide"
+        elif is_peroxide:
+            str_oxide = "peroxide"
+        else:
+            str_oxide = "oxide"
+        return str_oxide, nbonds
+
+
+def oxide_type(structure, relative_cutoff=1.1, return_nbonds=False):
+    """
+    Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide
+
+    Args:
+        structure:
+            Input structure.
+        relative_cutoff:
+            Relative_cutoff * act. cutoff stipulates the max. distance two
+            O atoms must be from each other.
+        return_nbonds:
+            Should number of bonds be requested?
+    """
+
+    ox_obj = oxide_type_class(structure, relative_cutoff)
+    if return_nbonds:
+        return ox_obj.oxide_type, ox_obj.nbonds
+    else:
+        return ox_obj.oxide_type

@@ -11,7 +11,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
@@ -26,6 +26,7 @@ import random
 
 import numpy as np
 
+from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
@@ -33,11 +34,11 @@ from pymatgen.core.periodic_table import Element, Specie, \
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
-from pymatgen.core.physical_constants import AMU_TO_KG
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
     pbc_all_distances
 from pymatgen.util.decorators import singleton
+from pymatgen.core.units import Mass, Length
 
 
 class SiteCollection(collections.Sequence):
@@ -437,8 +438,8 @@ class IStructure(SiteCollection, MSONable):
         """
         Returns the density in units of g/cc
         """
-        constant = AMU_TO_KG * 1000 / 1e-24
-        return self.composition.weight / self.volume * constant
+        m = Mass(self.composition.weight, "amu")
+        return m.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     def __eq__(self, other):
         if other is None:
@@ -788,7 +789,7 @@ class IStructure(SiteCollection, MSONable):
                 l = self.lattice
             fcoords = start_coords + x / nimages * vec
             structs.append(self.__class__(l, sp, fcoords,
-                                site_properties=self.site_properties))
+                           site_properties=self.site_properties))
         return structs
 
     def get_primitive_structure(self, tolerance=0.25):
@@ -822,16 +823,16 @@ class IStructure(SiteCollection, MSONable):
             guaranteed to have len(new structure) <= len(structure).
         """
         original_volume = self.volume
-        (reduced_formula, num_fu) =\
-            self.composition.get_reduced_composition_and_factor()
-
-        min_vol = original_volume * 0.5 / num_fu
 
         #get the possible symmetry vectors
         sites = sorted(self._sites, key=lambda site: site.species_string)
         grouped_sites = [list(a[1]) for a
                          in itertools.groupby(sites,
                                               key=lambda s: s.species_string)]
+
+        num_fu = reduce(gcd, map(len, grouped_sites))
+        min_vol = original_volume * 0.5 / num_fu
+
         min_site_list = min(grouped_sites, key=lambda group: len(group))
 
         min_site_list = [site.to_unit_cell for site in min_site_list]
@@ -983,6 +984,46 @@ class IStructure(SiteCollection, MSONable):
         lattice = Lattice.from_dict(d["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in d["sites"]]
         return cls.from_sites(sites)
+
+    def dot(self, coords_a, coords_b, space="r", frac_coords=False):
+        """
+        Compute the scalar producr of vector(s) either in real space or
+        reciprocal space.
+                                                                                                
+        Args:
+            coords:
+                Array-like object with the coordinates.
+            space:
+               "r" for real space, "g" for reciprocal space.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+
+       Returns:
+           one-dimensional `numpy` array.
+        """
+        lattice = {"r": self.lattice,
+                   "g": self.reciprocal_lattice}[space.lower()]
+        return lattice.dot(coords_a, coords_b, frac_coords=frac_coords)
+
+    def norm(self, coords, space="r", frac_coords=True):
+        """
+        Compute the norm of vector(s) either in real space or reciprocal space.
+
+        Args:
+            coords:
+                Array-like object with the coordinates.
+            space:
+               "r" for real space, "g" for reciprocal space.
+            frac_coords:
+                Boolean stating whether the vector corresponds to fractional or
+                cartesian coordinates.
+
+        Returns:
+            one-dimensional `numpy` array.
+        """
+        return np.sqrt(self.dot(coords, coords, space=space,
+                                frac_coords=frac_coords))
 
 
 class IMolecule(SiteCollection, MSONable):
@@ -1715,7 +1756,7 @@ class Structure(IStructure):
                 that are 1% larger.
         """
         self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
-
+        
 
     def apply_strain_transformation(self, F):
         """
@@ -1747,22 +1788,27 @@ class Structure(IStructure):
  #       self.modify_lattice(Lattice([4.15,0.1,0,0,4.04,0,0,0,4.04]))
 
 
-
-
-    def translate_sites(self, indices, vector, frac_coords=True):
+    def translate_sites(self, indices, vector, frac_coords=True,
+                        to_unit_cell=True):
         """
         Translate specific sites by some vector, keeping the sites within the
         unit cell.
 
         Args:
-            sites:
-                List of site indices on which to perform the translation.
+            indices:
+                Integer or List of site indices on which to perform the
+                translation.
             vector:
                 Translation vector for sites.
             frac_coords:
                 Boolean stating whether the vector corresponds to fractional or
                 cartesian coordinates.
+            to_unit_cell:
+                Boolean stating whether new sites are transformed to unit cell
         """
+        if not isinstance(indices, collections.Iterable):
+            indices = [indices]
+
         for i in indices:
             site = self._sites[i]
             if frac_coords:
@@ -1771,7 +1817,7 @@ class Structure(IStructure):
                 fcoords = self._lattice.get_fractional_coords(site.coords
                                                               + vector)
             new_site = PeriodicSite(site.species_and_occu, fcoords,
-                                    self._lattice, to_unit_cell=True,
+                                    self._lattice, to_unit_cell=to_unit_cell,
                                     coords_are_cartesian=False,
                                     properties=site.properties)
             self._sites[i] = new_site
@@ -1880,37 +1926,61 @@ class Structure(IStructure):
                    c.
                 c. A number, which simply scales all lattice vectors by the
                    same factor.
-
         """
         scale_matrix = np.array(scaling_matrix, np.int16)
         if scale_matrix.shape != (3, 3):
             scale_matrix = np.array(scale_matrix * np.eye(3), np.int16)
         old_lattice = self._lattice
         new_lattice = Lattice(np.dot(scale_matrix, old_lattice.matrix))
-        new_sites = []
 
         def range_vec(i):
-            return range(max(scale_matrix[:][:, i])
-                         - min(scale_matrix[:][:, i]) + 1)
+            low = 0
+            high = 0
+            for z in scale_matrix[:, i]:
+                if z > 0:
+                    high += z
+                else:
+                    low += z
+            return np.arange(low, high+1)
+        arange = range_vec(0)[:, None] * np.array([1, 0, 0])[None, :]
+        brange = range_vec(1)[:, None] * np.array([0, 1, 0])[None, :]
+        crange = range_vec(2)[:, None] * np.array([0, 0, 1])[None, :]
+        all_points = arange[:, None, None] + brange[None, :, None] +\
+            crange[None, None, :]
+        all_points = all_points.reshape((-1, 3))
 
+        #find the translation vectors (in terms of the initial lattice vectors)
+        #that are inside the unit cell defined by the scale matrix
+        #we're using a slightly offset interval from 0 to 1 to avoid numerical
+        #precision issues
+        frac_points = np.dot(all_points, np.linalg.inv(scale_matrix))
+        tvects = all_points[np.where(np.all(frac_points < 1-1e-10, axis=1)
+                                     & np.all(frac_points >= -1e-10, axis=1))]
+        assert len(tvects) == np.round(abs(np.linalg.det(scale_matrix)))
+
+        new_sites = []
         for site in self:
-            for (i, j, k) in itertools.product(range_vec(0), range_vec(1),
-                                               range_vec(2)):
-                fcoords = site.frac_coords + np.array([i, j, k])
+            for t in tvects:
+                fcoords = site.frac_coords + t
                 coords = old_lattice.get_cartesian_coords(fcoords)
-                new_coords = new_lattice.get_fractional_coords(coords)
-                new_site = PeriodicSite(site.species_and_occu, new_coords,
-                                        new_lattice,
-                                        properties=site.properties)
-                contains_site = False
-                for s in new_sites:
-                    if s.is_periodic_image(new_site):
-                        contains_site = True
-                        break
-                if not contains_site:
-                    new_sites.append(new_site)
+                new_site = PeriodicSite(
+                    site.species_and_occu, coords, new_lattice,
+                    coords_are_cartesian=True, properties=site.properties,
+                    to_unit_cell=True)
+                new_sites.append(new_site)
         self._sites = new_sites
         self._lattice = new_lattice
+
+    def scale_lattice(self, volume):
+        """
+        Performs a scaling of the lattice vectors so that length proportions
+        and angles are preserved.
+
+        Args:
+            volume:
+                New volume of the unit cell in A^3.
+        """
+        self.modify_lattice(self._lattice.scale(volume))
 
 
 class Molecule(IMolecule):
@@ -2259,7 +2329,7 @@ class Molecule(IMolecule):
                                " functional group to.")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
-        
+
         # Set the origin point to be the coordinates of the nearest
         # non-terminal neighbor.
         origin = non_terminal_nn.coords

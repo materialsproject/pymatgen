@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Nov 10, 2012"
 
@@ -22,6 +22,7 @@ from itertools import chain
 from pymatgen.core.periodic_table import smart_element_or_specie, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.core.units import unitized
 
 
 class Composition(collections.Mapping, collections.Hashable, MSONable):
@@ -75,8 +76,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
     that formula output does not write LiO instead of Li2O2 for example.
     """
     special_formulas = {"LiO": "Li2O2", "NaO": "Na2O2", "KO": "K2O2",
-                        "HO": "H2O2", "O": "O2", "F": "F2", "N": "N2",
-                        "Cl": "Cl2", "H": "H2"}
+                        "HO": "H2O2", "CsO": "Cs2O2", "RbO": "Rb2O2",
+                        "O": "O2",  "N": "N2", "Cl": "Cl2", "H": "H2"}
 
     def __init__(self, *args, **kwargs):
         """
@@ -359,6 +360,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         return self._natoms
 
     @property
+    @unitized("amu")
     def weight(self):
         """
         Total molecular weight of Composition
@@ -739,8 +741,7 @@ def reduce_formula(sym_amt):
     syms = sorted(sym_amt.keys(),
                   key=lambda s: smart_element_or_specie(s).X)
 
-    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance,
-                  syms)
+    syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance, syms)
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
                           smart_element_or_specie(syms[num_el - 1]).X

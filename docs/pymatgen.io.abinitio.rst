@@ -9,10 +9,26 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`abiinspect` Module
+------------------------
+
+.. automodule:: pymatgen.io.abinitio.abiinspect
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`abiobjects` Module
 ------------------------
 
 .. automodule:: pymatgen.io.abinitio.abiobjects
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`abitimer` Module
+----------------------
+
+.. automodule:: pymatgen.io.abinitio.abitimer
     :members:
     :undoc-members:
     :show-inheritance:
@@ -41,6 +57,14 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`flows` Module
+-------------------
+
+.. automodule:: pymatgen.io.abinitio.flows
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`launcher` Module
 ----------------------
 
@@ -65,6 +89,14 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`qadapters` Module
+-----------------------
+
+.. automodule:: pymatgen.io.abinitio.qadapters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`strategies` Module
 ------------------------
 
@@ -73,10 +105,10 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`task` Module
-------------------
+:mod:`tasks` Module
+-------------------
 
-.. automodule:: pymatgen.io.abinitio.task
+.. automodule:: pymatgen.io.abinitio.tasks
     :members:
     :undoc-members:
     :show-inheritance:
@@ -89,10 +121,10 @@ abinitio Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`workflow` Module
-----------------------
+:mod:`workflows` Module
+-----------------------
 
-.. automodule:: pymatgen.io.abinitio.workflow
+.. automodule:: pymatgen.io.abinitio.workflows
     :members:
     :undoc-members:
     :show-inheritance:

@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 13, 2012"
 
 import math
@@ -32,12 +32,12 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     Returns:
         Matplotlib plot object with properly sized fonts.
     """
+    ticksize = int(width * 2.5)
+
     golden_ratio = (math.sqrt(5) - 1.0) / 2.0
+
     if not height:
         height = int(width * golden_ratio)
-    import matplotlib as mpl
-    mpl.rcParams["axes.titlesize"] = width * 4
-    mpl.rcParams["axes.labelsize"] = width * 3
 
     if plt is None:
         import matplotlib.pyplot as plt
@@ -45,6 +45,15 @@ def get_publication_quality_plot(width=8, height=None, plt=None):
     else:
         fig = plt.gcf()
         fig.set_size_inches(width, height)
-    plt.xticks(fontsize=width * 2)
-    plt.yticks(fontsize=width * 2)
+    plt.xticks(fontsize=ticksize)
+    plt.yticks(fontsize=ticksize)
+
+    axes = plt.gca()
+    axes.set_title(axes.get_title(), size=width * 4)
+
+    labelsize = int(width * 3)
+
+    axes.set_xlabel(axes.get_xlabel(), size=labelsize)
+    axes.set_ylabel(axes.get_ylabel(), size=labelsize)
+
     return plt

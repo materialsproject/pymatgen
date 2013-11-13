@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.1"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "May 16, 2012"
 
@@ -74,11 +74,10 @@ class PDAnalyzer(object):
         els = self._pd.elements
         dim = len(els)
         if dim > 1:
-            coords = [np.array(self._pd.qhull_data[facet[i]][0:dim - 1])
-                      for i in xrange(len(facet))]
+            coords = [np.array(self._pd.qhull_data[f][0:dim - 1])
+                      for f in facet]
             simplex = Simplex(coords)
-            comp_point = [comp.get_atomic_fraction(els[i])
-                          for i in xrange(1, len(els))]
+            comp_point = [comp.get_atomic_fraction(e) for e in els[1:]]
             return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
         else:
             return True
@@ -114,9 +113,9 @@ class PDAnalyzer(object):
         m = self._make_comp_matrix(comp_list)
         compm = self._make_comp_matrix([comp])
         decomp_amts = np.linalg.solve(m.T, compm.T)
-        return {self._pd.qhull_entries[facet[i]]: decomp_amts[i][0]
-                for i in xrange(len(decomp_amts))
-                if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
+        return {self._pd.qhull_entries[f]: amt[0]
+                for f, amt in zip(facet, decomp_amts)
+                if abs(amt[0]) > PDAnalyzer.numerical_tol}
 
     def get_decomp_and_e_above_hull(self, entry, allow_negative=False):
         """
@@ -144,14 +143,13 @@ class PDAnalyzer(object):
             comp_list = [self._pd.qhull_entries[i].composition for i in facet]
             m = self._make_comp_matrix(comp_list)
             compm = self._make_comp_matrix([entry.composition])
-            decomp_amts = np.linalg.solve(m.T, compm.T)
-            decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i][0]
+            decomp_amts = np.linalg.solve(m.T, compm.T)[:,0]
+            decomp = {self._pd.qhull_entries[facet[i]]: decomp_amts[i]
                       for i in xrange(len(decomp_amts))
-                      if abs(decomp_amts[i][0]) > PDAnalyzer.numerical_tol}
-            ehull = entry.energy_per_atom
-            for e, amt in decomp.items():
-                ehull -= e.energy_per_atom * amt
-            if allow_negative or ehull >= 0:
+                      if abs(decomp_amts[i]) > PDAnalyzer.numerical_tol}
+            energies = [self._pd.qhull_entries[i].energy_per_atom for i in facet]
+            ehull = entry.energy_per_atom - np.dot(decomp_amts, energies)
+            if allow_negative or ehull >= -PDAnalyzer.numerical_tol:
                 return decomp, ehull
         raise ValueError("No valid decomp found!")
 
@@ -209,12 +207,13 @@ class PDAnalyzer(object):
         m = self._make_comp_matrix(complist)
         chempots = np.linalg.solve(m, energylist)
         return dict(zip(self._pd.elements, chempots))
-    
+
     def get_composition_chempots(self, comp):
-        #check that the composition is in the PD (it's often easy to use invalid ones
-        #in grand potential phase diagrams)
+        # Check that the composition is in the PD (it's often easy to use
+        # invalid ones in grand potential phase diagrams)
         for el in comp.elements:
-            if el not in self._pd.elements and comp[el] > Composition.amount_tolerance:
+            if el not in self._pd.elements and \
+                    comp[el] > Composition.amount_tolerance:
                 raise ValueError('Composition includes element {} which is '
                                  'not in the PhaseDiagram'.format(el))
         facet = self._get_facet(comp)
@@ -282,7 +281,7 @@ class PDAnalyzer(object):
         gccomp = Composition({el: amt for el, amt in comp.items()
                               if el != element})
         elref = self._pd.el_refs[element]
-        elcomp = Composition.from_formula(element.symbol)
+        elcomp = Composition(element.symbol)
         prev_decomp = []
         evolution = []
 
@@ -316,7 +315,6 @@ class PDAnalyzer(object):
                                   'evolution': amt,
                                   'element_reference': elref,
                                   'reaction': rxn, 'entries': decomp_entries})
-
         return evolution
 
     def get_chempot_range_map(self, elements):

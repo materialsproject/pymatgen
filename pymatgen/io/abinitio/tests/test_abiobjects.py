@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 from __future__ import division, print_function
 
-import unittest
-import os.path
+import os
 
-import numpy as np
-
+from pymatgen.util.testing import PymatgenTest
 from pymatgen.core.structure import Structure
-from pymatgen.core.physical_constants import Ha_eV
+from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.abinitio.abiobjects import *
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -25,9 +23,8 @@ def cif_paths():
     assert cifpaths
     return cifpaths
 
-##########################################################################################
 
-class SpinModeTest(unittest.TestCase):
+class SpinModeTest(PymatgenTest):
 
     def test_base(self):
         polarized = SpinMode.asspinmode("polarized")
@@ -40,9 +37,11 @@ class SpinModeTest(unittest.TestCase):
         self.assertTrue(polarized == other_polarized)
         self.assertTrue(polarized != unpolarized)
 
-##########################################################################################
+        # Test pickle
+        self.serialize_with_pickle(polarized)
 
-class SmearingTest(unittest.TestCase):
+
+class SmearingTest(PymatgenTest):
     def test_base(self):
         fd1ev = Smearing.assmearing("fermi_dirac:1 eV")
         print(fd1ev)
@@ -50,7 +49,7 @@ class SmearingTest(unittest.TestCase):
 
         self.assertTrue(fd1ev)
 
-        same_fd = Smearing.assmearing("fermi_dirac:"+ str(1.0/Ha_eV))
+        same_fd = Smearing.assmearing("fermi_dirac:"+ str(1.0/Ha_to_eV))
 
         self.assertTrue(same_fd == fd1ev)
 
@@ -61,16 +60,20 @@ class SmearingTest(unittest.TestCase):
         new_fd1ev = Smearing.from_dict(fd1ev.to_dict)
         self.assertTrue(new_fd1ev == fd1ev)
 
-##########################################################################################
+        # Test pickle
+        self.serialize_with_pickle(fd1ev)
 
-class ElectronsAlgorithmTest(unittest.TestCase):
+
+class ElectronsAlgorithmTest(PymatgenTest):
     def test_base(self):
         algo = ElectronsAlgorithm(nstep=70)
         print(algo.to_abivars())
 
-##########################################################################################
+        # Test pickle
+        self.serialize_with_pickle(algo)
 
-class ElectronsTest(unittest.TestCase):
+
+class ElectronsTest(PymatgenTest):
     def test_base(self):
         default_electrons = Electrons()
         self.assertTrue(default_electrons.nsppol==2)
@@ -81,9 +84,11 @@ class ElectronsTest(unittest.TestCase):
 
         #new = Electron.from_dict(default_electrons.to_dict())
 
-##########################################################################################
+        # Test pickle
+        self.serialize_with_pickle(default_electrons, test_eq=False)
 
-class AbiStructureTest(unittest.TestCase):
+
+class AbiStructureTest(PymatgenTest):
 
     def setUp(self):
         self.cif_paths = cif_paths()
@@ -95,24 +100,25 @@ class AbiStructureTest(unittest.TestCase):
             self.assertTrue(st is asabistructure(st))
             self.assertTrue(isinstance(st, Structure))
 
-            # FIXME
+            # TODO
             if not st.is_ordered:
                 print("Unordered structures are not supported")
                 continue
 
             print(st.to_abivars())
 
-##########################################################################################
+        # Test pickle
+        # FIXME: protocol 2 does not work due to __new__
+        self.serialize_with_pickle(st, protocols=[0, 1], test_eq=True)
 
-#class KSamplingTest(unittest.TestCase):
 
-##########################################################################################
+#class KSamplingTest(PymatgenTest):
 
-#class RelaxationTest(unittest.TestCase):
 
-##########################################################################################
+#class RelaxationTest(PymatgenTest):
 
-class PPModelTest(unittest.TestCase):
+
+class PPModelTest(PymatgenTest):
 
     def test_base(self):
         godby = PPModel.asppmodel("godby:12 eV")
@@ -121,7 +127,7 @@ class PPModelTest(unittest.TestCase):
         godby.to_abivars()
         self.assertTrue(godby)
 
-        same_godby = PPModel.asppmodel("godby:"+ str(12.0/Ha_eV))
+        same_godby = PPModel.asppmodel("godby:"+ str(12.0/Ha_to_eV))
         self.assertTrue(same_godby == godby)
 
         noppm = PPModel.noppmodel()
@@ -131,7 +137,10 @@ class PPModelTest(unittest.TestCase):
         new_godby = PPModel.from_dict(godby.to_dict)
         self.assertTrue(new_godby == godby)
 
-##########################################################################################
+        # Test pickle
+        self.serialize_with_pickle(godby)
+
 
 if __name__ == '__main__':
+    import unittest
     unittest.main()

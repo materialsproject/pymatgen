@@ -3,11 +3,12 @@ from __future__ import division, print_function
 
 import os.path
 
-from pymatgen.core.physical_constants import Bohr2Ang, Ha2eV
+from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.decorators import requires
+
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -22,7 +23,6 @@ __all__ = [
     "as_etsfreader",
     "NetcdfReader",
     "ETSF_Reader",
-    "GSR_Reader",
     "structure_from_etsf_file",
 ]
 
@@ -50,8 +50,6 @@ def as_ncreader(file):
 
 def as_etsfreader(file):
     return _asreader(file, ETSF_Reader)
-
-################################################################################
 
 
 class NetcdfReaderError(Exception):
@@ -100,7 +98,7 @@ class NetcdfReader(object):
 
     #@staticmethod
     #def pathjoin(*args):
-    #    return "/".join([arg for arg in args])
+    #    return "/".join(args)
 
     def walk_tree(self, top=None):
         """
@@ -247,7 +245,7 @@ class ETSF_Reader(NetcdfReader):
             symbols = self.read_value("chemical_symbols")
             self._chemical_symbols = []
             for s in symbols:
-                self._chemical_symbols.append("".join(c for c in s))
+                self._chemical_symbols.append("".join(s))
 
         return self._chemical_symbols
 
@@ -269,50 +267,6 @@ class ETSF_Reader(NetcdfReader):
         return structure_from_etsf_file(self)
 
 
-################################################################################
-
-
-class GSR_Reader(ETSF_Reader):
-    """
-    This object reads the results stored in the _GSR (Ground-State Results)
-    file. produced by ABINIT. It provides helper function to access the most
-    important quantities.
-    """
-    def read_band_structure(self):
-        raise NotImplementedError("")
-        structure = self.read_structure()
-        from pprint import pprint
-
-        kpoints = self.read_value("reduced_coordinates_of_kpoints")
-        efermi = Ha2eV(self.read_value("fermie"))
-        np_eigvals = Ha2eV(self.read_value("eigenvalues"))
-        # TODO
-        #assert np_eigvals.units == "atomic units"
-        nsppol = np_eigvals.shape[0]
-
-        # FIXME: Here I need the labels
-        labels_dict = {}
-        for (i, kpoint) in enumerate(kpoints):
-            labels_dict[str(i)] = kpoint
-
-        eigenvals = {}
-        for isp in range(nsppol):
-            spin = Spin.up
-            if isp == 1: spin = Spin.down
-            eigenvals[spin] = np_eigvals[isp,:,:].transpose()
-            print(eigenvals[spin].shape)
-            #tmp = np_eigvals[isp,:,:].transpose()
-
-        #bands = BandStructure(kpoints, eigenvals, structure.lattice, efermi,
-        # labels_dict=None, structure=structure)
-
-        bands = BandStructureSymmLine(kpoints, eigenvals, structure.lattice,
-                                      efermi, labels_dict, structure=structure)
-        return bands
-
-##########################################################################################
-
-
 def structure_from_etsf_file(ncdata, site_properties=None):
     """
     Reads and returns a pymatgen structure from a NetCDF file
@@ -327,7 +281,8 @@ def structure_from_etsf_file(ncdata, site_properties=None):
     ncdata, closeit = as_ncreader(ncdata)
 
     # TODO check whether atomic units are used
-    lattice = Bohr2Ang(ncdata.read_value("primitive_vectors"))
+    lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"),
+                            "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
     natom = len(red_coords)
@@ -349,6 +304,16 @@ def structure_from_etsf_file(ncdata, site_properties=None):
             d[property] = ncdata.read_value(prop)
 
     structure = Structure(lattice, species, red_coords, site_properties=d)
+
+    # Quick and dirty hack.
+    # I need an abipy structure since I need to_abivars and other methods.
+    #from pymatgen.io.abinitio.abiobjects import AbiStructure
+    #structure.__class__ = AbiStructure
+    try:
+        from abipy.core.structure import Structure as AbipyStructure
+        structure.__class__ = AbipyStructure
+    except ImportError:
+        pass
 
     if closeit:
         ncdata.close()

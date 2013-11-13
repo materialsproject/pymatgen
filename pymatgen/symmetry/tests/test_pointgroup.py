@@ -142,6 +142,8 @@ class PointGroupAnalyzerTest(unittest.TestCase):
         a = PointGroupAnalyzer(xyz.molecule)
         self.assertEqual(a.sch_symbol, "D5d")
 
+
+@unittest.skipIf(scipy is None, "Scipy not present.")
 class FuncTest(unittest.TestCase):
 
     def test_cluster_sites(self):

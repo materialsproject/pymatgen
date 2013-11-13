@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __date__ = "Mar 18, 2012"
 
 import abc
@@ -19,7 +19,9 @@ import re
 import glob
 import logging
 import fnmatch
+import json
 
+from pymatgen.util.io_utils import zopen
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
 from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
 from pymatgen.io.gaussianio import GaussianOutput
@@ -151,6 +153,9 @@ class VaspToComputedEntryDrone(AbstractDrone):
         param = {}
         for p in self._parameters:
             param[p] = getattr(vasprun, p)
+
+        param["history"] = _get_transformation_history(path)
+
         data = {}
         for d in self._data:
             data[d] = getattr(vasprun, d)
@@ -268,9 +273,11 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
                                              incar["LDAUU"]))
             else:
                 param["hubbards"] = {}
-            param["is_hubbard"] = \
-                incar.get("LDAU", False) and sum(param["hubbards"].values()) > 0
+            param["is_hubbard"] = (incar.get("LDAU", False) and
+                                   sum(param["hubbards"].values()) > 0)
             param["run_type"] = "GGA+U" if param["is_hubbard"] else "GGA"
+            param["history"] = _get_transformation_history(path)
+
             potcar = Potcar.from_file(files_to_parse["POTCAR"])
             param["potcar_symbols"] = potcar.symbols
             oszicar = Oszicar(files_to_parse["OSZICAR"])
@@ -397,3 +404,17 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     @classmethod
     def from_dict(cls, d):
         return cls(**d["init_args"])
+
+
+def _get_transformation_history(path):
+    """
+    Checks for a transformations.json* file and returns the history.
+    """
+    trans_json = glob.glob(os.path.join(path, "transformations.json*"))
+    if trans_json:
+        try:
+            with zopen(trans_json[0]) as f:
+                return json.load(f)["history"]
+        except:
+            return None
+    return None

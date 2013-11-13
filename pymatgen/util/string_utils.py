@@ -8,12 +8,13 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
+__email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "$Sep 23, 2011M$"
 
 import re
 import sys
+import fnmatch
 
 
 def generate_latex_table(results, header=None, caption=None, label=None):
@@ -196,6 +197,16 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
         out.write("\n")
 
 
+def is_string(s):
+    """True if s behaves like a string (duck typing test)."""
+    try:
+        dummy = s + " "
+        return True
+
+    except TypeError:
+        return False
+
+
 def list_strings(arg):
     """
     Always return a list of strings, given a string or list of strings as
@@ -212,15 +223,26 @@ def list_strings(arg):
     >>> list_strings(['A','list','of','strings'])
     ['A', 'list', 'of', 'strings']
     """
-
-    #if isinstance(arg, string):  version for Py3K
-    if isinstance(arg, basestring):
+    if is_string(arg):
         return [arg]
     else:
         return arg
 
 
-###############################################################################
+def remove_non_ascii(s):
+    """
+    Remove non-ascii characters in a file.
+
+    Args:
+        s:
+            Input string
+
+    Returns:
+        String with all non-ascii characters removed.
+    """
+    return "".join(i for i in s if ord(i) < 128)
+
+
 def stream_has_colours(stream):
     """
     True if stream supports colours. Python cookbook, #475186
@@ -253,13 +275,68 @@ class StringColorizer(object):
 
     def __call__(self, string, colour):
         if self.has_colours:
-            code = self.colours.get(colour, "")
+            code = self.colours.get(colour.lower(), "")
             if code:
                 return code + string + "\x1b[00m"
             else:
                 return string
         else:
             return string
+
+
+class WildCard(object):
+    """
+    This object provides an easy-to-use interface for
+    filename matching with shell patterns (fnmatch).
+
+    .. example:
+
+    >>> w = WildCard("*.nc|*.pdf")
+    >>> w.filter(["foo.nc", "bar.pdf", "hello.txt"])
+    ['foo.nc', 'bar.pdf']
+
+    >>> w.filter("foo.nc")
+    ['foo.nc']
+    """
+    def __init__(self, wildcard, sep="|"):
+        """
+        Args:
+            wildcard:
+                String of tokens separated by sep.
+                Each token represents a pattern.
+            sep:
+                Separator for shell patterns.
+        """
+        self.pats = ["*"]
+        if wildcard:
+            self.pats = wildcard.split(sep)
+
+    def __str__(self):
+        return "<%s, patterns = %s>" % (self.__class__.__name__, self.pats)
+
+    def filter(self, names): 
+        """
+        Returns a list with the names matching the pattern.
+        """
+        names = list_strings(names)
+
+        fnames = []
+        for f in names:
+            for pat in self.pats:
+                if fnmatch.fnmatch(f, pat):
+                    fnames.append(f)
+
+        return fnames
+
+    def match(self, name):
+        """
+        Returns True if name matches one of the patterns.
+        """
+        for pat in self.pats:
+            if fnmatch.fnmatch(name, pat):
+                return True
+
+        return False
 
 
 if __name__ == "__main__":
