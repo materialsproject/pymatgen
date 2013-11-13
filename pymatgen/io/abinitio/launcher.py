@@ -245,7 +245,7 @@ class PyLauncher(object):
 
         return num_launched 
 
-    def rapidfire(self, max_nlaunch=-1):  # nlaunches=0, max_loops=-1, sleep_time=None
+    def rapidfire(self, max_nlaunch=-1, max_loops=10, sleep_time=None): # nlaunches=0, 
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -263,46 +263,96 @@ class PyLauncher(object):
         Returns:
             The number of tasks launched.
         """
-        #sleep_time = sleep_time if sleep_time else FWConfig().RAPIDFIRE_SLEEP_SECS
+        sleep_time = sleep_time if sleep_time else 5
         #nlaunches = -1 if nlaunches == 'infinite' else int(nlaunches)
-        #num_loops = 0
-        num_launched, launched = 0, []
+        num_loops, num_launched, launched = 0, 0, []
+        got_empty_list = 0
 
-        for work in self.flow:
-            if num_launched == max_nlaunch: 
+        while num_loops != max_loops:
+            tasks = self.fetch_tasks_to_run()
+
+            # I don't know why but we receive duplicated tasks.
+            for task in tasks:
+                if task in launched:
+                    err_msg = "task %s in already in launched:\n%s" % (task, launched)
+                    logger.warning(err_msg)
+                    #raise RuntimeError(err_msg)
+
+            # Preventive test.
+            tasks = [t for t in tasks if t not in launched]
+
+            if not tasks:
+                got_empty_list += 1
+
+            if got_empty_list == max_loops:
                 break
 
-            while True:
-                try:
-                    task = work.fetch_task_to_run()
-
-                    if task is None:
-                        logger.debug("fetch_task_to_run returned None.")
-                        break
-
-                    logger.debug("Starting task %s" % task)
-                    if task in launched:
-                        err_msg = "task %s in already in launched %s" % (str(task), str(launched))
-                        raise RuntimeError(err_msg)
-
-                    task.start()
-                    launched.append(task)
-
-                    num_launched += 1
-
-                    if num_launched == max_nlaunch:
-                        break
-
-                except StopIteration:
-                    logger.debug("Out of tasks.")
+            for task in tasks:
+                task.start()
+                launched.append(task)
+                num_launched += 1
+                                                
+                if num_launched == max_nlaunch:
+                    # Exit the outermst loop.
+                    num_loops = max_loops
                     break
 
+            #time.sleep(sleep_time)
+            num_loops += 1
+
+        #for work in self.flow:
+        #    if num_launched == max_nlaunch: 
+        #        break
+
+        #    while True:
+        #        try:
+        #            task = work.fetch_task_to_run()
+
+        #            if task is None:
+        #                logger.debug("fetch_task_to_run returned None.")
+        #                break
+
+        #            logger.debug("Starting task %s" % task)
+        #            if task in launched:
+        #                err_msg = "task %s in already in launched %s" % (str(task), str(launched))
+        #                raise RuntimeError(err_msg)
+
+        #            task.start()
+        #            launched.append(task)
+        #            num_launched += 1
+
+        #            if num_launched == max_nlaunch:
+        #                break
+
+        #        except StopIteration:
+        #            logger.debug("Out of tasks.")
+        #            break
+
         # Update the database.
-        #if num_launched:
         self.flow.check_status()
         self.flow.pickle_dump()
 
         return num_launched 
+
+    def fetch_tasks_to_run(self):
+        """
+        Return the list of tasks that can be submitted.
+        """
+        tasks_to_run = []
+        for work in self.flow:
+            try:
+                task = work.fetch_task_to_run()
+                                                                                                   
+                if task is None:
+                    logger.debug("fetch_task_to_run returned None.")
+                else:
+                    tasks_to_run.append(task)
+                                                                                                    
+            except StopIteration:
+                logger.debug("Out of tasks in work %s" % work)
+
+        return tasks_to_run
+
 
 
 class PyFlowsScheduler(object):
@@ -481,7 +531,7 @@ class PyFlowsScheduler(object):
         flow.show_status()
         
         if exceptions:
-            logger.critical("Scheduler exceptions: %s" % str(exceptions))
+            logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(exceptions))
 
         self.exceptions.extend(exceptions)
 
@@ -503,25 +553,42 @@ class PyFlowsScheduler(object):
 
         # Count the number of tasks with status == S_ERROR:
         num_errors = sum([flow.num_tasks_with_error for flow in self.flows])
+
+        # Count the number of tasks with status == S_ERROR:
+        num_unconverged = sum([flow.num_tasks_unconverged for flow in self.flows])
+
+        message = ""
         if num_errors > self.MAX_NUM_ABIERRS:
-            msg = "Number of task with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
+            err_msg = "Number of task with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
                 num_errors, self.MAX_NUM_ABIERRS)
-            msg = 5*"=" + msg + 5*"="
-                                                                                      
-            print(len(msg)* "=")
-            print(msg)
-            print(len(msg)* "=")
+            err_msg = 5*"=" + msg + 5*"="
+
+            message += err_msg
+
+        if num_unconverged:
+            # TODO: this is needed to avoid deadlocks, automatic restarting is not available yet
+            err_msg = ("Found %d unconverged tasks." 
+                "Automatic restarting is not available yet. Will shutdown the scheduler and exit" 
+                % num_unconverged)
+            err_msg = 5*"=" + err_msg + 5*"="
+
+            message += err_msg
+
+        if message:
+            print(len(message)* "=")
+            print(message)
+            print(len(message)* "=")
                                                                                             
             self.shutdown()
 
         # Mission accomplished. Shutdown the scheduler.
         if all(flow.all_ok for flow in self.flows):
-            msg = "All tasks have reached S_OK. Will shutdown the scheduler and exit"
-            msg = 5*"=" + msg + 5*"="
+            message = "All tasks have reached S_OK. Will shutdown the scheduler and exit"
+            message = 5*"=" + message + 5*"="
 
-            print(len(msg)* "=")
-            print(msg)
-            print(len(msg)* "=")
+            print(len(message)* "=")
+            print(message)
+            print(len(message)* "=")
 
             self.shutdown()
 

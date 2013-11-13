@@ -128,6 +128,11 @@ class AbinitFlow(Node):
         """The number of tasks whose status is `S_ERROR`."""
         return len(list(self.iflat_tasks(status=self.S_ERROR, op="=")))
 
+    @property
+    def num_tasks_unconverged(self):
+        """The number of tasks whose status is `S_UNCONVERGED`."""
+        return len(list(self.iflat_tasks(status=self.S_UNCONVERGED, op="=")))
+
     #@property
     #def completed(self):
     #    """True if all the tasks of the flow have reached S_OK."""
