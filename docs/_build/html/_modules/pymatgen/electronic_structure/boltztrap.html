@@ -1,0 +1,927 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.electronic_structure.boltztrap &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.electronic_structure.boltztrap</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides classes to run and analyze boltztrap on pymatgen band</span>
+<span class="sd">structure objects. Boltztrap is a software interpolating band structures and</span>
+<span class="sd">computing materials properties from this band structure using Boltzmann</span>
+<span class="sd">semi-classical transport theory.</span>
+
+<span class="sd">Boltztrap has been developped by Georg Madsen.</span>
+
+<span class="sd">http://www.icams.de/content/departments/ams/madsen/boltztrap.html</span>
+
+<span class="sd">References are::</span>
+
+<span class="sd">    Madsen, G. K. H., and Singh, D. J. (2006).</span>
+<span class="sd">    BoltzTraP. A code for calculating band-structure dependent quantities.</span>
+<span class="sd">    Computer Physics Communications, 175, 67-71</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Geoffroy Hautier&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2013, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Geoffroy Hautier&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;geoffroy@uclouvain.be&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Development&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;August 23, 2013&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.dos</span> <span class="kn">import</span> <span class="n">Dos</span><span class="p">,</span> <span class="n">Spin</span>
+<span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.plotter</span> <span class="kn">import</span> <span class="n">DosPlotter</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="kn">import</span> <span class="n">which</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.decorators</span> <span class="kn">import</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Energy</span><span class="p">,</span> <span class="n">Length</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">import</span> <span class="n">e</span><span class="p">,</span> <span class="n">ELECTRON_MASS</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="BoltztrapRunner"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapRunner</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is used to run Boltztrap on a band structure object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@requires</span><span class="p">(</span><span class="n">which</span><span class="p">(</span><span class="s">&#39;x_trans&#39;</span><span class="p">),</span>
+              <span class="s">&quot;BoltztrapRunner requires the executables &#39;x_trans&#39; to be in &quot;</span>
+              <span class="s">&quot;the path. Please download the Boltztrap at &quot;</span>
+              <span class="s">&quot;http://www.icams.de/content/departments/ams/madsen/boltztrap&quot;</span>
+              <span class="s">&quot;.html and follow the instructions in the README to compile &quot;</span>
+              <span class="s">&quot;Bolztrap accordingly. Then add x_trans to your path&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">nelec</span><span class="p">,</span> <span class="n">dos_type</span><span class="o">=</span><span class="s">&quot;HISTO&quot;</span><span class="p">,</span> <span class="n">energy_grid</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+                 <span class="n">lpfac</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">sym_nb</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bs:</span>
+<span class="sd">                A band structure object</span>
+<span class="sd">            nelec:</span>
+<span class="sd">                the number of electrons</span>
+<span class="sd">            dos_type:</span>
+<span class="sd">                two options here for the band structure integration: &quot;HISTO&quot;</span>
+<span class="sd">                (histogram) or &quot;TETRA&quot; using the tetrahedon method. TETRA</span>
+<span class="sd">                gives typically better results especially for DOSes but takes</span>
+<span class="sd">                more time</span>
+<span class="sd">            energy_grid:</span>
+<span class="sd">                the energy steps used for the integration. in eV</span>
+<span class="sd">            lpfac:</span>
+<span class="sd">                the number of interpolation points in the real space. By</span>
+<span class="sd">                default 10 gives 10 time more points in the real space than</span>
+<span class="sd">                the number of kpoints given in reciprocal space</span>
+<span class="sd">            sym_nb:</span>
+<span class="sd">                ?</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">=</span> <span class="n">lpfac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span> <span class="o">=</span> <span class="n">bs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nelec</span> <span class="o">=</span> <span class="n">nelec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dos_type</span> <span class="o">=</span> <span class="n">dos_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_grid</span> <span class="o">=</span> <span class="n">energy_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sym_nb</span> <span class="o">=</span> <span class="n">sym_nb</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">_make_energy_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;test</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">))</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">)):</span>
+                <span class="n">tmp_eigs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">_bands</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">_nb_bands</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">))):</span>
+                        <span class="n">tmp_eigs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">_bands</span><span class="p">[</span><span class="n">spin</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">efermi</span><span class="p">,</span> <span class="s">&quot;eV&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;Ry&quot;</span><span class="p">))</span>
+                <span class="n">tmp_eigs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%12.8f</span><span class="s"> </span><span class="si">%12.8f</span><span class="s"> </span><span class="si">%12.8f</span><span class="s"> </span><span class="si">%d</span><span class="se">\n</span><span class="s">&quot;</span>
+                        <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">kpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">tmp_eigs</span><span class="p">)))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tmp_eigs</span><span class="p">)):</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%18.8f</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">float</span><span class="p">(</span><span class="n">tmp_eigs</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">_make_struc_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+        <span class="n">sym</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">_structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span><span class="o">+</span><span class="s">&quot; &quot;</span> <span class="o">+</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">sym</span><span class="o">.</span><span class="n">get_spacegroup_symbol</span><span class="p">())</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">line</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%12.5f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                        <span class="n">Length</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span>
+                               <span class="s">&quot;ang&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;bohr&quot;</span><span class="p">))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+            <span class="n">ops</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">()[</span><span class="s">&#39;rotations&#39;</span><span class="p">]</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">))</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ops</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">row</span><span class="p">])</span>
+                                   <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_intrans_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span>
+                           <span class="n">doping</span><span class="o">=</span><span class="p">[</span><span class="mf">1e15</span><span class="p">,</span> <span class="mf">1e16</span><span class="p">,</span> <span class="mf">1e17</span><span class="p">,</span> <span class="mf">1e18</span><span class="p">,</span> <span class="mf">1e19</span><span class="p">,</span> <span class="mf">1e20</span><span class="p">]):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;GENE          # use generic interface</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="s">&quot;0.0 </span><span class="si">%f</span><span class="s"> 0.1 </span><span class="si">%6.1f</span><span class="s">     # Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">Energy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_grid</span><span class="p">,</span> <span class="s">&quot;eV&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;Ry&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nelec</span><span class="p">))</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;CALC                    # CALC (calculate expansion coeff), NOCALC read from file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s">                        # lpfac, number of latt-points per k-point</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;BOLTZ                     # run mode (only BOLTZ is supported)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;.15                       # (efcut) energy range of chemical potential</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;800. 100.                  # Tmax, temperature grid</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dos_type</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;1 0 0 -1</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">doping</span><span class="p">))</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doping</span><span class="p">:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doping</span><span class="p">:</span>
+                <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">)</span><span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_make_all_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_energy_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;boltztrap.energyso&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_energy_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;boltztrap.energy&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_struc_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;boltztrap.struct&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_intrans_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;boltztrap.intrans&quot;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BoltztrapRunner.run"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev_sigma</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_dir</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">dir_bz_name</span> <span class="o">=</span> <span class="s">&quot;boltztrap&quot;</span>
+        <span class="n">path_dir_orig</span> <span class="o">=</span> <span class="n">path_dir</span>
+        <span class="k">if</span> <span class="n">path_dir</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+            <span class="n">path_dir_orig</span> <span class="o">=</span> <span class="n">temp_dir</span>
+            <span class="n">path_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">dir_bz_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir_orig</span><span class="p">,</span> <span class="n">dir_bz_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path_dir</span><span class="o">+</span><span class="s">&quot;/&quot;</span><span class="o">+</span><span class="n">c</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">path_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_all_files</span><span class="p">(</span><span class="n">path_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bs</span><span class="o">.</span><span class="n">is_spin_polarized</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">&quot;x_trans&quot;</span><span class="p">,</span> <span class="s">&quot;BoltzTraP&quot;</span><span class="p">,</span> <span class="s">&quot;-so&quot;</span><span class="p">],</span>
+                                 <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                 <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s">&quot;x_trans&quot;</span><span class="p">,</span> <span class="s">&quot;BoltzTraP&quot;</span><span class="p">],</span>
+                                 <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                                 <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s">&quot;STOP error in factorization&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s">&quot;STOP error in factorization&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="n">dir_bz_name</span><span class="o">+</span><span class="s">&quot;.outputtrans&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">warning</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s">&quot;WARNING&quot;</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+                    <span class="n">warning</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">warning</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;There was a warning! Increase lpfac to &quot;</span> <span class="o">+</span> \
+                      <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">*=</span> <span class="mi">2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_make_intrans_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span>
+                                                     <span class="n">dir_bz_name</span> <span class="o">+</span> <span class="s">&quot;.intrans&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s">&quot;lpfac higher than 100 and still a warning&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">path_dir_orig</span><span class="p">)</span>
+        <span class="c">#here we check if the doping levels were well computed</span>
+        <span class="c">#sometimes boltztrap mess this up because of two small energy grids</span>
+        <span class="n">analyzer</span> <span class="o">=</span> <span class="n">BoltztrapAnalyzer</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span><span class="n">path_dir</span><span class="p">)</span>
+        <span class="n">doping_ok</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">for</span> <span class="n">doping</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;p&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="n">doping</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="n">doping</span><span class="p">][</span><span class="n">c</span><span class="p">])</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="n">doping</span><span class="p">]):</span>
+                    <span class="n">doping_ok</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">doping</span> <span class="o">==</span> <span class="s">&#39;p&#39;</span> <span class="ow">and</span> \
+                        <span class="nb">sorted</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="n">doping</span><span class="p">][</span><span class="n">c</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="o">!=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="n">doping</span><span class="p">][</span><span class="n">c</span><span class="p">]:</span>
+                    <span class="n">doping_ok</span> <span class="o">=</span> <span class="bp">False</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">doping</span> <span class="o">==</span> <span class="s">&#39;n&#39;</span> <span class="ow">and</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="n">doping</span><span class="p">][</span><span class="n">c</span><span class="p">])</span> <span class="o">!=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="n">doping</span><span class="p">][</span><span class="n">c</span><span class="p">]:</span>
+                    <span class="n">doping_ok</span><span class="o">=</span><span class="bp">False</span>
+                    <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">doping_ok</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">energy_grid</span> <span class="o">/=</span> <span class="mi">10</span>
+            <span class="k">print</span> <span class="s">&quot;lowers energy grid to &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energy_grid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_grid</span> <span class="o">&lt;</span> <span class="mf">0.00005</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s">&quot;energy grid lower than 0.00005 and still no good doping&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_intrans_file</span><span class="p">(</span><span class="n">path_dir</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">dir_bz_name</span> <span class="o">+</span> <span class="s">&quot;.intrans&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">prev_sigma</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">path_dir</span><span class="o">=</span><span class="n">path_dir_orig</span><span class="p">)</span>
+        <span class="n">analyzer</span> <span class="o">=</span> <span class="n">BoltztrapAnalyzer</span><span class="o">.</span><span class="n">from_files</span><span class="p">(</span><span class="n">path_dir</span><span class="p">)</span>
+        <span class="c">#here, we test if a property (eff_mass tensor) converges</span>
+        <span class="k">if</span> <span class="n">prev_sigma</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> \
+                <span class="nb">abs</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">get_eig_average_eff_mass_tensor</span><span class="p">()[</span><span class="s">&#39;n&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span>
+                        <span class="o">-</span> <span class="n">prev_sigma</span><span class="p">)</span>\
+                <span class="o">/</span> <span class="n">prev_sigma</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">prev_sigma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">print</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">get_eig_average_eff_mass_tensor</span><span class="p">()[</span><span class="s">&#39;n&#39;</span><span class="p">])</span>
+                          <span class="o">/</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">prev_sigma</span><span class="p">)</span> <span class="o">/</span> <span class="n">prev_sigma</span><span class="p">,</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span><span class="p">,</span> \
+                    <span class="n">analyzer</span><span class="o">.</span><span class="n">get_average_eff_mass_tensor</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mf">1e18</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">*=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">BoltztrapError</span><span class="p">(</span><span class="s">&quot;lpfac higher than 100 and still not converged&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_make_intrans_file</span><span class="p">(</span><span class="n">path_dir</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">dir_bz_name</span> <span class="o">+</span> <span class="s">&quot;.intrans&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="n">prev_sigma</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">get_eig_average_eff_mass_tensor</span><span class="p">()</span>
+                               <span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="n">path_dir</span><span class="o">=</span><span class="n">path_dir_orig</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;converged&quot;</span><span class="p">,</span> \
+                <span class="nb">abs</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">analyzer</span><span class="o">.</span><span class="n">get_eig_average_eff_mass_tensor</span><span class="p">()[</span><span class="s">&#39;n&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">3</span>
+                    <span class="o">-</span> <span class="n">prev_sigma</span><span class="p">)</span> <span class="o">/</span> <span class="n">prev_sigma</span><span class="p">,</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">lpfac</span><span class="p">,</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">get_average_eff_mass_tensor</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mf">1e18</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path_dir</span>
+
+</div></div>
+<div class="viewcode-block" id="BoltztrapError"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapError">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exception class for boltztrap.</span>
+<span class="sd">    Raised when the boltztrap gives an error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;BoltztrapError : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span>
+
+</div>
+<div class="viewcode-block" id="BoltztrapAnalyzer"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapAnalyzer</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    class used to store all the data from a boltztrap run</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">mu_steps</span><span class="p">,</span> <span class="n">cond</span><span class="p">,</span> <span class="n">seebeck</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">hall</span><span class="p">,</span> <span class="n">doping</span><span class="p">,</span>
+                 <span class="n">mu_doping</span><span class="p">,</span> <span class="n">seebeck_doping</span><span class="p">,</span> <span class="n">cond_doping</span><span class="p">,</span> <span class="n">kappa_doping</span><span class="p">,</span>
+                 <span class="n">hall_doping</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">carrier_conc</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">warning</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor taking directly all the data generated by Boltztrap. You</span>
+<span class="sd">        won&#39;t probably use it directly but instead use the from_files and</span>
+<span class="sd">        from_dict methods.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gap:</span>
+<span class="sd">                The gap after interpolation in eV</span>
+<span class="sd">            mu_steps:</span>
+<span class="sd">                The steps of electron chemical potential (or Fermi level) in</span>
+<span class="sd">                 eV.</span>
+<span class="sd">            cond:</span>
+<span class="sd">                The electronic conductivity tensor divided by a constant</span>
+<span class="sd">                relaxation time (sigma/tau) at different temperature and</span>
+<span class="sd">                fermi levels.</span>
+<span class="sd">                The format is {temperature: [array of 3x3 tensors at each</span>
+<span class="sd">                fermi level in mu_steps]}. The units are 1/(Ohm*m*s).</span>
+<span class="sd">            seebeck:</span>
+<span class="sd">                The Seebeck tensor at different temperatures and fermi levels</span>
+<span class="sd">                The format is {temperature: [array of 3x3 tensors at each</span>
+<span class="sd">                fermi level in mu_steps]}. The units are V/K</span>
+<span class="sd">            kappa:</span>
+<span class="sd">                The electronic thermal conductivity tensor divided by a</span>
+<span class="sd">                constant relaxation time (kappa/tau) at different temperature</span>
+<span class="sd">                and fermi levels. The format is {temperature: [array of 3x3</span>
+<span class="sd">                tensors at each fermi level in mu_steps]}</span>
+<span class="sd">                The units are W/(m*K*s)</span>
+<span class="sd">            hall:</span>
+<span class="sd">                The hall tensor at different temperature and fermi levels</span>
+<span class="sd">                The format is {temperature: [array of 27 coefficients list at</span>
+<span class="sd">                each fermi level in mu_steps]}</span>
+<span class="sd">                The units are m^3/C</span>
+<span class="sd">            doping:</span>
+<span class="sd">                The different doping levels that have been given to Boltztrap</span>
+<span class="sd">                The format is {&#39;p&#39;:[],&#39;n&#39;:[]} with an array of doping levels</span>
+<span class="sd">                The units are cm^-3</span>
+<span class="sd">            mu_doping:</span>
+<span class="sd">                Gives the electron chemical potential (or Fermi level) for a</span>
+<span class="sd">                given set of doping.</span>
+<span class="sd">                Format is {&#39;p&#39;:{temperature: [fermi levels],&#39;n&#39;:{temperature:</span>
+<span class="sd">                [fermi levels]}}</span>
+<span class="sd">                the fermi level array is ordered according to the doping</span>
+<span class="sd">                levels in doping units for doping are in cm^-3 and for Fermi</span>
+<span class="sd">                level in eV</span>
+<span class="sd">            seebeck_doping:</span>
+<span class="sd">                The Seebeck tensor at different temperatures and doping levels</span>
+<span class="sd">                The format is {&#39;p&#39;: {temperature: [Seebeck tensors]},</span>
+<span class="sd">                &#39;n&#39;:{temperature: [Seebeck tensors]}}</span>
+<span class="sd">                The [Seebeck tensors] array is ordered according to the</span>
+<span class="sd">                doping levels in doping units for doping are in cm^-3 and for</span>
+<span class="sd">                Seebeck in V/K</span>
+<span class="sd">            cond_doping:</span>
+<span class="sd">                The electronic conductivity tensor divided by a constant</span>
+<span class="sd">                relaxation time (sigma/tau) at different temperatures and</span>
+<span class="sd">                doping levels</span>
+<span class="sd">                The format is {&#39;p&#39;:{temperature: [conductivity tensors]},</span>
+<span class="sd">                &#39;n&#39;:{temperature: [conductivity tensors]}}</span>
+<span class="sd">                The [conductivity tensors] array is ordered according to the</span>
+<span class="sd">                doping levels in doping units for doping are in cm^-3 and for</span>
+<span class="sd">                conductivity in 1/(Ohm*m*s)</span>
+<span class="sd">            kappa_doping:</span>
+<span class="sd">                The thermal conductivity tensor divided by a constant</span>
+<span class="sd">                relaxation time (kappa/tau) at different temperatures and</span>
+<span class="sd">                doping levels.</span>
+<span class="sd">                The format is {&#39;p&#39;:{temperature: [thermal conductivity</span>
+<span class="sd">                tensors]},&#39;n&#39;:{temperature: [thermal conductivity tensors]}}</span>
+<span class="sd">                The [thermal conductivity tensors] array is ordered according</span>
+<span class="sd">                to the doping levels in doping units for doping are in cm^-3</span>
+<span class="sd">                and for thermal conductivity in W/(m*K*s)</span>
+<span class="sd">            hall_doping:</span>
+<span class="sd">                The Hall tensor at different temperatures and doping levels</span>
+<span class="sd">                The format is {&#39;p&#39;:{temperature: [Hall tensors]},</span>
+<span class="sd">                &#39;n&#39;:{temperature: [Hall tensors]}}</span>
+<span class="sd">                The [Hall tensors] array is ordered according to the doping</span>
+<span class="sd">                levels in doping and each Hall tensor is represented by a 27</span>
+<span class="sd">                coefficients list.</span>
+<span class="sd">                The units are m^3/C</span>
+<span class="sd">            the concentration of carriers:</span>
+<span class="sd">                in electron (or hole) per unit cell</span>
+<span class="sd">            dos:</span>
+<span class="sd">                The dos computed by Boltztrap</span>
+<span class="sd">                given as a pymatgen Dos object</span>
+<span class="sd">            vol:</span>
+<span class="sd">                the volume of the unit cell in angstrom cube (A^3)</span>
+<span class="sd">            warning:</span>
+<span class="sd">                True if Boltztrap spitted out a warning</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gap</span> <span class="o">=</span> <span class="n">gap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mu_steps</span> <span class="o">=</span> <span class="n">mu_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cond</span> <span class="o">=</span> <span class="n">cond</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seebeck</span> <span class="o">=</span> <span class="n">seebeck</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="n">kappa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hall</span> <span class="o">=</span> <span class="n">hall</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warning</span> <span class="o">=</span> <span class="n">warning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doping</span> <span class="o">=</span> <span class="n">doping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mu_doping</span> <span class="o">=</span> <span class="n">mu_doping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seebeck_doping</span> <span class="o">=</span> <span class="n">seebeck_doping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cond_doping</span> <span class="o">=</span> <span class="n">cond_doping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kappa_doping</span> <span class="o">=</span> <span class="n">kappa_doping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hall_doping</span> <span class="o">=</span> <span class="n">hall_doping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">carrier_conc</span> <span class="o">=</span> <span class="n">carrier_conc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dos</span> <span class="o">=</span> <span class="n">dos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">vol</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_make_boltztrap_analyzer_from_data</span><span class="p">(</span>
+            <span class="n">data_full</span><span class="p">,</span> <span class="n">data_hall</span><span class="p">,</span> <span class="n">data_dos</span><span class="p">,</span> <span class="n">temperature_steps</span><span class="p">,</span> <span class="n">mu_steps</span><span class="p">,</span>
+            <span class="n">efermi</span><span class="p">,</span> <span class="n">gap</span><span class="p">,</span> <span class="n">doping</span><span class="p">,</span> <span class="n">data_doping_full</span><span class="p">,</span> <span class="n">data_doping_hall</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span>
+            <span class="n">warning</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a BoltztrapAnalyzer object from raw data typically parse from</span>
+<span class="sd">        files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cond</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}</span>
+        <span class="n">seebeck</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}</span>
+        <span class="n">hall</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}</span>
+        <span class="n">carrier_conc</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}</span>
+        <span class="n">dos_full</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;energy&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s">&#39;density&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="n">warning</span>
+        <span class="n">new_doping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">doping</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="n">mu_doping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">},</span>
+                     <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}}</span>
+        <span class="n">seebeck_doping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">},</span>
+                          <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}}</span>
+        <span class="n">cond_doping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">},</span>
+                       <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}}</span>
+        <span class="n">kappa_doping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">},</span>
+                        <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}}</span>
+        <span class="n">hall_doping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">},</span>
+                       <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">t</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">temperature_steps</span><span class="p">}}</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data_full</span><span class="p">:</span>
+            <span class="n">carrier_conc</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">tens_cond</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">5</span><span class="p">]],</span>
+                         <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">8</span><span class="p">]],</span>
+                         <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">11</span><span class="p">]]]</span>
+            <span class="n">cond</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_cond</span><span class="p">)</span>
+            <span class="n">tens_seebeck</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">14</span><span class="p">]],</span>
+                            <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">17</span><span class="p">]],</span>
+                            <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">18</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">19</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">20</span><span class="p">]]]</span>
+            <span class="n">seebeck</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_seebeck</span><span class="p">)</span>
+            <span class="n">tens_kappa</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="p">[</span><span class="mi">21</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">22</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">23</span><span class="p">]],</span>
+                          <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">24</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">25</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">26</span><span class="p">]],</span>
+                          <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">27</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">29</span><span class="p">]]]</span>
+            <span class="n">kappa</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_kappa</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data_hall</span><span class="p">:</span>
+            <span class="n">hall_tens</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+            <span class="n">hall</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hall_tens</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data_doping_full</span><span class="p">:</span>
+            <span class="n">tens_cond</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">4</span><span class="p">]],</span>
+                         <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">7</span><span class="p">]],</span>
+                         <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">9</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">10</span><span class="p">]]]</span>
+            <span class="n">tens_seebeck</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="p">[</span><span class="mi">11</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">13</span><span class="p">]],</span>
+                            <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">15</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">16</span><span class="p">]],</span>
+                            <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">17</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">18</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">19</span><span class="p">]]]</span>
+            <span class="n">tens_kappa</span> <span class="o">=</span> <span class="p">[[</span><span class="n">d</span><span class="p">[</span><span class="mi">20</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">21</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">22</span><span class="p">]],</span>
+                          <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">23</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">24</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">25</span><span class="p">]],</span>
+                          <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">27</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="mi">28</span><span class="p">]]]</span>
+
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Energy</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s">&quot;Ry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;eV&quot;</span><span class="p">))</span>
+                <span class="n">cond_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_cond</span><span class="p">)</span>
+                <span class="n">seebeck_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_seebeck</span><span class="p">)</span>
+                <span class="n">kappa_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_kappa</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Energy</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s">&quot;Ry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;eV&quot;</span><span class="p">))</span>
+                <span class="n">cond_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_cond</span><span class="p">)</span>
+                <span class="n">seebeck_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_seebeck</span><span class="p">)</span>
+                <span class="n">kappa_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tens_kappa</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_doping_hall</span><span class="p">)):</span>
+            <span class="n">hall_tens</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_hall</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_hall</span><span class="p">[</span><span class="n">i</span><span class="p">]))]</span>
+            <span class="k">if</span> <span class="n">data_doping_hall</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">hall_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">data_doping_hall</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hall_tens</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hall_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">data_doping_hall</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hall_tens</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">data_dos</span><span class="p">:</span>
+            <span class="n">dos_full</span><span class="p">[</span><span class="s">&#39;energy&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">dos_full</span><span class="p">[</span><span class="s">&#39;density&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">dos</span> <span class="o">=</span> <span class="n">Dos</span><span class="p">(</span><span class="n">efermi</span><span class="p">,</span> <span class="n">dos_full</span><span class="p">[</span><span class="s">&#39;energy&#39;</span><span class="p">],</span> <span class="p">{</span><span class="n">Spin</span><span class="o">.</span><span class="n">up</span><span class="p">:</span> <span class="n">dos_full</span><span class="p">[</span><span class="s">&#39;density&#39;</span><span class="p">]})</span>
+        <span class="k">return</span> <span class="n">BoltztrapAnalyzer</span><span class="p">(</span>
+            <span class="n">gap</span><span class="p">,</span> <span class="n">mu_steps</span><span class="p">,</span> <span class="n">cond</span><span class="p">,</span> <span class="n">seebeck</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">hall</span><span class="p">,</span> <span class="n">new_doping</span><span class="p">,</span> <span class="n">mu_doping</span><span class="p">,</span>
+            <span class="n">seebeck_doping</span><span class="p">,</span> <span class="n">cond_doping</span><span class="p">,</span> <span class="n">kappa_doping</span><span class="p">,</span> <span class="n">hall_doping</span><span class="p">,</span> <span class="n">dos</span><span class="p">,</span> <span class="n">carrier_conc</span><span class="p">,</span>
+            <span class="n">vol</span><span class="p">,</span> <span class="n">warning</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BoltztrapAnalyzer.get_mu_bounds"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds">[docs]</a>    <span class="k">def</span> <span class="nf">get_mu_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="BoltztrapAnalyzer.get_average_eff_mass_tensor"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">get_average_eff_mass_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="mf">1e18</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives the average effective mass tensor at a given temperature and</span>
+<span class="sd">        doping level.</span>
+<span class="sd">        The average effective mass tensor is defined as the integrated</span>
+<span class="sd">        average of the second derivative</span>
+<span class="sd">        This effective mass tensor takes into account:</span>
+<span class="sd">        -non-parabolicity</span>
+<span class="sd">        -multiple extrema</span>
+<span class="sd">        -multiple bands</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature:</span>
+<span class="sd">                the temperature in K</span>
+<span class="sd">            doping:</span>
+<span class="sd">                the doping in cm^-3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionnary {&#39;p&#39;:[[]],&#39;n&#39;:[[]]}</span>
+<span class="sd">            The arrays are 3x3 and represent the effective mass tensor</span>
+<span class="sd">            The &#39;p&#39; links to hole effective mass tensor and &#39;n&#39; to electron</span>
+<span class="sd">            effective mass tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="kn">import</span> <span class="nn">math</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;p&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="n">t</span><span class="p">])):</span>
+                <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">d</span><span class="p">]</span><span class="o">-</span><span class="n">doping</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="n">d</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cond_doping</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">temperature</span><span class="p">][</span><span class="n">index</span><span class="p">])</span> <span class="o">*</span> <span class="n">doping</span> \
+                <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">e</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">ELECTRON_MASS</span>
+        <span class="k">return</span> <span class="n">results</span>
+</div>
+<div class="viewcode-block" id="BoltztrapAnalyzer.get_eig_average_eff_mass_tensor"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_eig_average_eff_mass_tensor">[docs]</a>    <span class="k">def</span> <span class="nf">get_eig_average_eff_mass_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="mf">1e18</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives the eigenvalues of the average effective mass tensor at a given</span>
+<span class="sd">        temperature and doping level. The average effective mass tensor is</span>
+<span class="sd">        defined as the integrated average of the second derivative</span>
+<span class="sd">        This effective mass tensor takes into account:</span>
+<span class="sd">        -non-parabolicity</span>
+<span class="sd">        -multiple extrema</span>
+<span class="sd">        -multiple bands</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            temperature:</span>
+<span class="sd">                the temperature in K</span>
+<span class="sd">            doping:</span>
+<span class="sd">                the doping in cm^-3</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a dictionnary {&#39;p&#39;:[],&#39;n&#39;:[]}</span>
+<span class="sd">            The list contains the sorted three eigenvalues of the symmetric</span>
+<span class="sd">            tensor. The &#39;p&#39; links to hole effective mass tensor and &#39;n&#39; to</span>
+<span class="sd">            electron effective mass tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span>
+                <span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_average_eff_mass_tensor</span><span class="p">(</span>
+                    <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="n">doping</span><span class="p">)[</span><span class="s">&#39;p&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="s">&#39;n&#39;</span><span class="p">:</span>
+                <span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_average_eff_mass_tensor</span><span class="p">(</span>
+                    <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">doping</span><span class="o">=</span><span class="n">doping</span><span class="p">)[</span><span class="s">&#39;n&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">])}</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files">[docs]</a>    <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">path_dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        get a BoltztrapAnalyzer object from a set of files</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path_dir:</span>
+<span class="sd">                directory where the boltztrap files are</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a BoltztrapAnalyzer object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">t_steps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">m_steps</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">gap</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">doping</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data_doping_full</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data_doping_hall</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="s">&quot;boltztrap.condtens&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data_full</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="n">t_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])))</span>
+                    <span class="n">m_steps</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">data_full</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="s">&quot;boltztrap.halltens&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">data_hall</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="n">data_hall</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+
+        <span class="n">data_dos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="s">&quot;boltztrap.transdos&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot; #&quot;</span><span class="p">):</span>
+                    <span class="n">data_dos</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Energy</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;Ry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;eV&quot;</span><span class="p">),</span>
+                                     <span class="mi">2</span> <span class="o">*</span> <span class="n">Energy</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+                                                <span class="s">&quot;eV&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;Ry&quot;</span><span class="p">)])</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="s">&quot;boltztrap.outputtrans&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">warning</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s">&quot;WARNING&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="n">warning</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;VBM&quot;</span><span class="p">):</span>
+                    <span class="n">efermi</span> <span class="o">=</span> <span class="n">Energy</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&quot;Ry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;eV&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">l_tmp</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;-&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+                    <span class="n">doping</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">l_tmp</span><span class="p">])</span>
+                    <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">doping</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+                    <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span>
+
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;Doping levels to be output for&quot;</span><span class="p">)</span> <span class="ow">or</span> \
+                        <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot; Doping levels to be output for&quot;</span><span class="p">):</span>
+                    <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
+
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;Egap:&quot;</span><span class="p">):</span>
+                    <span class="n">gap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">doping</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="s">&quot;fort.26&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">data_doping_full</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                                                 <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="s">&quot;fort.27&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+
+                        <span class="n">data_doping_hall</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_dir</span><span class="p">,</span> <span class="s">&quot;boltztrap.struct&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">tokens</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">vol</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">([[</span><span class="n">Length</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="n">j</span><span class="p">]),</span> <span class="s">&quot;bohr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;ang&quot;</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)])</span><span class="o">.</span><span class="n">volume</span>
+        <span class="k">return</span> <span class="n">BoltztrapAnalyzer</span><span class="o">.</span><span class="n">_make_boltztrap_analyzer_from_data</span><span class="p">(</span>
+            <span class="n">data_full</span><span class="p">,</span> <span class="n">data_hall</span><span class="p">,</span> <span class="n">data_dos</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">t_steps</span><span class="p">]),</span>
+            <span class="nb">sorted</span><span class="p">([</span><span class="n">Energy</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s">&quot;Ry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;eV&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m_steps</span><span class="p">]),</span> <span class="n">efermi</span><span class="p">,</span> <span class="n">Energy</span><span class="p">(</span><span class="n">gap</span><span class="p">,</span> <span class="s">&quot;Ry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;eV&quot;</span><span class="p">),</span>
+            <span class="n">doping</span><span class="p">,</span> <span class="n">data_doping_full</span><span class="p">,</span> <span class="n">data_doping_hall</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">warning</span><span class="p">)</span>
+
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.to_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="kn">import</span> <span class="n">clean_json</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;gap&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gap</span><span class="p">,</span>
+                   <span class="s">&#39;mu_steps&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">,</span>
+                   <span class="s">&#39;cond&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cond</span><span class="p">,</span>
+                   <span class="s">&#39;seebeck&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">seebeck</span><span class="p">,</span>
+                   <span class="s">&#39;kappa&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kappa</span><span class="p">,</span>
+                   <span class="s">&#39;hall&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hall</span><span class="p">,</span>
+                   <span class="s">&#39;warning&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">,</span> <span class="s">&#39;doping&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doping</span><span class="p">,</span>
+                   <span class="s">&#39;mu_doping&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">,</span>
+                   <span class="s">&#39;seebeck_doping&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">seebeck_doping</span><span class="p">,</span>
+                   <span class="s">&#39;cond_doping&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cond_doping</span><span class="p">,</span>
+                   <span class="s">&#39;kappa_doping&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kappa_doping</span><span class="p">,</span>
+                   <span class="s">&#39;hall_doping&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hall_doping</span><span class="p">,</span>
+                   <span class="s">&#39;dos&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dos</span><span class="o">.</span><span class="n">to_dict</span><span class="p">,</span>
+                   <span class="s">&#39;carrier_conc&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">carrier_conc</span><span class="p">,</span>
+                   <span class="s">&#39;vol&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">clean_json</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BoltztrapAnalyzer.from_dict"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">_make_float_array</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">res</span>
+
+        <span class="k">def</span> <span class="nf">_make_float_hall</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[:</span><span class="mi">27</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">BoltztrapAnalyzer</span><span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;gap&#39;</span><span class="p">]),</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;mu_steps&#39;</span><span class="p">]],</span>
+            <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;cond&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;cond&#39;</span><span class="p">]},</span>
+            <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;seebeck&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;seebeck&#39;</span><span class="p">]},</span>
+            <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;kappa&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;kappa&#39;</span><span class="p">]},</span>
+            <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_hall</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;hall&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;hall&#39;</span><span class="p">]},</span>
+            <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">]],</span>
+             <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">]]},</span>
+            <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;mu_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;mu_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">]},</span>
+             <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;mu_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;mu_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">]}},</span>
+            <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;seebeck_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;seebeck_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">]},</span>
+             <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;seebeck_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;seebeck_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">]}},</span>
+            <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;cond_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;cond_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">]},</span>
+             <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;cond_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;cond_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">]}},</span>
+            <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;kappa_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;kappa_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">]},</span>
+             <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;kappa_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;kappa_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">]}},</span>
+            <span class="p">{</span><span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_hall</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;hall_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;hall_doping&#39;</span><span class="p">][</span><span class="s">&#39;p&#39;</span><span class="p">]},</span>
+             <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">):</span> <span class="p">[</span><span class="n">_make_float_hall</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;hall_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">d</span><span class="p">]]</span>
+                   <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;hall_doping&#39;</span><span class="p">][</span><span class="s">&#39;n&#39;</span><span class="p">]}},</span>
+            <span class="n">Dos</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dos&#39;</span><span class="p">]),</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;carrier_conc&#39;</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s">&#39;vol&#39;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;warning&#39;</span><span class="p">]))</span>
+
+</div></div>
+<div class="viewcode-block" id="BoltztrapPlotter"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter">[docs]</a><span class="k">class</span> <span class="nc">BoltztrapPlotter</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    class containing methods to plot the data from Boltztrap</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bz</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            bz:</span>
+<span class="sd">                a BoltztrapAnalyzer object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span> <span class="o">=</span> <span class="n">bz</span>
+
+    <span class="k">def</span> <span class="nf">_plot_doping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="p">):</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="mf">2.21e15</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                    <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span>
+                 <span class="n">limit</span><span class="p">,</span>
+                 <span class="s">&quot;$n$=10$^{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span> <span class="o">+</span> <span class="s">&quot;}$&quot;</span><span class="p">,</span>
+                 <span class="n">color</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                    <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span>
+                 <span class="n">limit</span><span class="p">,</span>
+                 <span class="s">&quot;$n$=10$^{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                 <span class="o">+</span> <span class="s">&quot;}$&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                    <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span>
+                 <span class="n">limit</span><span class="p">,</span>
+                 <span class="s">&quot;$p$=10$^{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span> <span class="o">+</span> <span class="s">&quot;}$&quot;</span><span class="p">,</span>
+                 <span class="n">color</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+                    <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="n">temp</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span>
+                 <span class="n">limit</span><span class="p">,</span> <span class="s">&quot;$p$=10$^{&quot;</span> <span class="o">+</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">doping</span><span class="p">[</span><span class="s">&#39;p&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="o">+</span> <span class="s">&quot;}$&quot;</span><span class="p">,</span>
+                 <span class="n">color</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_BG_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">gap</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BoltztrapPlotter.plot_seebeck"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_seebeck">[docs]</a>    <span class="k">def</span> <span class="nf">plot_seebeck</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e6</span>
+                                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">seebeck</span><span class="p">[</span><span class="n">temp</span><span class="p">]],</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_BG_limits</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_doping</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s">&#39;S$_1$&#39;</span><span class="p">,</span> <span class="s">&#39;S$_2$&#39;</span><span class="p">,</span> <span class="s">&#39;S$_3$&#39;</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">gap</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Seebeck coefficient ($\mu$V/K)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BoltztrapPlotter.plot_power_factor"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_power_factor">[docs]</a>    <span class="k">def</span> <span class="nf">plot_power_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;blah&quot;</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">)):</span>
+            <span class="n">matrix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">seebeck</span><span class="p">[</span><span class="n">temp</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">seebeck</span><span class="p">[</span><span class="n">temp</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">cond</span><span class="p">[</span><span class="n">temp</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">,</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">)</span>
+                                     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">matrix</span><span class="p">],</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_BG_limits</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_doping</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">gap</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;power factor (S$^2$ * $\sigma$/${</span><span class="se">\\</span><span class="s">tau}$)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BoltztrapPlotter.plot_conductivity"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_conductivity">[docs]</a>    <span class="k">def</span> <span class="nf">plot_conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">,</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">)</span>
+                                         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">cond</span><span class="p">[</span><span class="n">temp</span><span class="p">]],</span>
+                     <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_BG_limits</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_doping</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s">&#39;$\sigma_1$&#39;</span><span class="p">,</span> <span class="s">&#39;$\sigma_2$&#39;</span><span class="p">,</span> <span class="s">&#39;$\sigma_3$&#39;</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">gap</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mf">1e13</span><span class="p">,</span> <span class="mf">1e20</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;conductivity, $\sigma$/${</span><span class="se">\\</span><span class="s">tau}$ (1/($\Omega$ m s))&quot;</span><span class="p">,</span>
+                   <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BoltztrapPlotter.plot_dos"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_dos">[docs]</a>    <span class="k">def</span> <span class="nf">plot_dos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">plotter</span> <span class="o">=</span> <span class="n">DosPlotter</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+        <span class="n">plotter</span><span class="o">.</span><span class="n">add_dos</span><span class="p">(</span><span class="s">&quot;t&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">dos</span><span class="p">)</span>
+        <span class="n">plotter</span><span class="o">.</span><span class="n">get_plot</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="BoltztrapPlotter.plot_carriers"><a class="viewcode-back" href="../../../pymatgen.electronic_structure.html#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_carriers">[docs]</a>    <span class="k">def</span> <span class="nf">plot_carriers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="o">=</span><span class="mi">300</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">semilogy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">mu_steps</span><span class="p">,</span>
+                       <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">carrier_conc</span><span class="p">[</span><span class="n">temp</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">vol</span><span class="o">*</span><span class="mf">1e-24</span><span class="p">)),</span>
+                       <span class="n">linewidth</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_BG_limits</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_doping</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bz</span><span class="o">.</span><span class="n">gap</span><span class="o">+</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mf">1e14</span><span class="p">,</span><span class="mf">1e22</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;carrier concentration (cm-3)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;E-E$_f$ (eV)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,856 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.abinitio.strategies &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.io.abinitio.strategies</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Strategy objects for creating ABINIT calculations.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span><span class="p">,</span> <span class="n">pformat</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">str_aligned</span><span class="p">,</span> <span class="n">str_delimited</span>
+<span class="kn">from</span> <span class="nn">.abiobjects</span> <span class="kn">import</span> <span class="n">SpinMode</span><span class="p">,</span> <span class="n">Smearing</span><span class="p">,</span> <span class="n">Electrons</span>
+<span class="kn">from</span> <span class="nn">.pseudos</span> <span class="kn">import</span> <span class="n">PseudoTable</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2013, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Matteo Giantomassi&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;gmatteo at gmail.com&quot;</span>
+
+<span class="c">##########################################################################################</span>
+
+<span class="c"># TODO</span>
+<span class="c">#class ScfStrategyFactory(object):</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    Abstract factory for strategies. Returns a concrete factory</span>
+<span class="c">#</span>
+<span class="c">#    Example: abstract_factory = ScfStrategyFactory()</span>
+<span class="c">#        factory = abstract_factory()</span>
+<span class="c">#        scf_strategy = factory.make_strategy()</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    __metaclass__ = abc.ABCMeta</span>
+<span class="c">#        </span>
+<span class="c">#    #def __init__(self, mode, accuracy):</span>
+<span class="c">#        # Dict with Ground-State strategy subclasses</span>
+<span class="c">#        gs_subclasses = {}</span>
+<span class="c">#        for klass in Scftrategy.__subclasses__():</span>
+<span class="c">#            gs_subclasses[klass.__name__] = klass</span>
+
+<div class="viewcode-block" id="select_pseudos"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.select_pseudos">[docs]</a><span class="k">def</span> <span class="nf">select_pseudos</span><span class="p">(</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials for the calculation.</span>
+<span class="sd">    (useful when we receive an entire periodic table)</span>
+
+<span class="sd">    Raises ValueError if no pseudo or multiple occurrences are found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">PseudoTable</span><span class="o">.</span><span class="n">astable</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)</span>
+
+    <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">typ</span> <span class="ow">in</span> <span class="n">structure</span><span class="o">.</span><span class="n">types_of_specie</span><span class="p">:</span>
+        <span class="c"># Get list of pseudopotentials in table from atom symbol.</span>
+        <span class="n">pseudos_for_type</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">pseudos_with_symbol</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span>
+                                                                             
+        <span class="k">if</span> <span class="n">pseudos_for_type</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pseudos_for_type</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot find unique pseudo for type </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">typ</span><span class="p">)</span>
+                                                                             
+        <span class="n">pseudos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pseudos_for_type</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                                                                                 
+    <span class="k">return</span> <span class="n">PseudoTable</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)</span>
+
+<span class="c">##########################################################################################</span>
+</div>
+<div class="viewcode-block" id="Strategy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy">[docs]</a><span class="k">class</span> <span class="nc">Strategy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Strategy object generates the ABINIT input file used for a particular type of calculation</span>
+<span class="sd">    e.g. ground-state runs, structural relaxations, self-energy calculations ...</span>
+
+<span class="sd">    A Strategy can absorb data (e.g. data produced in the previous steps of a workflow) and </span>
+<span class="sd">    can use this piece of information to generate/optimize the input variables.</span>
+<span class="sd">    Strategy objects must provide the method make_input that builds and returns the abinit input file.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        accuracy:</span>
+<span class="sd">            Accuracy of the calculation used to define basic parameters of the run.</span>
+<span class="sd">            such as tolerances, basis set truncation ... </span>
+<span class="sd">        pseudos:</span>
+<span class="sd">            List of pseudopotentials.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="c"># Mapping runlevel --&gt; optdriver variable</span>
+    <span class="n">_runl2optdriver</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;scf&quot;</span>      <span class="p">:</span> <span class="mi">0</span> <span class="p">,</span> 
+        <span class="s">&quot;nscf&quot;</span>     <span class="p">:</span> <span class="mi">0</span> <span class="p">,</span>
+        <span class="s">&quot;relax&quot;</span>    <span class="p">:</span> <span class="mi">0</span> <span class="p">,</span>
+        <span class="s">&quot;dfpt&quot;</span>     <span class="p">:</span> <span class="mi">1</span> <span class="p">,</span>
+        <span class="s">&quot;screening&quot;</span><span class="p">:</span> <span class="mi">3</span> <span class="p">,</span>
+        <span class="s">&quot;sigma&quot;</span>    <span class="p">:</span> <span class="mi">4</span> <span class="p">,</span>
+        <span class="s">&quot;bse&quot;</span>      <span class="p">:</span> <span class="mi">99</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c"># Name of the (default) tolerance used by the runlevels.</span>
+    <span class="n">_runl2tolname</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;scf&quot;</span>      <span class="p">:</span> <span class="s">&#39;tolvrs&#39;</span><span class="p">,</span> 
+        <span class="s">&quot;nscf&quot;</span>     <span class="p">:</span> <span class="s">&#39;tolwfr&#39;</span><span class="p">,</span> 
+        <span class="s">&quot;dfpt&quot;</span>     <span class="p">:</span> <span class="s">&#39;toldfe&#39;</span><span class="p">,</span>   <span class="c"># ?</span>
+        <span class="s">&quot;screening&quot;</span><span class="p">:</span> <span class="s">&#39;toldfe&#39;</span><span class="p">,</span>   <span class="c"># dummy</span>
+        <span class="s">&quot;sigma&quot;</span>    <span class="p">:</span> <span class="s">&#39;toldfe&#39;</span><span class="p">,</span>   <span class="c"># dummy</span>
+        <span class="s">&quot;bse&quot;</span>      <span class="p">:</span> <span class="s">&#39;toldfe&#39;</span><span class="p">,</span>   <span class="c"># ?</span>
+    <span class="p">}</span>
+
+    <span class="c"># Tolerances for the different levels of accuracy.</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;Tolerance&#39;</span><span class="p">,</span> <span class="s">&quot;low normal high&quot;</span><span class="p">)</span>
+    <span class="n">_tolerances</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;toldfe&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">1.e-7</span><span class="p">,</span>  <span class="mf">1.e-8</span><span class="p">,</span>  <span class="mf">1.e-9</span><span class="p">),</span> 
+        <span class="s">&quot;tolvrs&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">1.e-7</span><span class="p">,</span>  <span class="mf">1.e-8</span><span class="p">,</span>  <span class="mf">1.e-9</span><span class="p">),</span>
+        <span class="s">&quot;tolwfr&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">1.e-15</span><span class="p">,</span> <span class="mf">1.e-17</span><span class="p">,</span> <span class="mf">1.e-19</span><span class="p">),</span>
+        <span class="s">&quot;tolrdf&quot;</span><span class="p">:</span> <span class="n">T</span><span class="p">(</span><span class="mf">0.04</span><span class="p">,</span>   <span class="mf">0.02</span><span class="p">,</span>   <span class="mf">0.01</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="k">del</span> <span class="n">T</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;</span><span class="si">%s</span><span class="s"> at </span><span class="si">%s</span><span class="s">, accuracy = </span><span class="si">%s</span><span class="s">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracy</span><span class="p">)</span>
+
+    <span class="nd">@abc.abstractproperty</span>
+<div class="viewcode-block" id="Strategy.runlevel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.runlevel">[docs]</a>    <span class="k">def</span> <span class="nf">runlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;String defining the Runlevel. See _runl2optdriver&quot;</span>
+                                                            </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.optdriver"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.optdriver">[docs]</a>    <span class="k">def</span> <span class="nf">optdriver</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;The optdriver associated to the calculation&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runl2optdriver</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">runlevel</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Strategy.learn"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.learn">[docs]</a>    <span class="k">def</span> <span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
+        <span class="s">&quot;Update the data stored in self&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;_data&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">[</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Keys </span><span class="si">%s</span><span class="s"> are already present in data&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.accuracy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.accuracy">[docs]</a>    <span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Accuracy used by the strategy&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accuracy</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_accuracy</span><span class="p">(</span><span class="s">&quot;normal&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accuracy</span>
+</div>
+<div class="viewcode-block" id="Strategy.set_accuracy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.set_accuracy">[docs]</a>    <span class="k">def</span> <span class="nf">set_accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">):</span>
+        <span class="s">&quot;Accuracy setter&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;_accuracy&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;object already has accuracy </span><span class="si">%s</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accuracy</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">accuracy</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;low&quot;</span><span class="p">,</span> <span class="s">&quot;normal&quot;</span><span class="p">,</span> <span class="s">&quot;high&quot;</span><span class="p">,]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accuracy</span> <span class="o">=</span> <span class="n">accuracy</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.data"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Data absorbed by the strategy during the workflow.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span> <span class="n">_data</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.isnc"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.isnc">[docs]</a>    <span class="k">def</span> <span class="nf">isnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;True if norm-conserving calculation&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="o">.</span><span class="n">allnc</span>
+                                              </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.ispaw"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.ispaw">[docs]</a>    <span class="k">def</span> <span class="nf">ispaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;True if PAW calculation&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="o">.</span><span class="n">allpaw</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.ecut"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.ecut">[docs]</a>    <span class="k">def</span> <span class="nf">ecut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># User option.</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">[</span><span class="s">&quot;ecut&quot;</span><span class="p">]</span> 
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c"># Compute ecut from the Pseudo Hints.</span>
+            <span class="n">hints</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">hint_for_accuracy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accuracy</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span><span class="p">]</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">hint</span><span class="o">.</span><span class="n">ecut</span> <span class="k">for</span> <span class="n">hint</span> <span class="ow">in</span> <span class="n">hints</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.pawecutdg"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.pawecutdg">[docs]</a>    <span class="k">def</span> <span class="nf">pawecutdg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ispaw</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">[</span><span class="s">&quot;pawecutdg&quot;</span><span class="p">]</span> <span class="c"># User option.</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+            <span class="c">#ratio = max(p.suggested_augratio(accuracy) for p in self.pseudos])</span>
+            <span class="c">#ratio = augration_high if high else augratio_norm </span>
+            <span class="c">#pawecutdg = ecut * ratio</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.tolerance"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.tolerance">[docs]</a>    <span class="k">def</span> <span class="nf">tolerance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Return a dict {varname: varvalue} with the tolerance used for the calculation.&quot;</span>
+        <span class="c"># Check user options first.</span>
+        <span class="k">for</span> <span class="n">tolname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tolerances</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">[</span><span class="n">tolname</span><span class="p">]}</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="c"># Use default values depending on the runlevel and the accuracy.</span>
+        <span class="n">tolname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runl2tolname</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">runlevel</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">tolname</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tolerances</span><span class="p">[</span><span class="n">tolname</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">accuracy</span><span class="p">)}</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.need_forces"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.need_forces">[docs]</a>    <span class="k">def</span> <span class="nf">need_forces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;True if forces are required at each SCF step (like the stresses).&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">runlevel</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;relax&quot;</span><span class="p">,]</span>
+                                                                            </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Strategy.need_stress"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.need_stress">[docs]</a>    <span class="k">def</span> <span class="nf">need_stress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;True if the computation of the stress is required&quot;</span>
+        <span class="c"># TODO: here it&#39;s easier to check if optcell != 0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">runlevel</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;relax&quot;</span><span class="p">,]</span>
+</div>
+<div class="viewcode-block" id="Strategy.add_extra_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.add_extra_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">add_extra_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abivars</span><span class="p">):</span>
+        <span class="s">&quot;Add variables (dict) to extra_abivars&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">abivars</span><span class="p">)</span>
+
+    <span class="c">#def iocontrol(self):</span>
+    <span class="c">#    &quot;Dictionary with variables controlling the IO&quot;</span>
+    <span class="c">#    ptrwf = self.extra_abivars.get(&quot;prtwf&quot;)</span>
+    <span class="c">#    </span>
+    <span class="c">#    d = {&quot;prtwf&quot; : prtwf if prtwf is not None else 0</span>
+    <span class="c">#         &quot;prtden&quot;: 1,</span>
+    <span class="c">#         &quot;prtgkk&quot;: 1 if self.runlevel == &quot;dfpt&quot; else None</span>
+    <span class="c">#        }</span>
+    <span class="c">#    return d</span>
+
+    <span class="c">#def speedup(self):</span>
+    <span class="c">#    &quot;Dictionary with the variables that have a significant impact on the WallTime.&quot;</span>
+    <span class="c">#     boxcutmin = self.extra_abivars.get(&quot;boxcutmin&quot;)</span>
+    <span class="c">#     if boxcutmin is None and self.accuracy == &quot;low&quot;: boxcutime = 0.75</span>
+
+    <span class="c">#    &quot;optforces&quot;: None if (self.need_forces or want_forces) else 2,</span>
+    <span class="c">#    &quot;optstress&quot;: None if (self.need_stress or want_stress) else 0,</span>
+
+    <span class="c">#    d = {&quot;boxcutmin&quot;: boxcutmin,</span>
+    <span class="c">#         &quot;optforces&quot;: optforces, </span>
+    <span class="c">#         &quot;optstress&quot;: optstress, </span>
+    <span class="c">#        }</span>
+    <span class="c">#    return d</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="Strategy.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.Strategy.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an Input instance.&quot;&quot;&quot;</span>
+
+<span class="c">##########################################################################################</span>
+</div></div>
+<div class="viewcode-block" id="ScfStrategy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.ScfStrategy">[docs]</a><span class="k">class</span> <span class="nc">ScfStrategy</span><span class="p">(</span><span class="n">Strategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strategy for ground-state SCF calculations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">ksampling</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s">&quot;normal&quot;</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="s">&quot;polarized&quot;</span><span class="p">,</span> 
+                 <span class="n">smearing</span><span class="o">=</span><span class="s">&quot;fermi_dirac:0.1 eV&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_abivars</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure:</span>
+<span class="sd">                pymatgen structure</span>
+<span class="sd">            pseudos:</span>
+<span class="sd">                List of pseudopotentials.</span>
+<span class="sd">            ksampling:</span>
+<span class="sd">                Ksampling object defining the sampling of the BZ.</span>
+<span class="sd">            accuracy:</span>
+<span class="sd">                Accuracy of the calculation.</span>
+<span class="sd">            spin_mode: </span>
+<span class="sd">                Spin polarization mode.</span>
+<span class="sd">            smearing: </span>
+<span class="sd">                string or Smearing instance. </span>
+<span class="sd">            charge:</span>
+<span class="sd">                Total charge of the system. Default is 0.</span>
+<span class="sd">            scf_algorithm:</span>
+<span class="sd">                ElectronsAlgorithm instance.</span>
+<span class="sd">            use_symmetries:</span>
+<span class="sd">                False if point group symmetries should not be used.</span>
+<span class="sd">            extra_abivars:</span>
+<span class="sd">                Extra variables that will be directly added to the input file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ScfStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_accuracy</span><span class="p">(</span><span class="n">accuracy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>  <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span>    <span class="o">=</span> <span class="n">select_pseudos</span><span class="p">(</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span>  <span class="o">=</span> <span class="n">ksampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_symmetries</span> <span class="o">=</span> <span class="n">use_symmetries</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span>  <span class="o">=</span> <span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span> <span class="o">=</span> <span class="n">spin_mode</span><span class="p">,</span>
+                                    <span class="n">smearing</span>  <span class="o">=</span> <span class="n">smearing</span><span class="p">,</span>
+                                    <span class="n">algorithm</span> <span class="o">=</span> <span class="n">scf_algorithm</span><span class="p">,</span>
+                                    <span class="n">nband</span>     <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">fband</span>     <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">charge</span>    <span class="o">=</span> <span class="n">charge</span><span class="p">,</span>
+                                   <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span> <span class="o">=</span> <span class="n">extra_abivars</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ScfStrategy.runlevel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.ScfStrategy.runlevel">[docs]</a>    <span class="k">def</span> <span class="nf">runlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;scf&quot;</span>
+</div>
+<div class="viewcode-block" id="ScfStrategy.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.ScfStrategy.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;optdriver&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
+                 <span class="s">&quot;ecut&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                 <span class="s">&quot;pawecutdg&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pawecutdg</span><span class="p">,</span>
+                <span class="p">}</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&quot;nsym&quot;</span><span class="p">:</span> <span class="mi">1</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_symmetries</span> <span class="k">else</span> <span class="bp">None</span><span class="p">})</span>
+
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">)</span>
+
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">InputWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+<span class="c">##########################################################################################</span>
+</div></div>
+<div class="viewcode-block" id="NscfStrategy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.NscfStrategy">[docs]</a><span class="k">class</span> <span class="nc">NscfStrategy</span><span class="p">(</span><span class="n">Strategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strategy for non-self-consistent calculations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scf_strategy</span><span class="p">,</span> <span class="n">ksampling</span><span class="p">,</span> <span class="n">nscf_nband</span><span class="p">,</span> <span class="n">nscf_algorithm</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_abivars</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            scf_strategy:</span>
+<span class="sd">                ScfStrategy used for the GS run.</span>
+<span class="sd">            ksampling:</span>
+<span class="sd">                Ksampling object defining the sampling of the BZ.</span>
+<span class="sd">            nscf_nband:</span>
+<span class="sd">                Number of bands to compute.</span>
+<span class="sd">            nscf_algorithm</span>
+<span class="sd">                ElectronsAlgorithm instance.</span>
+<span class="sd">            extra_abivars:</span>
+<span class="sd">                Extra ABINIT variables that will be directly added to the input file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NscfStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_accuracy</span><span class="p">(</span><span class="n">scf_strategy</span><span class="o">.</span><span class="n">accuracy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span> <span class="o">=</span> <span class="n">scf_strategy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nscf_nband</span> <span class="o">=</span> <span class="n">nscf_nband</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span>    <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">pseudos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span>  <span class="o">=</span> <span class="n">ksampling</span>
+
+        <span class="k">if</span> <span class="n">nscf_algorithm</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">nscf_algorithm</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;iscf&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">}</span>
+
+        <span class="c"># Electrons used in the GS run.</span>
+        <span class="n">scf_electrons</span> <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">electrons</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span>  <span class="o">=</span> <span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span> <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">spin_mode</span><span class="p">,</span>
+                                    <span class="n">smearing</span>  <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">smearing</span><span class="p">,</span>
+                                    <span class="n">algorithm</span> <span class="o">=</span> <span class="n">nscf_algorithm</span><span class="p">,</span>
+                                    <span class="n">nband</span>     <span class="o">=</span> <span class="n">nscf_nband</span><span class="p">,</span>
+                                    <span class="n">fband</span>     <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="n">charge</span>    <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                                    <span class="n">comment</span>   <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                    <span class="c">#occupancies = None,</span>
+                                   <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span> <span class="o">=</span> <span class="n">extra_abivars</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="NscfStrategy.runlevel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.NscfStrategy.runlevel">[docs]</a>    <span class="k">def</span> <span class="nf">runlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;nscf&quot;</span>
+</div>
+<div class="viewcode-block" id="NscfStrategy.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.NscfStrategy.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Initialize the system section from structure.</span>
+        <span class="n">scf_strategy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span>
+
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;optdriver&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
+                 <span class="s">&quot;ecut&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                 <span class="s">&quot;pawecutdg&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pawecutdg</span><span class="p">,</span>
+                <span class="p">}</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">)</span>
+                                                                                     
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">InputWriter</span><span class="p">(</span><span class="n">scf_strategy</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+<span class="c">##########################################################################################</span>
+</div></div>
+<div class="viewcode-block" id="RelaxStrategy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.RelaxStrategy">[docs]</a><span class="k">class</span> <span class="nc">RelaxStrategy</span><span class="p">(</span><span class="n">ScfStrategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extends ScfStrategy by adding an algorithm for the structural relaxation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">ksampling</span><span class="p">,</span> <span class="n">relax_algo</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s">&quot;normal&quot;</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="s">&quot;polarized&quot;</span><span class="p">,</span> 
+                 <span class="n">smearing</span><span class="o">=</span><span class="s">&quot;fermi_dirac:0.1 eV&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_abivars</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure:</span>
+<span class="sd">                pymatgen structure</span>
+<span class="sd">            pseudos:</span>
+<span class="sd">                List of pseudopotentials.</span>
+<span class="sd">            ksampling:</span>
+<span class="sd">                Ksampling object defining the sampling of the BZ.</span>
+<span class="sd">            relax_algo:</span>
+<span class="sd">                Object defining the algorith for the structural relaxation.</span>
+<span class="sd">            accuracy:</span>
+<span class="sd">                Accuracy of the calculation.</span>
+<span class="sd">            spin_mode: </span>
+<span class="sd">                Flag defining the spin polarization (nsppol, nspden, nspinor). Defaults to &quot;polarized&quot;</span>
+<span class="sd">            smearing: </span>
+<span class="sd">                String or Smearing instance. </span>
+<span class="sd">            charge:</span>
+<span class="sd">                Total charge of the system. Default is 0.</span>
+<span class="sd">            scf_algorithm:</span>
+<span class="sd">                ElectronsAlgorithm instance.</span>
+<span class="sd">            extra_abivars:</span>
+<span class="sd">                Extra ABINIT variables that will be directly added to the input file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RelaxStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">,</span> <span class="n">ksampling</span><span class="p">,</span> 
+                 <span class="n">accuracy</span><span class="o">=</span><span class="n">accuracy</span><span class="p">,</span> <span class="n">spin_mode</span><span class="o">=</span><span class="n">spin_mode</span><span class="p">,</span> <span class="n">smearing</span><span class="o">=</span><span class="n">smearing</span><span class="p">,</span> 
+                 <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">scf_algorithm</span><span class="o">=</span><span class="n">scf_algorithm</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_abivars</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relax_algo</span> <span class="o">=</span> <span class="n">relax_algo</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="RelaxStrategy.runlevel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.RelaxStrategy.runlevel">[docs]</a>    <span class="k">def</span> <span class="nf">runlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;scf&quot;</span>
+</div>
+<div class="viewcode-block" id="RelaxStrategy.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.RelaxStrategy.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Input for the GS run</span>
+        <span class="n">input_str</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">RelaxStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">make_input</span><span class="p">()</span>
+
+        <span class="c"># Add the variables for the structural relaxation.</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">InputWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relax_algo</span><span class="p">)</span>
+        <span class="n">input_str</span> <span class="o">+=</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">input_str</span>
+
+<span class="c">##########################################################################################</span>
+</div></div>
+<div class="viewcode-block" id="ScreeningStrategy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.ScreeningStrategy">[docs]</a><span class="k">class</span> <span class="nc">ScreeningStrategy</span><span class="p">(</span><span class="n">Strategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Stratefy for Screening calculations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scf_strategy</span><span class="p">,</span> <span class="n">nscf_strategy</span><span class="p">,</span> <span class="n">screening</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_abivars</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            scf_strategy:</span>
+<span class="sd">                Strategy used for the ground-state calculation</span>
+<span class="sd">            nscf_strategy:</span>
+<span class="sd">                Strategy used for the non-self consistent calculation</span>
+<span class="sd">            screening:</span>
+<span class="sd">                Screening instance</span>
+<span class="sd">            extra_abivars:</span>
+<span class="sd">                Extra ABINIT variables added directly to the input file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ScreeningStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span> <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">pseudos</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span> <span class="o">=</span> <span class="n">scf_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nscf_strategy</span> <span class="o">=</span> <span class="n">nscf_strategy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">screening</span> <span class="o">=</span> <span class="n">screening</span>
+
+        <span class="n">scr_nband</span> <span class="o">=</span> <span class="n">screening</span><span class="o">.</span><span class="n">nband</span>
+
+        <span class="n">scf_electrons</span>  <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">electrons</span>
+        <span class="n">nscf_electrons</span> <span class="o">=</span> <span class="n">nscf_strategy</span><span class="o">.</span><span class="n">electrons</span>
+
+        <span class="k">if</span> <span class="n">scr_nband</span> <span class="o">&gt;</span> <span class="n">nscf_electrons</span><span class="o">.</span><span class="n">nband</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot use more that </span><span class="si">%d</span><span class="s"> bands for the screening&quot;</span> <span class="o">%</span> <span class="n">nscf_electrons</span><span class="o">.</span><span class="n">nband</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span> <span class="o">=</span> <span class="n">nscf_strategy</span><span class="o">.</span><span class="n">ksampling</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="o">.</span><span class="n">is_homogeneous</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The k-sampling used for the NSCF run mush be homogeneous&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span> <span class="o">=</span> <span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span> <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">spin_mode</span><span class="p">,</span>
+                                   <span class="n">smearing</span>  <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">smearing</span><span class="p">,</span>
+                                   <span class="n">nband</span>     <span class="o">=</span> <span class="n">scr_nband</span><span class="p">,</span>
+                                   <span class="n">charge</span>    <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                                   <span class="n">comment</span>   <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                  <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span> <span class="o">=</span> <span class="n">extra_abivars</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ScreeningStrategy.runlevel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.ScreeningStrategy.runlevel">[docs]</a>    <span class="k">def</span> <span class="nf">runlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;screening&quot;</span>
+</div>
+<div class="viewcode-block" id="ScreeningStrategy.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.ScreeningStrategy.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># FIXME</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;optdriver&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
+                 <span class="s">&quot;ecut&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                 <span class="s">&quot;ecutwfn&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                <span class="c"># &quot;pawecutdg&quot;: self.pawecutdg,</span>
+                <span class="p">}</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">)</span>
+                                                                                     
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">InputWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">screening</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+<span class="c">##########################################################################################</span>
+</div></div>
+<div class="viewcode-block" id="SelfEnergyStrategy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.SelfEnergyStrategy">[docs]</a><span class="k">class</span> <span class="nc">SelfEnergyStrategy</span><span class="p">(</span><span class="n">Strategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Strategy for self-energy calculations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scf_strategy</span><span class="p">,</span> <span class="n">nscf_strategy</span><span class="p">,</span> <span class="n">scr_strategy</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_abivars</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            scf_strategy:</span>
+<span class="sd">                Strategy used for the ground-state calculation</span>
+<span class="sd">            nscf_strategy:</span>
+<span class="sd">                Strategy used for the non-self consistent calculation</span>
+<span class="sd">            scr_strategy:</span>
+<span class="sd">                Strategy used for the screening calculation</span>
+<span class="sd">            sigma:</span>
+<span class="sd">                SelfEnergy instance.</span>
+<span class="sd">            extra_abivars:</span>
+<span class="sd">                Extra ABINIT variables added directly to the input file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># TODO Add consistency check between SCR and SIGMA strategies</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">SelfEnergyStrategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span> <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">pseudos</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span> <span class="o">=</span> <span class="n">scf_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nscf_strategy</span> <span class="o">=</span> <span class="n">nscf_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scr_strategy</span> <span class="o">=</span> <span class="n">scr_strategy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span> <span class="o">=</span> <span class="n">extra_abivars</span>
+
+        <span class="n">scf_electrons</span>  <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">electrons</span>
+        <span class="n">nscf_electrons</span> <span class="o">=</span> <span class="n">nscf_strategy</span><span class="o">.</span><span class="n">electrons</span>
+
+        <span class="k">if</span> <span class="n">sigma</span><span class="o">.</span><span class="n">nband</span> <span class="o">&gt;</span> <span class="n">nscf_electrons</span><span class="o">.</span><span class="n">nband</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot use more that </span><span class="si">%d</span><span class="s"> bands for the self-energy&quot;</span> <span class="o">%</span> <span class="n">nscf_electrons</span><span class="o">.</span><span class="n">nband</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span> <span class="o">=</span> <span class="n">nscf_strategy</span><span class="o">.</span><span class="n">ksampling</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="o">.</span><span class="n">is_homogeneous</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The k-sampling used for the NSCF run mush be homogeneous&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span> <span class="o">=</span> <span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span> <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">spin_mode</span><span class="p">,</span>
+                                   <span class="n">smearing</span>  <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">smearing</span><span class="p">,</span>
+                                   <span class="n">nband</span>     <span class="o">=</span> <span class="n">sigma</span><span class="o">.</span><span class="n">nband</span><span class="p">,</span>
+                                   <span class="n">charge</span>    <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                                   <span class="n">comment</span>   <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                  <span class="p">)</span>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="SelfEnergyStrategy.runlevel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.SelfEnergyStrategy.runlevel">[docs]</a>    <span class="k">def</span> <span class="nf">runlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;sigma&quot;</span>
+</div>
+<div class="viewcode-block" id="SelfEnergyStrategy.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.SelfEnergyStrategy.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># FIXME</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;optdriver&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
+                 <span class="s">&quot;ecut&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                 <span class="s">&quot;ecutwfn&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                <span class="c"># &quot;pawecutdg&quot;: self.pawecutdg,</span>
+                <span class="p">}</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">)</span>
+                                                                                     
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">InputWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+<span class="c">##########################################################################################</span>
+</div></div>
+<div class="viewcode-block" id="MDFBSE_Strategy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.MDFBSE_Strategy">[docs]</a><span class="k">class</span> <span class="nc">MDFBSE_Strategy</span><span class="p">(</span><span class="n">Strategy</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strategy for Bethe-Salpeter calculation based on the model dielectric function </span>
+<span class="sd">    and the scissors operator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scf_strategy</span><span class="p">,</span> <span class="n">nscf_strategy</span><span class="p">,</span> <span class="n">exc_ham</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_abivars</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            scf_strategy:</span>
+<span class="sd">                Strategy used for the ground-state calculation.</span>
+<span class="sd">            nscf_strategy:</span>
+<span class="sd">                Strategy used for the non-self consistent calculation.</span>
+<span class="sd">            exc_ham:</span>
+<span class="sd">                `ExcitonicHamiltonian` instance.</span>
+<span class="sd">            extra_abivars:</span>
+<span class="sd">                Extra ABINIT variables added directly to the input file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MDFBSE_Strategy</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pseudos</span> <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">pseudos</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span> <span class="o">=</span> <span class="n">scf_strategy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nscf_strategy</span> <span class="o">=</span> <span class="n">nscf_strategy</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">exc_ham</span> <span class="o">=</span> <span class="n">exc_ham</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span> <span class="o">=</span> <span class="n">extra_abivars</span>
+
+        <span class="n">scf_electrons</span>  <span class="o">=</span> <span class="n">scf_strategy</span><span class="o">.</span><span class="n">electrons</span>
+        <span class="n">nscf_electrons</span> <span class="o">=</span> <span class="n">nscf_strategy</span><span class="o">.</span><span class="n">electrons</span>
+
+        <span class="k">if</span> <span class="n">exc_ham</span><span class="o">.</span><span class="n">nband</span> <span class="o">&gt;</span> <span class="n">nscf_electrons</span><span class="o">.</span><span class="n">nband</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot use more that </span><span class="si">%d</span><span class="s"> bands for the EXC hamiltonian.&quot;</span> <span class="o">%</span> <span class="n">nscf_electrons</span><span class="o">.</span><span class="n">nband</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span> <span class="o">=</span> <span class="n">nscf_strategy</span><span class="o">.</span><span class="n">ksampling</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="o">.</span><span class="n">is_homogeneous</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The k-sampling used for the NSCF run mush be homogeneous&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span> <span class="o">=</span> <span class="n">Electrons</span><span class="p">(</span><span class="n">spin_mode</span> <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">spin_mode</span><span class="p">,</span>
+                                   <span class="n">smearing</span>  <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">smearing</span><span class="p">,</span>
+                                   <span class="n">nband</span>     <span class="o">=</span> <span class="n">exc_ham</span><span class="o">.</span><span class="n">nband</span><span class="p">,</span>
+                                   <span class="n">charge</span>    <span class="o">=</span> <span class="n">scf_electrons</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span>
+                                   <span class="n">comment</span>   <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+                                  <span class="p">)</span>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="MDFBSE_Strategy.runlevel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.MDFBSE_Strategy.runlevel">[docs]</a>    <span class="k">def</span> <span class="nf">runlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;bse&quot;</span>
+</div>
+<div class="viewcode-block" id="MDFBSE_Strategy.make_input"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.MDFBSE_Strategy.make_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># FIXME</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;optdriver&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optdriver</span><span class="p">,</span>
+                 <span class="s">&quot;ecut&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                 <span class="s">&quot;ecutwfn&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecut</span><span class="p">,</span>
+                <span class="c"># &quot;pawecutdg&quot;: self.pawecutdg,</span>
+                <span class="p">}</span>
+        <span class="c">#extra.update(self.tolerance)</span>
+        <span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">)</span>
+                                                                                     
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">InputWriter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scf_strategy</span><span class="o">.</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrons</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ksampling</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exc_ham</span><span class="p">,</span> <span class="o">**</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+<span class="c">##########################################################################################</span>
+
+</div></div>
+<div class="viewcode-block" id="InputWriter"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.InputWriter">[docs]</a><span class="k">class</span> <span class="nc">InputWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span> 
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object receives a list of `AbivarAble` objects, an optional </span>
+<span class="sd">    dictionary with extra ABINIT variables and produces a (nicely formatted?) </span>
+<span class="sd">    string with the input file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abiobj_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="s">&quot;to_abivars&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_abiobj</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_extra_abivars</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_extra_abivars</span><span class="p">({</span><span class="n">k</span><span class="p">:</span><span class="n">v</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation (the section of the abinit input file).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_string</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="InputWriter.abiobjects"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.InputWriter.abiobjects">[docs]</a>    <span class="k">def</span> <span class="nf">abiobjects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of objects stored in self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">abiobj_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="InputWriter.add_abiobj"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.InputWriter.add_abiobj">[docs]</a>    <span class="k">def</span> <span class="nf">add_abiobj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the object to self.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&quot;to_abivars&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> does not define the method to_abivars&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+
+        <span class="n">cname</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="k">if</span> <span class="n">cname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">abiobj_dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> is already stored&quot;</span> <span class="o">%</span> <span class="n">cname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abiobj_dict</span><span class="p">[</span><span class="n">cname</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
+</div>
+<div class="viewcode-block" id="InputWriter.add_extra_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.InputWriter.add_extra_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">add_extra_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abivars</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add variables (dict) to extra_abivars.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">abivars</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="InputWriter.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.InputWriter.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dictionary with the abinit variables defined by the Card.&quot;&quot;&quot;</span>
+        <span class="n">abivars</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">abiobjects</span><span class="p">:</span>
+            <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+
+        <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">abivars</span>
+
+    <span class="c">#def list_objects(self):</span>
+    <span class="c">#    &quot;String comment (comment of self + comments of the objects, if any)&quot;</span>
+    <span class="c">#    for obj in self.abiobjects:</span>
+    <span class="c">#        if hasattr(obj, &quot;comment&quot;):</span>
+    <span class="c">#            lines.append(&quot;%s: %s&quot; % (obj.__class__.__name__, obj.comment))</span>
+    <span class="c">#    return &quot;\n&quot;.join(lines)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_format_kv</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Formatter&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>  
+            <span class="k">return</span> <span class="p">[]</span> <span class="c"># Use ABINIT default.</span>
+                                                                                   
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span> <span class="c"># scalar or vector.</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">])]</span>
+                                                                                   
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="c"># array --&gt; matrix </span>
+                <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> 
+                <span class="n">lines</span>  <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]))</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="o">+</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">token</span>
+
+<div class="viewcode-block" id="InputWriter.get_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.strategies.InputWriter.get_string">[docs]</a>    <span class="k">def</span> <span class="nf">get_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pretty</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of self. The reason why this</span>
+<span class="sd">        method is different from the __str__ method is to provide options for pretty printing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pretty:</span>
+<span class="sd">                Set to True for pretty aligned output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">append</span>
+
+        <span class="c"># Write the Abinit objects first.</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">abiobjects</span><span class="p">:</span>
+            <span class="n">app</span><span class="p">([</span><span class="mi">80</span><span class="o">*</span><span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">])</span>
+            <span class="n">app</span><span class="p">([</span><span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">obj</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">])</span>
+            <span class="n">app</span><span class="p">([</span><span class="mi">80</span><span class="o">*</span><span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">app</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_kv</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+        <span class="c"># Extra variables.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="p">:</span>
+            <span class="n">app</span><span class="p">([</span><span class="mi">80</span><span class="o">*</span><span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">])</span>
+            <span class="n">app</span><span class="p">([</span><span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="s">&quot;Extra_Abivars&quot;</span><span class="p">])</span>
+            <span class="n">app</span><span class="p">([</span><span class="mi">80</span><span class="o">*</span><span class="s">&quot;#&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_abivars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">app</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_kv</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">pretty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">str_aligned</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">str_delimited</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="s">&quot; &quot;</span><span class="p">)</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
