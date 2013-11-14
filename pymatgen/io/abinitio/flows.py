@@ -125,6 +125,11 @@ class AbinitFlow(Node):
         return all(work.all_ok for work in self)
 
     @property
+    def num_tasks(self):
+        """Total number of tasks"""
+        return len(list(self.iflat_tasks()))
+
+    @property
     def num_tasks_with_error(self):
         """The number of tasks whose status is `S_ERROR`."""
         return len(list(self.iflat_tasks(status=self.S_ERROR, op="=")))

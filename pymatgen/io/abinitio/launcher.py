@@ -5,6 +5,7 @@ import os
 import time
 import collections
 import yaml
+import cStringIO as StringIO
 
 from subprocess import Popen, PIPE
 from pymatgen.core.design_patterns import AttrDict
@@ -366,21 +367,34 @@ class PyLauncher(object):
 class PyFlowsScheduler(object):
     """
     This object schedules the submission of the tasks in an `AbinitFlow`.
+     There are two types of errors that migh happen during the execution of the jobs: 
+    
+        #. Python exceptions 
+        #. Abinit Errors.
+    
+    Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
+    The set of Abinit Error is much much broader. It includes wrong input data, segmentation
+    faults, problem with the resource manager, etc. Abinitio tries to handle the most common cases
+    but there's still a lot of room for improvement.
+    The scheduler will shutdown automatically if the number of python exceptions is > MAX_NUM_PYEXC
+    or if the number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
+
+    There's another check that prevents the scheduler from running infinitely, 
+    If the number of launches becomes greater than SAFETY_RATIO * number_of_tasks, the scheduler
+    will automatically shutdow.
+
+    TODO: detection of Deadlocks NLAUNCH_FLOW
     """
-    # There are two types of errors that migh happen during the execution of the jobs: Python exceptions and Abinit Errors.
-    # Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
-    # The set of Abinit Error is much much broader. It includes wrong input data, segmentation
-    # faults, problem with the resource manager, etc. Abinitio tries to handle the most common cases
-    # but there's still a lot of room for improvement.
-    # The scheduler will shutdown automatically if the number of python exceptions is > MAX_NUM_PYEXC
-    # or if the number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
     MAX_NUM_PYEXCS = 2
     MAX_NUM_ABIERRS = 0
+
+    SAFETY_RATIO = 3
+    #MAX_ETIME = 
 
     # Configuration file.
     YAML_FILE = "scheduler.yml"
 
-    def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None):
+    def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None, mailto=None):
         """
         Args:
             weeks:
@@ -403,18 +417,17 @@ class PyFlowsScheduler(object):
              hours=hours,
              minutes=minutes,
              seconds=seconds,
-             start_date=start_date,
-        )
+             start_date=start_date)
+
+        self.mailto = mailto
+        self.nlaunch = 0
 
         from apscheduler.scheduler import Scheduler
         self.sched = Scheduler(standalone=True)
 
-        # Map filename --> flow.
-        self._pidfiles2flows = {}
-
         # Used to keep track of the exceptions raised 
         # while the scheduler is running
-        self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS+10)
+        self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS + 10)
 
         # Used to push additional info during the execution. 
         self.history = collections.deque(maxlen=100)
@@ -459,9 +472,8 @@ class PyFlowsScheduler(object):
 
         app("Scheduler options: %s" % str(self.sched_options)) 
 
-        for flow in self.flows:
-            app(80 * "=")
-            app(str(flow))
+        app(80 * "=")
+        app(str(self.flow))
 
         return "\n".join(lines)
 
@@ -476,21 +488,22 @@ class PyFlowsScheduler(object):
             return self._pid
 
     @property
-    def pid_files(self):
-        """List of files with the pid. The files are located in the workdir of the flows"""
-        return self._pidfiles2flows.keys()
+    def pid_file(self):
+        """Absolute path of the file with the pid. The file is located in the workdir of the flow"""
+        return self._pidfile
                                                                                             
     @property
-    def flows(self):
-        """List of `AbinitFlows`."""
-        return self._pidfiles2flows.values()
+    def flow(self):
+        """`AbinitFlows`."""
+        return self._flow
+
+    @property
+    def num_excs(self):
+        return len(self.exceptions)
 
     def add_flow(self, flow):
         """Add an `AbinitFlow` to the scheduler."""
         pid_file = os.path.join(flow.workdir, "_PyFlowsScheduler.pid")
-
-        if pid_file in self._pidfiles2flows:
-            raise ValueError("Cannot add the same flow twice!")
 
         if os.path.isfile(pid_file):
             err_msg = (
@@ -508,18 +521,18 @@ class PyFlowsScheduler(object):
 
             raise RuntimeError(err_msg)
 
-        else:
-            with open(pid_file, "w") as fh:
-                fh.write(str(self.pid))
+        with open(pid_file, "w") as fh:
+            fh.write(str(self.pid))
 
-            self._pidfiles2flows[pid_file] = flow
+        self._pid_file = pid_file
+        self._flow = flow
 
     def start(self):
         """
         Starts the scheduler in a new thread.
         In standalone mode, this method will block until there are no more scheduled jobs.
         """
-        self.sched.add_interval_job(self._callback, **self.sched_options)
+        self.sched.add_interval_job(self.callback, **self.sched_options)
 
         # Try to run the job immediately. If something goes wrong 
         # return without initializing the scheduler.
@@ -528,37 +541,45 @@ class PyFlowsScheduler(object):
             self.cleanup()
             return retcode
 
+        self.history.append("Started on %s" % time.asctime())
+        self.start_time = time.time()
+
         self.sched.start()
 
-        self.history.append("Submitted on %s" % time.asctime())
-
     def _runem_all(self):
-        nlaunch, max_nlaunch, excs = 0, -1, []
+        max_nlaunch, excs = -1, []
 
-        for flow in self.flows:
-            flow.check_status()
+        self.flow.check_status()
 
-            try:
-                nlaunch += PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
+        try:
+            nlaunch = PyLauncher(self.flow).rapidfire(max_nlaunch=max_nlaunch)
+            print("Number of launches: ", nlaunch)
+            self.nlaunch += nlaunch
 
-            except Exception:
-                excs.append(straceback())
+        except Exception:
+            excs.append(straceback())
 
-        print("Number of launches: ", nlaunch)
-        flow.show_status()
+        self.flow.show_status()
         
         if excs:
             logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
             self.exceptions.extend(excs)
 
-    def _callback(self):
+    def callback(self):
         """The function that will be executed by the scheduler."""
+        try:
+            return self._callback()
+        except:
+            self.exceptions.append(straceback())
+            return self.num_excs
+
+    def _callback(self):
+        """The actual callback."""
         self._runem_all()
 
         # Too many exceptions. Shutdown the scheduler.
-        if len(self.exceptions) > self.MAX_NUM_PYEXCS:
-            msg = "Number of exceptions %s > %s.\nWill shutdown the scheduler and exit" % (
-                len(self.exceptions), self.MAX_NUM_PYEXCS)
+        if self.num_excs > self.MAX_NUM_PYEXCS:
+            msg = "Number of exceptions %s > %s.\nWill shutdown the scheduler and exit" % (self.num_excs, self.MAX_NUM_PYEXCS)
             msg = 5*"=" + msg + 5*"="
                                                                                       
             print(len(msg)* "=")
@@ -567,11 +588,27 @@ class PyFlowsScheduler(object):
 
             self.shutdown()
 
+        # Paranoid check: disable the scheduler if we have submitted 
+        # too many jobs (it might be due to some bug or other external reasons!) 
+        if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
+            msg = "Too many jobs launched %d.\nWill shutdown the scheduler and exit" % self.nlaunch
+            msg = 5*"=" + msg + 5*"="
+                                                                                      
+            print(len(msg)* "=")
+            print(msg)
+            print(len(msg)* "=")
+                                                                                                                               
+            self.shutdown()
+
+        # Too long elapsed time
+        #if time.time() - self.start_time) > MAX_ETIME:
+        #    self.shutdown()
+
         # Count the number of tasks with status == S_ERROR.
-        num_errors = sum([flow.num_tasks_with_error for flow in self.flows])
+        num_errors = self.flow.num_tasks_with_error
 
         # Count the number of tasks with status == S_UNCONVERGED.
-        num_unconverged = sum([flow.num_tasks_unconverged for flow in self.flows])
+        num_unconverged = self.flow.num_tasks_unconverged
 
         message = ""
         if num_errors > self.MAX_NUM_ABIERRS:
@@ -599,7 +636,7 @@ class PyFlowsScheduler(object):
             self.shutdown()
 
         # Mission accomplished. Shutdown the scheduler.
-        if all(flow.all_ok for flow in self.flows):
+        if self.flow.all_ok:
             message = "All tasks have reached S_OK. Will shutdown the scheduler and exit"
             message = 5*"=" + message + 5*"="
 
@@ -615,82 +652,131 @@ class PyFlowsScheduler(object):
         """
         Cleanup routine: remove the pid files and save the pickle database
         """
-        for pid_file in self.pid_files:
-            try:
-                os.unlink(pid_file)
-            except:
-                pass
+        try:
+            os.unlink(self.pid_file)
+        except:
+            pass
                                                                     
         # Save the final status of the flow.
-        for flow in self.flows:
-            flow.pickle_dump()
+        self.flow.pickle_dump()
 
     def shutdown(self):
         """Shutdown the scheduler."""
         self.cleanup()
 
+        from datetime import timedelta
+        self.etime = timedelta(seconds=(time.time() - self.start_time))
+
+        self.history.append("Completed on %s" % time.asctime())
+        self.history.append("Elapsed time %s" % str(self.etime))
+        print("history", self.history)
+
+        try:
+            self.send_email()
+        except:
+            exc_msg = straceback()
+            print("exc_msg", exc_msg)
+            self.exceptions.append(exc_msg)
+
+        # Write text file with the list of exceptions:
+        if self.exceptions:
+            dump_file = os.path.join(self.flow.workdir, "launcher.log")
+            with open(dump_file,"w") as fh:
+                fh.writelines(self.exceptions)
+
         # Shutdown the scheduler thus allowing the process to exit.
         self.sched.shutdown(wait=False)
 
-        self.history.append("Completed on %s" % time.asctime())
+    def send_email(self):
+        """Send an e-mail before terminating the shutdown."""
+        print("mailto", self.mailto)
+        #if self.mailto is None: return 0
 
-        #self.run_time = (now - self.start_time)
-        #try:
-        #    self.send_mail()
-        #except:
-        #     self.exceptions.append(straceback())
+        # The status of the flow.
+        strio = StringIO.StringIO()
+        self.flow.show_status(stream=strio)
 
-        # Write text file with the list of exceptions:
-        #if self.exceptions:
-        #    with open(,"w") as fh:
-        #        fh.writelines(self.exceptions)
+        #self.history.append("Elapsed time %s" % str(self.etime))
+        #self.history.append("Submitted on %s" % time.asctime())
+        #self.start_time = time.time()
+        #self.history.append("Completed on %s" % time.asctime())
+        #self.history.append("Elapsed time %s" % str(self.etime)))
 
-    def send_mail(self):
-        if self.mailto is None: 
-            return
+        strio.write("Number of exceptions: %d" % self.num_excs)
+        if self.exceptions:
+            strio.writelines(self.exceptions)
 
-        # Import smtplib for the actual sending function
-        import smtplib
-        # Import the email modules we'll need
-        from email.mime.text import MIMEText
+        strio.seek(0)
+        text = strio.read()
+        print("text", text)
+
+        return sendmail(subject=self.flow.name,
+                        text=text,
+                        mailto=self.mailto,
+                        sender=None)
+
+
+def sendmail(subject, text, mailto, sender=None, test_sendmail=False):
+    """
+    Sends an e-mail either with smtplib.SMTP or with the unix sendmail.
+
+    Args:
+        subject:
+            String with the subject of the mail.
+        text:
+            String with the body of the mail.
+        mailto:
+            String or list of string with the recipients.
+        sender:
+            string with the sender address.
+            If sender is None, username@hostname is used.
+    """
+    print("in sendmail")
+    def user_at_host():
         from socket import gethostname
+        return os.getlogin() + "@" + gethostname()
 
-        host = gethostname()
-        username = os.getlogin()
+    from email.mime.text import MIMEText
 
+    # Body of the message
+    sender = user_at_host() if sender is None else sender 
+    if is_string(mailto): mailto = [mailto]
+
+    mail = MIMEText(text)
+    mail["Subject"] = subject
+    mail["From"] = sender
+    mail["To"] = ", ".join(mailto)
+
+    msg = mail.as_string()
+    print("msg", msg)
+
+    try:
+        if test_sendmail:
+            a += 1 
+        # Send the message via our own SMTP server.
         server = smtplib.SMTP("localhost")
-        #to_addrs = ["one@one.org","two@two.org","three@three.org","four@four.org"]
+        server.sendmail(sender, mailto, msg)
+        return server.quit()
 
-        msg = """\
-        From: Me@my.org
-        Subject: testin'...
-        
-        This is a test"""
+    except:
+        # Fallback to sendmail (Unix only).
+        print("Using sendmail")
+        from subprocess import Popen, PIPE
+        SENDMAIL = "/usr/sbin/sendmail" 
+        p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
 
-        from_addr = "me@my.org"
-        err_data = server.sendmail(from_addr, self.mailto, msg)
-        #{ "three@three.org" : ( 550 ,"User unknown" ) }
+        outdata, errdata = p.communicate(msg)
+        print(outdata, errdata)
+        return len(errdata)
 
-        if err_data:
-            self.exceptions.append("sendmail error:\n%s" % str(err_data))
 
-        server.quit()
-
-        # Open a plain text file for reading.  For this example, assume that
-        # the text file contains only ASCII characters.
-        #fp = open(textfile, 'rb')
-        # Create a text/plain message
-        msg = MIMEText(fp.read())
-        #fp.close()
-
-        # me == the sender's email address
-        # you == the recipient's email address
-        msg['Subject'] = 'The contents of %s' % textfile
-        msg['From'] = me
-        msg['To'] = you
-
-        # Send the message via our own SMTP server, but don't include the envelope header.
-        server = smtplib.SMTP('localhost')
-        server.sendmail(me, [you], msg.as_string())
-        server.quit()
+# Test for sendmail
+if __name__ == "__main__":
+    text = \
+"""hello
+world
+"""
+    mailto = "matteo.giantomassi@uclouvain.be"
+    retcode = sendmail("sendmail_test", text, mailto, sender=None, test_sendmail=False)
+    print("Retcode", retcode)
 
