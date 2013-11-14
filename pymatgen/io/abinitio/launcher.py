@@ -689,8 +689,8 @@ class PyFlowsScheduler(object):
 
     def send_email(self):
         """Send an e-mail before terminating the shutdown."""
+        if self.mailto is None: return 0
         print("mailto", self.mailto)
-        #if self.mailto is None: return 0
 
         # The status of the flow.
         strio = StringIO.StringIO()
@@ -736,6 +736,7 @@ def sendmail(subject, text, mailto, sender=None, test_sendmail=False):
         from socket import gethostname
         return os.getlogin() + "@" + gethostname()
 
+    import smtplib
     from email.mime.text import MIMEText
 
     # Body of the message
