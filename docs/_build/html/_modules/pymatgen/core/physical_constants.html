@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.core.physical_constants &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.core.physical_constants</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines useful physical constants and conversion factors.</span>
+<span class="sd">All units are in SI units except for conversion factors.</span>
+
+<span class="sd">.. attribute:: ELECTRON_CHARGE or e</span>
+
+<span class="sd">    Charge of an electron in coulombs.</span>
+
+<span class="sd">.. attribute:: EPSILON_0</span>
+
+<span class="sd">    Permittivity of vacuum</span>
+
+<span class="sd">.. attribute:: BOLTZMANN_CONST or k_b</span>
+
+<span class="sd">    Boltzmann&#39;s constant</span>
+
+<span class="sd">.. attribute:: R</span>
+
+<span class="sd">    Gas constant in J K-1 mol-1</span>
+
+<span class="sd">.. attribute:: F</span>
+
+<span class="sd">    Faraday&#39;s constant in C / mol</span>
+
+<span class="sd">.. attribute:: ELECTRON_VOLT</span>
+
+<span class="sd">    eV in Joules.</span>
+
+<span class="sd">.. attribute:: AVOGADROS_CONST or N_a</span>
+
+<span class="sd">    Avogardo&#39;s constant</span>
+
+<span class="sd">The following are conversion factors.</span>
+
+<span class="sd">.. attribute:: EV_PER_ATOM_TO_J_PER_MOL</span>
+
+<span class="sd">    Conversion from ev/atom to J/mol</span>
+
+<span class="sd">.. attribute:: EV_PER_ATOM_TO_KJ_PER_MOL</span>
+
+<span class="sd">    Conversion from ev/atom to kJ/mol</span>
+
+<span class="sd">.. attribute:: ELECTRON_TO_AMPERE_HOURS</span>
+
+<span class="sd">    Conversion from electron charge to Amphere-hours</span>
+
+<span class="sd">.. attribute:: AMU_TO_KG</span>
+
+<span class="sd">    Conversion from atomic mass unit to kg</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">_np</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Sep 23, 2011&quot;</span>
+
+
+<span class="c">#Constants. Note that some of these may replicate functionality in</span>
+<span class="c">#scipy.constants. However, given the difficulty in installing scipy on many</span>
+<span class="c">#systems, the replication of these constants minimizes scipy dependency.</span>
+
+<span class="n">ELECTRON_CHARGE</span> <span class="o">=</span> <span class="mf">1.602176565e-19</span>
+<span class="n">EPSILON_0</span> <span class="o">=</span> <span class="mf">8.85418781762e-12</span>
+<span class="n">BOLTZMANN_CONST</span> <span class="o">=</span> <span class="mf">1.3806488e-23</span>
+<span class="n">ELECTRON_VOLT</span> <span class="o">=</span> <span class="mf">1.602176565e-19</span>
+<span class="n">AVOGADROS_CONST</span> <span class="o">=</span> <span class="mf">6.02214129e23</span>
+
+<span class="c">#Some useful aliases</span>
+<span class="n">N_a</span> <span class="o">=</span> <span class="n">AVOGADROS_CONST</span>
+<span class="n">k_b</span> <span class="o">=</span> <span class="n">BOLTZMANN_CONST</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">ELECTRON_CHARGE</span>
+<span class="n">R</span> <span class="o">=</span> <span class="n">AVOGADROS_CONST</span> <span class="o">*</span> <span class="n">BOLTZMANN_CONST</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">AVOGADROS_CONST</span> <span class="o">*</span> <span class="n">ELECTRON_CHARGE</span>
+
+<span class="c">#Conversion factors</span>
+
+<span class="n">EV_PER_ATOM_TO_J_PER_MOL</span> <span class="o">=</span> <span class="n">ELECTRON_VOLT</span> <span class="o">*</span> <span class="n">AVOGADROS_CONST</span>
+<span class="n">EV_PER_ATOM_TO_KJ_PER_MOL</span> <span class="o">=</span> <span class="n">EV_PER_ATOM_TO_J_PER_MOL</span> <span class="o">/</span> <span class="mi">1000</span>
+<span class="n">ELECTRON_TO_AMPERE_HOURS</span> <span class="o">=</span> <span class="n">EV_PER_ATOM_TO_J_PER_MOL</span> <span class="o">/</span> <span class="mi">3600</span>
+<span class="n">AMU_TO_KG</span> <span class="o">=</span> <span class="mf">1.660538921e-27</span>
+
+
+<span class="c">#: 1 Hartree, in eV</span>
+<span class="n">Ha_eV</span> <span class="o">=</span> <span class="mf">27.21138386</span>
+
+<span class="n">eV_Ha</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">Ha_eV</span>
+
+<span class="c">#: 1 Bohr, in Angstrom</span>
+<span class="n">Bohr_Ang</span> <span class="o">=</span> <span class="mf">0.52917720859</span>
+
+<span class="n">Ang_Bohr</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">Bohr_Ang</span>
+
+<span class="c"># Conversion factor eV/A**3 --&gt; GPa</span>
+<span class="n">eVA3_GPa</span> <span class="o">=</span> <span class="mf">160.21773</span>
+
+<span class="c">###############################################################################</span>
+<span class="c"># Conversion tools.</span>
+<span class="c">###############################################################################</span>
+
+
+<div class="viewcode-block" id="Ha2eV"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.physical_constants.Ha2eV">[docs]</a><span class="k">def</span> <span class="nf">Ha2eV</span><span class="p">(</span><span class="n">Ha</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert Hartree to eV</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Ha:</span>
+<span class="sd">            array_like with Hartree energies(s) to be converted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Array of floats with equivalent eV energies.</span>
+
+<span class="sd">    &gt;&gt;&gt; Ha2eV([1, 2])</span>
+<span class="sd">    array([ 27.21138386,  54.42276772])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">Ha</span><span class="p">)</span> <span class="o">*</span> <span class="n">Ha_eV</span>
+
+</div>
+<div class="viewcode-block" id="Ha2meV"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.physical_constants.Ha2meV">[docs]</a><span class="k">def</span> <span class="nf">Ha2meV</span><span class="p">(</span><span class="n">Ha</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert Hartree to meV</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Ha2eV</span><span class="p">(</span><span class="n">Ha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span>
+
+</div>
+<div class="viewcode-block" id="eV2Ha"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.physical_constants.eV2Ha">[docs]</a><span class="k">def</span> <span class="nf">eV2Ha</span><span class="p">(</span><span class="n">eV</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert eV to Hartree</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        eV:</span>
+<span class="sd">            array_like with eV energies to be converted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Array of floats with equivalent Hartree energies.</span>
+
+<span class="sd">    &gt;&gt;&gt; eV2Ha([ 27.21138386, 1])</span>
+<span class="sd">    array([ 1.        ,  0.03674933])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">eV</span><span class="p">)</span> <span class="o">/</span> <span class="n">Ha_eV</span>
+
+</div>
+<div class="viewcode-block" id="Bohr2Ang"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.physical_constants.Bohr2Ang">[docs]</a><span class="k">def</span> <span class="nf">Bohr2Ang</span><span class="p">(</span><span class="n">Bohr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert Bohr to Angstrom</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Bohr:</span>
+<span class="sd">            array_like with Bohr lengths to be converted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        array of floats with equivalent Angstrom lengths.</span>
+
+<span class="sd">    &gt;&gt;&gt; Bohr2Ang([1, 2])</span>
+<span class="sd">    array([ 0.52917721,  1.05835442])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">Bohr</span><span class="p">)</span> <span class="o">*</span> <span class="n">Bohr_Ang</span>
+
+</div>
+<div class="viewcode-block" id="Ang2Bohr"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.physical_constants.Ang2Bohr">[docs]</a><span class="k">def</span> <span class="nf">Ang2Bohr</span><span class="p">(</span><span class="n">Ang</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert Angstrom to Bohr.</span>
+
+<span class="sd">    Args</span>
+<span class="sd">        Ang:</span>
+<span class="sd">            Array_like with Angstrom lengths to be converted.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Array of floats with equivalent Bohr lengths.</span>
+
+<span class="sd">    &gt;&gt;&gt; Ang2Bohr(Bohr2Ang([1, 2]))</span>
+<span class="sd">    array([ 1.,  2.])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">Ang</span><span class="p">)</span> <span class="o">/</span> <span class="n">Bohr_Ang</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

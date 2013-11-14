@@ -1,0 +1,571 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>command_line Package &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="command-line-package">
+<h1>command_line Package<a class="headerlink" href="#command-line-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">command_line</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pymatgen.command_line"></span><p>This package contains various command line interfaces to programs used in
+pymatgen that do not have Python equivalents.</p>
+</div>
+<div class="section" id="module-pymatgen.command_line.aconvasp_caller">
+<span id="aconvasp-caller-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">aconvasp_caller</span></tt> Module<a class="headerlink" href="#module-pymatgen.command_line.aconvasp_caller" title="Permalink to this headline">¶</a></h2>
+<p>Interface with command line aconvasp. <a class="reference external" href="http://aflowlib.org/">http://aflowlib.org/</a>
+Only tested on Linux. Inspired by Shyue&#8221;s qhull_caller
+WARNING: you need to have a convasp in your path for this to work</p>
+<dl class="exception">
+<dt id="pymatgen.command_line.aconvasp_caller.AconvaspError">
+<em class="property">exception </em><tt class="descname">AconvaspError</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/aconvasp_caller.html#AconvaspError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.AconvaspError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Exception class for aconvasp.
+Raised when the aconvasp gives an error</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.aconvasp_caller.get_conv_struct">
+<tt class="descname">get_conv_struct</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/aconvasp_caller.html#get_conv_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_conv_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a minkowski reduced structure</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.aconvasp_caller.get_minkowski_red">
+<tt class="descname">get_minkowski_red</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/aconvasp_caller.html#get_minkowski_red"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_minkowski_red" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a minkowski reduced structure</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.aconvasp_caller.get_num_division_kpoints">
+<tt class="descname">get_num_division_kpoints</tt><big>(</big><em>structure</em>, <em>kppa</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/aconvasp_caller.html#get_num_division_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_num_division_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get kpoint divisions for a given k-point density (per reciprocal-atom):
+kppa and a given structure</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.aconvasp_caller.get_prim_struct">
+<tt class="descname">get_prim_struct</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/aconvasp_caller.html#get_prim_struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_prim_struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get standard primitive</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym">
+<tt class="descname">get_vasp_kpoint_file_sym</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/aconvasp_caller.html#get_vasp_kpoint_file_sym"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.get_vasp_kpoint_file_sym" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a kpoint file ready to be ran in VASP along the symmetry lines of the
+Brillouin Zone</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.aconvasp_caller.run_aconvasp_command">
+<tt class="descname">run_aconvasp_command</tt><big>(</big><em>command</em>, <em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/aconvasp_caller.html#run_aconvasp_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.aconvasp_caller.run_aconvasp_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for calling aconvasp with different arguments</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.command_line.bader_caller">
+<span id="bader-caller-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">bader_caller</span></tt> Module<a class="headerlink" href="#module-pymatgen.command_line.bader_caller" title="Permalink to this headline">¶</a></h2>
+<p>This module implements an interface to the Henkelmann et al.&#8217;s excellent
+Fortran code for calculating a Bader charge analysis.</p>
+<p>This module depends on a compiled bader executable available in the path.
+Please download the library at <a class="reference external" href="http://theory.cm.utexas.edu/vasp/bader/">http://theory.cm.utexas.edu/vasp/bader/</a> and
+follow the instructions to compile the executable.</p>
+<p>If you use this module, please cite the following:</p>
+<p>G. Henkelman, A. Arnaldsson, and H. Jonsson, &#8220;A fast and robust algorithm for
+Bader decomposition of charge density&#8221;, Comput. Mater. Sci. 36, 254-360 (2006).</p>
+<dl class="function">
+<dt id="pymatgen.command_line.bader_caller.BaderAnalysis">
+<tt class="descname">BaderAnalysis</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/bader_caller.html#BaderAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.bader_caller.BaderAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bader analysis for a CHGCAR.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.command_line.enumlib_caller">
+<span id="enumlib-caller-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">enumlib_caller</span></tt> Module<a class="headerlink" href="#module-pymatgen.command_line.enumlib_caller" title="Permalink to this headline">¶</a></h2>
+<p>This module implements an interface to enumlib, Gus Hart&#8221;s excellent Fortran
+code for enumerating derivative structures.</p>
+<p>This module depends on a compiled enumlib with the executables multienum.x and
+makestr.x available in the path. Please download the library at
+<a class="reference external" href="http://enum.sourceforge.net/">http://enum.sourceforge.net/</a> and follow the instructions in the README to
+compile these two executables accordingly.</p>
+<p>If you use this module, please cite the following:</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, &#8220;Algorithm for generating derivative
+structures,&#8221; Phys. Rev. B 77 224115 (26 June 2008)</p>
+<p>Gus L. W. Hart and Rodney W. Forcade, &#8220;Generating derivative structures from
+multilattices: Application to hcp alloys,&#8221; Phys. Rev. B 80 014120 (July 2009)</p>
+<p>Gus L. W. Hart, Lance J. Nelson, and Rodney W. Forcade, &#8220;Generating
+derivative structures at a fixed concentration,&#8221; Comp. Mat. Sci. 59
+101-107 (March 2012)</p>
+<dl class="function">
+<dt id="pymatgen.command_line.enumlib_caller.EnumlibAdaptor">
+<tt class="descname">EnumlibAdaptor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/enumlib_caller.html#EnumlibAdaptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.EnumlibAdaptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>An adaptor for enumlib.</p>
+<dl class="attribute">
+<dt id="pymatgen.command_line.enumlib_caller.structures">
+<tt class="descname">structures</tt><a class="headerlink" href="#pymatgen.command_line.enumlib_caller.structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all enumerated structures.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.command_line.gulp_caller">
+<span id="gulp-caller-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">gulp_caller</span></tt> Module<a class="headerlink" href="#module-pymatgen.command_line.gulp_caller" title="Permalink to this headline">¶</a></h2>
+<p>Interface with command line GULP.
+<a class="reference external" href="http://projects.ivec.org">http://projects.ivec.org</a>
+WARNING: you need to have GULP installed on your system.</p>
+<dl class="class">
+<dt id="pymatgen.command_line.gulp_caller.BuckinghamPotBush">
+<em class="property">class </em><tt class="descname">BuckinghamPotBush</tt><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#BuckinghamPotBush"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.BuckinghamPotBush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Generate the Buckingham Potential Table from the bush.lib</p>
+<dl class="docutils">
+<dt>Ref:</dt>
+<dd>T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
+4, 831-837 (1994).</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.gulp_caller.BuckinghamPotLewis">
+<em class="property">class </em><tt class="descname">BuckinghamPotLewis</tt><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#BuckinghamPotLewis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.BuckinghamPotLewis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Generate the Buckingham Potential Table based on lewis.lib file</p>
+<dl class="docutils">
+<dt>Ref:</dt>
+<dd>G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
+1149-1161 (1985)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.gulp_caller.GulpCaller">
+<em class="property">class </em><tt class="descname">GulpCaller</tt><big>(</big><em>cmd='gulp'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpCaller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to run gulp from commandline</p>
+<p>Initialize with the executable if not in the standard path</p>
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpCaller.run">
+<tt class="descname">run</tt><big>(</big><em>gin</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpCaller.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpCaller.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run GULP using the gin as input</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>gin:</dt>
+<dd>GULP input string</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>gout:</dt>
+<dd>GULP output string</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.command_line.gulp_caller.GulpConvergenceError">
+<em class="property">exception </em><tt class="descname">GulpConvergenceError</tt><big>(</big><em>msg=''</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpConvergenceError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpConvergenceError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Exception class for GULP.
+Raised when proper convergence is not reached in Mott-Littleton
+defect energy optimisation procedure in GULP</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.command_line.gulp_caller.GulpError">
+<em class="property">exception </em><tt class="descname">GulpError</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Exception class for GULP.
+Raised when the GULP gives an error</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO">
+<em class="property">class </em><tt class="descname">GulpIO</tt><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO" title="Permalink to this definition">¶</a></dt>
+<dd><p>To generate GULP input and process output</p>
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.buckingham_input">
+<tt class="descname">buckingham_input</tt><big>(</big><em>structure</em>, <em>keywords</em>, <em>library=None</em>, <em>uc=True</em>, <em>valence_dict=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.buckingham_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a GULP input for an oxide structure and buckingham potential
+from library.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+<dt>keywords:</dt>
+<dd>GULP first line keywords.</dd>
+<dt>library (Default=None):</dt>
+<dd>File containing the species and potential.</dd>
+<dt>uc (Default=True):</dt>
+<dd>Unit Cell Flag.</dd>
+<dt>valence_dict:</dt>
+<dd>{El: valence}</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential">
+<tt class="descname">buckingham_potential</tt><big>(</big><em>structure</em>, <em>val_dict=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.buckingham_potential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.buckingham_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate species, buckingham, and spring options for an oxide structure
+using the parameters in default libraries.</p>
+<dl class="docutils">
+<dt>Ref:</dt>
+<dd><ol class="first last arabic simple">
+<li>G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys.,
+18, 1149-1161 (1985)</li>
+<li>T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,
+J. Mater Chem., 4, 831-837 (1994)</li>
+</ol>
+</dd>
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+<dt>val_dict (Needed if structure is not charge neutral)</dt>
+<dd>El:valence dictionary, where El is element.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.get_energy">
+<tt class="descname">get_energy</tt><big>(</big><em>gout</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.get_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure">
+<tt class="descname">get_relaxed_structure</tt><big>(</big><em>gout</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.get_relaxed_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.get_relaxed_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.keyword_line">
+<tt class="descname">keyword_line</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.keyword_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.keyword_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the input args are proper gulp keywords and
+generates the 1st line of gulp input. Full keywords are expected.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>args:</dt>
+<dd>1st line keywords</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.library_line">
+<tt class="descname">library_line</tt><big>(</big><em>file_name</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.library_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.library_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specifies GULP library file to read species and potential parameters.
+If using library don&#8217;t specify species and potential
+in the input file and vice versa. Make sure the elements of
+structure are in the library file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>file_name:</dt>
+<dd>Name of GULP library file</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>GULP input string specifying library option</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines">
+<tt class="descname">specie_potential_lines</tt><big>(</big><em>structure</em>, <em>potential</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.specie_potential_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.specie_potential_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates GULP input specie and potential string for pymatgen
+structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure object</dd>
+<dt>potential:</dt>
+<dd>String specifying the type of potential used</dd>
+<dt>kwargs:</dt>
+<dd><dl class="first last docutils">
+<dt>Additional parameters related to potential. For potential ==</dt>
+<dd>&#8220;buckingham&#8221;,</dd>
+<dt>anion_shell_flg (default = False):</dt>
+<dd>If True, anions are considered polarizable.
+anion_core_chrg=float
+anion_shell_chrg=float</dd>
+<dt>cation_shell_flg (default = False):</dt>
+<dd>If True, cations are considered polarizable.
+cation_core_chrg=float
+cation_shell_chrg=float</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>string containing specie and potential specification for gulp
+input.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.structure_lines">
+<tt class="descname">structure_lines</tt><big>(</big><em>structure</em>, <em>cell_flg=True</em>, <em>frac_flg=True</em>, <em>anion_shell_flg=True</em>, <em>cation_shell_flg=False</em>, <em>symm_flg=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.structure_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.structure_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates GULP input string corresponding to pymatgen structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen Structure object</dd>
+<dt>cell_flg (default = True):</dt>
+<dd>Option to use lattice parameters.</dd>
+<dt>fractional_flg (default = True):</dt>
+<dd>If True, fractional coordinates are used.
+Else, cartesian coodinates in Angstroms are used.
+<strong>**</strong>
+GULP convention is to use fractional coordinates for periodic
+structures and cartesian coordinates for non-periodic
+structures.
+<strong>**</strong></dd>
+<dt>anion_shell_flg (default = True):</dt>
+<dd>If True, anions are considered polarizable.</dd>
+<dt>cation_shell_flg (default = False):</dt>
+<dd>If True, cations are considered polarizable.</dd>
+<dt>symm_flg (default = True):</dt>
+<dd>If True, symmetry information is also written.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>string containing structure for GULP input</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.tersoff_input">
+<tt class="descname">tersoff_input</tt><big>(</big><em>structure</em>, <em>periodic=False</em>, <em>uc=True</em>, <em>*keywords</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.tersoff_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a GULP input with Tersoff potential for an oxide structure</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+<dt>periodic (Default=False):</dt>
+<dd>Flag denoting whether periodic boundary conditions are used</dd>
+<dt>library (Default=None):</dt>
+<dd>File containing the species and potential.</dd>
+<dt>uc (Default=True):</dt>
+<dd>Unit Cell Flag.</dd>
+<dt>keywords:</dt>
+<dd>GULP first line keywords.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential">
+<tt class="descname">tersoff_potential</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#GulpIO.tersoff_potential"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.GulpIO.tersoff_potential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the species, tersoff potential lines for an oxide structure</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.command_line.gulp_caller.Tersoff_pot">
+<em class="property">class </em><tt class="descname">Tersoff_pot</tt><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#Tersoff_pot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.Tersoff_pot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Generate Tersoff Potential Table from &#8220;OxideTersoffPotentials&#8221; file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.gulp_caller.get_energy_buckingham">
+<tt class="descname">get_energy_buckingham</tt><big>(</big><em>structure</em>, <em>gulp_cmd='gulp'</em>, <em>keywords=('optimise'</em>, <em>'conp')</em>, <em>valence_dict=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_buckingham"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_buckingham" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the energy of a structure using Buckingham potential.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+<dt>gulp_cmd:</dt>
+<dd>GULP command if not in standard place</dd>
+<dt>keywords:</dt>
+<dd>GULP first line keywords</dd>
+<dt>valence_dict:</dt>
+<dd>{El: valence}. Needed if the structure is not charge neutral.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham">
+<tt class="descname">get_energy_relax_structure_buckingham</tt><big>(</big><em>structure</em>, <em>gulp_cmd='gulp'</em>, <em>keywords=('optimise'</em>, <em>'conp')</em>, <em>valence_dict=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_relax_structure_buckingham"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_relax_structure_buckingham" title="Permalink to this definition">¶</a></dt>
+<dd><p>Relax a structure and compute the energy using Buckingham potential.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+<dt>gulp_cmd:</dt>
+<dd>GULP command if not in standard place</dd>
+<dt>keywords:</dt>
+<dd>GULP first line keywords</dd>
+<dt>valence_dict:</dt>
+<dd>{El: valence}. Needed if the structure is not charge neutral.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.command_line.gulp_caller.get_energy_tersoff">
+<tt class="descname">get_energy_tersoff</tt><big>(</big><em>structure</em>, <em>gulp_cmd='gulp'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/command_line/gulp_caller.html#get_energy_tersoff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.command_line.gulp_caller.get_energy_tersoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the energy of a structure using Tersoff potential.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+<dt>gulp_cmd:</dt>
+<dd>GULP command if not in standard place</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">command_line Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">command_line</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-pymatgen.command_line.aconvasp_caller"><tt class="docutils literal"><span class="pre">aconvasp_caller</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.command_line.bader_caller"><tt class="docutils literal"><span class="pre">bader_caller</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.command_line.enumlib_caller"><tt class="docutils literal"><span class="pre">enumlib_caller</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.command_line.gulp_caller"><tt class="docutils literal"><span class="pre">gulp_caller</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pymatgen.command_line.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

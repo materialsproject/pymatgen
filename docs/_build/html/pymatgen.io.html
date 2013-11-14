@@ -1,0 +1,2916 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>io Package &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="io-package">
+<h1>io Package<a class="headerlink" href="#io-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">io</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pymatgen.io"></span><p>This package provides the packages and modules to perform IO from various
+input file formats and pymatgen objects.</p>
+</div>
+<div class="section" id="module-pymatgen.io.aseio">
+<span id="aseio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">aseio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.aseio" title="Permalink to this headline">¶</a></h2>
+<p>This module provides conversion between the Atomic Simulation Environment
+Atoms object and pymatgen Structure objects.</p>
+<dl class="class">
+<dt id="pymatgen.io.aseio.AseAtomsAdaptor">
+<em class="property">class </em><tt class="descname">AseAtomsAdaptor</tt><a class="reference internal" href="_modules/pymatgen/io/aseio.html#AseAtomsAdaptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.aseio.AseAtomsAdaptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Adaptor serves as a bridge between ASE Atoms and pymatgen structure.</p>
+<dl class="staticmethod">
+<dt id="pymatgen.io.aseio.AseAtomsAdaptor.get_atoms">
+<em class="property">static </em><tt class="descname">get_atoms</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/aseio.html#AseAtomsAdaptor.get_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.aseio.AseAtomsAdaptor.get_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns ASE Atoms object from pymatgen structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>ASE Atoms object</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.aseio.AseAtomsAdaptor.get_structure">
+<em class="property">static </em><tt class="descname">get_structure</tt><big>(</big><em>atoms</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/aseio.html#AseAtomsAdaptor.get_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.aseio.AseAtomsAdaptor.get_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns pymatgen structure from ASE Atoms.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>atoms:</dt>
+<dd>ASE Atoms object</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Equivalent pymatgen.core.structure.Structure</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.babelio">
+<span id="babelio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">babelio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.babelio" title="Permalink to this headline">¶</a></h2>
+<p>OpenBabel interface module, which opens up access to the hundreds of file
+formats supported by OpenBabel. Requires openbabel with python bindings to be
+installed. Please consult the
+<a class="reference external" href="http://openbabel.org/wiki/Main_Page">openbabel documentation</a>.</p>
+<dl class="class">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor">
+<em class="property">class </em><tt class="descname">BabelMolAdaptor</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Adaptor serves as a bridge between OpenBabel&#8217;s Molecule and pymatgen&#8217;s
+Molecule.</p>
+<p>Initializes with pymatgen Molecule or OpenBabel&#8221;s OBMol.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>pymatgen&#8221;s Molecule or OpenBabel OBMol</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em>, <em>file_format='xyz'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses OpenBabel to read a molecule from a file in all supported formats.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename of input file</dd>
+<dt>file_format:</dt>
+<dd>String specifying any OpenBabel supported formats.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>BabelMolAdaptor object</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>string_data</em>, <em>file_format='xyz'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses OpenBabel to read a molecule from a string in all supported
+formats.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>string_data:</dt>
+<dd>String containing molecule data.</dd>
+<dt>file_format:</dt>
+<dd>String specifying any OpenBabel supported formats.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>BabelMolAdaptor object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor.localopt">
+<tt class="descname">localopt</tt><big>(</big><em>forcefield='mmff94'</em>, <em>steps=500</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor.localopt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor.localopt" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper to pybel&#8217;s localopt method to optimize a Molecule.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>forcefield:</dt>
+<dd>Default is mmff94. Options are &#8216;gaff&#8217;, &#8216;ghemical&#8217;, &#8216;mmff94&#8217;,
+&#8216;mmff94s&#8217;, and &#8216;uff&#8217;.</dd>
+<dt>steps:</dt>
+<dd>Default is 500.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor.openbabel_mol">
+<tt class="descname">openbabel_mol</tt><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor.openbabel_mol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor.openbabel_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns OpenBabel&#8217;s OBMol.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor.pybel_mol">
+<tt class="descname">pybel_mol</tt><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor.pybel_mol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor.pybel_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Pybel&#8217;s Molecule object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor.pymatgen_mol">
+<tt class="descname">pymatgen_mol</tt><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor.pymatgen_mol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor.pymatgen_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns pymatgen Molecule object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.babelio.BabelMolAdaptor.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename</em>, <em>file_format='xyz'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/babelio.html#BabelMolAdaptor.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.babelio.BabelMolAdaptor.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses OpenBabel to output all supported formats.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename of file to output</dd>
+<dt>file_format:</dt>
+<dd>String specifying any OpenBabel supported formats.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.cifio">
+<span id="cifio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">cifio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.cifio" title="Permalink to this headline">¶</a></h2>
+<p>Wrapper classes for Cif input and output from Structures.</p>
+<dl class="class">
+<dt id="pymatgen.io.cifio.CifParser">
+<em class="property">class </em><tt class="descname">CifParser</tt><big>(</big><em>filename</em>, <em>occupancy_tolerance=1.0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cifio.html#CifParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cifio.CifParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A wrapper class around PyCifRW to read Cif and convert into a pymatgen
+Structure object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Cif filename. bzipped or gzipped cifs are fine too.</dd>
+<dt>occupancy_tolerance:</dt>
+<dd>If total occupancy of a site is between 1 and
+occupancy_tolerance, the occupancies will be scaled down to 1.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.cifio.CifParser.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>cif_string</em>, <em>occupancy_tolerance=1.0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cifio.html#CifParser.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cifio.CifParser.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a CifParser from a string.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>cif_string:</dt>
+<dd>String representation of a CIF.</dd>
+<dt>occupancy_tolerance:</dt>
+<dd>If total occupancy of a site is between 1 and
+occupancy_tolerance, the occupancies will be scaled down to 1.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>CifParser</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cifio.CifParser.get_structures">
+<tt class="descname">get_structures</tt><big>(</big><em>primitive=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cifio.html#CifParser.get_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cifio.CifParser.get_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return list of structures in CIF file. primitive boolean sets whether a
+conventional cell structure or primitive cell structure is returned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>primitive:</dt>
+<dd>Set to False to return conventional unit cells. Defaults to
+True.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>List of Structures.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.cifio.CifParser.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/cifio.html#CifParser.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cifio.CifParser.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.cifio.CifWriter">
+<em class="property">class </em><tt class="descname">CifWriter</tt><big>(</big><em>struct</em>, <em>find_spacegroup=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cifio.html#CifWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cifio.CifWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper around PyCifRW to write CIF files from pymatgen structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct:</dt>
+<dd>A pymatgen.core.structure.Structure object.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.cifio.CifWriter.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cifio.html#CifWriter.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cifio.CifWriter.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write the cif file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.cifio.parse_symmetry_operations">
+<tt class="descname">parse_symmetry_operations</tt><big>(</big><em>symmops_str_list</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cifio.html#parse_symmetry_operations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cifio.parse_symmetry_operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Help method to parse the symmetry operations.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>symmops_str_list:</dt>
+<dd>List of symmops strings of the form
+[&#8216;x, y, z&#8217;, &#8216;-x, -y, z&#8217;, &#8216;-y+1/2, x+1/2, z+1/2&#8217;, ...]</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>List of SymmOps</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.cifio.str2float">
+<tt class="descname">str2float</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#pymatgen.io.cifio.str2float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove uncertainty brackets from strings and return the float.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.cssrio">
+<span id="cssrio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">cssrio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.cssrio" title="Permalink to this headline">¶</a></h2>
+<p>This module provides input and output from the CSSR file format.</p>
+<dl class="class">
+<dt id="pymatgen.io.cssrio.Cssr">
+<em class="property">class </em><tt class="descname">Cssr</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cssrio.html#Cssr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssrio.Cssr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Basic object for working with Cssr file. Right now, only conversion from
+a Structure to a Cssr file is supported.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure to create the Cssr object.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.cssrio.Cssr.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cssrio.html#Cssr.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssrio.Cssr.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a CSSR file to a Cssr object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename to read from.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Cssr object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.cssrio.Cssr.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cssrio.html#Cssr.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssrio.Cssr.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a string representation to a Cssr object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>string:</dt>
+<dd>A string representation of a CSSR.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Cssr object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.cssrio.Cssr.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/cssrio.html#Cssr.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.cssrio.Cssr.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out a CSSR file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename to write to.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.feffio">
+<span id="feffio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">feffio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.feffio" title="Permalink to this headline">¶</a></h2>
+<p>Classes for reading/manipulating/writing FEFF files.
+<a class="reference external" href="http://leonardo.phys.washington.edu/feff/">http://leonardo.phys.washington.edu/feff/</a>
+XANES and EXAFS input files, and the xmu.dat, ldos.dat output files are
+available, for non-spin case at this time.  FEFF input file has parameter tags,
+potential definitions and atomic coordinates all in the feff.inp file. These
+are each developed separately with the Header, FeffAtoms, FeffPot, and
+FeffTags classes, then combined to produce the full feff.inp.</p>
+<dl class="class">
+<dt id="pymatgen.io.feffio.FeffAtoms">
+<em class="property">class </em><tt class="descname">FeffAtoms</tt><big>(</big><em>struct</em>, <em>central_atom</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Object for representing atomic positions, placed in feff.inp file
+These are oredered as expanding shells.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct:</dt>
+<dd>Structure object. See pymatgen.core.structure.Structure.</dd>
+<dt>central_atom:</dt>
+<dd>Symbol for absorbing atom</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffAtoms.atoms_string_from_file">
+<em class="property">static </em><tt class="descname">atoms_string_from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.atoms_string_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.atoms_string_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads atomic shells from file such as feff.inp or ATOMS file
+The lines are arranged as follows:</p>
+<p>x y z   ipot    Atom Symbol   Distance   Number</p>
+<p>with distance being the shell radius and ipot an integer identifying
+the potential used.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>file name containing atomic coord data.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Atoms string.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffAtoms.central_atom">
+<tt class="descname">central_atom</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.central_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.central_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns central atom</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffAtoms.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns feffAtoms object from dictionary</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffAtoms.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>At the moment does nothing.</p>
+<p>From atoms string data generates atoms object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio.FeffAtoms.get_string">
+<tt class="descname">get_string</tt><big>(</big><em>radius=10.0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string representation of atomic shell coordinates to be used
+in the feff.inp file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>radius:</dt>
+<dd>Maximum atomic shell radius to include in atoms list</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>String representation of Atomic Coordinate Shells.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffAtoms.pot_dict">
+<tt class="descname">pot_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.pot_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.pot_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns dictionary for potential indexes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffAtoms.site_symbols">
+<tt class="descname">site_symbols</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.site_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.site_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbols for each site atomic coordinate for Feff list.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffAtoms.struct">
+<tt class="descname">struct</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure associated with the atomic coordinates.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffAtoms.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Dictionary representation of atoms oject</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio.FeffAtoms.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename='ATOMS'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffAtoms.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffAtoms.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write Atoms list to filename</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename and path for file to be written</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feffio.FeffLdos">
+<em class="property">class </em><tt class="descname">FeffLdos</tt><big>(</big><em>complete_dos</em>, <em>charge_transfer</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Parser for ldos files ldos01, ldos02, .....</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>complete_dos:</dt>
+<dd>complete_dos dictionary as defined in pymatgen.dos.CompleteDos</dd>
+<dt>charge_transfer:</dt>
+<dd>computed charge transfer between atoms dictionary</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffLdos.charge_transfer">
+<tt class="descname">charge_transfer</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos.charge_transfer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos.charge_transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns charge transfer between atoms dictionary</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffLdos.charge_transfer_from_file">
+<em class="property">static </em><tt class="descname">charge_transfer_from_file</tt><big>(</big><em>filename1</em>, <em>filename2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos.charge_transfer_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos.charge_transfer_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename1:</dt>
+<dd>name of feff.inp file for run</dd>
+<dt>filename2:</dt>
+<dd>ldos filename for run, assume consequetive order, .i.e.,
+ldos01.dat, ldos02.dat....</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dictionary of dictionaries in order of potential sites
+({&#8220;p&#8221;: 0.154, &#8220;s&#8221;: 0.078, &#8220;d&#8221;: 0.0, &#8220;tot&#8221;: 0.232}, ...)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio.FeffLdos.charge_transfer_to_string">
+<tt class="descname">charge_transfer_to_string</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos.charge_transfer_to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos.charge_transfer_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns shrage transfer as string</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffLdos.complete_dos">
+<tt class="descname">complete_dos</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos.complete_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos.complete_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns Complete Dos</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffLdos.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns FeffLdos object from dict representation</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>complete_dos:</dt>
+<dd>dict representation of complete_dos</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffLdos.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename1='feff.inp'</em>, <em>filename2='ldos'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8221;
+Creates FeffLdos object from raw Feff ldos files by
+by assuming they are numbered consequetively, i.e. ldos01.dat
+ldos02.dat...</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename1:</dt>
+<dd>input file of run to obtain structure</dd>
+<dt>filename2:</dt>
+<dd>output ldos file of run to obtain dos info, etc.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffLdos.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffLdos.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffLdos.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns Json-serializable dict representation of ompletedos</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.io.feffio.FeffParserError">
+<em class="property">exception </em><tt class="descname">FeffParserError</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffParserError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffParserError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Exception class for Structure.
+Raised when the structure has problems, e.g., atoms that are too close.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feffio.FeffPot">
+<em class="property">class </em><tt class="descname">FeffPot</tt><big>(</big><em>struct</em>, <em>central_atom</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Object for representing Atomic Potenitals, placed in feff.inp file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct:</dt>
+<dd>Structure object. See pymatgen.core.structure.Structure.</dd>
+<dt>central_atom:</dt>
+<dd>Absorbing atom symbol</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffPot.central_atom">
+<tt class="descname">central_atom</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.central_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.central_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Central absorbing atom</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffPot.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns FeffPot object from dictionary</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>d:</dt>
+<dd>dictionary of FeffPot input parameters</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffPot.pot_dict">
+<tt class="descname">pot_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.pot_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.pot_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns dictionary of potential indexes</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffPot.pot_dict_from_string">
+<em class="property">static </em><tt class="descname">pot_dict_from_string</tt><big>(</big><em>pot_data</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.pot_dict_from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.pot_dict_from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates atomic symbol/potential number dictionary
+forward and reverse</p>
+<dl class="docutils">
+<dt>Arg:</dt>
+<dd><dl class="first last docutils">
+<dt>pot_data:</dt>
+<dd>potential data in string format</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>forward and reverse atom symbol and potential number dictionaries.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffPot.pot_string_from_file">
+<em class="property">static </em><tt class="descname">pot_string_from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.pot_string_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.pot_string_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads Potential parameters from a feff.inp or FEFFPOT file.
+The lines are arranged as follows:</p>
+<blockquote>
+<div>ipot   Z   element   lmax1   lmax2   stoichometry   spinph</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename - file name containing potential data.</dd>
+<dt>Returns:</dt>
+<dd>FEFFPOT string.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffPot.site_symbols">
+<tt class="descname">site_symbols</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.site_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.site_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbols for each site.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffPot.struct">
+<tt class="descname">struct</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure associated with the atomic coordinates.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffPot.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Dictionary representation of FeffPot oject</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio.FeffPot.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename='POTENTIALS'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffPot.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffPot.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write to a filename.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>filename and path to write potential file to.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feffio.FeffTags">
+<em class="property">class </em><tt class="descname">FeffTags</tt><big>(</big><em>params=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
+<p>feff_tag object for reading and writing PARAMETER files</p>
+<p>Creates a Feff_tag object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>params:</dt>
+<dd>A set of input parameters as a dictionary.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.feffio.FeffTags.diff">
+<tt class="descname">diff</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags.diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags.diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Diff function.  Compares two PARAMETER files and indicates which
+parameters are the same and which are not. Useful for checking whether
+two runs were done using the same parameters.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>other:</dt>
+<dd>The other PARAMETER dictionary to compare to.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Dict of the format {&#8220;Same&#8221; : parameters_that_are_the_same,
+&#8220;Different&#8221;: parameters_that_are_different} Note that the
+parameters are return as full dictionaries of values.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffTags.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates FeffTags object from a dictionary.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>d:</dt>
+<dd>Dict of feff parameters and values.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>FeffTags object</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffTags.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename='feff.inp'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a Feff_tag dictionary from a PARAMETER or feff.inp file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename for either PARAMETER or feff.inp file</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Feff_tag object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio.FeffTags.get_string">
+<tt class="descname">get_string</tt><big>(</big><em>sort_keys=True</em>, <em>pretty=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags.get_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags.get_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string representation of the Feff_tag file.  The reason why
+this method is different from the __str__ method is to provide options
+for pretty printing.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sort_keys:</dt>
+<dd>Set to True to sort the Feff parameters alphabetically.
+Defaults to False.</dd>
+<dt>pretty:</dt>
+<dd>Set to True for pretty aligned output, False for no.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>String representation of FeffTags.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.FeffTags.proc_val">
+<em class="property">static </em><tt class="descname">proc_val</tt><big>(</big><em>key</em>, <em>val</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags.proc_val"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags.proc_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static helper method to convert Feff parameters to proper types, e.g.
+integers, floats, lists, etc.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>key:</dt>
+<dd>Feff parameter key</dd>
+<dt>val:</dt>
+<dd>Actual value of Feff parameter.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.FeffTags.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd>Dictionary of parameters from fefftags object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio.FeffTags.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename='PARAMETERS'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#FeffTags.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.FeffTags.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write FeffTags to a Feff parameter tag file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>filename and path to write to.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feffio.Header">
+<em class="property">class </em><tt class="descname">Header</tt><big>(</big><em>struct</em>, <em>source=''</em>, <em>comment=''</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Creates Header for feff.inp file generated by pymatgen.
+Has the following format:</p>
+<div class="highlight-python"><pre>* This feff.inp file generated by pymatgen, www.materialsproject.org
+TITLE comment:
+TITLE Source: CoO19128.cif
+TITLE Structure Summary: (Co2 O2)
+TITLE Reduced formula: CoO
+TITLE space group: P1,   space number: 1
+TITLE abc: 3.297078 3.297078 5.254213
+TITLE angles: 90.0 90.0 120.0
+TITLE sites: 4
+* 1 Co     0.666666     0.333332     0.496324
+* 2 Co     0.333333     0.666667     0.996324
+* 3 O     0.666666     0.333332     0.878676
+* 4 O     0.333333     0.666667     0.378675</pre>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct:</dt>
+<dd>Structure object, See pymatgen.core.structure.Structure.</dd>
+<dt>source:</dt>
+<dd>User supplied identifier, i.e. for Materials Project this
+would be the material ID number</dd>
+<dt>comment:</dt>
+<dd>comment for first header line</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.formula">
+<tt class="descname">formula</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formula of structure</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.Header.from_cif_file">
+<em class="property">static </em><tt class="descname">from_cif_file</tt><big>(</big><em>cif_file</em>, <em>source=''</em>, <em>comment=''</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.from_cif_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.from_cif_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static method to create Header object from cif_file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>cif_file:</dt>
+<dd>cif_file path and name</dd>
+<dt>source:</dt>
+<dd>User supplied identifier, i.e. for Materials Project this
+would be the material ID number</dd>
+<dt>comment:</dt>
+<dd>user comment that goes in header</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Header Object</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.Header.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>hdict</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns header object from a dictionary representation</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.Header.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Header object from file</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.Header.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>header_str</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads Header string and returns Header object if header was
+generated by pymatgen.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>header_str:</dt>
+<dd>pymatgen generated feff.inp header</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>structure object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.Header.header_string_from_file">
+<em class="property">static </em><tt class="descname">header_string_from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.header_string_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.header_string_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads Header string from either a HEADER file or feff.inp file
+Will also read a header from a non-pymatgen generated feff.inp file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>File name containing the Header data.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Reads header string.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.site_symbols">
+<tt class="descname">site_symbols</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.site_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.site_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symbols for each site in unit cell.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.source">
+<tt class="descname">source</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Property method to return source string.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.space_group">
+<tt class="descname">space_group</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.space_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.space_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Space Group symbol</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.space_number">
+<tt class="descname">space_number</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.space_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.space_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Space group number</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.struct">
+<tt class="descname">struct</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.struct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure associated with the atomic coordinates.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.structure_symmetry">
+<tt class="descname">structure_symmetry</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.structure_symmetry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.structure_symmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns space number and space group</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Space number and space group list</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Header.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Dictionary representation of Header Object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio.Header.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename='HEADER'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Header.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Header.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes Header into filename on disk.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename and path for file to be written to disk</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feffio.Xmu">
+<em class="property">class </em><tt class="descname">Xmu</tt><big>(</big><em>header</em>, <em>parameters</em>, <em>central_atom</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<dl class="docutils">
+<dt>Parser for data in xmu.dat</dt>
+<dd>Reads in data from xmu Feff file for plotting
+This file contains the absorption cross-sections
+for the single absorber and absorber in solid.</dd>
+</dl>
+<p>Default attributes:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>xmu:</dt>
+<dd>Photon absorption cross section of absorber atom in material</dd>
+<dt>mu:</dt>
+<dd>Photon absorption cross section of single absorber atom</dd>
+<dt>Energies:</dt>
+<dd>Energies of data point</dd>
+<dt>Edge:</dt>
+<dd>Aborption Edge</dd>
+<dt>Absorbing atom:</dt>
+<dd>Species of absorbing atom</dd>
+<dt>Material:</dt>
+<dd>Formula of material</dd>
+<dt>Source:</dt>
+<dd>Source of structure</dd>
+<dt>Calculation:</dt>
+<dd>Type of Feff calculation performed</dd>
+</dl>
+<p>to_dict:  creates a dictionary representation of attributes and data</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>header:</dt>
+<dd>Header object</dd>
+<dt>parameters:</dt>
+<dd>FeffTags object</dd>
+<dt>pots:</dt>
+<dd>FeffPot string</dd>
+<dt>data:</dt>
+<dd>numpy data array of cross_sections</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.absorbing_atom">
+<tt class="descname">absorbing_atom</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.absorbing_atom"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.absorbing_atom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns absorbing atom symbol from feff.inp file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.across_section">
+<tt class="descname">across_section</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.across_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.across_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns absobtion cross-section of absorbing atom in solid</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.calc">
+<tt class="descname">calc</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.calc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.calc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns type of Feff calculation, XANES or EXAFS from feff.inp file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.data">
+<tt class="descname">data</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns numpy data array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.edge">
+<tt class="descname">edge</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns excitation edge from feff.inp file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.energies">
+<tt class="descname">energies</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.energies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.energies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns energies for cross-section plots</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.Xmu.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>xdict</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Xmu object from dictionary</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio.Xmu.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename='xmu.dat'</em>, <em>input_filename='feff.inp'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>filename and path for xmu.dat</dd>
+<dt>input_filename:</dt>
+<dd>filname and path of feff.inp input file</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Xmu object</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.material_formula">
+<tt class="descname">material_formula</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.material_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.material_formula" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns chemical formula of material from feff.inp file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.scross_section">
+<tt class="descname">scross_section</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.scross_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.scross_section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns aborption cross-section for absorbing atom</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.source">
+<tt class="descname">source</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns source identification from Header file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.feffio.Xmu.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/feffio.html#Xmu.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio.Xmu.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Dictionary of attributes and to
+reproduce object using from dictionary staticmethod</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.feffio_set">
+<span id="feffio-set-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">feffio_set</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.feffio_set" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the FeffInputSet abstract base class and a concrete
+implementation for the Materials Project.  The basic concept behind an input
+set is to specify a scheme to generate a consistent set of Feff inputs from a
+structure without further user intervention. This ensures comparability across
+runs.</p>
+<dl class="class">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet">
+<em class="property">class </em><tt class="descname">AbstractFeffInputSet</tt><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstract base class representing a set of Feff input parameters.
+The idea is that using a FeffInputSet, a complete set of input files
+(feffPOT,feffXANES, feffEXAFS, ATOMS, feff.inp)set_
+can be generated in an automated fashion for any structure.</p>
+<dl class="staticmethod">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return feff.inp from a dictionary string representation</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.get_all_feff_input">
+<tt class="descname">get_all_feff_input</tt><big>(</big><em>structure</em>, <em>calc_type</em>, <em>source</em>, <em>central_atom</em>, <em>comment=''</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.get_all_feff_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.get_all_feff_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all input files as a dict of {filename: feffio object}</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+<dt>calc_type:</dt>
+<dd>at this time either &#8216;XANES&#8217; or &#8216;EXAFS&#8217; string is supported
+for K shell excitation. In the future this will be expanded
+to inlude other shells and material class differentiation.</dd>
+<dt>source:</dt>
+<dd>source identifier used to create structure, can be defined
+however user wants to organize structures, calculations, etc.
+example would be Materials Project material ID number.</dd>
+<dt>central _atom:</dt>
+<dd>atom symbol string for absorbing atom</dd>
+<dt>comment:</dt>
+<dd>Comment to appear in Header.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict of objects used to create feff.inp file i.e. Header, FeffTags,
+FeffPot, FeffAtoms</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.get_feff_atoms">
+<tt class="descname">get_feff_atoms</tt><big>(</big><em>structure</em>, <em>central_atom</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.get_feff_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.get_feff_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Atoms string from a structure that goes in feff.inp file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen structure object</dd>
+<dt>central_atom:</dt>
+<dd>atom symbol string for absorbing atom</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>FeffAtoms object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.get_feff_pot">
+<tt class="descname">get_feff_pot</tt><big>(</big><em>structure</em>, <em>central_atom</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.get_feff_pot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.get_feff_pot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns POTENTIAL section used in feff.inp from a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen structure object</dd>
+<dt>central _atom:</dt>
+<dd>atom symbol string for absorbing atom</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.get_feff_tags">
+<tt class="descname">get_feff_tags</tt><big>(</big><em>calc_type</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.get_feff_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.get_feff_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns standard calculation paramters for either an FEFF XANES or
+EXAFS input.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>calc_type:</dt>
+<dd>at this time either &#8216;XANES&#8217; or &#8216;EXAFS&#8217; string is supported
+for K shell excitation. In the future this will be expanded to
+inlude other shells and material class differentiation.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.get_header">
+<tt class="descname">get_header</tt><big>(</big><em>structure</em>, <em>source</em>, <em>comment</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.get_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns header to be used in feff.inp file from a pymatgen structure</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A pymatgen structure object</dd>
+<dt>source:</dt>
+<dd>source identifier used to create structure, can be defined
+however user wants to organize structures, calculations, etc.
+example would be Materials Project material ID number.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.to_dict">
+<tt class="descname">to_dict</tt><big>(</big><em>structure</em>, <em>calc_type</em>, <em>source</em>, <em>central_atom</em>, <em>comment=''</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a feff.inp dictionary as a string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.AbstractFeffInputSet.write_input">
+<tt class="descname">write_input</tt><big>(</big><em>structure</em>, <em>calc_type</em>, <em>source</em>, <em>central_atom</em>, <em>comment=''</em>, <em>output_dir='.'</em>, <em>make_dir_if_not_present=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#AbstractFeffInputSet.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.AbstractFeffInputSet.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a set of FEFF input to a directory.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+<dt>calc_type:</dt>
+<dd>at this time either &#8216;XANES&#8217; or &#8216;EXAFS&#8217; string is supported
+for K shell excitation. In the future this will be expanded
+to inlude other shells and material class differentiation.</dd>
+<dt>source:</dt>
+<dd>source identifier used to create structure, can be defined
+however user wants to organize structures, calculations, etc.
+example would be Materials Project material ID number.</dd>
+<dt>central _atom:</dt>
+<dd>atom symbol string for absorbing atom            output_dir:
+Directory to output the FEFF input files</dd>
+<dt>comment:</dt>
+<dd>comment for Header</dd>
+<dt>make_dir_if_not_present:</dt>
+<dd>Set to True if you want the directory (and the whole path) to
+be created if it is not present.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feffio_set.FeffInputSet">
+<em class="property">class </em><tt class="descname">FeffInputSet</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#FeffInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.FeffInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feffio_set.AbstractFeffInputSet" title="pymatgen.io.feffio_set.AbstractFeffInputSet"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.feffio_set.AbstractFeffInputSet</span></tt></a></p>
+<p>Standard implementation of FeffInputSet, which can be extended by specific
+implementations.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>name:</dt>
+<dd>The name of a grouping of input parameter sets such as
+&#8220;MaterialsProject&#8221;.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.FeffInputSet.get_feff_atoms">
+<tt class="descname">get_feff_atoms</tt><big>(</big><em>structure</em>, <em>central_atom</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#FeffInputSet.get_feff_atoms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.FeffInputSet.get_feff_atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates string representation of atomic shell coordinates using in
+ATOMS file and feff.inp.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen structure object</dd>
+<dt>central_atom:</dt>
+<dd>atom symbol string for absorbing atom</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>FeffAtoms object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.FeffInputSet.get_feff_pot">
+<tt class="descname">get_feff_pot</tt><big>(</big><em>structure</em>, <em>central_atom</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#FeffInputSet.get_feff_pot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.FeffInputSet.get_feff_pot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates string representation of potentials used in POTENTIAL file and
+feff.inp.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen structure object</dd>
+<dt>central _atom:</dt>
+<dd>atom symbol string for absorbing atom</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>FeffPot object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.FeffInputSet.get_feff_tags">
+<tt class="descname">get_feff_tags</tt><big>(</big><em>calc_type</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#FeffInputSet.get_feff_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.FeffInputSet.get_feff_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads standard parameters for XANES or EXAFS calculation
+from FeffInputSets.cfg file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>calc_type:</dt>
+<dd>at this time either &#8216;XANES&#8217; or &#8216;EXAFS&#8217; string is supported
+for K shell excitation. In the future this will be expanded
+to inlude other shells and material class differentiation.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>FeffTags object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.feffio_set.FeffInputSet.get_header">
+<tt class="descname">get_header</tt><big>(</big><em>structure</em>, <em>source=''</em>, <em>comment=''</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#FeffInputSet.get_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.FeffInputSet.get_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates header string from structure object</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A pymatgen structure object</dd>
+<dt>source:</dt>
+<dd>source identifier used to create structure, can be defined
+however user wants to organize structures, calculations, etc.
+example would be Materials Project material ID number.</dd>
+<dt>comment:</dt>
+<dd>comment to include in header</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Header object to be used in feff.inp file from a pymatgen structure</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.feffio_set.MaterialsProjectFeffInputSet">
+<em class="property">class </em><tt class="descname">MaterialsProjectFeffInputSet</tt><a class="reference internal" href="_modules/pymatgen/io/feffio_set.html#MaterialsProjectFeffInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.feffio_set.MaterialsProjectFeffInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.feffio_set.FeffInputSet" title="pymatgen.io.feffio_set.FeffInputSet"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.feffio_set.FeffInputSet</span></tt></a></p>
+<p>Implementation of FeffInputSet utilizing parameters in the public
+Materials Project.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.gaussianio">
+<span id="gaussianio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">gaussianio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.gaussianio" title="Permalink to this headline">¶</a></h2>
+<p>This module implements input and output processing from Gaussian.</p>
+<dl class="class">
+<dt id="pymatgen.io.gaussianio.GaussianInput">
+<em class="property">class </em><tt class="descname">GaussianInput</tt><big>(</big><em>mol</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>title=None</em>, <em>functional='HF'</em>, <em>basis_set='6-31G(d)'</em>, <em>route_parameters=None</em>, <em>input_parameters=None</em>, <em>link0_parameters=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An object representing a Gaussian input file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Input molecule. If molecule is a single string, it is used as a
+direct input to the geometry section of the Gaussian input
+file.</dd>
+<dt>charge:</dt>
+<dd>Charge of the molecule. If None, charge on molecule is used.
+Defaults to None. This allows the input file to be set a
+charge independently from the molecule itself.</dd>
+<dt>spin_multiplicity:</dt>
+<dd>Spin multiplicity of molecule. Defaults to None,
+which means that the spin multiplicity is set to 1 if the
+molecule has no unpaired electrons and to 2 if there are
+unpaired electrons.</dd>
+<dt>title:</dt>
+<dd>Title for run. Defaults to formula of molecule if None.</dd>
+<dt>functional:</dt>
+<dd>Functional for run.</dd>
+<dt>basis_set:</dt>
+<dd>Basis set for run.</dd>
+<dt>route_parameters:</dt>
+<dd>Additional route parameters as a dict. For example,
+{&#8216;SP&#8217;:&#8221;&#8221;, &#8220;SCF&#8221;:&#8221;Tight&#8221;}</dd>
+<dt>input_parameters:</dt>
+<dd>Additional input parameters for run as a dict. Used for
+example, in PCM calculations.  E.g., {&#8220;EPS&#8221;:12}</dd>
+<dt>link0_parameters:</dt>
+<dd>Link0 parameters as a dict. E.g., {&#8220;%mem&#8221;: &#8220;1000MW&#8221;}</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.gaussianio.GaussianInput.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates GaussianInput from a file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Gaussian input filename</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>GaussianInput object</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.gaussianio.GaussianInput.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>contents</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates GaussianInput from a string.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>contents:</dt>
+<dd>String representing an Gaussian input file.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>GaussianInput object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.gaussianio.GaussianInput.get_zmatrix">
+<tt class="descname">get_zmatrix</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianInput.get_zmatrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.get_zmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a z-matrix representation of the molecule.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianInput.molecule">
+<tt class="descname">molecule</tt><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianInput.molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns molecule associated with this GaussianInput.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.gaussianio.GaussianInput.parse_coords">
+<em class="property">static </em><tt class="descname">parse_coords</tt><big>(</big><em>coord_lines</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianInput.parse_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.parse_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to parse coordinates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.gaussianio.GaussianInput.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.write_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianInput.xyz_patt">
+<tt class="descname">xyz_patt</tt><em class="property"> = &lt;_sre.SRE_Pattern object at 0x104c79b60&gt;</em><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.xyz_patt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianInput.zmat_patt">
+<tt class="descname">zmat_patt</tt><em class="property"> = &lt;_sre.SRE_Pattern object at 0x104c77d10&gt;</em><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianInput.zmat_patt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.gaussianio.GaussianOutput">
+<em class="property">class </em><tt class="descname">GaussianOutput</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Parser for Gaussian output files.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Still in early beta.</p>
+</div>
+<p>Attributes:</p>
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.structures">
+<tt class="descname">structures</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>All structures from the calculation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.energies">
+<tt class="descname">energies</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.energies" title="Permalink to this definition">¶</a></dt>
+<dd><p>All energies from the calculation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.properly_terminated">
+<tt class="descname">properly_terminated</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.properly_terminated" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if run has properly terminated</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.is_pcm">
+<tt class="descname">is_pcm</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.is_pcm" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if run is a PCM run.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.stationary_type">
+<tt class="descname">stationary_type</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.stationary_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>If it is a relaxation run, indicates whether it is a minimum (Minimum)
+or a saddle point (&#8220;Saddle&#8221;).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.corrections">
+<tt class="descname">corrections</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.corrections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thermochemical corrections if this run is a Freq run as a dict. Keys
+are &#8220;Zero-point&#8221;, &#8220;Thermal&#8221;, &#8220;Enthalpy&#8221; and &#8220;Gibbs Free Energy&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.functional">
+<tt class="descname">functional</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.functional" title="Permalink to this definition">¶</a></dt>
+<dd><p>Functional used in the run.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.basis_set">
+<tt class="descname">basis_set</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.basis_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basis set used in the run</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.charge">
+<tt class="descname">charge</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.charge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Charge for structure</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.spin_mult">
+<tt class="descname">spin_mult</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.spin_mult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spin multiplicity for structure</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.num_basis_func">
+<tt class="descname">num_basis_func</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.num_basis_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of basis functions in the run.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.pcm">
+<tt class="descname">pcm</tt><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.pcm" title="Permalink to this definition">¶</a></dt>
+<dd><p>PCM parameters and output if available.</p>
+</dd></dl>
+
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename of Gaussian output file.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.final_energy">
+<tt class="descname">final_energy</tt><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianOutput.final_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.final_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.final_structure">
+<tt class="descname">final_structure</tt><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianOutput.final_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.final_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.gaussianio.GaussianOutput.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/gaussianio.html#GaussianOutput.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.gaussianio.GaussianOutput.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.nwchemio">
+<span id="nwchemio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">nwchemio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.nwchemio" title="Permalink to this headline">¶</a></h2>
+<p>This module implements input and output processing from Nwchem.</p>
+<dl class="class">
+<dt id="pymatgen.io.nwchemio.NwInput">
+<em class="property">class </em><tt class="descname">NwInput</tt><big>(</big><em>mol</em>, <em>tasks</em>, <em>directives=None</em>, <em>geometry_options=('units'</em>, <em>'angstroms')</em>, <em>symmetry_options=None</em>, <em>memory_options=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>An object representing a Nwchem input file, which is essentially a list
+of tasks on a particular molecule.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Input molecule. If molecule is a single string, it is used as a
+direct input to the geometry section of the Gaussian input
+file.</dd>
+<dt>tasks:</dt>
+<dd>List of NwTasks.</dd>
+<dt>directives:</dt>
+<dd>List of root level directives as tuple. E.g.,
+[(&#8220;start&#8221;, &#8220;water&#8221;), (&#8220;print&#8221;, &#8220;high&#8221;)]</dd>
+<dt>geometry_options:</dt>
+<dd>Additional list of options to be supplied to the geometry.
+E.g., [&#8220;units&#8221;, &#8220;angstroms&#8221;, &#8220;noautoz&#8221;]. Defaults to
+(&#8220;units&#8221;, &#8220;angstroms&#8221;).</dd>
+<dt>symmetry_options:</dt>
+<dd>Addition list of option to be supplied to the symmetry.
+E.g. [&#8220;c1&#8221;] to turn off the symmetry</dd>
+<dt>memory_options:</dt>
+<dd>memory controlling options. str.
+E.g &#8220;total 1000 mb stack 400 mb&#8221;</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.io.nwchemio.NwInput.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInput.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInput.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.nwchemio.NwInput.from_file">
+<em class="property">classmethod </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInput.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInput.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read an NwInput from a file. Currently tested to work with
+files generated from this class itself.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename to parse.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>NwInput object</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.nwchemio.NwInput.from_string">
+<em class="property">classmethod </em><tt class="descname">from_string</tt><big>(</big><em>string_input</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInput.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInput.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read an NwInput from a string. Currently tested to work with
+files generated from this class itself.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>string_input:</dt>
+<dd>string_input to parse.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>NwInput object</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.nwchemio.NwInput.molecule">
+<tt class="descname">molecule</tt><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInput.molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInput.molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns molecule associated with this GaussianInput.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.nwchemio.NwInput.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInput.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInput.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.nwchemio.NwInput.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInput.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInput.write_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.io.nwchemio.NwInputError">
+<em class="property">exception </em><tt class="descname">NwInputError</tt><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwInputError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwInputError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Error class for NwInput.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.nwchemio.NwOutput">
+<em class="property">class </em><tt class="descname">NwOutput</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A Nwchem output file parser. Very basic for now - supports only dft and
+only parses energies and geometries. Please note that Nwchem typically
+outputs energies in either au or kJ/mol. All energies are converted to
+eV in the parser.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.nwchemio.NwTask">
+<em class="property">class </em><tt class="descname">NwTask</tt><big>(</big><em>charge</em>, <em>spin_multiplicity</em>, <em>basis_set</em>, <em>title=None</em>, <em>theory='dft'</em>, <em>operation='optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwTask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Base task for Nwchem.</p>
+<p>Very flexible arguments to support many types of potential setups.
+Users should use more friendly static methods unless they need the
+flexibility.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>charge:</dt>
+<dd>Charge of the molecule. If None, charge on molecule is used.
+Defaults to None. This allows the input file to be set a
+charge independently from the molecule itself.</dd>
+<dt>spin_multiplicity:</dt>
+<dd>Spin multiplicity of molecule. Defaults to None,
+which means that the spin multiplicity is set to 1 if the
+molecule has no unpaired electrons and to 2 if there are
+unpaired electrons.</dd>
+<dt>basis_set:</dt>
+<dd>The basis set used for the task as a dict. E.g.,
+{&#8220;C&#8221;: &#8220;6-311++G**&#8221;, &#8220;H&#8221;: &#8220;6-31++G**&#8221;}.</dd>
+<dt>title:</dt>
+<dd>Title for the task. Defaults to None, which means a title
+based on the theory and operation of the task is
+autogenerated.</dd>
+<dt>theory:</dt>
+<dd>The theory used for the task. Defaults to &#8220;dft&#8221;.</dd>
+<dt>operation:</dt>
+<dd>The operation for the task. Defaults to &#8220;optimize&#8221;.</dd>
+<dt>theory_directives:</dt>
+<dd>A dict of theory directives. For example,
+if you are running dft calculations, you may specify the
+exchange correlation functional using {&#8220;xc&#8221;: &#8220;b3lyp&#8221;}.</dd>
+<dt>alternate_directives:</dt>
+<dd>A dict of alternate directives. For example, to perform
+cosmo calculations and dielectric constant of 78,
+you&#8217;d supply {&#8216;cosmo&#8217;: {&#8220;dielectric&#8221;: 78}}.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.io.nwchemio.NwTask.dft_task">
+<em class="property">classmethod </em><tt class="descname">dft_task</tt><big>(</big><em>mol</em>, <em>xc='b3lyp'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwTask.dft_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask.dft_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class method for quickly creating DFT tasks with optional
+cosmo parameter .</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Input molecule</dd>
+<dt>xc:</dt>
+<dd>Exchange correlation to use.</dd>
+<dt>dielectric:</dt>
+<dd>Using water dielectric</dd>
+<dt>**kwargs:</dt>
+<dd>Any of the other kwargs supported by NwTask. Note the theory
+is always &#8220;dft&#8221; for a dft task.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.nwchemio.NwTask.esp_task">
+<em class="property">classmethod </em><tt class="descname">esp_task</tt><big>(</big><em>mol</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask.esp_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class method for quickly creating ESP tasks with RESP
+charge fitting.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Input molecule</dd>
+<dt>**kwargs:</dt>
+<dd>Any of the other kwargs supported by NwTask. Note the theory
+is always &#8220;dft&#8221; for a dft task.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.nwchemio.NwTask.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwTask.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.io.nwchemio.NwTask.from_molecule">
+<em class="property">classmethod </em><tt class="descname">from_molecule</tt><big>(</big><em>mol</em>, <em>theory</em>, <em>charge=None</em>, <em>spin_multiplicity=None</em>, <em>basis_set='6-31g'</em>, <em>title=None</em>, <em>operation='optimize'</em>, <em>theory_directives=None</em>, <em>alternate_directives=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwTask.from_molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask.from_molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Very flexible arguments to support many types of potential setups.
+Users should use more friendly static methods unless they need the
+flexibility.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Input molecule</dd>
+<dt>charge:</dt>
+<dd>Charge of the molecule. If None, charge on molecule is used.
+Defaults to None. This allows the input file to be set a
+charge independently from the molecule itself.</dd>
+<dt>spin_multiplicity:</dt>
+<dd>Spin multiplicity of molecule. Defaults to None,
+which means that the spin multiplicity is set to 1 if the
+molecule has no unpaired electrons and to 2 if there are
+unpaired electrons.</dd>
+<dt>basis_set:</dt>
+<dd>The basis set to be used as string or a dict. E.g.,
+{&#8220;C&#8221;: &#8220;6-311++G**&#8221;, &#8220;H&#8221;: &#8220;6-31++G**&#8221;} or &#8220;6-31G&#8221;. If string,
+same basis set is used for all elements.</dd>
+<dt>title:</dt>
+<dd>Title for the task. Defaults to None, which means a title
+based on the theory and operation of the task is
+autogenerated.</dd>
+<dt>theory:</dt>
+<dd>The theory used for the task. Defaults to &#8220;dft&#8221;.</dd>
+<dt>operation:</dt>
+<dd>The operation for the task. Defaults to &#8220;optimize&#8221;.</dd>
+<dt>theory_directives:</dt>
+<dd>A dict of theory directives. For example,
+if you are running dft calculations, you may specify the
+exchange correlation functional using {&#8220;xc&#8221;: &#8220;b3lyp&#8221;}.</dd>
+<dt>alternate_directives:</dt>
+<dd>A dict of alternate directives. For example, to perform
+cosmo calculations with DFT, you&#8217;d supply {&#8216;cosmo&#8217;: &#8220;cosmo&#8221;}.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.nwchemio.NwTask.operations">
+<tt class="descname">operations</tt><em class="property"> = {'': 'dummy', 'frequencies': 'Compute second derivatives and print out an analysis of molecular vibrations.', 'energy': 'Evaluate the single point energy.', 'vscf': 'Compute anharmonic contributions to the vibrational modes.', 'freq': 'Same as frequencies.', 'dynamics': 'Perform classical molecular dynamics.', 'hessian': 'Compute second derivatives.', 'saddle': 'Conduct a search for a transition state (or saddle point).', 'gradient': 'Evaluate the derivative of the energy with respect to nuclear coordinates.', 'optimize': 'Minimize the energy by varying the molecular structure.', 'thermodynamics': 'Perform multi-configuration thermodynamic integration using classical MD.', 'property': 'Calculate the properties for the wave function.'}</em><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask.operations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.nwchemio.NwTask.theories">
+<tt class="descname">theories</tt><em class="property"> = {'md': 'Classical molecular dynamics simulation', 'ccsd(t)': 'Coupled-cluster linearized triples approximation', 'ccsd': 'Coupled-cluster single and double excitations', 'esp': 'ESP', 'dft': 'DFT', 'ccsd+t(ccsd)': 'Fourth order triples contribution', 'scf': 'Hartree-Fock', 'sodft': 'Spin-Orbit DFT', 'selci': 'Selected CI with perturbation correction', 'band': 'Pseudopotential plane-wave DFT for solids using NWPW', 'direct_mp2': 'MP2 using a full-direct algorithm', 'mp2': 'MP2 using a semi-direct algorithm', 'g3gn': 'some description', 'rimp2': 'MP2 using the RI approximation', 'pspw': 'Pseudopotential plane-wave DFT for molecules and insulating solids using NWPW', 'mcscf': 'Multiconfiguration SCF', 'tce': 'Tensor Contraction Engine'}</em><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask.theories" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.nwchemio.NwTask.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/nwchemio.html#NwTask.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.nwchemio.NwTask.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.smartio">
+<span id="smartio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">smartio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.smartio" title="Permalink to this headline">¶</a></h2>
+<p>This class implements smart io classes that performs intelligent io based on
+file extensions.</p>
+<dl class="function">
+<dt id="pymatgen.io.smartio.read_mol">
+<tt class="descname">read_mol</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/smartio.html#read_mol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.smartio.read_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a molecule based on file extension. For example, anything ending in
+a &#8220;xyz&#8221; is assumed to be a XYZ file. Supported formats include xyz,
+gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
+pymatgen&#8217;s JSON serialized molecules. Using openbabel,
+many more extensions are supported but requires openbabel to be installed.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>A filename to read from.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A Molecule object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.smartio.read_structure">
+<tt class="descname">read_structure</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/smartio.html#read_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.smartio.read_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a structure based on file extension. For example, anything ending in
+a &#8220;cif&#8221; is assumed to be a Crystallographic Information Format file.
+Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
+vasprun.xml, CSSR and pymatgen&#8217;s JSON serialized structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>A filename to read from.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A Structure object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.smartio.write_mol">
+<tt class="descname">write_mol</tt><big>(</big><em>mol</em>, <em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/smartio.html#write_mol"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.smartio.write_mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a molecule to a file based on file extension. For example, anything
+ending in a &#8220;xyz&#8221; is assumed to be a XYZ file. Supported formats include
+xyz, Gaussian input (gjf|g03|g09|com|inp), and pymatgen&#8217;s JSON serialized
+molecules.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Molecule to write</dd>
+<dt>filename:</dt>
+<dd>A filename to write to.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.smartio.write_structure">
+<tt class="descname">write_structure</tt><big>(</big><em>structure</em>, <em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/smartio.html#write_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.smartio.write_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a structure to a file based on file extension. For example, anything
+ending in a &#8220;cif&#8221; is assumed to be a Crystallographic Information Format
+file. Supported formats include CIF, POSCAR, CSSR and pymatgen&#8217;s JSON
+serialized structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure to write</dd>
+<dt>filename:</dt>
+<dd>A filename to write to.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.vaspio_set">
+<span id="vaspio-set-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">vaspio_set</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.vaspio_set" title="Permalink to this headline">¶</a></h2>
+<p>This module defines the VaspInputSet abstract base class and a concrete
+implementation for the parameters used by the Materials Project and the MIT
+high throughput project.  The basic concept behind an input set is to specify
+a scheme to generate a consistent set of VASP inputs from a structure
+without further user intervention. This ensures comparability across
+runs.</p>
+<dl class="class">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet">
+<em class="property">class </em><tt class="descname">AbstractVaspInputSet</tt><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Abstract base class representing a set of Vasp input parameters.
+The idea is that using a VaspInputSet, a complete set of input files
+(INPUT, KPOINTS, POSCAR and POTCAR) can be generated in an automated
+fashion for any structure.</p>
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet.get_all_vasp_input">
+<tt class="descname">get_all_vasp_input</tt><big>(</big><em>structure</em>, <em>generate_potcar=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet.get_all_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_all_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all input files as a dict of {filename: vaspio object}</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+<dt>generate_potcar:</dt>
+<dd>Set to False to generate a POTCAR.spec file instead of a
+POTCAR, which contains the POTCAR labels but not the actual
+POTCAR. Defaults to True.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>dict of {filename: file_as_string}, e.g., {&#8216;INCAR&#8217;:&#8217;EDIFF=1e-4...&#8217;}</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet.get_incar">
+<tt class="descname">get_incar</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet.get_incar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_incar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Incar from a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Incar object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet.get_kpoints">
+<tt class="descname">get_kpoints</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet.get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Kpoints from a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Kpoints object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet.get_poscar">
+<tt class="descname">get_poscar</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet.get_poscar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_poscar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Poscar from a structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet.get_potcar">
+<tt class="descname">get_potcar</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet.get_potcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_potcar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Potcar from a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Potcar object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet.get_potcar_symbols">
+<tt class="descname">get_potcar_symbols</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet.get_potcar_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_potcar_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of POTCAR symbols from a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>List of POTCAR symbols</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.AbstractVaspInputSet.write_input">
+<tt class="descname">write_input</tt><big>(</big><em>structure</em>, <em>output_dir</em>, <em>make_dir_if_not_present=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#AbstractVaspInputSet.write_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a set of VASP input to a directory.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure object</dd>
+<dt>output_dir:</dt>
+<dd>Directory to output the VASP input files</dd>
+<dt>make_dir_if_not_present:</dt>
+<dd>Set to True if you want the directory (and the whole path) to
+be created if it is not present.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet">
+<em class="property">class </em><tt class="descname">DictVaspInputSet</tt><big>(</big><em>name</em>, <em>config_dict</em>, <em>hubbard_off=False</em>, <em>user_incar_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#DictVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vaspio_set.AbstractVaspInputSet" title="pymatgen.io.vaspio_set.AbstractVaspInputSet"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vaspio_set.AbstractVaspInputSet</span></tt></a></p>
+<p>Concrete implementation of VaspInputSet that is initialized from a dict
+settings. This allows arbitrary settings to be input. In general,
+this is rarely used directly unless there is a source of settings in JSON
+format (e.g., from a REST interface). It is typically used by other
+VaspInputSets for initialization.</p>
+<p>Special consideration should be paid to the way the MAGMOM initialization
+for the INCAR is done. The initialization differs depending on the type of
+structure and the configuration settings. The order in which the magmom is
+determined is as follows:</p>
+<ol class="arabic simple">
+<li>If the site itself has a magmom setting, that is used.</li>
+<li>If the species on the site has a spin setting, that is used.</li>
+<li>If the species itself has a particular setting in the config file, that
+is used, e.g., Mn3+ may have a different magmom than Mn4+.</li>
+<li>Lastly, the element symbol itself is checked in the config file. If
+there are no settings, VASP&#8217;s default of 0.6 is used.</li>
+</ol>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>name:</dt>
+<dd>A name fo the input set.</dd>
+<dt>config_dict:</dt>
+<dd>The config dictionary to use.</dd>
+<dt>hubbard_off:</dt>
+<dd>Whether to turn off Hubbard U if it is specified in
+config_dict. Defaults to False, i.e., follow settings in
+config_dict.</dd>
+<dt>user_incar_settings:</dt>
+<dd>User INCAR settings. This allows a user to override INCAR
+settings, e.g., setting a different MAGMOM for various elements
+or species.</dd>
+<dt>constrain_total_magmom:</dt>
+<dd>Whether to constrain the total magmom (NUPDOWN in INCAR) to be
+the sum of the expected MAGMOM for all species. Defaults to
+False.</dd>
+<dt>sort_structure:</dt>
+<dd>Whether to sort the structure (using the default sort
+order of electronegativity) before generating input files.
+Defaults to True, the behavior you would want most of the
+time. This ensures that similar atomic species are grouped
+together.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#DictVaspInputSet.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.from_json_file">
+<em class="property">static </em><tt class="descname">from_json_file</tt><big>(</big><em>name</em>, <em>json_file</em>, <em>hubbard_off=False</em>, <em>user_incar_settings=None</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=True</em><big>)</big><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.from_json_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a DictVaspInputSet from a json file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>name:</dt>
+<dd>A name for the input set.</dd>
+<dt>json_file:</dt>
+<dd>An actual file containing the settings.</dd>
+<dt>hubbard_off:</dt>
+<dd>Whether to turn off Hubbard U if it is specified in
+config_dict. Defaults to False, i.e., follow settings in
+config_dict.</dd>
+<dt>user_incar_settings:</dt>
+<dd>User INCAR settings. This allows a user to override INCAR
+settings, e.g., setting a different MAGMOM for various elements
+or species.</dd>
+<dt>constrain_total_magmom:</dt>
+<dd>Whether to constrain the total magmom (NUPDOWN in INCAR) to be
+the sum of the expected MAGMOM for all species. Defaults to
+False.</dd>
+<dt>sort_structure:</dt>
+<dd>Whether to sort the structure (using the default sort
+order of electronegativity) before generating input files.
+Defaults to True, the behavior you would want most of the
+time. This ensures that similar atomic species are grouped
+together.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.get_incar">
+<tt class="descname">get_incar</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#DictVaspInputSet.get_incar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.get_incar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.get_kpoints">
+<tt class="descname">get_kpoints</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#DictVaspInputSet.get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.get_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes out a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes  for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Algorithm:</dt>
+<dd>Uses a simple approach scaling the number of divisions along each
+reciprocal lattice vector proportional to its length.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.get_poscar">
+<tt class="descname">get_poscar</tt><big>(</big><em>structure</em><big>)</big><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.get_poscar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.get_potcar">
+<tt class="descname">get_potcar</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#DictVaspInputSet.get_potcar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.get_potcar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.get_potcar_symbols">
+<tt class="descname">get_potcar_symbols</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#DictVaspInputSet.get_potcar_symbols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.get_potcar_symbols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vaspio_set.DictVaspInputSet.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#DictVaspInputSet.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.DictVaspInputSet.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.io.vaspio_set.MITGGAVaspInputSet">
+<tt class="descname">MITGGAVaspInputSet</tt><em class="property"> = &lt;functools.partial object at 0x1051d3a48&gt;</em><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MITGGAVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MITGGAVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>GGA (no U) version of MITVaspInputSet.
+Supports the same kwargs as <tt class="xref py py-class docutils literal"><span class="pre">JSONVaspInputSet</span></tt>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.io.vaspio_set.MITHSEVaspInputSet">
+<tt class="descname">MITHSEVaspInputSet</tt><em class="property"> = &lt;functools.partial object at 0x1051d3aa0&gt;</em><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MITHSEVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MITHSEVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Typical implementation of input set for a HSE run using MIT parameters.
+Supports the same kwargs as <tt class="xref py py-class docutils literal"><span class="pre">JSONVaspInputSet</span></tt>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vaspio_set.MITMDVaspInputSet">
+<em class="property">class </em><tt class="descname">MITMDVaspInputSet</tt><big>(</big><em>start_temp</em>, <em>end_temp</em>, <em>nsteps</em>, <em>time_step=2</em>, <em>hubbard_off=True</em>, <em>spin_polarized=False</em>, <em>sort_structure=False</em>, <em>user_incar_settings=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MITMDVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MITMDVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vaspio_set.DictVaspInputSet" title="pymatgen.io.vaspio_set.DictVaspInputSet"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vaspio_set.DictVaspInputSet</span></tt></a></p>
+<p>Class for writing a vasp md run. This DOES NOT do multiple stage
+runs.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>start_temp:</dt>
+<dd>Starting temperature.</dd>
+<dt>end_temp:</dt>
+<dd>Final temperature.</dd>
+<dt>nsteps:</dt>
+<dd>Number of time steps for simulations. The NSW parameter.</dd>
+<dt>time_step:</dt>
+<dd>The time step for the simulation. The POTIM parameter.
+Defaults to 2fs.</dd>
+<dt>hubbard_off:</dt>
+<dd>Whether to turn off Hubbard U. Defaults to <em>True</em> (different
+behavior from standard input sets) for MD runs.</dd>
+<dt>sort_structure:</dt>
+<dd>Whether to sort structure. Defaults to False (different
+behavior from standard input sets).</dd>
+<dt>user_incar_settings:</dt>
+<dd>Settings to override the default incar settings (as a dict)</dd>
+<dt><a href="#id2"><span class="problematic" id="id3">**</span></a>kwargs:</dt>
+<dd>Other kwargs supported by <a class="reference internal" href="#pymatgen.io.vaspio_set.DictVaspInputSet" title="pymatgen.io.vaspio_set.DictVaspInputSet"><tt class="xref py py-class docutils literal"><span class="pre">DictVaspInputSet</span></tt></a>.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.io.vaspio_set.MITMDVaspInputSet.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MITMDVaspInputSet.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MITMDVaspInputSet.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.MITMDVaspInputSet.get_kpoints">
+<tt class="descname">get_kpoints</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MITMDVaspInputSet.get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MITMDVaspInputSet.get_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vaspio_set.MITMDVaspInputSet.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MITMDVaspInputSet.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MITMDVaspInputSet.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vaspio_set.MITNEBVaspInputSet">
+<em class="property">class </em><tt class="descname">MITNEBVaspInputSet</tt><big>(</big><em>nimages=8</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pymatgen.io.vaspio_set.MITNEBVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vaspio_set.DictVaspInputSet" title="pymatgen.io.vaspio_set.DictVaspInputSet"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vaspio_set.DictVaspInputSet</span></tt></a></p>
+<p>Class for writing NEB inputs.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>nimages:</dt>
+<dd>Number of NEB images (excluding start and ending structures).</dd>
+<dt><a href="#id4"><span class="problematic" id="id5">**</span></a>kwargs:</dt>
+<dd>Other kwargs supported by <tt class="xref py py-class docutils literal"><span class="pre">JSONVaspInputSet</span></tt>.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.io.vaspio_set.MITNEBVaspInputSet.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="headerlink" href="#pymatgen.io.vaspio_set.MITNEBVaspInputSet.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.vaspio_set.MITNEBVaspInputSet.to_dict">
+<tt class="descname">to_dict</tt><a class="headerlink" href="#pymatgen.io.vaspio_set.MITNEBVaspInputSet.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.MITNEBVaspInputSet.write_input">
+<tt class="descname">write_input</tt><big>(</big><em>structures</em>, <em>output_dir</em>, <em>make_dir_if_not_present=True</em>, <em>write_cif=False</em><big>)</big><a class="headerlink" href="#pymatgen.io.vaspio_set.MITNEBVaspInputSet.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>NEB inputs has a special directory structure where inputs are in 00,
+01, 02, ....</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structures:</dt>
+<dd>list of Structure objects. There should be nimages + 2
+structures (including start and end structures).</dd>
+<dt>output_dir:</dt>
+<dd>Directory to output the VASP input files</dd>
+<dt>make_dir_if_not_present:</dt>
+<dd>Set to True if you want the directory (and the whole path) to
+be created if it is not present.</dd>
+<dt>write_cif:</dt>
+<dd>If true, writes a cif along with each POSCAR</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.io.vaspio_set.MITVaspInputSet">
+<tt class="descname">MITVaspInputSet</tt><em class="property"> = &lt;functools.partial object at 0x1051d39f0&gt;</em><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MITVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MITVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Standard implementation of VaspInputSet utilizing parameters in the MIT
+High-throughput project.
+The parameters are chosen specifically for a high-throughput project,
+which means in general pseudopotentials with fewer electrons were chosen.</p>
+<p>Please refer:</p>
+<div class="highlight-python"><pre>A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,
+K. A. Persson, G. Ceder. A high-throughput infrastructure for density
+functional theory calculations. Computational Materials Science,
+2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023</pre>
+</div>
+<p>for more information. Supports the same kwargs as <tt class="xref py py-class docutils literal"><span class="pre">JSONVaspInputSet</span></tt>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.io.vaspio_set.MPGGAVaspInputSet">
+<tt class="descname">MPGGAVaspInputSet</tt><em class="property"> = &lt;functools.partial object at 0x1051d3f18&gt;</em><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPGGAVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPGGAVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as the MPVaspInput set, but the +U is enforced to be turned off.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vaspio_set.MPNonSCFVaspInputSet">
+<em class="property">class </em><tt class="descname">MPNonSCFVaspInputSet</tt><big>(</big><em>user_incar_settings</em>, <em>mode='Line'</em>, <em>constrain_total_magmom=False</em>, <em>sort_structure=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPNonSCFVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPNonSCFVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vaspio_set.MPStaticVaspInputSet" title="pymatgen.io.vaspio_set.MPStaticVaspInputSet"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vaspio_set.MPStaticVaspInputSet</span></tt></a></p>
+<p>Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
+for non self-consistent field (NonSCF) calculation that follows
+a static run to calculate bandstructure, density of states(DOS) and etc.
+It is recommended to use the NonSCF from_previous_run method to construct
+the input set to inherit most of the functions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>user_incar_settings:</dt>
+<dd>A dict specify customized settings for INCAR.
+Must contain a NBANDS value, suggest to use
+1.2*(NBANDS from static run).</dd>
+<dt>mode:</dt>
+<dd>Line: Generate k-points along symmetry lines for bandstructure
+Uniform: Generate uniform k-points grids for DOS</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.from_previous_vasp_run">
+<em class="property">static </em><tt class="descname">from_previous_vasp_run</tt><big>(</big><em>previous_vasp_dir</em>, <em>output_dir='.'</em>, <em>mode='Uniform'</em>, <em>user_incar_settings=None</em>, <em>copy_chgcar=True</em>, <em>make_dir_if_not_present=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPNonSCFVaspInputSet.from_previous_vasp_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.from_previous_vasp_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of Vasp input files for NonSCF calculations from a
+directory of previous static Vasp run.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>previous_vasp_dir:</dt>
+<dd>The directory contains the outputs(vasprun.xml and OUTCAR) of
+previous vasp run.</dd>
+<dt>output_dir:</dt>
+<dd>The directory to write the VASP input files for the NonSCF
+calculations. Default to write in the current directory.</dd>
+<dt>copy_chgcar:</dt>
+<dd>Default to copy CHGCAR from SC run</dd>
+<dt>make_dir_if_not_present:</dt>
+<dd>Set to True if you want the directory (and the whole path) to
+be created if it is not present.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.get_incar">
+<tt class="descname">get_incar</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPNonSCFVaspInputSet.get_incar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.get_incar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.get_incar_settings">
+<em class="property">static </em><tt class="descname">get_incar_settings</tt><big>(</big><em>vasp_run</em>, <em>outcar=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPNonSCFVaspInputSet.get_incar_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.get_incar_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to get necessary user_incar_settings from previous run.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.get_kpoints">
+<tt class="descname">get_kpoints</tt><big>(</big><em>structure</em>, <em>kpoints_density=1000</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPNonSCFVaspInputSet.get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPNonSCFVaspInputSet.get_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a KPOINTS file for NonSCF calculation. In &#8220;Line&#8221; mode, kpoints are
+generated along high symmetry lines. In &#8220;Uniform&#8221; mode, kpoints are
+Gamma-centered mesh grid. Kpoints are written explicitly in both cases.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>kpoints_density:</dt>
+<dd>kpoints density for the reciprocal cell of structure.
+Suggest to use a large kpoints_density.
+Might need to increase the default value when calculating
+metallic materials.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.vaspio_set.MPStaticVaspInputSet">
+<em class="property">class </em><tt class="descname">MPStaticVaspInputSet</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPStaticVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPStaticVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.vaspio_set.DictVaspInputSet" title="pymatgen.io.vaspio_set.DictVaspInputSet"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.vaspio_set.DictVaspInputSet</span></tt></a></p>
+<p>Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
+for static calculations that typically follow relaxation runs.
+It is recommended to use the static from_previous_run method to construct
+the input set to inherit most of the functions.</p>
+<p>Supports the same kwargs as <tt class="xref py py-class docutils literal"><span class="pre">JSONVaspInputSet</span></tt>.</p>
+<dl class="staticmethod">
+<dt id="pymatgen.io.vaspio_set.MPStaticVaspInputSet.from_previous_vasp_run">
+<em class="property">static </em><tt class="descname">from_previous_vasp_run</tt><big>(</big><em>previous_vasp_dir</em>, <em>output_dir='.'</em>, <em>user_incar_settings=None</em>, <em>make_dir_if_not_present=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPStaticVaspInputSet.from_previous_vasp_run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPStaticVaspInputSet.from_previous_vasp_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a set of Vasp input files for static calculations from a
+directory of previous Vasp run.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>previous_vasp_dir:</dt>
+<dd>The directory contains the outputs(vasprun.xml and OUTCAR) of
+previous vasp run.</dd>
+<dt>output_dir:</dt>
+<dd>The directory to write the VASP input files for the static
+calculations. Default to write in the current directory.</dd>
+<dt>make_dir_if_not_present:</dt>
+<dd>Set to True if you want the directory (and the whole path) to
+be created if it is not present.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_kpoints">
+<tt class="descname">get_kpoints</tt><big>(</big><em>structure</em>, <em>kpoints_density=90</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPStaticVaspInputSet.get_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a KPOINTS file using the fully automated grid method. Uses
+Gamma centered meshes for hexagonal cells and Monk grids otherwise.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>kpoints_density:</dt>
+<dd>kpoints density for the reciprocal cell of structure.
+Might need to increase the default value when calculating
+metallic materials.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_poscar">
+<tt class="descname">get_poscar</tt><big>(</big><em>structure</em><big>)</big><a class="headerlink" href="#pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_poscar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_structure">
+<em class="property">static </em><tt class="descname">get_structure</tt><big>(</big><em>vasp_run</em>, <em>outcar=None</em>, <em>initial_structure=False</em>, <em>additional_info=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPStaticVaspInputSet.get_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process structure for static calculations from previous run.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>vasp_run:</dt>
+<dd>Vasprun object that contains the final structure from previous
+run.</dd>
+<dt>outcar:</dt>
+<dd>Outcar object that contains the magnetization info from
+previous run.</dd>
+<dt>initial_structure:</dt>
+<dd>Whether to return the structure from previous run. Default is
+False.</dd>
+<dt>additional_info:</dt>
+<dd>Whether to return additional symmetry info related to the
+structure. If True, return a list of the refined structure (
+conventional cell), the conventional standard structure,
+the symmetry dataset and symmetry operations of the structure
+(see SymmetryFinder doc for details)</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Returns the magmom-decorated structure that can be passed to get
+Vasp input files, e.g. get_kpoints.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="data">
+<dt id="pymatgen.io.vaspio_set.MPVaspInputSet">
+<tt class="descname">MPVaspInputSet</tt><em class="property"> = &lt;functools.partial object at 0x1051d3ec0&gt;</em><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#MPVaspInputSet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.MPVaspInputSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of VaspInputSet utilizing parameters in the public
+Materials Project. Typically, the pseudopotentials chosen contain more
+electrons than the MIT parameters, and the k-point grid is ~50% more dense.
+The LDAUU parameters are also different due to the different psps used,
+which result in different fitted values. Supports the same kwargs as
+<tt class="xref py py-class docutils literal"><span class="pre">JSONVaspInputSet</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.vaspio_set.batch_write_vasp_input">
+<tt class="descname">batch_write_vasp_input</tt><big>(</big><em>structures</em>, <em>vasp_input_set</em>, <em>output_dir</em>, <em>make_dir_if_not_present=True</em>, <em>subfolder=None</em>, <em>sanitize=False</em>, <em>include_cif=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/vaspio_set.html#batch_write_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.vaspio_set.batch_write_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch write vasp input for a sequence of structures to
+output_dir, following the format output_dir/{group}/{formula}_{number}.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structures:</dt>
+<dd>Sequence of Structures.</dd>
+<dt>vasp_input_set:</dt>
+<dd>pymatgen.io.vaspio_set.VaspInputSet like object that creates
+vasp input files from structures</dd>
+<dt>output_dir:</dt>
+<dd>Directory to output files</dd>
+<dt>make_dir_if_not_present:</dt>
+<dd>Create the directory if not present. Defaults to True.</dd>
+<dt>subfolder:</dt>
+<dd>function to create subdirectory name from structure.
+Defaults to simply &#8220;formula_count&#8221;.</dd>
+<dt>sanitize:</dt>
+<dd>Boolean indicating whether to sanitize the structure before
+writing the VASP input files. Sanitized output are generally easier
+for viewing and certain forms of analysis. Defaults to False.</dd>
+<dt>include_cif:</dt>
+<dd>Boolean indication whether to output a CIF as well. CIF files are
+generally better supported in visualization programs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.xyzio">
+<span id="xyzio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">xyzio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.xyzio" title="Permalink to this headline">¶</a></h2>
+<p>Module implementing an XYZ file object class.</p>
+<dl class="class">
+<dt id="pymatgen.io.xyzio.XYZ">
+<em class="property">class </em><tt class="descname">XYZ</tt><big>(</big><em>mol</em>, <em>coord_precision=6</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/xyzio.html#XYZ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyzio.XYZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Basic class for importing and exporting Molecules or Structures in XYZ
+format.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Exporting periodic structures in the XYZ format will lose information
+about the periodicity. Essentially, only cartesian coordinates are
+written in this format and no information is retained about the
+lattice.</p>
+</div>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Input molecule</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.xyzio.XYZ.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/xyzio.html#XYZ.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyzio.XYZ.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates XYZ object from a file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>XYZ filename</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>XYZ object</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.xyzio.XYZ.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>contents</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/xyzio.html#XYZ.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyzio.XYZ.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates XYZ object from a string.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>contents:</dt>
+<dd>String representing an XYZ file.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>XYZ object</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.io.xyzio.XYZ.molecule">
+<tt class="descname">molecule</tt><a class="reference internal" href="_modules/pymatgen/io/xyzio.html#XYZ.molecule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyzio.XYZ.molecule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns molecule associated with this XYZ.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.io.xyzio.XYZ.write_file">
+<tt class="descname">write_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/xyzio.html#XYZ.write_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.xyzio.XYZ.write_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes XYZ to file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>File name of output file.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.io.zeoio">
+<span id="zeoio-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">zeoio</span></tt> Module<a class="headerlink" href="#module-pymatgen.io.zeoio" title="Permalink to this headline">¶</a></h2>
+<p>Module implementing classes and functions to use Zeo++.
+Zeo++ can be obtained from <a class="reference external" href="http://www.maciejharanczyk.info/Zeopp/">http://www.maciejharanczyk.info/Zeopp/</a></p>
+<dl class="class">
+<dt id="pymatgen.io.zeoio.ZeoCssr">
+<em class="property">class </em><tt class="descname">ZeoCssr</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#ZeoCssr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.ZeoCssr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.cssrio.Cssr" title="pymatgen.io.cssrio.Cssr"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.cssrio.Cssr</span></tt></a></p>
+<p>ZeoCssr adds extra fields to CSSR sites to conform with Zeo++ 
+input CSSR format. The coordinate system is rorated from xyz to zyx. 
+This change aligns the pivot axis of pymatgen (z-axis) to pivot axis 
+of Zeo++ (x-axis) for structurural modifications.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure to create ZeoCssr object</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeoio.ZeoCssr.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#ZeoCssr.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.ZeoCssr.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a CSSR file to a ZeoCssr object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename to read from.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>ZeoCssr object.</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeoio.ZeoCssr.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#ZeoCssr.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.ZeoCssr.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a string representation to a ZeoCssr object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>string:</dt>
+<dd>A string representation of a ZeoCSSR.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>ZeoCssr object.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.io.zeoio.ZeoVoronoiXYZ">
+<em class="property">class </em><tt class="descname">ZeoVoronoiXYZ</tt><big>(</big><em>mol</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#ZeoVoronoiXYZ"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.ZeoVoronoiXYZ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.xyzio.XYZ" title="pymatgen.io.xyzio.XYZ"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.xyzio.XYZ</span></tt></a></p>
+<p>Class to read Voronoi Nodes from XYZ file written by Zeo++.
+The sites have an additional column representing the voronoi node radius.
+The voronoi node radius is represented by the site property voronoi_radius.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>Input molecule holding the voronoi node information</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeoio.ZeoVoronoiXYZ.from_file">
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#ZeoVoronoiXYZ.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.ZeoVoronoiXYZ.from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates XYZ object from a file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>XYZ filename</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>XYZ object</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.io.zeoio.ZeoVoronoiXYZ.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>contents</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#ZeoVoronoiXYZ.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.ZeoVoronoiXYZ.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates Zeo++ Voronoi XYZ object from a string.
+from_string method of XYZ class is being redefined.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>contents:</dt>
+<dd>String representing Zeo++ Voronoi XYZ file.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>ZeoVoronoiXYZ object</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeoio.get_void_volume_surfarea">
+<tt class="descname">get_void_volume_surfarea</tt><big>(</big><em>structure</em>, <em>rad_dict=None</em>, <em>chan_rad=0.2</em>, <em>probe_rad=0.1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#get_void_volume_surfarea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.get_void_volume_surfarea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the volume and surface area of isolated void using Zeo++.
+Useful to compute the volume and surface area of vacant site.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen Structure containing vacancy</dd>
+<dt>rad_dict(optional):</dt>
+<dd>Dictionary with short name of elements and their radii.</dd>
+<dt>chan_rad(optional):</dt>
+<dd>Minimum channel Radius.</dd>
+<dt>probe_rad(optional)</dt>
+<dd>Probe radius for Monte Carlo sampling.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>volume:</dt>
+<dd>floating number representing the volume of void</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.io.zeoio.get_voronoi_nodes">
+<tt class="descname">get_voronoi_nodes</tt><big>(</big><em>structure</em>, <em>rad_dict=None</em>, <em>probe_rad=0.1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/zeoio.html#get_voronoi_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.zeoio.get_voronoi_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Analyze the void space in the input structure using voronoi decomposition
+Calls Zeo++ for Voronoi decomposition</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>pymatgen.core.structure.Structure</dd>
+<dt>rad_dict (optional):</dt>
+<dd>Dictionary of radii of elements in structure. 
+If not given, Zeo++ default values are used.
+Note: Zeo++ uses atomic radii of elements.
+For ionic structures, pass rad_dict with ionic radii</dd>
+<dt>probe_rad (optional):</dt>
+<dd>Sampling probe radius in Angstroms. Default is 0.1 A</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>voronoi nodes as pymatgen.core.structure.Strucutre within the 
+unit cell defined by the lattice of input structure</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.abinitio.html">abinitio Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#id1"><tt class="docutils literal"><span class="pre">abinitio</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.abiinspect"><tt class="docutils literal"><span class="pre">abiinspect</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.abiobjects"><tt class="docutils literal"><span class="pre">abiobjects</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.abitimer"><tt class="docutils literal"><span class="pre">abitimer</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.calculations"><tt class="docutils literal"><span class="pre">calculations</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.eos"><tt class="docutils literal"><span class="pre">eos</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.events"><tt class="docutils literal"><span class="pre">events</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.flows"><tt class="docutils literal"><span class="pre">flows</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.launcher"><tt class="docutils literal"><span class="pre">launcher</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.netcdf"><tt class="docutils literal"><span class="pre">netcdf</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.pseudos"><tt class="docutils literal"><span class="pre">pseudos</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.qadapters"><tt class="docutils literal"><span class="pre">qadapters</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.strategies"><tt class="docutils literal"><span class="pre">strategies</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.tasks"><tt class="docutils literal"><span class="pre">tasks</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.utils"><tt class="docutils literal"><span class="pre">utils</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.workflows"><tt class="docutils literal"><span class="pre">workflows</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.abinitio.html#module-pymatgen.io.abinitio.wrappers"><tt class="docutils literal"><span class="pre">wrappers</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.io.vaspio.html">vaspio Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vaspio.html#id1"><tt class="docutils literal"><span class="pre">vaspio</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vaspio.html#module-pymatgen.io.vaspio.vasp_input"><tt class="docutils literal"><span class="pre">vasp_input</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.io.vaspio.html#module-pymatgen.io.vaspio.vasp_output"><tt class="docutils literal"><span class="pre">vasp_output</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">io Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">io</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.aseio"><tt class="docutils literal"><span class="pre">aseio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.babelio"><tt class="docutils literal"><span class="pre">babelio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.cifio"><tt class="docutils literal"><span class="pre">cifio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.cssrio"><tt class="docutils literal"><span class="pre">cssrio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.feffio"><tt class="docutils literal"><span class="pre">feffio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.feffio_set"><tt class="docutils literal"><span class="pre">feffio_set</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.gaussianio"><tt class="docutils literal"><span class="pre">gaussianio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.nwchemio"><tt class="docutils literal"><span class="pre">nwchemio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.smartio"><tt class="docutils literal"><span class="pre">smartio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.vaspio_set"><tt class="docutils literal"><span class="pre">vaspio_set</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.xyzio"><tt class="docutils literal"><span class="pre">xyzio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.zeoio"><tt class="docutils literal"><span class="pre">zeoio</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pymatgen.io.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

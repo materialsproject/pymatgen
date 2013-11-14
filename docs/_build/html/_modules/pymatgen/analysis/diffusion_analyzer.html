@@ -1,0 +1,521 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.diffusion_analyzer &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.analysis.diffusion_analyzer</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A module to perform diffusion analyses (e.g. calculating diffusivity from</span>
+<span class="sd">mean square displacements etc.). If you use this module, please consider</span>
+<span class="sd">citing the following papers::</span>
+
+<span class="sd">    Ong, S. P., Mo, Y., Richards, W. D., Miara, L., Lee, H. S., &amp; Ceder, G.</span>
+<span class="sd">    (2013). Phase stability, electrochemical stability and ionic conductivity</span>
+<span class="sd">    of the Li10+-1MP2X12 (M = Ge, Si, Sn, Al or P, and X = O, S or Se) family</span>
+<span class="sd">    of superionic conductors. Energy &amp; Environmental Science, 6(1), 148.</span>
+<span class="sd">    doi:10.1039/c2ee23355j</span>
+
+<span class="sd">    Mo, Y., Ong, S. P., &amp; Ceder, G. (2012). First Principles Study of the</span>
+<span class="sd">    Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,</span>
+<span class="sd">    24(1), 15-17. doi:10.1021/cm203303y</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Will Richards&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Will Richards&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;wrichard@mit.edu&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Beta&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;5/2/13&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">smart_element_or_specie</span>
+<span class="kn">import</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">as</span> <span class="nn">phyc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_output</span> <span class="kn">import</span> <span class="n">Vasprun</span>
+
+
+<div class="viewcode-block" id="DiffusionAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">DiffusionAnalyzer</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for performing diffusion analysis.</span>
+
+<span class="sd">    .. attribute: diffusivity</span>
+
+<span class="sd">        Diffusivity in cm^2 / cm</span>
+
+<span class="sd">    .. attribute: conductivity</span>
+
+<span class="sd">        Conductivity in mS / cm</span>
+
+<span class="sd">    .. attribute: diffusivity_components</span>
+
+<span class="sd">        A vector with diffusivity in the a, b and c directions in cm^2 / cm</span>
+
+<span class="sd">    .. attribute: conductivity components</span>
+
+<span class="sd">        A vector with conductivity in the a, b and c directions in mS / cm</span>
+
+<span class="sd">    .. attribute: max_framework_displacement</span>
+
+<span class="sd">        The maximum (drift adjusted) distance of any framework atom from its</span>
+<span class="sd">        starting location in A</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">displacements</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span>
+                 <span class="n">time_step</span><span class="p">,</span> <span class="n">step_skip</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_obs</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">weighted</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This constructor is meant to be used with pre-processed data.</span>
+<span class="sd">        Other convenient constructors are provided as class methods (see</span>
+<span class="sd">        from_vaspruns and from_files).</span>
+
+<span class="sd">        Given a matrix of displacements (see arguments below for expected</span>
+<span class="sd">        format), the diffusivity is given by:</span>
+
+<span class="sd">        D = 1 / 2dt * &lt;mean square displacement&gt;</span>
+
+<span class="sd">        where d is the dimensionality, t is the time. To obtain a reliable</span>
+<span class="sd">        diffusion estimate, a least squares regression of the MSD against</span>
+<span class="sd">        time to obtain the slope, which is then related to the diffusivity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure:</span>
+<span class="sd">                Initial structure.</span>
+<span class="sd">            displacements:</span>
+<span class="sd">                Numpy array of with shape [site, time step, axis]</span>
+<span class="sd">            specie:</span>
+<span class="sd">                Specie to calculate diffusivity for as a String. E.g., &quot;Li&quot;.</span>
+<span class="sd">            temperature:</span>
+<span class="sd">                Temperature of the diffusion run in Kelvin.</span>
+<span class="sd">            time_step:</span>
+<span class="sd">                Time step between measurements.</span>
+<span class="sd">            step_skip:</span>
+<span class="sd">                Sampling frequency of the displacements (time_step is</span>
+<span class="sd">                multiplied by this number to get the real time between</span>
+<span class="sd">                measurements)</span>
+<span class="sd">            min_obs:</span>
+<span class="sd">                Minimum number of observations to have before including in</span>
+<span class="sd">                the MSD vs dt calculation. E.g. If a structure has 10</span>
+<span class="sd">                diffusing atoms, and min_obs = 30, the MSD vs dt will be</span>
+<span class="sd">                calculated up to dt = total_run_time / 3, so that each</span>
+<span class="sd">                diffusing atom is measured at least 3 uncorrelated times.</span>
+<span class="sd">            weighted:</span>
+<span class="sd">                Uses a weighted least squares to fit the MSD vs dt. Weights are</span>
+<span class="sd">                proportional to 1/dt, since the number of observations are</span>
+<span class="sd">                also proportional to 1/dt (and hence the variance is</span>
+<span class="sd">                proportional to dt)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disp</span> <span class="o">=</span> <span class="n">displacements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sp</span> <span class="o">=</span> <span class="n">specie</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">time_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_skip</span> <span class="o">=</span> <span class="n">step_skip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_obs</span> <span class="o">=</span> <span class="n">min_obs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span> <span class="o">=</span> <span class="n">weighted</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framework_indices</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="n">specie</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">framework_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity</span> <span class="o">=</span> <span class="mf">0.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_components</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_framework_displacement</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">framework_disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">framework_indices</span><span class="p">]</span>
+            <span class="n">drift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">framework_disp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+            <span class="c">#drift corrected position</span>
+            <span class="n">dc_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span> <span class="o">-</span> <span class="n">drift</span>
+            <span class="n">dc_framework</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">framework_indices</span><span class="p">]</span> <span class="o">-</span> <span class="n">drift</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_framework_displacement</span> <span class="o">=</span> \
+                <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dc_framework</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">df_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">dc_x</span><span class="p">)</span>
+
+            <span class="c">#limit the number of sampled timesteps to 200</span>
+            <span class="n">min_dt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1000</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step_skip</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">))</span>
+            <span class="n">max_dt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dc_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">dc_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_obs</span><span class="p">,</span>
+                         <span class="n">dc_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">min_dt</span><span class="p">,</span> <span class="n">max_dt</span><span class="p">,</span>
+                                  <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">max_dt</span> <span class="o">-</span> <span class="n">min_dt</span><span class="p">)</span> <span class="o">/</span> <span class="mi">200</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">timesteps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_skip</span>
+
+            <span class="c">#calculate the smoothed msd values</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s_msd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s_msd_components</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
+            <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">timesteps</span><span class="p">):</span>
+                <span class="n">dx</span> <span class="o">=</span> <span class="n">dc_x</span><span class="p">[:,</span> <span class="n">n</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">dc_x</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">s_msd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">dx</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">dcomponents</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_x</span><span class="p">[:,</span> <span class="n">n</span><span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">df_x</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="n">n</span><span class="p">,</span> <span class="p">:])</span> <span class="o">*</span> <span class="n">lengths</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">s_msd_components</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">dcomponents</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c">#run the regression on the msd components</span>
+            <span class="k">if</span> <span class="n">weighted</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
+
+            <span class="c">#weighted least squares</span>
+            <span class="k">def</span> <span class="nf">weighted_lstsq</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+                <span class="n">w_root</span> <span class="o">=</span> <span class="n">w</span> <span class="o">**</span> <span class="mf">0.5</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">w_root</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">],</span>
+                                                  <span class="n">b</span> <span class="o">*</span> <span class="n">w_root</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">x</span>
+
+            <span class="n">m_components</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">a</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">weighted_lstsq</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_msd_components</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">w</span><span class="p">)</span>
+                <span class="n">m_components</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">1e-15</span><span class="p">)</span>
+
+            <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="o">=</span> <span class="n">weighted_lstsq</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_msd</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+            <span class="c">#m shouldn&#39;t be negative</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mf">1e-15</span><span class="p">)</span>
+
+            <span class="c">#factor of 10 is to convert from A^2/fs to cm^2/s</span>
+            <span class="c">#factor of 6 is for dimensionality</span>
+            <span class="n">conv_factor</span> <span class="o">=</span> <span class="n">get_conversion_factor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">,</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span> <span class="o">=</span> <span class="n">m</span> <span class="o">/</span> <span class="mi">60</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity</span> <span class="o">*</span> <span class="n">conv_factor</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components</span> <span class="o">=</span> <span class="n">m_components</span> <span class="o">/</span> <span class="mi">20</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_components</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diffusivity_components</span> <span class="o">*</span> \
+                <span class="n">conv_factor</span>
+
+<div class="viewcode-block" id="DiffusionAnalyzer.plot_smoothed_msd"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_smoothed_msd">[docs]</a>    <span class="k">def</span> <span class="nf">plot_smoothed_msd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the smoothed msd vs time graph. Useful for checking convergence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pymatgen.util.plotting_utils</span> <span class="kn">import</span> <span class="n">get_publication_quality_plot</span>
+        <span class="n">plt</span> <span class="o">=</span> <span class="n">get_publication_quality_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_msd</span><span class="p">,</span> <span class="s">&#39;k&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_msd_components</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_msd_components</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s">&#39;g&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s_msd_components</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="s">&#39;b&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s">&quot;Overall&quot;</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;c&quot;</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;size&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">})</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Timestep&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;MSD&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DiffusionAnalyzer.from_vaspruns"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_vaspruns">[docs]</a>    <span class="k">def</span> <span class="nf">from_vaspruns</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">vaspruns</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">min_obs</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">weighted</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenient constructor that takes in a list of Vasprun objects to</span>
+<span class="sd">        perform diffusion analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            vaspruns:</span>
+<span class="sd">                list of Vasprun objects (must be ordered in sequence of run).</span>
+<span class="sd">                 E.g., you may have performed sequential VASP runs to obtain</span>
+<span class="sd">                 sufficient statistics.</span>
+<span class="sd">            specie:</span>
+<span class="sd">                Specie to calculate diffusivity for as a String. E.g., &quot;Li&quot;.</span>
+<span class="sd">            min_obs:</span>
+<span class="sd">                Minimum number of observations to have before including in</span>
+<span class="sd">                the MSD vs dt calculation. E.g. If a structure has 10</span>
+<span class="sd">                diffusing atoms, and min_obs = 30, the MSD vs dt will be</span>
+<span class="sd">                calculated up to dt = total_run_time / 3, so that each</span>
+<span class="sd">                diffusing atom is measured at least 3 uncorrelated times.</span>
+<span class="sd">            weighted:</span>
+<span class="sd">                Uses a weighted least squares to fit the MSD vs dt. Weights are</span>
+<span class="sd">                proportional to 1/dt, since the number of observations are</span>
+<span class="sd">                also proportional to 1/dt (and hence the variance is</span>
+<span class="sd">                proportional to dt)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">initial_structure</span>
+        <span class="n">step_skip</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ionic_step_skip</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">vr</span> <span class="ow">in</span> <span class="n">vaspruns</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">vr</span><span class="o">.</span><span class="n">ionic_step_skip</span> <span class="o">==</span> <span class="n">step_skip</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s">&#39;structure&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span>
+                      <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">vr</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">])</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">p</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dp</span><span class="p">[:,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)]),</span> <span class="n">dp</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">dp</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span>
+        <span class="n">f_disp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">f_disp</span><span class="p">)</span>
+
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s">&#39;TEEND&#39;</span><span class="p">]</span>
+        <span class="n">time_step</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="s">&#39;POTIM&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">disp</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span>
+                   <span class="n">time_step</span><span class="p">,</span> <span class="n">step_skip</span><span class="o">=</span><span class="n">step_skip</span><span class="p">,</span> <span class="n">min_obs</span><span class="o">=</span><span class="n">min_obs</span><span class="p">,</span>
+                   <span class="n">weighted</span><span class="o">=</span><span class="n">weighted</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DiffusionAnalyzer.from_files"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_files">[docs]</a>    <span class="k">def</span> <span class="nf">from_files</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">,</span> <span class="n">specie</span><span class="p">,</span> <span class="n">step_skip</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_obs</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+                   <span class="n">weighted</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">ncores</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenient constructor that takes in a list of vasprun.xml paths to</span>
+<span class="sd">        perform diffusion analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filepaths:</span>
+<span class="sd">                List of paths to vasprun.xml files of runs. (must be</span>
+<span class="sd">                ordered in sequence of run). For example,</span>
+<span class="sd">                you may have done sequential VASP runs and they are in run1,</span>
+<span class="sd">                run2, run3, etc. You should then pass in</span>
+<span class="sd">                [&quot;run1/vasprun.xml&quot;, &quot;run2/vasprun.xml&quot;, ...].</span>
+<span class="sd">            specie:</span>
+<span class="sd">                Specie to calculate diffusivity for as a String. E.g., &quot;Li&quot;.</span>
+<span class="sd">            step_skip:</span>
+<span class="sd">                Sampling frequency of the displacements (time_step is</span>
+<span class="sd">                multiplied by this number to get the real time between</span>
+<span class="sd">                measurements). E.g., you may not want to sample every single</span>
+<span class="sd">                time step.</span>
+<span class="sd">            min_obs:</span>
+<span class="sd">                Minimum number of observations to have before including in</span>
+<span class="sd">                the MSD vs dt calculation. E.g. If a structure has 10</span>
+<span class="sd">                diffusing atoms, and min_obs = 30, the MSD vs dt will be</span>
+<span class="sd">                calculated up to dt = total_run_time / 3, so that each</span>
+<span class="sd">                diffusing atom is measured at least 3 uncorrelated times.</span>
+<span class="sd">            weighted:</span>
+<span class="sd">                Uses a weighted least squares to fit the MSD vs dt. Weights are</span>
+<span class="sd">                proportional to 1/dt, since the number of observations are</span>
+<span class="sd">                also proportional to 1/dt (and hence the variance is</span>
+<span class="sd">                proportional to dt)</span>
+<span class="sd">            ncores:</span>
+<span class="sd">                Numbers of cores to use for multiprocessing. Can speed up</span>
+<span class="sd">                vasprun parsing considerable. Defaults to None,</span>
+<span class="sd">                which means serial.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="nb">map</span>
+        <span class="k">if</span> <span class="n">ncores</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">multiprocessing</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">ncores</span><span class="p">)</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">map</span>
+        <span class="n">vaspruns</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">_get_vasprun</span><span class="p">,</span> <span class="p">[(</span><span class="n">p</span><span class="p">,</span> <span class="n">step_skip</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">filepaths</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_vaspruns</span><span class="p">(</span><span class="n">vaspruns</span><span class="p">,</span> <span class="n">min_obs</span><span class="o">=</span><span class="n">min_obs</span><span class="p">,</span>
+                                 <span class="n">weighted</span><span class="o">=</span><span class="n">weighted</span><span class="p">,</span> <span class="n">specie</span><span class="o">=</span><span class="n">specie</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="DiffusionAnalyzer.to_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="s">&quot;structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">to_dict</span><span class="p">,</span>
+            <span class="s">&quot;displacements&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s">&quot;specie&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp</span><span class="p">,</span>
+            <span class="s">&quot;temperature&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="s">&quot;time_step&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span>
+            <span class="s">&quot;step_skip&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_skip</span><span class="p">,</span>
+            <span class="s">&quot;min_obs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_obs</span><span class="p">,</span>
+            <span class="s">&quot;weighted&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">weighted</span>
+        <span class="p">}</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DiffusionAnalyzer.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;structure&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;displacements&quot;</span><span class="p">]),</span> <span class="n">specie</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;specie&quot;</span><span class="p">],</span>
+                   <span class="n">temperature</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;temperature&quot;</span><span class="p">],</span> <span class="n">time_step</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;time_step&quot;</span><span class="p">],</span>
+                   <span class="n">step_skip</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;step_skip&quot;</span><span class="p">],</span> <span class="n">min_obs</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;min_obs&quot;</span><span class="p">],</span>
+                   <span class="n">weighted</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;weighted&quot;</span><span class="p">])</span>
+
+</div></div>
+<div class="viewcode-block" id="get_conversion_factor"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.get_conversion_factor">[docs]</a><span class="k">def</span> <span class="nf">get_conversion_factor</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">temperature</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Conversion factor to convert between cm^2/s diffusivity measurements and</span>
+<span class="sd">    mS/cm conductivity measurements based on number of atoms of diffusing</span>
+<span class="sd">    species. Note that the charge is based on the oxidation state of the</span>
+<span class="sd">    species (where available), or else the number of valence electrons</span>
+<span class="sd">    (usually a good guess, esp for main group ions).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure:</span>
+<span class="sd">            Input structure.</span>
+<span class="sd">        species:</span>
+<span class="sd">            Diffusing species.</span>
+<span class="sd">        temperature:</span>
+<span class="sd">            Temperature of the diffusion run in Kelvin.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Conversion factor.</span>
+<span class="sd">        Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df_sp</span> <span class="o">=</span> <span class="n">smart_element_or_specie</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">df_sp</span><span class="p">,</span> <span class="s">&quot;oxi_state&quot;</span><span class="p">):</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">df_sp</span><span class="o">.</span><span class="n">oxi_state</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">df_sp</span><span class="o">.</span><span class="n">full_electronic_structure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">species</span><span class="p">]</span>
+
+    <span class="n">V</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="mf">1e-24</span>  <span class="c"># units cm^3</span>
+    <span class="k">return</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="p">(</span><span class="n">V</span> <span class="o">*</span> <span class="n">phyc</span><span class="o">.</span><span class="n">N_a</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">phyc</span><span class="o">.</span><span class="n">F</span> <span class="o">**</span> <span class="mi">2</span>\
+        <span class="o">/</span> <span class="p">(</span><span class="n">phyc</span><span class="o">.</span><span class="n">R</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_get_vasprun</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Internal method to support multiprocessing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ionic_step_skip</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+<div class="viewcode-block" id="get_arrhenius_plot"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.get_arrhenius_plot">[docs]</a><span class="k">def</span> <span class="nf">get_arrhenius_plot</span><span class="p">(</span><span class="n">temps</span><span class="p">,</span> <span class="n">diffusivites</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an Arrhenius plot.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        temps:</span>
+<span class="sd">            A sequence of temperatures.</span>
+<span class="sd">        diffusivities:</span>
+<span class="sd">            A sequence of diffusivities (e.g., from DiffusionAnalyzer</span>
+<span class="sd">            .diffusivity).</span>
+<span class="sd">        \*\*kwargs:</span>
+<span class="sd">            Any keyword args supported by matplotlib.pyplot.plot.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A matplotlib.pyplot object. Do plt.show() to show the plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t_1</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">temps</span><span class="p">)</span>
+    <span class="n">logd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">diffusivites</span><span class="p">)</span>
+    <span class="c">#Do a least squares regression of log(D) vs 1000/T</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t_1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temps</span><span class="p">))])</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">logd</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="kn">from</span> <span class="nn">pymatgen.util.plotting_utils</span> <span class="kn">import</span> <span class="n">get_publication_quality_plot</span>
+    <span class="n">plt</span> <span class="o">=</span> <span class="n">get_publication_quality_plot</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_1</span><span class="p">,</span> <span class="n">logd</span><span class="p">,</span> <span class="s">&#39;ko&#39;</span><span class="p">,</span> <span class="n">t_1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">w</span><span class="p">),</span> <span class="s">&#39;k--&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+             <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c"># Calculate the activation energy in meV = negative of the slope,</span>
+    <span class="c"># * kB (/ electron charge to convert to eV), * 1000 (inv. temperature</span>
+    <span class="c"># scale), * 1000 (eV -&gt; meV), * math.log(10) (the regression is carried</span>
+    <span class="c"># out in base 10 for easier reading of the diffusivity scale,</span>
+    <span class="c"># but the Arrhenius relationship is in base e).</span>
+    <span class="n">actv_energy</span> <span class="o">=</span> <span class="o">-</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">phyc</span><span class="o">.</span><span class="n">k_b</span> <span class="o">/</span> <span class="n">phyc</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s">&quot;E$_a$ = {:.0f} meV&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">actv_energy</span><span class="p">),</span>
+                 <span class="p">(</span><span class="n">t_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">t_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">w</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                 <span class="n">xycoords</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="n">textcoords</span><span class="o">=</span><span class="s">&#39;offset points&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;log(D (cm$^2$/s))&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;1000/T (K$^{-1}$)&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">plt</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

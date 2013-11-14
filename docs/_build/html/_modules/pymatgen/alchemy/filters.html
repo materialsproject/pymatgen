@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.alchemy.filters &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.alchemy.filters</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines filters for Transmuter object.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Will Richards, Shyue Ping Ong, Stephen Dacek&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Will Richards&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;wrichards@mit.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Sep 25, 2012&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">smart_element_or_specie</span>
+<span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span><span class="p">,</span>\
+    <span class="n">ElementComparator</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+
+
+<div class="viewcode-block" id="AbstractStructureFilter"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.AbstractStructureFilter">[docs]</a><span class="k">class</span> <span class="nc">AbstractStructureFilter</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract structure filter class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="AbstractStructureFilter.test"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.AbstractStructureFilter.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a boolean for any structure. Structures that return true are</span>
+<span class="sd">        kept in the Transmuter object during filtering.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="AbstractStructureFilter.from_dict"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.AbstractStructureFilter.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">trans_modules</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;filters&#39;</span><span class="p">]:</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;pymatgen.alchemy.&#39;</span> <span class="o">+</span> <span class="n">trans_modules</span><span class="p">,</span>
+                             <span class="nb">globals</span><span class="p">(),</span> <span class="nb">locals</span><span class="p">(),</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s">&#39;@class&#39;</span><span class="p">]],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;@class&#39;</span><span class="p">]):</span>
+                <span class="n">trans</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;@class&#39;</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">trans</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s">&#39;init_args&#39;</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid filter dict&quot;</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="ContainsSpecieFilter"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.ContainsSpecieFilter">[docs]</a><span class="k">class</span> <span class="nc">ContainsSpecieFilter</span><span class="p">(</span><span class="n">AbstractStructureFilter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter for structures containing certain elements or species.</span>
+<span class="sd">    By default compares by atomic number</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">strict_compare</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">AND</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            species:</span>
+<span class="sd">                list of species to look for</span>
+<span class="sd">            AND:</span>
+<span class="sd">                whether all species must be present to pass (or fail)</span>
+<span class="sd">                filter.</span>
+<span class="sd">            strict_compare:</span>
+<span class="sd">                if true, compares objects by specie or element object</span>
+<span class="sd">                if false, compares atomic number</span>
+<span class="sd">            exclude:</span>
+<span class="sd">                if true, returns false for any structures with the specie</span>
+<span class="sd">                (excludes them from the Transmuter)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_species</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">smart_element_or_specie</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strict</span> <span class="o">=</span> <span class="n">strict_compare</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_AND</span> <span class="o">=</span> <span class="n">AND</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span> <span class="o">=</span> <span class="n">exclude</span>
+
+<div class="viewcode-block" id="ContainsSpecieFilter.test"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.ContainsSpecieFilter.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="c">#set up lists to compare</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strict</span><span class="p">:</span>
+            <span class="c">#compare by atomic number</span>
+            <span class="n">atomic_number</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">Z</span>
+            <span class="n">filter_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">))</span>
+            <span class="n">structure_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">atomic_number</span><span class="p">,</span>
+                                <span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c">#compare by specie or element object</span>
+            <span class="n">filter_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">)</span>
+            <span class="n">structure_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AND</span> <span class="ow">and</span> <span class="n">filter_set</span> <span class="o">&lt;=</span> <span class="n">structure_set</span><span class="p">:</span>
+            <span class="c">#return true if we aren&#39;t excluding since all are in structure</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AND</span><span class="p">)</span> <span class="ow">and</span> <span class="n">filter_set</span> <span class="o">&amp;</span> <span class="n">structure_set</span><span class="p">:</span>
+            <span class="c">#return true if we aren&#39;t excluding since one is in structure</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c">#return false if we aren&#39;t excluding otherwise</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span>
+</div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;ContainsSpecieFilter with parameters:&quot;</span><span class="p">,</span>
+                          <span class="s">&quot;species = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">),</span>
+                          <span class="s">&quot;strict_compare = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_strict</span><span class="p">),</span>
+                          <span class="s">&quot;AND = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_AND</span><span class="p">),</span>
+                          <span class="s">&quot;exclude = {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span><span class="p">)])</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ContainsSpecieFilter.to_dict"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.ContainsSpecieFilter.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                <span class="s">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;species&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_species</span><span class="p">],</span>
+                              <span class="s">&quot;strict_compare&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strict</span><span class="p">,</span>
+                              <span class="s">&quot;AND&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AND</span><span class="p">,</span>
+                              <span class="s">&quot;exclude&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exclude</span><span class="p">}}</span>
+
+</div></div>
+<div class="viewcode-block" id="SpecieProximityFilter"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.SpecieProximityFilter">[docs]</a><span class="k">class</span> <span class="nc">SpecieProximityFilter</span><span class="p">(</span><span class="n">AbstractStructureFilter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This filter removes structures that have certain species that are too close</span>
+<span class="sd">    together.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">specie_and_min_dist_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            specie_and_min_dist_dict:</span>
+<span class="sd">                A species string to float mapping. For example, {&quot;Na+&quot;: 1}</span>
+<span class="sd">                means that all Na+ ions must be at least 1 Angstrom away from</span>
+<span class="sd">                each other. Multiple species criteria can be applied. Note that</span>
+<span class="sd">                the testing is done based on the actual object. If you have a</span>
+<span class="sd">                structure with Element, you must use {&quot;Na&quot;:1} instead to filter</span>
+<span class="sd">                based on Element and not Specie.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span> <span class="o">=</span> <span class="p">{</span><span class="n">smart_element_or_specie</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span>
+                                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span>
+                                    <span class="ow">in</span> <span class="n">specie_and_min_dist_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<div class="viewcode-block" id="SpecieProximityFilter.test"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.SpecieProximityFilter.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="n">all_species</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">structure</span><span class="p">:</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">sp_to_test</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">species</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">all_species</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">sp_to_test</span><span class="p">:</span>
+                <span class="n">max_r</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
+                             <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">sp_to_test</span><span class="p">])</span>
+                <span class="n">nn</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">max_r</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">sp_to_test</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">nnsite</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">nn</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">nnsite</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span><span class="p">[</span><span class="n">sp</span><span class="p">]:</span>
+                                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="SpecieProximityFilter.to_dict"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.SpecieProximityFilter.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                <span class="s">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;specie_and_min_dist_dict&quot;</span><span class="p">:</span>
+                              <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span> <span class="n">v</span>
+                              <span class="k">for</span> <span class="n">sp</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">specie_and_min_dist</span><span class="o">.</span><span class="n">items</span><span class="p">()}}}</span>
+
+</div></div>
+<div class="viewcode-block" id="RemoveDuplicatesFilter"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.RemoveDuplicatesFilter">[docs]</a><span class="k">class</span> <span class="nc">RemoveDuplicatesFilter</span><span class="p">(</span><span class="n">AbstractStructureFilter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This filter removes exact duplicate structures from the transmuter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure_matcher</span><span class="o">=</span><span class="n">StructureMatcher</span><span class="p">(</span>
+                 <span class="n">comparator</span><span class="o">=</span><span class="n">ElementComparator</span><span class="p">()),</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove duplicate structures based on the structure matcher</span>
+<span class="sd">        and symmetry (if symprec is given).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure_matcher:</span>
+<span class="sd">                Provides a structure matcher to be used for structure</span>
+<span class="sd">                comparison.</span>
+<span class="sd">            symprec:</span>
+<span class="sd">                The precision in the symmetry finder algorithm</span>
+<span class="sd">                if None (default value), no symmetry check is performed and</span>
+<span class="sd">                only the structure matcher is used. A recommended value is 1e-5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span> <span class="o">=</span> <span class="n">symprec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure_matcher</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">structure_matcher</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sm</span> <span class="o">=</span> <span class="n">structure_matcher</span>
+
+<div class="viewcode-block" id="RemoveDuplicatesFilter.test"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.RemoveDuplicatesFilter.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_structure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+
+        <span class="k">def</span> <span class="nf">get_sg</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="n">finder</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_spacegroup_number</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sm</span><span class="o">.</span><span class="n">_comparator</span><span class="o">.</span><span class="n">get_structure_hash</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="o">==</span>\
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_sm</span><span class="o">.</span><span class="n">_comparator</span><span class="o">.</span><span class="n">get_structure_hash</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> \
+                        <span class="n">get_sg</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="n">get_sg</span><span class="p">(</span><span class="n">structure</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="RemoveDuplicatesFilter.to_dict"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.RemoveDuplicatesFilter.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                <span class="s">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;structure_matcher&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sm</span><span class="o">.</span><span class="n">to_dict</span><span class="p">}}</span>
+
+</div></div>
+<div class="viewcode-block" id="ChargeBalanceFilter"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.ChargeBalanceFilter">[docs]</a><span class="k">class</span> <span class="nc">ChargeBalanceFilter</span><span class="p">(</span><span class="n">AbstractStructureFilter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This filter removes structures that are not charge balanced from the</span>
+<span class="sd">    transmuter. This only works if the structure is oxidation state</span>
+<span class="sd">    decorated, as structures with only elemental sites are automatically</span>
+<span class="sd">    assumed to have net charge of 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ChargeBalanceFilter.test"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.ChargeBalanceFilter.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">structure</span><span class="o">.</span><span class="n">charge</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChargeBalanceFilter.to_dict"><a class="viewcode-back" href="../../../pymatgen.alchemy.html#pymatgen.alchemy.filters.ChargeBalanceFilter.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">}</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
