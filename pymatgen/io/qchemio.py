@@ -131,12 +131,13 @@ class QcInput(MSONable):
         if rem_params is not None:
             for k, v in rem_params:
                 self.params["rem"][k.lower()] = v.lower()
-        op_key = set([k.lower() for k in optional_params.keys()])
-        if len(op_key - self.optional_keywords_list) > 0:
-            invalid_keys = op_key - self.optional_keywords_list
-            raise ValueError(','.join(['$' + k for k in invalid_keys]) +
-                             'is not a valid optional section')
-        self.params.update(optional_params)
+        if optional_params:
+            op_key = set([k.lower() for k in optional_params.keys()])
+            if len(op_key - self.optional_keywords_list) > 0:
+                invalid_keys = op_key - self.optional_keywords_list
+                raise ValueError(','.join(['$' + k for k in invalid_keys]) +
+                                 'is not a valid optional section')
+            self.params.update(optional_params)
         if aux_basis_set is None:
             if self._aux_basis_required():
                 if self.params["rem"]["basis"].startswith("6-31+g"):
