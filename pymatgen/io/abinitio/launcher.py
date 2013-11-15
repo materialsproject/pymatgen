@@ -571,7 +571,7 @@ class PyFlowScheduler(object):
 
         if retcode:
             self.cleanup()
-            self.send_mail()
+            self.send_email(msg="Error while trying to run the flow for the first time!")
             return retcode
 
         self.sched.start()
@@ -674,7 +674,7 @@ class PyFlowScheduler(object):
         self.history.append("Elapsed time %s" % self.get_delta_etime())
         #print("history", self.history)
 
-        self.send_email()
+        self.send_email(msg)
 
         # Write text file with the list of exceptions:
         if self.exceptions:
@@ -685,27 +685,31 @@ class PyFlowScheduler(object):
         # Shutdown the scheduler thus allowing the process to exit.
         self.sched.shutdown(wait=False)
 
-    def send_email(self):
+    def send_email(self, msg):
         """Send an e-mail before completing the shutdown."""
         try:
-            self._send_email()
+            self._send_email(msg)
         except:
             self.exceptions.append(straceback())
 
-    def _send_email(self):
-        if self.mailto is None: return 0
+    def _send_email(self, msg):
+        if self.mailto is None: 
+            return 0
 
-        #header = 
-        #self.history.append("Elapsed time %s" % str(self.etime))
-        #self.history.append("Submitted on %s" % time.asctime())
-        #self.start_time = time.time()
-        #self.history.append("Completed on %s" % time.asctime())
-        #self.history.append("Elapsed time %s" % str(self.etime)))
+        header = msg.splitlines()
+        app = header.append
 
-        # The status of the flow.
+        app("Submitted on %s" % time.ctime(self.start_time))
+        app("Completed on %s" % time.asctime())
+        app("Elapsed time %s" % str(self.get_delta_etime()))
+        app("Number of errored tasks: %d" % self.flow.num_tasks_with_error)
+        app("Number of unconverged tasks: %d" % self.flow.num_tasks_unconverged)
+
         strio = StringIO.StringIO()
+        strio.writelines("\n".join(header) + 4 * "\n")
+
+        # Add the status of the flow.
         self.flow.show_status(stream=strio)
-        strio.write("Number of exceptions: %d" % self.num_excs)
 
         if self.exceptions:
             # Report the list of exceptions.

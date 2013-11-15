@@ -93,6 +93,7 @@ class AbinitFlow(Node):
 
         self.pickle_protocol = int(pickle_protocol)
 
+        # TODO
         # Signal slots: a dictionary with the list 
         # of callbacks indexed by node_id and SIGNAL_TYPE.
         # When the node changes its status, it broadcast a signal.
@@ -104,6 +105,51 @@ class AbinitFlow(Node):
 
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
+
+    @classmethod
+    def pickle_load(cls, filepath, disable_signals=False):
+        """
+        Loads the object from a pickle file and performs initial setup.
+
+        Args:
+            filepath:
+                Filename or directory name. It filepath is a directory, we 
+                scan the directory tree starting from filepath and we 
+                read the first pickle database.
+            disable_signals:
+                If True, the nodes of the flow are not connected by signals.
+                This option is usually used when we want to read a flow 
+                in read-only mode and we want to avoid any possible side effect.
+        """
+        if os.path.isdir(filepath):
+            # Walk through each directory inside path and find the pickle database.
+            for dirpath, dirnames, filenames in os.walk(filepath):
+                fnames = [f for f in filenames if f == cls.PICKLE_FNAME]
+                if fnames:
+                    assert len(fnames) == 1
+                    filepath = os.path.join(dirpath, fnames[0])
+                    break
+            else:
+                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, path)
+                raise ValueError(err_msg)
+
+        with FileLock(filepath) as lock:
+            with open(filepath, "rb") as fh:
+                flow = pickle.load(fh)
+
+        # Check if versions match.
+        if flow.VERSION != cls.VERSION:
+            msg = ("File flow version %s != latest version %s\n."
+                   "Regerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
+            warnings.warn(msg)
+
+        if not disable_signals:
+            flow.connect_signals()
+
+        # Recompute the status of each task since tasks that
+        # have been submitted previously might be completed.
+        flow.check_status()
+        return flow
 
     def __len__(self):
         return len(self.works)
@@ -139,10 +185,44 @@ class AbinitFlow(Node):
         """The number of tasks whose status is `S_UNCONVERGED`."""
         return len(list(self.iflat_tasks(status=self.S_UNCONVERGED, op="=")))
 
-    #@property
-    #def completed(self):
-    #    """True if all the tasks of the flow have reached S_OK."""
-    #    return all(task.status == task.S_OK for task in self.iflat_tasks())
+    @property
+    def status_counter(self):
+        """
+        Returns a `Counter` object that counts the number of task with 
+        given status (use the string representation of the status as key).
+        """
+        # Count the number of tasks with given status in each workflow.
+        counter = self[0].status_counter
+        for work in self[1:]:
+            counter += work.status_counter
+
+        return counter
+
+    @property
+    def ncpus_reserved(self):
+        """
+        Returns the number of CPUs reserved in this moment.
+        A CPUS is reserved if it's still not running but 
+        we have submitted the task to the queue manager.
+        """
+        return sum(work.ncpus_reverved for work in self)
+
+    @property
+    def ncpus_allocated(self):
+        """
+        Returns the number of CPUs allocated in this moment.
+        A CPU is allocated if it's running a task or if we have
+        submitted a task to the queue manager but the job is still pending.
+        """
+        return sum(work.ncpus_allocated for work in self)
+
+    @property
+    def ncpus_inuse(self):
+        """
+        Returns the number of CPUs used in this moment.
+        A CPU is used if there's a job that is running on it.
+        """
+        return sum(work.ncpus_inuse for work in self)
 
     def iflat_tasks_wti(self, status=None, op="="):
         """
@@ -201,44 +281,20 @@ class AbinitFlow(Node):
                         else:
                             yield task
 
-    @property
-    def status_counter(self):
-        """
-        Returns a `Counter` object that counts the number of task with 
-        given status (use the string representation of the status as key).
-        """
-        # Count the number of tasks with given status in each workflow.
-        counter = self[0].status_counter
-        for work in self[1:]:
-            counter += work.status_counter
+    #def detect_deadlock(self):
+    #    if self.num_tasks_with_error == 0 and self.num_tasks_unconverged == 0:
+    #        return []
 
-        return counter
+    #    error_tasks = [task for task in self.iflat_tasks(status=None, op="=")]
+    #    uncoverged_tasks = [task for task in self.iflat_tasks(status=None, op="=")]
+    #    eu_tasks = error_tasks + unconverged_tasks
 
-    @property
-    def ncpus_reserved(self):
-        """
-        Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if it's still not running but 
-        we have submitted the task to the queue manager.
-        """
-        return sum(work.ncpus_reverved for work in self)
+    #    deadlocked = []
+    #    for task in self.iflat_tasks(status=None, op="="):
+    #        if any(task.depends_on(eu_task) for eu_task in eu_tasks):
+    #            deadlocked.append(task)
 
-    @property
-    def ncpus_allocated(self):
-        """
-        Returns the number of CPUs allocated in this moment.
-        A CPU is allocated if it's running a task or if we have
-        submitted a task to the queue manager but the job is still pending.
-        """
-        return sum(work.ncpus_allocated for work in self)
-
-    @property
-    def ncpus_inuse(self):
-        """
-        Returns the number of CPUs used in this moment.
-        A CPU is used if there's a job that is running on it.
-        """
-        return sum(work.ncpus_inuse for work in self)
+    #    return deadlocked
 
     def check_status(self):
         """Check the status of the workflows in self."""
@@ -352,52 +408,6 @@ class AbinitFlow(Node):
         #    except:
         #        pass
         return 0
-
-    @classmethod
-    def pickle_load(cls, filepath, disable_signals=False):
-        """
-        Loads the object from a pickle file and performs initial setup.
-
-        Args:
-            filepath:
-                Filename or directory name. It filepath is a directory, we 
-                scan the directory tree starting from filepath and we 
-                read the first pickle database.
-            disable_signals:
-                If True, the nodes of the flow are not connected by signals.
-                This option is usually used when we want to read a flow 
-                in read-only mode and we want to avoid any possible side effect.
-        """
-        if os.path.isdir(filepath):
-            # Walk through each directory inside path and find the pickle database.
-            for dirpath, dirnames, filenames in os.walk(filepath):
-                fnames = [f for f in filenames if f == cls.PICKLE_FNAME]
-                if fnames:
-                    assert len(fnames) == 1
-                    filepath = os.path.join(dirpath, fnames[0])
-                    break
-            else:
-                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, path)
-                raise ValueError(err_msg)
-
-        with FileLock(filepath) as lock:
-            with open(filepath, "rb") as fh:
-                flow = pickle.load(fh)
-
-        # Check if versions match.
-        if flow.VERSION != cls.VERSION:
-            msg = ("File flow version %s != latest version %s\n."
-                   "Regerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
-            warnings.warn(msg)
-            
-
-        if not disable_signals:
-            flow.connect_signals()
-
-        # Recompute the status of each task since tasks that
-        # have been submitted previously might be completed.
-        flow.check_status()
-        return flow
 
     def register_task(self, input, deps=None, manager=None, task_class=None):
         """
