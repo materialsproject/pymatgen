@@ -3,6 +3,9 @@
 """
 This module implements input and output processing from QChem.
 """
+import os
+from string import Template
+from pymatgen import zopen
 from pymatgen.core.structure import Molecule
 from pymatgen.serializers.json_coders import MSONable
 
@@ -92,6 +95,8 @@ class QcInput(MSONable):
         """
 
         self.mol = molecule if molecule else "read"
+        if isinstance(self.mol, str):
+            self.mol = self.mol.lower()
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
         if self.mol is not "read":
@@ -143,3 +148,66 @@ class QcInput(MSONable):
         if 'correlation' in self.params["rem"]:
             if self.params["rem"]["correlation"].startswith("ri"):
                 return True
+
+    @property
+    def molecule(self):
+        return self.mol
+
+
+    def __str__(self):
+        sections = ["comments", "molecule", "rem"] + \
+                   sorted(list(self.optional_keywords_list))
+        lines = []
+        for sec in sections:
+            if sec in self.params:
+                foramt_sec = self.__getattribute__("_format" + sec)
+                lines.append("$" + sec)
+                lines.extend(foramt_sec())
+                lines.append("$end")
+                lines.append('\n')
+        return '\n'.join(lines)
+
+
+    def _format_comments(self):
+        lines = [' ' + self.params["comments"].strip()]
+        return lines
+
+
+    def _format_molecule(self):
+        lines = []
+        if self.charge:
+            lines.append(" {charge:%d}  {multi:%d}".format(charge=self
+                         .charge, multi=self.spin_multiplicity))
+        if self.mol == "read":
+            lines.append(" read")
+        else:
+            for site in self.mol.sites:
+                lines.append(" {element:<%4s} {x:>%12.8f} {y:>%12.8f} "
+                            "{z:>%12.8f}".format(element=site.species_string,
+                                x=site.x, y=site.y, z=site.z))
+        return lines
+
+
+    def _format_rem(self):
+        rem_format_template = Template(" {name:>%$name_width} = "
+                                       "{vaule:<%$value_with}")
+        name_width = 0
+        value_width = 0
+        for name, value in self.params["rem"].iteritems():
+            if len(name) > name_width:
+                name_width = len(name)
+            if len(value) > value_width:
+                value_width = len(value)
+        rem = rem_format_template.substitute(name_width=name_width,
+            value_width=value_width)
+        lines = []
+        for name in sorted(self.params["rem"].keys()):
+            value = self.params["rem"][name]
+            lines.append(rem.format(name=name, value=value))
+        return lines
+
+
+    def write_file(self, filename):
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
+
