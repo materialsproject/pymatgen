@@ -916,7 +916,7 @@ class StructureMatcher(MSONable):
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
         if self._supercell \
-                and self._get_supercell_size(supercell, struct) <= 1:
+                and self._get_supercell_size(supercell, struct) < 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         match = self._find_match(supercell, struct, break_on_match=False,
