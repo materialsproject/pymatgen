@@ -167,7 +167,7 @@ class QcInput(MSONable):
         lines = []
         for sec in sections:
             if sec in self.params:
-                foramt_sec = self.__getattribute__("_format" + sec)
+                foramt_sec = self.__getattribute__("_format_" + sec)
                 lines.append("$" + sec)
                 lines.extend(foramt_sec())
                 lines.append("$end")
