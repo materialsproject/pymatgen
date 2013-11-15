@@ -715,7 +715,8 @@ class PyFlowScheduler(object):
         text = strio.read()
         #print("text", text)
 
-        return sendmail(subject=self.flow.name, text=text, mailto=self.mailto)
+        tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
+        return sendmail(subject=self.flow.name + tag, text=text, mailto=self.mailto)
 
 
 def sendmail(subject, text, mailto, sender=None):

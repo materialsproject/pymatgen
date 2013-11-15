@@ -739,7 +739,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_ncpus=1)
-    print(shell_manager)
+    #print(shell_manager)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
@@ -767,6 +767,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
+        #import sys
+        #sys.exit(1)
         print(irred_perts)
         w.rmtree()
 
