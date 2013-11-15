@@ -1892,12 +1892,11 @@ class Task(Node):
 
         if self.start_lockfile.exists:
             err_msg = "Found lock file: %s" % self.start_lockfile
-            logger.debug(err_msg)
+            logger.critical(err_msg)
             #raise self.Error(err_msg)
             return
 
-        else:
-            self.start_lockfile.write("Started on %s" % time.asctime())
+        self.start_lockfile.write("Started on %s" % time.asctime())
 
         self.build()
         self._setup()
@@ -1905,7 +1904,7 @@ class Task(Node):
         # Add the variables needed to connect the node.
         for d in self.deps:
             vars = d.connecting_vars()
-            logger.debug("Adding connecting vars %s " % str(vars))
+            logger.debug("Adding connecting vars %s " % vars)
             self.strategy.add_extra_abivars(vars)
 
         # Automatic parallelization

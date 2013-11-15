@@ -613,6 +613,20 @@ class PyFlowScheduler(object):
         # Handle failures.
         err_msg = ""
 
+        # Shall we send a reminder to the user?
+        delta_etime = self.get_delta_etime()
+                                                                                                                              
+        if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
+            self.num_reminders += 1
+            msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " % 
+                  (self.pid, self.flow, delta_etime))
+            retcode = self.send_email(msg, tag="[REMINDER]")
+
+            if retcode:
+                # Cannot send mail, shutdown now!
+                msg += "\nThe scheduler tried to send mail to remind user but send_email returned %d. Aborting now" % retcode
+                err_msg += msg
+
         # Too many exceptions. Shutdown the scheduler.
         if self.num_excs > self.MAX_NUM_PYEXCS:
             msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (self.num_excs, self.MAX_NUM_PYEXCS)
@@ -623,17 +637,6 @@ class PyFlowScheduler(object):
         if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Will shutdown the scheduler and exit" % self.nlaunch
             err_msg += boxed(msg)
-
-        # Too long elapsed time
-        delta_etime = self.get_delta_etime()
-
-        if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
-            self.num_reminders += 1
-            msg = "The scheduler has been running for %s " % delta_etime
-            retcode = self.send_email(msg)
-            if retcode:
-                msg += "\nThe scheduler tried to send mail to remind user but send_email returned %d. Aborting now" % retcode
-                err_msg += msg
 
         # Count the number of tasks with status == S_ERROR.
         if self.flow.num_tasks_with_error > self.MAX_NUM_ABIERRS:
@@ -686,18 +689,18 @@ class PyFlowScheduler(object):
         # Shutdown the scheduler thus allowing the process to exit.
         self.sched.shutdown(wait=False)
 
-    def send_email(self, msg):
+    def send_email(self, msg, tag=None):
         """
         Send an e-mail before completing the shutdown.
         Returns 0 if success.
         """
         try:
-            return self._send_email(msg)
+            return self._send_email(msg, tag)
         except:
             self.exceptions.append(straceback())
             return 1
 
-    def _send_email(self, msg):
+    def _send_email(self, msg, tag):
         if self.mailto is None: 
             return -1
 
@@ -724,7 +727,9 @@ class PyFlowScheduler(object):
         text = strio.read()
         #print("text", text)
 
-        tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
+        if tag is None:
+            tag = " [ALL OK]" if self.flow.all_ok else " [WARNING]"
+
         return sendmail(subject=self.flow.name + tag, text=text, mailto=self.mailto)
 
 
