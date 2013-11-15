@@ -935,7 +935,7 @@ class StructureMatcher(MSONable):
         if self._primitive_cell:
             raise ValueError("get_s2_like_s1 cannot be used with the primitive"
                              " cell option")
-        if self._supercell and self._get_supercell_size(struct1, struct2) <= 1:
+        if self._supercell and self._get_supercell_size(struct1, struct2) < 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         if self._subset and struct2.num_sites > struct1.num_sites:
