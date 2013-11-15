@@ -108,7 +108,7 @@ class QcInput(MSONable):
                 raise ValueError("The molecule must be a pymatgen Molecule "
                                  "object or read/None")
             self.charge = charge if charge is not None else self.mol.charge
-            nelectrons = self.mol.charge + self.nelectrons - self.charge
+            nelectrons = self.mol.charge + self.mol.nelectrons - self.charge
             if spin_multiplicity is not None:
                 self.spin_multiplicity = spin_multiplicity
                 if (nelectrons + spin_multiplicity) % 2 != 1:
@@ -122,6 +122,8 @@ class QcInput(MSONable):
         self.params = dict()
         if title is not None:
             self.params["comments"] = title
+        if "rem" not in self.params:
+            self.params["rem"] = dict()
         self.params["rem"]["basis"] = basis_set.lower()
         self.params["rem"]["exchange"] = exchange.lower()
         if correlation is not None:
@@ -133,7 +135,7 @@ class QcInput(MSONable):
         if len(op_key - self.optional_keywords_list) > 0:
             invalid_keys = op_key - self.optional_keywords_list
             raise ValueError(','.join(['$' + k for k in invalid_keys]) +
-                             'is not a valid section')
+                             'is not a valid optional section')
         self.params.update(optional_params)
         if aux_basis_set is None:
             if self._aux_basis_required():
