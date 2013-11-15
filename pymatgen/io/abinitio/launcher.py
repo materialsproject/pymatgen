@@ -526,9 +526,14 @@ class PyFlowScheduler(object):
 
     def add_flow(self, flow):
         """Add an `AbinitFlow` to the scheduler."""
+        if hasattr(self, "_flow"):
+            raise ValueError("Only one flow can be added to the scheduler.")
+            
         pid_file = os.path.join(flow.workdir, "_PyFlowScheduler.pid")
 
         if os.path.isfile(pid_file):
+            flow.show_status()
+
             err_msg = (
                 "pid_file %s already exists\n"
                 "There are two possibilities:\n\n"
@@ -578,7 +583,7 @@ class PyFlowScheduler(object):
 
         try:
             nlaunch = PyLauncher(self.flow).rapidfire(max_nlaunch=max_nlaunch)
-            print("Number of launches: ", nlaunch)
+            print("%s: Number of launches: %d" % (time.asctime(), nlaunch))
             self.nlaunch += nlaunch
 
         except Exception:
@@ -595,8 +600,9 @@ class PyFlowScheduler(object):
         try:
             return self._callback()
         except:
+            # All exceptions raised here will trigger the shutdown!
             self.exceptions.append(straceback())
-            return self.num_excs
+            self.shutdown(msg="Exception raised in callback!")
 
     def _callback(self):
         """The actual callback."""
@@ -604,20 +610,20 @@ class PyFlowScheduler(object):
 
         # Mission accomplished. Shutdown the scheduler.
         if self.flow.all_ok:
-            self.shutdown(msg=boxed("All tasks have reached S_OK. Will shutdown the scheduler and exit"))
+            self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
 
         # Handle failures.
         err_msg = ""
 
         # Too many exceptions. Shutdown the scheduler.
         if self.num_excs > self.MAX_NUM_PYEXCS:
-            msg = "Number of exceptions %s > %s.\nWill shutdown the scheduler and exit" % (self.num_excs, self.MAX_NUM_PYEXCS)
+            msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (self.num_excs, self.MAX_NUM_PYEXCS)
             err_msg += boxed(msg)
 
         # Paranoid check: disable the scheduler if we have submitted 
         # too many jobs (it might be due to some bug or other external reasons!) 
         if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
-            msg = "Too many jobs launched %d.\nWill shutdown the scheduler and exit" % self.nlaunch
+            msg = "Too many jobs launched %d. Will shutdown the scheduler and exit" % self.nlaunch
             err_msg += boxed(msg)
 
         # Too long elapsed time
@@ -630,8 +636,8 @@ class PyFlowScheduler(object):
 
         # Count the number of tasks with status == S_ERROR.
         if self.flow.num_tasks_with_error > self.MAX_NUM_ABIERRS:
-            msg = "Number of task with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
-               self.flow.num_tasks_with_errors, self.MAX_NUM_ABIERRS)
+            msg = "Number of tasks with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
+               self.flow.num_tasks_with_error, self.MAX_NUM_ABIERRS)
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_UNCONVERGED.
