@@ -440,7 +440,7 @@ class YamlTokenizer(collections.Iterator):
             if in_doc and line.startswith("..."):
                 return YamlDoc(text="".join(lines), lineno=lineno, tag=doc_tag)
 
-        raise StopIteration()
+        raise StopIteration("Cannot find next YAML document")
 
     def all_yaml_docs(self):
         """
