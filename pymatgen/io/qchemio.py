@@ -23,11 +23,15 @@ class QcInput(MSONable):
     """
 
     optional_keywords_list = set(["basis", "ecp", "empirical_dispersion",
-        "external_charges", "force_field_params", "intracule", "isotopes",
-        "localized_diabatization", "multipole_field", "nbo", "occupied",
-        "swap_occupied_virtual", "opt", "pcm", "pcm_solvent", "plots",
-        "qm_atoms", "svp", "svpirf", "van_der_waals", "xc_functional", "cdft",
-        "efp_fragments", "efp_params"])
+                                  "external_charges", "force_field_params",
+                                  "intracule", "isotopes",
+                                  "localized_diabatization", "multipole_field",
+                                  "nbo", "occupied",
+                                  "swap_occupied_virtual", "opt", "pcm",
+                                  "pcm_solvent", "plots",
+                                  "qm_atoms", "svp", "svpirf", "van_der_waals",
+                                  "xc_functional", "cdft",
+                                  "efp_fragments", "efp_params"])
 
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  title=None, exchange="HF", correlation=None,
@@ -118,13 +122,13 @@ class QcInput(MSONable):
         self.params = dict()
         if title is not None:
             self.params["comments"] = title
-        if rem_params is not None:
-            for k, v in rem_params:
-                self.params["rem"][k.lower()] = v.lower()
         self.params["rem"]["basis"] = basis_set.lower()
         self.params["rem"]["exchange"] = exchange.lower()
         if correlation is not None:
             self.params["rem"]["correlation"] = correlation.lower()
+        if rem_params is not None:
+            for k, v in rem_params:
+                self.params["rem"][k.lower()] = v.lower()
         op_key = set([k.lower() for k in optional_params.keys()])
         if len(op_key - self.optional_keywords_list) > 0:
             invalid_keys = op_key - self.optional_keywords_list
@@ -177,14 +181,14 @@ class QcInput(MSONable):
         lines = []
         if self.charge:
             lines.append(" {charge:%d}  {multi:%d}".format(charge=self
-                         .charge, multi=self.spin_multiplicity))
+            .charge, multi=self.spin_multiplicity))
         if self.mol == "read":
             lines.append(" read")
         else:
             for site in self.mol.sites:
                 lines.append(" {element:<%4s} {x:>%12.8f} {y:>%12.8f} "
-                            "{z:>%12.8f}".format(element=site.species_string,
-                                x=site.x, y=site.y, z=site.z))
+                             "{z:>%12.8f}".format(element=site.species_string,
+                                                  x=site.x, y=site.y, z=site.z))
         return lines
 
 
@@ -199,13 +203,40 @@ class QcInput(MSONable):
             if len(value) > value_width:
                 value_width = len(value)
         rem = rem_format_template.substitute(name_width=name_width,
-            value_width=value_width)
+                                             value_width=value_width)
         lines = []
         for name in sorted(self.params["rem"].keys()):
             value = self.params["rem"][name]
             lines.append(rem.format(name=name, value=value))
         return lines
 
+    def to_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "molecule": "read" if self.mol == "read" else self.mol.to_dict,
+                "charge": self.charge,
+                "spin_multiplicity": self.spin_multiplicity,
+                "parameters": self.params}
+
+    def from_dict(cls, d):
+        mol = "read" if d["molecule"] == "read" \
+                     else Molecule.from_dict(d["molecule"])
+        title = d["params"].get("comments", None)
+        exchange = d["params"]["rem"]["exchange"]
+        correlation = d["params"]["rem"].get("correlation", None)
+        basis_set = d["params"]["rem"]["basis"]
+        aux_basis_set = d["params"]["rem"].get("aux_basis", None)
+        optional_params = None
+        op_keys = set(d["params"].keys()) - set(["comments", "rem"])
+        if len(op_keys) > 0:
+            optional_params = dict()
+            for k in op_keys:
+                optional_params[k] = d["params"][k]
+        return QcInput(molecule=mol, charge=d["charge"],
+                       spin_multiplicity=d["spin_multiplicity"], title=title,
+                       exchange=exchange, correlation=correlation,
+                       basis_set=basis_set, aux_basis_set=aux_basis_set,
+                       rem_params=d["params"]["rem"], optional_params=optional_params)
 
     def write_file(self, filename):
         with zopen(filename, "w") as f:
