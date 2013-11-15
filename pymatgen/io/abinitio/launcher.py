@@ -394,7 +394,8 @@ class PyFlowScheduler(object):
 
         #. The number of jobs launched becomes greater than (SAFETY_RATIO * total_number_of_tasks).
 
-        #. The elapsed time becomes greater than MAX_ETIME (seconds).
+        #. The scheduler will send an email to the user (specified by mailto) every REMINDME_S seconds.
+           If the mail cannot be sent, will shutdown automatically. 
            This check prevents the scheduler from being trapped in an infinite loop caused by deadlocks.
     """
     # Configuration file.
@@ -413,8 +414,6 @@ class PyFlowScheduler(object):
                 number of minutes to wait
             seconds:
                 number of seconds to wait
-            start_date:
-                when to first execute the job and start the counter (default is after the given interval)
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -423,7 +422,7 @@ class PyFlowScheduler(object):
              hours=kwargs.pop("hours", 0),
              minutes=kwargs.pop("minutes",0),
              seconds=kwargs.pop("seconds", 0),
-             start_date=kwargs.pop("start_date", None),
+             #start_date=kwargs.pop("start_date", None),
              )
 
         if all(not v for v in self.sched_options.values()):
@@ -431,8 +430,7 @@ class PyFlowScheduler(object):
 
         self.mailto = kwargs.pop("mailto", None)
 
-        self.max_etime_s = float(kwargs.pop("max_etime_s", 3600))
-
+        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
         self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
         self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
@@ -444,6 +442,7 @@ class PyFlowScheduler(object):
         self.sched = Scheduler(standalone=True)
 
         self.nlaunch = 0
+        self.num_reminders = 1
 
         # Used to keep track of the exceptions raised while the scheduler is running
         self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS + 10)
@@ -540,10 +539,10 @@ class PyFlowScheduler(object):
                 "       1) There's an another instance of PyFlowScheduler running.\n"
                 "       2) The previous scheduler didn't exit in a clean way.\n\n"
                 "To solve case 1:\n"
-                "       Kill the previous scheduler (use `kill pid` where pid is the number reported in the file)\n"
+                "       Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)\n"
                 "       Then you run can start the new scheduler.\n\n"
                 "To solve case 2:\n"
-                "   Remove the pid_file and rerun the scheduler.\n\n"
+                "   Remove the pid_file and restart the scheduler.\n\n"
                 "Exiting\n" % pid_file
                 )
 
@@ -572,7 +571,6 @@ class PyFlowScheduler(object):
         if retcode:
             self.cleanup()
             self.send_email(msg="Error while trying to run the flow for the first time!")
-            return retcode
 
         self.sched.start()
 
@@ -629,10 +627,13 @@ class PyFlowScheduler(object):
         # Too long elapsed time
         delta_etime = self.get_delta_etime()
 
-        if delta_etime.total_seconds() > self.max_etime_s:
-            msg = ("Scheduler have been running for too long. etime %s > max_etime %s" % 
-                    (delta_etime, timedelta(seconds=self.max_etime)))
-            err_msg += boxed(msg)
+        if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
+            self.num_reminders += 1
+            msg = "The scheduler has been running for %s " % delta_etime
+            retcode = self.send_email(msg)
+            if retcode:
+                msg += "\nThe scheduler tried to send mail to remind user but send_email returned %d. Aborting now" % retcode
+                err_msg += msg
 
         # Count the number of tasks with status == S_ERROR.
         if self.flow.num_tasks_with_error > self.MAX_NUM_ABIERRS:
@@ -674,10 +675,10 @@ class PyFlowScheduler(object):
         self.history.append("Elapsed time %s" % self.get_delta_etime())
         #print("history", self.history)
 
-        self.send_email(msg)
+        retcode = self.send_email(msg)
 
         # Write text file with the list of exceptions:
-        if self.exceptions:
+        if retcode and self.exceptions:
             dump_file = os.path.join(self.flow.workdir, "launcher.log")
             with open(dump_file, "w") as fh:
                 fh.writelines(self.exceptions)
@@ -686,15 +687,19 @@ class PyFlowScheduler(object):
         self.sched.shutdown(wait=False)
 
     def send_email(self, msg):
-        """Send an e-mail before completing the shutdown."""
+        """
+        Send an e-mail before completing the shutdown.
+        Returns 0 if success.
+        """
         try:
-            self._send_email(msg)
+            return self._send_email(msg)
         except:
             self.exceptions.append(straceback())
+            return 1
 
     def _send_email(self, msg):
         if self.mailto is None: 
-            return 0
+            return -1
 
         header = msg.splitlines()
         app = header.append
