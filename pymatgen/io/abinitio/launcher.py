@@ -400,7 +400,7 @@ class PyFlowScheduler(object):
     # Configuration file.
     YAML_FILE = "scheduler.yml"
 
-    def __init__(self, weeks=0, days=0, hours=0, minutes=0, seconds=0, start_date=None, mailto=None):
+    def __init__(self, **kwargs):
         """
         Args:
             weeks:
@@ -418,23 +418,32 @@ class PyFlowScheduler(object):
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
-             weeks=weeks,
-             days=days,
-             hours=hours,
-             minutes=minutes,
-             seconds=seconds,
-             start_date=start_date)
+             weeks=kwargs.pop("weeks", 0),
+             days=kwargs.pop("days", 0),
+             hours=kwargs.pop("hours", 0),
+             minutes=kwargs.pop("minutes",0),
+             seconds=kwargs.pop("seconds", 0),
+             start_date=kwargs.pop("start_date", None),
+             )
 
-        self.mailto = mailto
-        self.nlaunch = 0
-        self.max_etime_s = 3600
+        if all(not v for v in self.sched_options.values()):
+            raise ValueError("Wrong set of options passed to the scheduler.")
 
-        self.MAX_NUM_PYEXCS = 2
-        self.MAX_NUM_ABIERRS = 0
-        self.SAFETY_RATIO = 3
+        self.mailto = kwargs.pop("mailto", None)
+
+        self.max_etime_s = float(kwargs.pop("max_etime_s", 3600))
+
+        self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
+        self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
+        self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
+
+        if kwargs:
+            raise ValueError("Unknown arguments %s" % kwargs)
 
         from apscheduler.scheduler import Scheduler
         self.sched = Scheduler(standalone=True)
+
+        self.nlaunch = 0
 
         # Used to keep track of the exceptions raised while the scheduler is running
         self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS + 10)
