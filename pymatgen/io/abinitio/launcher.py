@@ -250,7 +250,7 @@ class PyLauncher(object):
 
         return num_launched 
 
-    def rapidfire(self, max_nlaunch=-1, max_loops=10, sleep_time=None): # nlaunches=0, 
+    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None): # nlaunches=0, 
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -280,8 +280,7 @@ class PyLauncher(object):
             for task in tasks:
                 if task in launched:
                     err_msg = "task %s in already in launched:\n%s" % (task, launched)
-                    logger.warning(err_msg)
-                    #raise RuntimeError(err_msg)
+                    logger.critical(err_msg)
 
             # Preventive test.
             tasks = [t for t in tasks if t not in launched]
@@ -305,33 +304,6 @@ class PyLauncher(object):
             #time.sleep(sleep_time)
             num_loops += 1
 
-        #for work in self.flow:
-        #    if num_launched == max_nlaunch: 
-        #        break
-
-        #    while True:
-        #        try:
-        #            task = work.fetch_task_to_run()
-
-        #            if task is None:
-        #                logger.debug("fetch_task_to_run returned None.")
-        #                break
-
-        #            logger.debug("Starting task %s" % task)
-        #            if task in launched:
-        #                err_msg = "task %s in already in launched %s" % (str(task), str(launched))
-        #                raise RuntimeError(err_msg)
-
-        #            task.start()
-        #            launched.append(task)
-        #            num_launched += 1
-
-        #            if num_launched == max_nlaunch:
-        #                break
-
-        #        except StopIteration:
-        #            logger.debug("Out of tasks.")
-        #            break
 
         # Update the database.
         self.flow.check_status()
@@ -414,6 +386,8 @@ class PyFlowScheduler(object):
                 number of minutes to wait
             seconds:
                 number of seconds to wait
+            verbose:
+                (int) verbosity level
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
@@ -429,6 +403,7 @@ class PyFlowScheduler(object):
             raise ValueError("Wrong set of options passed to the scheduler.")
 
         self.mailto = kwargs.pop("mailto", None)
+        self.verbose = int(kwargs.pop("verbose", 0))
 
         self.REMINDME_S = float(kwargs.pop("REMINDME_S", 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
@@ -577,17 +552,23 @@ class PyFlowScheduler(object):
     def _runem_all(self):
         max_nlaunch, excs = -1, []
 
-        self.flow.check_status()
+        flow = self.flow
+
+        flow.check_status()
 
         try:
-            nlaunch = PyLauncher(self.flow).rapidfire(max_nlaunch=max_nlaunch)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
             print("%s: Number of launches: %d" % (time.asctime(), nlaunch))
             self.nlaunch += nlaunch
 
         except Exception:
             excs.append(straceback())
 
-        self.flow.show_status()
+        if self.verbose:
+            flow.show_status()
+        else:
+            if flow.num_tasks_with_error or flow.num_tasks_unconverged:
+                flow.show_status()
         
         if excs:
             logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
