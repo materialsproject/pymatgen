@@ -44,6 +44,11 @@ class File(object):
         return os.path.basename(self.path)
 
     @property
+    def relpath(self):
+        """Relative path."""
+        return os.path.relpath(self.path)
+
+    @property
     def dirname(self):
         """Absolute path of the directory where the file is located."""
         return os.path.dirname(self.path)
