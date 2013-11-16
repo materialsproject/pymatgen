@@ -183,21 +183,21 @@ class QcInput(MSONable):
     def _format_molecule(self):
         lines = []
         if self.charge:
-            lines.append(" {charge:%d}  {multi:%d}".format(charge=self
+            lines.append(" {charge:d}  {multi:d}".format(charge=self
             .charge, multi=self.spin_multiplicity))
         if self.mol == "read":
             lines.append(" read")
         else:
             for site in self.mol.sites:
-                lines.append(" {element:<%4s} {x:>%12.8f} {y:>%12.8f} "
-                             "{z:>%12.8f}".format(element=site.species_string,
+                lines.append(" {element:<4} {x:>12.8f} {y:>12.8f} "
+                             "{z:>12.8f}".format(element=site.species_string,
                                                   x=site.x, y=site.y, z=site.z))
         return lines
 
 
     def _format_rem(self):
-        rem_format_template = Template(" {name:>%$name_width} = "
-                                       "{vaule:<%$value_with}")
+        rem_format_template = Template("  {name:>$name_width} = "
+                                       "{value:<$value_width}")
         name_width = 0
         value_width = 0
         for name, value in self.params["rem"].iteritems():
