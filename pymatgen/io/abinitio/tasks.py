@@ -530,99 +530,6 @@ class TaskManager(object):
         """Set the memory (in Megabytes) per CPU."""
         self.qadapter.set_mem_per_cpu(mem_mb)
 
-    def autoparal(self, task):
-        """
-        Find an optimal set of parameters for the execution of the task 
-        using the options specified in `TaskPolicy`.
-        This method can change the ABINIT input variables and/or the 
-        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
-
-        Returns:
-           confs, optimal 
-           where confs is a `ParalHints` object with the configuration reported by 
-           autoparal and optimal is the optimal configuration selected.
-           Returns (None, None) if some problem occurred.
-        """
-        #print("in autoparal")
-        policy = self.policy
-
-        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
-            logger.info("Nothing to do in autoparal, returning (None, None)")
-            print("Returning from autoparal with None")
-            return None, None
-
-        assert policy.autoparal == 1
-        # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
-
-        # Set the variables for automatic parallelization
-        autoparal_vars = dict(
-            autoparal=policy.autoparal,
-            max_ncpus=policy.max_ncpus,
-        )
-
-        task.strategy.add_extra_abivars(autoparal_vars)
-        task.build()
-        #print("after build")
-
-        # Build a simple manager to run the job in a shell subprocess on the frontend
-        # we don't want to make a request to the queue manager for this simple job!
-        seq_manager = self.to_shell_manager(mpi_ncpus=1)
-
-        # Return code is always != 0 
-        process = seq_manager.launch(task)
-        #print("launched")
-        process.wait()  
-
-        # Remove the variables added for the automatic parallelization
-        task.strategy.remove_extra_abivars(autoparal_vars.keys())
-
-        # 2) Parse the autoparal configurations
-        #print("parsing")
-        parser = ParalHintsParser()
-
-        try:
-            confs = parser.parse(task.log_file.path)
-            #print("confs", confs)
-            #task.autoparal_confs = confs 
-
-        except parser.Error:
-            print("Error while parsing Autoparal section:\n%s" % straceback())
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return None, None
-
-        # 3) Select the optimal configuration according to policy
-        optimal = confs.select_optimal_conf(policy)
-        print("optimal Autoparal conf:\n %s" % optimal)
-
-        # 4) Change the input file and/or the submission script
-        task.strategy.add_extra_abivars(optimal.vars)
-                                                                  
-        # Change the number of MPI nodes.
-        self.set_mpi_ncpus(optimal.mpi_ncpus)
-
-        # Change the number of OpenMP threads.
-        #if optimal.omp_ncpus > 1:
-        #    self.set_omp_ncpus(optimal.omp_ncpus)
-        #else:
-        #    self.qadapter.disable_omp()
-
-        # Change the memory per node if automemory evaluates to True.
-        mem_per_cpu = optimal.mem_per_cpu
-        if policy.automemory and mem_per_cpu:
-            # mem_per_cpu = max(mem_per_cpu, policy.automemory)
-            self.set_mem_per_cpu(mem_per_cpu)
-
-        # Reset the status, remove garbage files ...
-        task.set_status(task.S_READY)
-
-        # Remove the output file since Abinit likes to create new files 
-        # with extension .outA, .outB if the file already exists.
-        os.remove(task.output_file.path)
-        os.remove(task.log_file.path)
-        os.remove(task.stderr_file.path)
-
-        return confs, optimal
-
     def write_jobfile(self, task):
         """
         Write the submission script.
@@ -1891,9 +1798,7 @@ class Task(Node):
             raise self.Error("Task status: %s" % str(self.status))
 
         if self.start_lockfile.exists:
-            err_msg = "Found lock file: %s" % self.start_lockfile
-            logger.critical(err_msg)
-            #raise self.Error(err_msg)
+            logger.critical("Found lock file: %s" % self.start_lockfile)
             return
 
         self.start_lockfile.write("Started on %s" % time.asctime())
@@ -1908,7 +1813,7 @@ class Task(Node):
             self.strategy.add_extra_abivars(vars)
 
         # Automatic parallelization
-        self.manager.autoparal(self)
+        self.autoparal_fake_run()
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
@@ -2015,6 +1920,101 @@ class AbinitTask(Task):
             app(pseudo.path)
 
         return "\n".join(lines)
+
+    def autoparal_fake_run(self):
+        """
+        Find an optimal set of parameters for the execution of the task 
+        using the options specified in `TaskPolicy`.
+        This method can change the ABINIT input variables and/or the 
+        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
+
+        Returns:
+           confs, optimal 
+           where confs is a `ParalHints` object with the configuration reported by 
+           autoparal and optimal is the optimal configuration selected.
+           Returns (None, None) if some problem occurred.
+        """
+        #print("in autoparal")
+        manager = self.manager
+        policy = manager.policy
+
+        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
+            logger.info("Nothing to do in autoparal, returning (None, None)")
+            print("Returning from autoparal with None")
+            return None, None
+
+        if policy.autoparal != 1:
+            raise NotImplementedError("autoparal != 1")
+
+        # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
+
+        # Set the variables for automatic parallelization
+        autoparal_vars = dict(
+            autoparal=policy.autoparal,
+            max_ncpus=policy.max_ncpus,
+        )
+
+        self.strategy.add_extra_abivars(autoparal_vars)
+
+        # Build a simple manager to run the job in a shell subprocess on the frontend
+        # we don't want to make a request to the queue manager for this simple job!
+        seq_manager = manager.to_shell_manager(mpi_ncpus=1)
+
+        # Return code is always != 0 
+        process = seq_manager.launch(self)
+        #print("launched")
+        process.wait()  
+
+        # Remove the variables added for the automatic parallelization
+        self.strategy.remove_extra_abivars(autoparal_vars.keys())
+
+        # 2) Parse the autoparal configurations
+        #print("parsing")
+        parser = ParalHintsParser()
+
+        try:
+            confs = parser.parse(self.log_file.path)
+            #print("confs", confs)
+            #self.all_autoparal_confs = confs 
+
+        except parser.Error:
+            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+            return None, None
+
+        # 3) Select the optimal configuration according to policy
+        optimal = confs.select_optimal_conf(policy)
+        print("optimal Autoparal conf:\n %s" % optimal)
+
+        # 4) Change the input file and/or the submission script
+        self.strategy.add_extra_abivars(optimal.vars)
+                                                                  
+        # Change the number of MPI nodes.
+        manager.set_mpi_ncpus(optimal.mpi_ncpus)
+
+        # Change the number of OpenMP threads.
+        #if optimal.omp_ncpus > 1:
+        #    manager.set_omp_ncpus(optimal.omp_ncpus)
+        #else:
+        #    manager.disable_omp()
+
+        # Change the memory per node if automemory evaluates to True.
+        mem_per_cpu = optimal.mem_per_cpu
+
+        if policy.automemory and mem_per_cpu:
+            # mem_per_cpu = max(mem_per_cpu, policy.automemory)
+            manager.set_mem_per_cpu(mem_per_cpu)
+
+        # Reset the status, remove garbage files ...
+        self.set_status(self.S_INIT)
+
+        # Remove the output file since Abinit likes to create new files 
+        # with extension .outA, .outB if the file already exists.
+        os.remove(self.output_file.path)
+        os.remove(self.log_file.path)
+        os.remove(self.stderr_file.path)
+
+        return confs, optimal
+
 
 # TODO
 # Enable restarting capabilites:
@@ -2539,3 +2539,5 @@ class AnaddbTask(Task):
         Anaddb allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
+
