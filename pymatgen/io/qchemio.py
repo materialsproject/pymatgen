@@ -34,7 +34,7 @@ class QcInput(MSONable):
                                   "efp_fragments", "efp_params"])
 
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
-                 title=None, exchange="HF", correlation=None,
+                 job_type='SP', title=None, exchange="HF", correlation=None,
                  basis_set="6-31+G*", aux_basis_set=None, rem_params=None,
                  optional_params=None):
         """
@@ -55,6 +55,11 @@ class QcInput(MSONable):
                 molecule has no unpaired electrons and to 2 if there are
                 unpaired electrons.
                 Type: Integer
+            job_type:
+                The type the QChem job. "SP" for Single Point Energy,
+                "opt" for geometry optimization, "freq" for
+                vibrational frequency.
+                Type: str
             title:
                 Comments for the job. Defaults to None. Which means the
                 $comment section will be discarded
@@ -126,6 +131,7 @@ class QcInput(MSONable):
             self.params["rem"] = dict()
         self.params["rem"]["basis"] = basis_set.lower()
         self.params["rem"]["exchange"] = exchange.lower()
+        self.params["rem"]["job_type"] = job_type.lower()
         if correlation is not None:
             self.params["rem"]["correlation"] = correlation.lower()
         if rem_params is not None:
