@@ -371,10 +371,9 @@ class Workflow(BaseWorkflow):
                 `TaskManager` object or None
         """
         for i, task in enumerate(self):
-            #print(hasattr(task, "manager"))
+
             if not hasattr(task, "manager"):
                 # Set the manager
-
                 if manager is not None:
                     # Use the one provided in input.
                     task.set_manager(manager)
@@ -1309,21 +1308,20 @@ class G0W0_Workflow(Workflow):
         super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
+        scf_task = self.register(scf_input, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
-        self.nscf_task = nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
+        nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
 
         # Register the SCREENING run.
-        self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+        scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
             sigma_inputs = [sigma_inputs]
 
-        self.sigma_tasks = []
         for sigma_input in sigma_inputs:
-            self.sigma_tasks.append(self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"}))
+            self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
 
 
 #class SCGW_Workflow(Workflow):
