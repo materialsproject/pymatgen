@@ -1793,13 +1793,17 @@ class Task(Node):
             - build dirs and files
             - call the _setup method
             - execute the job file by executing/submitting the job script.
+
+        Returns:
+            1 if task was started, 0 otherwise.
+            
         """
         if self.status >= self.S_SUB:
             raise self.Error("Task status: %s" % str(self.status))
 
         if self.start_lockfile.exists:
-            logger.critical("Found lock file: %s" % self.start_lockfile)
-            return
+            logger.critical("Found lock file: %s" % self.start_lockfile.relpath)
+            return 0
 
         self.start_lockfile.write("Started on %s" % time.asctime())
 
@@ -1818,6 +1822,8 @@ class Task(Node):
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
+
+        return 1
 
     #def start_and_wait(self, *args, **kwargs):
     #    """

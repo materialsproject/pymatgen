@@ -292,9 +292,11 @@ class PyLauncher(object):
                 break
 
             for task in tasks:
-                task.start()
-                launched.append(task)
-                num_launched += 1
+                fired = task.start()
+
+                if fired:
+                    launched.append(task)
+                    num_launched += 1
                                                 
                 if num_launched == max_nlaunch:
                     # Exit the outermst loop.
@@ -303,7 +305,6 @@ class PyLauncher(object):
 
             #time.sleep(sleep_time)
             num_loops += 1
-
 
         # Update the database.
         self.flow.check_status()
@@ -558,8 +559,10 @@ class PyFlowScheduler(object):
 
         try:
             nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
-            print("%s: Number of launches: %d" % (time.asctime(), nlaunch))
             self.nlaunch += nlaunch
+
+            if nlaunch:
+                print("[%s] Number of launches: %d" % (time.asctime(), nlaunch))
 
         except Exception:
             excs.append(straceback())
@@ -616,7 +619,7 @@ class PyFlowScheduler(object):
         # Paranoid check: disable the scheduler if we have submitted 
         # too many jobs (it might be due to some bug or other external reasons!) 
         if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
-            msg = "Too many jobs launched %d. Will shutdown the scheduler and exit" % self.nlaunch
+            msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" %  (self.nlaunch, self.flow.num_tasks)
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_ERROR.
