@@ -50,6 +50,7 @@ __all__ = [
     "RelaxWorkflow",
     "DeltaFactorWorkflow",
     "G0W0_Workflow",
+    "SigmaConvWorkflow",
     "BSEMDF_Workflow",
     "PhononWorkflow",
 ]
@@ -1308,20 +1309,50 @@ class G0W0_Workflow(Workflow):
         super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        scf_task = self.register(scf_input, task_class=ScfTask)
+        self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
-        nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
+        self.nscf_task = nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
 
         # Register the SCREENING run.
-        scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+        self.scr_task = scr_task = self.register(scr_input, deps={nscf_task: "WFK"})
+
+        # Register the SIGMA runs.
+        if not isinstance(sigma_inputs, (list, tuple)): 
+            sigma_inputs = [sigma_inputs]
+
+        self.sigma_tasks = []
+        for sigma_input in sigma_inputs:
+            task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
+            self.sigma_tasks.append(tasks)
+
+
+class SigmaConvWorkflow(Workflow):
+
+    def __init__(self, wfk_node, scr_node, sigma_inputs, workdir=None, manager=None):
+        """
+        Workflow for self-energy convergence studies.
+
+        Args:
+            wfk_node:
+                The node who has produced the WFK file
+            scr_node:
+                The node who has produced the SCR file
+            sigma_inputs:
+                List of Strategies for the self-energy run.
+            workdir:
+                Working directory of the calculation.
+            manager:
+                `TaskManager` object.
+        """
+        super(SigmaConvWorkflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the SIGMA runs.
         if not isinstance(sigma_inputs, (list, tuple)): 
             sigma_inputs = [sigma_inputs]
 
         for sigma_input in sigma_inputs:
-            self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
+            self.register(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
 #class SCGW_Workflow(Workflow):

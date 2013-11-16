@@ -239,7 +239,7 @@ class PyLauncher(object):
                     logger.debug("No task to run! Possible deadlock")
 
             except StopIteration:
-                logger.info("All tasks completeeed.")
+                logger.info("All tasks completed.")
 
         # Submit the tasks and update the database.
         if tasks:
@@ -279,7 +279,7 @@ class PyLauncher(object):
             # I don't know why but we receive duplicated tasks.
             for task in tasks:
                 if task in launched:
-                    err_msg = "task %s in already in launched:\n%s" % (task, launched)
+                    err_msg = "task %s already in launched list:\n%s" % (task, launched)
                     logger.critical(err_msg)
 
             # Preventive test.
@@ -368,8 +368,8 @@ class PyFlowScheduler(object):
         #. The number of jobs launched becomes greater than (SAFETY_RATIO * total_number_of_tasks).
 
         #. The scheduler will send an email to the user (specified by mailto) every REMINDME_S seconds.
-           If the mail cannot be sent, will shutdown automatically. 
-           This check prevents the scheduler from being trapped in an infinite loop caused by deadlocks.
+           If the mail cannot be sent, it will shutdown automatically. 
+           This check prevents the scheduler from being trapped in an infinite loop.
     """
     # Configuration file.
     YAML_FILE = "scheduler.yml"
@@ -617,7 +617,7 @@ class PyFlowScheduler(object):
             err_msg += boxed(msg)
 
         # Paranoid check: disable the scheduler if we have submitted 
-        # too many jobs (it might be due to some bug or other external reasons!) 
+        # too many jobs (it might be due to some bug or other external reasons such as race conditions betwee difference callbacks.!) 
         if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" %  (self.nlaunch, self.flow.num_tasks)
             err_msg += boxed(msg)
@@ -656,22 +656,23 @@ class PyFlowScheduler(object):
 
     def shutdown(self, msg):
         """Shutdown the scheduler."""
-        self.cleanup()
+        try:
+            self.cleanup()
 
-        self.history.append("Completed on %s" % time.asctime())
-        self.history.append("Elapsed time %s" % self.get_delta_etime())
-        #print("history", self.history)
+            self.history.append("Completed on %s" % time.asctime())
+            self.history.append("Elapsed time %s" % self.get_delta_etime())
 
-        retcode = self.send_email(msg)
+            retcode = self.send_email(msg)
 
-        # Write text file with the list of exceptions:
-        if retcode and self.exceptions:
-            dump_file = os.path.join(self.flow.workdir, "launcher.log")
-            with open(dump_file, "w") as fh:
-                fh.writelines(self.exceptions)
+            # Write text file with the list of exceptions:
+            if retcode and self.exceptions:
+                dump_file = os.path.join(self.flow.workdir, "launcher.log")
+                with open(dump_file, "w") as fh:
+                    fh.writelines(self.exceptions)
 
-        # Shutdown the scheduler thus allowing the process to exit.
-        self.sched.shutdown(wait=False)
+        finally:
+            # Shutdown the scheduler thus allowing the process to exit.
+            self.sched.shutdown(wait=False)
 
     def send_email(self, msg, tag=None):
         """
@@ -682,7 +683,7 @@ class PyFlowScheduler(object):
             return self._send_email(msg, tag)
         except:
             self.exceptions.append(straceback())
-            return 1
+            return -2
 
     def _send_email(self, msg, tag):
         if self.mailto is None: 
@@ -749,7 +750,6 @@ def sendmail(subject, text, mailto, sender=None):
     mail["To"] = ", ".join(mailto)
 
     msg = mail.as_string()
-    #print("msg", msg)
 
     try:
         # Send the message via our own SMTP server.
@@ -766,7 +766,6 @@ def sendmail(subject, text, mailto, sender=None):
         p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
 
         outdata, errdata = p.communicate(msg)
-        #print(outdata, errdata)
         return len(errdata)
 
 
