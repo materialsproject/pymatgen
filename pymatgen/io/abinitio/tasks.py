@@ -1813,20 +1813,21 @@ class Task(Node):
             self.strategy.add_extra_abivars(vars)
 
         # Automatic parallelization
-        self.autoparal_fake_run()
+        if hasattr(self, "autoparal_fake_run"):
+            self.autoparal_fake_run()
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
 
-    def start_and_wait(self, *args, **kwargs):
-        """
-        Helper method to start the task and wait.
+    #def start_and_wait(self, *args, **kwargs):
+    #    """
+    #    Helper method to start the task and wait.
 
-        Mainly used when we are submitting the task via the shell
-        without passing through a queue manager.
-        """
-        self.start(*args, **kwargs)
-        return self.wait()
+    #    Mainly used when we are submitting the task via the shell
+    #    without passing through a queue manager.
+    #    """
+    #    self.start(*args, **kwargs)
+    #    return self.wait()
 
 
 class AbinitTask(Task):
