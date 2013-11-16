@@ -135,7 +135,7 @@ class QcInput(MSONable):
         if correlation is not None:
             self.params["rem"]["correlation"] = correlation.lower()
         if rem_params is not None:
-            for k, v in rem_params:
+            for k, v in rem_params.iteritems():
                 self.params["rem"][k.lower()] = v.lower()
         if optional_params:
             op_key = set([k.lower() for k in optional_params.keys()])

@@ -21,6 +21,6 @@ mol = Molecule(["C", "H", "H", "H", "H"], coords)
 class TestQcInput(TestCase):
     def test_str(self):
         qcinp = QcInput(mol, title="Test Methane", exchange="XYGJOS",
-                        job_type="freq")
+                        job_type="Freq")
         print qcinp
         print "#"*20
