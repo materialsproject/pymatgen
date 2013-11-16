@@ -166,7 +166,7 @@ class QcInput(MSONable):
                    sorted(list(self.optional_keywords_list))
         lines = []
         for sec in sections:
-            if sec in self.params:
+            if sec in self.params or sec == "molecule":
                 foramt_sec = self.__getattribute__("_format_" + sec)
                 lines.append("$" + sec)
                 lines.extend(foramt_sec())
@@ -182,31 +182,27 @@ class QcInput(MSONable):
 
     def _format_molecule(self):
         lines = []
-        if self.charge:
+        if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
             .charge, multi=self.spin_multiplicity))
         if self.mol == "read":
             lines.append(" read")
         else:
             for site in self.mol.sites:
-                lines.append(" {element:<4} {x:>12.8f} {y:>12.8f} "
-                             "{z:>12.8f}".format(element=site.species_string,
+                lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
+                             "{z:>17.8f}".format(element=site.species_string,
                                                   x=site.x, y=site.y, z=site.z))
         return lines
 
 
     def _format_rem(self):
         rem_format_template = Template("  {name:>$name_width} = "
-                                       "{value:<$value_width}")
+                                       "{value}")
         name_width = 0
-        value_width = 0
         for name, value in self.params["rem"].iteritems():
             if len(name) > name_width:
                 name_width = len(name)
-            if len(value) > value_width:
-                value_width = len(value)
-        rem = rem_format_template.substitute(name_width=name_width,
-                                             value_width=value_width)
+        rem = rem_format_template.substitute(name_width=name_width)
         lines = []
         for name in sorted(self.params["rem"].keys()):
             value = self.params["rem"][name]
