@@ -24,7 +24,7 @@ class QcInput(MSONable):
 
     optional_keywords_list = set(["basis", "ecp", "empirical_dispersion",
                                   "external_charges", "force_field_params",
-                                  "intracule", "isotopes",
+                                  "intracule", "isotopes", "aux_basis",
                                   "localized_diabatization", "multipole_field",
                                   "nbo", "occupied",
                                   "swap_occupied_virtual", "opt", "pcm",
@@ -35,8 +35,8 @@ class QcInput(MSONable):
 
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  job_type='SP', title=None, exchange="HF", correlation=None,
-                 basis_set="6-31+G*", aux_basis_set=None, rem_params=None,
-                 optional_params=None):
+                 basis_set="6-31+G*", aux_basis_set=None, ecp=None,
+                 rem_params=None, optional_params=None):
         """
         Args:
             molecule:
@@ -78,13 +78,20 @@ class QcInput(MSONable):
                 Defaults to None.
                 Type: str
             basis_set:
-                The basis set. If set to "gen", an additional parameter
-                indicated by key "basis" is required in optional_params.
-                Type: str
+                The basis set.
+                If it is a dict, each element can use different basis set.
+                Type: str or dict
             aux_basis_set:
                 Auxiliary basis set. For methods, like RI-MP2, XYG3, OXYJ-OS,
                 auxiliary basis set is required.
+                If it is a dict, each element can use different auxiliary
+                basis set.
+                Type: str or dict
                 Type: str
+            ecp:
+                Effective core potential (ECP) to be used.
+                If it is a dict, each element can use different ECP.
+                Type: str or dict
             rem_params:
                 The parameters supposed to write in the $rem section. Dict of
                 key/value pairs.
@@ -129,7 +136,6 @@ class QcInput(MSONable):
             self.params["comments"] = title
         if "rem" not in self.params:
             self.params["rem"] = dict()
-        self.params["rem"]["basis"] = basis_set.lower()
         self.params["rem"]["exchange"] = exchange.lower()
         self.params["rem"]["job_type"] = job_type.lower()
         if correlation is not None:
@@ -144,16 +150,20 @@ class QcInput(MSONable):
                 raise ValueError(','.join(['$' + k for k in invalid_keys]) +
                                  'is not a valid optional section')
             self.params.update(optional_params)
+
+        self.set_basis_set(basis_set)
+
         if aux_basis_set is None:
             if self._aux_basis_required():
-                if self.params["rem"]["basis"].startswith("6-31+g"):
-                    self.params["rem"]["aux_basis"] = "rimp2-aug-cc-pvdz"
-                elif self.params["rem"]["basis"].startswith("6-311+g"):
-                    self.params["rem"]["aux_basis"] = "rimp2-aug-cc-pvtz"
-                else:
+                if isinstance(self.params["rem"]["basis"], str):
+                    if self.params["rem"]["basis"].startswith("6-31+g"):
+                        self.set_auxiliary_basis_set("rimp2-aug-cc-pvdz")
+                    elif self.params["rem"]["basis"].startswith("6-311+g"):
+                        self.set_auxiliary_basis_set("rimp2-aug-cc-pvtz")
+                if "aux_basis" not in self.params["rem"]:
                     raise ValueError("Auxiliary basis set is missing")
         else:
-            self.params["rem"]["aux_basis"] = aux_basis_set
+            self.set_auxiliary_basis_set(aux_basis_set)
 
     def _aux_basis_required(self):
         if self.params["rem"]["exchange"] in ['xygjos', 'xyg3', 'lxygjos']:
@@ -161,6 +171,51 @@ class QcInput(MSONable):
         if 'correlation' in self.params["rem"]:
             if self.params["rem"]["correlation"].startswith("ri"):
                 return True
+
+    def set_basis_set(self, basis_set):
+        if isinstance(basis_set, str):
+            self.params["rem"]["basis"] = basis_set.lower()
+        elif isinstance(basis_set, dict):
+            self.params["rem"]["basis"] = "gen"
+            bs = dict()
+            for element, basis in basis_set.iteritems():
+                bs[element.strip().capitalize()] = basis.lower()
+            self.params["basis"] = bs
+            if self.mol:
+                    mol_elements = set([site.species_string for site
+                                        in self.mol.sites])
+                    basis_elements = set(self.params["basis"].keys())
+                    if len(mol_elements - basis_elements) > 0:
+                        raise ValueError("The basis set for elements " +
+                            ", ".join(list(mol_elements - basis_elements)) +
+                            " is missing")
+                    if len(basis_elements - mol_elements) > 0:
+                        raise ValueError("Basis set error: the molecule "
+                            "doesn't contain element " +
+                            ", ".join(basis_elements - mol_elements))
+
+    def set_auxiliary_basis_set(self, aux_basis_set):
+        if isinstance(aux_basis_set, str):
+            self.params["rem"]["aux_basis"] = aux_basis_set.lower()
+        elif isinstance(aux_basis_set, dict):
+            self.params["rem"]["aux_basis"] = "gen"
+            bs = dict()
+            for element, basis in aux_basis_set.iteritems():
+                bs[element.strip().capitalize()] = basis.lower()
+            self.params["aux_basis"] = bs
+            if self.mol:
+                    mol_elements = set([site.species_string for site
+                                        in self.mol.sites])
+                    basis_elements = set(self.params["aux_basis"].keys())
+                    if len(mol_elements - basis_elements) > 0:
+                        raise ValueError("The auxiliary basis set for "
+                            "elements " +
+                            ", ".join(list(mol_elements - basis_elements)) +
+                            " is missing")
+                    if len(basis_elements - mol_elements) > 0:
+                        raise ValueError("Auxiliary asis set error: the "
+                            "molecule doesn't contain element " +
+                            ", ".join(basis_elements - mol_elements))
 
     @property
     def molecule(self):
@@ -213,6 +268,24 @@ class QcInput(MSONable):
         for name in sorted(self.params["rem"].keys()):
             value = self.params["rem"][name]
             lines.append(rem.format(name=name, value=value))
+        return lines
+
+    def _format_basis(self):
+        lines = []
+        for element in sorted(self.params["basis"].keys()):
+            basis = self.params["basis"][element]
+            lines.append(" " + element)
+            lines.append(" " + basis)
+            lines.append(" ****")
+        return lines
+
+    def _format_aux_basis(self):
+        lines = []
+        for element in sorted(self.params["aux_basis"].keys()):
+            basis = self.params["aux_basis"][element]
+            lines.append(" " + element)
+            lines.append(" " + basis)
+            lines.append(" ****")
         return lines
 
     def to_dict(self):
