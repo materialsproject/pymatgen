@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.symmetry_fitter &mdash; pymatgen 2.7.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.7.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.7.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.7.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.analysis.symmetry_fitter</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements an experimental symmetry fitter class.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Jul 5, 2012&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SymmetryFitter"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.symmetry_fitter.SymmetryFitter">[docs]</a><span class="k">class</span> <span class="nc">SymmetryFitter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The SymmetryFitter class is used to compare a sequence of structures and</span>
+<span class="sd">    group them according to whether they are similar under a particular</span>
+<span class="sd">    spacegroup.</span>
+
+<span class="sd">    This class is still *EXPERIMENTAL*. Use with care.</span>
+
+<span class="sd">    Attributes:</span>
+
+<span class="sd">    .. attribute:: unique_groups</span>
+
+<span class="sd">        All unique groups of structures under the spacegroup, given as</span>
+<span class="sd">        [[struct1, struct2,...], ...]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">spacegroup</span><span class="p">,</span> <span class="n">symm_prec</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structures:</span>
+<span class="sd">                Sequence of structures to test.</span>
+<span class="sd">            spacegroup:</span>
+<span class="sd">                A spacegroup to test the structures.</span>
+<span class="sd">            symm_prec:</span>
+<span class="sd">                The symmetry precision to test with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure_symm</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span> <span class="o">=</span> <span class="n">symm_prec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spacegroup</span> <span class="o">=</span> <span class="n">spacegroup</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Computing spacegroups...&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
+            <span class="n">finder</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">symm_prec</span><span class="p">)</span>
+            <span class="n">structure_symm</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">finder</span><span class="o">.</span><span class="n">get_spacegroup_number</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Structure {} has spacegroup {}&quot;</span>
+                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">structure_symm</span><span class="p">[</span><span class="n">s</span><span class="p">]))</span>
+
+        <span class="n">sorted_structures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span>
+                                   <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="o">-</span><span class="n">structure_symm</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+        <span class="n">unique_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">sorted_structures</span><span class="p">,</span>
+                                          <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">structure_symm</span><span class="p">[</span><span class="n">s</span><span class="p">]):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Processing group of structures with sg number {}&quot;</span>
+                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="n">subgroups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_group</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            <span class="n">unique_groups</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">subgroups</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unique_groups</span> <span class="o">=</span> <span class="n">unique_groups</span>
+
+<div class="viewcode-block" id="SymmetryFitter.num_groups"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.symmetry_fitter.SymmetryFitter.num_groups">[docs]</a>    <span class="k">def</span> <span class="nf">num_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unique_groups</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SymmetryFitter.get_unique_structures"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.symmetry_fitter.SymmetryFitter.get_unique_structures">[docs]</a>    <span class="k">def</span> <span class="nf">get_unique_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unique_groups</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_fit_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+        <span class="n">subgroups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_structures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;{} structures in group&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_structures</span><span class="p">)))</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_structures</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">fixed</span> <span class="o">=</span> <span class="n">all_structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">subgroup</span> <span class="o">=</span> <span class="p">[</span><span class="n">fixed</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">to_fit</span> <span class="ow">in</span> <span class="n">all_structures</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacegroup</span><span class="o">.</span><span class="n">are_symmetrically_equivalent</span><span class="p">(</span>
+                        <span class="n">fixed</span><span class="p">,</span> <span class="n">to_fit</span><span class="p">,</span> <span class="n">symm_prec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">symm_prec</span><span class="p">):</span>
+                    <span class="n">subgroup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_fit</span><span class="p">)</span>
+            <span class="n">all_structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">all_structures</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subgroup</span><span class="p">]</span>
+            <span class="n">subgroups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subgroup</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;{} subgroups&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subgroups</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">subgroups</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.7.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

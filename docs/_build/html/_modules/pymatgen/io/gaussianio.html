@@ -1,0 +1,728 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.gaussianio &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.io.gaussianio</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module implements input and output processing from Gaussian.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Apr 17, 2012&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">,</span> <span class="n">Composition</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="kn">import</span> <span class="n">zopen</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="kn">import</span> <span class="n">get_angle</span>
+
+
+<div class="viewcode-block" id="GaussianInput"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianInput">[docs]</a><span class="k">class</span> <span class="nc">GaussianInput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An object representing a Gaussian input file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c">#Commonly used regex patterns</span>
+    <span class="n">zmat_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$&quot;</span><span class="p">)</span>
+    <span class="n">xyz_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+&quot;</span>
+                          <span class="s">&quot;([\d\.eE\-]+)[\-\.\s,\w.]*$&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">functional</span><span class="o">=</span><span class="s">&quot;HF&quot;</span><span class="p">,</span> <span class="n">basis_set</span><span class="o">=</span><span class="s">&quot;6-31G(d)&quot;</span><span class="p">,</span> <span class="n">route_parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">input_parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">link0_parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            mol:</span>
+<span class="sd">                Input molecule. If molecule is a single string, it is used as a</span>
+<span class="sd">                direct input to the geometry section of the Gaussian input</span>
+<span class="sd">                file.</span>
+<span class="sd">            charge:</span>
+<span class="sd">                Charge of the molecule. If None, charge on molecule is used.</span>
+<span class="sd">                Defaults to None. This allows the input file to be set a</span>
+<span class="sd">                charge independently from the molecule itself.</span>
+<span class="sd">            spin_multiplicity:</span>
+<span class="sd">                Spin multiplicity of molecule. Defaults to None,</span>
+<span class="sd">                which means that the spin multiplicity is set to 1 if the</span>
+<span class="sd">                molecule has no unpaired electrons and to 2 if there are</span>
+<span class="sd">                unpaired electrons.</span>
+<span class="sd">            title:</span>
+<span class="sd">                Title for run. Defaults to formula of molecule if None.</span>
+<span class="sd">            functional:</span>
+<span class="sd">                Functional for run.</span>
+<span class="sd">            basis_set:</span>
+<span class="sd">                Basis set for run.</span>
+<span class="sd">            route_parameters:</span>
+<span class="sd">                Additional route parameters as a dict. For example,</span>
+<span class="sd">                {&#39;SP&#39;:&quot;&quot;, &quot;SCF&quot;:&quot;Tight&quot;}</span>
+<span class="sd">            input_parameters:</span>
+<span class="sd">                Additional input parameters for run as a dict. Used for</span>
+<span class="sd">                example, in PCM calculations.  E.g., {&quot;EPS&quot;:12}</span>
+<span class="sd">            link0_parameters:</span>
+<span class="sd">                Link0 parameters as a dict. E.g., {&quot;%mem&quot;: &quot;1000MW&quot;}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span> <span class="o">=</span> <span class="n">mol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span> <span class="k">if</span> <span class="n">charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">mol</span><span class="o">.</span><span class="n">charge</span>
+        <span class="n">nelectrons</span> <span class="o">=</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="n">mol</span><span class="o">.</span><span class="n">charge</span> <span class="o">+</span> <span class="n">mol</span><span class="o">.</span><span class="n">nelectrons</span>
+        <span class="k">if</span> <span class="n">spin_multiplicity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span> <span class="o">=</span> <span class="n">spin_multiplicity</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">nelectrons</span> <span class="o">+</span> <span class="n">spin_multiplicity</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&quot;Charge of {} and spin multiplicity of {} is&quot;</span>
+                    <span class="s">&quot; not possible for this molecule&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">nelectrons</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">functional</span> <span class="o">=</span> <span class="n">functional</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link0_parameters</span> <span class="o">=</span> <span class="n">link0_parameters</span> <span class="k">if</span> <span class="n">link0_parameters</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">route_parameters</span> <span class="o">=</span> <span class="n">route_parameters</span> <span class="k">if</span> <span class="n">route_parameters</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_parameters</span> <span class="o">=</span> <span class="n">input_parameters</span> <span class="k">if</span> <span class="n">input_parameters</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GaussianInput.molecule"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianInput.molecule">[docs]</a>    <span class="k">def</span> <span class="nf">molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns molecule associated with this GaussianInput.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="GaussianInput.parse_coords"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianInput.parse_coords">[docs]</a>    <span class="k">def</span> <span class="nf">parse_coords</span><span class="p">(</span><span class="n">coord_lines</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method to parse coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">paras</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">var_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">coord_lines</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">var_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="n">paras</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># Stores whether a Zmatrix format is detected. Once a zmatrix format</span>
+        <span class="c"># is detected, it is assumed for the remaining of the parsing.</span>
+        <span class="n">zmode</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">coord_lines</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">l</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">zmode</span><span class="p">)</span> <span class="ow">and</span> <span class="n">GaussianInput</span><span class="o">.</span><span class="n">xyz_patt</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="o">.</span><span class="n">xyz_patt</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">toks</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;[,\s]+&quot;</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">5</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="n">GaussianInput</span><span class="o">.</span><span class="n">zmat_patt</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+                <span class="n">zmode</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">toks</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;[,\s]+&quot;</span><span class="p">,</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">toks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">nn</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">parameters</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">toks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">ind</span> <span class="o">=</span> <span class="n">toks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="n">toks</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">nn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">ind</span><span class="p">))</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                            <span class="n">nn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">species</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                            <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;-&quot;</span><span class="p">):</span>
+                                <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">paras</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">paras</span><span class="p">[</span><span class="n">data</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">coords1</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">coords2</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">bl</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">angle</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                        <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_origin_axis_angle</span><span class="p">(</span><span class="n">coords1</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span>
+                                                           <span class="n">angle</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+                        <span class="n">coord</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">coords2</span><span class="p">)</span>
+                        <span class="n">vec</span> <span class="o">=</span> <span class="n">coord</span> <span class="o">-</span> <span class="n">coords1</span>
+                        <span class="n">coord</span> <span class="o">=</span> <span class="n">vec</span> <span class="o">*</span> <span class="n">bl</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="o">+</span> <span class="n">coords1</span>
+                        <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">coords1</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">coords2</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">coords3</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">nn</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">bl</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">angle</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">dih</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">v1</span> <span class="o">=</span> <span class="n">coords3</span> <span class="o">-</span> <span class="n">coords2</span>
+                        <span class="n">v2</span> <span class="o">=</span> <span class="n">coords1</span> <span class="o">-</span> <span class="n">coords2</span>
+                        <span class="n">axis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+                        <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_origin_axis_angle</span><span class="p">(</span>
+                            <span class="n">coords1</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+                        <span class="n">coord</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">coords2</span><span class="p">)</span>
+                        <span class="n">v1</span> <span class="o">=</span> <span class="n">coord</span> <span class="o">-</span> <span class="n">coords1</span>
+                        <span class="n">v2</span> <span class="o">=</span> <span class="n">coords1</span> <span class="o">-</span> <span class="n">coords2</span>
+                        <span class="n">v3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+                        <span class="n">adj</span> <span class="o">=</span> <span class="n">get_angle</span><span class="p">(</span><span class="n">v3</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
+                        <span class="n">axis</span> <span class="o">=</span> <span class="n">coords1</span> <span class="o">-</span> <span class="n">coords2</span>
+                        <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_origin_axis_angle</span><span class="p">(</span>
+                            <span class="n">coords1</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">dih</span> <span class="o">-</span> <span class="n">adj</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+                        <span class="n">coord</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">operate</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+                        <span class="n">vec</span> <span class="o">=</span> <span class="n">coord</span> <span class="o">-</span> <span class="n">coords1</span>
+                        <span class="n">coord</span> <span class="o">=</span> <span class="n">vec</span> <span class="o">*</span> <span class="n">bl</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="o">+</span> <span class="n">coords1</span>
+                        <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">parse_species</span><span class="p">(</span><span class="n">sp_str</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            The species specification can take many forms. E.g.,</span>
+<span class="sd">            simple integers representing atomic numbers (&quot;8&quot;),</span>
+<span class="sd">            actual species string (&quot;C&quot;) or a labelled species (&quot;C1&quot;).</span>
+<span class="sd">            Sometimes, the species string is also not properly capitalized,</span>
+<span class="sd">            e.g, (&quot;c1&quot;). This method should take care of these known formats.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">sp_str</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">sp</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;\d&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">sp_str</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+
+        <span class="n">species</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">parse_species</span><span class="p">,</span> <span class="n">species</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Molecule</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="GaussianInput.from_string"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianInput.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates GaussianInput from a string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            contents:</span>
+<span class="sd">                String representing an Gaussian input file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            GaussianInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">contents</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)]</span>
+        <span class="n">route_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;^#[sSpPnN]*.*&quot;</span><span class="p">)</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">route_patt</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+                <span class="n">route</span> <span class="o">=</span> <span class="n">l</span>
+                <span class="n">route_index</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="k">break</span>
+        <span class="n">route_paras</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">route</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">route</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">tok</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;#&quot;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;[\S]+/.*&quot;</span><span class="p">,</span> <span class="n">tok</span><span class="p">):</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span>
+                    <span class="n">functional</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">basis_set</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="bp">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">route_paras</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">lines</span><span class="p">[</span><span class="n">route_index</span> <span class="o">+</span> <span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">title</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">route_index</span> <span class="o">+</span> <span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">toks</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;[\s,]&quot;</span><span class="p">,</span> <span class="n">lines</span><span class="p">[</span><span class="n">route_index</span> <span class="o">+</span> <span class="n">ind</span><span class="p">])</span>
+        <span class="n">charge</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">spin_mult</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">coord_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">spaces</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">input_paras</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">route_index</span> <span class="o">+</span> <span class="n">ind</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">spaces</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">spaces</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">input_paras</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coord_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">GaussianInput</span><span class="o">.</span><span class="n">parse_coords</span><span class="p">(</span><span class="n">coord_lines</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">GaussianInput</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">spin_multiplicity</span><span class="o">=</span><span class="n">spin_mult</span><span class="p">,</span>
+                             <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">functional</span><span class="o">=</span><span class="n">functional</span><span class="p">,</span>
+                             <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span> <span class="n">route_parameters</span><span class="o">=</span><span class="n">route_paras</span><span class="p">,</span>
+                             <span class="n">input_parameters</span><span class="o">=</span><span class="n">input_paras</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="GaussianInput.from_file"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianInput.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates GaussianInput from a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename:</span>
+<span class="sd">                Gaussian input filename</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            GaussianInput object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">GaussianInput</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</div>
+    <span class="k">def</span> <span class="nf">_find_nn_pos_before_site</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">siteindex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns index of nearest neighbor atoms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alldist</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">siteindex</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span>
+                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">siteindex</span><span class="p">)]</span>
+        <span class="n">alldist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">alldist</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">alldist</span><span class="p">]</span>
+
+<div class="viewcode-block" id="GaussianInput.get_zmatrix"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianInput.get_zmatrix">[docs]</a>    <span class="k">def</span> <span class="nf">get_zmatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a z-matrix representation of the molecule.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">outputvar</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">site</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_nn_pos_before_site</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">bondlength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{} {} B{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                                                 <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;B{}={:.6f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">bondlength</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_nn_pos_before_site</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">bondlength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_angle</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{} {} B{} {} A{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span>
+                                                        <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span>
+                                                        <span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;B{}={:.6f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">bondlength</span><span class="p">))</span>
+                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;A{}={:.6f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">angle</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_nn_pos_before_site</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">bondlength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_angle</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">dih</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="o">.</span><span class="n">get_dihedral</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">nn</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{} {} B{} {} A{} {} D{}&quot;</span>
+                              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span>
+                                      <span class="n">nn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">nn</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;B{}={:.6f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">bondlength</span><span class="p">))</span>
+                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;A{}={:.6f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">angle</span><span class="p">))</span>
+                <span class="n">outputvar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;D{}={:.6f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">dih</span><span class="p">))</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputvar</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">para_dict_to_string</span><span class="p">(</span><span class="n">para</span><span class="p">,</span> <span class="n">joiner</span><span class="o">=</span><span class="s">&quot; &quot;</span><span class="p">):</span>
+            <span class="n">para_str</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;{}={}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">v</span> <span class="k">else</span> <span class="n">k</span>
+                        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">para</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="k">return</span> <span class="n">joiner</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">para_str</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">link0_parameters</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">para_dict_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link0_parameters</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;#P {func}/{bset} {route} Test&quot;</span>
+                      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">,</span> <span class="n">bset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
+                              <span class="n">route</span><span class="o">=</span><span class="n">para_dict_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route_parameters</span><span class="p">))</span>
+                      <span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;{} {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_multiplicity</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">,</span> <span class="n">Molecule</span><span class="p">):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_zmatrix</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mol</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">para_dict_to_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_parameters</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">))</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GaussianInput.write_file"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianInput.write_file">[docs]</a>    <span class="k">def</span> <span class="nf">write_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__str__</span><span class="p">())</span>
+
+</div></div>
+<div class="viewcode-block" id="GaussianOutput"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianOutput">[docs]</a><span class="k">class</span> <span class="nc">GaussianOutput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parser for Gaussian output files.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Still in early beta.</span>
+
+<span class="sd">    Attributes:</span>
+
+<span class="sd">    .. attribute:: structures</span>
+
+<span class="sd">        All structures from the calculation.</span>
+
+<span class="sd">    .. attribute:: energies</span>
+
+<span class="sd">        All energies from the calculation.</span>
+
+<span class="sd">    .. attribute:: properly_terminated</span>
+
+<span class="sd">        True if run has properly terminated</span>
+
+<span class="sd">    .. attribute:: is_pcm</span>
+
+<span class="sd">        True if run is a PCM run.</span>
+
+<span class="sd">    .. attribute:: stationary_type</span>
+
+<span class="sd">        If it is a relaxation run, indicates whether it is a minimum (Minimum)</span>
+<span class="sd">        or a saddle point (&quot;Saddle&quot;).</span>
+
+<span class="sd">    .. attribute:: corrections</span>
+
+<span class="sd">        Thermochemical corrections if this run is a Freq run as a dict. Keys</span>
+<span class="sd">        are &quot;Zero-point&quot;, &quot;Thermal&quot;, &quot;Enthalpy&quot; and &quot;Gibbs Free Energy&quot;</span>
+
+<span class="sd">    .. attribute:: functional</span>
+
+<span class="sd">        Functional used in the run.</span>
+
+<span class="sd">    .. attribute:: basis_set</span>
+
+<span class="sd">        Basis set used in the run</span>
+
+<span class="sd">    .. attribute:: charge</span>
+
+<span class="sd">        Charge for structure</span>
+
+<span class="sd">    .. attribute:: spin_mult</span>
+
+<span class="sd">        Spin multiplicity for structure</span>
+
+<span class="sd">    .. attribute:: num_basis_func</span>
+
+<span class="sd">        Number of basis functions in the run.</span>
+
+<span class="sd">    .. attribute:: pcm</span>
+
+<span class="sd">        PCM parameters and output if available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            filename:</span>
+<span class="sd">                Filename of Gaussian output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GaussianOutput.final_energy"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianOutput.final_energy">[docs]</a>    <span class="k">def</span> <span class="nf">final_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GaussianOutput.final_structure"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianOutput.final_structure">[docs]</a>    <span class="k">def</span> <span class="nf">final_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+
+        <span class="n">start_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot; \(Enter \S+l101\.exe\)&quot;</span><span class="p">)</span>
+        <span class="n">route_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot; #[pPnNtT]*.*&quot;</span><span class="p">)</span>
+        <span class="n">charge_mul_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;Charge\s+=\s*([-</span><span class="se">\\</span><span class="s">d]+)\s+&quot;</span>
+                                     <span class="s">&quot;Multiplicity\s+=\s*(\d+)&quot;</span><span class="p">)</span>
+        <span class="n">num_basis_func_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;([0-9]+)\s+basis functions&quot;</span><span class="p">)</span>
+        <span class="n">pcm_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;Polarizable Continuum Model&quot;</span><span class="p">)</span>
+        <span class="n">stat_type_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;imaginary frequencies&quot;</span><span class="p">)</span>
+        <span class="n">scf_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;E\(.*\)\s*=\s*([-\.\d]+)\s+&quot;</span><span class="p">)</span>
+        <span class="n">mp2_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;EUMP2\s*=\s*(.*)&quot;</span><span class="p">)</span>
+        <span class="n">oniom_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;ONIOM:\s+extrapolated energy\s*=\s*(.*)&quot;</span><span class="p">)</span>
+        <span class="n">termination_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;(Normal|Error) termination of Gaussian&quot;</span><span class="p">)</span>
+        <span class="n">std_orientation_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;Standard orientation&quot;</span><span class="p">)</span>
+        <span class="n">end_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;--+&quot;</span><span class="p">)</span>
+        <span class="n">orbital_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;Alpha\s*\S+\s*eigenvalues --(.*)&quot;</span><span class="p">)</span>
+        <span class="n">thermo_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;(Zero-point|Thermal) correction(.*)=&quot;</span>
+                                 <span class="s">&quot;\s+([\d\.-]+)&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">properly_terminated</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_pcm</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stationary_type</span> <span class="o">=</span> <span class="s">&quot;Minimum&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">read_coord</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">orbitals_txt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">parse_stage</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_basis_found</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">terminated</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parse_stage</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">start_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">parse_stage</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">route_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="o">=</span> <span class="p">{}</span>
+                        <span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+                            <span class="n">sub_tok</span> <span class="o">=</span> <span class="n">tok</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
+                            <span class="n">key</span> <span class="o">=</span> <span class="n">sub_tok</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">sub_tok</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> \
+                                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_tok</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+                            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&quot;(\w+)/([^/]+)&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">functional</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">parse_stage</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">charge_mul_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">charge_mul_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">spin_mult</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+                        <span class="n">parse_stage</span> <span class="o">=</span> <span class="mi">2</span>
+                <span class="k">elif</span> <span class="n">parse_stage</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pcm</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_check_pcm</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="s">&quot;FREQ&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="ow">and</span> <span class="n">thermo_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">thermo_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Zero-point&quot;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="p">[</span><span class="s">&quot;Zero-point&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">key</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot; to &quot;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">read_coord</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">end_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                            <span class="n">coord_txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">read_coord</span> <span class="o">=</span> <span class="p">(</span><span class="n">read_coord</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">read_coord</span><span class="p">:</span>
+                                <span class="n">sp</span> <span class="o">=</span> <span class="p">[]</span>
+                                <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+                                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">coord_txt</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+                                    <span class="n">toks</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                                    <span class="n">sp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Element</span><span class="o">.</span><span class="n">from_Z</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">toks</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+                                    <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">toks</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]))</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Molecule</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">coords</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="n">termination_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">termination_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;Normal&quot;</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">properly_terminated</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="n">terminated</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">num_basis_found</span><span class="p">)</span> <span class="ow">and</span> \
+                            <span class="n">num_basis_func_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">num_basis_func_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">num_basis_func</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                        <span class="n">num_basis_found</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pcm</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pcm_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">is_pcm</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">elif</span> <span class="s">&quot;FREQ&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="ow">and</span> <span class="s">&quot;OPT&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="ow">and</span> \
+                            <span class="n">stat_type_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">stationary_type</span> <span class="o">=</span> <span class="s">&quot;Saddle&quot;</span>
+                    <span class="k">elif</span> <span class="n">mp2_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">mp2_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;D&quot;</span><span class="p">,</span>
+                                                                      <span class="s">&quot;E&quot;</span><span class="p">)))</span>
+                    <span class="k">elif</span> <span class="n">oniom_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">oniom_patt</span><span class="o">.</span><span class="n">matcher</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+                    <span class="k">elif</span> <span class="n">scf_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">m</span> <span class="o">=</span> <span class="n">scf_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+                    <span class="k">elif</span> <span class="n">std_orientation_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">coord_txt</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="n">read_coord</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="k">elif</span> <span class="n">orbital_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+                        <span class="n">orbitals_txt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">terminated</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&quot;Bad Gaussian output file.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_pcm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">energy_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;(Dispersion|Cavitation|Repulsion) energy&quot;</span>
+                                 <span class="s">&quot;\s+\S+\s+=\s+(\S*)&quot;</span><span class="p">)</span>
+        <span class="n">total_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;with all non electrostatic terms\s+\S+\s+&quot;</span>
+                                <span class="s">&quot;=\s+(\S*)&quot;</span><span class="p">)</span>
+        <span class="n">parameter_patt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&quot;(Eps|Numeral density|RSolv|Eps&quot;</span>
+                                    <span class="s">&quot;\(inf[inity]*\))\s*=\s*(\S*)&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">energy_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">energy_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span><span class="p">[</span><span class="s">&#39;{} energy&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">total_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">total_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span><span class="p">[</span><span class="s">&#39;Total energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">parameter_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">parameter_patt</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GaussianOutput.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.gaussianio.GaussianOutput.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Json-serializable dict representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;has_gaussian_completed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">properly_terminated</span><span class="p">,</span>
+             <span class="s">&quot;nsites&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)}</span>
+        <span class="n">comp</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;unit_cell_formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">to_dict</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;reduced_cell_formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;pretty_formula&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">reduced_formula</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;is_pcm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pcm</span>
+
+        <span class="n">unique_symbols</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;unit_cell_formula&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;elements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_symbols</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;nelements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_symbols</span><span class="p">)</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;charge&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;spin_multiplicity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_mult</span>
+
+        <span class="n">vin</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;route&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">,</span> <span class="s">&quot;functional&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">functional</span><span class="p">,</span>
+               <span class="s">&quot;basis_set&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span>
+               <span class="s">&quot;nbasisfunctions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_basis_func</span><span class="p">,</span>
+               <span class="s">&quot;pcm_parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcm</span><span class="p">}</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vin</span>
+
+        <span class="n">nsites</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">final_structure</span><span class="p">)</span>
+
+        <span class="n">vout</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;energies&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span>
+            <span class="s">&quot;final_energy&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span>
+            <span class="s">&quot;final_energy_per_atom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_energy</span> <span class="o">/</span> <span class="n">nsites</span><span class="p">,</span>
+            <span class="s">&quot;molecule&quot;</span><span class="p">:</span> <span class="n">structure</span><span class="o">.</span><span class="n">to_dict</span><span class="p">,</span>
+            <span class="s">&quot;stationary_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stationary_type</span><span class="p">,</span>
+            <span class="s">&quot;corrections&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">corrections</span>
+        <span class="p">}</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vout</span>
+
+        <span class="k">return</span> <span class="n">d</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

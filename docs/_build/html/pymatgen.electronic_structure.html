@@ -1,0 +1,1745 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>electronic_structure Package &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="electronic-structure-package">
+<h1>electronic_structure Package<a class="headerlink" href="#electronic-structure-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">electronic_structure</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pymatgen.electronic_structure"></span><p>This package contains electronic structure related tools and analyses.</p>
+</div>
+<div class="section" id="module-pymatgen.electronic_structure.bandstructure">
+<span id="bandstructure-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">bandstructure</span></tt> Module<a class="headerlink" href="#module-pymatgen.electronic_structure.bandstructure" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes to define everything related to band structures.</p>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure">
+<em class="property">class </em><tt class="descname">BandStructure</tt><big>(</big><em>kpoints</em>, <em>eigenvals</em>, <em>lattice</em>, <em>efermi</em>, <em>labels_dict=None</em>, <em>coords_are_cartesian=False</em>, <em>structure=None</em>, <em>projections=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This is the most generic band structure data possible
+it&#8217;s defined by a list of kpoints + energies for each of them</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>kpoints:</dt>
+<dd>list of kpoint as numpy arrays, in frac_coords of the
+given lattice by default</dd>
+<dt>eigenvals:</dt>
+<dd>dict of energies for spin up and spin down
+{Spin.up:[][],Spin.down:[][]}, the first index of the array
+[][] refers to the band and the second to the index of the
+kpoint. The kpoints are ordered according to the order of the
+kpoints array. If the band structure is not spin polarized, we
+only store one data set under Spin.up</dd>
+<dt>lattice:</dt>
+<dd>The reciprocal lattice as a pymatgen Lattice object.</dd>
+<dt>label_dict:</dt>
+<dd>(dict) of {} this link a kpoint (in frac coords or cartesian
+coordinates depending on the coords).</dd>
+<dt>coords_are_cartesian:</dt>
+<dd>Whether coordinates are cartesian.</dd>
+<dt>efermi:</dt>
+<dd>fermi energy</dd>
+<dt>labels_dict:</dt>
+<dd>(dict) of {} this links a kpoint (in frac coords or cartesian
+coordinates depending on the coords) to a label.</dd>
+<dt>coords_are_cartesian:</dt>
+<dd>Whether coordinates are cartesian.</dd>
+<dt>structure:</dt>
+<dd>the crystal structure (as a pymatgen Structure object)
+associated with the band structure. This is needed if we
+provide projections to the band structure</dd>
+<dt>projections:</dt>
+<dd>dict of orbital projections for spin up and spin down
+{Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
+format follows the one from eigenvals: The first index of the
+array refers to the band and the second to the index of the
+kpoint. The kpoints are ordered according to the order of the
+kpoints array. For each band and kpoint, we associate a
+dictionary indicating projections on orbitals and on different
+sites the keys of the dictionary are Orbital objects and the
+values are the projections on each site ordered as in the
+structure object. If the band structure is not spin polarized,
+we only store one data set under Spin.up.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.bands">
+<tt class="descname">bands</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the eigenvalues for each kpoints as a dictionary
+{Spin.up:[][],Spin.down:[][]}, the first index of the array
+[][] refers to the band and the second to the index of the
+kpoint. The kpoints are ordered according to the order of the
+self.kpoints. If the band structure is not spin polarized, we
+only store one data set under Spin.up</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.efermi">
+<tt class="descname">efermi</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.efermi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.efermi" title="Permalink to this definition">¶</a></dt>
+<dd><p>the fermi energy</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd>A dict with all data for a band structure symm line object.</dd>
+<dt>Returns:</dt>
+<dd>A BandStructureSymmLine object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap">
+<tt class="descname">get_band_gap</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_band_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns band gap data.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>a dict {&#8220;energy&#8221;,&#8221;direct&#8221;,&#8221;transition&#8221;}:</dt>
+<dd><dl class="first last docutils">
+<dt>&#8220;energy&#8221;:</dt>
+<dd>the band gap energy</dd>
+<dt>&#8220;direct&#8221;:</dt>
+<dd>A boolean telling if the gap is direct (True)
+or not (False)</dd>
+<dt>&#8220;transition&#8221;:</dt>
+<dd>The kpoint labels of the transition (e.g., &#8220;Gamma-X&#8221;)</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_cbm">
+<tt class="descname">get_cbm</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_cbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns data about the CBM.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>{&#8220;band_index&#8221;,&#8221;kpoint_index&#8221;,&#8221;kpoint&#8221;,&#8221;energy&#8221;}</dt>
+<dd><dl class="first last docutils">
+<dt>&#8220;band_index&#8221;:</dt>
+<dd>A dict with spin keys pointing to a list of the indices of
+the band containing the CBM (please note that you can have
+several bands sharing the CBM) {Spin.up:[],Spin.down:[]}</dd>
+<dt>&#8220;kpoint_index&#8221;:</dt>
+<dd>The list of indices in self._kpoints for the kpoint vbm.
+Please note that there can be several kpoint_indices
+relating to the same kpoint (e.g., Gamma can occur at
+different spots in the band structure line plot)</dd>
+<dt>&#8220;kpoint&#8221;:</dt>
+<dd>The kpoint (as a kpoint object)</dd>
+<dt>&#8220;energy&#8221;:</dt>
+<dd>The energy of the CBM</dd>
+<dt>&#8220;projections&#8221;:</dt>
+<dd>The projections along sites and orbitals of the CBM
+if any projection data is available (else it is an empty
+dictionnary)
+the format is similar to the projections field in
+BandStructure: {spin: {&#8216;Orbital&#8217;: [proj]}} where the array
+[proj] is ordered according to the sites in structure</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap">
+<tt class="descname">get_direct_band_gap</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_direct_band_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the direct band gap.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>the value of the direct band gap</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_projection_on_elements">
+<tt class="descname">get_projection_on_elements</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_projection_on_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projection_on_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a dictionary of projections on elements.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>a dictionary in the {Spin.up:[][{Element:values}],
+Spin.down:[][{Element:values}]} format
+if there is no projections in the band structure
+returns an empty dict</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_projections_on_elts_and_orbitals">
+<tt class="descname">get_projections_on_elts_and_orbitals</tt><big>(</big><em>dictio</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.get_projections_on_elts_and_orbitals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_projections_on_elts_and_orbitals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a dictionary of projections on elements and specific
+orbitals</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>dictio:</dt>
+<dd>A dictionary of Elements and Orbitals for which we want to have
+projections on. It is given as: {Element:[orbitals]},
+e.g., {&#8216;Cu&#8217;:[&#8216;d&#8217;,&#8217;s&#8217;]}</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A dictionary of projections on elements in the
+{Spin.up:[][{Element:{orb:values}}],
+Spin.down:[][{Element:{orb:values}}]} format
+if there is no projections in the band structure returns an empty
+dict.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.get_vbm">
+<tt class="descname">get_vbm</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.get_vbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns data about the VBM.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>dict as {&#8220;band_index&#8221;,&#8221;kpoint_index&#8221;,&#8221;kpoint&#8221;,&#8221;energy&#8221;}</dt>
+<dd><dl class="first last docutils">
+<dt>&#8220;band_index&#8221;:</dt>
+<dd>A dict with spin keys pointing to a list of the indices of
+the band containing the VBM (please note that you can have
+several bands sharing the VBM) {Spin.up:[],Spin.down:[]}</dd>
+<dt>&#8220;kpoint_index&#8221;:</dt>
+<dd>The list of indices in self._kpoints for the kpoint vbm.
+Please note that there can be several kpoint_indices
+relating to the same kpoint (e.g., Gamma can occur at
+different spots in the band structure line plot)</dd>
+<dt>&#8220;kpoint&#8221;:</dt>
+<dd>The kpoint (as a kpoint object)</dd>
+<dt>&#8220;energy&#8221;:</dt>
+<dd>The energy of the VBM</dd>
+<dt>&#8220;projections&#8221;:</dt>
+<dd>The projections along sites and orbitals of the VBM
+if any projection data is available (else it is an empty
+dictionnary)
+the format is similar to the projections field in
+BandStructure: {spin:{&#8216;Orbital&#8217;: [proj]}} where the array
+[proj] is ordered according to the sites in structure</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.is_metal">
+<tt class="descname">is_metal</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.is_metal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the band structure indicates a metal by looking if the fermi
+level crosses a band.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>True if a metal, False if not</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.is_spin_polarized">
+<tt class="descname">is_spin_polarized</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.is_spin_polarized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.is_spin_polarized" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the band structure is spin-polarized, False otherwise</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.kpoints">
+<tt class="descname">kpoints</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>the list of kpoints (as Kpoint objects) in the band structure</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.lattice">
+<tt class="descname">lattice</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>the lattice of the band structure as a pymatgen Lattice object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.nb_bands">
+<tt class="descname">nb_bands</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructure.nb_bands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.nb_bands" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the number of bands in the band structure</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructure.to_dict">
+<tt class="descname">to_dict</tt><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructure.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of BandStructureSymmLine.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine">
+<em class="property">class </em><tt class="descname">BandStructureSymmLine</tt><big>(</big><em>kpoints</em>, <em>eigenvals</em>, <em>lattice</em>, <em>efermi</em>, <em>labels_dict</em>, <em>coords_are_cartesian=False</em>, <em>structure=None</em>, <em>projections=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.bandstructure.BandStructure" title="pymatgen.electronic_structure.bandstructure.BandStructure"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.electronic_structure.bandstructure.BandStructure</span></tt></a>, <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>This object stores band structures along selected (symmetry) lines in the
+Brillouin zone. We call the different symmetry lines (ex: Gamma to Z)
+&#8220;branches&#8221;.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>kpoints:</dt>
+<dd>list of kpoint as numpy arrays, in frac_coords of the
+given lattice by default</dd>
+<dt>eigenvals:</dt>
+<dd>dict of energies for spin up and spin down
+{Spin.up:[][],Spin.down:[][]}, the first index of the array
+[][] refers to the band and the second to the index of the
+kpoint. The kpoints are ordered according to the order of the
+kpoints array. If the band structure is not spin polarized, we
+only store one data set under Spin.up.</dd>
+<dt>lattice:</dt>
+<dd>The reciprocal lattice.</dd>
+<dt>efermi:</dt>
+<dd>fermi energy</dd>
+<dt>label_dict:</dt>
+<dd>(dict) of {} this link a kpoint (in frac coords or cartesian
+coordinates depending on the coords).</dd>
+<dt>coords_are_cartesian:</dt>
+<dd>Whether coordinates are cartesian.</dd>
+<dt>structure:</dt>
+<dd>the crystal structure (as a pymatgen Structure object)
+associated with the band structure. This is needed if we
+provide projections to the band structure.</dd>
+<dt>projections:</dt>
+<dd>dict of orbital projections for spin up and spin down
+{Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
+format follows the one from eigenvals: the first index of the
+array refers to the band and the second to the index of the
+kpoint. The kpoints are ordered according to the order of the
+kpoints array. For each band and kpoint, we associate a
+dictionary indicating projections on orbitals and on different
+sites the keys of the dictionary are Orbital objects and the
+values are the projections on each site ordered as in the
+structure object. If the band structure is not spin polarized,
+we only store one data set under Spin.up.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.apply_scissor">
+<tt class="descname">apply_scissor</tt><big>(</big><em>new_band_gap</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.apply_scissor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.apply_scissor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a scissor operator (shift of the CBM) to fit the given band gap.
+If it&#8217;s a metal. We look for the band crossing the fermi level
+and shift this one up. This will not work all the time for metals!</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>new_band_gap:</dt>
+<dd>the band gap the scissor band structure need to have.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a BandStructureSymmLine object with the applied scissor shift</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Args:</dt>
+<dd>A dict with all data for a band structure symm line object.</dd>
+<dt>Returns:</dt>
+<dd>A BandStructureSymmLine object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch">
+<tt class="descname">get_branch</tt><big>(</big><em>index</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.get_branch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns in what branch(es) is the kpoint. There can be several
+branches.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>index:</dt>
+<dd>the kpoint index</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A list of dictionaries [{&#8220;name&#8221;,&#8221;start_index&#8221;,&#8221;end_index&#8221;,&#8221;index&#8221;}]
+indicating all branches in which the k_point is. It takes into
+account the fact that one kpoint (e.g., Gamma) can be in several
+branches</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_equivalent_kpoints">
+<tt class="descname">get_equivalent_kpoints</tt><big>(</big><em>index</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.get_equivalent_kpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.get_equivalent_kpoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of kpoint indices equivalent (meaning they are the
+same frac coords) to the given one.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>index:</dt>
+<dd>the kpoint index</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a list of equivalent indices</dd>
+</dl>
+<p>TODO: now it uses the label we might want to use coordinates instead
+(in case there was a mislabel)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#BandStructureSymmLine.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.BandStructureSymmLine.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of BandStructureSymmLine.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint">
+<em class="property">class </em><tt class="descname">Kpoint</tt><big>(</big><em>coords</em>, <em>lattice</em>, <em>to_unit_cell=False</em>, <em>coords_are_cartesian=False</em>, <em>label=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Class to store kpoint objects. A kpoint is defined with a lattice and frac
+or cartesian coordinates syntax similar than the site object in
+pymatgen.core.structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>coords:</dt>
+<dd>coordinate of the kpoint as a numpy array</dd>
+<dt>lattice:</dt>
+<dd>a pymatgen.core.lattice.Lattice lattice object representing the
+reciprocal lattice of the kpoint</dd>
+<dt>to_unit_cell:</dt>
+<dd>translates fractional coordinate to the basic unit cell, i.e.
+all fractional coordinates satisfy 0 &lt;= a &lt; 1.
+Defaults to False.</dd>
+<dt>coords_are_cartesian:</dt>
+<dd>Boolean indicating if the coordinates given are in cartesian or
+fractional coordinates (by default fractional)</dd>
+<dt>label:</dt>
+<dd>the label of the kpoint if any (None by default)</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.a">
+<tt class="descname">a</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.a"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fractional a coordinate of the kpoint</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.b">
+<tt class="descname">b</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.b"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fractional b coordinate of the kpoint</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.c">
+<tt class="descname">c</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.c"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fractional c coordinate of the kpoint</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.cart_coords">
+<tt class="descname">cart_coords</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.cart_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.cart_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>The cartesian coordinates of the kpoint as a numpy array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.frac_coords">
+<tt class="descname">frac_coords</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.frac_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.frac_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fractional coordinates of the kpoint as a numpy array</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.label">
+<tt class="descname">label</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>The label associated with the kpoint</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.lattice">
+<tt class="descname">lattice</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.lattice" title="Permalink to this definition">¶</a></dt>
+<dd><p>The lattice associated with the kpoint. It&#8217;s a
+pymatgen.core.lattice.Lattice object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.bandstructure.Kpoint.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#Kpoint.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.Kpoint.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of a kpoint</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure">
+<tt class="descname">get_reconstructed_band_structure</tt><big>(</big><em>list_bs</em>, <em>efermi=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/bandstructure.html#get_reconstructed_band_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.bandstructure.get_reconstructed_band_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes a list of band structures
+and reconstruct one band structure object from all of them</p>
+<p>this is typically very useful when you split non self consistent
+band structure runs in several independent jobs and want to merge back
+the results</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>list_bs:</dt>
+<dd>A list of BandStructure</dd>
+<dt>efermi:</dt>
+<dd>The fermi energy of the reconstructed band structure. If none
+is assigned an average of all the fermi energy in each object
+in the list_bs is used.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A BandStructure or BandStructureSymmLine object (depending on
+the type of the list_bs objects)</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.electronic_structure.boltztrap">
+<span id="boltztrap-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">boltztrap</span></tt> Module<a class="headerlink" href="#module-pymatgen.electronic_structure.boltztrap" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes to run and analyze boltztrap on pymatgen band
+structure objects. Boltztrap is a software interpolating band structures and
+computing materials properties from this band structure using Boltzmann
+semi-classical transport theory.</p>
+<p>Boltztrap has been developped by Georg Madsen.</p>
+<p><a class="reference external" href="http://www.icams.de/content/departments/ams/madsen/boltztrap.html">http://www.icams.de/content/departments/ams/madsen/boltztrap.html</a></p>
+<p>References are:</p>
+<div class="highlight-python"><pre>Madsen, G. K. H., and Singh, D. J. (2006).
+BoltzTraP. A code for calculating band-structure dependent quantities.
+Computer Physics Communications, 175, 67-71</pre>
+</div>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer">
+<em class="property">class </em><tt class="descname">BoltztrapAnalyzer</tt><big>(</big><em>gap</em>, <em>mu_steps</em>, <em>cond</em>, <em>seebeck</em>, <em>kappa</em>, <em>hall</em>, <em>doping</em>, <em>mu_doping</em>, <em>seebeck_doping</em>, <em>cond_doping</em>, <em>kappa_doping</em>, <em>hall_doping</em>, <em>dos</em>, <em>carrier_conc</em>, <em>vol</em>, <em>warning</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>class used to store all the data from a boltztrap run</p>
+<p>Constructor taking directly all the data generated by Boltztrap. You
+won&#8217;t probably use it directly but instead use the from_files and
+from_dict methods.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>gap:</dt>
+<dd>The gap after interpolation in eV</dd>
+<dt>mu_steps:</dt>
+<dd><dl class="first last docutils">
+<dt>The steps of electron chemical potential (or Fermi level) in</dt>
+<dd>eV.</dd>
+</dl>
+</dd>
+<dt>cond:</dt>
+<dd>The electronic conductivity tensor divided by a constant
+relaxation time (sigma/tau) at different temperature and
+fermi levels.
+The format is {temperature: [array of 3x3 tensors at each
+fermi level in mu_steps]}. The units are 1/(Ohm*m*s).</dd>
+<dt>seebeck:</dt>
+<dd>The Seebeck tensor at different temperatures and fermi levels
+The format is {temperature: [array of 3x3 tensors at each
+fermi level in mu_steps]}. The units are V/K</dd>
+<dt>kappa:</dt>
+<dd>The electronic thermal conductivity tensor divided by a
+constant relaxation time (kappa/tau) at different temperature
+and fermi levels. The format is {temperature: [array of 3x3
+tensors at each fermi level in mu_steps]}
+The units are W/(m*K*s)</dd>
+<dt>hall:</dt>
+<dd>The hall tensor at different temperature and fermi levels
+The format is {temperature: [array of 27 coefficients list at
+each fermi level in mu_steps]}
+The units are m^3/C</dd>
+<dt>doping:</dt>
+<dd>The different doping levels that have been given to Boltztrap
+The format is {&#8216;p&#8217;:[],&#8217;n&#8217;:[]} with an array of doping levels
+The units are cm^-3</dd>
+<dt>mu_doping:</dt>
+<dd>Gives the electron chemical potential (or Fermi level) for a
+given set of doping.
+Format is {&#8216;p&#8217;:{temperature: [fermi levels],&#8217;n&#8217;:{temperature:
+[fermi levels]}}
+the fermi level array is ordered according to the doping
+levels in doping units for doping are in cm^-3 and for Fermi
+level in eV</dd>
+<dt>seebeck_doping:</dt>
+<dd>The Seebeck tensor at different temperatures and doping levels
+The format is {&#8216;p&#8217;: {temperature: [Seebeck tensors]},
+&#8216;n&#8217;:{temperature: [Seebeck tensors]}}
+The [Seebeck tensors] array is ordered according to the
+doping levels in doping units for doping are in cm^-3 and for
+Seebeck in V/K</dd>
+<dt>cond_doping:</dt>
+<dd>The electronic conductivity tensor divided by a constant
+relaxation time (sigma/tau) at different temperatures and
+doping levels
+The format is {&#8216;p&#8217;:{temperature: [conductivity tensors]},
+&#8216;n&#8217;:{temperature: [conductivity tensors]}}
+The [conductivity tensors] array is ordered according to the
+doping levels in doping units for doping are in cm^-3 and for
+conductivity in 1/(Ohm*m*s)</dd>
+<dt>kappa_doping:</dt>
+<dd>The thermal conductivity tensor divided by a constant
+relaxation time (kappa/tau) at different temperatures and
+doping levels.
+The format is {&#8216;p&#8217;:{temperature: [thermal conductivity
+tensors]},&#8217;n&#8217;:{temperature: [thermal conductivity tensors]}}
+The [thermal conductivity tensors] array is ordered according
+to the doping levels in doping units for doping are in cm^-3
+and for thermal conductivity in W/(m*K*s)</dd>
+<dt>hall_doping:</dt>
+<dd>The Hall tensor at different temperatures and doping levels
+The format is {&#8216;p&#8217;:{temperature: [Hall tensors]},
+&#8216;n&#8217;:{temperature: [Hall tensors]}}
+The [Hall tensors] array is ordered according to the doping
+levels in doping and each Hall tensor is represented by a 27
+coefficients list.
+The units are m^3/C</dd>
+<dt>the concentration of carriers:</dt>
+<dd>in electron (or hole) per unit cell</dd>
+<dt>dos:</dt>
+<dd>The dos computed by Boltztrap
+given as a pymatgen Dos object</dd>
+<dt>vol:</dt>
+<dd>the volume of the unit cell in angstrom cube (A^3)</dd>
+<dt>warning:</dt>
+<dd>True if Boltztrap spitted out a warning</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict">
+<em class="property">static </em><tt class="descname">from_dict</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files">
+<em class="property">static </em><tt class="descname">from_files</tt><big>(</big><em>path_dir</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a BoltztrapAnalyzer object from a set of files</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>path_dir:</dt>
+<dd>directory where the boltztrap files are</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a BoltztrapAnalyzer object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass_tensor">
+<tt class="descname">get_average_eff_mass_tensor</tt><big>(</big><em>temperature=300</em>, <em>doping=1e+18</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_average_eff_mass_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_average_eff_mass_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the average effective mass tensor at a given temperature and
+doping level.
+The average effective mass tensor is defined as the integrated
+average of the second derivative
+This effective mass tensor takes into account:
+-non-parabolicity
+-multiple extrema
+-multiple bands</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>temperature:</dt>
+<dd>the temperature in K</dd>
+<dt>doping:</dt>
+<dd>the doping in cm^-3</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a dictionnary {&#8216;p&#8217;:[[]],&#8217;n&#8217;:[[]]}
+The arrays are 3x3 and represent the effective mass tensor
+The &#8216;p&#8217; links to hole effective mass tensor and &#8216;n&#8217; to electron
+effective mass tensor.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_eig_average_eff_mass_tensor">
+<tt class="descname">get_eig_average_eff_mass_tensor</tt><big>(</big><em>temperature=300</em>, <em>doping=1e+18</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_eig_average_eff_mass_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_eig_average_eff_mass_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives the eigenvalues of the average effective mass tensor at a given
+temperature and doping level. The average effective mass tensor is
+defined as the integrated average of the second derivative
+This effective mass tensor takes into account:
+-non-parabolicity
+-multiple extrema
+-multiple bands</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>temperature:</dt>
+<dd>the temperature in K</dd>
+<dt>doping:</dt>
+<dd>the doping in cm^-3</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a dictionnary {&#8216;p&#8217;:[],&#8217;n&#8217;:[]}
+The list contains the sorted three eigenvalues of the symmetric
+tensor. The &#8216;p&#8217; links to hole effective mass tensor and &#8216;n&#8217; to
+electron effective mass tensor.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds">
+<tt class="descname">get_mu_bounds</tt><big>(</big><em>temp=300</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.get_mu_bounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.get_mu_bounds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapAnalyzer.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapAnalyzer.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapError">
+<em class="property">exception </em><tt class="descname">BoltztrapError</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Exception class for boltztrap.
+Raised when the boltztrap gives an error</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapPlotter">
+<em class="property">class </em><tt class="descname">BoltztrapPlotter</tt><big>(</big><em>bz</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>class containing methods to plot the data from Boltztrap</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>bz:</dt>
+<dd>a BoltztrapAnalyzer object</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_carriers">
+<tt class="descname">plot_carriers</tt><big>(</big><em>temp=300</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapPlotter.plot_carriers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_carriers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_conductivity">
+<tt class="descname">plot_conductivity</tt><big>(</big><em>temp=300</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapPlotter.plot_conductivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_dos">
+<tt class="descname">plot_dos</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapPlotter.plot_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_dos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_power_factor">
+<tt class="descname">plot_power_factor</tt><big>(</big><em>temp=300</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapPlotter.plot_power_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_power_factor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_seebeck">
+<tt class="descname">plot_seebeck</tt><big>(</big><em>temp=300</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapPlotter.plot_seebeck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapPlotter.plot_seebeck" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner">
+<em class="property">class </em><tt class="descname">BoltztrapRunner</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to run Boltztrap on a band structure object</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>bs:</dt>
+<dd>A band structure object</dd>
+<dt>nelec:</dt>
+<dd>the number of electrons</dd>
+<dt>dos_type:</dt>
+<dd>two options here for the band structure integration: &#8220;HISTO&#8221;
+(histogram) or &#8220;TETRA&#8221; using the tetrahedon method. TETRA
+gives typically better results especially for DOSes but takes
+more time</dd>
+<dt>energy_grid:</dt>
+<dd>the energy steps used for the integration. in eV</dd>
+<dt>lpfac:</dt>
+<dd>the number of interpolation points in the real space. By
+default 10 gives 10 time more points in the real space than
+the number of kpoints given in reciprocal space</dd>
+<dt>sym_nb:</dt>
+<dd>?</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.boltztrap.BoltztrapRunner.run">
+<tt class="descname">run</tt><big>(</big><em>prev_sigma=None</em>, <em>path_dir=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/boltztrap.html#BoltztrapRunner.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.boltztrap.BoltztrapRunner.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.electronic_structure.core">
+<span id="core-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">core</span></tt> Module<a class="headerlink" href="#module-pymatgen.electronic_structure.core" title="Permalink to this headline">¶</a></h2>
+<p>This module provides core classes needed by all define electronic structure,
+such as the Spin, Orbital, etc.</p>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.core.Orbital">
+<em class="property">class </em><tt class="descname">Orbital</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Orbital"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Enum type for OrbitalType. Indices are basically the azimutal quantum
+number, l.</p>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.all_orbitals">
+<tt class="descname">all_orbitals</tt><em class="property"> = (s, py, pz, px, dxy, dyz, dz2, dxz, dx2, f_3, f_2, f_1, f0, f1, f2, f3)</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.all_orbitals" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dx2">
+<tt class="descname">dx2</tt><em class="property"> = dx2</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dx2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dxy">
+<tt class="descname">dxy</tt><em class="property"> = dxy</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dxy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dxz">
+<tt class="descname">dxz</tt><em class="property"> = dxz</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dxz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dyz">
+<tt class="descname">dyz</tt><em class="property"> = dyz</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dyz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.dz2">
+<tt class="descname">dz2</tt><em class="property"> = dz2</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.dz2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f0">
+<tt class="descname">f0</tt><em class="property"> = f0</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f1">
+<tt class="descname">f1</tt><em class="property"> = f1</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f2">
+<tt class="descname">f2</tt><em class="property"> = f2</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f3">
+<tt class="descname">f3</tt><em class="property"> = f3</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f_1">
+<tt class="descname">f_1</tt><em class="property"> = f_1</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f_1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f_2">
+<tt class="descname">f_2</tt><em class="property"> = f_2</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f_2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.f_3">
+<tt class="descname">f_3</tt><em class="property"> = f_3</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.f_3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.electronic_structure.core.Orbital.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>orb_str</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Orbital.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an orbital from a string representation, e.g., &#8220;s&#8221;, &#8220;px&#8221;.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.electronic_structure.core.Orbital.from_vasp_index">
+<em class="property">static </em><tt class="descname">from_vasp_index</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Orbital.from_vasp_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.from_vasp_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an orbital based on the index of the orbital in VASP runs.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.px">
+<tt class="descname">px</tt><em class="property"> = px</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.px" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.py">
+<tt class="descname">py</tt><em class="property"> = py</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.py" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.pz">
+<tt class="descname">pz</tt><em class="property"> = pz</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.pz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Orbital.s">
+<tt class="descname">s</tt><em class="property"> = s</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Orbital.s" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.core.Spin">
+<em class="property">class </em><tt class="descname">Spin</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Spin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Enum type for Spin.  Only up and down.
+Usage: Spin.up, Spin.down.</p>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Spin.all_spins">
+<tt class="descname">all_spins</tt><em class="property"> = (1, -1)</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin.all_spins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Spin.down">
+<tt class="descname">down</tt><em class="property"> = -1</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin.down" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.electronic_structure.core.Spin.from_int">
+<em class="property">static </em><tt class="descname">from_int</tt><big>(</big><em>i</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/core.html#Spin.from_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin.from_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the spin from an int. +1 == Spin.up, -1 == Spin.down.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>i:</dt>
+<dd>integer representing direction of spin.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.core.Spin.up">
+<tt class="descname">up</tt><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.electronic_structure.core.Spin.up" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.electronic_structure.dos">
+<span id="dos-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">dos</span></tt> Module<a class="headerlink" href="#module-pymatgen.electronic_structure.dos" title="Permalink to this headline">¶</a></h2>
+<p>This module defines classes to represent the density of states, etc.</p>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos">
+<em class="property">class </em><tt class="descname">CompleteDos</tt><big>(</big><em>structure</em>, <em>total_dos</em>, <em>pdoss</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.dos.Dos" title="pymatgen.electronic_structure.dos.Dos"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.electronic_structure.dos.Dos</span></tt></a></p>
+<p>This wrapper class defines a total dos, and also provides a list of PDos.
+Mainly used by pymatgen.io.vaspio.Vasprun to create a complete Dos from
+a vasprun.xml file. You are unlikely to try to generate this object
+manually.</p>
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.structure">
+<tt class="descname">structure</tt><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Structure associated with the CompleteDos.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.pdos">
+<tt class="descname">pdos</tt><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.pdos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}</p>
+</dd></dl>
+
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure associated with this particular DOS.</dd>
+<dt>total_dos:</dt>
+<dd>total Dos for structure</dd>
+<dt>pdoss:</dt>
+<dd>The pdoss are supplied as an {Site:{Orbital:{
+Spin:Densities}}}</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns CompleteDos object from dict representation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_element_dos">
+<tt class="descname">get_element_dos</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_element_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_element_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get element projected Dos.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict of {Element: Dos}</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_dos">
+<tt class="descname">get_site_dos</tt><big>(</big><em>site</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the total Dos for a site (all orbitals).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>site:</dt>
+<dd>Site in Structure associated with CompleteDos.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Dos containing summed orbital densities for site.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos">
+<tt class="descname">get_site_orbital_dos</tt><big>(</big><em>site</em>, <em>orbital</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_orbital_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_orbital_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Dos for a particular orbital of a particular site.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>site:</dt>
+<dd>Site in Structure associated with CompleteDos.</dd>
+<dt>orbital:</dt>
+<dd>Orbital in the site.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Dos containing densities for orbital of site.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_site_t2g_eg_resolved_dos">
+<tt class="descname">get_site_t2g_eg_resolved_dos</tt><big>(</big><em>site</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_site_t2g_eg_resolved_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_site_t2g_eg_resolved_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the t2g, eg projected DOS for a particular site.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>site:</dt>
+<dd>Site in Structure associated with CompleteDos.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A dict {&#8220;e_g&#8221;: Dos, &#8220;t2g&#8221;: Dos} containing summed e_g and t2g DOS
+for the site.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.get_spd_dos">
+<tt class="descname">get_spd_dos</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.get_spd_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.get_spd_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get orbital projected Dos.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict of {orbital: Dos}, e.g. {&#8220;s&#8221;: Dos object, ...}</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.CompleteDos.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#CompleteDos.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.CompleteDos.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of CompleteDos.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.dos.Dos">
+<em class="property">class </em><tt class="descname">Dos</tt><big>(</big><em>efermi</em>, <em>energies</em>, <em>densities</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Basic DOS object. All other DOS objects are extended versions of this
+object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>efermi:</dt>
+<dd>Fermi level energy</dd>
+<dt>energies:</dt>
+<dd>A sequences of energies</dd>
+<dt>densities:</dt>
+<dd>A dict of {Spin: np.array} representing the density of states
+for each Spin.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.electronic_structure.dos.Dos.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Dos object from dict representation of Dos.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_cbm_vbm">
+<tt class="descname">get_cbm_vbm</tt><big>(</big><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_cbm_vbm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_cbm_vbm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the cbm and vbm.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>tol:</dt>
+<dd>tolerance in occupations for determining the gap</dd>
+<dt>abs_tol:</dt>
+<dd>an absolute tolerance (True) and a relative one (False)</dd>
+<dt>spin:</dt>
+<dd><dl class="first last docutils">
+<dt>Possible values are:</dt>
+<dd>None - finds the gap in the summed densities
+Up - finds the gap in the up spin channel
+Down - finds the gap in teh down spin channel</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>(cbm, vbm): float in eV corresponding to the gap</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_densities">
+<tt class="descname">get_densities</tt><big>(</big><em>spin=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_densities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the density of states for a particular spin.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>spin:</dt>
+<dd>Spin</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Returns the density of states for a particular spin. If Spin is
+None, the sum of all spins is returned.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_gap">
+<tt class="descname">get_gap</tt><big>(</big><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>tol:</dt>
+<dd>tolerance in occupations for determining the gap</dd>
+<dt>abs_tol:</dt>
+<dd>an absolute tolerance (True) and a relative one (False)</dd>
+<dt>spin:</dt>
+<dd><dl class="first last docutils">
+<dt>Possible values are:</dt>
+<dd>None - finds the gap in the summed densities
+Up - finds the gap in the up spin channel
+Down - finds the gap in teh down spin channel</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>gap in eV</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_interpolated_gap">
+<tt class="descname">get_interpolated_gap</tt><big>(</big><em>tol=0.001</em>, <em>abs_tol=False</em>, <em>spin=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_gap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_gap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expects a DOS object and finds the gap</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>tol:</dt>
+<dd>tolerance in occupations for determining the gap</dd>
+<dt>abs_tol:</dt>
+<dd>Set to True for an absolute tolerance and False for a relative
+one.</dd>
+<dt>spin:</dt>
+<dd><dl class="first last docutils">
+<dt>Possible values are:</dt>
+<dd>None - finds the ap in the summed densities
+Up - finds the gap in the up spin channel
+Down - finds the gap in teh down spin channel</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>(gap, cbm, vbm):</dt>
+<dd>Tuple of floats in eV corresponding to the gap, cbm and vbm.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_interpolated_value">
+<tt class="descname">get_interpolated_value</tt><big>(</big><em>energy</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_interpolated_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_interpolated_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns interpolated density for a particular energy.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>energy:</dt>
+<dd>Energy to return the density for.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.dos.Dos.get_smeared_densities">
+<tt class="descname">get_smeared_densities</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.get_smeared_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.get_smeared_densities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Dict representation of the densities, {Spin: densities},
+but with a Gaussian smearing of std dev sigma applied about the fermi
+level.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sigma:</dt>
+<dd>Std dev of Gaussian smearing function.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Dict of Gaussian-smeared densities.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.electronic_structure.dos.Dos.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#Dos.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.Dos.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json-serializable dict representation of Dos.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.dos.add_densities">
+<tt class="descname">add_densities</tt><big>(</big><em>density1</em>, <em>density2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/dos.html#add_densities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.dos.add_densities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to sum two densities.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>density1:</dt>
+<dd>First density.</dd>
+<dt>density2:</dt>
+<dd>Second density.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Dict of {spin: density}.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.electronic_structure.plotter">
+<span id="plotter-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">plotter</span></tt> Module<a class="headerlink" href="#module-pymatgen.electronic_structure.plotter" title="Permalink to this headline">¶</a></h2>
+<p>This module implements plotter for DOS and band structure.</p>
+<dl class="class">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter">
+<em class="property">class </em><tt class="descname">BSPlotter</tt><big>(</big><em>bs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Class to plot or get data to facilitate the plot of band structure objects.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>bs:</dt>
+<dd>A BandStructureSymmLine object.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter.bs_plot_data">
+<tt class="descname">bs_plot_data</tt><big>(</big><em>zero_to_efermi=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter.bs_plot_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter.bs_plot_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the data nicely formatted for a plot</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>zero_to_efermi:</dt>
+<dd>Automatically subtract off the Fermi energy from the
+eigenvalues and plot.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>A dict of the following format:</dt>
+<dd><dl class="first last docutils">
+<dt>ticks:</dt>
+<dd>A dict with the &#8216;distances&#8217; at which there is a kpoint (the
+x axis) and the labels (None if no label)</dd>
+<dt>energy:</dt>
+<dd>A dict storing bands for spin up and spin down data
+[{Spin:[band_index][k_point_index]}] as a list (one element
+for each branch) of energy for each kpoint. The data is
+stored by branch to facilitate the plotting</dd>
+<dt>vbm:</dt>
+<dd>A list of tuples (distance,energy) marking the vbms. The
+energies are shifted with respect to the fermi level is the
+option has been selected.</dd>
+<dt>cbm:</dt>
+<dd>A list of tuples (distance,energy) marking the cbms. The
+energies are shifted with respect to the fermi level is the
+option has been selected.</dd>
+<dt>lattice:</dt>
+<dd>The reciprocal lattice.</dd>
+<dt>zero_energy:</dt>
+<dd>This is the energy used as zero for the plot.</dd>
+<dt>band_gap:</dt>
+<dd>A string indicating the band gap and its nature (empty if
+it&#8217;s a metal).</dd>
+<dt>is_metal:</dt>
+<dd>True if the band structure is metallic (i.e., there is at
+least one band crossing the fermi level).</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter.get_plot">
+<tt class="descname">get_plot</tt><big>(</big><em>zero_to_efermi=True</em>, <em>ylim=None</em>, <em>smooth=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>get a matplotlib object for the bandstructure plot.
+Blue lines are up spin, red lines are down
+spin.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>zero_to_efermi:</dt>
+<dd>Automatically subtract off the Fermi energy from the
+eigenvalues and plot (E-Ef).</dd>
+<dt>ylim:</dt>
+<dd>specify the y-axis (energy) limits;
+by default None let the code choose.
+It is vbm-4 and cbm+4 if insulator
+efermi-10 and efermi+10 if metal</dd>
+<dt>smooth:</dt>
+<dd>interpolates the bands by a spline
+cubic</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter.get_ticks">
+<tt class="descname">get_ticks</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter.get_ticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter.get_ticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all ticks and labels for a band structure plot.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>A dict with</dt>
+<dd>&#8216;distance&#8217;: a list of distance at which ticks should be set.
+&#8216;label&#8217;: a list of label for each of those ticks.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter.plot_brillouin">
+<tt class="descname">plot_brillouin</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter.plot_brillouin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter.plot_brillouin" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot the Brillouin zone</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter.plot_compare">
+<tt class="descname">plot_compare</tt><big>(</big><em>other_plotter</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter.plot_compare"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter.plot_compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot two band structure for comparison. One is in red the other in blue
+(no difference in spins). The two band structures need to be defined
+on the same symmetry lines! and the distance between symmetry lines is
+the one of the band structure used to build the BSPlotter</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>another band structure object defined along the same symmetry lines</dd>
+<dt>Returns:</dt>
+<dd>a matplotlib object with both band structures</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter.save_plot">
+<tt class="descname">save_plot</tt><big>(</big><em>filename</em>, <em>img_format='eps'</em>, <em>ylim=None</em>, <em>zero_to_efermi=True</em>, <em>smooth=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save matplotlib plot to a file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename to write to.</dd>
+<dt>img_format:</dt>
+<dd>Image format to use. Defaults to EPS.</dd>
+<dt>ylim:</dt>
+<dd>Specifies the y-axis limits.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotter.show">
+<tt class="descname">show</tt><big>(</big><em>zero_to_efermi=True</em>, <em>ylim=None</em>, <em>smooth=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotter.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the plot using matplotlib.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>zero_to_efermi:</dt>
+<dd>Automatically subtract off the Fermi
+energy from the eigenvalues
+and plot (E-Ef).</dd>
+<dt>ylim</dt>
+<dd>specify the y-axis (energy) limits; by default None
+let the code choose.
+It is vbm-4 and cbm+4 if insulator
+efermi-10 and efermi+10 if metal</dd>
+<dt>smooth:</dt>
+<dd>interpolates the bands by a spline
+cubic</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotterProjected">
+<em class="property">class </em><tt class="descname">BSPlotterProjected</tt><big>(</big><em>bs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotterProjected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.electronic_structure.plotter.BSPlotter" title="pymatgen.electronic_structure.plotter.BSPlotter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.electronic_structure.plotter.BSPlotter</span></tt></a></p>
+<p>Class to plot or get data to facilitate the plot of band structure objects
+projected along orbitals, elements or sites</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>bs:</dt>
+<dd>A BandStructureSymmLine object with projections.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots">
+<tt class="descname">get_elt_projected_plots</tt><big>(</big><em>zero_to_efermi=True</em>, <em>ylim=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotterProjected.get_elt_projected_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a plot composed of subplots along different elements</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>a pylab object with different subfigures for each projection
+The blue and red colors are for spin up and spin down
+The bigger the red or blue dot in the band structure the higher
+character for the corresponding element and orbital</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots_color">
+<tt class="descname">get_elt_projected_plots_color</tt><big>(</big><em>zero_to_efermi=True</em>, <em>elt_ordered=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotterProjected.get_elt_projected_plots_color"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_elt_projected_plots_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns a pylab plot object with one plot where the band structure
+line color depends on the character of the band (along different
+elements). Each element is associated with red, green or blue
+and the corresponding rgb color depending on the character of the band
+is used. The method can only deal with binary and ternary compounds</p>
+<p>spin up and spin down are differientiated by a &#8216;-&#8216; and a &#8216;&#8211;&#8217; line</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>elt_ordered:</dt>
+<dd>a list of Element ordered. The first one is red, second green,
+last blue</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a pylab object</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots">
+<tt class="descname">get_projected_plots_dots</tt><big>(</big><em>dictio</em>, <em>zero_to_efermi=True</em>, <em>ylim=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#BSPlotterProjected.get_projected_plots_dots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.BSPlotterProjected.get_projected_plots_dots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method returning a plot composed of subplots along different elements
+and orbitals.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>dictio:</dt>
+<dd>the element and orbitals you want a projection on. The format
+is {Element:[Orbitals]} for instance {&#8216;Cu&#8217;:[&#8216;d&#8217;,&#8217;s&#8217;],&#8217;O&#8217;:[&#8216;p&#8217;]}
+will give projections for Cu on d and s orbitals and on oxygen
+p.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>a pylab object with different subfigures for each projection
+The blue and red colors are for spin up and spin down.
+The bigger the red or blue dot in the band structure the higher
+character for the corresponding element and orbital.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.electronic_structure.plotter.DosPlotter">
+<em class="property">class </em><tt class="descname">DosPlotter</tt><big>(</big><em>zero_at_efermi=True</em>, <em>stack=False</em>, <em>sigma=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#DosPlotter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.DosPlotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Class for plotting DOSes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>zero_at_efermi:</dt>
+<dd>Whether to shift all Dos to have zero energy at the fermi
+energy. Defaults to True.</dd>
+<dt>stack:</dt>
+<dd>Whether to plot the DOS as a stacked area graph</dd>
+<dt>key_sort_func:</dt>
+<dd>function used to sort the dos_dict keys.</dd>
+<dt>sigma:</dt>
+<dd>A float specifying a standard deviation for Gaussian smearing
+the DOS for nicer looking plots. Defaults to None for no
+smearing.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.DosPlotter.add_dos">
+<tt class="descname">add_dos</tt><big>(</big><em>label</em>, <em>dos</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#DosPlotter.add_dos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.DosPlotter.add_dos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a dos for plotting.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>label:</dt>
+<dd>label for the DOS. Must be unique.</dd>
+<dt>dos:</dt>
+<dd>Dos object</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.DosPlotter.add_dos_dict">
+<tt class="descname">add_dos_dict</tt><big>(</big><em>dos_dict</em>, <em>key_sort_func=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#DosPlotter.add_dos_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.DosPlotter.add_dos_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a dictionary of doses, with an optional sorting function for the
+keys.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>dos_dict:</dt>
+<dd>dict of {label: Dos}</dd>
+<dt>key_sort_func:</dt>
+<dd>function used to sort the dos_dict keys.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.DosPlotter.get_dos_dict">
+<tt class="descname">get_dos_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#DosPlotter.get_dos_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.DosPlotter.get_dos_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the added doses as a json-serializable dict. Note that if you
+have specified smearing for the DOS plot, the densities returned will
+be the smeared densities, not the original densities.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Dict of dos data. Generally of the form, {label: {&#8216;energies&#8217;:..,
+&#8216;densities&#8217;: {&#8216;up&#8217;:...}, &#8216;efermi&#8217;:efermi}}</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.DosPlotter.get_plot">
+<tt class="descname">get_plot</tt><big>(</big><em>xlim=None</em>, <em>ylim=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#DosPlotter.get_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.DosPlotter.get_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a matplotlib plot showing the DOS.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>xlim:</dt>
+<dd>Specifies the x-axis limits. Set to None for automatic
+determination.</dd>
+<dt>ylim:</dt>
+<dd>Specifies the y-axis limits.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.DosPlotter.save_plot">
+<tt class="descname">save_plot</tt><big>(</big><em>filename</em>, <em>img_format='eps'</em>, <em>xlim=None</em>, <em>ylim=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#DosPlotter.save_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.DosPlotter.save_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save matplotlib plot to a file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filename:</dt>
+<dd>Filename to write to.</dd>
+<dt>img_format:</dt>
+<dd>Image format to use. Defaults to EPS.</dd>
+<dt>xlim:</dt>
+<dd>Specifies the x-axis limits. Set to None for automatic
+determination.</dd>
+<dt>ylim:</dt>
+<dd>Specifies the y-axis limits.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.electronic_structure.plotter.DosPlotter.show">
+<tt class="descname">show</tt><big>(</big><em>xlim=None</em>, <em>ylim=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#DosPlotter.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.DosPlotter.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the plot using matplotlib.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>xlim:</dt>
+<dd>Specifies the x-axis limits. Set to None for automatic
+determination.</dd>
+<dt>ylim:</dt>
+<dd>Specifies the y-axis limits.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.plotter.get_lines_voronoi">
+<tt class="descname">get_lines_voronoi</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#get_lines_voronoi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.get_lines_voronoi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.electronic_structure.plotter.qvertex_target">
+<tt class="descname">qvertex_target</tt><big>(</big><em>data</em>, <em>index</em><big>)</big><a class="reference internal" href="_modules/pymatgen/electronic_structure/plotter.html#qvertex_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.electronic_structure.plotter.qvertex_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Input data should be in the form of a list of a list of floats.
+index is the index of the targeted point
+Returns the vertices of the voronoi construction around this target point.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">electronic_structure Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">electronic_structure</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-pymatgen.electronic_structure.bandstructure"><tt class="docutils literal"><span class="pre">bandstructure</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.electronic_structure.boltztrap"><tt class="docutils literal"><span class="pre">boltztrap</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.electronic_structure.core"><tt class="docutils literal"><span class="pre">core</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.electronic_structure.dos"><tt class="docutils literal"><span class="pre">dos</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.electronic_structure.plotter"><tt class="docutils literal"><span class="pre">plotter</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pymatgen.electronic_structure.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.util.io_utils &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.util.io_utils</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides utility classes for io operations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Sep 23, 2011&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">from</span> <span class="nn">bz2</span> <span class="kn">import</span> <span class="n">BZ2File</span>
+<span class="kn">from</span> <span class="nn">gzip</span> <span class="kn">import</span> <span class="n">GzipFile</span>
+
+
+<div class="viewcode-block" id="zopen"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.zopen">[docs]</a><span class="k">def</span> <span class="nf">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This wrapper wraps around the bz2, gzip and standard python&#39;s open function</span>
+<span class="sd">    to deal intelligently with bzipped, gzipped or standard text files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename:</span>
+<span class="sd">            filename</span>
+<span class="sd">        args:</span>
+<span class="sd">            Standard args for python open(..). E.g., &#39;r&#39; for read, &#39;w&#39; for</span>
+<span class="sd">            write.</span>
+<span class="sd">        kwargs:</span>
+<span class="sd">            Standard kwargs for python open(..).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        File handler</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_ext</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">file_ext</span> <span class="o">==</span> <span class="s">&quot;BZ2&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BZ2File</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">file_ext</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;GZ&quot;</span><span class="p">,</span> <span class="s">&quot;Z&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GzipFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="zpath"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.zpath">[docs]</a><span class="k">def</span> <span class="nf">zpath</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an existing (zipped or unzipped) file path given the unzipped</span>
+<span class="sd">    version. If no path exists, returns the filename unmodified</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename:</span>
+<span class="sd">            filename without zip extension</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        filename with a zip extension (unless an unzipped version</span>
+<span class="sd">        exists)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&#39;.gz&#39;</span><span class="p">,</span> <span class="s">&#39;.GZ&#39;</span><span class="p">,</span> <span class="s">&#39;.bz2&#39;</span><span class="p">,</span> <span class="s">&#39;.BZ2&#39;</span><span class="p">,</span> <span class="s">&#39;.z&#39;</span><span class="p">,</span> <span class="s">&#39;.Z&#39;</span><span class="p">]:</span>
+        <span class="n">zfilename</span> <span class="o">=</span> <span class="s">&quot;{}{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">zfilename</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">zfilename</span>
+    <span class="k">return</span> <span class="n">filename</span>
+
+</div>
+<div class="viewcode-block" id="clean_lines"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.clean_lines">[docs]</a><span class="k">def</span> <span class="nf">clean_lines</span><span class="p">(</span><span class="n">string_list</span><span class="p">,</span> <span class="n">remove_empty_lines</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Strips whitespace, carriage returns and empty lines from a list of strings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        string_list:</span>
+<span class="sd">            List of strings</span>
+<span class="sd">        remove_empty_lines:</span>
+<span class="sd">            Set to True to skip lines which are empty after stripping.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of clean strings with no whitespaces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">string_list</span><span class="p">:</span>
+        <span class="n">clean_s</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="k">if</span> <span class="s">&#39;#&#39;</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&#39;#&#39;</span><span class="p">)</span>
+            <span class="n">clean_s</span> <span class="o">=</span> <span class="n">s</span><span class="p">[:</span><span class="n">ind</span><span class="p">]</span>
+        <span class="n">clean_s</span> <span class="o">=</span> <span class="n">clean_s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">remove_empty_lines</span><span class="p">)</span> <span class="ow">or</span> <span class="n">clean_s</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">clean_s</span>
+
+</div>
+<div class="viewcode-block" id="micro_pyawk"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.micro_pyawk">[docs]</a><span class="k">def</span> <span class="nf">micro_pyawk</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">postdebug</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Small awk-mimicking search routine.</span>
+
+<span class="sd">    &#39;file&#39; is file to search through.</span>
+<span class="sd">    &#39;search&#39; is the &quot;search program&quot;, a list of lists/tuples with 3 elements;</span>
+<span class="sd">    i.e. [[regex,test,run],[regex,test,run],...]</span>
+<span class="sd">    &#39;results&#39; is a an object that your search program will have access to for</span>
+<span class="sd">    storing results.</span>
+
+<span class="sd">    Here regex is either as a Regex object, or a string that we compile into a</span>
+<span class="sd">    Regex. test and run are callable objects.</span>
+
+<span class="sd">    This function goes through each line in filename, and if regex matches that</span>
+<span class="sd">    line *and* test(results,line)==True (or test == None) we execute</span>
+<span class="sd">    run(results,match),where match is the match object from running</span>
+<span class="sd">    Regex.match.</span>
+
+<span class="sd">    The default results is an empty dictionary. Passing a results object let</span>
+<span class="sd">    you interact with it in run() and test(). Hence, in many occasions it is</span>
+<span class="sd">    thus clever to use results=self.</span>
+
+<span class="sd">    Author: Rickard Armiento</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        results</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c"># Compile strings into regexs</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">search</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">search</span><span class="p">)):</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">search</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="p">(</span><span class="n">search</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+                              <span class="ow">or</span> <span class="n">search</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">](</span><span class="n">results</span><span class="p">,</span> <span class="n">line</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">debug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">debug</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+                    <span class="n">search</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">](</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">postdebug</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">postdebug</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+</div>
+<div class="viewcode-block" id="clean_json"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.clean_json">[docs]</a><span class="k">def</span> <span class="nf">clean_json</span><span class="p">(</span><span class="n">input_json</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method cleans an input json-like dict object, either a list or a dict,</span>
+<span class="sd">    nested or otherwise, by converting all non-string dictionary keys (such as</span>
+<span class="sd">    int and float) to strings.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_dict:</span>
+<span class="sd">            input dictionary.</span>
+<span class="sd">        strict:</span>
+<span class="sd">            This parameters sets the behavior when clean_json encounters an</span>
+<span class="sd">            object it does not understand. If strict is True, clean_json will</span>
+<span class="sd">            try to get the to_dict attribute of the object. If no such</span>
+<span class="sd">            attribute is found, an attribute error will be thrown. If strict is</span>
+<span class="sd">            False, clean_json will simply call str(object) to convert the</span>
+<span class="sd">            object to a string representation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Sanitized dict that can be json serialized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_json</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">clean_json</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">input_json</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_json</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">clean_json</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">input_json</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_json</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">input_json</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">strict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">input_json</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_json</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">input_json</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">input_json</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s">&#39;None&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">clean_json</span><span class="p">(</span><span class="n">input_json</span><span class="o">.</span><span class="n">to_dict</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="n">strict</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="which"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.which">[docs]</a><span class="k">def</span> <span class="nf">which</span><span class="p">(</span><span class="n">program</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns full path to a executable.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">is_exe</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">fpath</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">X_OK</span><span class="p">)</span>
+
+    <span class="n">fpath</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fpath</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_exe</span><span class="p">(</span><span class="n">program</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">program</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;PATH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+            <span class="n">exe_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">program</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_exe</span><span class="p">(</span><span class="n">exe_file</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">exe_file</span>
+
+    <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="reverse_readline"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.reverse_readline">[docs]</a><span class="k">def</span> <span class="nf">reverse_readline</span><span class="p">(</span><span class="n">m_file</span><span class="p">,</span> <span class="n">blk_size</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">max_mem</span><span class="o">=</span><span class="mi">4000000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generator method to read a file line-by-line, but backwards. This allows</span>
+<span class="sd">    one to efficiently get data at the end of a file.</span>
+
+<span class="sd">    Based on code by Peter Astrand &lt;astrand@cendio.se&gt;, using modifications by</span>
+<span class="sd">    Raymond Hettinger and Kevin German.</span>
+<span class="sd">    http://code.activestate.com/recipes/439045-read-a-text-file-backwards</span>
+<span class="sd">    -yet-another-implementat/</span>
+
+<span class="sd">    Reads file forwards and reverses in memory for files smaller than the</span>
+<span class="sd">    max_mem parameter, or for gzip files where reverse seeks are not supported.</span>
+
+<span class="sd">    Files larger than max_mem are dynamically read backwards.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        m_file:</span>
+<span class="sd">            File stream to read (backwards)</span>
+<span class="sd">        blk_size:</span>
+<span class="sd">            The buffer size. Defaults to 4096.</span>
+<span class="sd">        max_mem:</span>
+<span class="sd">            The maximum amount of memory to involve in this operation. This is</span>
+<span class="sd">            used to determine when to reverse a file in-memory versus seeking</span>
+<span class="sd">            portions of a file. For bz2 files, this sets the maximum block</span>
+<span class="sd">            size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Generator that returns lines from the file. Similar behavior to the</span>
+<span class="sd">        file.readline() method, except the lines are returned from the back</span>
+<span class="sd">        of the file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">file_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">m_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c"># If the file size is within our desired RAM use, just reverse it in memory</span>
+    <span class="c"># GZip files must use this method because there is no way to negative seek</span>
+    <span class="k">if</span> <span class="n">file_size</span> <span class="o">&lt;</span> <span class="n">max_mem</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_file</span><span class="p">,</span> <span class="n">GzipFile</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">m_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()):</span>
+            <span class="k">yield</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m_file</span><span class="p">,</span> <span class="n">BZ2File</span><span class="p">):</span>
+            <span class="c"># for bz2 files, seeks are expensive. It is therefore in our best</span>
+            <span class="c"># interest to maximize the blk_size within limits of desired RAM</span>
+            <span class="c"># use.</span>
+            <span class="n">blk_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">max_mem</span><span class="p">,</span> <span class="n">file_size</span><span class="p">)</span>
+
+        <span class="n">buf</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="n">m_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">lastchar</span> <span class="o">=</span> <span class="n">m_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">trailing_newline</span> <span class="o">=</span> <span class="p">(</span><span class="n">lastchar</span> <span class="o">==</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">newline_pos</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">m_file</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">newline_pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c"># Found a newline</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">buf</span><span class="p">[</span><span class="n">newline_pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                <span class="n">buf</span> <span class="o">=</span> <span class="n">buf</span><span class="p">[:</span><span class="n">newline_pos</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">pos</span> <span class="ow">or</span> <span class="n">newline_pos</span> <span class="ow">or</span> <span class="n">trailing_newline</span><span class="p">:</span>
+                    <span class="n">line</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="k">yield</span> <span class="n">line</span>
+            <span class="k">elif</span> <span class="n">pos</span><span class="p">:</span>
+                <span class="c"># Need to fill buffer</span>
+                <span class="n">toread</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">blk_size</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+                <span class="n">m_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="n">toread</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">buf</span> <span class="o">=</span> <span class="n">m_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">toread</span><span class="p">)</span> <span class="o">+</span> <span class="n">buf</span>
+                <span class="n">m_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="n">toread</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="n">toread</span><span class="p">:</span>
+                    <span class="n">buf</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">buf</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># Start-of-file</span>
+                <span class="k">return</span>
+
+</div>
+<div class="viewcode-block" id="FileLockException"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.FileLockException">[docs]</a><span class="k">class</span> <span class="nc">FileLockException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="FileLock"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.FileLock">[docs]</a><span class="k">class</span> <span class="nc">FileLock</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A file locking mechanism that has context-manager support so you can use</span>
+<span class="sd">    it in a with statement. This should be relatively cross-compatible as it</span>
+<span class="sd">    doesn&#39;t rely on msvcrt or fcntl for the locking.</span>
+<span class="sd">    Taken from http://www.evanfosmark.com/2009/01/cross-platform-file-locking</span>
+<span class="sd">    -support-in-python/</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">delay</span><span class="o">=.</span><span class="mo">05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare the file locker. Specify the file to lock and optionally</span>
+<span class="sd">        the maximum timeout and the delay between each attempt to lock.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_name:</span>
+<span class="sd">                Name of file to lock.</span>
+<span class="sd">            timeout:</span>
+<span class="sd">                Maximum timeout for locking. Defaults to 10.</span>
+<span class="sd">            delay:</span>
+<span class="sd">                Delay between each attempt to lock. Defaults to 0.05.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lockfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;.lock&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_locked</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">delay</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;delay and timeout must be positive with delay &quot;</span>
+                             <span class="s">&quot;&lt;= timeout&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FileLock.acquire"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.FileLock.acquire">[docs]</a>    <span class="k">def</span> <span class="nf">acquire</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Acquire the lock, if possible. If the lock is in use, it check again</span>
+<span class="sd">        every `delay` seconds. It does this until it either gets the lock or</span>
+<span class="sd">        exceeds `timeout` number of seconds, in which case it throws</span>
+<span class="sd">        an exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lockfile</span><span class="p">,</span>
+                                  <span class="n">os</span><span class="o">.</span><span class="n">O_CREAT</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">O_EXCL</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDWR</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EEXIST</span><span class="p">:</span>
+                    <span class="k">raise</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">FileLockException</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Timeout occured.&quot;</span> <span class="o">%</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">lockfile</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delay</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_locked</span> <span class="o">=</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="FileLock.release"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.io_utils.FileLock.release">[docs]</a>    <span class="k">def</span> <span class="nf">release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get rid of the lock by deleting the lockfile.</span>
+<span class="sd">            When working in a `with` statement, this gets automatically</span>
+<span class="sd">            called at the end.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_locked</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fd</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lockfile</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_locked</span> <span class="o">=</span> <span class="bp">False</span>
+</div>
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Activated when used in the with statement. Should automatically</span>
+<span class="sd">        acquire a lock to be used in the with block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_locked</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Activated at the end of the with statement. It automatically releases</span>
+<span class="sd">        the lock if it isn&#39;t locked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_locked</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make sure that the FileLock instance doesn&#39;t leave a lockfile</span>
+<span class="sd">        lying around.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">release</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

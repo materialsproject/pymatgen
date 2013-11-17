@@ -1,0 +1,492 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.util.coord_utils &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.util.coord_utils</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for manipulating coordinates or list of coordinates, under periodic</span>
+<span class="sd">boundary conditions or otherwise. Many of these are heavily vectorized in</span>
+<span class="sd">numpy for performance.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Nov 27, 2011&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+
+<div class="viewcode-block" id="find_in_coord_list"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.find_in_coord_list">[docs]</a><span class="k">def</span> <span class="nf">find_in_coord_list</span><span class="p">(</span><span class="n">coord_list</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the indices of matches of a particular coord in a coord_list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        coord_list:</span>
+<span class="sd">            List of coords to test</span>
+<span class="sd">        coord:</span>
+<span class="sd">            Specific coordinates</span>
+<span class="sd">        atol:</span>
+<span class="sd">            Absolute tolerance. Defaults to 1e-8.</span>
+<span class="sd">            Accepts both scalar and array</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coord_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coord_list</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coord</span><span class="p">)[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">atol</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="in_coord_list"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.in_coord_list">[docs]</a><span class="k">def</span> <span class="nf">in_coord_list</span><span class="p">(</span><span class="n">coord_list</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tests if a particular coord is within a coord_list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        coord_list:</span>
+<span class="sd">            List of coords to test</span>
+<span class="sd">        coord:</span>
+<span class="sd">            Specific coordinates</span>
+<span class="sd">        atol:</span>
+<span class="sd">            Absolute tolerance. Defaults to 1e-8.</span>
+<span class="sd">            Accepts both scalar and array</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if coord is in the coord list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">find_in_coord_list</span><span class="p">(</span><span class="n">coord_list</span><span class="p">,</span> <span class="n">coord</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+</div>
+<div class="viewcode-block" id="get_linear_interpolated_value"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.get_linear_interpolated_value">[docs]</a><span class="k">def</span> <span class="nf">get_linear_interpolated_value</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an interpolated value by linear interpolation between two values.</span>
+<span class="sd">    This method is written to avoid dependency on scipy, which causes issues on</span>
+<span class="sd">    threading servers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x_values:</span>
+<span class="sd">            Sequence of x values.</span>
+<span class="sd">        y_values:</span>
+<span class="sd">            Corresponding sequence of y values</span>
+<span class="sd">        x:</span>
+<span class="sd">            Get value at particular x</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Value at x.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">y_values</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">a</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;x is out of range of provided x_values&quot;</span><span class="p">)</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y1</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">y1</span> <span class="o">+</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="pbc_diff"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.pbc_diff">[docs]</a><span class="k">def</span> <span class="nf">pbc_diff</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the &#39;fractional distance&#39; between two coordinates taking into</span>
+<span class="sd">    account periodic boundary conditions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fcoords1:</span>
+<span class="sd">            First set of fractional coordinates. e.g., [0.5, 0.6,</span>
+<span class="sd">            0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single</span>
+<span class="sd">            coord or any array of coords.</span>
+<span class="sd">        fcoords2:</span>
+<span class="sd">            Second set of fractional coordinates.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Fractional distance. Each coordinate must have the property that</span>
+<span class="sd">        abs(a) &lt;= 0.5. Examples:</span>
+<span class="sd">        pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]</span>
+<span class="sd">        pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fdist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fdist</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">fdist</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="pbc_all_distances"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.pbc_all_distances">[docs]</a><span class="k">def</span> <span class="nf">pbc_all_distances</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the distances between two lists of coordinates taking into</span>
+<span class="sd">    account periodic boundary conditions and the lattice. Note that this</span>
+<span class="sd">    computes an MxN array of distances (i.e. the distance between each</span>
+<span class="sd">    point in fcoords1 and every coordinate in fcoords2). This is</span>
+<span class="sd">    different functionality from pbc_diff.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lattice:</span>
+<span class="sd">            lattice to use</span>
+<span class="sd">        fcoords1:</span>
+<span class="sd">            First set of fractional coordinates. e.g., [0.5, 0.6,</span>
+<span class="sd">            0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single</span>
+<span class="sd">            coord or any array of coords.</span>
+<span class="sd">        fcoords2:</span>
+<span class="sd">            Second set of fractional coordinates.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        2d array of cartesian distances. E.g the distance between</span>
+<span class="sd">        fcoords1[i] and fcoords2[j] is distances[i,j]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#ensure correct shape</span>
+    <span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span><span class="p">)</span>
+
+    <span class="c">#ensure that all points are in the unit cell</span>
+    <span class="n">fcoords1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">fcoords2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">fcoords2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c">#create images, 2d array of all length 3 combinations of [-1,0,1]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">arange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">brange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">crange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">brange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span>\
+        <span class="n">crange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">27</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="c">#create images of f2</span>
+    <span class="n">shifted_f2</span> <span class="o">=</span> <span class="n">fcoords2</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">images</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+    <span class="n">cart_f1</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">)</span>
+    <span class="n">cart_f2</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">shifted_f2</span><span class="p">)</span>
+
+    <span class="c">#all vectors from f1 to f2</span>
+    <span class="n">vectors</span> <span class="o">=</span> <span class="n">cart_f2</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">cart_f1</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">d_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vectors</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">d_2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+
+    <span class="k">return</span> <span class="n">distances</span>
+
+</div>
+<div class="viewcode-block" id="pbc_shortest_vectors"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.pbc_shortest_vectors">[docs]</a><span class="k">def</span> <span class="nf">pbc_shortest_vectors</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the shortest vectors between two lists of coordinates taking into</span>
+<span class="sd">    account periodic boundary conditions and the lattice.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lattice:</span>
+<span class="sd">            lattice to use</span>
+<span class="sd">        fcoords1:</span>
+<span class="sd">            First set of fractional coordinates. e.g., [0.5, 0.6,</span>
+<span class="sd">            0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single</span>
+<span class="sd">            coord or any array of coords.</span>
+<span class="sd">        fcoords2:</span>
+<span class="sd">            Second set of fractional coordinates.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        array of displacement vectors</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#ensure correct shape</span>
+    <span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">,</span> <span class="n">fcoords2</span><span class="p">)</span>
+
+    <span class="c">#ensure that all points are in the unit cell</span>
+    <span class="n">fcoords1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">fcoords2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">fcoords2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c">#create images, 2d array of all length 3 combinations of [-1,0,1]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">arange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">brange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">crange</span> <span class="o">=</span> <span class="n">r</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">brange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span> \
+        <span class="n">crange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">27</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="c">#create images of f2</span>
+    <span class="n">shifted_f2</span> <span class="o">=</span> <span class="n">fcoords2</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">images</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+    <span class="n">cart_f1</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">)</span>
+    <span class="n">cart_f2</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">shifted_f2</span><span class="p">)</span>
+
+    <span class="c">#all vectors from f1 to f2</span>
+    <span class="n">vectors</span> <span class="o">=</span> <span class="n">cart_f2</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">cart_f1</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">d_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vectors</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">fcoords1</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">vectors</span><span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">d_2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)]</span>
+
+</div>
+<div class="viewcode-block" id="find_in_coord_list_pbc"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.find_in_coord_list_pbc">[docs]</a><span class="k">def</span> <span class="nf">find_in_coord_list_pbc</span><span class="p">(</span><span class="n">fcoord_list</span><span class="p">,</span> <span class="n">fcoord</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the indices of all points in a fractional coord list that are</span>
+<span class="sd">    equal to a fractional coord (with a tolerance), taking into account</span>
+<span class="sd">    periodic boundary conditions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fcoord_list:</span>
+<span class="sd">            List of fractional coords</span>
+<span class="sd">        fcoord:</span>
+<span class="sd">            A specific fractional coord to test.</span>
+<span class="sd">        atol:</span>
+<span class="sd">            Absolute tolerance. Defaults to 1e-8.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fcoord_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">fcoord</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fcoord_list</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">fdist</span> <span class="o">=</span> <span class="n">fcoord_list</span> <span class="o">-</span> <span class="n">fcoords</span>
+    <span class="n">fdist</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">fdist</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fdist</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">atol</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="in_coord_list_pbc"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.in_coord_list_pbc">[docs]</a><span class="k">def</span> <span class="nf">in_coord_list_pbc</span><span class="p">(</span><span class="n">fcoord_list</span><span class="p">,</span> <span class="n">fcoord</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tests if a particular fractional coord is within a fractional coord_list.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fcoord_list:</span>
+<span class="sd">            List of fractional coords to test</span>
+<span class="sd">        fcoord:</span>
+<span class="sd">            A specific fractional coord to test.</span>
+<span class="sd">        atol:</span>
+<span class="sd">            Absolute tolerance. Defaults to 1e-8.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if coord is in the coord list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">find_in_coord_list_pbc</span><span class="p">(</span><span class="n">fcoord_list</span><span class="p">,</span> <span class="n">fcoord</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+</div>
+<div class="viewcode-block" id="get_points_in_sphere_pbc"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.get_points_in_sphere_pbc">[docs]</a><span class="k">def</span> <span class="nf">get_points_in_sphere_pbc</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">frac_points</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find all points within a sphere from the point taking into account</span>
+<span class="sd">    periodic boundary conditions. This includes sites in other periodic images.</span>
+
+<span class="sd">    Algorithm:</span>
+
+<span class="sd">    1. place sphere of radius r in crystal and determine minimum supercell</span>
+<span class="sd">       (parallelpiped) which would contain a sphere of radius r. for this</span>
+<span class="sd">       we need the projection of a_1 on a unit vector perpendicular</span>
+<span class="sd">       to a_2 &amp; a_3 (i.e. the unit vector in the direction b_1) to</span>
+<span class="sd">       determine how many a_1&quot;s it will take to contain the sphere.</span>
+
+<span class="sd">       Nxmax = r * length_of_b_1 / (2 Pi)</span>
+
+<span class="sd">    2. keep points falling within r.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lattice:</span>
+<span class="sd">            The lattice/basis for the periodic boundary conditions.</span>
+<span class="sd">        frac_points:</span>
+<span class="sd">            All points in the lattice in fractional coordinates.</span>
+<span class="sd">        center:</span>
+<span class="sd">            cartesian coordinates of center of sphere.</span>
+<span class="sd">        r:</span>
+<span class="sd">            radius of sphere.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        [(fcoord, dist) ...] since most of the time, subsequent processing</span>
+<span class="sd">        requires the distance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">recp_len</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">abc</span><span class="p">)</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.15</span>
+    <span class="n">nmax</span> <span class="o">=</span> <span class="n">sr</span> <span class="o">*</span> <span class="n">recp_len</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">pcoords</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+    <span class="n">floor</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frac_points</span><span class="p">)</span>
+    <span class="n">fcoords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frac_points</span><span class="p">)</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+
+    <span class="n">arange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">pcoords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">nmax</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
+                       <span class="n">stop</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">pcoords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">nmax</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">brange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">pcoords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">nmax</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span>
+                       <span class="n">stop</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">pcoords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">nmax</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">crange</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">pcoords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">nmax</span><span class="p">[</span><span class="mi">2</span><span class="p">])),</span>
+                       <span class="n">stop</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span><span class="n">pcoords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">nmax</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">arange</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">brange</span> <span class="o">=</span> <span class="n">brange</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">crange</span> <span class="o">=</span> <span class="n">crange</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">images</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">brange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span>\
+        <span class="n">crange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">shifted_coords</span> <span class="o">=</span> <span class="n">fcoords</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">images</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">shifted_coords</span><span class="p">)</span>
+    <span class="n">dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">coords</span> <span class="o">-</span> <span class="n">pts</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span>
+                           <span class="n">axis</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+    <span class="n">within_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dists</span> <span class="o">&lt;=</span> <span class="n">r</span><span class="p">)</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="p">[</span><span class="n">shifted_coords</span><span class="p">[</span><span class="n">within_r</span><span class="p">],</span> <span class="n">dists</span><span class="p">[</span><span class="n">within_r</span><span class="p">],</span> <span class="n">indices</span><span class="p">[</span><span class="n">within_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="barycentric_coords"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.barycentric_coords">[docs]</a><span class="k">def</span> <span class="nf">barycentric_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">simplex</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a list of coordinates to barycentric coordinates, given a</span>
+<span class="sd">    simplex with d+1 points. Only works for d &gt;= 2.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        coords:</span>
+<span class="sd">            list of n coords to transform, shape should be (n,d)</span>
+<span class="sd">        simplex:</span>
+<span class="sd">            list of coordinates that form the simplex, shape should be</span>
+<span class="sd">            (d+1, d)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        a LIST of barycentric coordinates (even if the original input was 1d)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">simplex</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])[:,</span> <span class="bp">None</span><span class="p">]</span>
+    <span class="n">all_but_one</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">coords</span> <span class="o">-</span> <span class="n">simplex</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])))</span>
+    <span class="n">last_coord</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">all_but_one</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_but_one</span><span class="p">,</span> <span class="n">last_coord</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_angle"><a class="viewcode-back" href="../../../pymatgen.util.html#pymatgen.util.coord_utils.get_angle">[docs]</a><span class="k">def</span> <span class="nf">get_angle</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s">&quot;degrees&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the angle between two vectors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        v1:</span>
+<span class="sd">            Vector 1</span>
+<span class="sd">        v2:</span>
+<span class="sd">            Vector 2</span>
+<span class="sd">        units:</span>
+<span class="sd">            &quot;degrees&quot; or &quot;radians&quot;. Defaults to &quot;degrees&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Angle between them in degrees.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s">&quot;degrees&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">units</span> <span class="o">==</span> <span class="s">&quot;radians&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">angle</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid units {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

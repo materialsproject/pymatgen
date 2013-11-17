@@ -1,0 +1,2113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>analysis Package &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="analysis-package">
+<h1>analysis Package<a class="headerlink" href="#analysis-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">analysis</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pymatgen.analysis"></span><p>This package is an overarching package for modules performing various analyses
+of materials data.</p>
+</div>
+<div class="section" id="module-pymatgen.analysis.bond_valence">
+<span id="bond-valence-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">bond_valence</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.bond_valence" title="Permalink to this headline">¶</a></h2>
+<p>This module implements classes to perform bond valence analyses.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.bond_valence.BVAnalyzer">
+<em class="property">class </em><tt class="descname">BVAnalyzer</tt><big>(</big><em>symm_tol=0.1</em>, <em>max_radius=4</em>, <em>max_permutations=100000</em>, <em>distance_scale_factor=1.015</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#BVAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This class implements a maximum a posteriori (MAP) estimation method to
+determine oxidation states in a structure. The algorithm is as follows:
+1) The bond valence sum of all symmetrically distinct sites in a structure
+is calculated using the element-based parameters in M. O&#8217;Keefe, &amp; N. Brese,
+JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
+2) The posterior probabilities of all oxidation states is then calculated
+using: P(oxi_state/BV) = K * P(BV/oxi_state) * P(oxi_state), where K is
+a constant factor for each element. P(BV/oxi_state) is calculated as a
+Gaussian with mean and std deviation determined from an analysis of
+the ICSD. The posterior P(oxi_state) is determined from a frequency
+analysis of the ICSD.
+3) The oxidation states are then ranked in order of decreasing probability
+and the oxidation state combination that result in a charge neutral cell
+is selected.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>symm_tol:</dt>
+<dd>Symmetry tolerance used to determine which sites are
+symmetrically equivalent. Set to 0 to turn off symmetry.</dd>
+<dt>max_radius:</dt>
+<dd>Maximum radius in Angstrom used to find nearest neighbors.</dd>
+<dt>max_permutations:</dt>
+<dd>The maximum number of permutations of oxidation states to test.</dd>
+<dt>distance_scale_factor:</dt>
+<dd>A scale factor to be applied. This is useful for scaling
+distances, esp in the case of calculation-relaxed structures
+which may tend to under (GGA) or over bind (LDA). The default
+of 1.015 works for GGA. For experimental structure, set this to
+1.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure">
+<tt class="descname">get_oxi_state_decorated_structure</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#BVAnalyzer.get_oxi_state_decorated_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_oxi_state_decorated_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an oxidation state decorated structure. This currently works only
+for ordered structures only.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure to analyze</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A modified structure that is oxidation state decorated.</dd>
+<dt>Raises:</dt>
+<dd>A ValueError is the valences cannot be determined.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.bond_valence.BVAnalyzer.get_valences">
+<tt class="descname">get_valences</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#BVAnalyzer.get_valences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.BVAnalyzer.get_valences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of valences for the structure. This currently works only
+for ordered structures only.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure to analyze</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A list of valences for each site in the structure,
+e.g., [1, 1, -2].</dd>
+<dt>Raises:</dt>
+<dd>A ValueError is the valences cannot be determined.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.bond_valence.calculate_bv_sum">
+<tt class="descname">calculate_bv_sum</tt><big>(</big><em>site</em>, <em>nn_list</em>, <em>scale_factor=1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/bond_valence.html#calculate_bv_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.bond_valence.calculate_bv_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the BV sum of a site.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>site:</dt>
+<dd>The site</dd>
+<dt>nn_list:</dt>
+<dd>List of nearest neighbors in the format [(nn_site, dist), ...].</dd>
+<dt>anion_el:</dt>
+<dd>The most electronegative element in the structure.</dd>
+<dt>scale_factor:</dt>
+<dd>A scale factor to be applied. This is useful for scaling distance,
+esp in the case of calculation-relaxed structures which may tend
+to under (GGA) or over bind (LDA).</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.analysis.diffusion_analyzer">
+<span id="diffusion-analyzer-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">diffusion_analyzer</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.diffusion_analyzer" title="Permalink to this headline">¶</a></h2>
+<p>A module to perform diffusion analyses (e.g. calculating diffusivity from
+mean square displacements etc.). If you use this module, please consider
+citing the following papers:</p>
+<div class="highlight-python"><pre>Ong, S. P., Mo, Y., Richards, W. D., Miara, L., Lee, H. S., &amp; Ceder, G.
+(2013). Phase stability, electrochemical stability and ionic conductivity
+of the Li10+-1MP2X12 (M = Ge, Si, Sn, Al or P, and X = O, S or Se) family
+of superionic conductors. Energy &amp; Environmental Science, 6(1), 148.
+doi:10.1039/c2ee23355j
+
+Mo, Y., Ong, S. P., &amp; Ceder, G. (2012). First Principles Study of the
+Li10GeP2S12 Lithium Super Ionic Conductor Material. Chemistry of Materials,
+24(1), 15-17. doi:10.1021/cm203303y</pre>
+</div>
+<dl class="class">
+<dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer">
+<em class="property">class </em><tt class="descname">DiffusionAnalyzer</tt><big>(</big><em>structure</em>, <em>displacements</em>, <em>specie</em>, <em>temperature</em>, <em>time_step</em>, <em>step_skip=10</em>, <em>min_obs=30</em>, <em>weighted=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Class for performing diffusion analysis.</p>
+<p>This constructor is meant to be used with pre-processed data.
+Other convenient constructors are provided as class methods (see
+from_vaspruns and from_files).</p>
+<p>Given a matrix of displacements (see arguments below for expected
+format), the diffusivity is given by:</p>
+<p>D = 1 / 2dt * &lt;mean square displacement&gt;</p>
+<p>where d is the dimensionality, t is the time. To obtain a reliable
+diffusion estimate, a least squares regression of the MSD against
+time to obtain the slope, which is then related to the diffusivity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Initial structure.</dd>
+<dt>displacements:</dt>
+<dd>Numpy array of with shape [site, time step, axis]</dd>
+<dt>specie:</dt>
+<dd>Specie to calculate diffusivity for as a String. E.g., &#8220;Li&#8221;.</dd>
+<dt>temperature:</dt>
+<dd>Temperature of the diffusion run in Kelvin.</dd>
+<dt>time_step:</dt>
+<dd>Time step between measurements.</dd>
+<dt>step_skip:</dt>
+<dd>Sampling frequency of the displacements (time_step is
+multiplied by this number to get the real time between
+measurements)</dd>
+<dt>min_obs:</dt>
+<dd>Minimum number of observations to have before including in
+the MSD vs dt calculation. E.g. If a structure has 10
+diffusing atoms, and min_obs = 30, the MSD vs dt will be
+calculated up to dt = total_run_time / 3, so that each
+diffusing atom is measured at least 3 uncorrelated times.</dd>
+<dt>weighted:</dt>
+<dd>Uses a weighted least squares to fit the MSD vs dt. Weights are
+proportional to 1/dt, since the number of observations are
+also proportional to 1/dt (and hence the variance is
+proportional to dt)</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_files">
+<em class="property">classmethod </em><tt class="descname">from_files</tt><big>(</big><em>filepaths</em>, <em>specie</em>, <em>step_skip=10</em>, <em>min_obs=30</em>, <em>weighted=True</em>, <em>ncores=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.from_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenient constructor that takes in a list of vasprun.xml paths to
+perform diffusion analysis.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filepaths:</dt>
+<dd>List of paths to vasprun.xml files of runs. (must be
+ordered in sequence of run). For example,
+you may have done sequential VASP runs and they are in run1,
+run2, run3, etc. You should then pass in
+[&#8220;run1/vasprun.xml&#8221;, &#8220;run2/vasprun.xml&#8221;, ...].</dd>
+<dt>specie:</dt>
+<dd>Specie to calculate diffusivity for as a String. E.g., &#8220;Li&#8221;.</dd>
+<dt>step_skip:</dt>
+<dd>Sampling frequency of the displacements (time_step is
+multiplied by this number to get the real time between
+measurements). E.g., you may not want to sample every single
+time step.</dd>
+<dt>min_obs:</dt>
+<dd>Minimum number of observations to have before including in
+the MSD vs dt calculation. E.g. If a structure has 10
+diffusing atoms, and min_obs = 30, the MSD vs dt will be
+calculated up to dt = total_run_time / 3, so that each
+diffusing atom is measured at least 3 uncorrelated times.</dd>
+<dt>weighted:</dt>
+<dd>Uses a weighted least squares to fit the MSD vs dt. Weights are
+proportional to 1/dt, since the number of observations are
+also proportional to 1/dt (and hence the variance is
+proportional to dt)</dd>
+<dt>ncores:</dt>
+<dd>Numbers of cores to use for multiprocessing. Can speed up
+vasprun parsing considerable. Defaults to None,
+which means serial.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_vaspruns">
+<em class="property">classmethod </em><tt class="descname">from_vaspruns</tt><big>(</big><em>vaspruns</em>, <em>specie</em>, <em>min_obs=30</em>, <em>weighted=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.from_vaspruns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.from_vaspruns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenient constructor that takes in a list of Vasprun objects to
+perform diffusion analysis.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>vaspruns:</dt>
+<dd><dl class="first last docutils">
+<dt>list of Vasprun objects (must be ordered in sequence of run).</dt>
+<dd>E.g., you may have performed sequential VASP runs to obtain
+sufficient statistics.</dd>
+</dl>
+</dd>
+<dt>specie:</dt>
+<dd>Specie to calculate diffusivity for as a String. E.g., &#8220;Li&#8221;.</dd>
+<dt>min_obs:</dt>
+<dd>Minimum number of observations to have before including in
+the MSD vs dt calculation. E.g. If a structure has 10
+diffusing atoms, and min_obs = 30, the MSD vs dt will be
+calculated up to dt = total_run_time / 3, so that each
+diffusing atom is measured at least 3 uncorrelated times.</dd>
+<dt>weighted:</dt>
+<dd>Uses a weighted least squares to fit the MSD vs dt. Weights are
+proportional to 1/dt, since the number of observations are
+also proportional to 1/dt (and hence the variance is
+proportional to dt)</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_smoothed_msd">
+<tt class="descname">plot_smoothed_msd</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.plot_smoothed_msd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.plot_smoothed_msd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the smoothed msd vs time graph. Useful for checking convergence.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#DiffusionAnalyzer.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.diffusion_analyzer.get_arrhenius_plot">
+<tt class="descname">get_arrhenius_plot</tt><big>(</big><em>temps</em>, <em>diffusivites</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#get_arrhenius_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.get_arrhenius_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an Arrhenius plot.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>temps:</dt>
+<dd>A sequence of temperatures.</dd>
+<dt>diffusivities:</dt>
+<dd>A sequence of diffusivities (e.g., from DiffusionAnalyzer
+.diffusivity).</dd>
+<dt>**kwargs:</dt>
+<dd>Any keyword args supported by matplotlib.pyplot.plot.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A matplotlib.pyplot object. Do plt.show() to show the plot.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.diffusion_analyzer.get_conversion_factor">
+<tt class="descname">get_conversion_factor</tt><big>(</big><em>structure</em>, <em>species</em>, <em>temperature</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/diffusion_analyzer.html#get_conversion_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.diffusion_analyzer.get_conversion_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conversion factor to convert between cm^2/s diffusivity measurements and
+mS/cm conductivity measurements based on number of atoms of diffusing
+species. Note that the charge is based on the oxidation state of the
+species (where available), or else the number of valence electrons
+(usually a good guess, esp for main group ions).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Input structure.</dd>
+<dt>species:</dt>
+<dd>Diffusing species.</dd>
+<dt>temperature:</dt>
+<dd>Temperature of the diffusion run in Kelvin.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Conversion factor.
+Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.analysis.ewald">
+<span id="ewald-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">ewald</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.ewald" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes for calculating the ewald sum of a structure.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer">
+<em class="property">class </em><tt class="descname">EwaldMinimizer</tt><big>(</big><em>matrix</em>, <em>m_list</em>, <em>num_to_return=1</em>, <em>algo=0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class determines the manipulations that will minimize an ewald matrix,
+given a list of possible manipulations. This class does not perform the
+manipulations on a structure, but will return the list of manipulations
+that should be done on one to produce the minimal structure. It returns the
+manipulations for the n lowest energy orderings. This class should be used
+to perform fractional species substitution or fractional species removal to
+produce a new structure. These manipulations create large numbers of
+candidate structures, and this class can be used to pick out those with the
+lowest ewald sum.</p>
+<p>An alternative (possibly more intuitive) interface to this class is the
+order disordered structure transformation.</p>
+<p>Author - Will Richards</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>matrix:</dt>
+<dd>a matrix of the ewald sum interaction energies. This is stored
+in the class as a diagonally symmetric array and so
+self._matrix will not be the same as the input matrix.</dd>
+<dt>m_list:</dt>
+<dd>list of manipulations. each item is of the form
+(multiplication fraction, number_of_indices, indices, species)
+These are sorted such that the first manipulation contains the
+most permutations. this is actually evaluated last in the
+recursion since I&#8217;m using pop.</dd>
+<dt>num_to_return:</dt>
+<dd>The minimizer will find the number_returned lowest energy
+structures. This is likely to return a number of duplicate
+structures so it may be necessary to overestimate and then
+remove the duplicates later. (duplicate checking in this
+process is extremely expensive)</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST">
+<tt class="descname">ALGO_BEST_FIRST</tt><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
+<dd><p>ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing
+accuracy) as the minimizer runs. Attempts to limit the run time to
+approximately 30 minutes.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE">
+<tt class="descname">ALGO_COMPLETE</tt><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST">
+<tt class="descname">ALGO_FAST</tt><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT">
+<tt class="descname">ALGO_TIME_LIMIT</tt><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.ALGO_TIME_LIMIT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.add_m_list">
+<tt class="descname">add_m_list</tt><big>(</big><em>matrix_sum</em>, <em>m_list</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.add_m_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.add_m_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>This adds an m_list to the output_lists and updates the current
+minimum if the list is full.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.best_case">
+<tt class="descname">best_case</tt><big>(</big><em>matrix</em>, <em>m_list</em>, <em>indices_left</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.best_case"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_case" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes a best case given a matrix and manipulation list.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>matrix:</dt>
+<dd>the current matrix (with some permutations already performed</dd>
+<dt>m_list:</dt>
+<dd>[(multiplication fraction, number_of_indices, indices,
+species)] describing the manipulation</dd>
+<dt>indices:</dt>
+<dd>Set of indices which haven&#8217;t had a permutation performed on
+them.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.best_m_list">
+<tt class="descname">best_m_list</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.best_m_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.best_m_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.get_next_index">
+<tt class="descname">get_next_index</tt><big>(</big><em>matrix</em>, <em>manipulation</em>, <em>indices_left</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.get_next_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.get_next_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an index that should have the most negative effect on the
+matrix sum</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix">
+<tt class="descname">minimize_matrix</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.minimize_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimize_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method finds and returns the permutations that produce the lowest
+ewald sum calls recursive function to iterate through permutations</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum">
+<tt class="descname">minimized_sum</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.minimized_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.minimized_sum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldMinimizer.output_lists">
+<tt class="descname">output_lists</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldMinimizer.output_lists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldMinimizer.output_lists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.ewald.EwaldSummation">
+<em class="property">class </em><tt class="descname">EwaldSummation</tt><big>(</big><em>structure</em>, <em>real_space_cut=None</em>, <em>recip_space_cut=None</em>, <em>eta=None</em>, <em>acc_factor=8.0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Calculates the electrostatic energy of a periodic array of charges using
+the Ewald technique.
+Ref: <a class="reference external" href="http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html">http://www.ee.duke.edu/~ayt/ewaldpaper/ewaldpaper.html</a></p>
+<p>This matrix can be used to do fast calculations of ewald sums after species
+removal.</p>
+<p>E = E_recip + E_real + E_point</p>
+<p>Atomic units used in the code, then converted to eV.</p>
+<p>Initializes and calculates the Ewald sum. Default convergence
+parameters have been specified, but you can override them if you wish.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>input structure that must have proper Specie on all sites, i.e.
+Element with oxidation state. Use
+StructureEditor.add_oxidation_state... in
+pymatgen.core.structure_modifier for example.</dd>
+<dt>real_space_cut:</dt>
+<dd>Real space cutoff radius dictating how many terms are used in
+the real space sum. Defaults to None, which means determine
+automagically using the formula given in gulp 3.1
+documentation.</dd>
+<dt>recip_space_cut:</dt>
+<dd>Reciprocal space cutoff radius. Defaults to None, which means
+determine automagically using the formula given in gulp 3.1
+documentation.</dd>
+<dt>eta:</dt>
+<dd>The screening parameter. Defaults to None, which means
+determine automatically.</dd>
+<dt>acc_factor:</dt>
+<dd>No. of significant figures each sum is converged to.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.CONV_FACT">
+<tt class="descname">CONV_FACT</tt><em class="property"> = 14.39964485044579</em><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.CONV_FACT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy">
+<tt class="descname">compute_partial_energy</tt><big>(</big><em>removed_indices</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.compute_partial_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_partial_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives total ewald energy for certain sites being removed, i.e. zeroed
+out.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure">
+<tt class="descname">compute_sub_structure</tt><big>(</big><em>sub_structure</em>, <em>tol=0.001</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.compute_sub_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.compute_sub_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives total ewald energy for an sub structure in the same
+lattice. The sub_structure must be a subset of the original
+structure, with possible different charges.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>substructure:</dt>
+<dd>Substructure to compute Ewald sum for.</dd>
+<dt>tol:</dt>
+<dd>Tolerance for site matching in fractional coordinates.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Ewald sum of substructure.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.eta">
+<tt class="descname">eta</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.eta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.eta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.forces">
+<tt class="descname">forces</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.forces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.forces" title="Permalink to this definition">¶</a></dt>
+<dd><p>The forces on each site as a Nx3 matrix. Each row corresponds to a
+site.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.point_energy">
+<tt class="descname">point_energy</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.point_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The point energy.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix">
+<tt class="descname">point_energy_matrix</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.point_energy_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.point_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The point space matrix. A diagonal matrix with the point terms for each
+site in the diagonal elements.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.real_space_energy">
+<tt class="descname">real_space_energy</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.real_space_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The real space space energy.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix">
+<tt class="descname">real_space_energy_matrix</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.real_space_energy_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.real_space_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The real space energy matrix. Each matrix element (i, j) corresponds to
+the interaction energy between site i and site j in real space.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy">
+<tt class="descname">reciprocal_space_energy</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.reciprocal_space_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reciprocal space energy.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix">
+<tt class="descname">reciprocal_space_energy_matrix</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.reciprocal_space_energy_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.reciprocal_space_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reciprocal space energy matrix. Each matrix element (i, j)
+corresponds to the interaction energy between site i and site j in
+reciprocal space.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.total_energy">
+<tt class="descname">total_energy</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.total_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total energy.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix">
+<tt class="descname">total_energy_matrix</tt><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#EwaldSummation.total_energy_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.EwaldSummation.total_energy_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>The total energy matrix. Each matrix element (i, j) corresponds to the
+total interaction energy between site i and site j.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.ewald.compute_average_oxidation_state">
+<tt class="descname">compute_average_oxidation_state</tt><big>(</big><em>site</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/ewald.html#compute_average_oxidation_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.ewald.compute_average_oxidation_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the average oxidation state of a site</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>site:</dt>
+<dd>Site to compute average oxidation state</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Average oxidation state of site.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.analysis.molecule_matcher">
+<span id="molecule-matcher-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">molecule_matcher</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.molecule_matcher" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes to perform fitting of molecule with arbitrary
+atom orders.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper">
+<em class="property">class </em><tt class="descname">AbstractMolAtomMapper</tt><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Abstract molecular atom order mapping class. A mapping will be able to
+find the uniform atom order of two molecules that can pair the
+geometrically equivalent atoms.</p>
+<dl class="classmethod">
+<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash">
+<tt class="descname">get_molecule_hash</tt><big>(</big><em>mol</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper.get_molecule_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a hash for molecules. This allows molecules to be grouped
+efficiently for comparison.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol:</dt>
+<dd>The molecule. OpenBabel OBMol or pymatgen Molecule object</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A hashable object. Examples can be string formulas, etc.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.uniform_labels">
+<tt class="descname">uniform_labels</tt><big>(</big><em>mol1</em>, <em>mol2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#AbstractMolAtomMapper.uniform_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pair the geometrically equivalent atoms of the molecules.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol1:</dt>
+<dd>First molecule. OpenBabel OBMol or pymatgen Molecule object.</dd>
+<dt>mol2:</dt>
+<dd>Second molecule. OpenBabel OBMol or pymatgen Molecule object.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>(list1, list2) if uniform atom order is found. list1 and list2
+are for mol1 and mol2, respectively. Their length equal
+to the number of atoms. They represents the uniform atom order
+of the two molecules. The value of each element is the original
+atom index in mol1 or mol2 of the current atom in uniform atom
+order.
+(None, None) if unform atom is not available.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper">
+<em class="property">class </em><tt class="descname">InchiMolAtomMapper</tt><big>(</big><em>angle_tolerance=10.0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper</span></tt></a></p>
+<p>Pair atoms by inchi labels.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>angle_tolerance:</dt>
+<dd>The angle threshold to assume linear molecule. In degrees.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash">
+<tt class="descname">get_molecule_hash</tt><big>(</big><em>mol</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.get_molecule_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return inchi as molecular hash</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels">
+<tt class="descname">uniform_labels</tt><big>(</big><em>mol1</em>, <em>mol2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#InchiMolAtomMapper.uniform_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.InchiMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper">
+<em class="property">class </em><tt class="descname">IsomorphismMolAtomMapper</tt><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper" title="pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.molecule_matcher.AbstractMolAtomMapper</span></tt></a></p>
+<p>Pair atoms by isomorphism permutations in the OpenBabel::OBAlign class</p>
+<dl class="classmethod">
+<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash">
+<tt class="descname">get_molecule_hash</tt><big>(</big><em>mol</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.get_molecule_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return inchi as molecular hash</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels">
+<tt class="descname">uniform_labels</tt><big>(</big><em>mol1</em>, <em>mol2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#IsomorphismMolAtomMapper.uniform_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.uniform_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pair the geometrically equivalent atoms of the molecules.
+Calculate RMSD on all possible isomorphism mappings and return mapping
+with the least RMSD</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol1:</dt>
+<dd>First molecule. OpenBabel OBMol or pymatgen Molecule object.</dd>
+<dt>mol2:</dt>
+<dd>Second molecule. OpenBabel OBMol or pymatgen Molecule object.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>(list1, list2) if uniform atom order is found. list1 and list2
+are for mol1 and mol2, respectively. Their length equal
+to the number of atoms. They represents the uniform atom order
+of the two molecules. The value of each element is the original
+atom index in mol1 or mol2 of the current atom in uniform atom
+order.
+(None, None) if unform atom is not available.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher">
+<em class="property">class </em><tt class="descname">MoleculeMatcher</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Class to match molecules and identify whether molecules are the same.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>tolerance:</dt>
+<dd>RMSD difference threshold whether two molecules are different</dd>
+<dt>mapper:</dt>
+<dd>MolAtomMapper object that is able to map the atoms of two
+molecule to
+uniform order</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.fit">
+<tt class="descname">fit</tt><big>(</big><em>mol1</em>, <em>mol2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit two molecules.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol1:</dt>
+<dd>First molecule. OpenBabel OBMol or pymatgen Molecule object</dd>
+<dt>mol2:</dt>
+<dd>Second molecule. OpenBabel OBMol or pymatgen Molecule object</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A boolean value indicates whether two molecules are the same.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd">
+<tt class="descname">get_rmsd</tt><big>(</big><em>mol1</em>, <em>mol2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.get_rmsd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.get_rmsd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get RMSD between two molecule with arbitrary atom order.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>RMSD if topology of the two molecules are the same
+Infinite if  the topology is different</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.group_molecules">
+<tt class="descname">group_molecules</tt><big>(</big><em>mol_list</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.group_molecules"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.group_molecules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Group molecules by structural equality.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>mol_list:</dt>
+<dd>List of OpenBabel OBMol or pymatgen objects</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A list of lists of matched molecules
+Assumption: if s1=s2 and s2=s3, then s1=s3
+This may not be true for small tolerances.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.molecule_matcher.MoleculeMatcher.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/molecule_matcher.html#MoleculeMatcher.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.molecule_matcher.MoleculeMatcher.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.analysis.reaction_calculator">
+<span id="reaction-calculator-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">reaction_calculator</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.reaction_calculator" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes that define a chemical reaction.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction">
+<em class="property">class </em><tt class="descname">BalancedReaction</tt><big>(</big><em>reactants_coeffs</em>, <em>products_coeffs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>An object representing a complete chemical reaction.</p>
+<p>Reactants and products to be specified as dict of {Composition: coeff}.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>reactants:</dt>
+<dd>Reactants as dict of {Composition: amt}.</dd>
+<dt>products:</dt>
+<dd>Products as dict of {Composition: amt}.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.all_comp">
+<tt class="descname">all_comp</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.all_comp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.all_comp" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all compositions in the reaction.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.calculate_energy">
+<tt class="descname">calculate_energy</tt><big>(</big><em>energies</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.calculate_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.calculate_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the energy of the reaction.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>energies:</dt>
+<dd>dict of {comp:energy}. E.g., {comp1: energy1, comp2: energy2}.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>reaction energy as a float.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.coeffs">
+<tt class="descname">coeffs</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.coeffs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.coeffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Final coefficients of the calculated reaction</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.elements">
+<tt class="descname">elements</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of elements in the reaction</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>rxn_string</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a balanced reaction from a string. The reaciton must
+already be balanced.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>rxn_string:</dt>
+<dd>The reaction string. For example, &#8220;4 Li + O2-&gt; 2Li2O&#8221;</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>BalancedReaction</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.get_coeff">
+<tt class="descname">get_coeff</tt><big>(</big><em>comp</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.get_coeff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.get_coeff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns coefficient for a particular composition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.get_el_amount">
+<tt class="descname">get_el_amount</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.get_el_amount"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.get_el_amount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the amount of the element in the reaction.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>element:</dt>
+<dd>Element in the reaction</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Amount of that element in the reaction.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to">
+<tt class="descname">normalize_to</tt><big>(</big><em>comp</em>, <em>factor=1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.normalize_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the reaction to one of the compositions.
+By default, normalizes such that the composition given has a
+coefficient of 1. Another factor can be specified.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>comp:</dt>
+<dd>Composition to normalize to</dd>
+<dt>factor:</dt>
+<dd>Factor to normalize to. Defaults to 1.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to_element">
+<tt class="descname">normalize_to_element</tt><big>(</big><em>element</em>, <em>factor=1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.normalize_to_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalize_to_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the reaction to one of the elements.
+By default, normalizes such that the amount of the element is 1.
+Another factor can be specified.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>element:</dt>
+<dd>Element to normalize to.</dd>
+<dt>factor:</dt>
+<dd>Factor to normalize to. Defaults to 1.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr">
+<tt class="descname">normalized_repr</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.normalized_repr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr" title="Permalink to this definition">¶</a></dt>
+<dd><p>A normalized representation of the reaction. All factors are converted
+to lowest common factors.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr_and_factor">
+<tt class="descname">normalized_repr_and_factor</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.normalized_repr_and_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.normalized_repr_and_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalized representation for a reaction
+For example, <tt class="docutils literal"><span class="pre">4</span> <span class="pre">Li</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">O</span> <span class="pre">-&gt;</span> <span class="pre">2Li2O</span></tt> becomes <tt class="docutils literal"><span class="pre">2</span> <span class="pre">Li</span> <span class="pre">+</span> <span class="pre">O</span> <span class="pre">-&gt;</span> <span class="pre">Li2O</span></tt></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.products">
+<tt class="descname">products</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.products" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of products</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.reactants">
+<tt class="descname">reactants</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.reactants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.reactants" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of reactants</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.BalancedReaction.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#BalancedReaction.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.BalancedReaction.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.reaction_calculator.ComputedReaction">
+<em class="property">class </em><tt class="descname">ComputedReaction</tt><big>(</big><em>reactant_entries</em>, <em>product_entries</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ComputedReaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.reaction_calculator.Reaction" title="pymatgen.analysis.reaction_calculator.Reaction"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.reaction_calculator.Reaction</span></tt></a></p>
+<p>Convenience class to generate a reaction from ComputedEntry objects, with
+some additional attributes, such as a reaction energy based on computed
+energies.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>reactant_entries:</dt>
+<dd>List of reactant_entries.</dd>
+<dt>products:</dt>
+<dd>List of product_entries.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.calculated_reaction_energy">
+<tt class="descname">calculated_reaction_energy</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ComputedReaction.calculated_reaction_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.calculated_reaction_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ComputedReaction.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.ComputedReaction.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ComputedReaction.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ComputedReaction.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.reaction_calculator.Reaction">
+<em class="property">class </em><tt class="descname">Reaction</tt><big>(</big><em>reactants</em>, <em>products</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.reaction_calculator.BalancedReaction" title="pymatgen.analysis.reaction_calculator.BalancedReaction"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.reaction_calculator.BalancedReaction</span></tt></a></p>
+<p>A more flexible class representing a Reaction. The reaction amounts will
+be automatically balanced.</p>
+<p>Reactants and products to be specified as list of
+pymatgen.core.structure.Composition.  e.g., [comp1, comp2]</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>reactants:</dt>
+<dd>List of reactants.</dd>
+<dt>products:</dt>
+<dd>List of products.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.Reaction.TOLERANCE">
+<tt class="descname">TOLERANCE</tt><em class="property"> = 1e-06</em><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.TOLERANCE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.reaction_calculator.Reaction.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of the Reaction object.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.reaction_calculator.Reaction.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.reaction_calculator.Reaction.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#Reaction.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.Reaction.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="pymatgen.analysis.reaction_calculator.ReactionError">
+<em class="property">exception </em><tt class="descname">ReactionError</tt><big>(</big><em>msg</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#ReactionError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.ReactionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Exception class for Reactions. Allows more information in exception
+messages to cover situations not covered by standard exception classes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.reaction_calculator.smart_float_gcd">
+<tt class="descname">smart_float_gcd</tt><big>(</big><em>list_of_floats</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/reaction_calculator.html#smart_float_gcd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.reaction_calculator.smart_float_gcd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the great common denominator (gcd).  Works on floats as well as
+integers.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>list_of_floats: List of floats to determine gcd.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.analysis.structure_analyzer">
+<span id="structure-analyzer-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">structure_analyzer</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.structure_analyzer" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes to perform topological analyses of structures.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer">
+<em class="property">class </em><tt class="descname">RelaxationAnalyzer</tt><big>(</big><em>initial_structure</em>, <em>final_structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>This class analyzes the relaxation in a calculation.</p>
+<p>Please note that the input and final structures should have the same
+ordering of sites. This is typically the case for most computational
+codes.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>initial_structure:</dt>
+<dd>Initial input structure to calculation.</dd>
+<dt>final_structure:</dt>
+<dd>Final output structure from calculation.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_bond_dist_changes">
+<tt class="descname">get_percentage_bond_dist_changes</tt><big>(</big><em>max_radius=3.0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_bond_dist_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_bond_dist_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the percentage bond distance changes for each site up to a
+maximum radius for nearest neighbors.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>max_radius:</dt>
+<dd>Maximum radius to search for nearest neighbors. This radius is
+applied to the initial structure, not the final structure.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Bond distance changes as a dict of dicts. E.g.,
+{index1: {index2: 0.011, ...}}. For economy of representation, the
+index1 is always less than index2, i.e., since bonding between
+site1 and siten is the same as bonding between siten and site1,
+there is no reason to duplicate the information or computation.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_lattice_parameter_changes">
+<tt class="descname">get_percentage_lattice_parameter_changes</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_lattice_parameter_changes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_lattice_parameter_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the percentage lattice parameter changes.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>A dict of the percentage change in lattice parameter, e.g.,
+{&#8216;a&#8217;: 0.012, &#8216;b&#8217;: 0.021, &#8216;c&#8217;: -0.031} implies a change of 1.2%,
+2.1% and -3.1% in the a, b and c lattice parameters respectively.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_volume_change">
+<tt class="descname">get_percentage_volume_change</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#RelaxationAnalyzer.get_percentage_volume_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.RelaxationAnalyzer.get_percentage_volume_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the percentage volume change.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>Volume change in percentage, e.g., 0.055 implies a 5.5% increase.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity">
+<em class="property">class </em><tt class="descname">VoronoiConnectivity</tt><big>(</big><em>structure</em>, <em>cutoff=10</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Computes the solid angles swept out by the shared face of the voronoi
+polyhedron between two sites</p>
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.connectivity_array">
+<tt class="descname">connectivity_array</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.connectivity_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.connectivity_array" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>connectivity:</dt>
+<dd>an array of shape [atomi, atomj, imagej]. atomi is the
+index of the atom in the input structure. Since the second
+atom can be outside of the unit cell, it must be described
+by both an atom index and an image index. Array data is the
+solid angle of polygon between atomi and imagej of atomj</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_connections">
+<tt class="descname">get_connections</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of site pairs that are Voronoi Neighbors, along
+with their real-space distances.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_sitej">
+<tt class="descname">get_sitej</tt><big>(</big><em>site_index</em>, <em>image_index</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.get_sitej"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.get_sitej" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assuming there is some value in the connectivity array at indices
+(1, 3, 12). sitei can be obtained directly from the input structure
+(structure[1]). sitej can be obtained by passing 3, 12 to this function</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>site_index:</dt>
+<dd>index of the site (3 in the example)</dd>
+<dt>image_index:</dt>
+<dd>index of the image (12 in the example)</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity">
+<tt class="descname">max_connectivity</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiConnectivity.max_connectivity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiConnectivity.max_connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the 2d array [sitei, sitej] that represents
+the maximum connectivity of site i to any periodic
+image of site j</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder">
+<em class="property">class </em><tt class="descname">VoronoiCoordFinder</tt><big>(</big><em>structure</em>, <em>target=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Uses a Voronoi algorithm to determine the coordination for each site in a
+structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Input structure</dd>
+<dt>target:</dt>
+<dd>A list of target species to determine coordination for.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.default_cutoff">
+<tt class="descname">default_cutoff</tt><em class="property"> = 10.0</em><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.default_cutoff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordinated_sites">
+<tt class="descname">get_coordinated_sites</tt><big>(</big><em>n</em>, <em>tol=0</em>, <em>target=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder.get_coordinated_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordinated_sites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sites that are in the coordination radius of site with
+index n.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>n:</dt>
+<dd>Site number.</dd>
+<dt>tol:</dt>
+<dd>Weight tolerance to determine if a particular pair is
+considered a neighbor.</dd>
+<dt>Target:</dt>
+<dd>Target element</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Sites coordinating input site.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordination_number">
+<tt class="descname">get_coordination_number</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder.get_coordination_number"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_coordination_number" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the coordination number of site with index n.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>n:</dt>
+<dd>site index</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_voronoi_polyhedra">
+<tt class="descname">get_voronoi_polyhedra</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#VoronoiCoordFinder.get_voronoi_polyhedra"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.VoronoiCoordFinder.get_voronoi_polyhedra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives a weighted polyhedra around a site. This uses the voronoi
+construction with solid angle weights.
+See ref: A Proposed Rigorous Definition of Coordination Number,
+M. O&#8217;Keeffe, Acta Cryst. (1979). A35, 772-775</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>n:</dt>
+<dd>site index</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A dictionary of sites sharing a common Voronoi facet with the site
+n and their solid angle weights</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.contains_peroxide">
+<tt class="descname">contains_peroxide</tt><big>(</big><em>structure</em>, <em>relative_cutoff=1.1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#contains_peroxide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.contains_peroxide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a structure contains peroxide anions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Input structure.</dd>
+<dt>relative_cutoff:</dt>
+<dd>The peroxide bond distance is 1.49 Angstrom. Relative_cutoff * 1.49
+stipulates the maximum distance two O atoms must be to each other
+to be considered a peroxide.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Boolean indicating if structure contains a peroxide anion.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.oxide_type">
+<tt class="descname">oxide_type</tt><big>(</big><em>structure</em>, <em>relative_cutoff=1.1</em>, <em>return_nbonds=False</em><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.oxide_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Input structure.</dd>
+<dt>relative_cutoff:</dt>
+<dd>Relative_cutoff * act. cutoff stipulates the max. distance two
+O atoms must be from each other.</dd>
+<dt>return_nbonds:</dt>
+<dd>Should number of bonds be requested?</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_analyzer.oxide_type_class">
+<em class="property">class </em><tt class="descname">oxide_type_class</tt><big>(</big><em>structure</em>, <em>relative_cutoff=1.1</em><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.oxide_type_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Separate class for determining oxide type.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Input structure.</dd>
+<dt>relative_cutoff:</dt>
+<dd>Relative_cutoff * act. cutoff stipulates the max. distance two
+O atoms must be from each other. Default value is 1.1. At most
+1.1 is recommended, nothing larger, otherwise the script cannot
+distinguish between superoxides and peroxides.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_analyzer.oxide_type_class.parse_oxide">
+<tt class="descname">parse_oxide</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.oxide_type_class.parse_oxide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>oxide_type:</dt>
+<dd>Type of oxide - ozonide/peroxide/superoxide/hydroxide/None</dd>
+<dt>nbonds:</dt>
+<dd>Number of peroxide/superoxide/hydroxide bonds in structure</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.analysis.structure_analyzer.solid_angle">
+<tt class="descname">solid_angle</tt><big>(</big><em>center</em>, <em>coords</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_analyzer.html#solid_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_analyzer.solid_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to calculate the solid angle of a set of coords from the
+center.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>center:</dt>
+<dd>Center to measure solid angle from.</dd>
+<dt>coords:</dt>
+<dd>List of coords to determine solid angle.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>The solid angle.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.analysis.structure_matcher">
+<span id="structure-matcher-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">structure_matcher</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.structure_matcher" title="Permalink to this headline">¶</a></h2>
+<p>This module provides classes to perform fitting of structures.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.structure_matcher.AbstractComparator">
+<em class="property">class </em><tt class="descname">AbstractComparator</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#AbstractComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Abstract Comparator class. A Comparator defines how sites are compared in
+a structure.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.AbstractComparator.are_equal">
+<tt class="descname">are_equal</tt><big>(</big><em>sp1</em>, <em>sp2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#AbstractComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.are_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines how the species of two sites are considered equal. For
+example, one can consider sites to have the same species only when
+the species are exactly the same, i.e., Fe2+ matches Fe2+ but not
+Fe3+. Or one can define that only the element matters,
+and all oxidation state information are ignored.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sp1:</dt>
+<dd>First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+<dt>sp2:</dt>
+<dd>Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Boolean indicating whether species are considered equal.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.structure_matcher.AbstractComparator.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#AbstractComparator.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.AbstractComparator.get_structure_hash">
+<tt class="descname">get_structure_hash</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#AbstractComparator.get_structure_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.get_structure_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a hash for structures. This allows structures to be grouped
+efficiently for comparison. For example, in exact matching,
+you should only try to perform matching if structures have the same
+reduced formula (structures with different formulas can&#8217;t possibly
+match). So the reduced_formula is a good hash. The hash function
+should be relatively fast to compute relative to the actual matching.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A hashable object. Examples can be string formulas, etc.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_matcher.AbstractComparator.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#AbstractComparator.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.AbstractComparator.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_matcher.ElementComparator">
+<em class="property">class </em><tt class="descname">ElementComparator</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#ElementComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></tt></a></p>
+<p>A Comparator that matches elements. i.e. oxidation states are
+ignored.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.ElementComparator.are_equal">
+<tt class="descname">are_equal</tt><big>(</big><em>sp1</em>, <em>sp2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#ElementComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator.are_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if element:amounts are exactly the same, i.e.,
+oxidation state is not considered.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sp1:</dt>
+<dd>First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+<dt>sp2:</dt>
+<dd>Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Boolean indicating whether species are the same based on element
+and amounts.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.ElementComparator.get_structure_hash">
+<tt class="descname">get_structure_hash</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#ElementComparator.get_structure_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.ElementComparator.get_structure_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash for structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Reduced formula for the structure is used as a hash for the
+SpeciesComparator.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_matcher.FrameworkComparator">
+<em class="property">class </em><tt class="descname">FrameworkComparator</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#FrameworkComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></tt></a></p>
+<p>A Comparator that matches sites, regardless of species.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal">
+<tt class="descname">are_equal</tt><big>(</big><em>sp1</em>, <em>sp2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#FrameworkComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator.are_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there are atoms on both sites.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sp1:</dt>
+<dd>First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+<dt>sp2:</dt>
+<dd>Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>True always</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.FrameworkComparator.get_structure_hash">
+<tt class="descname">get_structure_hash</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#FrameworkComparator.get_structure_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.FrameworkComparator.get_structure_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash for structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Number of atoms is a good hash for simple framework matching.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator">
+<em class="property">class </em><tt class="descname">OrderDisorderElementComparator</tt><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></tt></a></p>
+<p>A Comparator that matches sites, given some overlap in the element
+composition</p>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal">
+<tt class="descname">are_equal</tt><big>(</big><em>sp1</em>, <em>sp2</em><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.are_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if there is some overlap in composition between the species</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sp1:</dt>
+<dd>First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+<dt>sp2:</dt>
+<dd>Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>True always</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_structure_hash">
+<tt class="descname">get_structure_hash</tt><big>(</big><em>structure</em><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_matcher.OrderDisorderElementComparator.get_structure_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash for structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>TODO No good hash yet</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_matcher.SpeciesComparator">
+<em class="property">class </em><tt class="descname">SpeciesComparator</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#SpeciesComparator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_matcher.AbstractComparator" title="pymatgen.analysis.structure_matcher.AbstractComparator"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.analysis.structure_matcher.AbstractComparator</span></tt></a></p>
+<p>A Comparator that matches species exactly. The default used in
+StructureMatcher.</p>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.SpeciesComparator.are_equal">
+<tt class="descname">are_equal</tt><big>(</big><em>sp1</em>, <em>sp2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#SpeciesComparator.are_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator.are_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sp1:</dt>
+<dd>First species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+<dt>sp2:</dt>
+<dd>Second species. A dict of {specie/element: amt} as per the
+definition in Site and PeriodicSite.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Boolean indicating whether species are equal.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.SpeciesComparator.get_structure_hash">
+<tt class="descname">get_structure_hash</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#SpeciesComparator.get_structure_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.SpeciesComparator.get_structure_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash for structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Reduced formula for the structure is used as a hash for the
+SpeciesComparator.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher">
+<em class="property">class </em><tt class="descname">StructureMatcher</tt><big>(</big><em>ltol=0.2</em>, <em>stol=0.3</em>, <em>angle_tol=5</em>, <em>primitive_cell=True</em>, <em>scale=True</em>, <em>attempt_supercell=False</em>, <em>allow_subset=False</em>, <em>comparator=&lt;pymatgen.analysis.structure_matcher.SpeciesComparator object at 0x106409c10&gt;</em>, <em>supercell_size='num_sites'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Class to match structures by similarity.</p>
+<p>Algorithm:</p>
+<ol class="arabic">
+<li><p class="first">Given two structures: s1 and s2</p>
+</li>
+<li><p class="first">Optional: Reduce to primitive cells.</p>
+</li>
+<li><p class="first">If the number of sites do not match, return False</p>
+</li>
+<li><p class="first">Reduce to s1 and s2 to Niggli Cells</p>
+</li>
+<li><p class="first">Optional: Scale s1 and s2 to same volume.</p>
+</li>
+<li><p class="first">Optional: Remove oxidation states associated with sites</p>
+</li>
+<li><p class="first">Find all possible lattice vectors for s2 within shell of ltol.</p>
+</li>
+<li><p class="first">For s1, translate an atom in the smallest set to the origin</p>
+</li>
+<li><p class="first">For s2: find all valid lattices from permutations of the list
+of lattice vectors (invalid if: det(Lattice Matrix) &lt; half
+volume of original s2 lattice)</p>
+</li>
+<li><p class="first">For each valid lattice:</p>
+<ol class="loweralpha">
+<li><p class="first">If the lattice angles of are within tolerance of s1,
+basis change s2 into new lattice.</p>
+</li>
+<li><p class="first">For each atom in the smallest set of s2:</p>
+<blockquote>
+<div><p>i. Translate to origin and compare fractional sites in
+structure within a fractional tolerance.
+ii. If true:</p>
+<blockquote>
+<div><p>ia. Convert both lattices to cartesian and place
+both structures on an average lattice
+ib. Compute and return the average and max rms
+displacement between the two structures normalized
+by the average free length per atom</p>
+<dl class="docutils">
+<dt>if fit function called:</dt>
+<dd><p class="first last">if normalized max rms displacement is less than
+stol. Return True</p>
+</dd>
+<dt>if get_rms_dist function called:</dt>
+<dd><p class="first last">if normalized average rms displacement is less
+than the stored rms displacement, store and
+continue. (This function will search all possible
+lattices for the smallest average rms displacement
+between the two structures)</p>
+</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</li>
+</ol>
+</li>
+</ol>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>ltol:</dt>
+<dd>Fractional length tolerance. Default is 0.2.</dd>
+<dt>stol:</dt>
+<dd>Site tolerance. Defined as the fraction of the
+average free length per atom := ( V / Nsites ) ** (1/3)
+Default is 0.3.</dd>
+<dt>angle_tol:</dt>
+<dd>Angle tolerance in degrees. Default is 5 degrees.</dd>
+<dt>primitive_cell:</dt>
+<dd>If true: input structures will be reduced to primitive
+cells prior to matching. Default to True.</dd>
+<dt>scale:</dt>
+<dd>Input structures are scaled to equivalent volume if true;
+For exact matching, set to False.</dd>
+<dt>attempt_supercell:</dt>
+<dd>If set to True and number of sites in cells differ
+after a primitive cell reduction (divisible by an integer)
+attempts to generate a supercell transformation of the
+smaller cell which is equivalent to the larger structure.</dd>
+<dt>allow_subset:</dt>
+<dd>Allow one structure to match to the subset of another
+structure. Eg. Matching of an ordered structure onto a
+disordered one, or matching a delithiated to a lithiated
+structure. This option cannot be combined with
+attempt_supercell, or with structure grouping.</dd>
+<dt>comparator:</dt>
+<dd><p class="first">A comparator object implementing an equals method that declares
+declaring equivalency of sites. Default is
+SpeciesComparator, which implies rigid species
+mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.</p>
+<p>Other comparators are provided, e.g., ElementComparator which
+matches only the elements and not the species.</p>
+<p class="last">The reason why a comparator object is used instead of
+supplying a comparison function is that it is not possible to
+pickle a function, which makes it otherwise difficult to use
+StructureMatcher with Python&#8217;s multiprocessing.</p>
+</dd>
+<dt>supercell_size:</dt>
+<dd>Method to use for determining the size of a supercell (if
+applicable). Possible values are num_sites, num_atoms or
+volume.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.fit">
+<tt class="descname">fit</tt><big>(</big><em>struct1</em>, <em>struct2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit two structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct1:</dt>
+<dd>1st structure</dd>
+<dt>struct2:</dt>
+<dd>2nd structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>True or False.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.fit_anonymous">
+<tt class="descname">fit_anonymous</tt><big>(</big><em>struct1</em>, <em>struct2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.fit_anonymous"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit_anonymous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an anonymous fitting, which allows distinct species in one
+structure to map to another. E.g., to compare if the Li2O and Na2O
+structures are similar.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct1:</dt>
+<dd>1st structure</dd>
+<dt>struct2:</dt>
+<dd>2nd structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A minimal species mapping that would map struct1 to struct2 in
+terms of structure similarity, or None if no fit is found. For
+example, to map the cubic Li2O to cubic Na2O,
+we need a Li-&gt;Na mapping. This method will return
+[({Element(&#8220;Li&#8221;): 1}, {Element(&#8220;Na&#8221;): 1})]. Since O is the same
+in both structures, there is no O to O mapping required.
+Note that the return form is a list of pairs of species and
+occupancy dicts. This complicated return for is necessary because
+species and occupancy dicts are non-hashable.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.fit_anonymous_all_mapping">
+<tt class="descname">fit_anonymous_all_mapping</tt><big>(</big><em>struct1</em>, <em>struct2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.fit_anonymous_all_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit_anonymous_all_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an anonymous fitting, which allows distinct species in one
+structure to map to another. Returns a dictionary of species
+substitutions that are within tolerance</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct1:</dt>
+<dd>1st structure</dd>
+<dt>struct2:</dt>
+<dd>2nd structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>(mappings)
+mappings is a list of possible species mappings that
+would map struct1 to struct2.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.fit_with_electronegativity">
+<tt class="descname">fit_with_electronegativity</tt><big>(</big><em>struct1</em>, <em>struct2</em><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.fit_with_electronegativity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an anonymous fitting, which allows distinct species in one
+structure to map to another. E.g., to compare if the Li2O and Na2O
+structures are similar. If multiple substitutions are within tolerance
+this will return the one which minimizes the difference in
+electronegativity between the matches species.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct1:</dt>
+<dd>1st structure</dd>
+<dt>struct2:</dt>
+<dd>2nd structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>min_mapping
+min_rms is the minimum of the max rms calculated, and min_mapping
+is the corresponding minimal species mapping that would map
+struct1 to struct2. None is returned if no fit is found.</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.get_minimax_rms_anonymous">
+<tt class="descname">get_minimax_rms_anonymous</tt><big>(</big><em>struct1</em>, <em>struct2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.get_minimax_rms_anonymous"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_minimax_rms_anonymous" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs an anonymous fitting, which allows distinct species in one
+structure to map to another. E.g., to compare if the Li2O and Na2O
+structures are similar.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct1:</dt>
+<dd>1st structure</dd>
+<dt>struct2:</dt>
+<dd>2nd structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>(minimax_rms, min_mapping)
+min_rms is the minimum of the max rms calculated, and min_mapping
+is the corresponding minimal species mapping that would map
+struct1 to struct2. (None, None) is returned if the minimax_rms
+exceeds the threshold.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_dist">
+<tt class="descname">get_rms_dist</tt><big>(</big><em>struct1</em>, <em>struct2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.get_rms_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_rms_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate RMS displacement between two structures</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>struct1:</dt>
+<dd>1st structure</dd>
+<dt>struct2:</dt>
+<dd>2nd structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>rms displacement normalized by (Vol / nsites) ** (1/3)
+and maximum distance between paired sites. If no matching
+lattice is found None is returned.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.get_s2_like_s1">
+<tt class="descname">get_s2_like_s1</tt><big>(</big><em>struct1</em>, <em>struct2</em><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_s2_like_s1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs transformations on struct2 to put it in a basis similar to
+struct1 (without changing any of the inter-site distances)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.get_supercell_matrix">
+<tt class="descname">get_supercell_matrix</tt><big>(</big><em>supercell</em>, <em>struct</em><big>)</big><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.get_supercell_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the supercell matrix for transforming struct to supercell. This
+can be used for very distorted &#8216;supercells&#8217; where the primitive cell
+is impossible to find</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.group_structures">
+<tt class="descname">group_structures</tt><big>(</big><em>s_list</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.group_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.group_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of structures, use fit to group
+them by structural equality.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>s_list:</dt>
+<dd>List of structures to be grouped</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>A list of lists of matched structures
+Assumption: if s1=s2 and s2=s3, then s1=s3
+This may not be true for small tolerances.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.structure_matcher.StructureMatcher.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/structure_matcher.html#StructureMatcher.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.structure_matcher.StructureMatcher.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.analysis.thermochemistry">
+<span id="thermochemistry-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">thermochemistry</span></tt> Module<a class="headerlink" href="#module-pymatgen.analysis.thermochemistry" title="Permalink to this headline">¶</a></h2>
+<p>A module to perform experimental thermochemical data analysis.</p>
+<dl class="class">
+<dt id="pymatgen.analysis.thermochemistry.ThermoData">
+<em class="property">class </em><tt class="descname">ThermoData</tt><big>(</big><em>data_type</em>, <em>cpdname</em>, <em>phaseinfo</em>, <em>formula</em>, <em>value</em>, <em>ref=''</em>, <em>method=''</em>, <em>temp_range=(298</em>, <em>298)</em>, <em>uncertainty=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A object container for an experimental Thermochemical Data.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>data_type:</dt>
+<dd><dl class="first last docutils">
+<dt>The thermochemical data type. Should be one of the following:</dt>
+<dd>fH - Formation enthalpy
+S - Entropy
+A, B, C, D, E, F, G, H - variables for use in the various
+equations for generating formation enthaplies or Cp at
+various temperatures.</dd>
+</dl>
+</dd>
+<dt>cpdname:</dt>
+<dd>A name for the compound. For example, hematite for Fe2O3.</dd>
+<dt>phaseinfo:</dt>
+<dd>String denoting the phase. For example, &#8220;solid&#8221;, &#8220;liquid&#8221;,
+&#8220;gas&#8221; or &#8220;tetragonal&#8221;.</dd>
+<dt>formula:</dt>
+<dd>A proper string formula, e.g., Fe2O3</dd>
+<dt>value:</dt>
+<dd>The value of the data.</dd>
+<dt>ref:</dt>
+<dd>A reference, if any, for the data.</dd>
+<dt>method:</dt>
+<dd>The method by which the data was determined, if available.</dd>
+<dt>temp_range:</dt>
+<dd>Temperature range of validity for the data in Kelvin. Defaults
+to 298 K only.</dd>
+<dt>uncertainty:</dt>
+<dd>An uncertainty for the data, if available.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.analysis.thermochemistry.ThermoData.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.analysis.thermochemistry.ThermoData.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/analysis/thermochemistry.html#ThermoData.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.analysis.thermochemistry.ThermoData.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.defects.html">defects Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.defects.html#id1"><tt class="docutils literal"><span class="pre">defects</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.defects.html#module-pymatgen.analysis.defects.point_defects"><tt class="docutils literal"><span class="pre">point_defects</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.pourbaix.html">pourbaix Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.pourbaix.html#module-pymatgen.analysis.pourbaix.analyzer"><tt class="docutils literal"><span class="pre">analyzer</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.pourbaix.html#module-pymatgen.analysis.pourbaix.entry"><tt class="docutils literal"><span class="pre">entry</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.pourbaix.html#module-pymatgen.analysis.pourbaix.maker"><tt class="docutils literal"><span class="pre">maker</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.pourbaix.html#module-pymatgen.analysis.pourbaix.plotter"><tt class="docutils literal"><span class="pre">plotter</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">analysis Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">analysis</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.bond_valence"><tt class="docutils literal"><span class="pre">bond_valence</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.diffusion_analyzer"><tt class="docutils literal"><span class="pre">diffusion_analyzer</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.ewald"><tt class="docutils literal"><span class="pre">ewald</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.molecule_matcher"><tt class="docutils literal"><span class="pre">molecule_matcher</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.reaction_calculator"><tt class="docutils literal"><span class="pre">reaction_calculator</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.structure_analyzer"><tt class="docutils literal"><span class="pre">structure_analyzer</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.structure_matcher"><tt class="docutils literal"><span class="pre">structure_matcher</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.thermochemistry"><tt class="docutils literal"><span class="pre">thermochemistry</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pymatgen.analysis.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

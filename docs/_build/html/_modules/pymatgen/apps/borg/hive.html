@@ -1,0 +1,514 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.apps.borg.hive &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.apps.borg.hive</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module define the various drones used to assimilate data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2012, The Materials Project&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Mar 18, 2012&quot;</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">fnmatch</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_input</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Poscar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_output</span> <span class="kn">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Oszicar</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.gaussianio</span> <span class="kn">import</span> <span class="n">GaussianOutput</span>
+<span class="kn">from</span> <span class="nn">pymatgen.entries.computed_entries</span> <span class="kn">import</span> <span class="n">ComputedEntry</span><span class="p">,</span> \
+    <span class="n">ComputedStructureEntry</span>
+<span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AbstractDrone"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.AbstractDrone">[docs]</a><span class="k">class</span> <span class="nc">AbstractDrone</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract drone class that defines the various methods that must be</span>
+<span class="sd">    implemented by drones. Because of the quirky nature of Python&quot;s</span>
+<span class="sd">    multiprocessing, the intermediate data representations has to be in the</span>
+<span class="sd">    form of python primitives. So all objects that drones work with must be</span>
+<span class="sd">    MSONable. All drones must also implement the standard MSONable to_dict and</span>
+<span class="sd">    from_dict API.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="AbstractDrone.assimilate"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.AbstractDrone.assimilate">[docs]</a>    <span class="k">def</span> <span class="nf">assimilate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assimilate data in a directory path into a pymatgen object. Because of</span>
+<span class="sd">        the quirky nature of Python&quot;s multiprocessing, the object must support</span>
+<span class="sd">        pymatgen&quot;s to_dict for parallel processing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path:</span>
+<span class="sd">                directory path</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An assimilated object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="AbstractDrone.get_valid_paths"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.AbstractDrone.get_valid_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if path contains valid data for assimilation, and then returns</span>
+<span class="sd">        the valid paths. The paths returned can be a list of directory or file</span>
+<span class="sd">        paths, depending on what kind of data you are assimilating. For</span>
+<span class="sd">        example, if you are assimilating VASP runs, you are only interested in</span>
+<span class="sd">        directories containing vasprun.xml files. On the other hand, if you are</span>
+<span class="sd">        interested converting all POSCARs in a directory tree to cifs for</span>
+<span class="sd">        example, you will want the file paths.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path:</span>
+<span class="sd">                input path as a tuple generated from os.walk, i.e.,</span>
+<span class="sd">                (parent, subdirs, files).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of valid dir/file paths for assimilation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+</div></div>
+<div class="viewcode-block" id="VaspToComputedEntryDrone"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone">[docs]</a><span class="k">class</span> <span class="nc">VaspToComputedEntryDrone</span><span class="p">(</span><span class="n">AbstractDrone</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    VaspToEntryDrone assimilates directories containing vasp output to</span>
+<span class="sd">    ComputedEntry/ComputedStructureEntry objects. There are some restrictions</span>
+<span class="sd">    on the valid directory structures:</span>
+
+<span class="sd">    1. There can be only one vasp run in each directory.</span>
+<span class="sd">    2. Directories designated &quot;relax1&quot;, &quot;relax2&quot; are considered to be 2 parts</span>
+<span class="sd">       of an aflow style run, and only &quot;relax2&quot; is parsed.</span>
+<span class="sd">    3. The drone parses only the vasprun.xml file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            inc_structure:</span>
+<span class="sd">                Set to True if you want ComputedStructureEntries to be returned</span>
+<span class="sd">                instead of ComputedEntries.</span>
+<span class="sd">            parameters:</span>
+<span class="sd">                Input parameters to include. It has to be one of the properties</span>
+<span class="sd">                supported by the Vasprun object. See pymatgen.io.vaspio</span>
+<span class="sd">                Vasprun. If parameters == None, a default set of parameters</span>
+<span class="sd">                that are necessary for typical post-processing will be set.</span>
+<span class="sd">            data:</span>
+<span class="sd">                Output data to include. Has to be one of the properties</span>
+<span class="sd">                supported by the Vasprun object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span> <span class="o">=</span> <span class="n">inc_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;is_hubbard&quot;</span><span class="p">,</span> <span class="s">&quot;hubbards&quot;</span><span class="p">,</span> <span class="s">&quot;potcar_symbols&quot;</span><span class="p">,</span>
+                            <span class="s">&quot;run_type&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">data</span> <span class="k">else</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="VaspToComputedEntryDrone.assimilate"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.assimilate">[docs]</a>    <span class="k">def</span> <span class="nf">assimilate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;relax1&quot;</span> <span class="ow">in</span> <span class="n">files</span> <span class="ow">and</span> <span class="s">&quot;relax2&quot;</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;relax2&quot;</span><span class="p">,</span>
+                                              <span class="s">&quot;vasprun.xml*&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vasprun_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;vasprun.xml*&quot;</span><span class="p">))</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vasprun_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">vasprun_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">vasprun_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                This is a bit confusing, since there maybe be multi-steps. By</span>
+<span class="sd">                default, assimilate will try to find a file simply named</span>
+<span class="sd">                vasprun.xml, vasprun.xml.bz2, or vasprun.xml.gz.  Failing which</span>
+<span class="sd">                it will try to get a relax2 from an aflow style run if</span>
+<span class="sd">                possible. Or else, a randomly chosen file containing</span>
+<span class="sd">                vasprun.xml is chosen.</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">vasprun_files</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;vasprun.xml&quot;</span><span class="p">,</span>
+                                                   <span class="s">&quot;vasprun.xml.gz&quot;</span><span class="p">,</span>
+                                                   <span class="s">&quot;vasprun.xml.bz2&quot;</span><span class="p">]:</span>
+                        <span class="n">filepath</span> <span class="o">=</span> <span class="n">fname</span>
+                        <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&quot;relax2&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+                        <span class="n">filepath</span> <span class="o">=</span> <span class="n">fname</span>
+                        <span class="k">break</span>
+                    <span class="n">filepath</span> <span class="o">=</span> <span class="n">fname</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vasprun</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;error in {}: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+            <span class="n">param</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">vasprun</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">vasprun</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span>
+                                           <span class="n">vasprun</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span>
+                                           <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">vasprun</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
+                                  <span class="n">vasprun</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span>
+                                  <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entry</span>
+</div>
+<div class="viewcode-block" id="VaspToComputedEntryDrone.get_valid_paths"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.get_valid_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="s">&quot;relax1&quot;</span> <span class="ow">in</span> <span class="n">subdirs</span> <span class="ow">and</span> <span class="s">&quot;relax2&quot;</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">parent</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">parent</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;/relax1&quot;</span><span class="p">))</span> <span class="ow">and</span> \
+                <span class="p">(</span><span class="ow">not</span> <span class="n">parent</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;/relax2&quot;</span><span class="p">))</span> <span class="ow">and</span> \
+                <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s">&quot;vasprun.xml*&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">parent</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot; VaspToComputedEntryDrone&quot;</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="VaspToComputedEntryDrone.to_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;inc_structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">,</span>
+                              <span class="s">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span>
+                              <span class="s">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">},</span>
+                <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span>
+                <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">}</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="VaspToComputedEntryDrone.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.VaspToComputedEntryDrone.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;init_args&quot;</span><span class="p">])</span>
+
+</div></div>
+<div class="viewcode-block" id="SimpleVaspToComputedEntryDrone"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone">[docs]</a><span class="k">class</span> <span class="nc">SimpleVaspToComputedEntryDrone</span><span class="p">(</span><span class="n">VaspToComputedEntryDrone</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simpler VaspToComputedEntryDrone. Instead of parsing vasprun.xml, it</span>
+<span class="sd">    parses only the INCAR, POTCAR, OSZICAR and KPOINTS files, which are much</span>
+<span class="sd">    smaller and faster to parse. However, much fewer properties are available</span>
+<span class="sd">    compared to the standard VaspToComputedEntryDrone.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            inc_structure:</span>
+<span class="sd">                Set to True if you want ComputedStructureEntries to be returned</span>
+<span class="sd">                instead of ComputedEntries. Structure will be parsed from the</span>
+<span class="sd">                CONTCAR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span> <span class="o">=</span> <span class="n">inc_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;is_hubbard&quot;</span><span class="p">,</span> <span class="s">&quot;hubbards&quot;</span><span class="p">,</span> <span class="s">&quot;potcar_symbols&quot;</span><span class="p">,</span>
+                            <span class="s">&quot;run_type&quot;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="SimpleVaspToComputedEntryDrone.assimilate"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.assimilate">[docs]</a>    <span class="k">def</span> <span class="nf">assimilate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">files_to_parse</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="s">&quot;relax1&quot;</span> <span class="ow">in</span> <span class="n">files</span> <span class="ow">and</span> <span class="s">&quot;relax2&quot;</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;INCAR&quot;</span><span class="p">,</span> <span class="s">&quot;POTCAR&quot;</span><span class="p">,</span> <span class="s">&quot;POSCAR&quot;</span><span class="p">):</span>
+                    <span class="n">search_str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;relax1&quot;</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s">&quot;*&quot;</span><span class="p">)</span>
+                    <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">search_str</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;CONTCAR&quot;</span><span class="p">,</span> <span class="s">&quot;OSZICAR&quot;</span><span class="p">):</span>
+                    <span class="n">search_str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;relax2&quot;</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s">&quot;*&quot;</span><span class="p">)</span>
+                    <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">search_str</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">files_to_parse</span><span class="p">[</span><span class="s">&quot;INCAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span>
+                                                                 <span class="s">&quot;INCAR*&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">files_to_parse</span><span class="p">[</span><span class="s">&quot;POTCAR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;POTCAR*&quot;</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;CONTCAR&quot;</span><span class="p">,</span> <span class="s">&quot;OSZICAR&quot;</span><span class="p">,</span> <span class="s">&quot;POSCAR&quot;</span><span class="p">):</span>
+                    <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span> <span class="o">+</span> <span class="s">&quot;*&quot;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                        This is a bit confusing, since there maybe be</span>
+<span class="sd">                        multiple steps. By default, assimilate will try to find</span>
+<span class="sd">                        a file simply named filename, filename.bz2, or</span>
+<span class="sd">                        filename.gz.  Failing which it will try to get a relax2</span>
+<span class="sd">                        from an aflow style run if possible. Or else, a</span>
+<span class="sd">                        randomly chosen file is chosen.</span>
+<span class="sd">                        &quot;&quot;&quot;</span>
+                        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fname</span><span class="p">),</span>
+                                               <span class="s">&quot;{}(\.gz|\.bz2)*&quot;</span>
+                                               <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">)):</span>
+                                <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
+                                <span class="k">break</span>
+                            <span class="k">if</span> <span class="n">fname</span> <span class="o">==</span> <span class="s">&quot;POSCAR&quot;</span> <span class="ow">and</span> \
+                                    <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&quot;relax1&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+                                <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
+                                <span class="k">break</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">fname</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;CONTCAR&quot;</span><span class="p">,</span> <span class="s">&quot;OSZICAR&quot;</span><span class="p">)</span> <span class="ow">and</span>
+                                    <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&quot;relax2&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">)):</span>
+                                <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
+                                <span class="k">break</span>
+                            <span class="n">files_to_parse</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">fname</span>
+
+            <span class="n">poscar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">files_to_parse</span><span class="p">[</span><span class="s">&quot;POSCAR&quot;</span><span class="p">])</span>
+            <span class="n">contcar</span> <span class="o">=</span> <span class="n">Poscar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">files_to_parse</span><span class="p">[</span><span class="s">&quot;CONTCAR&quot;</span><span class="p">])</span>
+
+            <span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">files_to_parse</span><span class="p">[</span><span class="s">&quot;INCAR&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s">&quot;LDAUU&quot;</span> <span class="ow">in</span> <span class="n">incar</span><span class="p">:</span>
+                <span class="n">param</span><span class="p">[</span><span class="s">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">poscar</span><span class="o">.</span><span class="n">site_symbols</span><span class="p">,</span>
+                                             <span class="n">incar</span><span class="p">[</span><span class="s">&quot;LDAUU&quot;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">param</span><span class="p">[</span><span class="s">&quot;hubbards&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">param</span><span class="p">[</span><span class="s">&quot;is_hubbard&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;LDAU&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="n">param</span><span class="p">[</span><span class="s">&quot;hubbards&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">param</span><span class="p">[</span><span class="s">&quot;run_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;GGA+U&quot;</span> <span class="k">if</span> <span class="n">param</span><span class="p">[</span><span class="s">&quot;is_hubbard&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="s">&quot;GGA&quot;</span>
+            <span class="n">potcar</span> <span class="o">=</span> <span class="n">Potcar</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">files_to_parse</span><span class="p">[</span><span class="s">&quot;POTCAR&quot;</span><span class="p">])</span>
+            <span class="n">param</span><span class="p">[</span><span class="s">&quot;potcar_symbols&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">potcar</span><span class="o">.</span><span class="n">symbols</span>
+            <span class="n">oszicar</span> <span class="o">=</span> <span class="n">Oszicar</span><span class="p">(</span><span class="n">files_to_parse</span><span class="p">[</span><span class="s">&quot;OSZICAR&quot;</span><span class="p">])</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">oszicar</span><span class="o">.</span><span class="n">final_energy</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">contcar</span><span class="o">.</span><span class="n">structure</span>
+            <span class="n">initial_vol</span> <span class="o">=</span> <span class="n">poscar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
+            <span class="n">final_vol</span> <span class="o">=</span> <span class="n">contcar</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">volume</span>
+            <span class="n">delta_volume</span> <span class="o">=</span> <span class="p">(</span><span class="n">final_vol</span> <span class="o">/</span> <span class="n">initial_vol</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;filename&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s">&quot;delta_volume&quot;</span><span class="p">:</span> <span class="n">delta_volume</span><span class="p">}</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">:</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span>
+                                               <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span>
+                                               <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span>
+                                      <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">entry</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;error in {}: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">None</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;SimpleVaspToComputedEntryDrone&quot;</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="SimpleVaspToComputedEntryDrone.to_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;inc_structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">},</span>
+                <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">}</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="SimpleVaspToComputedEntryDrone.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.SimpleVaspToComputedEntryDrone.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;init_args&quot;</span><span class="p">])</span>
+
+</div></div>
+<div class="viewcode-block" id="GaussianToComputedEntryDrone"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone">[docs]</a><span class="k">class</span> <span class="nc">GaussianToComputedEntryDrone</span><span class="p">(</span><span class="n">AbstractDrone</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    GaussianToEntryDrone assimilates directories containing Gaussian output to</span>
+<span class="sd">    ComputedEntry/ComputedStructureEntry objects. By default, it is assumed</span>
+<span class="sd">    that Gaussian output files have a &quot;.log&quot; extension.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Like the GaussianOutput class, this is still in early beta.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inc_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">file_extensions</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;.log&quot;</span><span class="p">,)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            inc_structure:</span>
+<span class="sd">                Set to True if you want ComputedStructureEntries to be returned</span>
+<span class="sd">                instead of ComputedEntries.</span>
+<span class="sd">            parameters:</span>
+<span class="sd">                Input parameters to include. It has to be one of the properties</span>
+<span class="sd">                supported by the GaussianOutput object. See</span>
+<span class="sd">                pymatgen.io.gaussianio GaussianOutput.</span>
+<span class="sd">                The parameters have to be one of python&quot;s primitive types,</span>
+<span class="sd">                i.e. list, dict of strings and integers. If parameters == None,</span>
+<span class="sd">                a default set of parameters will be set.</span>
+<span class="sd">            data:</span>
+<span class="sd">                Output data to include. Has to be one of the properties</span>
+<span class="sd">                supported by the GaussianOutput object. The parameters have to</span>
+<span class="sd">                be one of python&quot;s primitive types, i.e. list, dict of strings</span>
+<span class="sd">                and integers. If data == None, a default set will be set.</span>
+<span class="sd">            file_extensions:</span>
+<span class="sd">                File extensions to be considered as Gaussian output files.</span>
+<span class="sd">                Defaults to just the typical &quot;log&quot; extension.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span> <span class="o">=</span> <span class="n">inc_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;functional&quot;</span><span class="p">,</span> <span class="s">&quot;basis_set&quot;</span><span class="p">,</span> <span class="s">&quot;charge&quot;</span><span class="p">,</span> <span class="s">&quot;spin_mult&quot;</span><span class="p">,</span>
+                            <span class="s">&quot;route&quot;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;stationary_type&quot;</span><span class="p">,</span> <span class="s">&quot;properly_terminated&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_extensions</span> <span class="o">=</span> <span class="n">file_extensions</span>
+
+<div class="viewcode-block" id="GaussianToComputedEntryDrone.assimilate"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.assimilate">[docs]</a>    <span class="k">def</span> <span class="nf">assimilate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gaurun</span> <span class="o">=</span> <span class="n">GaussianOutput</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;error in {}: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ex</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">:</span>
+            <span class="n">param</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">gaurun</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">gaurun</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedStructureEntry</span><span class="p">(</span><span class="n">gaurun</span><span class="o">.</span><span class="n">final_structure</span><span class="p">,</span>
+                                           <span class="n">gaurun</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span>
+                                           <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span>
+                                           <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">entry</span> <span class="o">=</span> <span class="n">ComputedEntry</span><span class="p">(</span><span class="n">gaurun</span><span class="o">.</span><span class="n">final_structure</span><span class="o">.</span><span class="n">composition</span><span class="p">,</span>
+                                  <span class="n">gaurun</span><span class="o">.</span><span class="n">final_energy</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">param</span><span class="p">,</span>
+                                  <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entry</span>
+</div>
+<div class="viewcode-block" id="GaussianToComputedEntryDrone.get_valid_paths"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.get_valid_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">f</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_extensions</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot; GaussianToComputedEntryDrone&quot;</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GaussianToComputedEntryDrone.to_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;init_args&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;inc_structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inc_structure</span><span class="p">,</span>
+                              <span class="s">&quot;parameters&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parameters</span><span class="p">,</span>
+                              <span class="s">&quot;data&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span>
+                              <span class="s">&quot;file_extensions&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_extensions</span><span class="p">},</span>
+                <span class="s">&quot;version&quot;</span><span class="p">:</span> <span class="n">__version__</span><span class="p">,</span> <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">}</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="GaussianToComputedEntryDrone.from_dict"><a class="viewcode-back" href="../../../../pymatgen.apps.borg.html#pymatgen.apps.borg.hive.GaussianToComputedEntryDrone.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;init_args&quot;</span><span class="p">])</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
