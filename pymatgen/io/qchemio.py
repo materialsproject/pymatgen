@@ -165,6 +165,10 @@ class QcInput(MSONable):
         else:
             self.set_auxiliary_basis_set(aux_basis_set)
 
+        if ecp:
+            self.set_ecp(ecp)
+
+
     def _aux_basis_required(self):
         if self.params["rem"]["exchange"] in ['xygjos', 'xyg3', 'lxygjos']:
             return True
@@ -216,6 +220,25 @@ class QcInput(MSONable):
                         raise ValueError("Auxiliary asis set error: the "
                             "molecule doesn't contain element " +
                             ", ".join(basis_elements - mol_elements))
+
+
+    def set_ecp(self, ecp):
+        if isinstance(ecp, str):
+            self.params["rem"]["ecp"] = ecp.lower()
+        elif isinstance(ecp, dict):
+            self.params["rem"]["ecp"] = "gen"
+            potentials = dict()
+            for element, p in ecp.iteritems():
+                potentials[element.strip().capitalize()] = p.lower()
+            self.params["ecp"] = potentials
+            if self.mol:
+                    mol_elements = set([site.species_string for site
+                                        in self.mol.sites])
+                    ecp_elements = set(self.params["ecp"].keys())
+                    if len(ecp_elements - mol_elements) > 0:
+                        raise ValueError("ECP error: the molecule "
+                            "doesn't contain element " +
+                            ", ".join(ecp_elements - mol_elements))
 
     @property
     def molecule(self):
@@ -289,6 +312,15 @@ class QcInput(MSONable):
             basis = self.params["aux_basis"][element]
             lines.append(" " + element)
             lines.append(" " + basis)
+            lines.append(" ****")
+        return lines
+
+    def _format_ecp(self):
+        lines = []
+        for element in sorted(self.params["ecp"].keys()):
+            ecp = self.params["ecp"][element]
+            lines.append(" " + element)
+            lines.append(" " + ecp)
             lines.append(" ****")
         return lines
 

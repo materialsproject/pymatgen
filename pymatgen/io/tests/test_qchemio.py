@@ -17,6 +17,11 @@ coords = [[0.000000, 0.000000, 0.000000],
           [-0.513360, 0.889165, -0.363000]]
 mol = Molecule(["C", "H", "H", "H", "Cl"], coords)
 
+coords2 = [[0.0, 0.0, -2.4],
+          [0.0, 0.0, 0.0],
+          [0.0, 0.0, 2.4]]
+heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
+
 
 class TestQcInput(TestCase):
 
@@ -108,3 +113,51 @@ $end
                                        "Cl": "rimp2-aug-cc-pvdz"})
         self.assertEqual(str(qcinp), ans)
 
+
+    def test_ecp_str(self):
+        ans = '''$comments
+ Test ECP
+$end
+
+
+$molecule
+ 0  1
+ Br          0.00000000        0.00000000       -2.40000000
+ Cd          0.00000000        0.00000000        0.00000000
+ Br          0.00000000        0.00000000        2.40000000
+$end
+
+
+$rem
+  job_type = opt
+  exchange = b3lyp
+     basis = gen
+       ecp = gen
+$end
+
+
+$basis
+ Br
+ srlc
+ ****
+ Cd
+ srsc
+ ****
+$end
+
+
+$ecp
+ Br
+ srlc
+ ****
+ Cd
+ srsc
+ ****
+$end
+
+'''
+        qcinp = QcInput(heavy_mol, title="Test ECP", exchange="B3LYP",
+                        job_type="Opt",
+                        basis_set={"Br":"srlc", "Cd": "srsc"},
+                        ecp={"Br": "SrlC", "Cd": "srsc"})
+        self.assertEqual(str(qcinp), ans)
