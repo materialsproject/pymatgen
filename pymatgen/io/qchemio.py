@@ -265,7 +265,11 @@ class QcInput(MSONable):
                 name_width = len(name)
         rem = rem_format_template.substitute(name_width=name_width)
         lines = []
-        for name in sorted(self.params["rem"].keys()):
+        all_keys = set(self.params["rem"].keys())
+        priority_keys = ["job_type", "exchange", "basis"]
+        additional_keys = all_keys - set(priority_keys)
+        ordered_keys = priority_keys + sorted(list(additional_keys))
+        for name in ordered_keys:
             value = self.params["rem"][name]
             lines.append(rem.format(name=name, value=value))
         return lines
