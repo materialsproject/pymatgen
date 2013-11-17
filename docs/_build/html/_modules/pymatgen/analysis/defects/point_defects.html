@@ -1,0 +1,1371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.analysis.defects.point_defects &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.analysis.defects.point_defects</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines classes for point defects</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">PeriodicSite</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.zeoio</span> <span class="kn">import</span> <span class="n">get_voronoi_nodes</span><span class="p">,</span> <span class="n">get_void_volume_surfarea</span>
+<span class="kn">from</span> <span class="nn">pymatgen.command_line.gulp_caller</span> <span class="kn">import</span> <span class="n">get_energy_buckingham</span>
+<span class="kn">from</span> <span class="nn">pymatgen.command_line.gulp_caller</span> <span class="kn">import</span> \
+    <span class="n">get_energy_relax_structure_buckingham</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_analyzer</span> <span class="kn">import</span> <span class="n">VoronoiCoordFinder</span><span class="p">,</span> \
+    <span class="n">RelaxationAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.structure_matcher</span> <span class="kn">import</span> <span class="n">StructureMatcher</span>
+<span class="kn">from</span> <span class="nn">pymatgen.analysis.bond_valence</span> <span class="kn">import</span> <span class="n">BVAnalyzer</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Specie</span>
+
+
+<div class="viewcode-block" id="ValenceIonicRadiusEvaluator"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.ValenceIonicRadiusEvaluator">[docs]</a><span class="k">class</span> <span class="nc">ValenceIonicRadiusEvaluator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes site valences and ionic radii for a structure using bond valence</span>
+<span class="sd">    analyzer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure:</span>
+<span class="sd">            pymatgen.core.structure.Structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valences</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ionic_radii</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ionic_radii</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ValenceIonicRadiusEvaluator.radii"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.ValenceIonicRadiusEvaluator.radii">[docs]</a>    <span class="k">def</span> <span class="nf">radii</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List of ionic radii of elements in the order of sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ionic_radii</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ValenceIonicRadiusEvaluator.valences"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.ValenceIonicRadiusEvaluator.valences">[docs]</a>    <span class="k">def</span> <span class="nf">valences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List of oxidation states of elements in the order of sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valences</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ValenceIonicRadiusEvaluator.structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.ValenceIonicRadiusEvaluator.structure">[docs]</a>    <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Structure used for initialization</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_ionic_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes ionic radii of elements for all sites in the structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rad_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valences</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;[1-9,+,\-]&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">rad_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span><span class="o">.</span><span class="n">ionic_radius</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">rad_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]:</span>  <span class="c"># get covalent radii later</span>
+                <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">rad_dict</span>
+
+    <span class="k">def</span> <span class="nf">_get_valences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes ionic valences of elements for all sites in the structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bv</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">valences</span> <span class="o">=</span> <span class="n">bv</span><span class="o">.</span><span class="n">get_valences</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">err_str</span> <span class="o">=</span> <span class="s">&quot;BVAnalyzer failed. The defect effective charge, and&quot;</span>
+            <span class="n">err_str</span> <span class="o">+=</span> <span class="s">&quot; volume and surface area may not work&quot;</span>
+            <span class="k">print</span> <span class="n">err_str</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">()</span>
+
+        <span class="n">el</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">sites</span><span class="p">]</span>
+        <span class="n">valence_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">valences</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">valence_dict</span>
+
+</div>
+<div class="viewcode-block" id="Defect"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect">[docs]</a><span class="k">class</span> <span class="nc">Defect</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class for point defects</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="Defect.enumerate_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.enumerate_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enumerates all the symmetrically distinct defects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&#39;Not implemented&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Defect.structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.structure">[docs]</a>    <span class="k">def</span> <span class="nf">structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the structure without any defects</span>
+<span class="sd">        Useful for Mott-Littleton calculations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Defect.struct_radii"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.struct_radii">[docs]</a>    <span class="k">def</span> <span class="nf">struct_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Radii of elements in the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rad_dict</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Defect.struct_valences"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.struct_valences">[docs]</a>    <span class="k">def</span> <span class="nf">struct_valences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Valence of elements in the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span>
+</div>
+<div class="viewcode-block" id="Defect.defectsite_count"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.defectsite_count">[docs]</a>    <span class="k">def</span> <span class="nf">defectsite_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of symmetrically distinct defect sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Defect.get_defectsite"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.get_defectsite">[docs]</a>    <span class="k">def</span> <span class="nf">get_defectsite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the defect site at the index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Defect.get_defectsite_coordination_number"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.get_defectsite_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_defectsite_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Coordination number of interstitial site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n</span>
+<span class="sd">                Index of interstitial list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Defect.get_coordinated_sites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.get_coordinated_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinated_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The sites in structure surrounding the defect site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n</span>
+<span class="sd">                Index of defects list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Defect.get_coordinated_elements"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.get_coordinated_elements">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinated_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Elements of sites in structure surrounding the defect site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n</span>
+<span class="sd">                Index of defect list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coordinated_species</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+            <span class="n">coordinated_species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">coordinated_species</span><span class="p">))</span>
+</div>
+    <span class="nd">@abc.abstractmethod</span>
+<div class="viewcode-block" id="Defect.make_supercells_with_defects"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Defect.make_supercells_with_defects">[docs]</a>    <span class="k">def</span> <span class="nf">make_supercells_with_defects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the supercell with input multipliers and create the defect.</span>
+<span class="sd">        First supercell has no defects.</span>
+<span class="sd">        To create unit cell with defect pass unit matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">print</span> <span class="s">&#39;Not implemented&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="Vacancy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy">[docs]</a><span class="k">class</span> <span class="nc">Vacancy</span><span class="p">(</span><span class="n">Defect</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of Defect to generate vacancies and their analysis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">valences</span><span class="p">,</span> <span class="n">radii</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure:</span>
+<span class="sd">                pymatgen.core.structure.Structure</span>
+<span class="sd">            valences:</span>
+<span class="sd">                valences of elements as a dictionary </span>
+<span class="sd">            radii:</span>
+<span class="sd">                Radii of elements as a dictionary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span> <span class="o">=</span> <span class="n">valences</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rad_dict</span> <span class="o">=</span> <span class="n">radii</span>
+        <span class="c"># Store symmetrically distinct sites, their coordination numbers</span>
+        <span class="c"># coordinated_sites, effective charge</span>
+        <span class="n">symm_finder</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">)</span>
+        <span class="n">symm_structure</span> <span class="o">=</span> <span class="n">symm_finder</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+        <span class="n">equiv_site_seq</span> <span class="o">=</span> <span class="n">symm_structure</span><span class="o">.</span><span class="n">equivalent_sites</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">equiv_sites</span> <span class="ow">in</span> <span class="n">equiv_site_seq</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">equiv_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vac_site_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">site</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_vac_site_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="n">coord_finder</span> <span class="o">=</span> <span class="n">VoronoiCoordFinder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vac_site_indices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">coord_finder</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">coord_finder</span><span class="o">.</span><span class="n">get_coordinated_sites</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c"># Store the ionic radii for the elements in the structure</span>
+        <span class="c"># (Used to  computing the surface are and volume)</span>
+        <span class="c"># Computed based on valence of each element</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vac_eff_charges</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sa</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="c">#@property</span>
+    <span class="c">#def valence_dict(self):</span>
+    <span class="c">#    return self._valence_dict</span>
+
+<div class="viewcode-block" id="Vacancy.enumerate_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.enumerate_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns symmetrically distinct vacancy sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span>
+</div>
+<div class="viewcode-block" id="Vacancy.get_defectsite_structure_indices"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.get_defectsite_structure_indices">[docs]</a>    <span class="k">def</span> <span class="nf">get_defectsite_structure_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns indices of symmetrically distinct vacancy sites</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vac_site_indices</span>
+</div>
+<div class="viewcode-block" id="Vacancy.get_defectsite_structure_index"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.get_defectsite_structure_index">[docs]</a>    <span class="k">def</span> <span class="nf">get_defectsite_structure_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        index of the vacacy site in the structure.sites list</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of vacancy list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vac_site_indices</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Vacancy.get_defectsite_effective_charge"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.get_defectsite_effective_charge">[docs]</a>    <span class="k">def</span> <span class="nf">get_defectsite_effective_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Effective charge (In Kroger-Vink notation, cation vacancy has </span>
+<span class="sd">        effectively -ve charge and anion vacancy has +ve charge.) </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of vacancy list</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Effective charnge of defect site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Effective charge (In Kroger-Vink notation, cation vacancy has </span>
+        <span class="c"># effectively -ve charge and anion vacancy has +ve charge.) Inverse</span>
+        <span class="c"># the BVAnalyzer.get_valences result.</span>
+
+        <span class="n">el</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_defectsite</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">species_string</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span><span class="p">[</span><span class="n">el</span><span class="p">]</span>
+        <span class="c">#if not self._vac_eff_charges:</span>
+        <span class="c">#    self._vac_eff_charges = []</span>
+        <span class="c">#    for site in self.enumerate_defectsites():</span>
+        <span class="c">#        specie = site.species_string</span>
+        <span class="c">#        self._vac_eff_charges.append(-self._valence_dict[specie])</span>
+        <span class="c">#return self._vac_eff_charges[n]</span>
+</div>
+<div class="viewcode-block" id="Vacancy.get_coordsites_min_max_charge"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.get_coordsites_min_max_charge">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordsites_min_max_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimum and maximum charge of sites surrounding the vacancy site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of vacancy list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bv</span> <span class="o">=</span> <span class="n">BVAnalyzer</span><span class="p">()</span>
+        <span class="n">struct_valences</span> <span class="o">=</span> <span class="n">bv</span><span class="o">.</span><span class="n">get_valences</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">)</span>
+        <span class="n">coordinated_site_valences</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span> <span class="nf">_get_index</span><span class="p">(</span><span class="n">site</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">sites</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                    <span class="k">return</span> <span class="n">i</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Site not found&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">_get_index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+            <span class="n">coordinated_site_valences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">struct_valences</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+        <span class="n">coordinated_site_valences</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">coordinated_site_valences</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coordinated_site_valences</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Vacancy.get_volume"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.get_volume">[docs]</a>    <span class="k">def</span> <span class="nf">get_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Volume of the nth vacancy</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of symmetrically distinct vacancies list</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            floating number representing volume of vacancy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sa</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">um</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_supercells_with_defects</span><span class="p">(</span><span class="n">um</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">rad_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_radii</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sc</span><span class="p">)):</span>
+                <span class="n">site_radi</span> <span class="o">=</span> <span class="n">rad_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
+                <span class="n">vol</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="n">get_void_volume_surfarea</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rad_dict</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vol</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Vacancy.get_surface_area"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.get_surface_area">[docs]</a>    <span class="k">def</span> <span class="nf">get_surface_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Surface area of the nth vacancy</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of symmetrically distinct vacancies list</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            floating number representing volume of vacancy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sa</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sa</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">um</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+            <span class="n">supercells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_supercells_with_defects</span><span class="p">(</span><span class="n">um</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">rad_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">struct_radii</span>
+            <span class="k">for</span> <span class="n">sc</span> <span class="ow">in</span> <span class="n">supercells</span><span class="p">:</span>
+                <span class="n">vol</span><span class="p">,</span> <span class="n">sa</span> <span class="o">=</span> <span class="n">get_void_volume_surfarea</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_vol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vol</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sa</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sa</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_supercell_with_defect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">defect_site</span><span class="p">):</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">)</span>
+        <span class="n">oldf_coords</span> <span class="o">=</span> <span class="n">defect_site</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">defect_site</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">oldf_coords</span><span class="p">)</span>
+        <span class="n">newf_coords</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="n">sc_defect_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">defect_site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">newf_coords</span><span class="p">,</span>
+                                      <span class="n">sc</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                                      <span class="n">properties</span><span class="o">=</span><span class="n">defect_site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">sites</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">sc_defect_site</span> <span class="o">==</span> <span class="n">sc</span><span class="o">.</span><span class="n">sites</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">sc</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">sc</span>
+
+<div class="viewcode-block" id="Vacancy.make_supercells_with_defects"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Vacancy.make_supercells_with_defects">[docs]</a>    <span class="k">def</span> <span class="nf">make_supercells_with_defects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate sequence of supercells in pymatgen.core.structure.Structure</span>
+<span class="sd">        format, with each supercell containing one vacancy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            scaling_matrix:</span>
+<span class="sd">                super cell scale parameters in matrix forms</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Supercells with vacancies. First supercell has no defects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc_with_vac</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">)</span>
+        <span class="n">sc_with_vac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">defect_site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enumerate_defectsites</span><span class="p">():</span>
+            <span class="n">sc_with_vac</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_supercell_with_defect</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">,</span>
+                                                           <span class="n">defect_site</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sc_with_vac</span>
+
+</div></div>
+<div class="viewcode-block" id="VacancyFormationEnergy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.VacancyFormationEnergy">[docs]</a><span class="k">class</span> <span class="nc">VacancyFormationEnergy</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Using GULP compute the vacancy formation energy.</span>
+<span class="sd">    Works only for binary metal oxides due to the use of Buckingham Potentials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vacancy</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vacancy</span> <span class="o">=</span> <span class="n">vacancy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_energies</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="VacancyFormationEnergy.get_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.VacancyFormationEnergy.get_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formation Energy for nth symmetrically distinct vacancy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#generate defect free structure energy</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_energies</span><span class="p">:</span>
+            <span class="n">no_vac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vacancy</span><span class="o">.</span><span class="n">defectsite_count</span><span class="p">()</span>
+            <span class="n">prev_energies</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">no_vac</span>
+            <span class="n">tol_flg</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span> <span class="o">*</span> <span class="n">no_vac</span>
+            <span class="n">vac_gulp_kw</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;optimise&#39;</span><span class="p">,</span> <span class="s">&#39;conp&#39;</span><span class="p">,</span> <span class="s">&#39;qok&#39;</span><span class="p">)</span>
+            <span class="n">val_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vacancy</span><span class="o">.</span><span class="n">struct_valences</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">False</span> <span class="ow">in</span> <span class="n">tol_flg</span><span class="p">):</span>
+                    <span class="c">#print sp</span>
+                    <span class="k">break</span>
+                <span class="n">scale_mat</span> <span class="o">=</span> <span class="p">[[</span><span class="n">sp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sp</span><span class="p">]]</span>
+                <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vacancy</span><span class="o">.</span><span class="n">make_supercells_with_defects</span><span class="p">(</span><span class="n">scale_mat</span><span class="p">)</span>
+                <span class="n">blk_energy</span> <span class="o">=</span> <span class="n">get_energy_buckingham</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">no</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+                <span class="c">#print no</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_vac</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">tol_flg</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+                        <span class="n">vac_energy</span> <span class="o">=</span> <span class="n">get_energy_buckingham</span><span class="p">(</span>
+                            <span class="n">sc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">keywords</span><span class="o">=</span><span class="n">vac_gulp_kw</span><span class="p">,</span>
+                            <span class="n">valence_dict</span><span class="o">=</span><span class="n">val_dict</span>
+                        <span class="p">)</span>
+                        <span class="n">form_energy</span> <span class="o">=</span> <span class="n">vac_energy</span> <span class="o">-</span> <span class="p">(</span><span class="n">no</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">no</span> <span class="o">*</span> <span class="n">blk_energy</span>
+                        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">form_energy</span> <span class="o">-</span> <span class="n">prev_energies</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                            <span class="n">tol_flg</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="n">prev_energies</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">form_energy</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_energies</span> <span class="o">=</span> <span class="n">prev_energies</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tol_flg</span> <span class="o">=</span> <span class="n">tol_flg</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tol_flg</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+            <span class="k">print</span> <span class="s">&quot;Caution: tolerance not reached for {0} vacancy&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_energies</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+
+</div></div>
+<div class="viewcode-block" id="Interstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial">[docs]</a><span class="k">class</span> <span class="nc">Interstitial</span><span class="p">(</span><span class="n">Defect</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subclass of Defect to generate interstitial sites</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">valences</span><span class="p">,</span> <span class="n">radii</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a structure, generate symmetrically distinct interstitial sites.</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            structure:</span>
+<span class="sd">                pymatgen.core.structure.Structure</span>
+<span class="sd">            valences:</span>
+<span class="sd">                Dictionary of oxidation states of elements in {El:valence} form</span>
+<span class="sd">            radii:</span>
+<span class="sd">                Radii of elemnts in the structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span> <span class="o">=</span> <span class="n">valences</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rad_dict</span> <span class="o">=</span> <span class="n">radii</span>
+
+        <span class="c">#Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and </span>
+        <span class="c">#the symmetry reduced voronoi nodes</span>
+        <span class="c">#are possible candidates for interstitial sites</span>
+        <span class="c">#try:</span>
+        <span class="n">possible_interstitial_sites</span> <span class="o">=</span> <span class="n">_symmetry_reduced_voronoi_nodes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rad_dict</span>
+        <span class="p">)</span>
+        <span class="c">#except:</span>
+        <span class="c">#    raise ValueError(&quot;Symmetry_reduced_voronoi_nodes failed&quot;)</span>
+
+        <span class="c">#Do futher processing on possibleInterstitialSites to obtain </span>
+        <span class="c">#interstitial sites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span> <span class="o">=</span> <span class="n">possible_interstitial_sites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_charge</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">:</span>
+            <span class="n">coord_no</span><span class="p">,</span> <span class="n">coord_sites</span><span class="p">,</span> <span class="n">chrg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_coord_no_sites_chrg</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_no</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_sites</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_charge</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chrg</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="s">&#39;voronoi_radius&#39;</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">_get_coord_no_sites_chrg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the coordination number and coordination charge</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site:</span>
+<span class="sd">                pymatgen.core.sites.Site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+        <span class="n">coord_finder</span> <span class="o">=</span> <span class="n">VoronoiCoordFinder</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+        <span class="n">coord_no</span> <span class="o">=</span> <span class="n">coord_finder</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">coord_sites</span> <span class="o">=</span> <span class="n">coord_finder</span><span class="o">.</span><span class="n">get_coordinated_sites</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># In some cases coordination sites to interstitials include </span>
+        <span class="c"># interstitials also. </span>
+        <span class="n">sites_to_be_deleted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coord_sites</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">coord_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s">&#39;X&#39;</span><span class="p">:</span>
+                <span class="n">sites_to_be_deleted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">sites_to_be_deleted</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>  <span class="c"># So index won&#39;t change in between</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">sites_to_be_deleted</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">coord_sites</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+
+        <span class="n">coord_chrg</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">coord_finder</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="o">==</span> <span class="s">&#39;X&#39;</span><span class="p">:</span>
+                <span class="n">coord_chrg</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">coord_no</span><span class="p">,</span> <span class="n">coord_sites</span><span class="p">,</span> <span class="n">coord_chrg</span>
+
+<div class="viewcode-block" id="Interstitial.enumerate_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.enumerate_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">enumerate_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enumerate all the symmetrically distinct interstitial sites.</span>
+<span class="sd">        The defect site has &quot;Al&quot; as occupied specie.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span>
+</div>
+<div class="viewcode-block" id="Interstitial.append_defectsite"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.append_defectsite">[docs]</a>    <span class="k">def</span> <span class="nf">append_defectsite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Append a site to list of possible interstitials</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            site:</span>
+<span class="sd">                pymatgen.core.sites.Site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Interstitial.delete_defectsite"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.delete_defectsite">[docs]</a>    <span class="k">def</span> <span class="nf">delete_defectsite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove a symmetrically distinct interstitial site</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of interstitial site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Interstitial.get_coordsites_charge_sum"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.get_coordsites_charge_sum">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordsites_charge_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Total charge of the interstitial coordinated sites.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n</span>
+<span class="sd">                Index of interstitial list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_charge</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Interstitial.get_coordsites_min_max_charge"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.get_coordsites_min_max_charge">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordsites_min_max_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Minimum and maximum charge of sites surrounding the interstitial site.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of symmetrical distinct interstitial site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coord_site_valences</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+            <span class="n">coord_site_valences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">])</span>
+        <span class="n">coord_site_valences</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">coord_site_valences</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coord_site_valences</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Interstitial.get_radius"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.get_radius">[docs]</a>    <span class="k">def</span> <span class="nf">get_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Volume of the nth interstitial</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">            Index of symmetrically distinct vacancies list</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            floating number representing radius of interstitial sphere</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Interstitial.get_radii"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.get_radii">[docs]</a>    <span class="k">def</span> <span class="nf">get_radii</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span>
+</div>
+<div class="viewcode-block" id="Interstitial.reduce_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.reduce_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If multiple defect sites have same voronoi radius, only one is kept.</span>
+<span class="sd">        Useful if the symmetry based reduction of initial sites returned</span>
+<span class="sd">        from Zeo++ is not working properly due to deviation in ideal lattice</span>
+<span class="sd">        coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">distinct_radii</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="p">))</span>
+        <span class="n">no_dstnt_radii</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">distinct_radii</span><span class="p">)</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span> <span class="o">*</span> <span class="n">no_dstnt_radii</span>
+        <span class="k">for</span> <span class="n">rad</span> <span class="ow">in</span> <span class="n">distinct_radii</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>  <span class="c"># Index of first site with &#39;rad&#39;</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="p">))):</span>
+                <span class="c"># Backward search for remaining sites so index is not changed</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">rad</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Interstitial.radius_prune_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.radius_prune_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">radius_prune_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove all the defect sites with voronoi radius less than input radius</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="p">))):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">radius</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Interstitial.prune_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.prune_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">prune_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el</span><span class="o">=</span><span class="s">&quot;C&quot;</span><span class="p">,</span> <span class="n">oxi_state</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">dlta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prune all the defect sites which can&#39;t acoomodate the input elment </span>
+<span class="sd">        with the input oxidation state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rad</span> <span class="o">=</span> <span class="n">Specie</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="n">oxi_state</span><span class="p">)</span><span class="o">.</span><span class="n">ionic_radius</span> <span class="o">-</span> <span class="n">dlta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius_prune_defectsites</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Interstitial.prune_close_defectsites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.prune_close_defectsites">[docs]</a>    <span class="k">def</span> <span class="nf">prune_close_defectsites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prune the sites that are very close.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">ind</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">defectsite_count</span><span class="p">():</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">defectsite_count</span><span class="p">():</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="c">#print d, dist</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">dist</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defect_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defectsite_coord_no</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_defect_coord_sites</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_radii</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ind</span> <span class="o">+=</span> <span class="mi">1</span>
+</div>
+    <span class="k">def</span> <span class="nf">_supercell_with_defect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">defect_site</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">)</span>
+        <span class="n">oldf_coords</span> <span class="o">=</span> <span class="n">defect_site</span><span class="o">.</span><span class="n">frac_coords</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">defect_site</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">oldf_coords</span><span class="p">)</span>
+        <span class="n">newf_coords</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+        <span class="c">#sc_defect_site = PeriodicSite(element, newf_coords,</span>
+        <span class="c">#                              sc.lattice)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">newf_coords</span><span class="p">,</span> <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                      <span class="n">validate_proximity</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sc</span>
+
+<div class="viewcode-block" id="Interstitial.make_supercells_with_defects"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.Interstitial.make_supercells_with_defects">[docs]</a>    <span class="k">def</span> <span class="nf">make_supercells_with_defects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns sequence of supercells in pymatgen.core.structure.Structure</span>
+<span class="sd">        format, with each supercell containing an interstitial.</span>
+<span class="sd">        First supercell has no defects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc_list_with_interstitial</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">)</span>
+        <span class="n">sc_list_with_interstitial</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">defect_site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">enumerate_defectsites</span><span class="p">():</span>
+            <span class="n">sc_with_inter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supercell_with_defect</span><span class="p">(</span>
+                <span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">defect_site</span><span class="p">,</span> <span class="n">element</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">sc_with_inter</span><span class="p">:</span>
+                <span class="n">sc_list_with_interstitial</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sc_with_inter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sc_list_with_interstitial</span>
+
+</div></div>
+<div class="viewcode-block" id="InterstitialAnalyzer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">InterstitialAnalyzer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use GULP to compute the interstitial formation energy, relaxed structures.</span>
+<span class="sd">    Works only for metal oxides due to the use of Buckingham Potentials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inter</span><span class="p">,</span> <span class="n">el</span><span class="p">,</span> <span class="n">oxi_state</span><span class="p">,</span> <span class="n">scd</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            inter:</span>
+<span class="sd">                pymatgen.defects.point_defects.Interstitial</span>
+<span class="sd">            el:</span>
+<span class="sd">                Element name in short hand notation (&quot;El&quot;)</span>
+<span class="sd">            oxi_state:</span>
+<span class="sd">                Oxidtation state</span>
+<span class="sd">            scd:</span>
+<span class="sd">                Super cell dimension as number. The scaling is equal along xyz.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span> <span class="o">=</span> <span class="n">inter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_el</span> <span class="o">=</span> <span class="n">el</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span> <span class="o">=</span> <span class="n">oxi_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scd</span> <span class="o">=</span> <span class="n">scd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_norelax_energies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="InterstitialAnalyzer.get_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer.get_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">relax</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Formation Energy for nth symmetrically distinct interstitial.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">relax</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_analysis</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">relax</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norelax_energies</span><span class="p">:</span>
+            <span class="n">no_inter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">defectsite_count</span><span class="p">()</span>
+            <span class="n">inter_gulp_kw</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;qok&#39;</span><span class="p">,)</span>
+            <span class="n">val_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">struct_valences</span>
+            <span class="n">val_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span>  <span class="c"># If element not in structure</span>
+            <span class="n">scd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scd</span>
+            <span class="n">scale_mat</span> <span class="o">=</span> <span class="p">[[</span><span class="n">scd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">scd</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scd</span><span class="p">]]</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">make_supercells_with_defects</span><span class="p">(</span><span class="n">scale_mat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="p">)</span>
+            <span class="n">blk_energy</span> <span class="o">=</span> <span class="n">get_energy_buckingham</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">no</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="p">)</span>
+            <span class="c">#print no</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_inter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">inter_energy</span> <span class="o">=</span> <span class="n">get_energy_buckingham</span><span class="p">(</span>
+                    <span class="n">sc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">keywords</span><span class="o">=</span><span class="n">inter_gulp_kw</span><span class="p">,</span> <span class="n">valence_dict</span><span class="o">=</span><span class="n">val_dict</span>
+                <span class="p">)</span>
+                <span class="n">form_energy</span> <span class="o">=</span> <span class="n">inter_energy</span> <span class="o">-</span> <span class="n">blk_energy</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_norelax_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">form_energy</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">relax</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_norelax_energies</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_relax_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Optimize interstitial structures </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">no_inter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">defectsite_count</span><span class="p">()</span>
+        <span class="n">inter_gulp_kw</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;optimise&#39;</span><span class="p">,</span> <span class="s">&#39;conp&#39;</span><span class="p">,</span> <span class="s">&#39;qok&#39;</span><span class="p">)</span>
+        <span class="n">val_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">struct_valences</span>
+        <span class="n">scd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scd</span>
+        <span class="n">scale_mat</span> <span class="o">=</span> <span class="p">[[</span><span class="n">scd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">scd</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scd</span><span class="p">]]</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">make_supercells_with_defects</span><span class="p">(</span><span class="n">scale_mat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="p">)</span>
+        <span class="n">blk_energy</span><span class="p">,</span> <span class="n">rlx_struct</span> <span class="o">=</span> <span class="n">get_energy_relax_structure_buckingham</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rlx_struct</span><span class="p">)</span>
+        <span class="n">val_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span>  <span class="c"># If element not in structure</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_inter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">energy</span><span class="p">,</span> <span class="n">rlx_struct</span> <span class="o">=</span> <span class="n">get_energy_relax_structure_buckingham</span><span class="p">(</span>
+                <span class="n">sc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">keywords</span><span class="o">=</span><span class="n">inter_gulp_kw</span><span class="p">,</span> <span class="n">valence_dict</span><span class="o">=</span><span class="n">val_dict</span>
+            <span class="p">)</span>
+            <span class="n">form_energy</span> <span class="o">=</span> <span class="n">energy</span> <span class="o">-</span> <span class="n">blk_energy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">form_energy</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rlx_struct</span><span class="p">)</span>
+
+<div class="viewcode-block" id="InterstitialAnalyzer.get_relaxed_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer.get_relaxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_relaxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Optimized interstitial structure </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">            Note:</span>
+<span class="sd">                To get relaxed bulk structure pass -1.</span>
+<span class="sd">                -ve index will not work as expected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_analysis</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="InterstitialAnalyzer.get_percentage_volume_change"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer.get_percentage_volume_change">[docs]</a>    <span class="k">def</span> <span class="nf">get_percentage_volume_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Volume change after the introduction of interstitial</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_analysis</span><span class="p">()</span>
+        <span class="n">blk_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c">#print blk_struct</span>
+        <span class="n">def_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c">#print def_struct</span>
+        <span class="n">def_struct</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">RelaxationAnalyzer</span><span class="p">(</span><span class="n">blk_struct</span><span class="p">,</span> <span class="n">def_struct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rv</span><span class="o">.</span><span class="n">get_percentage_volume_change</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="InterstitialAnalyzer.get_percentage_lattice_parameter_change"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer.get_percentage_lattice_parameter_change">[docs]</a>    <span class="k">def</span> <span class="nf">get_percentage_lattice_parameter_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice parameter change after the introduction of interstitial</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_analysis</span><span class="p">()</span>
+        <span class="n">blk_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">def_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">def_struct</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">RelaxationAnalyzer</span><span class="p">(</span><span class="n">blk_struct</span><span class="p">,</span> <span class="n">def_struct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rv</span><span class="o">.</span><span class="n">get_percentage_lattice_parameter_changes</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="InterstitialAnalyzer.get_percentage_bond_distance_change"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer.get_percentage_bond_distance_change">[docs]</a>    <span class="k">def</span> <span class="nf">get_percentage_bond_distance_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bond distance change after the introduction of interstitial</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_analysis</span><span class="p">()</span>
+        <span class="n">blk_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">def_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="n">n</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">def_struct</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">print</span> <span class="n">def_struct</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">RelaxationAnalyzer</span><span class="p">(</span><span class="n">blk_struct</span><span class="p">,</span> <span class="n">def_struct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rv</span><span class="o">.</span><span class="n">get_percentage_bond_dist_changes</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="InterstitialAnalyzer.relaxed_structure_match"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialAnalyzer.relaxed_structure_match">[docs]</a>    <span class="k">def</span> <span class="nf">relaxed_structure_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the relaxed structures of two interstitials match </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">            j:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">            Note:</span>
+<span class="sd">                To use relaxed bulk structure pass -1.</span>
+<span class="sd">                -ve index will not work as expected</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_relax_analysis</span><span class="p">()</span>
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
+        <span class="n">struct1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">struct2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="StructureRelaxer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.StructureRelaxer">[docs]</a><span class="k">class</span> <span class="nc">StructureRelaxer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_unrelax_struct</span> <span class="o">=</span> <span class="n">structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relax</span><span class="p">()</span>
+
+<div class="viewcode-block" id="StructureRelaxer.relax"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.StructureRelaxer.relax">[docs]</a>    <span class="k">def</span> <span class="nf">relax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">energy</span><span class="p">,</span> <span class="n">rlx_struct</span> <span class="o">=</span> <span class="n">get_energy_relax_structure_buckingham</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_unrelax_struct</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span> <span class="o">=</span> <span class="n">rlx_struct</span>
+</div>
+<div class="viewcode-block" id="StructureRelaxer.get_relaxed_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.StructureRelaxer.get_relaxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_relaxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_struct</span>
+
+</div></div>
+<div class="viewcode-block" id="InterstitialStructureRelaxer"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer">[docs]</a><span class="k">class</span> <span class="nc">InterstitialStructureRelaxer</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs structural relaxation for each interstitial supercell</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interstitial</span><span class="p">,</span> <span class="n">el</span><span class="p">,</span> <span class="n">oxi_state</span><span class="p">,</span> <span class="n">supercell_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            interstitial:</span>
+<span class="sd">                Unrelaxed interstitial</span>
+<span class="sd">            el:</span>
+<span class="sd">                Species string in short notation</span>
+<span class="sd">            oxi_state:</span>
+<span class="sd">                Oxidation state of the element</span>
+<span class="sd">            supercell_dim:</span>
+<span class="sd">                Dimnetions of super cell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span> <span class="o">=</span> <span class="n">interstitial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scd</span> <span class="o">=</span> <span class="n">supercell_dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_el</span> <span class="o">=</span> <span class="n">el</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span> <span class="o">=</span> <span class="n">oxi_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="InterstitialStructureRelaxer.relax"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer.relax">[docs]</a>    <span class="k">def</span> <span class="nf">relax</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Optimize interstitial structures </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">no_inter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">defectsite_count</span><span class="p">()</span>
+        <span class="n">inter_gulp_kw</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;optimise&#39;</span><span class="p">,</span> <span class="s">&#39;conp&#39;</span><span class="p">,</span> <span class="s">&#39;qok&#39;</span><span class="p">)</span>
+        <span class="n">val_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">struct_valences</span>
+        <span class="n">scd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scd</span>
+        <span class="n">scale_mat</span> <span class="o">=</span> <span class="p">[[</span><span class="n">scd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">scd</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">scd</span><span class="p">]]</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">make_supercells_with_defects</span><span class="p">(</span><span class="n">scale_mat</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="p">)</span>
+        <span class="n">blk_energy</span><span class="p">,</span> <span class="n">rlx_struct</span> <span class="o">=</span> <span class="n">get_energy_relax_structure_buckingham</span><span class="p">(</span><span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rlx_struct</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">blk_energy</span><span class="p">)</span>
+        <span class="n">val_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_el</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oxi_state</span>  <span class="c"># If element not in structure</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">no_inter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">energy</span><span class="p">,</span> <span class="n">rlx_struct</span> <span class="o">=</span> <span class="n">get_energy_relax_structure_buckingham</span><span class="p">(</span>
+                    <span class="n">sc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">keywords</span><span class="o">=</span><span class="n">inter_gulp_kw</span><span class="p">,</span> <span class="n">valence_dict</span><span class="o">=</span><span class="n">val_dict</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rlx_struct</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="n">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&#39;Relaxation failed&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="InterstitialStructureRelaxer.relaxed_structure_match"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer.relaxed_structure_match">[docs]</a>    <span class="k">def</span> <span class="nf">relaxed_structure_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the relaxed structures of two interstitials match </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">            j:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">            Note:</span>
+<span class="sd">                Index 0 corresponds to bulk. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relax</span><span class="p">()</span>
+        <span class="n">sm</span> <span class="o">=</span> <span class="n">StructureMatcher</span><span class="p">()</span>
+        <span class="n">struct1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">struct2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">sm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">struct1</span><span class="p">,</span> <span class="n">struct2</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="InterstitialStructureRelaxer.relaxed_energy_match"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer.relaxed_energy_match">[docs]</a>    <span class="k">def</span> <span class="nf">relaxed_energy_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the relaxed energies of two interstitials match </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">            j:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">                Note: Index 0 corresponds to bulk. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relax</span><span class="p">()</span>
+        <span class="n">energy1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">energy2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">energy1</span> <span class="o">==</span> <span class="n">energy2</span>
+</div>
+<div class="viewcode-block" id="InterstitialStructureRelaxer.get_relaxed_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer.get_relaxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_relaxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the relaxed structure of nth symmetrically distinct interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">                Note: 0 corresponds to relaxed bulk structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relax</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="InterstitialStructureRelaxer.get_relaxed_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer.get_relaxed_energy">[docs]</a>    <span class="k">def</span> <span class="nf">get_relaxed_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the relaxed structure of nth symmetrically distinct interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">                Note: 0 corresponds to relaxed bulk structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relax</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="InterstitialStructureRelaxer.get_relaxed_interstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.InterstitialStructureRelaxer.get_relaxed_interstitial">[docs]</a>    <span class="k">def</span> <span class="nf">get_relaxed_interstitial</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the relaxed structure of nth symmetrically distinct interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Symmetrically distinct interstitial index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relax</span><span class="p">()</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_energies</span><span class="p">[:]</span>
+        <span class="n">structs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relax_structs</span><span class="p">[:]</span>
+        <span class="n">distinct_energy_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">energies</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>  <span class="c"># only interstitial energies</span>
+        <span class="k">if</span> <span class="bp">None</span> <span class="ow">in</span> <span class="n">distinct_energy_set</span><span class="p">:</span>
+            <span class="n">distinct_energy_set</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">distinct_structs</span> <span class="o">=</span> <span class="p">[</span><span class="n">structs</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>         <span class="c"># bulk</span>
+        <span class="n">distinct_energies</span> <span class="o">=</span> <span class="p">[</span><span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">energy</span> <span class="ow">in</span> <span class="n">distinct_energy_set</span><span class="p">:</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">energies</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+            <span class="n">distinct_structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">structs</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+            <span class="n">distinct_energies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">energies</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">RelaxedInterstitial</span><span class="p">(</span>
+            <span class="n">distinct_structs</span><span class="p">,</span> <span class="n">distinct_energies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inter</span><span class="o">.</span><span class="n">struct_valences</span>
+        <span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="RelaxedInterstitial"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial">[docs]</a><span class="k">class</span> <span class="nc">RelaxedInterstitial</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores the relaxed supercell structures for each interstitial</span>
+<span class="sd">    Used to compute formation energies, displacement of atoms near the</span>
+<span class="sd">    the interstitial</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct_list</span><span class="p">,</span> <span class="n">energy_list</span><span class="p">,</span> <span class="n">valence_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            struct_list:</span>
+<span class="sd">                List of structures(supercells). The first structure should </span>
+<span class="sd">                represent relaxed bulk structure and the subsequent ones </span>
+<span class="sd">                interstitial structures (with the extra interstitial site </span>
+<span class="sd">                appended at the end).</span>
+<span class="sd">            energy_list:</span>
+<span class="sd">                List of energies for relaxed interstitial structures. </span>
+<span class="sd">                The first energy should correspond to bulk structure</span>
+<span class="sd">            valence_dict:</span>
+<span class="sd">                Valences of elements in dictionary form</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_blk_struct</span> <span class="o">=</span> <span class="n">struct_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">struct_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span> <span class="o">=</span> <span class="n">struct_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_blk_energy</span> <span class="o">=</span> <span class="n">energy_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">energy_list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_energies</span> <span class="o">=</span> <span class="n">energy_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span> <span class="o">=</span> <span class="n">valence_dict</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coord_no</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coord_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coord_charge_no</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="RelaxedInterstitial.formation_energy"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.formation_energy">[docs]</a>    <span class="k">def</span> <span class="nf">formation_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">chem_pot</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the interstitial formation energy</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of interstitials</span>
+<span class="sd">            chem_pot:</span>
+<span class="sd">                Chemical potential of interstitial site element.</span>
+<span class="sd">                If not given, assumed as zero. The user is strongly</span>
+<span class="sd">                urged to supply the chemical potential value </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_energies</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blk_energy</span> <span class="o">-</span> <span class="n">chem_pot</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_percentage_volume_change"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_percentage_volume_change">[docs]</a>    <span class="k">def</span> <span class="nf">get_percentage_volume_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Volume change after the introduction of interstitial</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                index of interstitials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">def_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">[</span><span class="n">n</span><span class="p">:</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">def_struct</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">RelaxationAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_blk_struct</span><span class="p">,</span> <span class="n">def_struct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rv</span><span class="o">.</span><span class="n">get_percentage_volume_change</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_percentage_lattice_parameter_change"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_percentage_lattice_parameter_change">[docs]</a>    <span class="k">def</span> <span class="nf">get_percentage_lattice_parameter_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lattice parameter change after the introduction of interstitial</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                index of interstitials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">def_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">[</span><span class="n">n</span><span class="p">:</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># copy</span>
+        <span class="n">def_struct</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">RelaxationAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_blk_struct</span><span class="p">,</span> <span class="n">def_struct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rv</span><span class="o">.</span><span class="n">get_percentage_lattice_parameter_changes</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_percentage_bond_distance_change"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_percentage_bond_distance_change">[docs]</a>    <span class="k">def</span> <span class="nf">get_percentage_bond_distance_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bond distance change after the introduction of interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                index of interstitials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">def_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">[</span><span class="n">n</span><span class="p">:</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c"># copy</span>
+        <span class="n">def_struct</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rv</span> <span class="o">=</span> <span class="n">RelaxationAnalyzer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_blk_struct</span><span class="p">,</span> <span class="n">def_struct</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rv</span><span class="o">.</span><span class="n">get_percentage_bond_dist_changes</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_bulk_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_bulk_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_bulk_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return relaxed bulk structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blk_struct</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_interstitial_structure"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_interstitial_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_interstitial_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return relaxed bulk structure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.defect_count"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.defect_count">[docs]</a>    <span class="k">def</span> <span class="nf">defect_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of distinct interstitials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_defectsite"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_defectsite">[docs]</a>    <span class="k">def</span> <span class="nf">get_defectsite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the defect site of nth interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of interstitial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_coordination_number"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Coordination number for nth interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of interstitials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_no</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coord_find</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_no</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_charge_coordination_number"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_charge_coordination_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_charge_coordination_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Charge coordination number for nth interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of interstitials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_charge_no</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coord_find</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_charge_no</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_coordinated_sites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_coordinated_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinated_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Coordinated sites for nth interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index of interstitials</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_sites</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coord_find</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coord_sites</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_coordinated_bulk_sites"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_coordinated_bulk_sites">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinated_bulk_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Bulk sites corresponding to the coordinated sites for nth interstitial.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n</span>
+<span class="sd">                Index of interstitials </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">blk_sites</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinated_sites</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">site_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+            <span class="n">blk_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_blk_struct</span><span class="p">[</span><span class="n">site_index</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">blk_sites</span>
+</div>
+<div class="viewcode-block" id="RelaxedInterstitial.get_coordinated_site_displacement"><a class="viewcode-back" href="../../../../pymatgen.analysis.defects.html#pymatgen.analysis.defects.point_defects.RelaxedInterstitial.get_coordinated_site_displacement">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinated_site_displacement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the total displacement of coordinated sites from the</span>
+<span class="sd">        interstitial sites during the relaxation</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            n:</span>
+<span class="sd">                Index  of defect site</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coord_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinated_sites</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">coord_blk_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coordinated_bulk_sites</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">dist_sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coord_sites</span><span class="p">)):</span>
+            <span class="n">dist_sum</span> <span class="o">+=</span> <span class="n">coord_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">distance_from_point</span><span class="p">(</span><span class="n">coord_blk_sites</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="c"># How to compute the average?</span>
+        <span class="k">return</span> <span class="n">dist_sum</span>
+
+</div>
+    <span class="k">def</span> <span class="nf">_coord_find</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        calls VoronoiCoordFinder to compute the coordination number,</span>
+<span class="sd">        coordination charge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defect_count</span><span class="p">()):</span>
+            <span class="n">struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">coord_finder</span> <span class="o">=</span> <span class="n">VoronoiCoordFinder</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coord_no</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_finder</span><span class="o">.</span><span class="n">get_coordination_number</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coord_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_finder</span><span class="o">.</span><span class="n">get_coordinated_sites</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">coord_chrg</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">coord_finder</span><span class="o">.</span><span class="n">get_voronoi_polyhedra</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">coord_chrg</span> <span class="o">+=</span> <span class="n">weight</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valence_dict</span><span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coord_charge_no</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_chrg</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_symmetry_reduced_voronoi_nodes</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Obtain symmetry reduced voronoi nodes using Zeo++ and </span>
+<span class="sd">    pymatgen.symmetry.finder.SymmetryFinder</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        strucutre:</span>
+<span class="sd">            pymatgen Structure object</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Symmetrically distinct voronoi nodes as pymatgen Strucutre</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vor_node_struct</span> <span class="o">=</span> <span class="n">get_voronoi_nodes</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">rad_dict</span><span class="p">)</span>
+    <span class="n">vor_symmetry_finder</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">vor_node_struct</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">)</span>
+    <span class="n">vor_symm_struct</span> <span class="o">=</span> <span class="n">vor_symmetry_finder</span><span class="o">.</span><span class="n">get_symmetrized_structure</span><span class="p">()</span>
+    <span class="c">#print vor_symm_struct.lattice</span>
+    <span class="c">#print vor_symm_struct.lattice.abc, vor_symm_struct.lattice.angles</span>
+    <span class="c">#print vor_node_struct.lattice</span>
+    <span class="c">#print vor_node_struct.lattice.abc, vor_node_struct.lattice.angles</span>
+    <span class="n">equiv_sites_list</span> <span class="o">=</span> <span class="n">vor_symm_struct</span><span class="o">.</span><span class="n">equivalent_sites</span>
+
+    <span class="k">def</span> <span class="nf">add_closest_equiv_site</span><span class="p">(</span><span class="n">dist_sites</span><span class="p">,</span> <span class="n">equiv_sites</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dist_sites</span><span class="p">:</span>
+            <span class="n">dist_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">equiv_sites</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">avg_dists</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">equiv_sites</span><span class="p">:</span>
+                <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">dst_site</span><span class="p">,</span> <span class="n">jimage</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                         <span class="k">for</span> <span class="n">dst_site</span> <span class="ow">in</span> <span class="n">dist_sites</span><span class="p">]</span>
+                <span class="n">avg_dist</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">dist_sites</span><span class="p">)</span>
+                <span class="n">avg_dists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">avg_dist</span><span class="p">)</span>
+
+            <span class="n">min_avg_dist</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">avg_dists</span><span class="p">)</span>
+            <span class="n">ind</span> <span class="o">=</span> <span class="n">avg_dists</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">min_avg_dist</span><span class="p">)</span>
+            <span class="n">dist_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">equiv_sites</span><span class="p">[</span><span class="n">ind</span><span class="p">])</span>
+
+    <span class="n">dist_sites</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">equiv_sites</span> <span class="ow">in</span> <span class="n">equiv_sites_list</span><span class="p">:</span>
+        <span class="n">add_closest_equiv_site</span><span class="p">(</span><span class="n">dist_sites</span><span class="p">,</span> <span class="n">equiv_sites</span><span class="p">)</span>
+
+    <span class="c">#lat = structure.lattice</span>
+    <span class="c">#sp = [site.specie for site in sites]   # &quot;Al&quot; because to Zeo++</span>
+    <span class="c">#coords = [site.coords for site in sites]</span>
+    <span class="c">#vor_node_radii = [site.properties[&#39;voronoi_radius&#39;] for site in sites]</span>
+    <span class="c">#vor_node_struct = Structure(lat, sp, coords, </span>
+    <span class="c">#        coords_are_cartesian=True, </span>
+    <span class="c">#        site_properties={&#39;voronoi_radius&#39;:vor_node_radii}</span>
+    <span class="c">#        )</span>
+    <span class="k">return</span> <span class="n">dist_sites</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

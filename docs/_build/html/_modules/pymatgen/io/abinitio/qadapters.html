@@ -1,0 +1,755 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pymatgen.io.abinitio.qadapters &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pymatgen.io.abinitio.qadapters</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Part of this code is based on a similar implementation present in FireWorks (https://pypi.python.org/pypi/FireWorks).</span>
+<span class="sd">Work done by D. Waroquiers, A. Jain, and M. Kocher.</span>
+
+<span class="sd">The main difference wrt the Fireworks implementation is that the QueueAdapter</span>
+<span class="sd">objects provide a programmatic interface for setting important attributes </span>
+<span class="sd">such as the number of MPI nodes, the number of OMP threads and the memory requirements.</span>
+<span class="sd">This programmatic interface is used by the `TaskManager` for optimizing the parameters</span>
+<span class="sd">of the run before submitting the job (Abinit provides the autoparal option that </span>
+<span class="sd">allows one to get a list of parallel configuration and their expected efficiency).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">getpass</span>
+
+<span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.abinitio.launcher</span> <span class="kn">import</span> <span class="n">ScriptEditor</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">is_string</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&quot;MpiRunner&quot;</span><span class="p">,</span>
+    <span class="s">&quot;qadapter_class&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    From https://gist.github.com/kirpit/1306188</span>
+
+<span class="sd">    Enables to run subprocess commands in a different thread with TIMEOUT option.</span>
+
+<span class="sd">    Based on jcollado&#39;s solution:</span>
+<span class="sd">    http://stackoverflow.com/questions/1191374/subprocess-with-timeout/4825933#4825933</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">output</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
+            <span class="kn">import</span> <span class="nn">shlex</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Run a command then return: (status, output, error). &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">returncode</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">traceback</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c"># default stdout and stderr</span>
+        <span class="k">if</span> <span class="s">&#39;stdout&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;stdout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PIPE</span>
+        <span class="k">if</span> <span class="s">&#39;stderr&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&#39;stderr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PIPE</span>
+        <span class="c"># thread</span>
+        <span class="kn">import</span> <span class="nn">threading</span>
+        <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">error</span>
+
+
+<div class="viewcode-block" id="MpiRunner"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.qadapters.MpiRunner">[docs]</a><span class="k">class</span> <span class="nc">MpiRunner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object provides an abstraction for the mpirunner provided </span>
+<span class="sd">    by the different MPI libraries. It&#39;s main task is handling the</span>
+<span class="sd">    different syntax and options supported by the different mpirunners.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+
+<div class="viewcode-block" id="MpiRunner.string_to_run"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.qadapters.MpiRunner.string_to_run">[docs]</a>    <span class="k">def</span> <span class="nf">string_to_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">mpi_ncpus</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">stdin</span> <span class="o">=</span> <span class="s">&quot;&lt; &quot;</span> <span class="o">+</span> <span class="n">stdin</span> <span class="k">if</span> <span class="n">stdin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="s">&quot;&gt; &quot;</span> <span class="o">+</span> <span class="n">stdout</span> <span class="k">if</span> <span class="n">stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+        <span class="n">stderr</span> <span class="o">=</span> <span class="s">&quot;2&gt; &quot;</span> <span class="o">+</span> <span class="n">stderr</span> <span class="k">if</span> <span class="n">stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="s">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_mpirun</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="c"># TODO: better treatment of mpirun syntax.</span>
+                <span class="c">#se.add_line(&#39;$MPIRUN -n $MPI_NCPUS $EXECUTABLE &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR&#39;)</span>
+                <span class="n">num_opt</span> <span class="o">=</span> <span class="s">&quot;-n &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mpi_ncpus</span><span class="p">)</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">num_opt</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">])</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;type </span><span class="si">%s</span><span class="s"> is not supported!&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c">#assert mpi_ncpus == 1</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">executable</span><span class="p">,</span> <span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">cmd</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="MpiRunner.has_mpirun"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.qadapters.MpiRunner.has_mpirun">[docs]</a>    <span class="k">def</span> <span class="nf">has_mpirun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if we are running via mpirun, mpiexec ...&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+
+</div></div>
+<div class="viewcode-block" id="qadapter_class"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.qadapters.qadapter_class">[docs]</a><span class="k">def</span> <span class="nf">qadapter_class</span><span class="p">(</span><span class="n">qtype</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the concrete `Adapter` class from a string.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;shell&quot;</span><span class="p">:</span> <span class="n">ShellAdapter</span><span class="p">,</span>
+            <span class="s">&quot;slurm&quot;</span><span class="p">:</span> <span class="n">SlurmAdapter</span><span class="p">,</span>
+            <span class="s">&quot;pbs&quot;</span><span class="p">:</span> <span class="n">PbsAdapter</span><span class="p">,</span>
+            <span class="p">}[</span><span class="n">qtype</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+
+</div>
+<span class="k">class</span> <span class="nc">QueueAdapterError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error class for exceptions raise by QueueAdapter.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">AbstractQueueAdapter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The QueueAdapter is responsible for all interactions with a specific</span>
+<span class="sd">    queue management system. This includes handling all details of queue</span>
+<span class="sd">    script format as well as queue submission and management.</span>
+
+<span class="sd">    This is the Abstract base class defining the methods that </span>
+<span class="sd">    must be implemented by the concrete classes.</span>
+<span class="sd">    A user should extend this class with implementations that work on</span>
+<span class="sd">    specific queue systems.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
+
+    <span class="n">Error</span> <span class="o">=</span> <span class="n">QueueAdapterError</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qparams</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">setup</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">shell_env</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">omp_env</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> 
+                 <span class="n">pre_run</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">post_run</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mpi_runner</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            setup:</span>
+<span class="sd">                String or list of commands to execute during the initial setup.</span>
+<span class="sd">            modules:</span>
+<span class="sd">                String or list of modules to load before running the application.</span>
+<span class="sd">            shell_env:</span>
+<span class="sd">                Dictionary with the environment variables to export</span>
+<span class="sd">                before running the application.</span>
+<span class="sd">            omp_env:</span>
+<span class="sd">                Dictionary with the OpenMP variables.</span>
+<span class="sd">            pre_run:</span>
+<span class="sd">                String or list of commands to execute before launching the calculation.</span>
+<span class="sd">            post_run:</span>
+<span class="sd">                String or list of commands to execute once the calculation is completed.</span>
+<span class="sd">            mpi_runner:</span>
+<span class="sd">                Path to the MPI runner or `MpiRunner` instance. None if not used</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Make defensive copies so that we can change the values at runtime.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span> <span class="o">=</span> <span class="n">qparams</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">qparams</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">setup</span><span class="p">):</span>
+            <span class="n">setup</span> <span class="o">=</span> <span class="p">[</span><span class="n">setup</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup</span> <span class="o">=</span> <span class="n">setup</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">setup</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span> <span class="o">=</span> <span class="n">omp_env</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">omp_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">modules</span><span class="p">):</span>
+            <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">modules</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="n">modules</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">modules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shell_env</span> <span class="o">=</span> <span class="n">shell_env</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">shell_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span> <span class="o">=</span> <span class="n">mpi_runner</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mpi_runner</span><span class="p">,</span> <span class="n">MpiRunner</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span> <span class="o">=</span> <span class="n">MpiRunner</span><span class="p">(</span><span class="n">mpi_runner</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">pre_run</span><span class="p">):</span>
+            <span class="n">pre_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">pre_run</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pre_run</span> <span class="o">=</span> <span class="n">pre_run</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">pre_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">post_run</span><span class="p">):</span>
+            <span class="n">post_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">post_run</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_run</span> <span class="o">=</span> <span class="n">post_run</span><span class="p">[:]</span> <span class="k">if</span> <span class="n">post_run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="c"># Parse the template so that we know the list of supported options.</span>
+        <span class="n">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="s">&quot;QTEMPLATE&quot;</span><span class="p">):</span> 
+            <span class="c"># Consistency check.</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_qparams</span><span class="p">:</span>
+                    <span class="n">err_msg</span> <span class="o">+=</span> <span class="s">&quot;Unsupported QUEUE parameter name </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="n">param</span>
+
+            <span class="k">if</span> <span class="n">err_msg</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supported_qparams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dictionary with the supported parameters that can be passed to the </span>
+<span class="sd">        queue manager (obtained by parsing QTEMPLATE).</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supported_qparams</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">re</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_supported_qparams</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;\$\$\{(\w+)\}&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">QTEMPLATE</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supported_qparams</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_mpirun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if we are using a mpirunner&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_omp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if we are using OpenMP threads&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&quot;omp_env&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;omp_env&quot;</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tot_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Total number of CPUs employed&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_ncpus</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_ncpus</span> 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">omp_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of OpenMP threads.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_omp</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">[</span><span class="s">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="nd">@abc.abstractproperty</span>
+    <span class="k">def</span> <span class="nf">mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of CPUs used for MPI.&quot;&quot;&quot;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">set_mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_ncpus</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
+
+    <span class="c">#@abc.abstractproperty</span>
+    <span class="c">#def queue_walltime(self):</span>
+    <span class="c">#    &quot;&quot;&quot;Returns the walltime in seconds.&quot;&quot;&quot;</span>
+
+    <span class="c">#@abc.abstractmethod</span>
+    <span class="c">#def set_queue_walltime(self):</span>
+    <span class="c">#    &quot;&quot;&quot;Set the walltime in seconds.&quot;&quot;&quot;</span>
+
+    <span class="c">#@abc.abstractproperty</span>
+    <span class="c">#def mem_per_cpu(self):</span>
+    <span class="c">#    &quot;&quot;&quot;The memory per CPU in Megabytes.&quot;&quot;&quot;</span>
+                                                
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the memory per CPU in Megabytes&quot;&quot;&quot;</span>
+
+    <span class="c">#@property</span>
+    <span class="c">#def tot_mem(self):</span>
+    <span class="c">#    &quot;&quot;&quot;Total memory required by the job n Megabytes.&quot;&quot;&quot;</span>
+    <span class="c">#    return self.mem_per_cpu * self.mpi_ncpus</span>
+
+    <span class="k">def</span> <span class="nf">_make_qheader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">qout_path</span><span class="p">,</span> <span class="n">qerr_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a string with the options that are passed to the resource manager.&quot;&quot;&quot;</span>
+        <span class="n">qtemplate</span> <span class="o">=</span> <span class="n">QScriptTemplate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">QTEMPLATE</span><span class="p">)</span>
+
+        <span class="c"># set substitution dict for replacements into the template and clean null values</span>
+        <span class="n">subs_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">}</span>  
+
+        <span class="c"># Set job_name and the names for the stderr and stdout of the </span>
+        <span class="c"># queue manager (note the use of the extensions .qout and .qerr</span>
+        <span class="c"># so that we can easily locate this file.</span>
+        <span class="n">subs_dict</span><span class="p">[</span><span class="s">&#39;job_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">job_name</span> 
+        <span class="n">subs_dict</span><span class="p">[</span><span class="s">&#39;_qout_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qout_path</span>
+        <span class="n">subs_dict</span><span class="p">[</span><span class="s">&#39;_qerr_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qerr_path</span>
+
+        <span class="c"># might contain unused parameters as leftover $$.</span>
+        <span class="n">unclean_template</span> <span class="o">=</span> <span class="n">qtemplate</span><span class="o">.</span><span class="n">safe_substitute</span><span class="p">(</span><span class="n">subs_dict</span><span class="p">)</span>  
+
+        <span class="c"># Remove lines with leftover $$.</span>
+        <span class="n">clean_template</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">unclean_template</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s">&#39;$$&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">clean_template</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clean_template</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_script_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">launch_dir</span><span class="p">,</span> <span class="n">executable</span><span class="p">,</span> <span class="n">qout_path</span><span class="p">,</span> <span class="n">qerr_path</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a (multi-line) String representing the queue script, e.g. PBS script.</span>
+<span class="sd">        Uses the template_file along with internal parameters to create the script.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            launch_dir: </span>
+<span class="sd">                (str) The directory the job will be launched in.</span>
+<span class="sd">            qout_path</span>
+<span class="sd">                Path of the Queue manager output file.</span>
+<span class="sd">            qerr_path:</span>
+<span class="sd">                Path of the Queue manager error file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Construct the header for the Queue Manager.</span>
+        <span class="n">qheader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_qheader</span><span class="p">(</span><span class="n">job_name</span><span class="p">,</span> <span class="n">qout_path</span><span class="p">,</span> <span class="n">qerr_path</span><span class="p">)</span>
+
+        <span class="c"># Add the bash section.</span>
+        <span class="n">se</span> <span class="o">=</span> <span class="n">ScriptEditor</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">:</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Setup section&quot;</span><span class="p">)</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Load Modules&quot;</span><span class="p">)</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s">&quot;module purge&quot;</span><span class="p">)</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_omp</span><span class="p">:</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;OpenMp Environment&quot;</span><span class="p">)</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">declare_vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shell_env</span><span class="p">:</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Shell Environment&quot;</span><span class="p">)</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">declare_vars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shell_env</span><span class="p">)</span>
+
+        <span class="c"># Cd to launch_dir</span>
+        <span class="n">se</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s">&quot;cd &quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">launch_dir</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_run</span><span class="p">:</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Commands before execution&quot;</span><span class="p">)</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_run</span><span class="p">)</span>
+
+        <span class="c"># Construct the string to run the executable with MPI and mpi_ncpus.</span>
+        <span class="n">mpi_ncpus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_ncpus</span>
+
+        <span class="n">line</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_runner</span><span class="o">.</span><span class="n">string_to_run</span><span class="p">(</span><span class="n">executable</span><span class="p">,</span> <span class="n">mpi_ncpus</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">stdin</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">se</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_run</span><span class="p">:</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Commands after execution&quot;</span><span class="p">)</span>
+            <span class="n">se</span><span class="o">.</span><span class="n">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">post_run</span><span class="p">)</span>
+
+        <span class="n">shell_text</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">get_script_str</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">qheader</span> <span class="o">+</span> <span class="n">shell_text</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Submits the job to the queue, probably using subprocess or shutil</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            script_file: </span>
+<span class="sd">                (str) name of the script file to use (String)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            process, queue_id</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@abc.abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        returns the number of jobs in the queue, probably using subprocess or shutil to</span>
+<span class="sd">        call a command like &#39;qstat&#39;. returns None when the number of jobs cannot be determined.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            username: (str) the username of the jobs to count (default is to autodetect)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<span class="c">####################</span>
+<span class="c"># Concrete classes #</span>
+<span class="c">####################</span>
+
+<span class="k">class</span> <span class="nc">ShellAdapter</span><span class="p">(</span><span class="n">AbstractQueueAdapter</span><span class="p">):</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s">&quot;shell&quot;</span>
+
+    <span class="n">QTEMPLATE</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">#!/bin/bash</span>
+
+<span class="s">export MPI_NCPUS=$${MPI_NCPUS}</span>
+
+<span class="s">&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of CPUs used for MPI.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;MPI_NCPUS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                                                    
+    <span class="k">def</span> <span class="nf">set_mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_ncpus</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;MPI_NCPUS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_ncpus</span>
+
+    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;mem_per_cpu is not available in ShellAdapter.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">script_file</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&#39;Cannot find script file located at: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">script_file</span><span class="p">))</span>
+
+        <span class="c"># submit the job</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">((</span><span class="s">&quot;/bin/bash&quot;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">),</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">queue_id</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">pid</span>
+            <span class="k">return</span> <span class="n">process</span><span class="p">,</span> <span class="n">queue_id</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c"># random error</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&quot;Random Error ...!&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+
+<span class="k">class</span> <span class="nc">SlurmAdapter</span><span class="p">(</span><span class="n">AbstractQueueAdapter</span><span class="p">):</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s">&quot;slurm&quot;</span>
+
+    <span class="n">QTEMPLATE</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">#!/bin/bash</span>
+
+<span class="s">#SBATCH --ntasks=$${ntasks}</span>
+<span class="s">#SBATCH --ntasks-per-node=$${ntasks_per_node}</span>
+<span class="s">#SBATCH --cpus-per-task=$${cpus_per_task}</span>
+<span class="s">#SBATCH --time=$${time}</span>
+<span class="s">#SBATCH --partition=$${partition}</span>
+<span class="s">#SBATCH --account=$${account}</span>
+<span class="s">#SBATCH --job-name=$${job_name}</span>
+<span class="s">#SBATCH	--nodes=$${nodes}</span>
+<span class="s">#SBATCH --mem=$${mem}</span>
+<span class="s">#SBATCH --mem-per-cpu=$${mem_per_cpu}</span>
+<span class="s">#SBATCH --mail-user=$${mail_user}</span>
+<span class="s">#SBATCH --mail-type=$${mail_type}</span>
+<span class="s">#SBATCH --constraint=$${constraint}</span>
+<span class="s">#SBATCH --gres=$${gres}</span>
+<span class="s">#SBATCH --requeue=$${requeue}</span>
+<span class="s">#SBATCH --nodelist=$${nodelist}</span>
+<span class="s">#SBATCH --propagate=$${propagate}</span>
+
+<span class="s">#SBATCH --output=$${_qerr_path}</span>
+<span class="s">#SBATCH --error=$${_qout_path}</span>
+
+<span class="s">&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of CPUs used for MPI.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ntasks&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_ncpus</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;ntasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_ncpus</span>
+
+    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the memory per CPU in Megabytes&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;mem_per_cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem_mb</span>
+        <span class="c"># Remove mem if it&#39;s defined.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;mem&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">script_file</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&#39;Cannot find script file located at: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">script_file</span><span class="p">))</span>
+
+        <span class="c"># submit the job</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;sbatch&#39;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">]</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+            <span class="c"># grab the returncode. SLURM returns 0 if the job was successful</span>
+            <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c"># output should of the form &#39;2561553.sdb&#39; or &#39;352353.jessup&#39; - just grab the first part for job id</span>
+                    <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">])</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Job submission was successful and queue_id is {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">queue_id</span><span class="p">))</span>
+
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="c"># probably error parsing job code</span>
+                    <span class="n">queue_id</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&#39;Could not parse job id following slurm...&#39;</span><span class="p">)</span>
+
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">process</span><span class="p">,</span> <span class="n">queue_id</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># some qsub error, e.g. maybe wrong queue specified, don&#39;t have permission to submit, etc...</span>
+                <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Error in job submission with SLURM file {f} and cmd {c}</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">script_file</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">cmd</span><span class="p">)</span> <span class="o">+</span> 
+                           <span class="s">&quot;The error response reads: {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+                <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c"># random error, e.g. no qsub on machine!</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&#39;Running sbatch caused an error...&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
+
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;squeue&#39;</span><span class="p">,</span> <span class="s">&#39;-o &quot;</span><span class="si">%u</span><span class="s">&quot;&#39;</span><span class="p">,</span> <span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">]</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+        <span class="c"># parse the result</span>
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># lines should have this form</span>
+            <span class="c"># username</span>
+            <span class="c"># count lines that include the username in it</span>
+
+            <span class="n">outs</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="n">njobs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">outs</span> <span class="k">if</span> <span class="n">username</span> <span class="ow">in</span> <span class="n">line</span><span class="p">])</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;The number of jobs currently in the queue is: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">njobs</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">njobs</span>
+
+        <span class="c"># there&#39;s a problem talking to squeue server?</span>
+        <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Error trying to get the number of jobs in the queue using squeue service&#39;</span> <span class="o">+</span> 
+                   <span class="s">&#39;The error response reads: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">None</span>
+
+
+<span class="k">class</span> <span class="nc">PbsAdapter</span><span class="p">(</span><span class="n">AbstractQueueAdapter</span><span class="p">):</span>
+    <span class="n">QTYPE</span> <span class="o">=</span> <span class="s">&quot;pbs&quot;</span>
+
+    <span class="n">QTEMPLATE</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">#!/bin/bash</span>
+
+<span class="s">#PBS -A $${account}</span>
+<span class="s">#PBS -l walltime=$${walltime}</span>
+<span class="s">#PBS -q $${queue}</span>
+<span class="s">#PBS -l mppwidth=$${mppwidth}</span>
+<span class="s">#PBS -l nodes=$${nodes}:ppn=$${ppn}</span>
+<span class="s">#PBS -N $${job_name}</span>
+<span class="s">#PBS -o $${_qerr_path}</span>
+<span class="s">#PBS -e $${_qout_path}</span>
+
+<span class="s">&quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of CPUs used for MPI.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;nodes&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ppn&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                                                    
+    <span class="k">def</span> <span class="nf">set_mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_ncpus</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s">&quot;ppn&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;ppn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">ppnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ppn&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_ncpus</span> <span class="o">//</span> <span class="n">ppnode</span> 
+
+    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the memory per CPU in Megabytes&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+        <span class="c">#self.qparams[&quot;mem_per_cpu&quot;] = mem_mb</span>
+        <span class="c">## Remove mem if it&#39;s defined.</span>
+        <span class="c">#self.qparams.pop(&quot;mem&quot;, None)</span>
+
+    <span class="k">def</span> <span class="nf">submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">script_file</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&#39;Cannot find script file located at: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">script_file</span><span class="p">))</span>
+
+        <span class="c"># submit the job</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;qsub&#39;</span><span class="p">,</span> <span class="n">scriprocesst_file</span><span class="p">]</span>
+            <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+            <span class="c"># grab the returncode. PBS returns 0 if the job was successful</span>
+            <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c"># output should of the form &#39;2561553.sdb&#39; or &#39;352353.jessup&#39; - just grab the first part for job id</span>
+                    <span class="n">queue_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Job submission was successful and queue_id is {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">queue_id</span><span class="p">))</span>
+
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="c"># probably error parsing job code</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Could not parse job id following qsub...&quot;</span><span class="p">)</span>
+                    <span class="n">queue_id</span> <span class="o">=</span> <span class="bp">None</span>
+
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">process</span><span class="p">,</span> <span class="n">queue_id</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># some qsub error, e.g. maybe wrong queue specified, don&#39;t have permission to submit, etc...</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Error in job submission with PBS file {f} and cmd {c}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">script_file</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">cmd</span><span class="p">)</span> <span class="o">+</span> 
+                      <span class="s">&#39;The error response reads: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c"># random error, e.g. no qsub on machine!</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&quot;Running qsub caused an error...&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">get_njobs_in_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c"># Initialize username</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">username</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getuser</span><span class="p">()</span>
+
+        <span class="c"># run qstat</span>
+        <span class="n">qstat</span> <span class="o">=</span> <span class="n">Command</span><span class="p">([</span><span class="s">&#39;qstat&#39;</span><span class="p">,</span> <span class="s">&#39;-a&#39;</span><span class="p">,</span> <span class="s">&#39;-u&#39;</span><span class="p">,</span> <span class="n">username</span><span class="p">])</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">qstat</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="c"># parse the result</span>
+        <span class="k">if</span> <span class="n">process</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># lines should have this form</span>
+            <span class="c"># &#39;1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09&#39;</span>
+            <span class="c"># count lines that include the username in it</span>
+
+            <span class="c"># TODO: only count running or queued jobs. or rather, *don&#39;t* count jobs that are &#39;C&#39;.</span>
+            <span class="n">outs</span> <span class="o">=</span> <span class="n">process</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+            <span class="n">njobs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">outs</span> <span class="k">if</span> <span class="n">username</span> <span class="ow">in</span> <span class="n">line</span><span class="p">])</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;The number of jobs currently in the queue is: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">njobs</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">njobs</span>
+
+        <span class="c"># there&#39;s a problem talking to qstat server?</span>
+        <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Error trying to get the number of jobs in the queue using qstat service</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> 
+                   <span class="s">&#39;The error response reads: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">None</span>
+
+
+<span class="k">class</span> <span class="nc">QScriptTemplate</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">Template</span><span class="p">):</span>
+    <span class="n">delimiter</span> <span class="o">=</span> <span class="s">&#39;$$&#39;</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../../index.html">pymatgen 2.8.8 documentation</a> &raquo;</li>
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

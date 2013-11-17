@@ -1,0 +1,826 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>alchemy Package &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="alchemy-package">
+<h1>alchemy Package<a class="headerlink" href="#alchemy-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">alchemy</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pymatgen.alchemy"></span><p>This package provides the modules for performing large scale transformations on
+a large number of structures.</p>
+</div>
+<div class="section" id="module-pymatgen.alchemy.filters">
+<span id="filters-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">filters</span></tt> Module<a class="headerlink" href="#module-pymatgen.alchemy.filters" title="Permalink to this headline">¶</a></h2>
+<p>This module defines filters for Transmuter object.</p>
+<dl class="class">
+<dt id="pymatgen.alchemy.filters.AbstractStructureFilter">
+<em class="property">class </em><tt class="descname">AbstractStructureFilter</tt><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#AbstractStructureFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Abstract structure filter class.</p>
+<dl class="classmethod">
+<dt id="pymatgen.alchemy.filters.AbstractStructureFilter.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#AbstractStructureFilter.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.AbstractStructureFilter.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.filters.AbstractStructureFilter.test">
+<tt class="descname">test</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#AbstractStructureFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.AbstractStructureFilter.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a boolean for any structure. Structures that return true are
+kept in the Transmuter object during filtering.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.alchemy.filters.ChargeBalanceFilter">
+<em class="property">class </em><tt class="descname">ChargeBalanceFilter</tt><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ChargeBalanceFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ChargeBalanceFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="pymatgen.alchemy.filters.AbstractStructureFilter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.alchemy.filters.AbstractStructureFilter</span></tt></a></p>
+<p>This filter removes structures that are not charge balanced from the
+transmuter. This only works if the structure is oxidation state
+decorated, as structures with only elemental sites are automatically
+assumed to have net charge of 0.</p>
+<dl class="method">
+<dt id="pymatgen.alchemy.filters.ChargeBalanceFilter.test">
+<tt class="descname">test</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ChargeBalanceFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ChargeBalanceFilter.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.filters.ChargeBalanceFilter.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ChargeBalanceFilter.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ChargeBalanceFilter.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.alchemy.filters.ContainsSpecieFilter">
+<em class="property">class </em><tt class="descname">ContainsSpecieFilter</tt><big>(</big><em>species</em>, <em>strict_compare=False</em>, <em>AND=True</em>, <em>exclude=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ContainsSpecieFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ContainsSpecieFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="pymatgen.alchemy.filters.AbstractStructureFilter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.alchemy.filters.AbstractStructureFilter</span></tt></a></p>
+<p>Filter for structures containing certain elements or species.
+By default compares by atomic number</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>species:</dt>
+<dd>list of species to look for</dd>
+<dt>AND:</dt>
+<dd>whether all species must be present to pass (or fail)
+filter.</dd>
+<dt>strict_compare:</dt>
+<dd>if true, compares objects by specie or element object
+if false, compares atomic number</dd>
+<dt>exclude:</dt>
+<dd>if true, returns false for any structures with the specie
+(excludes them from the Transmuter)</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.alchemy.filters.ContainsSpecieFilter.test">
+<tt class="descname">test</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ContainsSpecieFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ContainsSpecieFilter.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.filters.ContainsSpecieFilter.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#ContainsSpecieFilter.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.ContainsSpecieFilter.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.alchemy.filters.RemoveDuplicatesFilter">
+<em class="property">class </em><tt class="descname">RemoveDuplicatesFilter</tt><big>(</big><em>structure_matcher=&lt;pymatgen.analysis.structure_matcher.StructureMatcher object at 0x106436890&gt;</em>, <em>symprec=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveDuplicatesFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="pymatgen.alchemy.filters.AbstractStructureFilter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.alchemy.filters.AbstractStructureFilter</span></tt></a></p>
+<p>This filter removes exact duplicate structures from the transmuter.</p>
+<p>Remove duplicate structures based on the structure matcher
+and symmetry (if symprec is given).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure_matcher:</dt>
+<dd>Provides a structure matcher to be used for structure
+comparison.</dd>
+<dt>symprec:</dt>
+<dd>The precision in the symmetry finder algorithm
+if None (default value), no symmetry check is performed and
+only the structure matcher is used. A recommended value is 1e-5</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.alchemy.filters.RemoveDuplicatesFilter.test">
+<tt class="descname">test</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveDuplicatesFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.filters.RemoveDuplicatesFilter.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveDuplicatesFilter.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.alchemy.filters.SpecieProximityFilter">
+<em class="property">class </em><tt class="descname">SpecieProximityFilter</tt><big>(</big><em>specie_and_min_dist_dict</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#SpecieProximityFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.SpecieProximityFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="pymatgen.alchemy.filters.AbstractStructureFilter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.alchemy.filters.AbstractStructureFilter</span></tt></a></p>
+<p>This filter removes structures that have certain species that are too close
+together.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>specie_and_min_dist_dict:</dt>
+<dd>A species string to float mapping. For example, {&#8220;Na+&#8221;: 1}
+means that all Na+ ions must be at least 1 Angstrom away from
+each other. Multiple species criteria can be applied. Note that
+the testing is done based on the actual object. If you have a
+structure with Element, you must use {&#8220;Na&#8221;:1} instead to filter
+based on Element and not Specie.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.alchemy.filters.SpecieProximityFilter.test">
+<tt class="descname">test</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#SpecieProximityFilter.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.SpecieProximityFilter.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.filters.SpecieProximityFilter.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#SpecieProximityFilter.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.SpecieProximityFilter.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.alchemy.materials">
+<span id="materials-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">materials</span></tt> Module<a class="headerlink" href="#module-pymatgen.alchemy.materials" title="Permalink to this headline">¶</a></h2>
+<p>This module provides various representations of transformed structures. A
+TransformedStructure is a structure that has been modified by undergoing a
+series of transformations.</p>
+<dl class="class">
+<dt id="pymatgen.alchemy.materials.TransformedStructure">
+<em class="property">class </em><tt class="descname">TransformedStructure</tt><big>(</big><em>structure</em>, <em>transformations=None</em>, <em>history=None</em>, <em>other_parameters=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Container object for new structures that include history of
+transformations.</p>
+<p>Each transformed structure is made up of a sequence of structures with
+associated transformation history.</p>
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.append_filter">
+<tt class="descname">append_filter</tt><big>(</big><em>structure_filter</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.append_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a transformation parameter to the last transformation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.append_transformation">
+<tt class="descname">append_transformation</tt><big>(</big><em>transformation</em>, <em>return_alternatives=False</em>, <em>clear_redo=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.append_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.append_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a transformation to the TransformedStructure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>transformation:</dt>
+<dd>Transformation to append</dd>
+<dt>return_alternatives:</dt>
+<dd>Whether to return alternative TransformedStructures for
+one-to-many transformations. return_alternatives can be a
+number, which stipulates the total number of structures to
+return.</dd>
+<dt>clear_redo:</dt>
+<dd>Boolean indicating whether to clear the redo list. By default,
+this is True, meaning any appends clears the history of
+undoing. However, when using append_transformation to do a
+redo, the redo list should not be cleared to allow multiple
+redos.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.extend_transformations">
+<tt class="descname">extend_transformations</tt><big>(</big><em>transformations</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.extend_transformations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.extend_transformations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends a sequence of transformations to the TransformedStructure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>transformations:</dt>
+<dd>Sequence of Transformations</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_cif_string">
+<em class="property">static </em><tt class="descname">from_cif_string</tt><big>(</big><em>cif_string</em>, <em>transformations=None</em>, <em>primitive=True</em>, <em>occupancy_tolerance=1.0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_cif_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_cif_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates TransformedStructure from a cif string.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>cif_string:</dt>
+<dd>Input cif string. Should contain only one structure. For cifs
+containing multiple structures, please use CifTransmuter.</dd>
+<dt>transformations:</dt>
+<dd>Sequence of transformations to be applied to the input
+structure.</dd>
+<dt>primitive:</dt>
+<dd>Option to set if the primitive cell should be extracted.
+Defaults to True. However, there are certain instances where
+you might want to use a non-primitive cell, e.g., if you are
+trying to generate all possible orderings of partial removals
+or order a disordered structure.</dd>
+<dt>occupancy_tolerance:</dt>
+<dd>If total occupancy of a site is between 1 and
+occupancy_tolerance, the occupancies will be scaled down to 1.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a TransformedStructure from a dict.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_poscar_string">
+<em class="property">static </em><tt class="descname">from_poscar_string</tt><big>(</big><em>poscar_string</em>, <em>transformations=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_poscar_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_poscar_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates TransformedStructure from a poscar string.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>poscar_string:</dt>
+<dd>Input POSCAR string.</dd>
+<dt>transformations:</dt>
+<dd>Sequence of transformations to be applied to the input
+structure.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.from_snl">
+<em class="property">classmethod </em><tt class="descname">from_snl</tt><big>(</big><em>snl</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.from_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.from_snl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create TransformedStructure from SNL.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>snl:</dt>
+<dd>Starting snl</dd>
+<dt>copy_metadata:</dt>
+<dd>update the authors, projects, references, and remarks
+in the last history node with the metadata at the
+root of the SNL object</dd>
+<dt>copy_data:</dt>
+<dd>copy the contents of snl.data into the last history
+node</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>TransformedStructure.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.get_vasp_input">
+<tt class="descname">get_vasp_input</tt><big>(</big><em>vasp_input_set</em>, <em>generate_potcar=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.get_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.get_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns VASP input as a dict of vaspio objects.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>vasp_input_set:</dt>
+<dd>pymatgen.io.vaspio_set.VaspInputSet like object that creates
+vasp input files from structures</dd>
+<dt>generate_potcar:</dt>
+<dd>Set to False to generate a POTCAR.spec file instead of a
+POTCAR, which contains the POTCAR labels but not the actual
+POTCAR. Defaults to True.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.redo_next_change">
+<tt class="descname">redo_next_change</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.redo_next_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.redo_next_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redo the last undone change in the TransformedStructure.</p>
+<dl class="docutils">
+<dt>Raises:</dt>
+<dd>IndexError if already at the latest change.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.set_parameter">
+<tt class="descname">set_parameter</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.set_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.set_parameter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.structures">
+<tt class="descname">structures</tt><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a copy of all structures in the TransformedStructure. A
+structure is stored after every single transformation.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict representation of the TransformedStructure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.to_snl">
+<tt class="descname">to_snl</tt><big>(</big><em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>created_at=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.to_snl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.to_snl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.undo_last_change">
+<tt class="descname">undo_last_change</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.undo_last_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.undo_last_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undo the last change in the TransformedStructure.</p>
+<dl class="docutils">
+<dt>Raises:</dt>
+<dd>IndexError if already at the oldest change.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.was_modified">
+<tt class="descname">was_modified</tt><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.was_modified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.was_modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean describing whether the last transformation on the structure
+made any alterations to it one example of when this would return false
+is in the case of performing a substitution transformation on the
+structure when the specie to replace isn&#8217;t in the structure.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.materials.TransformedStructure.write_vasp_input">
+<tt class="descname">write_vasp_input</tt><big>(</big><em>vasp_input_set</em>, <em>output_dir</em>, <em>create_directory=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/materials.html#TransformedStructure.write_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.materials.TransformedStructure.write_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes VASP input to an output_dir.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>vasp_input_set:</dt>
+<dd>pymatgen.io.vaspio_set.VaspInputSet like object that creates
+vasp input files from structures</dd>
+<dt>output_dir:</dt>
+<dd>Directory to output files</dd>
+<dt>create_directory:</dt>
+<dd>Create the directory if not present. Defaults to True.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.alchemy.transmuters">
+<span id="transmuters-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">transmuters</span></tt> Module<a class="headerlink" href="#module-pymatgen.alchemy.transmuters" title="Permalink to this headline">¶</a></h2>
+<p>This module implements various transmuter classes.
+Transmuters are essentially classes that generate TransformedStructures from
+various data sources. They enable the high-throughput generation of new
+structures and input files.</p>
+<p>It also includes the helper function, batch_write_vasp_input to generate an
+entire directory of vasp input files for running.</p>
+<dl class="class">
+<dt id="pymatgen.alchemy.transmuters.CifTransmuter">
+<em class="property">class </em><tt class="descname">CifTransmuter</tt><big>(</big><em>cif_string</em>, <em>transformations=None</em>, <em>primitive=True</em>, <em>extend_collection=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#CifTransmuter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.CifTransmuter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.alchemy.transmuters.StandardTransmuter</span></tt></a></p>
+<p>Generates a Transmuter from a cif string, possibly containing multiple
+structures.</p>
+<p>Generates a Transmuter from a cif string, possibly
+containing multiple structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>cif_string:</dt>
+<dd>A string containing a cif or a series of cifs</dd>
+<dt>transformations:</dt>
+<dd>New transformations to be applied to all structures</dd>
+<dt>primitive:</dt>
+<dd>Whether to generate the primitive cell from the cif.</dd>
+<dt>extend_collection:</dt>
+<dd>Whether to use more than one output structure from one-to-many
+transformations.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.alchemy.transmuters.CifTransmuter.from_filenames">
+<em class="property">static </em><tt class="descname">from_filenames</tt><big>(</big><em>filenames</em>, <em>transformations=None</em>, <em>primitive=True</em>, <em>extend_collection=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#CifTransmuter.from_filenames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.CifTransmuter.from_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a TransformedStructureCollection from a cif, possibly
+containing multiple structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>filenames:</dt>
+<dd>List of strings of the cif files</dd>
+<dt>transformations:</dt>
+<dd>New transformations to be applied to all structures</dd>
+<dt>primitive:</dt>
+<dd>Whether to generate the primitive cell from the cif.</dd>
+<dt>extend_collection:</dt>
+<dd>Whether to use more than one output structure from one-to-many
+transformations.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.alchemy.transmuters.PoscarTransmuter">
+<em class="property">class </em><tt class="descname">PoscarTransmuter</tt><big>(</big><em>poscar_string</em>, <em>transformations=None</em>, <em>extend_collection=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#PoscarTransmuter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.PoscarTransmuter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="pymatgen.alchemy.transmuters.StandardTransmuter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.alchemy.transmuters.StandardTransmuter</span></tt></a></p>
+<p>Generates a transmuter from a sequence of POSCARs.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>poscar_string:</dt>
+<dd>List of POSCAR strings</dd>
+<dt>transformations:</dt>
+<dd>New transformations to be applied to all structures.</dd>
+<dt>extend_collection:</dt>
+<dd>Whether to use more than one output structure from one-to-many
+transformations.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="staticmethod">
+<dt id="pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames">
+<em class="property">static </em><tt class="descname">from_filenames</tt><big>(</big><em>poscar_filenames</em>, <em>transformations=None</em>, <em>extend_collection=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#PoscarTransmuter.from_filenames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.PoscarTransmuter.from_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenient constructor to generates a POSCAR transmuter from a list of
+POSCAR filenames.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>poscar_filenames:</dt>
+<dd>List of POSCAR filenames</dd>
+<dt>transformations:</dt>
+<dd>New transformations to be applied to all structures.</dd>
+<dt>extend_collection:</dt>
+<dd>Whether to use more than one output structure from one-to-many
+transformations.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter">
+<em class="property">class </em><tt class="descname">StandardTransmuter</tt><big>(</big><em>transformed_structures</em>, <em>transformations=None</em>, <em>extend_collection=0</em>, <em>ncores=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>An example of a Transmuter object, which performs a sequence of
+transformations on many structures to generate TransformedStructures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>transformed_structures:</dt>
+<dd>Input transformed structures</dd>
+<dt>transformations:</dt>
+<dd>New transformations to be applied to all structures</dd>
+<dt>extend_collection:</dt>
+<dd>Whether to use more than one output structure from one-to-many
+transformations. extend_collection can be a number, which
+determines the maximum branching for each transformation.</dd>
+<dt>ncores:</dt>
+<dd>Number of cores to use for applying transformations.
+Uses multiprocessing.Pool</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.add_tags">
+<tt class="descname">add_tags</tt><big>(</big><em>tags</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.add_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.add_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add tags for the structures generated by the transmuter.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>tags:</dt>
+<dd>A sequence of tags. Note that this should be a sequence of
+strings, e.g., [&#8220;My awesome structures&#8221;, &#8220;Project X&#8221;].</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation">
+<tt class="descname">append_transformation</tt><big>(</big><em>transformation</em>, <em>extend_collection=False</em>, <em>clear_redo=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.append_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a transformation to all TransformedStructures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>transformation:</dt>
+<dd>Transformation to append</dd>
+<dt>extend_collection:</dt>
+<dd>Whether to use more than one output structure from one-to-many
+transformations. extend_collection can be a number, which
+determines the maximum branching for each transformation.</dd>
+<dt>clear_redo:</dt>
+<dd>Boolean indicating whether to clear the redo list. By default,
+this is True, meaning any appends clears the history of
+undoing. However, when using append_transformation to do a
+redo, the redo list should not be cleared to allow multiple
+redos.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>List of booleans corresponding to initial transformed structures
+each boolean describes whether the transformation altered the
+structure</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures">
+<tt class="descname">append_transformed_structures</tt><big>(</big><em>tstructs_or_transmuter</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.append_transformed_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.append_transformed_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method is overloaded to accept either a list of transformed structures
+or transmuter, it which case it appends the second transmuter&#8221;s
+structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>tstructs_or_transmuter:</dt>
+<dd>A list of transformed structures or a transmuter.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter">
+<tt class="descname">apply_filter</tt><big>(</big><em>structure_filter</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.apply_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.apply_filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a structure_filter to the list of TransformedStructures
+in the transmuter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations">
+<tt class="descname">extend_transformations</tt><big>(</big><em>transformations</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.extend_transformations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.extend_transformations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extends a sequence of transformations to the TransformedStructure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>transformations:</dt>
+<dd>Sequence of Transformations</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.from_structures">
+<em class="property">static </em><tt class="descname">from_structures</tt><big>(</big><em>structures</em>, <em>transformations=None</em>, <em>extend_collection=0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.from_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.from_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alternative constructor from structures rather than
+TransformedStructures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structures:</dt>
+<dd>Sequence of structures</dd>
+<dt>transformations:</dt>
+<dd>New transformations to be applied to all structures</dd>
+<dt>extend_collection:</dt>
+<dd>Whether to use more than one output structure from one-to-many
+transformations. extend_collection can be a number, which
+determines the maximum branching for each transformation.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>StandardTransmuter</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.get_transformed_structures">
+<tt class="descname">get_transformed_structures</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.get_transformed_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.get_transformed_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all TransformedStructures.</p>
+<div class="deprecated">
+<p><span>Deprecated since version v2.1.0: </span>Use transformed_structures attribute instead. Will be removed in
+next version.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change">
+<tt class="descname">redo_next_change</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.redo_next_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.redo_next_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redo the last undone transformation in the TransformedStructure.</p>
+<dl class="docutils">
+<dt>Raises:</dt>
+<dd>IndexError if already at the latest change.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter">
+<tt class="descname">set_parameter</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.set_parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.set_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add parameters to the transmuter. Additional parameters are stored in
+the to_dict output.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>key:</dt>
+<dd>The key for the parameter.</dd>
+<dt>value:</dt>
+<dd>The value for the parameter.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change">
+<tt class="descname">undo_last_change</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.undo_last_change"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.undo_last_change" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undo the last transformation in the TransformedStructure.</p>
+<dl class="docutils">
+<dt>Raises:</dt>
+<dd>IndexError if already at the oldest change.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input">
+<tt class="descname">write_vasp_input</tt><big>(</big><em>vasp_input_set</em>, <em>output_dir</em>, <em>create_directory=True</em>, <em>subfolder=None</em>, <em>include_cif=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.write_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.write_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch write vasp input for a sequence of transformed structures to
+output_dir, following the format output_dir/{formula}_{number}.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>vasp_input_set:</dt>
+<dd>pymatgen.io.vaspio_set.VaspInputSet like object that creates
+vasp input files from structures</dd>
+<dt>output_dir:</dt>
+<dd>Directory to output files</dd>
+<dt>create_directory:</dt>
+<dd>Create the directory if not present. Defaults to True.</dd>
+<dt>subfolder:</dt>
+<dd>function to create subdirectory name from
+transformed_structure. e.g.,
+lambda x: x.other_parameters[&#8220;tags&#8221;][0] to use the first tag.</dd>
+<dt>include_cif:</dt>
+<dd>Boolean indication whether to output a CIF as well. CIF files
+are generally better supported in visualization programs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="pymatgen.alchemy.transmuters.batch_write_vasp_input">
+<tt class="descname">batch_write_vasp_input</tt><big>(</big><em>transformed_structures</em>, <em>vasp_input_set</em>, <em>output_dir</em>, <em>create_directory=True</em>, <em>subfolder=None</em>, <em>include_cif=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#batch_write_vasp_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.batch_write_vasp_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Batch write vasp input for a sequence of transformed structures to
+output_dir, following the format output_dir/{group}/{formula}_{number}.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>transformed_structures:</dt>
+<dd>Sequence of TransformedStructures.</dd>
+<dt>vasp_input_set:</dt>
+<dd>pymatgen.io.vaspio_set.VaspInputSet like object that creates
+vasp input files from structures</dd>
+<dt>output_dir:</dt>
+<dd>Directory to output files</dd>
+<dt>create_directory:</dt>
+<dd>Create the directory if not present. Defaults to True.</dd>
+<dt>subfolder:</dt>
+<dd>function to create subdirectory name from transformed_structure.
+eg. lambda x: x.other_parameters[&#8220;tags&#8221;][0] to use the first tag.</dd>
+<dt>include_cif:</dt>
+<dd>Boolean indication whether to output a CIF as well. CIF files are
+generally better supported in visualization programs.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">alchemy Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">alchemy</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-pymatgen.alchemy.filters"><tt class="docutils literal"><span class="pre">filters</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.alchemy.materials"><tt class="docutils literal"><span class="pre">materials</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.alchemy.transmuters"><tt class="docutils literal"><span class="pre">transmuters</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pymatgen.alchemy.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

@@ -165,7 +165,7 @@ the moment) required only for certain features:
 Using pymatgen
 ==============
 
-.. figure:: http://pymatgen.org/images/overview.jpg
+.. figure:: http://pymatgen.org/_images/overview.jpg
    :width: 70%
    :alt: pymatgen overview
    :align: center

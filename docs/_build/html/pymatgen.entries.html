@@ -1,0 +1,637 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>entries Package &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="entries-package">
+<h1>entries Package<a class="headerlink" href="#entries-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">entries</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pymatgen.entries"></span><p>This module contains entry related tools. Essentially, entries are containers
+for calculated information, which is used in many analyses.</p>
+</div>
+<div class="section" id="module-pymatgen.entries.compatibility">
+<span id="compatibility-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">compatibility</span></tt> Module<a class="headerlink" href="#module-pymatgen.entries.compatibility" title="Permalink to this headline">¶</a></h2>
+<p>This module implements Compatibility corrections for mixing runs of different
+functionals.</p>
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.AqueousCorrection">
+<em class="property">class </em><tt class="descname">AqueousCorrection</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.AqueousCorrection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Correction" title="pymatgen.entries.compatibility.Correction"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.compatibility.Correction</span></tt></a></p>
+<p>This class implements aqueous phase compound corrections for elements
+and H2O.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>name:</dt>
+<dd>The name of the input set to use. Can be either MP or MIT.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.compatibility.AqueousCorrection.correct_entry">
+<tt class="descname">correct_entry</tt><big>(</big><em>entry</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.AqueousCorrection.correct_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.Compatibility">
+<em class="property">class </em><tt class="descname">Compatibility</tt><big>(</big><em>corrections</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#Compatibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>The Compatibility class combines a list of corrections to be applied to
+an entry or a set of entries. Note that some of the Corrections have
+interdependencies. For example, PotcarCorrection must always be used
+before any other compatibility. Also, GasCorrection(&#8220;MP&#8221;) must be used
+with PotcarCorrection(&#8220;MP&#8221;) (similarly with &#8220;MIT&#8221;). Typically,
+you should use the specific MaterialsProjectCompatibility and
+MITCompatibility subclasses instead.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>corrections:</dt>
+<dd>List of corrections to apply.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.compatibility.Compatibility.process_entries">
+<tt class="descname">process_entries</tt><big>(</big><em>entries</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#Compatibility.process_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.process_entries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a sequence of entries with the chosen Compatibility scheme.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>entries - A sequence of entries.</dd>
+<dt>Returns:</dt>
+<dd>An list of adjusted entries.  Entries in the original list which
+are not compatible are excluded.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.compatibility.Compatibility.process_entry">
+<tt class="descname">process_entry</tt><big>(</big><em>entry</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#Compatibility.process_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.Compatibility.process_entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a single entry with the chosen Corrections.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>entry:</dt>
+<dd>A ComputedEntry object.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>An adjusted entry if entry is compatible, otherwise None is
+returned.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.Correction">
+<em class="property">class </em><tt class="descname">Correction</tt><a class="headerlink" href="#pymatgen.entries.compatibility.Correction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>A Correction class is a pre-defined scheme for correction a computed
+entry based on the type and chemistry of the structure and the
+calculation parameters. All Correction classes must implement a
+correct_entry method.</p>
+<dl class="method">
+<dt id="pymatgen.entries.compatibility.Correction.correct_entry">
+<tt class="descname">correct_entry</tt><big>(</big><em>entry</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.Correction.correct_entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Corrects a single entry.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>entry:</dt>
+<dd>A ComputedEntry object.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>An processed entry. None if entry is not compatible within the
+processing scheme.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.GasCorrection">
+<em class="property">class </em><tt class="descname">GasCorrection</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.GasCorrection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Correction" title="pymatgen.entries.compatibility.Correction"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.compatibility.Correction</span></tt></a></p>
+<p>Correct gas energies to obtain the right formation energies. Note that
+this depends on calculations being run within the same input set.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>name:</dt>
+<dd>Name of settings to use. Current valid settings are MP or
+MIT, which is the relevant settings based on the MP or MIT
+VaspInputSets.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.compatibility.GasCorrection.correct_entry">
+<tt class="descname">correct_entry</tt><big>(</big><em>entry</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.GasCorrection.correct_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.MITCompatibility">
+<em class="property">class </em><tt class="descname">MITCompatibility</tt><big>(</big><em>compat_type='Advanced'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#MITCompatibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MITCompatibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></tt></a></p>
+<p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
+entries. Note that this should only be used for VASP calculations using the
+MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
+this compatibility scheme on runs with different parameters is not valid.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>compat_type:</dt>
+<dd>Two options, GGA or Advanced.  GGA means all GGA+U entries are
+excluded.  Advanced means mixing scheme is implemented to make
+entries compatible with each other, but entries which are
+supposed to be done in GGA+U will have the equivalent GGA
+entries excluded. For example, Fe oxides should have a U value
+under the Advanced scheme. A GGA Fe oxide run will therefore be
+excluded under the scheme.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.MaterialsProjectCompatibility">
+<em class="property">class </em><tt class="descname">MaterialsProjectCompatibility</tt><big>(</big><em>compat_type='Advanced'</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/compatibility.html#MaterialsProjectCompatibility"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.compatibility.MaterialsProjectCompatibility" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Compatibility" title="pymatgen.entries.compatibility.Compatibility"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.compatibility.Compatibility</span></tt></a></p>
+<p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
+entries. Note that this should only be used for VASP calculations using the
+MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).
+Using this compatibility scheme on runs with different parameters is not
+valid.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>compat_type:</dt>
+<dd>Two options, GGA or Advanced.  GGA means all GGA+U entries are
+excluded.  Advanced means mixing scheme is implemented to make
+entries compatible with each other, but entries which are
+supposed to be done in GGA+U will have the equivalent GGA
+entries excluded. For example, Fe oxides should have a U value
+under the Advanced scheme. A GGA Fe oxide run will therefore be
+excluded under the scheme.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.PotcarCorrection">
+<em class="property">class </em><tt class="descname">PotcarCorrection</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.PotcarCorrection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Correction" title="pymatgen.entries.compatibility.Correction"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.compatibility.Correction</span></tt></a></p>
+<p>Checks that POTCARs are valid within a pre-defined input set. This
+ensures that calculations performed using different InputSets are not
+compared against each other.</p>
+<p>Entry.parameters must contain a &#8220;potcar_symbols&#8221; key that is a list of
+all POTCARs used in the run. Again, using the example of an Fe2O3 run
+using Materials Project parameters, this would look like
+entry.parameters[&#8220;potcar_symbols&#8221;] = [&#8216;PAW_PBE Fe_pv 06Sep2000&#8217;,
+&#8216;PAW_PBE O 08Apr2002&#8217;].</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>name:</dt>
+<dd>Name of settings to use. Current valid settings are MP or
+MIT, which is the relevant settings based on the MP or MIT
+VaspInputSets.</dd>
+</dl>
+</dd>
+<dt>Raises:</dt>
+<dd>ValueError if entry do not contain &#8220;potcar_symbols&#8221; key.</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.entries.compatibility.PotcarCorrection.correct_entry">
+<tt class="descname">correct_entry</tt><big>(</big><em>entry</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.PotcarCorrection.correct_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.compatibility.UCorrection">
+<em class="property">class </em><tt class="descname">UCorrection</tt><big>(</big><em>name</em>, <em>compat_type</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.compatibility.Correction" title="pymatgen.entries.compatibility.Correction"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.compatibility.Correction</span></tt></a></p>
+<p>This class implements the GGA/GGA+U mixing scheme, which allows mixing of
+entries. Entry.parameters must contain a &#8220;hubbards&#8221; key which is a dict
+of all non-zero Hubbard U values used in the calculation. For example,
+if you ran a Fe2O3 calculation with Materials Project parameters,
+this would look like entry.parameters[&#8220;hubbards&#8221;] = {&#8220;Fe&#8221;: 5.3}
+If the &#8220;hubbards&#8221; key is missing, a GGA run is assumed.</p>
+<p>It should be noted that ComputedEntries assimilated using the
+pymatgen.apps.borg package and obtained via the MaterialsProject REST
+interface using the pymatgen.matproj.rest package will automatically have
+these fields populated.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>name:</dt>
+<dd>Name of settings to use. Current valid settings are MP or
+MIT, which is the relevant settings based on the MP or MIT
+VaspInputSets.</dd>
+<dt>compat_type:</dt>
+<dd>Two options, GGA or Advanced.  GGA means all GGA+U entries are
+excluded.  Advanced means mixing scheme is implemented to make
+entries compatible with each other, but entries which are
+supposed to be done in GGA+U will have the equivalent GGA
+entries excluded. For example, Fe oxides should have a U value
+under the Advanced scheme. A GGA Fe oxide run will therefore be
+excluded under the scheme.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.entries.compatibility.UCorrection.common_peroxides">
+<tt class="descname">common_peroxides</tt><em class="property"> = ['Li2O2', 'Na2O2', 'K2O2', 'Cs2O2', 'Rb2O2', 'BeO2', 'MgO2', 'CaO2', 'SrO2', 'BaO2']</em><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection.common_peroxides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.entries.compatibility.UCorrection.common_superoxides">
+<tt class="descname">common_superoxides</tt><em class="property"> = ['LiO2', 'NaO2', 'KO2', 'RbO2', 'CsO2']</em><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection.common_superoxides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.compatibility.UCorrection.correct_entry">
+<tt class="descname">correct_entry</tt><big>(</big><em>entry</em><big>)</big><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection.correct_entry" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.entries.compatibility.UCorrection.ozonides">
+<tt class="descname">ozonides</tt><em class="property"> = ['LiO3', 'NaO3', 'KO3', 'NaO5']</em><a class="headerlink" href="#pymatgen.entries.compatibility.UCorrection.ozonides" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.entries.computed_entries">
+<span id="computed-entries-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">computed_entries</span></tt> Module<a class="headerlink" href="#module-pymatgen.entries.computed_entries" title="Permalink to this headline">¶</a></h2>
+<p>This module implements equivalents of the basic ComputedEntry objects, which
+is the basic entity that can be used to perform many analyses. ComputedEntries
+contain calculated information, typically from VASP or other electronic
+structure codes. For example, ComputedEntries can be used as inputs for phase
+diagram analysis.</p>
+<dl class="class">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry">
+<em class="property">class </em><tt class="descname">ComputedEntry</tt><big>(</big><em>composition</em>, <em>energy</em>, <em>correction=0.0</em>, <em>parameters=None</em>, <em>data=None</em>, <em>entry_id=None</em>, <em>attribute=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.phasediagram.html#pymatgen.phasediagram.entries.PDEntry" title="pymatgen.phasediagram.entries.PDEntry"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.phasediagram.entries.PDEntry</span></tt></a>, <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>An lightweight ComputedEntry object containing key computed data
+for many purposes. Extends a PDEntry so that it can be used for phase
+diagram generation. The difference between a ComputedEntry and a standard
+PDEntry is that it includes additional parameters like a correction and
+run_parameters.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>composition:</dt>
+<dd>Composition of the entry. For flexibility, this can take the
+form of all the typical input taken by a Composition, including
+a {symbol: amt} dict, a string formula, and others.</dd>
+<dt>energy:</dt>
+<dd>Energy of the entry. Usually the final calculated energy from
+VASP or other electronic structure codes.</dd>
+<dt>correction:</dt>
+<dd>A correction to be applied to the energy. This is used to
+modify the energy for certain analyses. Defaults to 0.0.</dd>
+<dt>parameters:</dt>
+<dd>An optional dict of parameters associated with the entry.
+Defaults to None.</dd>
+<dt>data:</dt>
+<dd>An optional dict of any additional data associated with the
+entry. Defaults to None.</dd>
+<dt>entry_id:</dt>
+<dd>An optional id to uniquely identify the entry.</dd>
+<dt>attribute:</dt>
+<dd>Optional attribute of the entry. This can be used to specify that
+the entry is a newly found compound, or to specify a particular label for
+the entry, or else ... Used for further analysis and plotting purposes.
+An attribute can be anything but must be MSONable.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.energy">
+<tt class="descname">energy</tt><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry.energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <em>corrected</em> energy of the entry.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.entries.computed_entries.ComputedEntry.uncorrected_energy">
+<tt class="descname">uncorrected_energy</tt><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedEntry.uncorrected_energy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedEntry.uncorrected_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <em>uncorrected</em> energy of the entry.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.entries.computed_entries.ComputedStructureEntry">
+<em class="property">class </em><tt class="descname">ComputedStructureEntry</tt><big>(</big><em>structure</em>, <em>energy</em>, <em>correction=0.0</em>, <em>parameters=None</em>, <em>data=None</em>, <em>entry_id=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedStructureEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.entries.computed_entries.ComputedEntry" title="pymatgen.entries.computed_entries.ComputedEntry"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.entries.computed_entries.ComputedEntry</span></tt></a></p>
+<p>A heavier version of ComputedEntry which contains a structure as well. The
+structure is needed for some analyses.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>The actual structure of an entry.</dd>
+<dt>energy:</dt>
+<dd>Energy of the entry. Usually the final calculated energy from
+VASP or other electronic structure codes.</dd>
+<dt>correction:</dt>
+<dd>A correction to be applied to the energy. This is used to
+modify the energy for certain analyses. Defaults to 0.0.</dd>
+<dt>parameters:</dt>
+<dd>An optional dict of parameters associated with the entry.
+Defaults to None.</dd>
+<dt>data:</dt>
+<dd>An optional dict of any additional data associated with the
+entry. Defaults to None.</dd>
+<dt>entry_id:</dt>
+<dd>An optional id to uniquely identify the entry.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedStructureEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.entries.computed_entries.ComputedStructureEntry.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/entries/computed_entries.html#ComputedStructureEntry.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.computed_entries.ComputedStructureEntry.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.entries.entry_tools">
+<span id="entry-tools-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">entry_tools</span></tt> Module<a class="headerlink" href="#module-pymatgen.entries.entry_tools" title="Permalink to this headline">¶</a></h2>
+<p>This module implements functions to perform various useful operations on
+entries, such as grouping entries by structure.</p>
+<dl class="function">
+<dt id="pymatgen.entries.entry_tools.group_entries_by_structure">
+<tt class="descname">group_entries_by_structure</tt><big>(</big><em>entries</em>, <em>species_to_remove=None</em>, <em>ltol=0.2</em>, <em>stol=0.4</em>, <em>angle_tol=5</em>, <em>primitive_cell=True</em>, <em>scale=True</em>, <em>comparator=&lt;pymatgen.analysis.structure_matcher.SpeciesComparator object at 0x10cc3df90&gt;</em>, <em>ncpus=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/entry_tools.html#group_entries_by_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.entry_tools.group_entries_by_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a sequence of ComputedStructureEntries, use structure fitter to group
+them by structural similarity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>entries:</dt>
+<dd>Sequence of ComputedStructureEntries.</dd>
+<dt>species_to_remove:</dt>
+<dd>Sometimes you want to compare a host framework (e.g., in Li-ion
+battery analysis). This allows you to specify species to remove
+before structural comparison.</dd>
+<dt>ltol:</dt>
+<dd>Fractional length tolerance. Default is 0.2</dd>
+<dt>stol:</dt>
+<dd>Site tolerance in Angstrom. Default is 0.4 Angstrom</dd>
+<dt>angle_tol:</dt>
+<dd>Angle tolerance in degrees. Default is 5 degrees.</dd>
+<dt>primitive_cell:</dt>
+<dd>If true: input structures will be reduced to primitive cells
+prior to matching. Defaults to True.</dd>
+<dt>scale:</dt>
+<dd>Input structures are scaled to equivalent volume if true;
+For exact matching, set to False.</dd>
+<dt>comparator:</dt>
+<dd>A comparator object implementing an equals method that declares
+declaring equivalency of sites.
+Default is SpeciesComparator, which implies rigid species
+mapping.</dd>
+<dt>ncpus:</dt>
+<dd>Number of cpus to use. Use of multiple cpus can greatly improve
+fitting speed. Default of None means serial processing.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Sequence of sequence of entries by structural similarity. e.g,
+[[ entry1, entry2], [entry3, entry4, entry5]]</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.entries.exp_entries">
+<span id="exp-entries-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">exp_entries</span></tt> Module<a class="headerlink" href="#module-pymatgen.entries.exp_entries" title="Permalink to this headline">¶</a></h2>
+<p>This module defines Entry classes for containing experimental data.</p>
+<dl class="class">
+<dt id="pymatgen.entries.exp_entries.ExpEntry">
+<em class="property">class </em><tt class="descname">ExpEntry</tt><big>(</big><em>composition</em>, <em>thermodata</em>, <em>temperature=298</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/exp_entries.html#ExpEntry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.exp_entries.ExpEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.phasediagram.html#pymatgen.phasediagram.entries.PDEntry" title="pymatgen.phasediagram.entries.PDEntry"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.phasediagram.entries.PDEntry</span></tt></a>, <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>An lightweight ExpEntry object containing experimental data for a
+composition for many purposes. Extends a PDEntry so that it can be used for
+phase diagram generation and reaction calculation.</p>
+<p>Current version works only with solid phases and at 298K. Further
+extensions for temperature dependence are planned.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>composition:</dt>
+<dd>Composition of the entry. For flexibility, this can take the
+form of all the typical input taken by a Composition, including
+a {symbol: amt} dict, a string formula, and others.</dd>
+<dt>thermodata:</dt>
+<dd>A sequence of ThermoData associated with the entry.</dd>
+<dt>temperature:</dt>
+<dd>A temperature for the entry in Kelvin. Defaults to 298K.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="pymatgen.entries.exp_entries.ExpEntry.from_dict">
+<em class="property">classmethod </em><tt class="descname">from_dict</tt><big>(</big><em>d</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/exp_entries.html#ExpEntry.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.exp_entries.ExpEntry.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.entries.exp_entries.ExpEntry.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/entries/exp_entries.html#ExpEntry.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.exp_entries.ExpEntry.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.entries.post_processors_abc">
+<span id="post-processors-abc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">post_processors_abc</span></tt> Module<a class="headerlink" href="#module-pymatgen.entries.post_processors_abc" title="Permalink to this headline">¶</a></h2>
+<p>This module implements abstract base classes for post-processing entries.
+Any class which modifies entries should inherit these classes.</p>
+<dl class="class">
+<dt id="pymatgen.entries.post_processors_abc.EntryPostProcessor">
+<em class="property">class </em><tt class="descname">EntryPostProcessor</tt><a class="reference internal" href="_modules/pymatgen/entries/post_processors_abc.html#EntryPostProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.post_processors_abc.EntryPostProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="attribute">
+<dt id="pymatgen.entries.post_processors_abc.EntryPostProcessor.corrected_compound_formulas">
+<tt class="descname">corrected_compound_formulas</tt><a class="reference internal" href="_modules/pymatgen/entries/post_processors_abc.html#EntryPostProcessor.corrected_compound_formulas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.post_processors_abc.EntryPostProcessor.corrected_compound_formulas" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of compound formulas that are corrected.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.post_processors_abc.EntryPostProcessor.process_entries">
+<tt class="descname">process_entries</tt><big>(</big><em>entries</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/post_processors_abc.html#EntryPostProcessor.process_entries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.post_processors_abc.EntryPostProcessor.process_entries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a sequence of entries.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>entries - A sequence of ComputedEntries.</dd>
+<dt>Returns:</dt>
+<dd>An list of processed entries.  ComputedEntries in the original list
+which are not compatible with the processing scheme are excluded.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.entries.post_processors_abc.EntryPostProcessor.process_entry">
+<tt class="descname">process_entry</tt><big>(</big><em>entry</em><big>)</big><a class="reference internal" href="_modules/pymatgen/entries/post_processors_abc.html#EntryPostProcessor.process_entry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.entries.post_processors_abc.EntryPostProcessor.process_entry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process a single entry.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>entry - An ComputedEntry object.</dd>
+<dt>Returns:</dt>
+<dd>An processed entry. None if entry is not compatible within the
+processing scheme.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">entries Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">entries</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-pymatgen.entries.compatibility"><tt class="docutils literal"><span class="pre">compatibility</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.entries.computed_entries"><tt class="docutils literal"><span class="pre">computed_entries</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.entries.entry_tools"><tt class="docutils literal"><span class="pre">entry_tools</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.entries.exp_entries"><tt class="docutils literal"><span class="pre">exp_entries</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.entries.post_processors_abc"><tt class="docutils literal"><span class="pre">post_processors_abc</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pymatgen.entries.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>

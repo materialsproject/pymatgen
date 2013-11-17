@@ -1,0 +1,1371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>transformations Package &mdash; pymatgen 2.8.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/proBlue.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '2.8.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+    <link rel="top" title="pymatgen 2.8.8 documentation" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-33990148-1']);
+  _gaq.push(['_trackPageview']);
+</script>
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="transformations-package">
+<h1>transformations Package<a class="headerlink" href="#transformations-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">transformations</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pymatgen.transformations"></span><p>The transformations package defines various transformations that can be applied
+on structures, i.e., converting one structure to another.</p>
+</div>
+<div class="section" id="module-pymatgen.transformations.advanced_transformations">
+<span id="advanced-transformations-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">advanced_transformations</span></tt> Module<a class="headerlink" href="#module-pymatgen.transformations.advanced_transformations" title="Permalink to this headline">¶</a></h2>
+<p>This module implements more advanced transformations.</p>
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation">
+<em class="property">class </em><tt class="descname">ChargeBalanceTransformation</tt><big>(</big><em>charge_balance_sp</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#ChargeBalanceTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This is a transformation that disorders a structure to make it charge
+balanced, given an oxidation state-decorated structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>charge_balance_sp</dt>
+<dd>specie to add or remove. Currently only removal is supported</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#ChargeBalanceTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#ChargeBalanceTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#ChargeBalanceTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#ChargeBalanceTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.ChargeBalanceTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation">
+<em class="property">class </em><tt class="descname">EnumerateStructureTransformation</tt><big>(</big><em>min_cell_size=1</em>, <em>max_cell_size=1</em>, <em>symm_prec=0.1</em>, <em>refine_structure=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>Order a disordered structure using enumlib. For complete orderings, this
+generally produces fewer structures that the OrderDisorderedStructure
+transformation, and at a much faster speed.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>min_cell_size:</dt>
+<dd>The minimum cell size wanted. Must be an int. Defaults to 1.</dd>
+<dt>max_cell_size:</dt>
+<dd>The maximum cell size wanted. Must be an int. Defaults to 1.</dd>
+<dt>symm_prec:</dt>
+<dd>Tolerance to use for symmetry.</dd>
+<dt>refine_structure:</dt>
+<dd>This parameter has the same meaning as in enumlib_caller.
+If you are starting from a structure that has been relaxed via
+some electronic structure code, it is usually much better to
+start with symmetry determination and then obtain a refined
+structure. The refined structure have cell parameters and
+atomic positions shifted to the expected symmetry positions,
+which makes it much less sensitive precision issues in enumlib.
+If you are already starting from an experimental cif, refinment
+should have already been done and it is not necessary. Defaults
+to False.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em>, <em>return_ranked_list=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return either a single ordered structure or a sequence of all ordered
+structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Structure to order.</dd>
+<dt>return_ranked_list:</dt>
+<dd>Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><p class="first">Depending on returned_ranked list, either a transformed structure
+or a list of dictionaries, where each dictionary is of the form
+{&#8220;structure&#8221; = .... , &#8220;other_arguments&#8221;}</p>
+<p class="last">The list of ordered structures is ranked by ewald energy / atom, if
+the input structure is an oxidation state decorated structure.
+Otherwise, it is ranked by number of sites, with smallest number of
+sites first.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#EnumerateStructureTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation">
+<em class="property">class </em><tt class="descname">MultipleSubstitutionTransformation</tt><big>(</big><em>sp_to_replace</em>, <em>r_fraction</em>, <em>substitution_dict</em>, <em>charge_balance_species=None</em>, <em>order=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MultipleSubstitutionTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Performs multiple substitutions on a structure. For example, can do a
+fractional replacement of Ge in LiGePS with a list of species, creating one
+structure for each substitution. Ordering is done using a dummy element so
+only one ordering must be done per substitution oxidation state. Charge
+balancing of the structure is optionally performed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There are no checks to make sure that removal fractions are possible
+and rounding may occur. Currently charge balancing only works for
+removal of species.</p>
+</div>
+<p>Performs multiple fractional substitutions on a transmuter.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>sp_to_replace</dt>
+<dd>species to be replaced</dd>
+<dt>r_fraction</dt>
+<dd>fraction of that specie to replace</dd>
+<dt>substitution_dict</dt>
+<dd>dictionary of the format
+{2: [&#8220;Mg&#8221;, &#8220;Ti&#8221;, &#8220;V&#8221;, &#8220;As&#8221;, &#8220;Cr&#8221;, &#8220;Ta&#8221;, &#8220;N&#8221;, &#8220;Nb&#8221;],
+3: [&#8220;Ru&#8221;, &#8220;Fe&#8221;, &#8220;Co&#8221;, &#8220;Ce&#8221;, &#8220;As&#8221;, &#8220;Cr&#8221;, &#8220;Ta&#8221;, &#8220;N&#8221;, &#8220;Nb&#8221;],
+4: [&#8220;Ru&#8221;, &#8220;V&#8221;, &#8220;Cr&#8221;, &#8220;Ta&#8221;, &#8220;N&#8221;, &#8220;Nb&#8221;],
+5: [&#8220;Ru&#8221;, &#8220;W&#8221;, &#8220;Mn&#8221;]
+}
+The number is the charge used for each of the list of elements
+(an element can be present in multiple lists)</dd>
+<dt>charge_balance_species:</dt>
+<dd>If specified, will balance the charge on the structure using
+that specie.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em>, <em>return_ranked_list=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MultipleSubstitutionTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MultipleSubstitutionTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MultipleSubstitutionTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#MultipleSubstitutionTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.MultipleSubstitutionTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation">
+<em class="property">class </em><tt class="descname">SubstitutionPredictorTransformation</tt><big>(</big><em>threshold=0.01</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstitutionPredictorTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation takes a structure and uses the structure
+prediction module to find likely site substitutions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>kwargs:</dt>
+<dd>args for SubstitutionProbability class
+lambda_table, alpha</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em>, <em>return_ranked_list=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstitutionPredictorTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstitutionPredictorTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstitutionPredictorTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SubstitutionPredictorTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SubstitutionPredictorTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.advanced_transformations.SuperTransformation">
+<em class="property">class </em><tt class="descname">SuperTransformation</tt><big>(</big><em>transformations</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SuperTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This is a transformation that is inherently one-to-many. It is constructed
+from a list of transformations and returns one structure for each
+transformation. The primary use for this class is extending a transmuter
+object.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>transformations:</dt>
+<dd>list of transformations to apply to a structure. One
+transformation is applied to each output structure.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.advanced_transformations.SuperTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em>, <em>return_ranked_list=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SuperTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.SuperTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SuperTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.SuperTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SuperTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.advanced_transformations.SuperTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/advanced_transformations.html#SuperTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.advanced_transformations.SuperTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.transformations.site_transformations">
+<span id="site-transformations-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">site_transformations</span></tt> Module<a class="headerlink" href="#module-pymatgen.transformations.site_transformations" title="Permalink to this headline">¶</a></h2>
+<p>This module defines site transformations which transforms a structure into
+another structure. Site transformations differ from standard transformations
+in that they operate in a site-specific manner.
+All transformations should inherit the AbstractTransformation ABC.</p>
+<dl class="class">
+<dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation">
+<em class="property">class </em><tt class="descname">InsertSitesTransformation</tt><big>(</big><em>species</em>, <em>coords</em>, <em>coords_are_cartesian=False</em>, <em>validate_proximity=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation substitutes certain sites with certain species.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>species:</dt>
+<dd>A list of species. e.g., [&#8220;Li&#8221;, &#8220;Fe&#8221;]</dd>
+<dt>coords:</dt>
+<dd>A list of coords corresponding to those species. e.g.,
+[[0,0,0],[0.5,0.5,0.5]].</dd>
+<dt>coords_are_cartesian:</dt>
+<dd>Set to True if coords are given in cartesian coords. Defaults
+to False.</dd>
+<dt>validate_proximity:</dt>
+<dd>Set to False if you do not wish to ensure that added sites are
+not too close to other sites. Defaults to True.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.InsertSitesTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#InsertSitesTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.InsertSitesTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation">
+<em class="property">class </em><tt class="descname">PartialRemoveSitesTransformation</tt><big>(</big><em>indices</em>, <em>fractions</em>, <em>algo=1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>Remove fraction of specie from a structure.
+Requires an oxidation state decorated structure for ewald sum to be
+computed.</p>
+<p>Given that the solution to selecting the right removals is NP-hard, there
+are several algorithms provided with varying degrees of accuracy and speed.
+The options are as follows:</p>
+<dl class="docutils">
+<dt>ALGO_FAST:</dt>
+<dd>This is a highly optimized algorithm to quickly go through the search
+tree. It is guaranteed to find the optimal solution, but will return
+only a single lowest energy structure. Typically, you will want to use
+this.</dd>
+<dt>ALGO_COMPLETE:</dt>
+<dd>The complete algo ensures that you get all symmetrically distinct
+orderings, ranked by the estimated Ewald energy. But this can be an
+extremely time-consuming process if the number of possible orderings is
+very large. Use this if you really want all possible orderings. If you
+want just the lowest energy ordering, ALGO_FAST is accurate and faster.</dd>
+<dt>ALGO_BEST_FIRST:</dt>
+<dd>This algorithm is for ordering the really large cells that defeats even
+ALGO_FAST.  For example, if you have 48 sites of which you want to
+remove 16 of them, the number of possible orderings is around
+2 x 10^12. ALGO_BEST_FIRST shortcircuits the entire search tree by
+removing the highest energy site first, then followed by the next
+highest energy site, and so on. It is guaranteed to find a solution
+in a reasonable time, but it is also likely to be highly inaccurate.</dd>
+<dt>ALGO_ENUMERATE:</dt>
+<dd>This algorithm uses the EnumerateStructureTransformation to perform
+ordering. This algo returns <em>complete</em> orderings up to a single unit
+cell size. It is more robust than the ALGO_COMPLETE, but requires
+Gus Hart&#8217;s enumlib to be installed.</dd>
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>indices:</dt>
+<dd>A list of list of indices.
+e.g. [[0, 1], [2, 3, 4, 5]]</dd>
+<dt>fractions:</dt>
+<dd>The corresponding fractions to remove. Must be same length as
+indices. e.g., [0.5, 0.25]</dd>
+<dt>algo:</dt>
+<dd>This parameter allows you to choose the algorithm to perform
+ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
+variables to set the algo.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_BEST_FIRST">
+<tt class="descname">ALGO_BEST_FIRST</tt><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_COMPLETE">
+<tt class="descname">ALGO_COMPLETE</tt><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_ENUMERATE">
+<tt class="descname">ALGO_ENUMERATE</tt><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_ENUMERATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_FAST">
+<tt class="descname">ALGO_FAST</tt><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em>, <em>return_ranked_list=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the transformation.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>input structure</dd>
+<dt>return_ranked_list:</dt>
+<dd>Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{&#8220;structure&#8221; = .... , &#8220;other_arguments&#8221;}
+the key &#8220;transformation&#8221; is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.best_first_ordering">
+<tt class="descname">best_first_ordering</tt><big>(</big><em>structure</em>, <em>num_remove_dict</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.best_first_ordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.best_first_ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.complete_ordering">
+<tt class="descname">complete_ordering</tt><big>(</big><em>structure</em>, <em>num_remove_dict</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.complete_ordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.complete_ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.enumerate_ordering">
+<tt class="descname">enumerate_ordering</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.enumerate_ordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.enumerate_ordering" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.fast_ordering">
+<tt class="descname">fast_ordering</tt><big>(</big><em>structure</em>, <em>num_remove_dict</em>, <em>num_to_return=1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.fast_ordering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.fast_ordering" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method uses the matrix form of ewaldsum to calculate the ewald
+sums of the potential structures. This is on the order of 4 orders of
+magnitude faster when there are large numbers of permutations to
+consider. There are further optimizations possible (doing a smarter
+search of permutations for example), but this wont make a difference
+until the number of permutations is on the order of 30,000.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#PartialRemoveSitesTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation">
+<em class="property">class </em><tt class="descname">RemoveSitesTransformation</tt><big>(</big><em>indices_to_remove</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>Remove certain sites in a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>indices_to_remove:</dt>
+<dd>List of indices to remove. E.g., [0, 1, 2]</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.RemoveSitesTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#RemoveSitesTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.RemoveSitesTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation">
+<em class="property">class </em><tt class="descname">ReplaceSiteSpeciesTransformation</tt><big>(</big><em>indices_species_map</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation substitutes certain sites with certain species.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>indices_species_map:</dt>
+<dd>A dict containing the species mapping in int-string pairs.
+E.g., { 1:&#8221;Na&#8221;} or {2:&#8221;Mn2+&#8221;}. Multiple substitutions can
+be done. Overloaded to accept sp_and_occu dictionary
+E.g. {&#8220;Si: {&#8220;Ge&#8221;:0.75, &#8220;C&#8221;:0.25} }, which substitutes a single
+species with multiple species to generate a disordered
+structure.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#ReplaceSiteSpeciesTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.ReplaceSiteSpeciesTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation">
+<em class="property">class </em><tt class="descname">TranslateSitesTransformation</tt><big>(</big><em>indices_to_move</em>, <em>translation_vector</em>, <em>vector_in_frac_coords=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This class translates a set of sites by a certain vector.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>indices_to_move:</dt>
+<dd>The indices of the sites to move</dd>
+<dt>translation_vector:</dt>
+<dd>Vector to move the sites.</dd>
+<dt>vector_in_frac_coords:</dt>
+<dd>Set to True if the translation vector is in fractional
+coordinates, and False if it is in cartesian coordinations.
+Defaults to True.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.site_transformations.TranslateSitesTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/site_transformations.html#TranslateSitesTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.site_transformations.TranslateSitesTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.transformations.standard_transformations">
+<span id="standard-transformations-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">standard_transformations</span></tt> Module<a class="headerlink" href="#module-pymatgen.transformations.standard_transformations" title="Permalink to this headline">¶</a></h2>
+<p>This module defines standard transformations which transforms a structure into
+another structure. Standard transformations operate in a structure-wide manner,
+rather than site-specific manner.
+All transformations should inherit the AbstractTransformation ABC.</p>
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation">
+<em class="property">class </em><tt class="descname">AutoOxiStateDecorationTransformation</tt><big>(</big><em>symm_tol=0.1</em>, <em>max_radius=4</em>, <em>max_permutations=100000</em>, <em>distance_scale_factor=1.015</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#AutoOxiStateDecorationTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation automatically decorates a structure with oxidation
+states using a bond valence approach.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>symm_tol:</dt>
+<dd>Symmetry tolerance used to determine which sites are
+symmetrically equivalent. Set to 0 to turn off symmetry.</dd>
+<dt>max_radius:</dt>
+<dd>Maximum radius in Angstrom used to find nearest neighbors.</dd>
+<dt>max_permutations:</dt>
+<dd>The maximum number of permutations of oxidation states to test.</dd>
+<dt>distance_scale_factor:</dt>
+<dd>A scale factor to be applied. This is useful for scaling
+distances, esp in the case of calculation-relaxed structures
+which may tend to under (GGA) or over bind (LDA). The default
+of 1.015 works for GGA. For experimental structure, set this to
+1.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#AutoOxiStateDecorationTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#AutoOxiStateDecorationTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#AutoOxiStateDecorationTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#AutoOxiStateDecorationTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.AutoOxiStateDecorationTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.IdentityTransformation">
+<em class="property">class </em><tt class="descname">IdentityTransformation</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#IdentityTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.IdentityTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This is a demo transformation which does nothing, i.e. just returns a copy
+of the same structure.</p>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.IdentityTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#IdentityTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.IdentityTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.IdentityTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#IdentityTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.IdentityTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.IdentityTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#IdentityTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.IdentityTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.IdentityTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#IdentityTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.IdentityTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation">
+<em class="property">class </em><tt class="descname">OrderDisorderedStructureTransformation</tt><big>(</big><em>algo=0</em>, <em>symmetrized_structures=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OrderDisorderedStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>Order a disordered structure. The disordered structure must be oxidation
+state decorated for ewald sum to be computed. No attempt is made to perform
+symmetry determination to reduce the number of combinations.</p>
+<p>Hence, attempting to performing ordering on a large number of disordered
+sites may be extremely expensive. The time scales approximately with the
+number of possible combinations. The algorithm can currently compute
+approximately 5,000,000 permutations per minute.</p>
+<p>Also, simple rounding of the occupancies are performed, with no attempt
+made to achieve a target composition.  This is usually not a problem for
+most ordering problems, but there can be times where rounding errors may
+result in structures that do not have the desired composition.
+This second step will be implemented in the next iteration of the code.</p>
+<p>If multiple fractions for a single species are found for different sites,
+these will be treated separately if the difference is above a threshold
+tolerance. currently this is .1</p>
+<p>For example, if a fraction of .25 Li is on sites 0,1,2,3  and .5 on sites
+4, 5, 6, 7 1 site from [0,1,2,3] will be filled and 2 sites from [4,5,6,7]
+will be filled, even though a lower energy combination might be found by
+putting all lithium in sites [4,5,6,7].</p>
+<p>USE WITH CARE.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>num_structures:</dt>
+<dd>maximum number of structures to return</dd>
+<dt>mev_cutoff:</dt>
+<dd>maximum mev per atom above the minimum energy ordering for a
+structure to be returned</dd>
+<dt>symmetrized_structures:</dt>
+<dd>Boolean stating whether the input structures are instances of
+SymmetrizedStructure, and that their symmetry should be used
+for the grouping of sites.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST">
+<tt class="descname">ALGO_BEST_FIRST</tt><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE">
+<tt class="descname">ALGO_COMPLETE</tt><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST">
+<tt class="descname">ALGO_FAST</tt><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em>, <em>return_ranked_list=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OrderDisorderedStructureTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>For this transformation, the apply_transformation method will return
+only the ordered structure with the lowest Ewald energy, to be
+consistent with the method signature of the other transformations.
+However, all structures are stored in the  all_structures attribute in
+the transformation object for easy access.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>Oxidation state decorated disordered structure to order</dd>
+<dt>return_ranked_list:</dt>
+<dd>Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{&#8220;structure&#8221; = .... , &#8220;other_arguments&#8221;}
+the key &#8220;transformation&#8221; is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OrderDisorderedStructureTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OrderDisorderedStructureTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure">
+<tt class="descname">lowest_energy_structure</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OrderDisorderedStructureTransformation.lowest_energy_structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.lowest_energy_structure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OrderDisorderedStructureTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OrderDisorderedStructureTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation">
+<em class="property">class </em><tt class="descname">OxidationStateDecorationTransformation</tt><big>(</big><em>oxidation_states</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateDecorationTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation decorates a structure with oxidation states.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>oxidation_states</dt>
+<dd>Oxidation states supplied as a dict, e.g., {&#8220;Li&#8221;:1, &#8220;O&#8221;:-2}</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateDecorationTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateDecorationTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateDecorationTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateDecorationTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateDecorationTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation">
+<em class="property">class </em><tt class="descname">OxidationStateRemovalTransformation</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateRemovalTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation removes oxidation states from a structure</p>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateRemovalTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateRemovalTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateRemovalTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#OxidationStateRemovalTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.OxidationStateRemovalTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation">
+<em class="property">class </em><tt class="descname">PartialRemoveSpecieTransformation</tt><big>(</big><em>specie_to_remove</em>, <em>fraction_to_remove</em>, <em>algo=0</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PartialRemoveSpecieTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>Remove fraction of specie from a structure.</p>
+<p>Requires an oxidation state decorated structure for ewald sum to be
+computed.</p>
+<p>Given that the solution to selecting the right removals is NP-hard, there
+are several algorithms provided with varying degrees of accuracy and speed.
+Please see
+<a class="reference internal" href="#pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation" title="pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.site_transformations.PartialRemoveSitesTransformation</span></tt></a>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>specie_to_remove:</dt>
+<dd>Specie to remove. Must have oxidation state E.g., &#8220;Li1+&#8221;</dd>
+<dt>fraction_to_remove:</dt>
+<dd>Fraction of specie to remove. E.g., 0.5</dd>
+<dt>algo:</dt>
+<dd>This parameter allows you to choose the algorithm to perform
+ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
+variables to set the algo.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST">
+<tt class="descname">ALGO_BEST_FIRST</tt><em class="property"> = 2</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_BEST_FIRST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE">
+<tt class="descname">ALGO_COMPLETE</tt><em class="property"> = 1</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_COMPLETE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE">
+<tt class="descname">ALGO_ENUMERATE</tt><em class="property"> = 3</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_ENUMERATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST">
+<tt class="descname">ALGO_FAST</tt><em class="property"> = 0</em><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.ALGO_FAST" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em>, <em>return_ranked_list=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PartialRemoveSpecieTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the transformation.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>input structure</dd>
+<dt>return_ranked_list:</dt>
+<dd>Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is an int, that number of
+structures is returned.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>Depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{&#8220;structure&#8221; = .... , &#8220;other_arguments&#8221;}
+the key &#8220;transformation&#8221; is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PartialRemoveSpecieTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PartialRemoveSpecieTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PartialRemoveSpecieTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PartialRemoveSpecieTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation">
+<em class="property">class </em><tt class="descname">PerturbStructureTransformation</tt><big>(</big><em>amplitude=0.01</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation perturbs a structure by a specified distance in random
+directions. Used for breaking symmetries.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>amplitude:</dt>
+<dd>Amplitude of perturbation in angstroms. All sites will be
+perturbed by exactly that amplitude in a random direction.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PerturbStructureTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PerturbStructureTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PerturbStructureTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation">
+<em class="property">class </em><tt class="descname">PrimitiveCellTransformation</tt><big>(</big><em>tolerance=0.5</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PrimitiveCellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This class finds the primitive cell of the input structure.
+It returns a structure that is not necessarily orthogonalized
+Author: Will Richards</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>tolerance:</dt>
+<dd>Tolerance for each coordinate of a particular site. For
+example, [0.5, 0, 0.5] in cartesian coordinates will be
+considered to be on the same coordinates as [0, 0, 0] for a
+tolerance of 0.5. Defaults to 0.5.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PrimitiveCellTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns most primitive cell for structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>A structure</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>The most primitive structure found. The returned structure is
+guaranteed to have len(new structure) &lt;= len(structure).</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PrimitiveCellTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PrimitiveCellTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#PrimitiveCellTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.PrimitiveCellTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation">
+<em class="property">class </em><tt class="descname">RemoveSpeciesTransformation</tt><big>(</big><em>species_to_remove</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RemoveSpeciesTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>Remove all occurrences of some species from a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>species_to_remove:</dt>
+<dd>List of species to remove. E.g., [&#8220;Li&#8221;, &#8220;Mn&#8221;]</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RemoveSpeciesTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RemoveSpeciesTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RemoveSpeciesTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RemoveSpeciesTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RemoveSpeciesTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.RotationTransformation">
+<em class="property">class </em><tt class="descname">RotationTransformation</tt><big>(</big><em>axis</em>, <em>angle</em>, <em>angle_in_radians=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RotationTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>The RotationTransformation applies a rotation to a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>axis:</dt>
+<dd>Axis of rotation, e.g., [1, 0, 0]</dd>
+<dt>angle:</dt>
+<dd>Angle to rotate</dd>
+<dt>angle_in_radians:</dt>
+<dd>Set to True if angle is supplied in radians. Else degrees are
+assumed.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RotationTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.RotationTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RotationTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RotationTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.RotationTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#RotationTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.RotationTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation">
+<em class="property">class </em><tt class="descname">SubstitutionTransformation</tt><big>(</big><em>species_map</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>This transformation substitutes species for one another.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>species_map:</dt>
+<dd>A dict or list of tuples containing the species mapping in 
+string-string pairs. E.g., {&#8220;Li&#8221;:&#8221;Na&#8221;} or [(&#8220;Fe2+&#8221;,&#8221;Mn2+&#8221;)]. 
+Multiple substitutions can be done. Overloaded to accept 
+sp_and_occu dictionary E.g. {&#8220;Si: {&#8220;Ge&#8221;:0.75, &#8220;C&#8221;:0.25}}, 
+which substitutes a single species with multiple species to 
+generate a disordered structure.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.SubstitutionTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SubstitutionTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SubstitutionTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation">
+<em class="property">class </em><tt class="descname">SupercellTransformation</tt><big>(</big><em>scaling_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="pymatgen.transformations.transformation_abc.AbstractTransformation"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.transformations.transformation_abc.AbstractTransformation</span></tt></a></p>
+<p>The RotationTransformation applies a rotation to a structure.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>scaling_matrix:</dt>
+<dd>a matrix of transforming the lattice vectors. Defaults to the
+identity matrix. Has to be all integers. e.g.,
+[[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
+lattice vectors a&#8221; = 2a + b, b&#8221; = 3b, c&#8221; = c where a, b, and c
+are the lattice vectors of the original structure.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="method">
+<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors">
+<em class="property">static </em><tt class="descname">from_scaling_factors</tt><big>(</big><em>scale_a=1</em>, <em>scale_b=1</em>, <em>scale_c=1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation.from_scaling_factors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.from_scaling_factors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method to get a SupercellTransformation from a simple
+series of three numbers for scaling each lattice vector. Equivalent to
+calling the normal with [[scale_a, 0, 0], [0, scale_b, 0],
+[0, 0, scale_c]]</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>scale_a:</dt>
+<dd>Scaling factor for lattice direction a. Defaults to 1.</dd>
+<dt>scale_b:</dt>
+<dd>Scaling factor for lattice direction b. Defaults to 1.</dd>
+<dt>scale_c:</dt>
+<dd>Scaling factor for lattice direction c. Defaults to 1.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.standard_transformations.SupercellTransformation.to_dict">
+<tt class="descname">to_dict</tt><a class="reference internal" href="_modules/pymatgen/transformations/standard_transformations.html#SupercellTransformation.to_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.standard_transformations.SupercellTransformation.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pymatgen.transformations.transformation_abc">
+<span id="transformation-abc-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">transformation_abc</span></tt> Module<a class="headerlink" href="#module-pymatgen.transformations.transformation_abc" title="Permalink to this headline">¶</a></h2>
+<p>Defines an abstract base class contract for Transformation object.</p>
+<dl class="class">
+<dt id="pymatgen.transformations.transformation_abc.AbstractTransformation">
+<em class="property">class </em><tt class="descname">AbstractTransformation</tt><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.serializers.html#pymatgen.serializers.json_coders.MSONable" title="pymatgen.serializers.json_coders.MSONable"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.serializers.json_coders.MSONable</span></tt></a></p>
+<p>Abstract transformation class.</p>
+<dl class="method">
+<dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation">
+<tt class="descname">apply_transformation</tt><big>(</big><em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation.apply_transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.apply_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the transformation to a structure. Depending on whether a
+transformation is one-to-many, there may be an option to return a
+ranked list of structures.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>structure:</dt>
+<dd>input structure</dd>
+<dt>return_ranked_list:</dt>
+<dd>Boolean stating whether or not multiple structures are
+returned. If return_ranked_list is a number, that number of
+structures is returned.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd>depending on returned_ranked list, either a transformed structure
+or
+a list of dictionaries, where each dictionary is of the form
+{&#8216;structure&#8217; = .... , &#8216;other_arguments&#8217;}
+the key &#8216;transformation&#8217; is reserved for the transformation that
+was actually applied to the structure.
+This transformation is parsed by the alchemy classes for generating
+a more specific transformation history. Any other information will
+be stored in the transformation_parameters dictionary in the
+transmuted structure class.</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.inverse">
+<tt class="descname">inverse</tt><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation.inverse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.inverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the inverse transformation if available.
+Otherwise, should return None.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many">
+<tt class="descname">is_one_to_many</tt><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation.is_one_to_many"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.is_one_to_many" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines if a Transformation is a one-to-many transformation. If a
+Transformation is a one-to-many transformation, the
+apply_transformation method should have a keyword arg
+&#8220;return_ranked_list&#8221; which allows for the transformed structures to be
+returned as a ranked list.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pymatgen.transformations.transformation_abc.AbstractTransformation.use_multiprocessing">
+<tt class="descname">use_multiprocessing</tt><a class="reference internal" href="_modules/pymatgen/transformations/transformation_abc.html#AbstractTransformation.use_multiprocessing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.transformations.transformation_abc.AbstractTransformation.use_multiprocessing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether the transformation can be applied by a
+subprocessing pool. This should be overridden to return True for
+transformations that the transmuter can parallelize.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">transformations Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">transformations</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-pymatgen.transformations.advanced_transformations"><tt class="docutils literal"><span class="pre">advanced_transformations</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.transformations.site_transformations"><tt class="docutils literal"><span class="pre">site_transformations</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.transformations.standard_transformations"><tt class="docutils literal"><span class="pre">standard_transformations</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.transformations.transformation_abc"><tt class="docutils literal"><span class="pre">transformation_abc</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pymatgen.transformations.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">pymatgen 2.8.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+<div class="footer">This page uses <a href="http://analytics.google.com/">
+Google Analytics</a> to collect statistics. You can disable it by blocking
+the JavaScript coming from www.google-analytics.com.
+<script type="text/javascript">
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ?
+              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+</script>
+</div>
+
+  </body>
+</html>
