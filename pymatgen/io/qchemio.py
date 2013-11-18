@@ -280,6 +280,16 @@ class QcInput(MSONable):
         """
         self.params["rem"]["max_sub_file_num"] = num
 
+    def set_max_scf_iterations(self, iterations=50):
+        """
+        Set max number of SCF iterations.
+
+        Args:
+            iterations: The max number of SCF iterations.
+            Integer
+        """
+        self.params["rem"]["max_scf_cycles"] = iterations
+
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
