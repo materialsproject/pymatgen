@@ -261,12 +261,14 @@ $rem
         exchange = b3lyp
            basis = 6-31+g*
   max_scf_cycles = 100
+   scf_algorithm = diis_gdm
 $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
                         job_type="SP",
                         basis_set="6-31+G*")
-        qcinp.set_max_scf_iterations(100)
+        qcinp.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
+                                               iterations=100)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)

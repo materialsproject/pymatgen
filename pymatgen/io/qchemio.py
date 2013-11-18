@@ -280,14 +280,20 @@ class QcInput(MSONable):
         """
         self.params["rem"]["max_sub_file_num"] = num
 
-    def set_max_scf_iterations(self, iterations=50):
+    def set_scf_algorithm_and_iterations(self, algorithm="diis",
+                                         iterations=50):
         """
-        Set max number of SCF iterations.
+        Set algorithm used for converging SCF and max number of SCF iterations.
 
         Args:
-            iterations: The max number of SCF iterations.
-            Integer
+            algorithm: The algorithm used for converging SCF. (str)
+            iterations: The max number of SCF iterations. (Integer)
         """
+        available_algorithms = set(["diis", "dm", "diis_dm", "diis_gdm", "gdm",
+                                    "rca", "rca_diis", "roothaan"])
+        if algorithm.lower() not in available_algorithms:
+            raise ValueError("Algorithm " + algorithm + " is not available in QChem")
+        self.params["rem"]["scf_algorithm"] = algorithm.lower()
         self.params["rem"]["max_scf_cycles"] = iterations
 
 
