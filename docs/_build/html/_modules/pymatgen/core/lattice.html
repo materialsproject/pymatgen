@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -67,7 +68,7 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Sep 23, 2011&quot;</span>
 
@@ -77,7 +78,6 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">inv</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">pi</span><span class="p">,</span> <span class="n">dot</span><span class="p">,</span> <span class="n">transpose</span><span class="p">,</span> <span class="n">radians</span>
-<span class="kn">from</span> <span class="nn">pyhull.voronoi</span> <span class="kn">import</span> <span class="n">VoronoiTess</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="kn">import</span> <span class="n">get_points_in_sphere_pbc</span>
@@ -371,21 +371,21 @@
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Lattice.alpha"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.lattice.Lattice.alpha">[docs]</a>    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Angle alpha of lattice.</span>
+<span class="sd">        Angle alpha of lattice in degrees.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Lattice.beta"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.lattice.Lattice.beta">[docs]</a>    <span class="k">def</span> <span class="nf">beta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Angle beta of lattice.</span>
+<span class="sd">        Angle beta of lattice in degrees.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Lattice.gamma"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.lattice.Lattice.gamma">[docs]</a>    <span class="k">def</span> <span class="nf">gamma</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Angle gamma of lattice.</span>
+<span class="sd">        Angle gamma of lattice in degrees.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angles</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </div>
@@ -407,11 +407,16 @@
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Lattice.reciprocal_lattice"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.lattice.Lattice.reciprocal_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">reciprocal_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the reciprocal lattice.</span>
+<span class="sd">        Return the reciprocal lattice. The property is lazily generated for efficiency.</span>
+<span class="sd">        This implies that Lattice is an immutable object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">])</span>
-             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-        <span class="k">return</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reciprocal_lattice</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">3</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reciprocal_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reciprocal_lattice</span>
 </div>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s">&quot;</span><span class="si">%0.6f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">x</span>
@@ -773,7 +778,15 @@
 <div class="viewcode-block" id="Lattice.scale"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.lattice.Lattice.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_volume</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new Lattice with volume new_volume by performing a</span>
-<span class="sd">        scaling of the lattice vectors so that length proportions and angles are preserved.</span>
+<span class="sd">        scaling of the lattice vectors so that length proportions and angles</span>
+<span class="sd">        are preserved.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            new_volume:</span>
+<span class="sd">                New volume to scale to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New lattice with desired volume.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">versors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">abc</span>
 
@@ -795,7 +808,7 @@
 <span class="sd">            Wigner Seitz cell. For instance, a list of four coordinates will</span>
 <span class="sd">            represent a square facet.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
+        <span class="kn">from</span> <span class="nn">pyhull.voronoi</span> <span class="kn">import</span> <span class="n">VoronoiTess</span>
         <span class="n">vec1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">vec2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">vec3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -822,7 +835,56 @@
 <span class="sd">            Brillouin Zone. For instance, a list of four coordinates will</span>
 <span class="sd">            represent a square facet.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">get_wigner_seitz_cell</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">get_wigner_seitz_cell</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Lattice.dot"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.lattice.Lattice.dot">[docs]</a>    <span class="k">def</span> <span class="nf">dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_a</span><span class="p">,</span> <span class="n">coords_b</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the scalar product of vector(s).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords_a, coords_b:</span>
+<span class="sd">                Array-like objects with the coordinates.</span>
+<span class="sd">            frac_coords:</span>
+<span class="sd">                Boolean stating whether the vector corresponds to fractional or</span>
+<span class="sd">                cartesian coordinates.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            one-dimensional `numpy` array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coords_a</span><span class="p">,</span> <span class="n">coords_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">coords_a</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">)),</span> \
+                             <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">coords_b</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_a</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords_b</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="n">coords_a</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">iscomplexobj</span><span class="p">(</span><span class="n">coords_b</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Complex array!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frac_coords</span><span class="p">:</span>
+            <span class="n">cart_a</span><span class="p">,</span> <span class="n">cart_b</span> <span class="o">=</span> <span class="n">coords_a</span><span class="p">,</span> <span class="n">coords_b</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cart_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+                                 <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">coords_a</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">cart_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+                                 <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">coords_b</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cart_a</span><span class="p">,</span> <span class="n">cart_b</span><span class="p">)])</span>
+</div>
+<div class="viewcode-block" id="Lattice.norm"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.lattice.Lattice.norm">[docs]</a>    <span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the norm of vector(s).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords:</span>
+<span class="sd">                Array-like object with the coordinates.</span>
+<span class="sd">            frac_coords:</span>
+<span class="sd">                Boolean stating whether the vector corresponds to fractional or</span>
+<span class="sd">                cartesian coordinates.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            one-dimensional `numpy` array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="n">frac_coords</span><span class="p">))</span></div></div>
 </pre></div>
 
           </div>
@@ -863,7 +925,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

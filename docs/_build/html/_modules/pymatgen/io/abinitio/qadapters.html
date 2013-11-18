@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -323,19 +324,6 @@
     <span class="c">#def set_queue_walltime(self):</span>
     <span class="c">#    &quot;&quot;&quot;Set the walltime in seconds.&quot;&quot;&quot;</span>
 
-    <span class="c">#@abc.abstractproperty</span>
-    <span class="c">#def mem_per_cpu(self):</span>
-    <span class="c">#    &quot;&quot;&quot;The memory per CPU in Megabytes.&quot;&quot;&quot;</span>
-                                                
-    <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the memory per CPU in Megabytes&quot;&quot;&quot;</span>
-
-    <span class="c">#@property</span>
-    <span class="c">#def tot_mem(self):</span>
-    <span class="c">#    &quot;&quot;&quot;Total memory required by the job n Megabytes.&quot;&quot;&quot;</span>
-    <span class="c">#    return self.mem_per_cpu * self.mpi_ncpus</span>
-
     <span class="k">def</span> <span class="nf">_make_qheader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_name</span><span class="p">,</span> <span class="n">qout_path</span><span class="p">,</span> <span class="n">qerr_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a string with the options that are passed to the resource manager.&quot;&quot;&quot;</span>
         <span class="n">qtemplate</span> <span class="o">=</span> <span class="n">QScriptTemplate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">QTEMPLATE</span><span class="p">)</span>
@@ -463,9 +451,6 @@
         <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;MPI_NCPUS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_ncpus</span>
 
-    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;mem_per_cpu is not available in ShellAdapter.&quot;&quot;&quot;</span>
-
     <span class="k">def</span> <span class="nf">submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">script_file</span><span class="p">):</span>
@@ -500,7 +485,6 @@
 <span class="s">#SBATCH --job-name=$${job_name}</span>
 <span class="s">#SBATCH	--nodes=$${nodes}</span>
 <span class="s">#SBATCH --mem=$${mem}</span>
-<span class="s">#SBATCH --mem-per-cpu=$${mem_per_cpu}</span>
 <span class="s">#SBATCH --mail-user=$${mail_user}</span>
 <span class="s">#SBATCH --mail-type=$${mail_type}</span>
 <span class="s">#SBATCH --constraint=$${constraint}</span>
@@ -522,12 +506,6 @@
     <span class="k">def</span> <span class="nf">set_mpi_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mpi_ncpus</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the number of CPUs used for MPI.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;ntasks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_ncpus</span>
-
-    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the memory per CPU in Megabytes&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;mem_per_cpu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mem_mb</span>
-        <span class="c"># Remove mem if it&#39;s defined.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;mem&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
 
@@ -619,13 +597,6 @@
 
         <span class="n">ppnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;ppn&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qparams</span><span class="p">[</span><span class="s">&quot;nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mpi_ncpus</span> <span class="o">//</span> <span class="n">ppnode</span> 
-
-    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the memory per CPU in Megabytes&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
-        <span class="c">#self.qparams[&quot;mem_per_cpu&quot;] = mem_mb</span>
-        <span class="c">## Remove mem if it&#39;s defined.</span>
-        <span class="c">#self.qparams.pop(&quot;mem&quot;, None)</span>
 
     <span class="k">def</span> <span class="nf">submit_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_file</span><span class="p">):</span>
 
@@ -735,7 +706,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

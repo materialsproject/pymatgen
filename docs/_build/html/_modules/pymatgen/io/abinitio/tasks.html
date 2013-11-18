@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -109,11 +110,6 @@
     <span class="s">&quot;AnaddbTask&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="c"># Tools and helper functions.</span>
-<span class="k">def</span> <span class="nf">straceback</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Returns a string with the traceback.&quot;&quot;&quot;</span>
-    <span class="kn">import</span> <span class="nn">traceback</span>
-    <span class="k">return</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
 
 <span class="k">class</span> <span class="nc">TaskResults</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -203,7 +199,7 @@
 <span class="sd">            -   tot_ncpus: 2         # Total number of CPUs</span>
 <span class="sd">                mpi_ncpus: 2         # Number of MPI processes.</span>
 <span class="sd">                omp_ncpus: 1         # Number of OMP threads (1 if not present)</span>
-<span class="sd">                mem_per_cpu: 10     # Estimated memory requirement per MPI processor in Megabytes.</span>
+<span class="sd">                mem_per_cpus: 10     # Estimated memory requirement per MPI processor in Gigabytes (None if not specified)</span>
 <span class="sd">                efficiency: 0.4      # 1.0 corresponds to an &quot;expected&quot; optimal efficiency (strong scaling).</span>
 <span class="sd">                vars: {              # Dictionary with the variables that should be added to the input.</span>
 <span class="sd">                      varname1: varvalue1</span>
@@ -238,12 +234,6 @@
         <span class="sd">&quot;&quot;&quot;Estimated speedup reported by ABINIT.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_ncpus</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tot_mem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Estimated total memory in Mbs (computed from mem_per_cpu)&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem_per_cpu</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tot_ncpus</span>
-
-
 
 <span class="k">class</span> <span class="nc">ParalHintsParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
@@ -256,13 +246,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="n">abiinspect</span><span class="o">.</span><span class="n">YamlTokenizer</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">next_doc_with_tag</span><span class="p">(</span><span class="s">&quot;!Autoparal&quot;</span><span class="p">)</span>
-            <span class="c">#print(d)</span>
-
-            <span class="c">#with open(os.path.join(os.path.dirname(filename), &quot;autoparal.yml&quot;), &quot;w&quot;) as fh:</span>
-            <span class="c">#    fh.write(doc.text)</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text_notag</span><span class="p">)</span>
+                <span class="c">#print(d)</span>
                 <span class="k">return</span> <span class="n">ParalHints</span><span class="p">(</span><span class="n">info</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;info&quot;</span><span class="p">],</span> <span class="n">confs</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;configurations&quot;</span><span class="p">])</span>
 
             <span class="k">except</span><span class="p">:</span>
@@ -295,12 +282,6 @@
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_with_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove all the configurations that do not satisfy the given condition.</span>
-
-<span class="sd">            Args:</span>
-<span class="sd">                `Condition` object with operators expressed with a Mongodb-like syntax</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">new_confs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">conf</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">condition</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">conf</span><span class="p">):</span>
@@ -322,21 +303,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">speedup</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">sort_by_mem_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sort the configurations in place so that conf with lowest memory per CPU</span>
-<span class="sd">        appears in the first positions.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Avoid sorting if mem_per_cpu is not available.</span>
-        <span class="n">has_mem_info</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">mem_per_cpu</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">has_mem_info</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_confs</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">mem_per_cpu</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+    <span class="c">#def sort_by_mem_cpu(self, reverse=False):</span>
+    <span class="c">#    self._confs.sort(key=lambda c: c.mem_per_cpus, reverse=reverse)</span>
 
     <span class="k">def</span> <span class="nf">select_optimal_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">policy</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find the optimal configuration according to the `TaskPolicy` policy.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Find the optimal configuration according on policy.&quot;&quot;&quot;</span>
         <span class="c"># Make a copy since we are gonna change the object in place.</span>
         <span class="n">hints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -347,33 +318,27 @@
             <span class="c">#if not hints: hints = self.copy()</span>
             <span class="c">#print(&quot;after condition&quot;, hints)</span>
 
-            <span class="c"># If no configuration fullfills the requirements, </span>
-            <span class="c"># we return the one with the highest speedup.</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">hints</span><span class="p">:</span>
-                <span class="n">hints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">hints</span><span class="o">.</span><span class="n">sort_by_speedup</span><span class="p">()</span>
-                <span class="k">return</span> <span class="n">hints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
         <span class="n">hints</span><span class="o">.</span><span class="n">sort_by_speedup</span><span class="p">()</span>
+
+        <span class="c"># If no configuration fullfills the requirements, </span>
+        <span class="c"># we return the one with the highest speedup.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hints</span><span class="p">:</span>
+            <span class="n">hints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">hints</span><span class="o">.</span><span class="n">sort_by_speedup</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">hints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="c"># Find the optimal configuration according to policy.mode.</span>
         <span class="c">#mode = policy.mode</span>
         <span class="c">#if mode in [&quot;default&quot;, &quot;aggressive&quot;]:</span>
-        <span class="c">#    hints.sort_by_spedup()</span>
-
+        <span class="c">#    hints.sort_by_spedup(reverse=True)</span>
         <span class="c">#elif mode == &quot;conservative&quot;:</span>
-        <span class="c">#    hints.sort_by_efficiency()</span>
-        <span class="c">#    # Remove tot_ncpus == 1</span>
-        <span class="c">#    hints.pop(tot_ncpus==1)</span>
-        <span class="c">#    if not hints:</span>
-
+        <span class="c">#    hints.sort_by_efficiency(reverse=True)</span>
         <span class="c">#else:</span>
         <span class="c">#    raise ValueError(&quot;Wrong value for mode: %s&quot; % str(mode))</span>
 
         <span class="c"># Return a copy of the configuration.</span>
         <span class="n">optimal</span> <span class="o">=</span> <span class="n">hints</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Will relaunch the job with optimized parameters:</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">optimal</span><span class="p">))</span>
-
         <span class="k">return</span> <span class="n">optimal</span>
 
 
@@ -559,10 +524,11 @@
 <div class="viewcode-block" id="TaskManager.set_omp_ncpus"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.tasks.TaskManager.set_omp_ncpus">[docs]</a>    <span class="k">def</span> <span class="nf">set_omp_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">omp_ncpus</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the number of OpenMp threads to use.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_omp_ncpus</span><span class="p">(</span><span class="n">omp_ncpus</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="TaskManager.set_mem_per_cpu"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.tasks.TaskManager.set_mem_per_cpu">[docs]</a>    <span class="k">def</span> <span class="nf">set_mem_per_cpu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mem_mb</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the memory (in Megabytes) per CPU.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qadapter</span><span class="o">.</span><span class="n">set_mem_per_cpu</span><span class="p">(</span><span class="n">mem_mb</span><span class="p">)</span>
+
+    <span class="c"># TODO</span>
+    <span class="c">#def set_mem_per_cpu(self, mem_per_cpu):</span>
+    <span class="c">#    &quot;&quot;&quot;Set the memory (in gigabytes) per CPU.&quot;&quot;&quot;</span>
+    <span class="c">#    self.qadapter.set_mem_per_cpu(mem_per_cpu)</span>
 </div>
 <div class="viewcode-block" id="TaskManager.autoparal"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.tasks.TaskManager.autoparal">[docs]</a>    <span class="k">def</span> <span class="nf">autoparal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -577,12 +543,10 @@
 <span class="sd">           autoparal and optimal is the optimal configuration selected.</span>
 <span class="sd">           Returns (None, None) if some problem occurred.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#print(&quot;in autoparal&quot;)</span>
         <span class="n">policy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span>
 
         <span class="k">if</span> <span class="n">policy</span><span class="o">.</span><span class="n">autoparal</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">policy</span><span class="o">.</span><span class="n">max_ncpus</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span> 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Nothing to do in autoparal, returning (None, None)&quot;</span><span class="p">)</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Returning from autoparal with None&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
         <span class="k">assert</span> <span class="n">policy</span><span class="o">.</span><span class="n">autoparal</span> <span class="o">==</span> <span class="mi">1</span>
@@ -596,7 +560,6 @@
 
         <span class="n">task</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">add_extra_abivars</span><span class="p">(</span><span class="n">autoparal_vars</span><span class="p">)</span>
         <span class="n">task</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
-        <span class="c">#print(&quot;after build&quot;)</span>
 
         <span class="c"># Build a simple manager to run the job in a shell subprocess on the frontend</span>
         <span class="c"># we don&#39;t want to make a request to the queue manager for this simple job!</span>
@@ -604,23 +567,18 @@
 
         <span class="c"># Return code is always != 0 </span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">seq_manager</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
-        <span class="c">#print(&quot;launched&quot;)</span>
         <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>  
 
         <span class="c"># Remove the variables added for the automatic parallelization</span>
         <span class="n">task</span><span class="o">.</span><span class="n">strategy</span><span class="o">.</span><span class="n">remove_extra_abivars</span><span class="p">(</span><span class="n">autoparal_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
         <span class="c"># 2) Parse the autoparal configurations</span>
-        <span class="c">#print(&quot;parsing&quot;)</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">ParalHintsParser</span><span class="p">()</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">confs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">log_file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-            <span class="c">#print(&quot;confs&quot;, confs)</span>
 
         <span class="k">except</span> <span class="n">parser</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s">&quot;Error while parsing Autoparal section:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">())</span>
             <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
         <span class="c"># 3) Select the optimal configuration according to policy</span>
@@ -640,8 +598,8 @@
         <span class="c">#    self.qadapter.disable_omp()</span>
 
         <span class="c"># Change the memory per node.</span>
-        <span class="k">if</span> <span class="n">optimal</span><span class="o">.</span><span class="n">mem_per_cpu</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_mem_per_cpu</span><span class="p">(</span><span class="n">optimal</span><span class="o">.</span><span class="n">mem_per_cpu</span><span class="p">)</span>
+        <span class="c">#if optimal.mem_per_cpu is not None</span>
+        <span class="c">#    self.qadapter.set_mem_per_cpu(optimal.mem_per_cpu)</span>
 
         <span class="c"># Reset the status, remove garbage files ...</span>
         <span class="n">task</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">S_READY</span><span class="p">)</span>
@@ -907,7 +865,6 @@
 <span class="p">])</span>
 
 <span class="k">class</span> <span class="nc">Status</span><span class="p">(</span><span class="nb">int</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This object is an integer representing the status of the `Node`.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;&lt;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">, at </span><span class="si">%s</span><span class="s">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
@@ -980,7 +937,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The name of the node </span>
+<span class="sd">        The name of node </span>
 <span class="sd">        (only used for facilitating its identification in the user interface).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1124,7 +1081,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span> <span class="o">+</span> <span class="s">&quot;.nc&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span>
         <span class="k">return</span> <span class="s">&quot;&quot;</span>
-
 
 <span class="k">class</span> <span class="nc">FileNode</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -2600,7 +2556,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +14,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '2.8.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -443,7 +444,7 @@ the future.</p>
 
 <dl class="method">
 <dt id="pymatgen.matproj.rest.MPRester.submit_structures">
-<tt class="descname">submit_structures</tt><big>(</big><em>structures</em>, <em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>histories=None</em>, <em>created_at=None</em><big>)</big><a class="headerlink" href="#pymatgen.matproj.rest.MPRester.submit_structures" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">submit_structures</tt><big>(</big><em>structures</em>, <em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>histories=None</em>, <em>created_at=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/matproj/rest.html#MPRester.submit_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.matproj.rest.MPRester.submit_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Submits a list of structures to the Materials Project as SNL files.
 The argument list mirrors the arguments for the StructureNL object,
 except that a list of structures with the same metadata is used as an
@@ -713,7 +714,7 @@ underscore, e.g. {&#8220;_materialsproject&#8221;: &lt;custom data&gt;}</dd>
 
 <dl class="classmethod">
 <dt id="pymatgen.matproj.snl.StructureNL.from_structures">
-<em class="property">classmethod </em><tt class="descname">from_structures</tt><big>(</big><em>structures</em>, <em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>histories=None</em>, <em>created_at=None</em><big>)</big><a class="headerlink" href="#pymatgen.matproj.snl.StructureNL.from_structures" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><tt class="descname">from_structures</tt><big>(</big><em>structures</em>, <em>authors</em>, <em>projects=None</em>, <em>references=''</em>, <em>remarks=None</em>, <em>data=None</em>, <em>histories=None</em>, <em>created_at=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/matproj/snl.html#StructureNL.from_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.matproj.snl.StructureNL.from_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>A convenience method for getting a list of StructureNL objects by
 specifying structures and metadata separately. Some of the metadata
 is applied to all of the structures for ease of use.</p>
@@ -829,7 +830,7 @@ same as the list of structures if not None.</dd>
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

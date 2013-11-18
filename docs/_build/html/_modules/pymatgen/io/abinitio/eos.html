@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -61,13 +62,12 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">as</span> <span class="nn">const</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">FloatWithUnit</span>
+<span class="kn">import</span> <span class="nn">pymatgen.core.units</span> <span class="kn">as</span> <span class="nn">units</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s">&quot;EOS&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
 
 <span class="c">##########################################################################################</span>
 
@@ -139,7 +139,7 @@
             <span class="k">break</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">EOSError</span><span class="p">(</span><span class="s">&quot;No minimum could be found&quot;</span><span class="p">)</span>
-    
+
     <span class="n">derivV2</span> <span class="o">=</span> <span class="mf">4.</span><span class="o">/</span><span class="mf">9.</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mf">5.</span> <span class="o">*</span> <span class="n">deriv2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">derivV3</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">20.</span><span class="o">/</span><span class="mf">9.</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="mf">13.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">deriv2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mf">8.</span><span class="o">/</span><span class="mf">27.</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="mf">15.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="o">*</span> <span class="n">deriv3</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
     <span class="n">b0</span> <span class="o">=</span> <span class="n">derivV2</span> <span class="o">/</span> <span class="n">x</span><span class="o">**</span><span class="p">(</span><span class="mf">3.</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span>
@@ -178,16 +178,16 @@
 
 <span class="sd">    Use::</span>
 
-<span class="sd">       eos = EOS(eos=&#39;murnaghan&#39;)</span>
+<span class="sd">       eos = EOS(eos_name=&#39;murnaghan&#39;)</span>
 <span class="sd">       fit = eos.fit(volumes, energies)</span>
-<span class="sd">       print fit</span>
+<span class="sd">       print(fit)</span>
 <span class="sd">       fit.plot()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Error</span> <span class="o">=</span> <span class="n">EOSError</span>
 
     <span class="c">#: Models available.</span>
-    <span class="n">functions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">MODELS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&quot;murnaghan&quot;</span>        <span class="p">:</span> <span class="n">murnaghan</span><span class="p">,</span>
         <span class="s">&quot;birch&quot;</span>            <span class="p">:</span> <span class="n">birch</span><span class="p">,</span>
         <span class="s">&quot;birch_murnaghan&quot;</span>  <span class="p">:</span> <span class="n">birch_murnaghan</span><span class="p">,</span>
@@ -198,7 +198,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eos_name</span><span class="o">=</span><span class="s">&#39;murnaghan&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_eos_name</span> <span class="o">=</span> <span class="n">eos_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">functions</span><span class="p">[</span><span class="n">eos_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MODELS</span><span class="p">[</span><span class="n">eos_name</span><span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="EOS.Murnaghan"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.eos.EOS.Murnaghan">[docs]</a>    <span class="k">def</span> <span class="nf">Murnaghan</span><span class="p">():</span>
@@ -224,14 +224,18 @@
 <div class="viewcode-block" id="EOS.DeltaFactor"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.eos.EOS.DeltaFactor">[docs]</a>    <span class="k">def</span> <span class="nf">DeltaFactor</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">EOS</span><span class="p">(</span><span class="n">eos_name</span><span class="o">=</span><span class="s">&#39;deltafactor&#39;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="EOS.fit"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.eos.EOS.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">):</span>
+<div class="viewcode-block" id="EOS.fit"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.eos.EOS.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">vol_unit</span><span class="o">=</span><span class="s">&quot;ang^3&quot;</span><span class="p">,</span> <span class="n">ene_unit</span><span class="o">=</span><span class="s">&quot;eV&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Fit energies [eV] as function of volumes [Angstrom^3].</span>
+<span class="sd">        Fit energies [eV] as function of volumes [Angstrom**3].</span>
 
-<span class="sd">        Returns EosFit instance that gives access to the optimal volume, </span>
-<span class="sd">        the minumum energy, and the bulk modulus.  </span>
+<span class="sd">        Returns `EosFit` instance that gives access to the optimal volume,</span>
+<span class="sd">        the minumum energy, and the bulk modulus.</span>
 <span class="sd">        Notice that the units for the bulk modulus is eV/Angstrom^3.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Convert volumes to Ang**3 and energies to eV (if needed).</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">ArrayWithUnit</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">vol_unit</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;ang^3&quot;</span><span class="p">)</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">EnergyArray</span><span class="p">(</span><span class="n">energies</span><span class="p">,</span> <span class="n">ene_unit</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;eV&quot;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">EOS_Fit</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eos_name</span><span class="p">)</span>
 
 <span class="c">##########################################################################################</span>
@@ -241,14 +245,16 @@
     <span class="sd">&quot;&quot;&quot;Performs the fit of E(V) and provides method to access the results of the fit.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">eos_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; </span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        args:</span>
-<span class="sd">            energies: list of energies in eV </span>
+<span class="sd">            energies: list of energies in eV</span>
 <span class="sd">            volumes: list of volumes in Angstrom^3</span>
-<span class="sd">            func: callable function </span>
+<span class="sd">            func: callable function</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">volumes</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">energies</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span>     <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eos_name</span> <span class="o">=</span> <span class="n">eos_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span> <span class="o">=</span> <span class="p">[]</span>
@@ -270,16 +276,16 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">ierr</span> <span class="o">=</span> <span class="mi">1</span>
                 <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
-                <span class="k">raise</span> 
+                <span class="k">raise</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Objective function that will be minimized</span>
             <span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="n">pars</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">pars</span><span class="p">)</span>
 
-            <span class="c"># Quadratic fit to get an initial guess for the parameters </span>
-            <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> 
-                                               
+            <span class="c"># Quadratic fit to get an initial guess for the parameters</span>
+            <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
             <span class="n">v0</span> <span class="o">=</span> <span class="o">-</span><span class="n">b</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
             <span class="n">e0</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">v0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">b</span><span class="o">*</span><span class="n">v0</span> <span class="o">+</span> <span class="n">c</span>
             <span class="n">b0</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="o">*</span><span class="n">v0</span>
@@ -293,10 +299,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
 
             <span class="c"># Initial guesses for the parameters</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">p0</span> <span class="o">=</span> <span class="p">[</span><span class="n">e0</span><span class="p">,</span> <span class="n">b0</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">v0</span><span class="p">]</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">p0</span> <span class="o">=</span> <span class="p">[</span><span class="n">e0</span><span class="p">,</span> <span class="n">b0</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">v0</span><span class="p">]</span>
 
             <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">leastsq</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">eos_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ierr</span> <span class="o">=</span> <span class="n">leastsq</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">energies</span><span class="p">))</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">eos_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ierr</span> <span class="o">=</span> <span class="n">leastsq</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ierr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]:</span>
                 <span class="n">exc</span> <span class="o">=</span> <span class="n">EOSError</span><span class="p">(</span><span class="s">&quot;Optimal parameters not found&quot;</span><span class="p">)</span>
@@ -323,15 +329,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">b0_GPa</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">b0</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">eVA3_GPa</span>
+        <span class="k">return</span> <span class="n">FloatWithUnit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b0</span><span class="p">,</span> <span class="s">&quot;eV ang^-3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;GPa&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Uses Matplotlib to plot the energy curve.  </span>
+<span class="sd">        Uses Matplotlib to plot the energy curve.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            show: </span>
-<span class="sd">                True to show the figure </span>
+<span class="sd">            show:</span>
+<span class="sd">                True to show the figure</span>
 <span class="sd">            savefig:</span>
 <span class="sd">                &#39;abc.png&#39; or &#39;abc.eps&#39; to save the figure to a file.</span>
 
@@ -339,13 +345,13 @@
 <span class="sd">            Matplotlib figure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-                                                                                                                                         
+
         <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">volumes</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
         <span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">energies</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                                                                        
+
         <span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="p">(</span><span class="n">vmin</span> <span class="o">-</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmin</span><span class="p">),</span> <span class="n">vmax</span> <span class="o">+</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">vmax</span><span class="p">))</span>
         <span class="n">emin</span><span class="p">,</span> <span class="n">emax</span> <span class="o">=</span> <span class="p">(</span><span class="n">emin</span> <span class="o">-</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">emin</span><span class="p">),</span> <span class="n">emax</span> <span class="o">+</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">emax</span><span class="p">))</span>
-                                                                                                                                         
+
         <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 
@@ -367,7 +373,7 @@
 
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="n">legends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39; fit&#39;</span><span class="p">)</span>
-                                                                                                                                         
+
         <span class="c"># Set xticks and labels.</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">&quot;Volume $\AA^3$&quot;</span><span class="p">)</span>
@@ -431,7 +437,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

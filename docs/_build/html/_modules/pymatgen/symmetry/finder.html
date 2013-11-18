@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -73,7 +74,7 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2012, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Mar 9, 2012&quot;</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
@@ -122,7 +123,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span> <span class="o">=</span> <span class="n">symprec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_angle_tol</span> <span class="o">=</span> <span class="n">angle_tolerance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span> <span class="o">=</span> <span class="n">structure</span>
-
         <span class="c">#Spglib&quot;s convention for the lattice definition is the transpose of the</span>
         <span class="c">#pymatgen version.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transposed_latt</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
@@ -330,7 +330,6 @@
             <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span>
             <span class="n">symmops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">symmops</span>
-
 </div>
 <div class="viewcode-block" id="SymmetryFinder.get_point_group_operations"><a class="viewcode-back" href="../../../pymatgen.symmetry.html#pymatgen.symmetry.finder.SymmetryFinder.get_point_group_operations">[docs]</a>    <span class="k">def</span> <span class="nf">get_point_group_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cartesian</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -345,10 +344,10 @@
         <span class="k">for</span> <span class="n">rot</span><span class="p">,</span> <span class="n">trans</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rotation</span><span class="p">,</span> <span class="n">translation</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">cartesian</span><span class="p">:</span>
                 <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">invmat</span><span class="p">))</span>
-                <span class="n">trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
-            <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_rotation_and_translation</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
             <span class="n">symmops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">symmops</span></div>
+        <span class="k">return</span> <span class="n">symmops</span>
+</div>
 <div class="viewcode-block" id="SymmetryFinder.get_symmetrized_structure"><a class="viewcode-back" href="../../../pymatgen.symmetry.html#pymatgen.symmetry.finder.SymmetryFinder.get_symmetrized_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_symmetrized_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a symmetrized structure. A symmetrized structure is one where the</span>
@@ -385,7 +384,9 @@
             <span class="n">lattice</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="n">num_atom</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symprec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_angle_tol</span><span class="p">)</span>
         <span class="n">zs</span> <span class="o">=</span> <span class="n">numbers</span><span class="p">[:</span><span class="n">num_atom_bravais</span><span class="p">]</span>
         <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unique_species</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">zs</span><span class="p">]</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">species</span><span class="p">,</span> <span class="n">pos</span><span class="p">[:</span><span class="n">num_atom_bravais</span><span class="p">])</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> 
+                      <span class="n">species</span><span class="p">,</span>
+                      <span class="n">pos</span><span class="p">[:</span><span class="n">num_atom_bravais</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="SymmetryFinder.find_primitive"><a class="viewcode-back" href="../../../pymatgen.symmetry.html#pymatgen.symmetry.finder.SymmetryFinder.find_primitive">[docs]</a>    <span class="k">def</span> <span class="nf">find_primitive</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -409,8 +410,8 @@
         <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unique_species</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">zs</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">num_atom_prim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">positions</span><span class="p">[:</span><span class="n">num_atom_prim</span><span class="p">])</span>\
-                <span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">positions</span><span class="p">[:</span><span class="n">num_atom_prim</span><span class="p">],</span>
+                             <span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c">#Not sure if we should return None or just return the full</span>
             <span class="c">#structure.</span>
@@ -820,7 +821,7 @@
 
         <span class="n">new_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
         <span class="n">new_struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">new_coords</span><span class="p">,</span>
-                               <span class="n">site_properties</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
+                               <span class="n">site_properties</span><span class="o">=</span><span class="n">struct</span><span class="o">.</span><span class="n">site_properties</span><span class="p">,</span><span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">new_struct</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
 
 </div></div>
@@ -905,7 +906,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

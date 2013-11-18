@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -55,28 +56,37 @@
           <div class="body">
             
   <h1>Source code for pymatgen.io.abinitio.launcher</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;Tools for the submission of Tasks.&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os</span> 
-<span class="kn">import</span> <span class="nn">os.path</span>
-<span class="kn">import</span> <span class="nn">copy</span> 
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
-
+<span class="kn">from</span> <span class="nn">pymatgen.core.design_patterns</span> <span class="kn">import</span> <span class="n">AttrDict</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">is_string</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.abinitio.utils</span> <span class="kn">import</span> <span class="n">File</span>
 
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-<span class="s">&quot;ScriptEditor&quot;</span><span class="p">,</span>
-<span class="s">&quot;ShellLauncher&quot;</span><span class="p">,</span>
+    <span class="s">&quot;ScriptEditor&quot;</span><span class="p">,</span>
+    <span class="s">&quot;PyLauncher&quot;</span><span class="p">,</span>
+    <span class="s">&quot;PyFlowsScheduler&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="c"># =========================================================================== #</span>
+<span class="k">def</span> <span class="nf">straceback</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns a string with the traceback.&quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">traceback</span>
+    <span class="k">return</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+
 
 <div class="viewcode-block" id="ScriptEditor"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor">[docs]</a><span class="k">class</span> <span class="nc">ScriptEditor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="s">&quot;Simple editor that simplifies the writing of shell scripts&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple editor that simplifies the writing of shell scripts</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_shell</span> <span class="o">=</span> <span class="s">&#39;/bin/bash&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -87,49 +97,56 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shell</span>
 </div>
     <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pre</span><span class="o">+</span><span class="n">text</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">pre</span> <span class="o">+</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">text</span><span class="p">])</span>
 
 <div class="viewcode-block" id="ScriptEditor.reset"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Reset the Editor&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Reset the editor.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">pass</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.shebang"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.shebang">[docs]</a>    <span class="k">def</span> <span class="nf">shebang</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Adds the shebang line&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Adds the shebang line.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;#!&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">shell</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.declare_var"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.declare_var">[docs]</a>    <span class="k">def</span> <span class="nf">declare_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="s">&quot;Return a lines setting a variable.&quot;</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;Declare a env variable. If val is None the variable is unset.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;export &quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s">&#39;=&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;unset &quot;</span> <span class="o">+</span> <span class="n">key</span> 
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.declare_vars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.declare_vars">[docs]</a>    <span class="k">def</span> <span class="nf">declare_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="s">&quot;Declare the variabled defined in d (dict)&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Declare the variables defined in the dictionary d.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">declare_var</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.export_envar"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.export_envar">[docs]</a>    <span class="k">def</span> <span class="nf">export_envar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="s">&quot;Export an environment variable&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Export an environment variable.&quot;&quot;&quot;</span>
         <span class="n">line</span> <span class="o">=</span> <span class="s">&quot;export &quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s">&quot;=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.export_envars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.export_envars">[docs]</a>    <span class="k">def</span> <span class="nf">export_envars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
-        <span class="s">&quot;Export the environment variables contained in the dict env.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Export the environment variables contained in the dict env.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">export_envar</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.add_emptyline"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.add_emptyline">[docs]</a>    <span class="k">def</span> <span class="nf">add_emptyline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add an empty line.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.add_comment"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.add_comment">[docs]</a>    <span class="k">def</span> <span class="nf">add_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a comment&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="n">pre</span><span class="o">=</span><span class="s">&quot;# &quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.load_modules"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.load_modules">[docs]</a>    <span class="k">def</span> <span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modules</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the list of specified modules.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
 </div>
@@ -143,20 +160,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ScriptEditor.get_script_str"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ScriptEditor.get_script_str">[docs]</a>    <span class="k">def</span> <span class="nf">get_script_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="s">&quot;Returns a string with the script and reset the editor if reset is True&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns a string with the script and reset the editor if reset is True&quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">s</span>
 
-<span class="c">##########################################################################################</span>
 </div></div>
-<span class="k">class</span> <span class="nc">OMPEnv</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">OmpEnv</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Dictionary with the OpenMP environment variables&quot;</span>
-<span class="sd">    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables&quot;</span>
+<span class="sd">    Dictionary with the OpenMP environment variables</span>
+<span class="sd">    see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">_keys</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">_KEYS</span> <span class="o">=</span> <span class="p">[</span>
        <span class="s">&quot;OMP_SCHEDULE&quot;</span><span class="p">,</span>
        <span class="s">&quot;OMP_NUM_THREADS&quot;</span><span class="p">,</span>
        <span class="s">&quot;OMP_DYNAMIC&quot;</span><span class="p">,</span>
@@ -174,324 +190,342 @@
         <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Constructor method inherited from dictionary:</span>
 <span class="sd">                                                   </span>
-<span class="sd">        &gt;&gt;&gt; OMPEnv(OMP_NUM_THREADS=1)</span>
+<span class="sd">        &gt;&gt;&gt; OmpEnv(OMP_NUM_THREADS=1)</span>
 <span class="sd">        {&#39;OMP_NUM_THREADS&#39;: &#39;1&#39;}</span>
 <span class="sd">                                                   </span>
 <span class="sd">        To create an instance from an INI file, use:</span>
-<span class="sd">           OMPEnv.from_filename(filename)</span>
+<span class="sd">           OmpEnv.from_file(filename)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OMPEnv</span><span class="o">.</span><span class="n">_keys</span><span class="p">:</span>
-                <span class="n">err_msg</span> <span class="o">+=</span> <span class="s">&quot;unknown option </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">key</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_KEYS</span><span class="p">:</span>
+                <span class="n">err_msg</span> <span class="o">+=</span> <span class="s">&quot;unknown option </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">key</span>
 
         <span class="k">if</span> <span class="n">err_msg</span><span class="p">:</span> 
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">allow_empty</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">ConfigParser</span> <span class="kn">import</span> <span class="n">SafeConfigParser</span><span class="p">,</span> <span class="n">NoOptionError</span>
-        <span class="n">parser</span> <span class="o">=</span> <span class="n">SafeConfigParser</span><span class="p">()</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">allow_empty</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reads the OpenMP variables from a INI file.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.ini&quot;</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">ConfigParser</span> <span class="kn">import</span> <span class="n">SafeConfigParser</span><span class="p">,</span> <span class="n">NoOptionError</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">SafeConfigParser</span><span class="p">()</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">OMPEnv</span><span class="p">()</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">OMPEnv</span><span class="p">()</span>
 
-        <span class="c"># Consistency check. Note that we only check if the option name is correct, </span>
-        <span class="c"># we do not check whether the value is correct or not.</span>
-        <span class="k">if</span> <span class="s">&quot;openmp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_empty</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> does not contain any [openmp] section&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span> 
+            <span class="c"># Consistency check. Note that we only check if the option name is correct, </span>
+            <span class="c"># we do not check whether the value is correct or not.</span>
+            <span class="k">if</span> <span class="s">&quot;openmp&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">sections</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_empty</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> does not contain any [openmp] section&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span> 
+                <span class="k">return</span> <span class="n">obj</span>
+
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="s">&quot;openmp&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_KEYS</span><span class="p">:</span>
+                    <span class="n">err_msg</span> <span class="o">+=</span> <span class="s">&quot;unknown option </span><span class="si">%s</span><span class="s">, maybe a typo&quot;</span> <span class="o">%</span> <span class="n">key</span>
+
+            <span class="k">if</span> <span class="n">err_msg</span><span class="p">:</span> 
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_KEYS</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;openmp&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
+                <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;openmp&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
+                    <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_empty</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Refusing to return with an empty dict&quot;</span><span class="p">)</span> 
+
             <span class="k">return</span> <span class="n">obj</span>
 
-        <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="s">&quot;openmp&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OMPEnv</span><span class="o">.</span><span class="n">_keys</span><span class="p">:</span>
-                <span class="n">err_msg</span> <span class="o">+=</span> <span class="s">&quot;unknown option </span><span class="si">%s</span><span class="s">, maybe a typo&quot;</span> <span class="o">%</span> <span class="n">key</span>
-
-        <span class="k">if</span> <span class="n">err_msg</span><span class="p">:</span> 
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">OMPEnv</span><span class="o">.</span><span class="n">_keys</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;openmp&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span>
-            <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">obj</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;openmp&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
-                <span class="k">except</span> <span class="n">NoOptionError</span><span class="p">:</span>
-                    <span class="k">pass</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_empty</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">obj</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Refusing to return with an empty dict&quot;</span><span class="p">)</span> 
-
-        <span class="k">return</span> <span class="n">obj</span>
-
-<span class="c">##########################################################################################</span>
-
-<span class="k">class</span> <span class="nc">TaskLauncher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="s">&quot;Abstract class for a task launcher&quot;</span>
-    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_launcher_type</span><span class="p">(</span><span class="n">launcher_type</span><span class="p">):</span>
-        <span class="s">&quot;Returns the subclass from a string giving its type.&quot;</span>
-        <span class="n">classes</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">cls</span> <span class="ow">in</span> <span class="n">TaskLauncher</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">():</span>
-           <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">launcher_type</span><span class="p">:</span>
-               <span class="n">classes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot find class from launcher_type </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">launcher_type</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">classes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            path:</span>
-<span class="sd">                Path to the script file.</span>
-<span class="sd">            stdin:</span>
-<span class="sd">                The input file to feed in the executable as the standard input. Mandatory.</span>
-<span class="sd">            stdout:</span>
-<span class="sd">                The file into which the standard output is redirected. Default is &#39;log&#39;.</span>
-<span class="sd">            stderr:</span>
-<span class="sd">                The file into which the standard error is redirected. Default is &#39;stderr&#39;.</span>
-<span class="sd">            bindir:</span>
-<span class="sd">                The directory in which to look for binaries. Default is &quot;&quot;.</span>
-<span class="sd">            modules:</span>
-<span class="sd">                The modules which will be loaded with &#39;module load&#39;. Default is None</span>
-<span class="sd">            pre_lines:</span>
-<span class="sd">                Lines before the main execution. Default is []</span>
-<span class="sd">            post_lines:</span>
-<span class="sd">                Lines after the main execution. Default is [].</span>
-<span class="sd">            exe:</span>
-<span class="sd">                The name of the binary to be executed (located in bindir or in $PATH if not bindir). Default is abinit.</span>
-<span class="sd">            mpirun:</span>
-<span class="sd">                The mpi runner.</span>
-<span class="sd">                E.g. &#39;mpirun -n 6&#39;. Default is None.</span>
-<span class="sd">            mpi_ncpus</span>
-<span class="sd">                Number of MPI processes (default 1)</span>
-<span class="sd">            omp_env</span>
-<span class="sd">                Dictionary with the OMP environment variables. Default is {}</span>
-<span class="sd">            vars:</span>
-<span class="sd">                Dictionary {varname:varvalue} with variable declaration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">jobfile</span>    <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stdin</span>      <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;stdin&quot;</span><span class="p">,</span>  <span class="s">&quot;abi.files&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;stdout&quot;</span><span class="p">,</span> <span class="s">&quot;abi.log&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;stderr&quot;</span><span class="p">,</span> <span class="s">&quot;abi.err&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bindir</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;bindir&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exe</span>        <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bindir</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;exe&quot;</span><span class="p">,</span> <span class="s">&quot;abinit&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mpirun</span>     <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;mpirun&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mpi_ncpus</span>  <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;mpi_ncpus&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span>    <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;omp_env&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span> <span class="o">=</span> <span class="n">OMPEnv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vars</span>         <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;vars&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">modules</span>      <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;modules&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">envars</span>       <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;envars&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pre_lines</span>    <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;pre_lines&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">post_lines</span>   <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;post_lines&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">queue_params</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;queue_params&quot;</span><span class="p">,</span> <span class="p">{})</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">tot_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Total number of CPUs employed&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_ncpus</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_ncpus</span> 
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">has_mpirun</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if we are using a mpirunner&quot;</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mpirun</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">has_omp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if we are using OMP threads&quot;</span>
-        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s">&quot;omp_env&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;omp_env&quot;</span><span class="p">))</span>
-                                                      
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">omp_ncpus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Number of OMP threads&quot;</span> 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_omp</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">[</span><span class="s">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;Don&#39;t how how to read data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_script_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Returns a string wth the script.&quot;</span>
-        <span class="n">se</span> <span class="o">=</span> <span class="n">ScriptEditor</span><span class="p">()</span>
 
-        <span class="n">se</span><span class="o">.</span><span class="n">shebang</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">PyLauncherError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Error class for PyLauncher.&quot;&quot;&quot;</span>
 
-        <span class="c"># Submission instructions for the queue manager.</span>
-        <span class="n">se</span><span class="o">.</span><span class="n">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">make_rsmheader</span><span class="p">())</span>
 
-        <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Variable declarations&quot;</span><span class="p">)</span>
-        <span class="nb">vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<div class="viewcode-block" id="PyLauncher"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyLauncher">[docs]</a><span class="k">class</span> <span class="nc">PyLauncher</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This object handle the submission of the tasks contained in a `AbinitFlow`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Error</span> <span class="o">=</span> <span class="n">PyLauncherError</span>
 
-        <span class="nb">vars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
-                <span class="s">&quot;EXECUTABLE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">exe</span><span class="p">,</span>
-                <span class="s">&quot;STDIN&quot;</span>     <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span>
-                <span class="s">&quot;STDOUT&quot;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
-                <span class="s">&quot;STDERR&quot;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-                <span class="s">&quot;MPIRUN&quot;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirun</span><span class="p">,</span>
-                <span class="s">&quot;MPI_NCPUS&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpi_ncpus</span><span class="p">,</span>
-               <span class="p">})</span>
-
-        <span class="n">se</span><span class="o">.</span><span class="n">declare_vars</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span>
-
-        <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Modules&quot;</span><span class="p">)</span>
-        <span class="n">se</span><span class="o">.</span><span class="n">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
-
-        <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Environment&quot;</span><span class="p">)</span>
-        <span class="n">se</span><span class="o">.</span><span class="n">export_envars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">envars</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_omp</span><span class="p">:</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">export_envars</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">omp_env</span><span class="p">)</span>
-
-        <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Commands before execution&quot;</span><span class="p">)</span>
-        <span class="n">se</span><span class="o">.</span><span class="n">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_lines</span><span class="p">)</span>
-
-        <span class="c"># Execution line</span>
-        <span class="c"># TODO: better treatment of mpirun syntax.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mpirun</span><span class="p">:</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s">&#39;$MPIRUN -n $MPI_NCPUS $EXECUTABLE &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">se</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="s">&#39;$EXECUTABLE &lt; $STDIN &gt; $STDOUT 2&gt; $STDERR&#39;</span><span class="p">)</span>
-
-        <span class="n">se</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;Commands after execution&quot;</span><span class="p">)</span>
-        <span class="n">se</span><span class="o">.</span><span class="n">add_lines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">post_lines</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">se</span><span class="o">.</span><span class="n">get_script_str</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">write_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="s">&quot;Writes the script file.&quot;</span>
-        <span class="c">#if not self.jobfile.exists:</span>
-        <span class="c">#    os.makedirs(self.jobfile.dirname)</span>
-
-        <span class="c">#if self.jobfile.exists and not overwrite:</span>
-        <span class="c">#    raise ValueError(&quot;%s already exists, cannot overwrite&quot; % self.jobfile.path)</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jobfile</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_script_str</span><span class="p">())</span>
-
-    <span class="c"># TODO</span>
-    <span class="c">#@abc.abstractproperty</span>
-    <span class="c">#def has_resource_manager(self):</span>
-    <span class="c">#    &quot;True if job submission is handled by a resource manager.&quot;</span>
-    <span class="c">#    #return self.launcher not in [&quot;shell&quot;,]</span>
-
-    <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">make_rsmheader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Return a list of string with the options passed to the resource manager&quot;</span>
-
-    <span class="nd">@abc.abstractmethod</span>
-    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Run the script in a subprocess, returns a Popen-like object.</span>
+<span class="sd">        Initialize the object</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            task:</span>
-<span class="sd">                Task instance. launch should call task.set_status to modify the status </span>
-<span class="sd">                of the object. </span>
-<span class="sd">                task.set_status(Task.S_SUB) is called before submitting the task</span>
-<span class="sd">                task.set_status(Task.S_RUN) is called once the task has started to run.</span>
+<span class="sd">            flow:</span>
+<span class="sd">                `AbinitFlow` object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="n">flow</span>
 
-<span class="c">##########################################################################################</span>
-<span class="c"># Concrete classes</span>
-
-<div class="viewcode-block" id="ShellLauncher"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ShellLauncher">[docs]</a><span class="k">class</span> <span class="nc">ShellLauncher</span><span class="p">(</span><span class="n">TaskLauncher</span><span class="p">):</span>
-    <span class="n">_type</span> <span class="o">=</span> <span class="s">&quot;shell&quot;</span>
-
-<div class="viewcode-block" id="ShellLauncher.make_rsmheader"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ShellLauncher.make_rsmheader">[docs]</a>    <span class="k">def</span> <span class="nf">make_rsmheader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[]</span>
-</div>
-<div class="viewcode-block" id="ShellLauncher.launch"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.ShellLauncher.launch">[docs]</a>    <span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_script</span><span class="p">()</span>
-
-        <span class="n">task</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">S_SUB</span><span class="p">)</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">((</span><span class="s">&quot;/bin/bash&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jobfile</span><span class="o">.</span><span class="n">path</span><span class="p">),</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">jobfile</span><span class="o">.</span><span class="n">dirname</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
-        <span class="n">task</span><span class="o">.</span><span class="n">set_status</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">S_RUN</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">process</span>
-
-<span class="c">##########################################################################################</span>
-
-<span class="c">#class SlurmLauncher(TaskLauncher):</span>
-<span class="c">#    _type = &quot;slurm&quot;</span>
-<span class="c">#</span>
-<span class="c">#    def make_rsmheader(self):</span>
-<span class="c">#        raise NotImplementedError()</span>
-<span class="c">#</span>
-<span class="c">#    def launch(self, *args, **kwargs):</span>
-<span class="c">#        &quot;&quot;&quot;</span>
-<span class="c">#        Run the script in a subprocess, returns a Popen-like object.</span>
-<span class="c">#        This is a very delicate part. Hopefully fireworks will help solve the problem!</span>
-<span class="c">#        &quot;&quot;&quot;</span>
-<span class="c">#        raise NotImplementedError()</span>
-
-<span class="c">##########################################################################################</span>
-</div></div>
-<span class="k">class</span> <span class="nc">SimpleResourceManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">work</span><span class="p">,</span> <span class="n">max_ncpus</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<div class="viewcode-block" id="PyLauncher.single_shot"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyLauncher.single_shot">[docs]</a>    <span class="k">def</span> <span class="nf">single_shot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Args:</span>
-<span class="sd">                work:</span>
-<span class="sd">                    Work instance.</span>
-<span class="sd">                max_ncpsu: </span>
-<span class="sd">                    The maximum number of CPUs that can be used.</span>
-<span class="sd">                sleep_time:</span>
-<span class="sd">                    Time delay (seconds) before trying to start a new task.</span>
+<span class="sd">        Run the first `Task` than is ready for execution.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Number of jobs launched.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">work</span> <span class="o">=</span> <span class="n">work</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_ncpus</span> <span class="o">=</span> <span class="n">max_ncpus</span> 
-        <span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span> <span class="o">=</span> <span class="n">sleep_time</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_launched</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">tot_ncpus</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ncpus</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Task </span><span class="si">%s</span><span class="s"> requires </span><span class="si">%s</span><span class="s"> CPUs, but max_ncpus is </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="nb">repr</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="n">task</span><span class="o">.</span><span class="n">tot_ncpus</span><span class="p">,</span> <span class="n">max_ncpus</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="s">&quot;Call the start method of the object contained in work.&quot;</span>
-
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="n">polls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span>
-            <span class="c"># Fetch the first task that is ready to run</span>
+        <span class="c"># Get the tasks that can be executed in each workflow.</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">fetch_task_to_run</span><span class="p">()</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">fetch_task_to_run</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">task</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;No task to run! Possible deadlock&quot;</span><span class="p">)</span>
+
             <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Out of tasks.&quot;</span><span class="p">)</span>
+
+        <span class="c"># Submit the tasks and update the database.</span>
+        <span class="k">if</span> <span class="n">tasks</span><span class="p">:</span>
+            <span class="n">tasks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">num_launched</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">num_launched</span> 
+</div>
+<div class="viewcode-block" id="PyLauncher.rapidfire"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyLauncher.rapidfire">[docs]</a>    <span class="k">def</span> <span class="nf">rapidfire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_nlaunch</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>  <span class="c"># nlaunches=0, max_loops=-1, sleep_time=None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            max_nlaunch:</span>
+<span class="sd">                Maximum number of launches. default: no limit.</span>
+
+<span class="sd">        nlaunches: </span>
+<span class="sd">            0 means &#39;until completion&#39;, -1 or &quot;infinite&quot; means to loop forever</span>
+<span class="sd">        max_loops: </span>
+<span class="sd">            maximum number of loops</span>
+<span class="sd">        sleep_time: </span>
+<span class="sd">            secs to sleep between rapidfire loop iterations</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The number of tasks launched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#sleep_time = sleep_time if sleep_time else FWConfig().RAPIDFIRE_SLEEP_SECS</span>
+        <span class="c">#nlaunches = -1 if nlaunches == &#39;infinite&#39; else int(nlaunches)</span>
+        <span class="c">#num_loops = 0</span>
+        <span class="n">num_launched</span><span class="p">,</span> <span class="n">launched</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">num_launched</span> <span class="o">==</span> <span class="n">max_nlaunch</span><span class="p">:</span> 
                 <span class="k">break</span>
 
-            <span class="k">if</span> <span class="n">task</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="kn">import</span> <span class="nn">time</span>
-                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sleep_time</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c"># Check that we don&#39;t exceed the number of cpus employed, before starting.</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;work polls </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">polls</span><span class="p">)</span>
-                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;work status </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">get_status</span><span class="p">())</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">task</span> <span class="o">=</span> <span class="n">work</span><span class="o">.</span><span class="n">fetch_task_to_run</span><span class="p">()</span>
 
-                <span class="k">if</span> <span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">tot_ncpus</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">ncpus_reserved</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_ncpus</span><span class="p">):</span> 
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="s">&quot;Starting task </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">task</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;fetch_task_to_run returned None.&quot;</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Starting task </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">task</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">launched</span><span class="p">:</span>
+                        <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;task </span><span class="si">%s</span><span class="s"> in already in launched </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">task</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">launched</span><span class="p">))</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
                     <span class="n">task</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                    <span class="n">launched</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
-        <span class="c"># Wait until all tasks are completed.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+                    <span class="n">num_launched</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="c">#if any([t.status != t.S_DONE for t in self]):</span>
-        <span class="c">#        for task in self:</span>
-        <span class="c">#            print([link for link in task._links])</span>
-        <span class="c">#            #print([link_stat==task.S_DONE for link_stat in task.links_status])</span>
-        <span class="c">#        raise RuntimeError(&quot;Deadlock, likely due to task dependencies: status %s&quot; % str([t.status for t in self]))</span>
+                    <span class="k">if</span> <span class="n">num_launched</span> <span class="o">==</span> <span class="n">max_nlaunch</span><span class="p">:</span>
+                        <span class="k">break</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">work</span><span class="o">.</span><span class="n">returncodes</span>
+                <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Out of tasks.&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
 
-<span class="c">##########################################################################################</span>
+        <span class="c"># Update the database.</span>
+        <span class="c">#if num_launched:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">check_status</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">num_launched</span> 
+
+</div></div>
+<div class="viewcode-block" id="PyFlowsScheduler"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyFlowsScheduler">[docs]</a><span class="k">class</span> <span class="nc">PyFlowsScheduler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weeks</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">days</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hours</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minutes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            weeks:</span>
+<span class="sd">                number of weeks to wait</span>
+<span class="sd">            days:</span>
+<span class="sd">                number of days to wait</span>
+<span class="sd">            hours:</span>
+<span class="sd">                number of hours to wait</span>
+<span class="sd">            minutes:</span>
+<span class="sd">                number of minutes to wait</span>
+<span class="sd">            seconds:</span>
+<span class="sd">                number of seconds to wait</span>
+<span class="sd">            start_date:</span>
+<span class="sd">                when to first execute the job and start the counter (default is after the given interval)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Time Options passed to the scheduler.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched_options</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span>
+             <span class="n">weeks</span><span class="o">=</span><span class="n">weeks</span><span class="p">,</span>
+             <span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">,</span>
+             <span class="n">hours</span><span class="o">=</span><span class="n">hours</span><span class="p">,</span>
+             <span class="n">minutes</span><span class="o">=</span><span class="n">minutes</span><span class="p">,</span>
+             <span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">,</span>
+             <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">apscheduler.scheduler</span> <span class="kn">import</span> <span class="n">Scheduler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span> <span class="o">=</span> <span class="n">Scheduler</span><span class="p">(</span><span class="n">standalone</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pidfiles2flows</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String representation.&quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&quot;, Pid: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">]</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">append</span>
+
+        <span class="n">app</span><span class="p">(</span><span class="s">&quot;Scheduler options: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sched_options</span><span class="p">))</span> 
+
+        <span class="k">for</span> <span class="n">flow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="p">:</span>
+            <span class="n">app</span><span class="p">(</span><span class="mi">80</span> <span class="o">*</span> <span class="s">&quot;=&quot;</span><span class="p">)</span>
+            <span class="n">app</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">flow</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="PyFlowsScheduler.pid"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid">[docs]</a>    <span class="k">def</span> <span class="nf">pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pid of the process&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pid</span>
+
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pid</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="PyFlowsScheduler.pid_files"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid_files">[docs]</a>    <span class="k">def</span> <span class="nf">pid_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of files with the pid. The files are located in the workdir of the flows&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pidfiles2flows</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                                                                                            </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="PyFlowsScheduler.flows"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyFlowsScheduler.flows">[docs]</a>    <span class="k">def</span> <span class="nf">flows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of `AbinitFlows`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pidfiles2flows</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="PyFlowsScheduler.add_flow"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyFlowsScheduler.add_flow">[docs]</a>    <span class="k">def</span> <span class="nf">add_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add an `AbinitFlow` to the scheduler.&quot;&quot;&quot;</span>
+        <span class="n">pid_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">workdir</span><span class="p">,</span> <span class="s">&quot;_PyFlowsScheduler.pid&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pid_file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pidfiles2flows</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot add the same flow twice!&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">pid_file</span><span class="p">):</span>
+            <span class="n">err_msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s">&quot;pid_file </span><span class="si">%s</span><span class="s"> already exists</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;There are two possibilities:</span><span class="se">\n\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;       1) There&#39;s an another instance of PyFlowsScheduler running.</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;       2) The previous scheduler didn&#39;t exit in a clean way.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;To solve case 1:</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;       Kill the previous scheduler (use `kill pid` where pid is the number reported in the file)</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;       Then you run can start the new scheduler.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;To solve case 2:</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;   Remove the pid_file and rerun the scheduler.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+                <span class="s">&quot;Exiting</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">pid_file</span>
+                <span class="p">)</span>
+
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pid_file</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pidfiles2flows</span><span class="p">[</span><span class="n">pid_file</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow</span>
+</div>
+<div class="viewcode-block" id="PyFlowsScheduler.start"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyFlowsScheduler.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts the scheduler in a new thread.</span>
+<span class="sd">        In standalone mode, this method will block until there are no more scheduled jobs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">add_interval_job</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runem_all</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">sched_options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_runem_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The function that will be executed by the scheduler.&quot;&quot;&quot;</span>
+        <span class="n">nlaunch</span><span class="p">,</span> <span class="n">max_nlaunch</span><span class="p">,</span> <span class="n">exceptions</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">flow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="p">:</span>
+            <span class="n">flow</span><span class="o">.</span><span class="n">check_status</span><span class="p">()</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">nlaunch</span> <span class="o">+=</span> <span class="n">PyLauncher</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span><span class="o">.</span><span class="n">rapidfire</span><span class="p">(</span><span class="n">max_nlaunch</span><span class="o">=</span><span class="n">max_nlaunch</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">exceptions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">straceback</span><span class="p">())</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Number of launches: &quot;</span><span class="p">,</span> <span class="n">nlaunch</span><span class="p">)</span>
+        <span class="n">flow</span><span class="o">.</span><span class="n">show_status</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">exceptions</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s">&quot;Scheduler exceptions: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">exceptions</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exceptions</span><span class="p">)</span>
+
+        <span class="c"># Too many exceptions. Shutdown the scheduler.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Number of exceptions &gt; 2. Will shutdown the scheduler and exit&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="s">&quot;=&quot;</span> <span class="o">+</span> <span class="n">msg</span> <span class="o">+</span> <span class="mi">5</span><span class="o">*</span><span class="s">&quot;=&quot;</span>
+                                                                                      
+            <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">*</span> <span class="s">&quot;=&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">*</span> <span class="s">&quot;=&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+
+        <span class="c"># Mission accomplished. Shutdown the scheduler.</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">all_ok</span> <span class="k">for</span> <span class="n">flow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;All tasks have reached S_OK. Will shutdown the scheduler and exit&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="s">&quot;=&quot;</span> <span class="o">+</span> <span class="n">msg</span> <span class="o">+</span> <span class="mi">5</span><span class="o">*</span><span class="s">&quot;=&quot;</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">*</span> <span class="s">&quot;=&quot;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">*</span> <span class="s">&quot;=&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">exceptions</span><span class="p">)</span> 
+
+<div class="viewcode-block" id="PyFlowsScheduler.shutdown"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.launcher.PyFlowsScheduler.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Shutdown the scheduler.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">pid_file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid_files</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">pid_file</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+                                                                    
+        <span class="c"># Save the final status of the flow.</span>
+        <span class="k">for</span> <span class="n">flow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flows</span><span class="p">:</span>
+            <span class="n">flow</span><span class="o">.</span><span class="n">pickle_dump</span><span class="p">()</span>
+                                                                    
+        <span class="c"># Shutdown the scheduler thus allowing the process to exit.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -532,7 +566,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

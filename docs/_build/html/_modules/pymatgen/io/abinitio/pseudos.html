@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -61,19 +62,20 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">cPickle</span> <span class="kn">as</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">cStringIO</span> <span class="kn">as</span> <span class="nn">StringIO</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
+<span class="kn">from</span> <span class="nn">pymatgen.core.design_patterns</span> <span class="kn">import</span> <span class="n">FrozenDict</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">PeriodicTable</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">import</span> <span class="n">Ha_eV</span><span class="p">,</span> <span class="n">Ha2meV</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.num_utils</span> <span class="kn">import</span> <span class="n">iterator_from_slice</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">list_strings</span><span class="p">,</span> <span class="n">is_string</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s">&quot;Pseudo&quot;</span><span class="p">,</span>
@@ -84,23 +86,12 @@
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Matteo Giantomassi&quot;</span>
 
-<span class="c">##########################################################################################</span>
 <span class="c"># Tools and helper functions.</span>
+<span class="k">def</span> <span class="nf">straceback</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns a string with the traceback.&quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">traceback</span>
+    <span class="k">return</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">FrozenDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="s">&quot;A dictionary that does not permit to redefine its keys&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;Cannot overwrite existent key: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
-        <span class="nb">dict</span><span class="o">.</span><span class="n">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="bp">self</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
 <span class="k">def</span> <span class="nf">_read_nlines</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">nlines</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -118,18 +109,6 @@
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">lines</span>
 
-<span class="k">def</span> <span class="nf">read_dojo_report</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function to read the DOJO_REPORT from file.&quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-         <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-         <span class="k">try</span><span class="p">:</span>
-             <span class="n">start</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;&lt;DOJO_REPORT&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-             <span class="k">return</span> <span class="p">{}</span>
-         <span class="n">stop</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;&lt;/DOJO_REPORT&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
-
-         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">stop</span><span class="p">]))</span>
-
 <span class="n">_l2str</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mi">0</span><span class="p">:</span> <span class="s">&quot;s&quot;</span><span class="p">,</span>
     <span class="mi">1</span><span class="p">:</span> <span class="s">&quot;p&quot;</span><span class="p">,</span>
@@ -140,36 +119,53 @@
     <span class="mi">6</span><span class="p">:</span> <span class="s">&quot;i&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="n">_str2l</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_l2str</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
 <span class="k">def</span> <span class="nf">l2str</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
-    <span class="s">&quot;Convert the angular momentum l (int) to string.&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Convert the angular momentum l (int) to string.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_l2str</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="k">return</span> <span class="s">&quot;Unknown: received l = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">l</span>
 
-<span class="c"># TODO</span>
-<span class="c"># Should become an API common for the different codes that requires pseudos</span>
-<span class="k">def</span> <span class="nf">get_abinit_psp_dir</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="s">&quot;ABINIT&quot;</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">ConfigParser</span>
-    <span class="kn">import</span> <span class="nn">pymatgen</span>
 
-    <span class="k">if</span> <span class="n">code</span> <span class="o">+</span> <span class="s">&quot;_PSP_DIR&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">code</span> <span class="o">+</span> <span class="s">&quot;_PSP_DIR&quot;</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">str2l</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a string to the angular momentum l (int)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_str2l</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
 
-    <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&quot;pymatgen.cfg&quot;</span><span class="p">)):</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">pymatgen</span><span class="o">.</span><span class="n">__file__</span><span class="p">)</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">SafeConfigParser</span><span class="p">()</span>
-        <span class="n">config</span><span class="o">.</span><span class="n">readfp</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;pymatgen.cfg&quot;</span><span class="p">)))</span>
-        <span class="k">return</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="s">&quot;pspdir&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="bp">None</span>
+<span class="k">def</span> <span class="nf">read_dojo_report</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to read the DOJO_REPORT from file.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;&lt;DOJO_REPORT&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
 
-<span class="c">##########################################################################################</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;&lt;/DOJO_REPORT&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">stop</span><span class="p">]))</span>
+
+<span class="c">#class DojoReport(dict):</span>
+<span class="c">#    _LATEST_VERSION = 1.0</span>
+<span class="c">#    _START_LINE = &quot;&lt;DOJO_REPORT&gt;\n&quot;</span>
+<span class="c">#    _END_LINE = &quot;&lt;/DOJO_REPORT&gt;\n&quot;</span>
+<span class="c">#</span>
+<span class="c">#    @classmethod</span>
+<span class="c">#    def from_file(cls, path):</span>
+<span class="c">#        new = read_dojo_report(path)</span>
+<span class="c">#        new.__class__ = cls</span>
+<span class="c">#        return new</span>
+<span class="c">#</span>
+<span class="c">#    #def to_file(self, path):</span>
+
+
 <span class="n">_PTABLE</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Pseudo"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo">[docs]</a><span class="k">class</span> <span class="nc">Pseudo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Abstract base class defining the methods that must be implemented by the concrete pseudopotential classes.</span>
+<span class="sd">    Abstract base class defining the methods that must be </span>
+<span class="sd">    implemented by the concrete pseudopotential classes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
 
@@ -179,16 +175,16 @@
 <span class="sd">        Convert obj into a pseudo. Accepts:</span>
 
 <span class="sd">            * Pseudo object.</span>
-<span class="sd">            * string defining a path.</span>
+<span class="sd">            * string defining a valid path.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">obj</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># Assumes path.</span>
-            <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_filename</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 </div>
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Pseudo.from_filename"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.from_filename">[docs]</a>    <span class="k">def</span> <span class="nf">from_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="Pseudo.from_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.from_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a pseudopotential object from filename.</span>
 <span class="sd">        Note: the parser knows the concrete class that should be instanciated</span>
@@ -209,7 +205,8 @@
         <span class="n">app</span><span class="p">(</span><span class="s">&quot;  XC correlation (ixc): </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pspxc</span><span class="p">)</span>  <span class="c">#FIXME</span>
         <span class="n">app</span><span class="p">(</span><span class="s">&quot;  maximum angular momentum: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">l2str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l_max</span><span class="p">))</span>
         <span class="n">app</span><span class="p">(</span><span class="s">&quot;  angular momentum for local part: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">l2str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l_local</span><span class="p">))</span>
-        <span class="n">app</span><span class="p">(</span><span class="s">&quot;  radius for non-linear core correction: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlcc_radius</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isnc</span><span class="p">:</span>
+            <span class="n">app</span><span class="p">(</span><span class="s">&quot;  radius for non-linear core correction: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlcc_radius</span><span class="p">)</span>
         <span class="n">app</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 
         <span class="n">hint_normal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint_for_accuracy</span><span class="p">()</span>
@@ -233,7 +230,7 @@
 </div>
     <span class="nd">@abc.abstractproperty</span>
 <div class="viewcode-block" id="Pseudo.Z"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.Z">[docs]</a>    <span class="k">def</span> <span class="nf">Z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The atomic number of the atom.&quot;&quot;&quot;</span><span class="s">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;The atomic number of the atom.&quot;&quot;&quot;</span>
 </div>
     <span class="nd">@abc.abstractproperty</span>
 <div class="viewcode-block" id="Pseudo.Z_val"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.Z_val">[docs]</a>    <span class="k">def</span> <span class="nf">Z_val</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -258,17 +255,17 @@
         <span class="sd">&quot;&quot;&quot;Angular momentum used for the local part.&quot;&quot;&quot;</span>
 
     <span class="c">#@abc.abstractproperty</span>
-    <span class="c">#def xc_family(self):</span>
-    <span class="c">#    &quot;XC family e.g LDA, GGA, MGGA.&quot;</span>
+    <span class="c">#def xc_type(self):</span>
+    <span class="c">#    &quot;&quot;&quot;XC family e.g LDA, GGA, MGGA.&quot;&quot;&quot;</span>
 
     <span class="c">#@abc.abstractproperty</span>
     <span class="c">#def xc_flavor(self):</span>
-    <span class="c">#    &quot;XC flavor e.g PW, PW91, PBE.&quot;</span>
-</div>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Pseudo.xc_type"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.xc_type">[docs]</a>    <span class="k">def</span> <span class="nf">xc_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;XC identifier e.g LDA-PW, GGA-PBE, GGA-revPBE.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s">&quot;-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">xc_family</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xc_flavor</span><span class="p">])</span>
+    <span class="c">#    &quot;&quot;&quot;XC flavor e.g PW, PW91, PBE.&quot;&quot;&quot;</span>
+
+    <span class="c">#@property</span>
+    <span class="c">#def xc_functional(self):</span>
+    <span class="c">#    &quot;&quot;&quot;XC identifier e.g LDA-PW91, GGA-PBE, GGA-revPBE.&quot;&quot;&quot;</span>
+    <span class="c">#    return &quot;-&quot;.join([self.xc_type, self.xc_flavor])</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Pseudo.isnc"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.isnc">[docs]</a>    <span class="k">def</span> <span class="nf">isnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -282,20 +279,20 @@
 
     <span class="c">#@abc.abstractproperty</span>
     <span class="c">#def has_soc(self):</span>
-    <span class="c">#    &quot;True if pseudo contains spin-orbit coupling.&quot;</span>
+    <span class="c">#    &quot;&quot;&quot;True if pseudo contains spin-orbit coupling.&quot;&quot;&quot;</span>
 
     <span class="c">#@abc.abstractmethod</span>
     <span class="c">#def num_of_projectors(self, l=&#39;s&#39;):</span>
-    <span class="c">#    &quot;Number of projectors for the angular channel l&quot;</span>
+    <span class="c">#    &quot;&quot;&quot;Number of projectors for the angular channel l&quot;&quot;&quot;</span>
 
     <span class="c">#@abc.abstractmethod</span>
     <span class="c">#def generation_mode</span>
-    <span class="c">#    &quot;scalar scalar-relativistic, relativistic&quot;</span>
+    <span class="c">#    &quot;&quot;&quot;scalar scalar-relativistic, relativistic.&quot;&quot;&quot;</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Pseudo.has_dojo_report"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.has_dojo_report">[docs]</a>    <span class="k">def</span> <span class="nf">has_dojo_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;True if self contains the DOJO_REPORT section.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dojo_report</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dojo_report</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Pseudo.delta_factor"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.delta_factor">[docs]</a>    <span class="k">def</span> <span class="nf">delta_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s">&quot;normal&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -315,11 +312,13 @@
 </div>
 <div class="viewcode-block" id="Pseudo.write_dojo_report"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.write_dojo_report">[docs]</a>    <span class="k">def</span> <span class="nf">write_dojo_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write a new DOJO_REPORT section to the pseudopotential file.&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+
         <span class="c"># Create JSON string from report.</span>
         <span class="n">jstring</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
 
         <span class="c"># Read lines from file and insert jstring between the tags.</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;&lt;DOJO_REPORT&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
@@ -335,13 +334,14 @@
                <span class="k">del</span> <span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span>
 
         <span class="c">#  Write new file.</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Pseudo.remove_dojo_report"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.remove_dojo_report">[docs]</a>    <span class="k">def</span> <span class="nf">remove_dojo_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove the DOJO_REPORT section from the pseudopotential file.&quot;&quot;&quot;</span>
         <span class="c"># Read lines from file and insert jstring between the tags.</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&quot;&lt;DOJO_REPORT&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
@@ -358,7 +358,7 @@
             <span class="k">del</span> <span class="n">lines</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span>
 
         <span class="c"># Write new file.</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Pseudo.hint_for_accuracy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.hint_for_accuracy">[docs]</a>    <span class="k">def</span> <span class="nf">hint_for_accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="s">&quot;normal&quot;</span><span class="p">):</span>
@@ -376,7 +376,7 @@
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Pseudo.has_hints"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.Pseudo.has_hints">[docs]</a>    <span class="k">def</span> <span class="nf">has_hints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if self provides hints on the cutoff energy&quot;</span>
+        <span class="sd">&quot;&quot;&quot;True if self provides hints on the cutoff energy.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">acc</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;low&quot;</span><span class="p">,</span> <span class="s">&quot;normal&quot;</span><span class="p">,</span> <span class="s">&quot;high&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hint_for_accuracy</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">False</span>
@@ -393,7 +393,6 @@
     <span class="c">#        hasher.update(fh.read())</span>
     <span class="c">#        return hasher.hexdigest()</span>
 
-<span class="c">##########################################################################################</span>
 </div></div>
 <span class="k">class</span> <span class="nc">NcPseudo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -411,10 +410,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_nlcc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if the pseudo is generated with non-linear core correction.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;True if the pseudo is generated with non-linear core correction.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlcc_radius</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">PawPseudo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -425,19 +423,28 @@
 
     <span class="nd">@abc.abstractproperty</span>
     <span class="k">def</span> <span class="nf">paw_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Radius of the PAW sphere in a.u.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Radius of the PAW sphere in a.u.&quot;&quot;&quot;</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">AbinitPseudo</span><span class="p">(</span><span class="n">Pseudo</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An AbinitPseudo is a pseudopotential whose file contains an abinit header.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span>     <span class="o">=</span> <span class="n">path</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            path:</span>
+<span class="sd">                Filename.</span>
+<span class="sd">            header:</span>
+<span class="sd">                `AbinitHeader` instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_summary</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">summary</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dojo_report</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">dojo_report</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;dojo_report&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dojo_report</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">dojo_report</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dojo_report</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="c">#self.pspcod  = header.pspcod</span>
 
         <span class="k">for</span> <span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span> <span class="ow">in</span> <span class="n">header</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -448,6 +455,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Summary line reported in the ABINIT header.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="nd">@property</span>
@@ -460,7 +468,6 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Z_val</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Number of valence electrons.&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zion</span>
 
     <span class="nd">@property</span>
@@ -471,13 +478,11 @@
     <span class="k">def</span> <span class="nf">l_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lloc</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">NcAbinitPseudo</span><span class="p">(</span><span class="n">NcPseudo</span><span class="p">,</span> <span class="n">AbinitPseudo</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Norm-conserving pseudopotential in the Abinit format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -492,7 +497,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">Z_val</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Number of valence electrons.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Number of valence electrons.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_zion</span>
 
     <span class="nd">@property</span>
@@ -507,10 +512,9 @@
     <span class="k">def</span> <span class="nf">nlcc_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rchrg</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">PawAbinitPseudo</span><span class="p">(</span><span class="n">PawPseudo</span><span class="p">,</span> <span class="n">AbinitPseudo</span><span class="p">):</span>
-    <span class="s">&quot;Paw pseudopotential in the Abinit format.&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Paw pseudopotential in the Abinit format.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">paw_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -518,7 +522,6 @@
 
     <span class="c">#def orbitals(self):</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">Hint</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;Hint&quot;</span><span class="p">,</span> <span class="s">&quot;ecut aug_ratio&quot;</span><span class="p">)):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -526,15 +529,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c">#d[&quot;@module&quot;] = self.__class__.__module__</span>
-        <span class="c">#d[&quot;@class&quot;] = self.__class__.__name__</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">}</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;@&quot;</span><span class="p">)})</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">def</span> <span class="nf">_dict_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">key_nums</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -546,10 +546,13 @@
 <span class="sd">    sep is a string denoting the character that separates the keys from the value (None if</span>
 <span class="sd">    no separator is present).</span>
 
-<span class="sd">    Return dict{key1 : value1, key2 : value2, ...}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        dict{key1 : value1, key2 : value2, ...}</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError if parsing fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">lines</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_nums</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
@@ -566,28 +569,29 @@
         <span class="n">line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
         <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
-        <span class="n">values</span><span class="p">,</span> <span class="n">keys</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">nk</span><span class="p">],</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="n">nk</span><span class="p">:]])</span>
+        <span class="n">values</span><span class="p">,</span> <span class="n">keys</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="n">nk</span><span class="p">],</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokens</span><span class="p">[</span><span class="n">nk</span><span class="p">:])</span>
+        <span class="c"># Sanitize keys: In some case we might string in for  foo[,bar]</span>
+        <span class="n">keys</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;]&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="n">keys</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">sep</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">check</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">check</span> <span class="o">!=</span> <span class="n">sep</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Expecting sep </span><span class="si">%s</span><span class="s">, got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Expecting separator </span><span class="si">%s</span><span class="s">, got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span>
             <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s"> len(keys) != len(value) </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;line: </span><span class="si">%s</span><span class="se">\n</span><span class="s"> len(keys) != len(value)</span><span class="se">\n</span><span class="s">keys: </span><span class="si">%s</span><span class="se">\n</span><span class="s"> values:  </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="c">#raise ValueError(msg)</span>
 
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">kwargs</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">AbinitHeader</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
-    <span class="s">&quot;Dictionary whose keys can be also accessed as attributes.&quot;</span>
-
+    <span class="sd">&quot;&quot;&quot;Dictionary whose keys can be also accessed as attributes.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c"># Default behaviour</span>
@@ -599,9 +603,14 @@
             <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">def</span> <span class="nf">_int_from_str</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert string into integer</span>
+
+<span class="sd">    Raise:</span>
+<span class="sd">        TypeError if string is not a valid integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">float_num</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
     <span class="n">int_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">float_num</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">float_num</span> <span class="o">==</span> <span class="n">int_num</span><span class="p">:</span>
@@ -615,7 +624,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_attr_desc</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;att&quot;</span><span class="p">,</span> <span class="s">&quot;default astype&quot;</span><span class="p">)</span>
 
-    <span class="n">_vars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">_VARS</span> <span class="o">=</span> <span class="p">{</span>
         <span class="c"># Mandatory</span>
         <span class="s">&quot;zatom&quot;</span>        <span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">_int_from_str</span><span class="p">),</span>
         <span class="s">&quot;zion&quot;</span>         <span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
@@ -634,12 +643,15 @@
     <span class="k">del</span> <span class="n">_attr_desc</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
         <span class="nb">super</span><span class="p">(</span><span class="n">NcAbinitHeader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="c"># APE uses llocal instead of lloc.</span>
+        <span class="k">if</span> <span class="s">&quot;llocal&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s">&quot;lloc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;llocal&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span> <span class="ow">in</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span> <span class="ow">in</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">_VARS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">default</span><span class="p">,</span> <span class="n">astype</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="n">desc</span><span class="o">.</span><span class="n">astype</span>
 
             <span class="n">value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
@@ -659,22 +671,25 @@
         <span class="c"># Add dojo_report</span>
         <span class="bp">self</span><span class="p">[</span><span class="s">&quot;dojo_report&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;dojo_report&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
-        <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;kwargs should be empty but got </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="c">#if kwargs:</span>
+        <span class="c">#    raise RuntimeError(&quot;kwargs should be empty but got %s&quot; % str(kwargs))</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">fhi_header</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ppdesc</span><span class="p">):</span>
-        <span class="s">&quot;Parse the FHI abinit header.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Parse the FHI abinit header.&quot;&quot;&quot;</span>
         <span class="c"># Example:</span>
         <span class="c"># Troullier-Martins psp for element  Sc        Thu Oct 27 17:33:22 EDT 1994</span>
         <span class="c">#  21.00000   3.00000    940714                zatom, zion, pspdat</span>
         <span class="c">#    1    1    2    0      2001    .00000      pspcod,pspxc,lmax,lloc,mmax,r2well</span>
         <span class="c"># 1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg</span>
-
         <span class="n">lines</span> <span class="o">=</span> <span class="n">_read_nlines</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">header</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">[:</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c"># The last record with rchrg ... seems to be optional.</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+
         <span class="n">summary</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="n">header</span><span class="p">[</span><span class="s">&quot;dojo_report&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_dojo_report</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -683,12 +698,11 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">hgh_header</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ppdesc</span><span class="p">):</span>
-        <span class="s">&quot;Parse the HGH abinit header.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Parse the HGH abinit header.&quot;&quot;&quot;</span>
         <span class="c"># Example:</span>
         <span class="c">#Hartwigsen-Goedecker-Hutter psp for Ne,  from PRB58, 3641 (1998)</span>
         <span class="c">#   10   8  010605 zatom,zion,pspdat</span>
         <span class="c"># 3 1   1 0 2001 0  pspcod,pspxc,lmax,lloc,mmax,r2well</span>
-
         <span class="n">lines</span> <span class="o">=</span> <span class="n">_read_nlines</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="n">header</span> <span class="o">=</span> <span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
@@ -700,7 +714,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">tm_header</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ppdesc</span><span class="p">):</span>
-        <span class="s">&quot;Parse the TM abinit header.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Parse the TM abinit header.&quot;&quot;&quot;</span>
         <span class="c"># Example:</span>
         <span class="c">#Troullier-Martins psp for element Fm         Thu Oct 27 17:28:39 EDT 1994</span>
         <span class="c">#100.00000  14.00000    940714                zatom, zion, pspdat</span>
@@ -714,17 +728,19 @@
         <span class="c">#   3  23.251  29.387    1   2.4776730        l,e99.0,e99.9,nproj,rcpsp</span>
         <span class="c">#   .00000000    .0000000000    .0000000000    .00000000   rms,ekb1,ekb2,epsatm</span>
         <span class="c">#   3.62474762267880     .07409391739104    3.07937699839200   rchrg,fchrg,qchrg</span>
-
         <span class="n">lines</span> <span class="o">=</span> <span class="n">_read_nlines</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">header</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="p">(</span><span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
             <span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">lineno</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> <span class="c"># Read lmax.</span>
+            <span class="k">if</span> <span class="n">lineno</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span> 
+                <span class="c"># Read lmax.</span>
                 <span class="n">tokens</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">pspcod</span><span class="p">,</span> <span class="n">pspxc</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">tokens</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
-                <span class="k">if</span> <span class="n">tokens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Invalid line</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
+                <span class="n">pspcod</span><span class="p">,</span> <span class="n">pspxc</span><span class="p">,</span> <span class="n">lmax</span><span class="p">,</span> <span class="n">lloc</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">tokens</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
+                <span class="n">mmax</span><span class="p">,</span> <span class="n">r2well</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">])</span>
+                <span class="c">#if tokens[-1].strip() != &quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;:</span>
+                <span class="c">#    raise RuntimeError(&quot;%s: Invalid line\n %s&quot;  % (filename, line))</span>
+
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
                 <span class="k">break</span>
 
@@ -751,7 +767,6 @@
 
         <span class="k">return</span> <span class="n">NcAbinitHeader</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">header</span><span class="p">)</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">PawAbinitHeader</span><span class="p">(</span><span class="n">AbinitHeader</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -759,8 +774,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_attr_desc</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;att&quot;</span><span class="p">,</span> <span class="s">&quot;default astype&quot;</span><span class="p">)</span>
 
-    <span class="n">_vars</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s">&quot;zatom&quot;</span>           <span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+    <span class="n">_VARS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&quot;zatom&quot;</span>           <span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">_int_from_str</span><span class="p">),</span>
         <span class="s">&quot;zion&quot;</span>            <span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
         <span class="s">&quot;pspdat&quot;</span>          <span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
         <span class="s">&quot;pspcod&quot;</span>          <span class="p">:</span> <span class="n">_attr_desc</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
@@ -782,12 +797,11 @@
     <span class="k">del</span> <span class="n">_attr_desc</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-
         <span class="nb">super</span><span class="p">(</span><span class="n">PawAbinitHeader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span> <span class="ow">in</span> <span class="n">PawAbinitHeader</span><span class="o">.</span><span class="n">_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VARS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">default</span><span class="p">,</span> <span class="n">astype</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="n">desc</span><span class="o">.</span><span class="n">astype</span>
 
             <span class="n">value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
@@ -800,7 +814,7 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="n">astype</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                 <span class="k">except</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Conversion Error for key, value </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Conversion Error for key </span><span class="si">%s</span><span class="s">, with value </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
 
             <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -809,7 +823,20 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">paw_header</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ppdesc</span><span class="p">):</span>
-        <span class="s">&quot;Parse the PAW abinit header.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Parse the PAW abinit header.&quot;&quot;&quot;</span>
+        <span class="c">#Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5</span>
+        <span class="c">#  28.000  18.000 20061204               : zatom,zion,pspdat</span>
+        <span class="c">#  7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well</span>
+        <span class="c"># paw3 1305                              : pspfmt,creatorID</span>
+        <span class="c">#  5 13                                  : basis_size,lmn_size</span>
+        <span class="c"># 0 0 1 1 2                              : orbitals</span>
+        <span class="c"># 3                                      : number_of_meshes</span>
+        <span class="c"># 1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]</span>
+        <span class="c"># 2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]</span>
+        <span class="c"># 3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]</span>
+        <span class="c">#  2.3000000000                          : r_cut(SPH)</span>
+        <span class="c"># 2 0.                </span>
+
         <span class="c"># Example</span>
         <span class="c">#C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0</span>
         <span class="c">#   6.000   4.000 20090106               : zatom,zion,pspdat</span>
@@ -826,8 +853,23 @@
         <span class="c">#  1.5550009124                          : r_cut(PAW)</span>
         <span class="c"># 3 0.                                   : shape_type,rshape</span>
 
-        <span class="k">if</span> <span class="n">ppdesc</span><span class="o">.</span><span class="n">format</span> <span class="o">!=</span> <span class="s">&quot;paw4&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;format != paw4 are not supported&quot;</span><span class="p">)</span>
+        <span class="c">#Paw atomic data for element Si - Generated by atompaw v3.0.1.3 &amp; AtomPAW2Abinit v3.3.1</span>
+        <span class="c">#  14.000   4.000 20120814               : zatom,zion,pspdat</span>
+        <span class="c">#  7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well</span>
+        <span class="c"># paw5 1331                              : pspfmt,creatorID</span>
+        <span class="c">#  4  8                                  : basis_size,lmn_size</span>
+        <span class="c"># 0 0 1 1                                : orbitals</span>
+        <span class="c"># 5                                      : number_of_meshes</span>
+        <span class="c"># 1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]</span>
+        <span class="c"># 2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]</span>
+        <span class="c"># 3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]</span>
+        <span class="c"># 4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]</span>
+        <span class="c"># 5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]</span>
+        <span class="c">#  1.5669671236                          : r_cut(PAW)</span>
+        <span class="c"># 2 0.                                   : shape_type,rshape</span>
+        <span class="n">supported_formats</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;paw3&quot;</span><span class="p">,</span> <span class="s">&quot;paw4&quot;</span><span class="p">,</span> <span class="s">&quot;paw5&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ppdesc</span><span class="o">.</span><span class="n">format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_formats</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;format </span><span class="si">%s</span><span class="s"> not in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ppdesc</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="n">supported_formats</span><span class="p">))</span>
 
         <span class="n">lines</span> <span class="o">=</span> <span class="n">_read_nlines</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
@@ -852,14 +894,17 @@
         <span class="c">#print lines[1]</span>
         <span class="n">header</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_dict_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;:&quot;</span><span class="p">))</span>
 
-        <span class="n">header</span><span class="p">[</span><span class="s">&quot;dojo_report&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_dojo_report</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">read_dojo_report</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">report</span><span class="p">:</span>
+            <span class="n">header</span><span class="p">[</span><span class="s">&quot;dojo_report&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">report</span>
 
+        <span class="c">#print(&quot;PAW header\n&quot;, header)</span>
         <span class="k">return</span> <span class="n">PawAbinitHeader</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="o">**</span><span class="n">header</span><span class="p">)</span>
 
-<span class="c">##########################################################################################</span>
 
 <span class="k">class</span> <span class="nc">PseudoParserError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="sd">&quot;&quot;&quot;Base Error class for the exceptions raised by `PseudoParser`&quot;&quot;&quot;</span>
+
 
 <span class="k">class</span> <span class="nc">PseudoParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -870,11 +915,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">Error</span> <span class="o">=</span> <span class="n">PseudoParserError</span>
 
-    <span class="c">#: Supported values of pspcod</span>
+    <span class="c"># Supported values of pspcod</span>
     <span class="n">ppdesc</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;ppdesc&quot;</span><span class="p">,</span> <span class="s">&quot;pspcod name psp_type format&quot;</span><span class="p">)</span>
 
     <span class="c"># TODO Recheck</span>
-    <span class="n">_pspcodes</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span> <span class="p">{</span>
+    <span class="n">_PSPCODES</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span> <span class="p">{</span>
         <span class="mi">1</span> <span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;TM&quot;</span><span class="p">,</span>  <span class="s">&quot;NC&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
         <span class="mi">3</span> <span class="p">:</span> <span class="n">ppdesc</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&quot;HGH&quot;</span><span class="p">,</span> <span class="s">&quot;NC&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
         <span class="c">#4 : ppdesc(4, &quot;NC&quot;,     , None),</span>
@@ -896,6 +941,7 @@
     <span class="k">def</span> <span class="nf">scan_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">exclude_exts</span><span class="o">=</span><span class="p">(),</span> <span class="n">exclude_fnames</span><span class="o">=</span><span class="p">()):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Analyze the files contained in directory dirname.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            dirname:</span>
 <span class="sd">                directory path</span>
@@ -903,7 +949,9 @@
 <span class="sd">                list of file extensions that should be skipped.</span>
 <span class="sd">            exclude_fnames:</span>
 <span class="sd">                list of file names that should be skipped.</span>
-<span class="sd">        :return: List of pseudopotential objects.</span>
+
+<span class="sd">        returns: </span>
+<span class="sd">            List of pseudopotential objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">exclude_exts</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ext</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">):</span>
@@ -913,7 +961,7 @@
         <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
             <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exclude_exts</span> <span class="ow">or</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">exclude_fnames</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">exclude_exts</span> <span class="ow">or</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">exclude_fnames</span> <span class="ow">or</span> <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
 
@@ -934,10 +982,12 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the pseudopotential descriptor from file filename.</span>
 
-<span class="sd">        :return: Pseudopontential descriptor. None if filename is not a valid pseudopotential file.</span>
-<span class="sd">        :raise: `PseudoParserError` if fileformat is not supported.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Pseudopontential descriptor. None if filename is not a valid pseudopotential file.</span>
 
+<span class="sd">        Raises:</span>
+<span class="sd">            `PseudoParserError` if fileformat is not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.xml&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&quot;XML pseudo not supported yet&quot;</span><span class="p">)</span>
 
@@ -956,22 +1006,24 @@
                         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
                         <span class="k">return</span> <span class="bp">None</span>
 
-                    <span class="k">if</span> <span class="n">tokens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Invalid line</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
-                        <span class="k">return</span> <span class="bp">None</span>
+                    <span class="c">#if tokens[-1].strip().replace(&quot; &quot;,&quot;&quot;) not in [&quot;pspcod,pspxc,lmax,lloc,mmax,r2well&quot;,</span>
+                    <span class="c">#                              &quot;pspcod,pspxc,lmax,llocal,mmax,r2well&quot;]:</span>
+                    <span class="c">#    raise self.Error(&quot;%s: Invalid line\n %s&quot;  % (filename, line))</span>
+                    <span class="c">#    return None</span>
 
-                    <span class="k">if</span> <span class="n">pspcod</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pspcodes</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">pspcod</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PSPCODES</span><span class="p">:</span>
                         <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Don&#39;t know how to handle pspcod </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pspcod</span><span class="p">))</span>
 
-                    <span class="n">ppdesc</span> <span class="o">=</span> <span class="n">PseudoParser</span><span class="o">.</span><span class="n">_pspcodes</span><span class="p">[</span><span class="n">pspcod</span><span class="p">]</span>
+                    <span class="n">ppdesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PSPCODES</span><span class="p">[</span><span class="n">pspcod</span><span class="p">]</span>
 
                     <span class="k">if</span> <span class="n">pspcod</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
                         <span class="c"># PAW -&gt; need to know the format pspfmt</span>
                         <span class="n">tokens</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">lineno</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
                         <span class="n">pspfmt</span><span class="p">,</span> <span class="n">creatorID</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-                        <span class="k">if</span> <span class="n">tokens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&quot;pspfmt,creatorID&quot;</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Invalid line</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
-                            <span class="k">return</span> <span class="bp">None</span>
+                        <span class="c">#if tokens[-1].strip() != &quot;pspfmt,creatorID&quot;:</span>
+                        <span class="c">#    raise self.Error(&quot;%s: Invalid line\n %s&quot; % (filename, line))</span>
+                        <span class="c">#    return None</span>
+
                         <span class="n">ppdesc</span> <span class="o">=</span> <span class="n">ppdesc</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">format</span> <span class="o">=</span> <span class="n">pspfmt</span><span class="p">)</span>
 
                     <span class="k">return</span> <span class="n">ppdesc</span>
@@ -982,29 +1034,31 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read and parse a pseudopotential file.</span>
 
-<span class="sd">        :return: pseudopotential object or None if filename is not</span>
-<span class="sd">                 a valid pseudopotential file.</span>
+<span class="sd">        Returns: </span>
+<span class="sd">            pseudopotential object or None if filename is not a valid pseudopotential file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="n">ppdesc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_ppdesc</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">ppdesc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="n">ppdesc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="bp">None</span>
 
         <span class="n">psp_type</span> <span class="o">=</span> <span class="n">ppdesc</span><span class="o">.</span><span class="n">psp_type</span>
 
         <span class="n">parsers</span> <span class="o">=</span> <span class="p">{</span>
-         <span class="s">&quot;FHI&quot;</span>              <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">fhi_header</span><span class="p">,</span>
-         <span class="s">&quot;TM&quot;</span>               <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">tm_header</span><span class="p">,</span>
-         <span class="s">&quot;HGH&quot;</span>              <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">hgh_header</span><span class="p">,</span>
-         <span class="s">&quot;HGHK&quot;</span>             <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">hgh_header</span><span class="p">,</span>
-         <span class="s">&quot;PAW_abinit_text&quot;</span>  <span class="p">:</span> <span class="n">PawAbinitHeader</span><span class="o">.</span><span class="n">paw_header</span><span class="p">,</span>
+            <span class="s">&quot;FHI&quot;</span>            <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">fhi_header</span><span class="p">,</span>
+            <span class="s">&quot;TM&quot;</span>             <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">tm_header</span><span class="p">,</span>
+            <span class="s">&quot;HGH&quot;</span>            <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">hgh_header</span><span class="p">,</span>
+            <span class="s">&quot;HGHK&quot;</span>           <span class="p">:</span> <span class="n">NcAbinitHeader</span><span class="o">.</span><span class="n">hgh_header</span><span class="p">,</span>
+            <span class="s">&quot;PAW_abinit_text&quot;</span><span class="p">:</span> <span class="n">PawAbinitHeader</span><span class="o">.</span><span class="n">paw_header</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="c">#try:</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="n">parsers</span><span class="p">[</span><span class="n">ppdesc</span><span class="o">.</span><span class="n">name</span><span class="p">](</span><span class="n">path</span><span class="p">,</span> <span class="n">ppdesc</span><span class="p">)</span>
-        <span class="c">#except Exception as exc:</span>
-        <span class="c">#    raise self.Error(str(exc))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">parsers</span><span class="p">[</span><span class="n">ppdesc</span><span class="o">.</span><span class="n">name</span><span class="p">](</span><span class="n">path</span><span class="p">,</span> <span class="n">ppdesc</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">self</span><span class="o">.</span><span class="n">Error</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s">&quot;:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">straceback</span><span class="p">())</span>
 
         <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
@@ -1012,6 +1066,7 @@
         <span class="c"># The name of the input is name + &quot;.ini&quot;</span>
         <span class="nb">input</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="n">input_path</span> <span class="o">=</span> <span class="n">root</span> <span class="o">+</span> <span class="s">&quot;.ini&quot;</span>
+
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">input_path</span><span class="p">):</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_path</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
                 <span class="nb">input</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1025,7 +1080,6 @@
 
         <span class="k">return</span> <span class="n">pseudo</span>
 
-<span class="c">##########################################################################################</span>
 
 <div class="viewcode-block" id="PseudoTable"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable">[docs]</a><span class="k">class</span> <span class="nc">PseudoTable</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -1047,8 +1101,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="PseudoTable.astable"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.astable">[docs]</a>    <span class="k">def</span> <span class="nf">astable</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">items</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an instance of `PseudoTable` from the iterable items.</span>
+<span class="sd">        &quot;&quot;&quot;</span> 
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span> <span class="k">return</span> <span class="n">items</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pseudos</span><span class="p">):</span>
@@ -1060,16 +1116,18 @@
         <span class="c"># Store pseudos in a default dictionary with z as key.</span>
         <span class="c"># Note that we can have more than one pseudo for given z.</span>
         <span class="c"># hence the values are lists of pseudos.</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pseudos</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
             <span class="n">pseudos</span> <span class="o">=</span> <span class="p">[</span><span class="n">pseudos</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">pseudos</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">pseudos</span> <span class="o">=</span> <span class="n">list_strings</span><span class="p">(</span><span class="n">pseudos</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_pseudos_with_z</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">pseudo</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">pseudo</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pseudo</span><span class="p">,</span> <span class="n">Pseudo</span><span class="p">):</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="n">Pseudo</span><span class="o">.</span><span class="n">from_filename</span><span class="p">(</span><span class="n">pseudo</span><span class="p">)</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">Pseudo</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">pseudo</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_pseudos_with_z</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">Z</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
@@ -1079,6 +1137,7 @@
             <span class="n">symbol</span> <span class="o">=</span> <span class="n">symbols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">symb</span> <span class="o">!=</span> <span class="n">symbol</span> <span class="k">for</span> <span class="n">symb</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;All symbols must be equal while they are: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">symbols</span><span class="p">))</span>
+
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">symbol</span><span class="p">,</span> <span class="n">pseudo_list</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
@@ -1099,44 +1158,44 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__iter__</span><span class="p">()))</span>
 
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Process the elements in Z order.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Process the elements in Z order.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">zlist</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">pseudo</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pseudos_with_z</span><span class="p">[</span><span class="n">z</span><span class="p">]:</span>
                 <span class="k">yield</span> <span class="n">pseudo</span>
 
-    <span class="c">#def __repr__(self):</span>
-    <span class="c">#    return &quot;&lt;%s at %s, long_name = %s&gt;&quot; % (self.__class__.__name__, id(self), self.long_name)</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;</span><span class="si">%s</span><span class="s"> at </span><span class="si">%s</span><span class="s">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 
-    <span class="c">#def __str__(self):</span>
-    <span class="c">#    strio = StringIO.StringIO()</span>
-    <span class="c">#    self.print_table(stream=strio)</span>
-    <span class="c">#    strio.seek(0)</span>
-    <span class="c">#    return strio.read()</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">append</span>
+        <span class="n">app</span><span class="p">(</span><span class="s">&quot;&lt;</span><span class="si">%s</span><span class="s">, len=</span><span class="si">%d</span><span class="s">&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
+
+        <span class="k">for</span> <span class="n">pseudo</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">app</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">pseudo</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="PseudoTable.allnc"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.allnc">[docs]</a>    <span class="k">def</span> <span class="nf">allnc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if all pseudos are norm-conserving&quot;</span>
+        <span class="sd">&quot;&quot;&quot;True if all pseudos are norm-conserving.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">isnc</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="PseudoTable.allpaw"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.allpaw">[docs]</a>    <span class="k">def</span> <span class="nf">allpaw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if all pseudos are PAW&quot;</span>
+        <span class="sd">&quot;&quot;&quot;True if all pseudos are PAW.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">ispaw</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
-
-    <span class="c">#@property</span>
-    <span class="c">#def long_name(self):</span>
-    <span class="c">#    return &quot;-&quot;.join([getattr(self, key) for key in [&quot;psp_type&quot;, &quot;xc_type&quot;, &quot;name&quot;]])</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="PseudoTable.zlist"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.zlist">[docs]</a>    <span class="k">def</span> <span class="nf">zlist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Ordered list with the atomic numbers available in the table.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Ordered list with the atomic numbers available in the table.&quot;&quot;&quot;</span>
         <span class="n">zlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pseudos_with_z</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">zlist</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">zlist</span>
 </div>
 <div class="viewcode-block" id="PseudoTable.iscomplete"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.iscomplete">[docs]</a>    <span class="k">def</span> <span class="nf">iscomplete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zmax</span><span class="o">=</span><span class="mi">118</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        True if table is complete i.e. all elements with z &lt; zmax</span>
+<span class="sd">        True if table is complete i.e. all elements with Z &lt; zmax</span>
 <span class="sd">        have at least on pseudopotential</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">zmax</span><span class="p">):</span>
@@ -1154,7 +1213,7 @@
             <span class="k">return</span> <span class="p">[]</span>
 </div>
 <div class="viewcode-block" id="PseudoTable.pseudo_from_name"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.pseudo_from_name">[docs]</a>    <span class="k">def</span> <span class="nf">pseudo_from_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="s">&quot;Return the pseudo in the table with the given name&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return the pseudo in the table with the given name&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">pseudo</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">pseudo</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">pseudo</span>
@@ -1171,12 +1230,10 @@
 <span class="sd">                Template for displaying the element properties, with one</span>
 <span class="sd">                % for each property.</span>
 
-<span class="sd">        :Returns: None</span>
-
 <span class="sd">        For example, print a table of mass and density.</span>
 
 <span class="sd">        from periodictable import elements</span>
-<span class="sd">        elements.list(&#39;symbol&#39;,&#39;mass&#39;,&#39;density&#39;, format=&quot;%-2s: %6.2f u %5.2f g/cm^3&quot;)</span>
+<span class="sd">        elements.list_properties(&#39;symbol&#39;,&#39;mass&#39;,&#39;density&#39;, format=&quot;%-2s: %6.2f u %5.2f g/cm^3&quot;)</span>
 <span class="sd">        H :   1.01 u   0.07 g/cm^3</span>
 <span class="sd">        He:   4.00 u   0.12 g/cm^3</span>
 <span class="sd">        Li:   6.94 u   0.53 g/cm^3</span>
@@ -1188,23 +1245,23 @@
 
         <span class="k">for</span> <span class="n">pseudo</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">L</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pseudo</span><span class="p">,</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">props</span><span class="p">)</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pseudo</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">props</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
                 <span class="c"># Skip elements which don&#39;t define all the attributes</span>
                 <span class="k">continue</span>
 
             <span class="c"># Skip elements with a value of None</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">L</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
                 <span class="k">continue</span>
 
             <span class="k">if</span> <span class="n">format</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">L</span><span class="p">))</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">values</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c">#try:</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">format</span> <span class="o">%</span> <span class="n">L</span><span class="p">)</span>
-                <span class="c">#except:</span>
-                <span class="c">#    print &quot;format&quot;,format,&quot;args&quot;,L</span>
-                <span class="c">#    raise</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span><span class="n">format</span> <span class="o">%</span> <span class="n">values</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;format&quot;</span><span class="p">,</span><span class="n">format</span><span class="p">,</span><span class="s">&quot;args&quot;</span><span class="p">,</span><span class="n">values</span><span class="p">)</span>
+                    <span class="k">raise</span>
 </div>
 <div class="viewcode-block" id="PseudoTable.print_table"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.print_table">[docs]</a>    <span class="k">def</span> <span class="nf">print_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">filter_function</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1212,9 +1269,9 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            filter_function:</span>
-<span class="sd">                A filtering function taking a Pseudo as input and returns a boolean.</span>
-<span class="sd">                For example, setting filter_function = lambda el: el.X &gt; 2 will print</span>
-<span class="sd">                a periodic table containing only elements with electronegativity &gt; 2.</span>
+<span class="sd">                A filtering function that take a Pseudo as input and returns a boolean.</span>
+<span class="sd">                For example, setting filter_function = lambda el: el.Z_val &gt; 2 will print</span>
+<span class="sd">                a periodic table containing only pseudos with Z_val &gt; 2.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
             <span class="n">rowstr</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1225,9 +1282,35 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">rowstr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;   &quot;</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rowstr</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="PseudoTable.sorted"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.sorted">[docs]</a>    <span class="k">def</span> <span class="nf">sorted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrname</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sort the table according to the value of attribute attrname.&quot;&quot;&quot;</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pseudo</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pseudo</span><span class="p">,</span> <span class="n">attrname</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span>
 
-<span class="c">##########################################################################################</span></div></div>
-</pre></div>
+        <span class="c"># Sort attrs, and build new table with sorted pseudos.</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PseudoTable</span><span class="p">([</span><span class="bp">self</span><span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="PseudoTable.select"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select only those pseudopotentials for which condition is True.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            condition:</span>
+<span class="sd">                Function that accepts a `Pseudo` object and returns True or False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PseudoTable</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">condition</span><span class="p">(</span><span class="n">p</span><span class="p">)])</span>
+</div>
+<div class="viewcode-block" id="PseudoTable.with_dojo_report"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.pseudos.PseudoTable.with_dojo_report">[docs]</a>    <span class="k">def</span> <span class="nf">with_dojo_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Select pseudos containing the DOJO_REPORT section.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span> <span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">has_dojo_report</span><span class="p">)</span>
+</pre></div></div></div>
 
           </div>
         </div>
@@ -1267,7 +1350,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

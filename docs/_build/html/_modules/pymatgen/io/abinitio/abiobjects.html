@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -55,28 +56,31 @@
           <div class="body">
             
   <h1>Source code for pymatgen.io.abinitio.abiobjects</h1><div class="highlight"><pre>
-<span class="s">&quot;Low-level objects providing an abstraction for the objects involved in the calculation.&quot;</span>
+<span class="c">#!/usr/bin/env python</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Low-level objects providing an abstraction for the objects involved in the</span>
+<span class="sd">calculation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pymatgen.core.units</span> <span class="kn">as</span> <span class="nn">units</span>
 
 <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pformat</span>
-
 <span class="kn">from</span> <span class="nn">pymatgen.util.decorators</span> <span class="kn">import</span> <span class="n">singleton</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">is_string</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.design_patterns</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">AttrDict</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">any2Ha</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">import</span> <span class="n">Ang2Bohr</span><span class="p">,</span> <span class="n">Bohr2Ang</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">ArrayWithUnit</span>
 <span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">Molecule</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.smartio</span> <span class="kn">import</span> <span class="n">read_structure</span>
 
 <span class="kn">from</span> <span class="nn">.netcdf</span> <span class="kn">import</span> <span class="n">structure_from_etsf_file</span>
-
-<span class="c">##########################################################################################</span>
 
 
 <div class="viewcode-block" id="AbivarAble"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.AbivarAble">[docs]</a><span class="k">class</span> <span class="nc">AbivarAble</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -88,10 +92,13 @@
 
     <span class="nd">@abc.abstractmethod</span>
 <div class="viewcode-block" id="AbivarAble.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.AbivarAble.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Returns a dictionary with the abinit variables.&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary with the abinit variables.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 </div>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
 </div>
 <span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">MandatoryVariable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -100,6 +107,7 @@
 <span class="sd">    the cool syntax: variable is MANDATORY!</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+
 <span class="nd">@singleton</span>
 <span class="k">class</span> <span class="nc">DefaultVariable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -107,16 +115,15 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="n">MANDATORY</span> <span class="o">=</span> <span class="n">MandatoryVariable</span><span class="p">()</span>
-<span class="n">DEFAULT</span>   <span class="o">=</span> <span class="n">DefaultVariable</span><span class="p">()</span>
-
-<span class="c">##########################################################################################</span>
+<span class="n">DEFAULT</span> <span class="o">=</span> <span class="n">DefaultVariable</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="SpinMode"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.SpinMode">[docs]</a><span class="k">class</span> <span class="nc">SpinMode</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;SpinMode&#39;</span><span class="p">,</span> <span class="s">&quot;mode nsppol nspinor nspden&quot;</span><span class="p">),</span> <span class="n">AbivarAble</span><span class="p">):</span>
+<div class="viewcode-block" id="SpinMode"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.SpinMode">[docs]</a><span class="k">class</span> <span class="nc">SpinMode</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;SpinMode&#39;</span><span class="p">,</span> <span class="s">&quot;mode nsppol nspinor nspden&quot;</span><span class="p">),</span>
+               <span class="n">AbivarAble</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Different configurations of the electron density as implemented in abinit:</span>
-<span class="sd">    One can use asspinmode to construct the object via SpinMode.asspinmode(string)</span>
-<span class="sd">    where string can assume the values:</span>
+<span class="sd">    One can use asspinmode to construct the object via SpinMode.asspinmode</span>
+<span class="sd">    (string) where string can assume the values:</span>
 
 <span class="sd">        - polarized</span>
 <span class="sd">        - unpolarized</span>
@@ -126,7 +133,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="SpinMode.asspinmode"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.SpinMode.asspinmode">[docs]</a>    <span class="k">def</span> <span class="nf">asspinmode</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="s">&quot;Converts obj into a SpinMode instance&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Converts obj into a SpinMode instance&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">obj</span>
         <span class="k">else</span><span class="p">:</span>
@@ -137,10 +144,11 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;Wrong value for spin_mode: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="SpinMode.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.SpinMode.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;nsppol&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nsppol</span><span class="p">,</span>
-                <span class="s">&quot;nspinor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspinor</span><span class="p">,</span>
-                <span class="s">&quot;nspden&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspden</span><span class="p">,</span>
-                <span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&quot;nsppol&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nsppol</span><span class="p">,</span>
+            <span class="s">&quot;nspinor&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspinor</span><span class="p">,</span>
+            <span class="s">&quot;nspden&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspden</span><span class="p">,</span>
+        <span class="p">}</span>
 
 <span class="c"># An handy Multiton</span></div></div>
 <span class="n">_mode2spinvars</span> <span class="o">=</span> <span class="p">{</span>
@@ -150,8 +158,6 @@
     <span class="s">&quot;spinor&quot;</span>      <span class="p">:</span> <span class="n">SpinMode</span><span class="p">(</span><span class="s">&quot;spinor&quot;</span>      <span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
     <span class="s">&quot;spinor_nomag&quot;</span><span class="p">:</span> <span class="n">SpinMode</span><span class="p">(</span><span class="s">&quot;spinor_nomag&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
 <span class="p">}</span>
-
-<span class="c">##########################################################################################</span>
 
 
 <div class="viewcode-block" id="Smearing"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Smearing">[docs]</a><span class="k">class</span> <span class="nc">Smearing</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
@@ -174,16 +180,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span> <span class="o">=</span> <span class="n">tsmear</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">s</span>  <span class="o">=</span> <span class="s">&quot;occopt </span><span class="si">%d</span><span class="s"> # </span><span class="si">%s</span><span class="s"> Smearing</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;occopt </span><span class="si">%d</span><span class="s"> # </span><span class="si">%s</span><span class="s"> Smearing</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="s">&#39;tsmear </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span>
         <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occopt</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">occopt</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">tsmear</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occopt</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">occopt</span> <span class="ow">and</span> 
+                <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">tsmear</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">other</span>
@@ -202,7 +206,11 @@
 <span class="sd">            * Smearing instance</span>
 <span class="sd">            * &quot;name:tsmear&quot;  e.g. &quot;gaussian:0.004&quot;  (Hartree units)</span>
 <span class="sd">            * &quot;name:tsmear units&quot; e.g. &quot;gaussian:0.1 eV&quot;</span>
+<span class="sd">            * None --&gt; no smearing</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Smearing</span><span class="o">.</span><span class="n">nosmearing</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">obj</span>
 
@@ -217,8 +225,8 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">tsmear</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tsmear</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">tsmear</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">tsmear</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">tsmear</span> <span class="o">=</span> <span class="n">any2Ha</span><span class="p">(</span><span class="n">units</span><span class="p">)(</span><span class="nb">float</span><span class="p">(</span><span class="n">tsmear</span><span class="p">))</span>
+                <span class="n">tsmear</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">tsmear</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">tsmear</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">Energy</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">tsmear</span><span class="p">),</span> <span class="n">unit</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;Ha&quot;</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">occopt</span><span class="p">,</span> <span class="n">tsmear</span><span class="p">)</span>
 </div>
@@ -243,21 +251,18 @@
     <span class="nd">@property</span>
 <div class="viewcode-block" id="Smearing.to_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Smearing.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;json friendly dict representation of Smearing&quot;&quot;&quot;</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;occopt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="s">&quot;tsmear&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">}</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="k">return</span> <span class="n">d</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;occopt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">occopt</span><span class="p">,</span> <span class="s">&quot;tsmear&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tsmear</span><span class="p">,</span>
+                <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
+                <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">}</span>
 </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="Smearing.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Smearing.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Smearing</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;occopt&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;tsmear&quot;</span><span class="p">])</span>
 
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="ElectronsAlgorithm"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.ElectronsAlgorithm">[docs]</a><span class="k">class</span> <span class="nc">ElectronsAlgorithm</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">AbivarAble</span><span class="p">):</span>
     <span class="s">&quot;Variables controlling the SCF/NSCF algorithm.&quot;</span>
-
     <span class="c"># None indicates that we use abinit defaults.</span>
     <span class="n">_default_vars</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&quot;iprcell&quot;</span>  <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
@@ -270,10 +275,6 @@
         <span class="s">&quot;dielng&quot;</span>   <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
         <span class="s">&quot;diecut&quot;</span>   <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
         <span class="s">&quot;nstep&quot;</span>    <span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
-        <span class="c">#&quot;ixc&quot;   ??</span>
-        <span class="c">#&quot;toldfe&quot;</span>
-        <span class="c">#&quot;tolwfr&quot;</span>
-        <span class="c">#&quot;nline&quot;</span>
     <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -281,12 +282,11 @@
 
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_vars</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: No default value has been provided for key </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: No default value has been provided for &quot;</span>
+                                 <span class="s">&quot;key </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ElectronsAlgorithm.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.ElectronsAlgorithm.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="Electrons"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Electrons">[docs]</a><span class="k">class</span> <span class="nc">Electrons</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
@@ -374,8 +374,6 @@
         <span class="n">abivars</span><span class="p">[</span><span class="s">&quot;#comment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comment</span>
         <span class="k">return</span> <span class="n">abivars</span>
 
-<span class="c">#########################################################################################</span>
-
 </div></div>
 <div class="viewcode-block" id="asabistructure"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.asabistructure">[docs]</a><span class="k">def</span> <span class="nf">asabistructure</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -392,13 +390,13 @@
         <span class="c"># Promote</span>
         <span class="k">return</span> <span class="n">AbiStructure</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_string</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
         <span class="c"># Handle file paths.</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.nc&quot;</span><span class="p">):</span>
                 <span class="n">structure</span> <span class="o">=</span> <span class="n">structure_from_etsf_file</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-                <span class="k">print</span><span class="p">(</span><span class="n">structure</span><span class="o">.</span><span class="n">_sites</span><span class="p">)</span>
+                <span class="c">#print(structure._sites)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">structure</span> <span class="o">=</span> <span class="n">read_structure</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
@@ -440,7 +438,7 @@
 
         <span class="n">molecule</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pseudos</span><span class="p">],</span> <span class="n">cart_coords</span><span class="p">)</span>
 
-        <span class="n">l</span> <span class="o">=</span> <span class="n">Bohr2Ang</span><span class="p">(</span><span class="n">acell</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">ArrayWithUnit</span><span class="p">(</span><span class="n">acell</span><span class="p">,</span> <span class="s">&quot;bohr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;ang&quot;</span><span class="p">)</span>
 
         <span class="n">structure</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">get_boxed_structure</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
@@ -474,20 +472,8 @@
         <span class="k">for</span> <span class="p">(</span><span class="n">atm_idx</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">typat</span><span class="p">[</span><span class="n">atm_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">types_of_specie</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">specie</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
-        <span class="n">significant_figures</span> <span class="o">=</span> <span class="mi">12</span>
-        <span class="n">format_str</span> <span class="o">=</span> <span class="s">&quot;{{:.{0}f}}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">significant_figures</span><span class="p">)</span>
-        <span class="n">fmt</span> <span class="o">=</span> <span class="n">format_str</span><span class="o">.</span><span class="n">format</span>
-
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">Ang2Bohr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">vec</span><span class="p">]))</span>
-        <span class="n">rprim</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fmt</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">])</span> <span class="o">+</span> <span class="s">&quot; # &quot;</span> <span class="o">+</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span> <span class="p">)</span>
-        <span class="n">xred</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="n">rprim</span> <span class="o">=</span> <span class="n">ArrayWithUnit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="s">&quot;ang&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;bohr&quot;</span><span class="p">)</span>
+        <span class="n">xred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">],</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="s">&quot;acell&quot;</span> <span class="p">:</span> <span class="mi">3</span> <span class="o">*</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
@@ -498,8 +484,6 @@
             <span class="s">&quot;xred&quot;</span>  <span class="p">:</span> <span class="n">xred</span><span class="p">,</span>
             <span class="s">&quot;znucl&quot;</span> <span class="p">:</span> <span class="n">znucl_type</span><span class="p">,</span>
         <span class="p">}</span>
-
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="KSampling"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.KSampling">[docs]</a><span class="k">class</span> <span class="nc">KSampling</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
@@ -538,10 +522,12 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            mode:</span>
-<span class="sd">                Mode for generating k-poits. Use one of the KSampling.modes enum types.</span>
+<span class="sd">                Mode for generating k-poits. Use one of the KSampling.modes</span>
+<span class="sd">                enum types.</span>
 <span class="sd">            num_kpts:</span>
 <span class="sd">                Number of kpoints if mode is &quot;automatic&quot;</span>
-<span class="sd">                Number of division for the sampling of the smallest segment if mode is &quot;path&quot;</span>
+<span class="sd">                Number of division for the sampling of the smallest segment if</span>
+<span class="sd">                mode is &quot;path&quot;.</span>
 <span class="sd">                Not used for the other modes</span>
 <span class="sd">            kpts:</span>
 <span class="sd">                Number of divisions. Even when only a single specification is</span>
@@ -550,15 +536,18 @@
 <span class="sd">            kpt_shifts:</span>
 <span class="sd">                Shifts for Kpoints.</span>
 <span class="sd">            use_symmetries:</span>
-<span class="sd">                False if spatial symmetries should not be used to reduced the number of independent k-points.</span>
+<span class="sd">                False if spatial symmetries should not be used to reduced the</span>
+<span class="sd">                number of independent k-points.</span>
 <span class="sd">            use_time_reversal:</span>
-<span class="sd">                False if time-reversal symmetry should not be used to reduced the number of independent k-points.</span>
+<span class="sd">                False if time-reversal symmetry should not be used to reduced</span>
+<span class="sd">                the number of independent k-points.</span>
 <span class="sd">            kpts_weights:</span>
 <span class="sd">                Optional weights for kpoints. For explicit kpoints.</span>
 <span class="sd">            labels:</span>
 <span class="sd">                In path-mode, this should provide a list of labels for each kpt.</span>
 <span class="sd">            chksymbreak:</span>
-<span class="sd">                Abinit input variable: check whether the BZ sampling preserves the symmetry of the crystal.</span>
+<span class="sd">                Abinit input variable: check whether the BZ sampling preserves</span>
+<span class="sd">                the symmetry of the crystal.</span>
 <span class="sd">            comment:</span>
 <span class="sd">                String comment for Kpoints</span>
 
@@ -598,7 +587,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;For Path mode, num_kpts must be specified and &gt;0&quot;</span><span class="p">)</span>
 
             <span class="n">kptbounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kpts</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,))</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;in path with kptbound: </span><span class="si">%s</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="n">kptbounds</span><span class="p">)</span>
+            <span class="c">#print(&quot;in path with kptbound: %s &quot; % kptbounds)</span>
 
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                 <span class="s">&quot;ndivsm&quot;</span>   <span class="p">:</span> <span class="n">num_kpts</span><span class="p">,</span>
@@ -628,7 +617,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span> <span class="o">=</span> <span class="n">abivars</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="p">[</span><span class="s">&quot;#comment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comment</span>
-        <span class="c">#print(self.abivars)</span>
 
     <span class="nd">@property</span>
 <div class="viewcode-block" id="KSampling.is_homogeneous"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.KSampling.is_homogeneous">[docs]</a>    <span class="k">def</span> <span class="nf">is_homogeneous</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -660,17 +648,6 @@
                    <span class="n">use_time_reversal</span> <span class="o">=</span> <span class="n">use_time_reversal</span><span class="p">,</span>
                    <span class="n">comment</span>           <span class="o">=</span> <span class="s">&quot;gamma-centered mode&quot;</span><span class="p">,</span>
                    <span class="p">)</span>
-
-    <span class="c">#@classmethod</span>
-    <span class="c">#def symetry_breaking(cls, kpts, shift, use_symmetries=True, use_time_reversal=True):</span>
-    <span class="c">#    return cls(</span>
-    <span class="c">#                   kpts=[kpts],</span>
-    <span class="c">#                   kpt_shifts=shift,</span>
-    <span class="c">#                   use_symmetries = use_symmetries,</span>
-    <span class="c">#                   use_time_reversal = use_time_reversal,</span>
-    <span class="c">#                   chksymbreak = 0,</span>
-    <span class="c">#                   comment=&quot;shifted mode&quot;,</span>
-    <span class="c">#                   )</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="KSampling.monkhorst"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.KSampling.monkhorst">[docs]</a>    <span class="k">def</span> <span class="nf">monkhorst</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ngkpt</span><span class="p">,</span> <span class="n">shiftk</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">chksymbreak</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">use_symmetries</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> 
@@ -768,7 +745,7 @@
             <span class="n">kpath_bounds</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">kpath_labels</span><span class="p">:</span>
                 <span class="n">red_coord</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">kpath</span><span class="p">[</span><span class="s">&quot;kpoints&quot;</span><span class="p">][</span><span class="n">label</span><span class="p">]</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot;label </span><span class="si">%s</span><span class="s">, red_coord </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">red_coord</span><span class="p">))</span>
+                <span class="c">#print(&quot;label %s, red_coord %s&quot; % (label, red_coord))</span>
                 <span class="n">kpath_bounds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">red_coord</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">mode</span>     <span class="o">=</span> <span class="n">KSampling</span><span class="o">.</span><span class="n">modes</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
@@ -803,27 +780,6 @@
 <span class="sd">            kppa:</span>
 <span class="sd">                Grid density</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c">#raise NotImplementedError()</span>
-        <span class="c">#rec_lattice = structure.lattice.reciprocal_lattice</span>
-
-        <span class="c">#min_idx, min_abc = minloc(rec_lattice.abc)</span>
-        <span class="c"># See np.argmax</span>
-        <span class="c">#ratios = rec_lattice.abc / min_abc</span>
-
-        <span class="c">#kpt_shifts = [0.5, 0.5, 0.5]</span>
-        <span class="c">#kpt_shifts = np.atleast_2d(kpt_shifts)</span>
-
-        <span class="c">#num_shifts = len(kpt_shifts)</span>
-
-        <span class="c">#ndiv, num_points = 0, 0</span>
-
-        <span class="c">#while num_points &lt; min_npoints:</span>
-        <span class="c">#    ndiv += 1</span>
-        <span class="c">#    trial_divs = [int(round(n)) for n in ratios * ndiv]</span>
-        <span class="c">#    # ensure that trial_divs  &gt; 0</span>
-        <span class="c">#    trial_divs = [i if i &gt; 0 else 1 for i in trial_divs]</span>
-        <span class="c">#    num_points = num_shifts * np.product(trial_divs)</span>
-
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span>
         <span class="n">lengths</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
         <span class="n">ngrid</span> <span class="o">=</span> <span class="n">kppa</span> <span class="o">/</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
@@ -868,19 +824,17 @@
 <div class="viewcode-block" id="KSampling.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.KSampling.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span>
 
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="Constraints"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Constraints">[docs]</a><span class="k">class</span> <span class="nc">Constraints</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This object defines the constraints for structural relaxation&quot;&quot;&quot;</span>
-
 <div class="viewcode-block" id="Constraints.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Constraints.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 
 </div></div>
 <div class="viewcode-block" id="RelaxationMethod"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.RelaxationMethod">[docs]</a><span class="k">class</span> <span class="nc">RelaxationMethod</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Container object  storing the variables for the (constrained) structural optimization</span>
+<span class="sd">    This object stores the variables for the (constrained) structural optimization</span>
 <span class="sd">    ionmov and optcell specify the type of relaxation.</span>
 <span class="sd">    The other variables are optional and their use depend on ionmov and optcell.</span>
 <span class="sd">    A None value indicates that we use abinit default. Default values can</span>
@@ -896,7 +850,7 @@
         <span class="s">&quot;strfact&quot;</span>          <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
         <span class="s">&quot;tolmxf&quot;</span>           <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
         <span class="s">&quot;strtarget&quot;</span>        <span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
-        <span class="s">&quot;atoms_constraints&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="c"># Constraints are stored in a dictionary. Empty if no constraint is enforced&quot;</span>
+        <span class="s">&quot;atoms_constraints&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="c"># Constraints are stored in a dictionary. {} means if no constraint is enforced.</span>
     <span class="p">}</span>
 
     <span class="n">IONMOV_DEFAULT</span> <span class="o">=</span> <span class="mi">3</span>
@@ -904,10 +858,10 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="c"># Initialize abiars with the default values.</span>
+        <span class="c"># Initialize abivars with the default values.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_vars</span>
 
-        <span class="c"># Overwrite keys with the args and kwargs passed to constructor.</span>
+        <span class="c"># Overwrite the keys with the args and kwargs passed to constructor.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">abivars</span> <span class="o">=</span> <span class="n">AttrDict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abivars</span><span class="p">)</span>
@@ -938,16 +892,16 @@
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="RelaxationMethod.move_atoms"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.RelaxationMethod.move_atoms">[docs]</a>    <span class="k">def</span> <span class="nf">move_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if atoms must be moved&quot;</span>
+        <span class="sd">&quot;&quot;&quot;True if atoms must be moved.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">ionmov</span> <span class="o">!=</span> <span class="mi">0</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="RelaxationMethod.move_cell"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.RelaxationMethod.move_cell">[docs]</a>    <span class="k">def</span> <span class="nf">move_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;True if lattice parameters must be optimized&quot;</span>
+        <span class="sd">&quot;&quot;&quot;True if lattice parameters must be optimized.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">optcell</span> <span class="o">!=</span> <span class="mi">0</span>
 </div>
 <div class="viewcode-block" id="RelaxationMethod.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.RelaxationMethod.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="s">&quot;Returns a dictionary with the abinit variables&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dictionary with the abinit variables&quot;&quot;&quot;</span>
         <span class="nb">vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vars</span>
 
         <span class="c"># These variables are always present.</span>
@@ -963,6 +917,11 @@
                 <span class="s">&quot;tolmxf&quot;</span><span class="p">:</span> <span class="nb">vars</span><span class="o">.</span><span class="n">tolmxf</span><span class="p">,</span>
             <span class="p">})</span>
 
+        <span class="k">if</span> <span class="nb">vars</span><span class="o">.</span><span class="n">atoms_constraints</span><span class="p">:</span>
+            <span class="c"># Add input variables for constrained relaxation.</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">vars</span><span class="o">.</span><span class="n">atoms_constraints</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
+
         <span class="c"># Cell relaxation.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_cell</span><span class="p">:</span>
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
@@ -972,14 +931,7 @@
                 <span class="s">&quot;strtarget&quot;</span><span class="p">:</span> <span class="nb">vars</span><span class="o">.</span><span class="n">strtarget</span><span class="p">,</span>
             <span class="p">})</span>
 
-        <span class="k">if</span> <span class="nb">vars</span><span class="o">.</span><span class="n">atoms_constraints</span><span class="p">:</span>
-            <span class="c"># Add input variables for constrained relaxation.</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">vars</span><span class="o">.</span><span class="n">atoms_constraints</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
-
         <span class="k">return</span> <span class="n">abivars</span>
-
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="PPModel"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.PPModel">[docs]</a><span class="k">class</span> <span class="nc">PPModel</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
@@ -1019,8 +971,8 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">plasmon_freq</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">plasmon_freq</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">plasmon_freq</span><span class="p">,</span> <span class="n">units</span> <span class="o">=</span> <span class="n">plasmon_freq</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-                <span class="n">plasmon_freq</span> <span class="o">=</span> <span class="n">any2Ha</span><span class="p">(</span><span class="n">units</span><span class="p">)(</span><span class="nb">float</span><span class="p">(</span><span class="n">plasmon_freq</span><span class="p">))</span>
+                <span class="n">plasmon_freq</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">plasmon_freq</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">plasmon_freq</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">Energy</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">plasmon_freq</span><span class="p">),</span> <span class="n">unit</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;Ha&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">plasmon_freq</span><span class="o">=</span><span class="n">plasmon_freq</span><span class="p">)</span>
 </div>
@@ -1075,7 +1027,6 @@
 <div class="viewcode-block" id="PPModel.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.PPModel.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">PPModel</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;mode&quot;</span><span class="p">],</span> <span class="n">plasmon_freq</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;plasmon_freq&quot;</span><span class="p">])</span>
 
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="HilbertTransform"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.HilbertTransform">[docs]</a><span class="k">class</span> <span class="nc">HilbertTransform</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
@@ -1096,7 +1047,6 @@
         <span class="k">return</span> <span class="p">{</span><span class="s">&quot;spmeth&quot;</span>  <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spmeth</span><span class="p">,</span>
                 <span class="s">&quot;nomegasf&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nomegasf</span><span class="p">,}</span>
 
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="ModelDielectricFunction"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.ModelDielectricFunction">[docs]</a><span class="k">class</span> <span class="nc">ModelDielectricFunction</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
@@ -1145,8 +1095,6 @@
             <span class="s">&quot;freqim_alpha&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqim_alpha</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">abivars</span>
-
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="Screening"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Screening">[docs]</a><span class="k">class</span> <span class="nc">Screening</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
@@ -1264,8 +1212,6 @@
             <span class="n">abivars</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wmesh</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">abivars</span>
-
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="SelfEnergy"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.SelfEnergy">[docs]</a><span class="k">class</span> <span class="nc">SelfEnergy</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
@@ -1391,8 +1337,6 @@
 
         <span class="k">return</span> <span class="n">abivars</span>
 
-<span class="c">##########################################################################################</span>
-
 </div></div>
 <div class="viewcode-block" id="ExcHamiltonian"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.ExcHamiltonian">[docs]</a><span class="k">class</span> <span class="nc">ExcHamiltonian</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This object contains the parameters for the solution of the Bethe-Salpeter equation.&quot;&quot;&quot;</span>
@@ -1434,7 +1378,7 @@
 <span class="sd">            bs_freq_mesh:</span>
 <span class="sd">                Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.</span>
 <span class="sd">            mdf_epsinf: </span>
-<span class="sd">                Macroscopic dielectric function :math:`\espilon_\inf` used in </span>
+<span class="sd">                Macroscopic dielectric function :math:`\epsilon_\inf` used in </span>
 <span class="sd">                the model dielectric function.</span>
 <span class="sd">            exc_type:</span>
 <span class="sd">                Approximation used for the BSE Hamiltonian</span>
@@ -1540,7 +1484,6 @@
 
         <span class="k">return</span> <span class="n">abivars</span>
 
-<span class="c">##########################################################################################</span>
 
 </div></div>
 <div class="viewcode-block" id="Perturbation"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.Perturbation">[docs]</a><span class="k">class</span> <span class="nc">Perturbation</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
@@ -1557,7 +1500,7 @@
 <span class="sd">            qpt:</span>
 <span class="sd">                reduced coordinates of the q-point associated to the perturbation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">qpt</span> <span class="o">=</span> <span class="n">npreshape</span><span class="p">(</span><span class="n">qpt</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qpt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpt</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nqpt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qpt</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -1605,7 +1548,6 @@
         <span class="c"># nqpt    1        # One wavevector is to be considered</span>
         <span class="c"># qpt     0 0 0    # This wavevector is q=0 (Gamma)</span>
         <span class="c"># kptopt  2        # Automatic generation of k points (time-reversal symmetry only)</span>
-
         <span class="n">abivars</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PhononPertubation</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_abivars</span><span class="p">()</span>
 
         <span class="n">abivars</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
@@ -1640,31 +1582,31 @@
         <span class="p">))</span>
         <span class="k">return</span> <span class="n">abivars</span>
 
-<span class="c">#class ElectricPertunation(Perturbation):</span>
+
+<span class="c">#class ElectricPertubation(Perturbation):</span>
 <span class="c">#    def __init__(self, rfdir):</span>
 <span class="c">#        # Calculation at the Gamma point</span>
 <span class="c">#        super(ElectricPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])</span>
+
 
 <span class="c">#class ElasticPertubation(Perturbation):</span>
 <span class="c">#    def __init__(self, rfdir):</span>
 <span class="c">#        # Calculation at the Gamma point</span>
 <span class="c">#        super(ElasticPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])</span>
 
+
+<span class="c">#def irred_perturbations(input, qpoint):</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    This function returns the list of irreducible perturbations at the given q-point.</span>
+<span class="c">#    &quot;&quot;&quot;</span>
+<span class="c">#    # Call abinit to get the irred perturbations.</span>
+<span class="c">#    #pert_info = get_pert_info()</span>
+<span class="c">#</span>
+<span class="c">#    # Initialize the list of irreducible perturbations.</span>
+<span class="c">#    perts = []</span>
+<span class="c">#    return perts</span>
+
 </div></div>
-<div class="viewcode-block" id="irred_perturbations"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.irred_perturbations">[docs]</a><span class="k">def</span> <span class="nf">irred_perturbations</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">qpoint</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This function returns the list of irreducible perturbations at the given q-point.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Call abinit to get the irred perturbations.</span>
-    <span class="c"># TODO</span>
-    <span class="c">#pert_info = get_pert_info()</span>
-
-    <span class="c"># Initialize the list of irreducible perturbations.</span>
-    <span class="n">perts</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">return</span> <span class="n">perts</span>
-
-<span class="c">##########################################################################################</span>
-</div>
 <div class="viewcode-block" id="IFC"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.IFC">[docs]</a><span class="k">class</span> <span class="nc">IFC</span><span class="p">(</span><span class="n">AbivarAble</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This object defines the set of variables used for the</span>
@@ -1698,7 +1640,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nqshft</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q1shft</span><span class="p">)</span>
 
 <div class="viewcode-block" id="IFC.to_abivars"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.IFC.to_abivars">[docs]</a>    <span class="k">def</span> <span class="nf">to_abivars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
         <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">ifcflag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ifcflag</span><span class="p">,</span>
             <span class="n">brav</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">brav</span><span class="p">,</span>
@@ -1713,9 +1654,11 @@
 
         <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="IFC.fourier_interpol"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.IFC.fourier_interpol">[docs]</a>    <span class="k">def</span> <span class="nf">fourier_interpol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qpath</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">qmesh</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">symdynmat</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">chneut</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dipdip</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                        <span class="n">executable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="IFC.fourier_interpol"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.abiobjects.IFC.fourier_interpol">[docs]</a>    <span class="k">def</span> <span class="nf">fourier_interpol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qpath</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">qmesh</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">symdynmat</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">asr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">chneut</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dipdip</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                         <span class="n">executable</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fourier interpolation of the IFCs.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            asr:</span>
 <span class="sd">                Acoustic Sum Rule. 1 to impose it asymetrically.</span>
@@ -1739,7 +1682,7 @@
             <span class="n">qpath</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">qpath</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
             <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                 <span class="s">&quot;nqpath&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">qpath</span><span class="p">),</span>
-                <span class="s">&quot;qpath&quot;</span> <span class="p">:</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;</span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qpath</span><span class="p">]),</span>
+                <span class="s">&quot;qpath&quot;</span> <span class="p">:</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s"> </span><span class="si">%f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qpath</span><span class="p">),</span>
             <span class="p">})</span>
 
         <span class="c"># Phonon DOS calculations.</span>
@@ -1795,7 +1738,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
