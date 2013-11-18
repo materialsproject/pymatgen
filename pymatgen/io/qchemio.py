@@ -245,6 +245,22 @@ class QcInput(MSONable):
         return self.mol
 
 
+    def set_memory(self, total=None, static=None):
+        """
+        Set the maxium allowed memory.
+
+        Args:
+            total: The total memory. Integer. Unit: MBytes. If set to None,
+            this parameter will be neglected.
+            static: The static memory. Integer. Unit MBytes. If set to None,
+            this parameterwill be neglected.
+        """
+        if total:
+            self.params["rem"]["mem_total"] = total
+        if static:
+            self.params["rem"]["mem_static"] = static
+
+
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
                    sorted(list(self.optional_keywords_list))
