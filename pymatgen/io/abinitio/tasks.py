@@ -797,7 +797,7 @@ class Node(object):
     implemented by the nodes of the calculation.
 
     Nodes are hashable and can be tested for equality
-    (both operation use the node identifier).
+    (hash uses the node identifier, while eq uses workdir).
     """
     __metaclass__ = abc.ABCMeta
 
@@ -829,7 +829,9 @@ class Node(object):
         if not isinstance(other, Node):
             return False
 
-        return self.node_id == other.node_id and self.__class__ == other.__class__
+        return (self.__class__ == other.__class__ and 
+                self.workdir == other.workdir)
+               #self.node_id == other.node_id and 
                                                        
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1255,10 +1257,15 @@ class Task(Node):
         """
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
-        # Increase the counter and relaunch the task.
+        # Increase the counter.
         self.num_restarts += 1
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
-        self.start()
+
+        # Remove the lock file
+        #self.start_lockfile.remove()
+ 
+        # Relaunch the task.
+        fired = self.start()
 
         return 0
 
