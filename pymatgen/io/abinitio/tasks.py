@@ -1262,10 +1262,13 @@ class Task(Node):
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
 
         # Remove the lock file
-        #self.start_lockfile.remove()
+        self.start_lockfile.remove()
  
         # Relaunch the task.
         fired = self.start()
+
+        if not fired:
+            self.history.append("[%s], restart failed" % time.asctime())
 
         return 0
 
