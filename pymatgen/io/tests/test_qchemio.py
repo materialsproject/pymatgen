@@ -26,6 +26,9 @@ heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
 class TestQcInput(TestCase):
 
     def to_and_from_dict_test(self, qcinp):
+        """
+        Helper function. This function should be called in each specific test.
+        """
         d1 = qcinp.to_dict
         qc2 = QcInput.from_dict(d1)
         d2 = qc2.to_dict
@@ -201,5 +204,37 @@ $end
                         job_type="SP",
                         basis_set="6-31+G*")
         qcinp.set_memory(total=18000, static=500)
+        self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
+
+
+    def test_set_max_num_of_scratch_files(self):
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+          job_type = sp
+          exchange = b3lyp
+             basis = 6-31+g*
+  max_sub_file_num = 500
+$end
+
+'''
+        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+                        job_type="SP",
+                        basis_set="6-31+G*")
+        qcinp.set_max_num_of_scratch_files(500)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
