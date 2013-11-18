@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +14,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '2.8.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -138,7 +139,7 @@ if false, compares atomic number</dd>
 
 <dl class="class">
 <dt id="pymatgen.alchemy.filters.RemoveDuplicatesFilter">
-<em class="property">class </em><tt class="descname">RemoveDuplicatesFilter</tt><big>(</big><em>structure_matcher=&lt;pymatgen.analysis.structure_matcher.StructureMatcher object at 0x106436890&gt;</em>, <em>symprec=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveDuplicatesFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">RemoveDuplicatesFilter</tt><big>(</big><em>structure_matcher=&lt;pymatgen.analysis.structure_matcher.StructureMatcher object at 0x1075baa90&gt;</em>, <em>symprec=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/filters.html#RemoveDuplicatesFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.filters.RemoveDuplicatesFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.alchemy.filters.AbstractStructureFilter" title="pymatgen.alchemy.filters.AbstractStructureFilter"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.alchemy.filters.AbstractStructureFilter</span></tt></a></p>
 <p>This filter removes exact duplicate structures from the transmuter.</p>
 <p>Remove duplicate structures based on the structure matcher
@@ -649,10 +650,8 @@ determines the maximum branching for each transformation.</dd>
 <dt id="pymatgen.alchemy.transmuters.StandardTransmuter.get_transformed_structures">
 <tt class="descname">get_transformed_structures</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/alchemy/transmuters.html#StandardTransmuter.get_transformed_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.alchemy.transmuters.StandardTransmuter.get_transformed_structures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns all TransformedStructures.</p>
-<div class="deprecated">
-<p><span>Deprecated since version v2.1.0: </span>Use transformed_structures attribute instead. Will be removed in
-next version.</p>
-</div>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version v2.1.0.</span></p>
 </dd></dl>
 
 <dl class="method">
@@ -806,7 +805,7 @@ generally better supported in visualization programs.</dd>
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

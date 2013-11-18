@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -67,7 +68,7 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Nov 27, 2011&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -81,7 +82,6 @@
 
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="kn">import</span> <span class="n">in_coord_list</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Specie</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.structure_modifier</span> <span class="kn">import</span> <span class="n">SupercellMaker</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 
 
@@ -170,6 +170,7 @@
 
         <span class="n">style</span> <span class="o">=</span> <span class="n">StructureInteractorStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iren</span><span class="o">.</span><span class="n">SetInteractorStyle</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="StructureVis.rotate_view"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.rotate_view">[docs]</a>    <span class="k">def</span> <span class="nf">rotate_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis_ind</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -278,10 +279,14 @@
 <span class="sd">                on the structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">RemoveAllViewProps</span><span class="p">()</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">SupercellMaker</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">supercell</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">modified_structure</span>
-        <span class="n">all_sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">to_unit_cell</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">s</span><span class="p">]</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">all_sites</span><span class="p">)</span>
+
+        <span class="n">has_lattice</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="s">&quot;lattice&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">has_lattice</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">Structure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">supercell</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">structure</span>
 
         <span class="n">inc_coords</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
@@ -291,9 +296,12 @@
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;c&quot;</span><span class="p">]</span>
         <span class="n">colors</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
-        <span class="n">matrix</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_unit_cell</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">has_lattice</span><span class="p">:</span>
+            <span class="n">matrix</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_unit_cell</span> <span class="ow">and</span> <span class="n">has_lattice</span><span class="p">:</span>
+            <span class="c">#matrix = s.lattice.matrix</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_text</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s">&quot;o&quot;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">vec</span> <span class="ow">in</span> <span class="n">matrix</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">vec</span><span class="p">,</span> <span class="n">colors</span><span class="p">[</span><span class="n">count</span><span class="p">])</span>
@@ -354,13 +362,20 @@
 
         <span class="n">camera</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">GetActiveCamera</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">reset_camera</span><span class="p">:</span>
-            <span class="c">#Adjust the camera for best viewing</span>
-            <span class="n">lengths</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
-            <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span> <span class="o">/</span> \
-                <span class="n">lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">3.5</span>
-            <span class="n">camera</span><span class="o">.</span><span class="n">SetPosition</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
-            <span class="n">camera</span><span class="o">.</span><span class="n">SetViewUp</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">camera</span><span class="o">.</span><span class="n">SetFocalPoint</span><span class="p">((</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_lattice</span><span class="p">:</span>
+                <span class="c">#Adjust the camera for best viewing</span>
+                <span class="n">lengths</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">abc</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">+</span> \
+                    <span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span> <span class="o">/</span> <span class="n">lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mf">3.5</span>
+                <span class="n">camera</span><span class="o">.</span><span class="n">SetPosition</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+                <span class="n">camera</span><span class="o">.</span><span class="n">SetViewUp</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">camera</span><span class="o">.</span><span class="n">SetFocalPoint</span><span class="p">((</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">origin</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">center_of_mass</span>
+                <span class="n">max_site</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                    <span class="n">s</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">distance_from_point</span><span class="p">(</span><span class="n">origin</span><span class="p">))</span>
+                <span class="n">camera</span><span class="o">.</span><span class="n">SetPosition</span><span class="p">(</span><span class="n">origin</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_site</span><span class="o">.</span><span class="n">coords</span> <span class="o">-</span> <span class="n">origin</span><span class="p">))</span>
+                <span class="n">camera</span><span class="o">.</span><span class="n">SetFocalPoint</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">center_of_mass</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">formula</span>
@@ -415,7 +430,7 @@
             <span class="n">sphere</span><span class="o">.</span><span class="n">SetEndTheta</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
 
             <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
-            <span class="n">mapper</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">sphere</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">())</span>
+            <span class="n">mapper</span><span class="o">.</span><span class="n">SetInputConnection</span><span class="p">(</span><span class="n">sphere</span><span class="o">.</span><span class="n">GetOutputPort</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mapper_map</span><span class="p">[</span><span class="n">mapper</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="p">]</span>
             <span class="n">actor</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
             <span class="n">actor</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
@@ -486,14 +501,16 @@
         <span class="n">source</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">()</span><span class="o">.</span><span class="n">GetPointData</span><span class="p">()</span><span class="o">.</span><span class="n">AddArray</span><span class="p">(</span><span class="n">vertexIDs</span><span class="p">)</span>
 
         <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
-        <span class="n">mapper</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">())</span>
+        <span class="n">mapper</span><span class="o">.</span><span class="n">SetInputConnection</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">GetOutputPort</span><span class="p">())</span>
         <span class="n">actor</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
         <span class="n">actor</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
         <span class="n">actor</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
         <span class="n">actor</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetLineWidth</span><span class="p">(</span><span class="n">width</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="StructureVis.add_polyhedron"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron">[docs]</a>    <span class="k">def</span> <span class="nf">add_polyhedron</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureVis.add_polyhedron"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_polyhedron">[docs]</a>    <span class="k">def</span> <span class="nf">add_polyhedron</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                       <span class="n">draw_edges</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">edges_color</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                       <span class="n">edges_linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds a polyhedron.</span>
 
@@ -504,6 +521,14 @@
 <span class="sd">                The atom in the center of the polyhedron.</span>
 <span class="sd">            color:</span>
 <span class="sd">                Color for text as RGB.</span>
+<span class="sd">            opacity:</span>
+<span class="sd">                Opacity of the polyhedron</span>
+<span class="sd">            draw_edges:</span>
+<span class="sd">                If set to True, the a line will be drawn at each edge</span>
+<span class="sd">            edges_color:</span>
+<span class="sd">                Color of the line for the edges</span>
+<span class="sd">            edges_linewidth:</span>
+<span class="sd">                Width of the line drawn for the edges</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
         <span class="n">conv</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkConvexPointSet</span><span class="p">()</span>
@@ -520,15 +545,195 @@
         <span class="n">polysites</span> <span class="o">=</span> <span class="p">[</span><span class="n">center</span><span class="p">]</span>
         <span class="n">polysites</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mapper_map</span><span class="p">[</span><span class="n">dsm</span><span class="p">]</span> <span class="o">=</span> <span class="n">polysites</span>
-        <span class="n">dsm</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vtk</span><span class="o">.</span><span class="n">VTK_MAJOR_VERSION</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">dsm</span><span class="o">.</span><span class="n">SetInputConnection</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">GetProducerPort</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dsm</span><span class="o">.</span><span class="n">SetInputData</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
         <span class="n">ac</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
         <span class="c">#ac.SetMapper(mapHull)</span>
         <span class="n">ac</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">dsm</span><span class="p">)</span>
-        <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetOpacity</span><span class="p">(</span><span class="mf">0.4</span><span class="p">)</span>
-        <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetOpacity</span><span class="p">(</span><span class="n">opacity</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s">&#39;element&#39;</span><span class="p">:</span>
+            <span class="c"># If partial occupations are involved, the color of the specie with</span>
+            <span class="c"># the highest occupation is used</span>
+            <span class="n">myoccu</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">specie</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="n">center</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">occu</span> <span class="o">&gt;</span> <span class="n">myoccu</span><span class="p">:</span>
+                    <span class="n">myspecie</span> <span class="o">=</span> <span class="n">specie</span>
+                    <span class="n">myoccu</span> <span class="o">=</span> <span class="n">occu</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_color_mapping</span><span class="p">[</span><span class="n">myspecie</span><span class="o">.</span><span class="n">symbol</span><span class="p">]]</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">draw_edges</span><span class="p">:</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetEdgeColor</span><span class="p">(</span><span class="n">edges_color</span><span class="p">)</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetLineWidth</span><span class="p">(</span><span class="n">edges_linewidth</span><span class="p">)</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">EdgeVisibilityOn</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="StructureVis.add_bonds"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_bonds">[docs]</a>    <span class="k">def</span> <span class="nf">add_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">center</span><span class="p">):</span>
+<div class="viewcode-block" id="StructureVis.add_triangle"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_triangle">[docs]</a>    <span class="k">def</span> <span class="nf">add_triangle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                     <span class="n">draw_edges</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">edges_color</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                     <span class="n">edges_linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a triangular surface between three atoms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            atoms:</span>
+<span class="sd">                Atoms between which a triangle will be drawn.</span>
+<span class="sd">            color:</span>
+<span class="sd">                Color for triangle as RGB.</span>
+<span class="sd">            center:</span>
+<span class="sd">                The &quot;central atom&quot; of the triangle</span>
+<span class="sd">            opacity:</span>
+<span class="sd">                opacity of the triangle</span>
+<span class="sd">            draw_edges:</span>
+<span class="sd">                If set to True, the a line will be drawn at each edge</span>
+<span class="sd">            edges_color:</span>
+<span class="sd">                Color of the line for the edges</span>
+<span class="sd">            edges_linewidth:</span>
+<span class="sd">                Width of the line drawn for the edges</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
+        <span class="n">triangle</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkTriangle</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">InsertNextPoint</span><span class="p">(</span><span class="n">neighbors</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                                   <span class="n">neighbors</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
+            <span class="n">triangle</span><span class="o">.</span><span class="n">GetPointIds</span><span class="p">()</span><span class="o">.</span><span class="n">SetId</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
+        <span class="n">triangles</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellArray</span><span class="p">()</span>
+        <span class="n">triangles</span><span class="o">.</span><span class="n">InsertNextCell</span><span class="p">(</span><span class="n">triangle</span><span class="p">)</span>
+
+        <span class="c"># polydata object</span>
+        <span class="n">trianglePolyData</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyData</span><span class="p">()</span>
+        <span class="n">trianglePolyData</span><span class="o">.</span><span class="n">SetPoints</span><span class="p">(</span> <span class="n">points</span> <span class="p">)</span>
+        <span class="n">trianglePolyData</span><span class="o">.</span><span class="n">SetPolys</span><span class="p">(</span> <span class="n">triangles</span> <span class="p">)</span>
+
+        <span class="c"># mapper</span>
+        <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
+        <span class="n">mapper</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">trianglePolyData</span><span class="p">)</span>
+
+        <span class="n">ac</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetOpacity</span><span class="p">(</span><span class="n">opacity</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s">&#39;element&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&#39;Color should be chosen according to the central atom, &#39;</span>
+                    <span class="s">&#39;and central atom is not provided&#39;</span><span class="p">)</span>
+            <span class="c"># If partial occupations are involved, the color of the specie with</span>
+            <span class="c"># the highest occupation is used</span>
+            <span class="n">myoccu</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">specie</span><span class="p">,</span> <span class="n">occu</span> <span class="ow">in</span> <span class="n">center</span><span class="o">.</span><span class="n">species_and_occu</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">occu</span> <span class="o">&gt;</span> <span class="n">myoccu</span><span class="p">:</span>
+                    <span class="n">myspecie</span> <span class="o">=</span> <span class="n">specie</span>
+                    <span class="n">myoccu</span> <span class="o">=</span> <span class="n">occu</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="mi">255</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">el_color_mapping</span><span class="p">[</span><span class="n">myspecie</span><span class="o">.</span><span class="n">symbol</span><span class="p">]]</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">draw_edges</span><span class="p">:</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetEdgeColor</span><span class="p">(</span><span class="n">edges_color</span><span class="p">)</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetLineWidth</span><span class="p">(</span><span class="n">edges_linewidth</span><span class="p">)</span>
+            <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">EdgeVisibilityOn</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StructureVis.add_faces"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_faces">[docs]</a>    <span class="k">def</span> <span class="nf">add_faces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">face</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
+                <span class="n">triangle</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkTriangle</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">InsertNextPoint</span><span class="p">(</span><span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">triangle</span><span class="o">.</span><span class="n">GetPointIds</span><span class="p">()</span><span class="o">.</span><span class="n">SetId</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
+                <span class="n">triangles</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellArray</span><span class="p">()</span>
+                <span class="n">triangles</span><span class="o">.</span><span class="n">InsertNextCell</span><span class="p">(</span><span class="n">triangle</span><span class="p">)</span>
+                <span class="n">trianglePolyData</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyData</span><span class="p">()</span>
+                <span class="n">trianglePolyData</span><span class="o">.</span><span class="n">SetPoints</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+                <span class="n">trianglePolyData</span><span class="o">.</span><span class="n">SetPolys</span><span class="p">(</span><span class="n">triangles</span><span class="p">)</span>
+                <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
+                <span class="n">mapper</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">trianglePolyData</span><span class="p">)</span>
+                <span class="n">ac</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetOpacity</span><span class="p">(</span><span class="n">opacity</span><span class="p">)</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">False</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">face</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">InsertNextPoint</span><span class="p">(</span><span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+                <span class="n">line1</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkLine</span><span class="p">()</span>
+                <span class="n">line1</span><span class="o">.</span><span class="n">GetPointIds</span><span class="p">()</span><span class="o">.</span><span class="n">SetId</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">line1</span><span class="o">.</span><span class="n">GetPointIds</span><span class="p">()</span><span class="o">.</span><span class="n">SetId</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">line2</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkLine</span><span class="p">()</span>
+                <span class="n">line2</span><span class="o">.</span><span class="n">GetPointIds</span><span class="p">()</span><span class="o">.</span><span class="n">SetId</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="n">line2</span><span class="o">.</span><span class="n">GetPointIds</span><span class="p">()</span><span class="o">.</span><span class="n">SetId</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellArray</span><span class="p">()</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">InsertNextCell</span><span class="p">(</span><span class="n">line1</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">InsertNextCell</span><span class="p">(</span><span class="n">line2</span><span class="p">)</span>
+                <span class="n">polydata</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyData</span><span class="p">()</span>
+                <span class="n">polydata</span><span class="o">.</span><span class="n">SetPoints</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+                <span class="n">polydata</span><span class="o">.</span><span class="n">SetLines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                <span class="n">ruledSurfaceFilter</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkRuledSurfaceFilter</span><span class="p">()</span>
+                <span class="n">ruledSurfaceFilter</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">polydata</span><span class="p">)</span>
+                <span class="n">ruledSurfaceFilter</span><span class="o">.</span><span class="n">SetResolution</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
+                <span class="n">ruledSurfaceFilter</span><span class="o">.</span><span class="n">SetRuledModeToResample</span><span class="p">()</span>
+                <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
+                <span class="n">mapper</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">ruledSurfaceFilter</span><span class="o">.</span><span class="n">GetOutput</span><span class="p">())</span>
+                <span class="n">ac</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetOpacity</span><span class="p">(</span><span class="n">opacity</span><span class="p">)</span>
+                <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">face</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">face</span><span class="p">:</span>
+                    <span class="n">center</span> <span class="o">+=</span> <span class="n">site</span>
+                <span class="n">center</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">face</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">face</span><span class="p">)):</span>
+                    <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
+                    <span class="n">triangle</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkTriangle</span><span class="p">()</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">InsertNextPoint</span><span class="p">(</span><span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">ii2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">face</span><span class="p">))</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">InsertNextPoint</span><span class="p">(</span><span class="n">face</span><span class="p">[</span><span class="n">ii2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">face</span><span class="p">[</span><span class="n">ii2</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">points</span><span class="o">.</span><span class="n">InsertNextPoint</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                        <span class="n">triangle</span><span class="o">.</span><span class="n">GetPointIds</span><span class="p">()</span><span class="o">.</span><span class="n">SetId</span><span class="p">(</span><span class="n">ii</span><span class="p">,</span> <span class="n">ii</span><span class="p">)</span>
+                    <span class="n">triangles</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellArray</span><span class="p">()</span>
+                    <span class="n">triangles</span><span class="o">.</span><span class="n">InsertNextCell</span><span class="p">(</span><span class="n">triangle</span><span class="p">)</span>
+                    <span class="n">trianglePolyData</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyData</span><span class="p">()</span>
+                    <span class="n">trianglePolyData</span><span class="o">.</span><span class="n">SetPoints</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+                    <span class="n">trianglePolyData</span><span class="o">.</span><span class="n">SetPolys</span><span class="p">(</span><span class="n">triangles</span><span class="p">)</span>
+                    <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
+                    <span class="n">mapper</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">trianglePolyData</span><span class="p">)</span>
+                    <span class="n">ac</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
+                    <span class="n">ac</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
+                    <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetOpacity</span><span class="p">(</span><span class="n">opacity</span><span class="p">)</span>
+                    <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Number of points for a face should be &gt;= 3&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StructureVis.add_edges"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_edges">[docs]</a>    <span class="k">def</span> <span class="nf">add_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&#39;line&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkCellArray</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">iedge</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">InsertPoint</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">iedge</span><span class="p">,</span> <span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">InsertPoint</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">iedge</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">InsertNextCell</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">InsertCellPoint</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">iedge</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">InsertCellPoint</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">iedge</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">polydata</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyData</span><span class="p">()</span>
+        <span class="n">polydata</span><span class="o">.</span><span class="n">SetPoints</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="n">polydata</span><span class="o">.</span><span class="n">SetLines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
+        <span class="n">mapper</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">polydata</span><span class="p">)</span>
+        <span class="n">ac</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">ac</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetLineWidth</span><span class="p">(</span><span class="n">linewidth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">ac</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StructureVis.add_bonds"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_bonds">[docs]</a>    <span class="k">def</span> <span class="nf">add_bonds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">opacity</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                  <span class="n">radius</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adds bonds for a site.</span>
 
@@ -537,6 +742,12 @@
 <span class="sd">                Neighbors of the site.</span>
 <span class="sd">            center:</span>
 <span class="sd">                The site in the center for all bonds.</span>
+<span class="sd">            color:</span>
+<span class="sd">                Color of the tubes representing the bonds</span>
+<span class="sd">            opacity:</span>
+<span class="sd">                Opacity of the tubes representing the bonds</span>
+<span class="sd">            radius:</span>
+<span class="sd">                radius of tube s representing the bonds</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPoints</span><span class="p">()</span>
         <span class="n">points</span><span class="o">.</span><span class="n">InsertPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">center</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">center</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">center</span><span class="o">.</span><span class="n">z</span><span class="p">)</span>
@@ -552,14 +763,21 @@
         <span class="n">pd</span><span class="o">.</span><span class="n">SetLines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 
         <span class="n">tube</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkTubeFilter</span><span class="p">()</span>
-        <span class="n">tube</span><span class="o">.</span><span class="n">SetInput</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
-        <span class="n">tube</span><span class="o">.</span><span class="n">SetRadius</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vtk</span><span class="o">.</span><span class="n">VTK_MAJOR_VERSION</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="n">tube</span><span class="o">.</span><span class="n">SetInputConnection</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">GetProducerPort</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tube</span><span class="o">.</span><span class="n">SetInputData</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
+        <span class="n">tube</span><span class="o">.</span><span class="n">SetRadius</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
 
         <span class="n">mapper</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
         <span class="n">mapper</span><span class="o">.</span><span class="n">SetInputConnection</span><span class="p">(</span><span class="n">tube</span><span class="o">.</span><span class="n">GetOutputPort</span><span class="p">())</span>
 
         <span class="n">actor</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
         <span class="n">actor</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">opacity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">actor</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetOpacity</span><span class="p">(</span><span class="n">opacity</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">actor</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">AddActor</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="StructureVis.add_picker_fixed"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureVis.add_picker_fixed">[docs]</a>    <span class="k">def</span> <span class="nf">add_picker_fixed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -650,16 +868,18 @@
         <span class="k">return</span>
 </div>
 <div class="viewcode-block" id="StructureInteractorStyle.leftButtonReleaseEvent"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.leftButtonReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">leftButtonReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">ren</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">GetCurrentRenderer</span><span class="p">()</span>
+        <span class="n">iren</span> <span class="o">=</span> <span class="n">ren</span><span class="o">.</span><span class="n">GetRenderWindow</span><span class="p">()</span><span class="o">.</span><span class="n">GetInteractor</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouse_motion</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">iren</span><span class="o">.</span><span class="n">GetEventPosition</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">picker</span><span class="o">.</span><span class="n">Pick</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ren</span><span class="p">)</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">iren</span><span class="o">.</span><span class="n">GetEventPosition</span><span class="p">()</span>
+            <span class="n">iren</span><span class="o">.</span><span class="n">GetPicker</span><span class="p">()</span><span class="o">.</span><span class="n">Pick</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ren</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">OnLeftButtonUp</span><span class="p">()</span>
         <span class="k">return</span>
 </div>
 <div class="viewcode-block" id="StructureInteractorStyle.keyPressEvent"><a class="viewcode-back" href="../../../pymatgen.vis.html#pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
-        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">GetCurrentRenderer</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
         <span class="n">sym</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">iren</span><span class="o">.</span><span class="n">GetKeySym</span><span class="p">()</span>
-        <span class="c">#print sym</span>
+
         <span class="k">if</span> <span class="n">sym</span> <span class="ow">in</span> <span class="s">&quot;ABCabc&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">sym</span> <span class="o">==</span> <span class="s">&quot;A&quot;</span><span class="p">:</span>
                 <span class="n">parent</span><span class="o">.</span><span class="n">supercell</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -782,7 +1002,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -57,83 +58,106 @@
   <h1>Source code for pymatgen.io.abinitio.events</h1><div class="highlight"><pre>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This module defines the events signaled by abinit during the execution. It also</span>
-<span class="sd">provides a parser to extract these events form the main output file and the</span>
-<span class="sd">log file.</span>
+<span class="sd">provides a parser to extract these events form the main output file and the log file.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">os.path</span>
 <span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="c"># import abc</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">WildCard</span>
+<span class="kn">from</span> <span class="nn">pymatgen.io.abinitio.abiinspect</span> <span class="kn">import</span> <span class="n">YamlTokenizer</span><span class="p">,</span> <span class="n">YamlDoc</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&quot;EventsParser&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">straceback</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns a string with the traceback.&quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">traceback</span>
+    <span class="k">return</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="Event"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event">[docs]</a><span class="k">class</span> <span class="nc">Event</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">AbinitEvent</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">YAMLObject</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Example (JSON)::</span>
+<span class="sd">    Example (YAML syntax)::</span>
 
-<span class="sd">        &lt;Event&gt;</span>
-<span class="sd">            &quot;class&quot;: &quot;ScfConvergenceWarning&quot;,</span>
-<span class="sd">            &quot;src_file&quot;: &quot;routine name&quot;,</span>
-<span class="sd">            &quot;src_line&quot;: &quot;line number in src_file&quot;,</span>
-<span class="sd">            &quot;message&quot;: &quot;The human-readable message goes here!&quot;</span>
-<span class="sd">            &quot;tolname&quot;: &quot;tolwfr&quot;,</span>
-<span class="sd">            &quot;actual_tol&quot;: 1.0e-8,</span>
-<span class="sd">            &quot;required_tol&quot;: 1.0e-10,</span>
-<span class="sd">            &quot;nstep&quot;: 50,</span>
-<span class="sd">        &lt;/Event&gt;</span>
+<span class="sd">        Normal warning without any handler:</span>
+
+<span class="sd">        --- !Warning</span>
+<span class="sd">        message: | </span>
+<span class="sd">            This is a normal warning that won&#39;t </span>
+<span class="sd">            trigger any handler in the python code!</span>
+<span class="sd">        src_file: routine_name</span>
+<span class="sd">        src_line:  112</span>
+<span class="sd">        ...</span>
+
+<span class="sd">        Critical warning that will trigger some action in the python code.</span>
+
+<span class="sd">        --- !ScfConvergeWarning</span>
+<span class="sd">        message: |</span>
+<span class="sd">            The human-readable message goes here!</span>
+<span class="sd">        src_file: foo.F90</span>
+<span class="sd">        src_line: 112</span>
+<span class="sd">        tolname: tolwfr</span>
+<span class="sd">        actual_tol: 1.0e-8</span>
+<span class="sd">        required_tol: 1.0e-10</span>
+<span class="sd">        nstep: 50</span>
+<span class="sd">        ...</span>
+
+<span class="sd">    The algorithm to extract the YAML sections is very simple.</span>
+
+<span class="sd">    1) We use YamlTokenizer to extract the documents from the output file </span>
+<span class="sd">    2) If we have a tag that ends with &quot;Warning&quot;, &quot;Error&quot;, &quot;Bug&quot;, &quot;Comment</span>
+<span class="sd">       we know we have encountered a new ABINIT event </span>
+<span class="sd">    3) We parse the document with yaml.load(doc.text) and we get the object</span>
+
+<span class="sd">    Note that:</span>
+<span class="sd">        # --- and ... become reserved words (whey they are placed at</span>
+<span class="sd">          the begining of a line) since they are used to mark the beginning and </span>
+<span class="sd">          the end of YAML documents.</span>
+
+<span class="sd">        # All the possible events should subclass `AbinitEvent` and define </span>
+<span class="sd">          the class attribute yaml_tag so that yaml.load will know how to </span>
+<span class="sd">          build the instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Event.from_string"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">lineno</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Constructs an event given a string and the line number.&quot;&quot;&quot;</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
-        <span class="n">cls</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">[</span><span class="s">&quot;class&quot;</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="s">&quot;lineno&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">d</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;lineno&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lineno</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-</div>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;message&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lineno</span>  <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;lineno&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">kwargs</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">src_file</span><span class="p">,</span> <span class="n">src_line</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Basic constructor for `AbinitEvent`. </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message:</span>
+<span class="sd">                String with human-readable message providing info on the event.</span>
+<span class="sd">            src_file:</span>
+<span class="sd">                String with the name of the Fortran file where the event is raised.</span>
+<span class="sd">            src_line</span>
+<span class="sd">                Integer giving the line number in src_file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_file</span> <span class="o">=</span> <span class="n">src_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src_line</span> <span class="o">=</span> <span class="n">src_line</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">:</span><span class="se">\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src_line</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">header</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
 
     <span class="nd">@property</span>
-<div class="viewcode-block" id="Event.name"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Name of the event (class name)&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
-</div>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="Event.baseclass"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event.baseclass">[docs]</a>    <span class="k">def</span> <span class="nf">baseclass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">baseclass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The baseclass of self.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">cls</span> <span class="ow">in</span> <span class="n">_BASE_CLASSES</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">cls</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot determine the base class of </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                         <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
-</div>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Event.to_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="k">return</span> <span class="n">d</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Event.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;@&quot;</span><span class="p">)})</span>
-</div>
-<div class="viewcode-block" id="Event.iscritical"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event.iscritical">[docs]</a>    <span class="k">def</span> <span class="nf">iscritical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        True if event is critical namely that if this event should be analyzed in</span>
-<span class="sd">        more detail to understand what action should be performed</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">False</span>
-</div>
-<div class="viewcode-block" id="Event.action"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Event.action">[docs]</a>    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">err_msg</span> <span class="o">=</span> <span class="s">&quot;Cannot determine the base class of </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err_msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a dictionary whose values that can be used to decide</span>
 <span class="sd">        which actions should be performed e.g the SCF data at the last</span>
@@ -142,50 +166,81 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span>
 
-</div></div>
-<div class="viewcode-block" id="Comment"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Comment">[docs]</a><span class="k">class</span> <span class="nc">Comment</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">AbinitComment</span><span class="p">(</span><span class="n">AbinitEvent</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for Comment events&quot;&quot;&quot;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!COMMENT&#39;</span>
 
-</div>
-<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">AbinitError</span><span class="p">(</span><span class="n">AbinitEvent</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for Error events&quot;&quot;&quot;</span>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Error.iscritical"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Error.iscritical">[docs]</a>    <span class="k">def</span> <span class="nf">iscritical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">True</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!ERROR&#39;</span>
 
-</div></div>
-<div class="viewcode-block" id="Bug"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Bug">[docs]</a><span class="k">class</span> <span class="nc">Bug</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">AbinitYamlError</span><span class="p">(</span><span class="n">AbinitError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raised if the YAML parser cannot parse the document and the doc tag is an Error.&quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">AbinitBug</span><span class="p">(</span><span class="n">AbinitEvent</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Base class for Bug events&quot;&quot;&quot;</span>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Bug.iscritical"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Bug.iscritical">[docs]</a>    <span class="k">def</span> <span class="nf">iscritical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">True</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!BUG&#39;</span>
 
-</div></div>
-<div class="viewcode-block" id="Warning"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Warning">[docs]</a><span class="k">class</span> <span class="nc">Warning</span><span class="p">(</span><span class="n">Event</span><span class="p">):</span>
+
+<span class="k">class</span> <span class="nc">AbinitWarning</span><span class="p">(</span><span class="n">AbinitEvent</span><span class="p">):</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!WARNING&#39;</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for Warning events (the most important class).</span>
 <span class="sd">    Developers should subclass this class to define the different exceptions</span>
 <span class="sd">    raised by the code and the possible actions that can be performed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># FIXME: for the moment we tag a warning as critical, then, once we migrate to the</span>
-    <span class="c"># JSON-like format, only CriticalWarnings will trigger some kind of action.</span>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="Warning.iscritical"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.Warning.iscritical">[docs]</a>    <span class="k">def</span> <span class="nf">iscritical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">True</span>
 
-<span class="c"># Register the concrete base classes.</span></div></div>
+<span class="k">class</span> <span class="nc">AbinitYamlWarning</span><span class="p">(</span><span class="n">AbinitWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Raised if the YAML parser cannot parse the document and the doc tas is a Warning.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">ScfConvergenceWarning</span><span class="p">(</span><span class="n">AbinitWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Warning raised when the GS SCF cycle did not converge.&quot;&quot;&quot;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!ScfConvergenceWarning&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">NscfConvergenceWarning</span><span class="p">(</span><span class="n">AbinitWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Warning raised when the GS NSCF cycle did not converge.&quot;&quot;&quot;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!NscfConvergenceWarning&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">RelaxConvergenceWarning</span><span class="p">(</span><span class="n">AbinitWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Warning raised when the structural relaxation did not converge.&quot;&quot;&quot;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!RelaxConvergenceWarning&#39;</span>
+
+
+<span class="c"># TODO: for the time being we don&#39;t discern between GS and PhononCalculations.</span>
+<span class="c">#class PhononConvergenceWarning(AbinitWarning):</span>
+<span class="c">#    &quot;&quot;&quot;Warning raised when the phonon calculation did not converge.&quot;&quot;&quot;</span>
+<span class="c">#    yaml_tag = u&#39;!PhononConvergenceWarning&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">QPSConvergenceWarning</span><span class="p">(</span><span class="n">AbinitWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Warning raised when the QPS iteration (GW) did not converge.&quot;&quot;&quot;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!QPSConvergenceWarning&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">HaydockConvergenceWarning</span><span class="p">(</span><span class="n">AbinitWarning</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Warning raised when the Haydock method (BSE) did not converge.&quot;&quot;&quot;</span>
+    <span class="n">yaml_tag</span> <span class="o">=</span> <span class="s">u&#39;!HaydockConvergenceWarning&#39;</span>
+
+
+<span class="c"># Register the concrete base classes.</span>
 <span class="n">_BASE_CLASSES</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">Comment</span><span class="p">,</span>
-    <span class="n">Error</span><span class="p">,</span>
-    <span class="n">Bug</span><span class="p">,</span>
-    <span class="ne">Warning</span><span class="p">,</span>
+    <span class="n">AbinitComment</span><span class="p">,</span>
+    <span class="n">AbinitError</span><span class="p">,</span>
+    <span class="n">AbinitBug</span><span class="p">,</span>
+    <span class="n">AbinitWarning</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="c">##########################################################################################</span>
 
-
-<div class="viewcode-block" id="EventList"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList">[docs]</a><span class="k">class</span> <span class="nc">EventList</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Iterable storing the events produced by an abinit calculation.&quot;&quot;&quot;</span>
+<span class="k">class</span> <span class="nc">EventReport</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Iterable storing the events raised by an ABINIT calculation.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -210,179 +265,162 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">__iter__</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">+</span><span class="s">&quot;:&quot;</span><span class="p">,]</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
-        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">append</span>
 
-<div class="viewcode-block" id="EventList.append"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">app</span><span class="p">(</span><span class="s">&quot;Event Report for file: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">app</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s">) </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">event</span><span class="p">)))</span>
+
+        <span class="n">app</span><span class="p">(</span><span class="s">&quot;num_errors: </span><span class="si">%s</span><span class="s">, num_warnings: </span><span class="si">%s</span><span class="s">, num_comments: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_errors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_warnings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_comments</span><span class="p">))</span>
+        <span class="n">app</span><span class="p">(</span><span class="s">&quot;run_completed: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_completed</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add an event to the list.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events_by_baseclass</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">baseclass</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-</div>
+
+    <span class="k">def</span> <span class="nf">set_run_completed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bool_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the value of _run_completed.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_completed</span> <span class="o">=</span> <span class="n">bool_value</span>
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="EventList.critical_events"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.critical_events">[docs]</a>    <span class="k">def</span> <span class="nf">critical_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;List of critical events.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">iscritical</span><span class="p">]</span>
-</div>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="EventList.comments"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.comments">[docs]</a>    <span class="k">def</span> <span class="nf">comments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Comment</span><span class="p">)</span>
-</div>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="EventList.errors"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.errors">[docs]</a>    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Error</span><span class="p">)</span>
-</div>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="EventList.bugs"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.bugs">[docs]</a>    <span class="k">def</span> <span class="nf">bugs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">Bug</span><span class="p">)</span>
-</div>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="EventList.warnings"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.warnings">[docs]</a>    <span class="k">def</span> <span class="nf">warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="ne">Warning</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="EventList.select"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_class</span><span class="p">,</span> <span class="n">only_critical</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">run_completed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return list of events that inherits from class base_class</span>
+<span class="sd">        Returns True if the calculation terminated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_completed</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">comments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of comments found.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">AbinitComment</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of errors found.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">AbinitError</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bugs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of bugs found.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">AbinitBug</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of warnings found.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">AbinitWarning</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of warnings reported.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warnings</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of errors reported.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of comments reported.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the list of events that inherits from class base_class</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            only_critical:</span>
 <span class="sd">                if True, only critical events are returned.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">only_critical</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events_by_baseclass</span><span class="p">[</span><span class="n">base_class</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">iscritical</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events_by_baseclass</span><span class="p">[</span><span class="n">base_class</span><span class="p">][:]</span>
-</div>
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="EventList.to_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;events&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">to_dict</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@module&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span>
-        <span class="n">d</span><span class="p">[</span><span class="s">&quot;@class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
-        <span class="k">return</span> <span class="n">d</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="EventList.from_dict"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventList.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">Event</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">ed</span><span class="p">)</span> <span class="k">for</span> <span class="n">ed</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;events&quot;</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">],</span> <span class="n">events</span><span class="o">=</span><span class="n">events</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_events_by_baseclass</span><span class="p">[</span><span class="n">base_class</span><span class="p">][:]</span>
 
-<span class="c">##########################################################################################</span>
+    <span class="k">def</span> <span class="nf">filter_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_types</span><span class="p">):</span>
+        <span class="n">evts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="ow">in</span> <span class="n">event_types</span><span class="p">:</span>
+                <span class="n">evts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">evts</span>
 
-</div></div>
-<div class="viewcode-block" id="EventParserError"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventParserError">[docs]</a><span class="k">class</span> <span class="nc">EventParserError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for the exceptions raised by EventParser.&quot;&quot;&quot;</span>
 
-</div>
-<div class="viewcode-block" id="EventParser"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventParser">[docs]</a><span class="k">class</span> <span class="nc">EventParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">EventsParserError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for the exceptions raised by EventsParser.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="EventsParser"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventsParser">[docs]</a><span class="k">class</span> <span class="nc">EventsParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses the output or the log file produced by abinit and extract the list of events.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">Error</span> <span class="o">=</span> <span class="n">EventParserError</span>
+    <span class="n">Error</span> <span class="o">=</span> <span class="n">EventsParserError</span>
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="EventParser.parse"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventParser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">nafter</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read and parse the main output file or the file produced for abinit</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            filename:</span>
-<span class="sd">                path to the file.</span>
-<span class="sd">            nafter:</span>
-<span class="sd">                Save nafter lines of trailing context after matching lines.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            EventList instance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-
-        <span class="c"># TODO</span>
-        <span class="c"># we have to standardize the abinit WARNING, COMMENT and ERROR  so that we can parse them easily</span>
-        <span class="c"># without having to use nafter.</span>
-
-        <span class="c"># Note the space after the name.</span>
-        <span class="n">exc_cases</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ERROR &quot;</span><span class="p">,</span> <span class="s">&quot;BUG &quot;</span><span class="p">,</span> <span class="s">&quot;WARNING &quot;</span><span class="p">,</span> <span class="s">&quot;COMMENT &quot;</span><span class="p">]</span>
-
-        <span class="n">errors</span><span class="p">,</span> <span class="n">bugs</span><span class="p">,</span> <span class="n">warnings</span><span class="p">,</span> <span class="n">comments</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-
-        <span class="n">handlers</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&quot;ERROR &quot;</span>   <span class="p">:</span> <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
-            <span class="s">&quot;BUG &quot;</span>     <span class="p">:</span> <span class="n">bugs</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
-            <span class="s">&quot;WARNING &quot;</span> <span class="p">:</span> <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
-            <span class="s">&quot;COMMENT &quot;</span> <span class="p">:</span> <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">,</span>
-        <span class="p">}</span>
-
-        <span class="k">def</span> <span class="nf">exc_case</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">exc_cases</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span> <span class="k">return</span> <span class="n">e</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">None</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-            <span class="n">nlines</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
-                <span class="n">handle</span> <span class="o">=</span> <span class="n">handlers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">exc_case</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">handle</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span> <span class="k">continue</span>
-                <span class="n">context</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">lineno</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">lineno</span><span class="o">+</span><span class="n">nafter</span><span class="p">,</span> <span class="n">nlines</span><span class="p">)]</span>
-                <span class="n">handle</span><span class="p">((</span><span class="n">lineno</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">context</span><span class="p">])))</span>
-
-        <span class="n">events</span> <span class="o">=</span> <span class="n">EventList</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
-            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Error</span><span class="p">(</span><span class="n">lineno</span><span class="o">=</span><span class="n">lineno</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">s</span><span class="p">))</span>
-
-        <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">bugs</span><span class="p">:</span>
-            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Bug</span><span class="p">(</span><span class="n">lineno</span><span class="o">=</span><span class="n">lineno</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">s</span><span class="p">))</span>
-
-        <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">warnings</span><span class="p">:</span>
-            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="ne">Warning</span><span class="p">(</span><span class="n">lineno</span><span class="o">=</span><span class="n">lineno</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">s</span><span class="p">))</span>
-
-        <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">comments</span><span class="p">:</span>
-            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Comment</span><span class="p">(</span><span class="n">lineno</span><span class="o">=</span><span class="n">lineno</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">s</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">events</span>
-</div>
-    <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="EventParser.new_event_parser"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventParser.new_event_parser">[docs]</a>    <span class="k">def</span> <span class="nf">new_event_parser</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="EventsParser.parse"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventsParser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This is the new parser, it will be used when we implement</span>
 <span class="sd">        the new format in abinit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">run_completed</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">EventReport</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
-        <span class="n">START_TAG</span> <span class="o">=</span> <span class="s">&quot;&lt;Event&gt;&quot;</span>
-        <span class="n">STOP_TAG</span> <span class="o">=</span> <span class="s">&quot;&lt;\Event&gt;&quot;</span>
+        <span class="c"># TODO Use CamelCase for the Fortran messages.</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">WildCard</span><span class="p">(</span><span class="s">&quot;*Error|*Warning|*Comment|*ERROR|*WARNING|*COMMENT&quot;</span><span class="p">)</span>
 
-        <span class="n">events</span> <span class="o">=</span> <span class="n">EventList</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">YamlTokenizer</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">tokens</span><span class="p">:</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
-            <span class="n">in_event</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">None</span>
-            <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fh</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+                <span class="c">#print(80*&quot;*&quot;)</span>
+                <span class="c">#print(&quot;doc.tag&quot;, doc.tag)</span>
+                <span class="c">#print(&quot;doc&quot;,doc)</span>
+                <span class="c">#print(80*&quot;*&quot;)</span>
+                <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">tag</span><span class="p">):</span>
+                    <span class="c">#print(&quot;got doc.tag&quot;, doc.tag,&quot;--&quot;)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">event</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="c"># Wrong YAML doc. Check tha doc tag and instantiate the proper event.</span>
+                        <span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Malformatted YAML document at line: </span><span class="si">%d</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">doc</span><span class="o">.</span><span class="n">lineno</span>
+                        <span class="n">message</span> <span class="o">+=</span> <span class="n">doc</span><span class="o">.</span><span class="n">text</span>
+                        <span class="n">message</span> <span class="o">+=</span> <span class="s">&quot;Traceback:</span><span class="se">\n</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">straceback</span><span class="p">()</span>
 
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">in_event</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">START_TAG</span><span class="p">):</span>
-                        <span class="n">in_event</span> <span class="o">=</span> <span class="bp">True</span>
-                        <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                            <span class="c"># First event found.</span>
-                            <span class="n">s</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+                        <span class="k">if</span> <span class="s">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">tag</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                            <span class="k">print</span><span class="p">(</span><span class="s">&quot;seems an error&quot;</span><span class="p">,</span><span class="n">doc</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+                            <span class="n">event</span> <span class="o">=</span> <span class="n">AbinitYamlError</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">src_file</span><span class="o">=</span><span class="n">__file__</span><span class="p">,</span> <span class="n">src_line</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="c"># Parse the previous string to generate the appropriate event.</span>
-                            <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">lineno</span><span class="p">))</span>
-                        <span class="n">lineno</span> <span class="o">=</span> <span class="n">l</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">STOP_TAG</span><span class="p">):</span>
-                        <span class="n">in_event</span> <span class="o">=</span> <span class="bp">False</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="c"># Add new line.</span>
-                        <span class="n">s</span> <span class="o">+=</span> <span class="n">line</span>
+                            <span class="n">event</span> <span class="o">=</span> <span class="n">AbinitYamlWarning</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">src_file</span><span class="o">=</span><span class="n">__file__</span><span class="p">,</span> <span class="n">src_line</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">s</span><span class="p">:</span>
-                <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Event</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">lineno</span><span class="p">))</span>
+                    <span class="n">event</span><span class="o">.</span><span class="n">lineno</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">lineno</span>
+                    <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">events</span></div></div>
-</pre></div>
+                <span class="c"># Check whether the calculation completed.</span>
+                <span class="k">if</span> <span class="n">doc</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;!FinalSummary&quot;</span><span class="p">:</span>
+                    <span class="n">run_completed</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c"># TODO: Add YAML doc with FinalSummary.</span>
+        <span class="c">#MAGIC = &quot;Calculation completed.&quot;</span>
+        <span class="c">#with open(filename) as fh:</span>
+        <span class="c">#    for line in fh:</span>
+        <span class="c">#        if MAGIC in line:</span>
+        <span class="c">#            run_completed = True</span>
+        <span class="c">#            break</span>
+
+        <span class="n">report</span><span class="o">.</span><span class="n">set_run_completed</span><span class="p">(</span><span class="n">run_completed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">report</span>
+</div>
+<div class="viewcode-block" id="EventsParser.report_exception"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.events.EventsParser.report_exception">[docs]</a>    <span class="k">def</span> <span class="nf">report_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">exc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method is used when self.parser raises an Exception so that</span>
+<span class="sd">        we can report a customized `EventReport` object with info the exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">EventReport</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="p">[</span><span class="n">Error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))])</span>
+</pre></div></div></div>
 
           </div>
         </div>
@@ -422,7 +460,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

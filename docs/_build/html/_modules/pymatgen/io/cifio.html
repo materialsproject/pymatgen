@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -62,12 +63,13 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Sep 23, 2011&quot;</span>
 
@@ -84,6 +86,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.io_utils</span> <span class="kn">import</span> <span class="n">zopen</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="kn">import</span> <span class="n">in_coord_list_pbc</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">remove_non_ascii</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
@@ -108,7 +111,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_occupancy_tolerance</span> <span class="o">=</span> <span class="n">occupancy_tolerance</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">zopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span> <span class="o">=</span> <span class="n">CifFile</span><span class="o">.</span><span class="n">ReadCif</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="c"># We use this round-about way to clean up the CIF first.</span>
+                <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">_clean_cif</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span> <span class="o">=</span> <span class="n">CifFile</span><span class="o">.</span><span class="n">ReadCif</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span> <span class="o">=</span> <span class="n">CifFile</span><span class="o">.</span><span class="n">ReadCif</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
@@ -127,8 +132,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            CifParser</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">cif_string</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">CifParser</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">occupancy_tolerance</span><span class="p">)</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">cStringIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">_clean_cif</span><span class="p">(</span><span class="n">cif_string</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">CifParser</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">occupancy_tolerance</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">_unique_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord_in</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -146,9 +151,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate structure from part of the cif.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">float_from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_cell_length_&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
+        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_cell_length_&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="s">&quot;c&quot;</span><span class="p">]]</span>
-        <span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="n">float_from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_cell_angle_&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_cell_angle_&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="p">])</span>
                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;alpha&quot;</span><span class="p">,</span> <span class="s">&quot;beta&quot;</span><span class="p">,</span> <span class="s">&quot;gamma&quot;</span><span class="p">]]</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_lengths_and_angles</span><span class="p">(</span><span class="n">lengths</span><span class="p">,</span> <span class="n">angles</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
@@ -169,9 +174,10 @@
             <span class="k">return</span> <span class="s">&quot;&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">oxi_states</span> <span class="o">=</span> <span class="p">{</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_type_symbol&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
-                          <span class="n">float_from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_type_oxidation_number&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_type_symbol&quot;</span><span class="p">]))}</span>
+            <span class="n">oxi_states</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_type_symbol&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_type_oxidation_number&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_type_symbol&quot;</span><span class="p">]))}</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
             <span class="n">oxi_states</span> <span class="o">=</span> <span class="bp">None</span>
 
@@ -184,11 +190,11 @@
                             <span class="n">oxi_states</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_type_symbol&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">el</span> <span class="o">=</span> <span class="n">Element</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">float_from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_fract_x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">y</span> <span class="o">=</span> <span class="n">float_from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_fract_y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">z</span> <span class="o">=</span> <span class="n">float_from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_fract_z&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_fract_x&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_fract_y&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_fract_z&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">occu</span> <span class="o">=</span> <span class="n">float_from_str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_occupancy&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">occu</span> <span class="o">=</span> <span class="n">str2float</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&quot;_atom_site_occupancy&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
                 <span class="n">occu</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">occu</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -215,7 +221,7 @@
 
         <span class="n">struct</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">allspecies</span><span class="p">,</span> <span class="n">allcoords</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">primitive</span><span class="p">:</span>
-            <span class="n">struct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">()</span>
+            <span class="n">struct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_primitive_structure</span><span class="p">()</span><span class="o">.</span><span class="n">get_reduced_structure</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
 
 <div class="viewcode-block" id="CifParser.get_structures"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.cifio.CifParser.get_structures">[docs]</a>    <span class="k">def</span> <span class="nf">get_structures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">primitive</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
@@ -235,7 +241,7 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cif</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_structure</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">primitive</span><span class="p">))</span>
-            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="k">return</span> <span class="n">structures</span>
 </div>
@@ -254,7 +260,7 @@
 <span class="sd">    A wrapper around PyCifRW to write CIF files from pymatgen structures.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">struct</span><span class="p">,</span> <span class="n">find_spacegroup</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            struct:</span>
@@ -264,13 +270,17 @@
         <span class="n">latt</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">lattice</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">composition</span>
         <span class="n">no_oxi_comp</span> <span class="o">=</span> <span class="n">Composition</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span>
-        <span class="n">block</span><span class="p">[</span><span class="s">&quot;_symmetry_space_group_name_H-M&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;P 1&quot;</span>
+        <span class="n">spacegroup</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;P 1&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">find_spacegroup</span><span class="p">:</span>
+            <span class="n">sf</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">)</span>
+            <span class="n">spacegroup</span> <span class="o">=</span> <span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">get_spacegroup_symbol</span><span class="p">(),</span> <span class="n">sf</span><span class="o">.</span><span class="n">get_spacegroup_number</span><span class="p">())</span>
+        <span class="n">block</span><span class="p">[</span><span class="s">&quot;_symmetry_space_group_name_H-M&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spacegroup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">cell_attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">]:</span>
             <span class="n">block</span><span class="p">[</span><span class="s">&quot;_cell_length_&quot;</span> <span class="o">+</span> <span class="n">cell_attr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">cell_attr</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">cell_attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;alpha&#39;</span><span class="p">,</span> <span class="s">&#39;beta&#39;</span><span class="p">,</span> <span class="s">&#39;gamma&#39;</span><span class="p">]:</span>
-            <span class="n">block</span><span class="p">[</span><span class="s">&quot;_cell_angle_&quot;</span> <span class="o">+</span> <span class="n">cell_attr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">cell_attr</span><span class="p">))</span>
+            <span class="n">block</span><span class="p">[</span><span class="s">&quot;_cell_angle_&quot;</span> <span class="o">+</span> <span class="n">cell_attr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">latt</span><span class="p">,</span> <span class="n">cell_attr</span><span class="p">))</span>
         <span class="n">block</span><span class="p">[</span><span class="s">&quot;_chemical_name_systematic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;Generated by pymatgen&quot;</span>
-        <span class="n">block</span><span class="p">[</span><span class="s">&quot;_symmetry_Int_Tables_number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">block</span><span class="p">[</span><span class="s">&quot;_symmetry_Int_Tables_number&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spacegroup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">block</span><span class="p">[</span><span class="s">&quot;_chemical_formula_structural&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">no_oxi_comp</span>
                                                     <span class="o">.</span><span class="n">reduced_formula</span><span class="p">)</span>
         <span class="n">block</span><span class="p">[</span><span class="s">&quot;_chemical_formula_sum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">no_oxi_comp</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span>
@@ -362,7 +372,31 @@
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__str__</span><span class="p">())</span>
 
 </div></div>
-<div class="viewcode-block" id="float_from_str"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.cifio.float_from_str">[docs]</a><span class="k">def</span> <span class="nf">float_from_str</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_clean_cif</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes non-ASCII and some unsupported _cgraph fields from the cif</span>
+<span class="sd">    string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">clean</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;loop_&quot;</span><span class="p">:</span>
+                <span class="n">skip</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_cgraph&quot;</span><span class="p">):</span>
+            <span class="n">skip</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_eof&quot;</span><span class="p">):</span>
+            <span class="n">clean</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">remove_non_ascii</span><span class="p">(</span><span class="n">l</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clean</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="str2float"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.cifio.str2float">[docs]</a><span class="k">def</span> <span class="nf">str2float</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Remove uncertainty brackets from strings and return the float.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -440,7 +474,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

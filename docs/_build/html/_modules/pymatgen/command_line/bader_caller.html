@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -222,7 +223,20 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">natoms</span><span class="p">):</span>
             <span class="n">potcar_indices</span> <span class="o">+=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span>
         <span class="n">nelect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potcar</span><span class="p">[</span><span class="n">potcar_indices</span><span class="p">[</span><span class="n">atom_index</span><span class="p">]]</span><span class="o">.</span><span class="n">nelectrons</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">atom_index</span><span class="p">][</span><span class="s">&quot;charge&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">nelect</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">atom_index</span><span class="p">][</span><span class="s">&quot;charge&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">nelect</span>
+
+    <span class="k">def</span> <span class="nf">get_oxidation_state_decorated_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an oxidation state decorated structure.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Returns an oxidation state decorated structure. Requires POTCAR</span>
+<span class="sd">            to be supplied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chgcar</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">charges</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_charge_transfer</span><span class="p">,</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">structure</span><span class="p">)))</span>
+        <span class="n">structure</span><span class="o">.</span><span class="n">add_oxidation_state_by_site</span><span class="p">(</span><span class="n">charges</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">structure</span></div>
 </pre></div>
 
           </div>
@@ -263,7 +277,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -61,7 +62,7 @@
 <span class="sd">This module defines the VaspInputSet abstract base class and a concrete</span>
 <span class="sd">implementation for the parameters used by the Materials Project and the MIT</span>
 <span class="sd">high throughput project.  The basic concept behind an input set is to specify</span>
-<span class="sd">a scheme to generate a consistent set of Vasp inputs from a structure</span>
+<span class="sd">a scheme to generate a consistent set of VASP inputs from a structure</span>
 <span class="sd">without further user intervention. This ensures comparability across</span>
 <span class="sd">runs.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -72,24 +73,28 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;1.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Nov 16, 2011&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">abc</span>
-<span class="kn">import</span> <span class="nn">ConfigParser</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 
+<span class="kn">from</span> <span class="nn">pymatgen.io.cifio</span> <span class="kn">import</span> <span class="n">CifWriter</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_input</span> <span class="kn">import</span> <span class="n">Incar</span><span class="p">,</span> <span class="n">Poscar</span><span class="p">,</span> <span class="n">Potcar</span><span class="p">,</span> <span class="n">Kpoints</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_output</span> <span class="kn">import</span> <span class="n">Vasprun</span><span class="p">,</span> <span class="n">Outcar</span>
 <span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.finder</span> <span class="kn">import</span> <span class="n">SymmetryFinder</span>
 <span class="kn">from</span> <span class="nn">pymatgen.symmetry.bandstructure</span> <span class="kn">import</span> <span class="n">HighSymmKpath</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.decorators</span> <span class="kn">import</span> <span class="n">deprecated</span>
+<span class="kn">from</span> <span class="nn">pymatgen</span> <span class="kn">import</span> <span class="n">write_structure</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+
+
+<span class="n">MODULE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="AbstractVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.AbstractVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">AbstractVaspInputSet</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -101,11 +106,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span>
 
+    <span class="nd">@abc.abstractmethod</span>
 <div class="viewcode-block" id="AbstractVaspInputSet.get_poscar"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_poscar">[docs]</a>    <span class="k">def</span> <span class="nf">get_poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns Poscar from a structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+        <span class="k">return</span>
 </div>
     <span class="nd">@abc.abstractmethod</span>
 <div class="viewcode-block" id="AbstractVaspInputSet.get_kpoints"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.AbstractVaspInputSet.get_kpoints">[docs]</a>    <span class="k">def</span> <span class="nf">get_kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
@@ -225,16 +231,21 @@
 <span class="sd">       is used, e.g., Mn3+ may have a different magmom than Mn4+.</span>
 <span class="sd">    4. Lastly, the element symbol itself is checked in the config file. If</span>
 <span class="sd">       there are no settings, VASP&#39;s default of 0.6 is used.</span>
-
-
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">hubbard_off</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name:</span>
-<span class="sd">                The name in the config file.</span>
+<span class="sd">                A name fo the input set.</span>
 <span class="sd">            config_dict:</span>
 <span class="sd">                The config dictionary to use.</span>
+<span class="sd">            hubbard_off:</span>
+<span class="sd">                Whether to turn off Hubbard U if it is specified in</span>
+<span class="sd">                config_dict. Defaults to False, i.e., follow settings in</span>
+<span class="sd">                config_dict.</span>
 <span class="sd">            user_incar_settings:</span>
 <span class="sd">                User INCAR settings. This allows a user to override INCAR</span>
 <span class="sd">                settings, e.g., setting a different MAGMOM for various elements</span>
@@ -243,15 +254,31 @@
 <span class="sd">                Whether to constrain the total magmom (NUPDOWN in INCAR) to be</span>
 <span class="sd">                the sum of the expected MAGMOM for all species. Defaults to</span>
 <span class="sd">                False.</span>
+<span class="sd">            sort_structure:</span>
+<span class="sd">                Whether to sort the structure (using the default sort</span>
+<span class="sd">                order of electronegativity) before generating input files.</span>
+<span class="sd">                Defaults to True, the behavior you would want most of the</span>
+<span class="sd">                time. This ensures that similar atomic species are grouped</span>
+<span class="sd">                together.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potcar_settings</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s">&quot;POTCAR&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_settings</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s">&#39;KPOINTS&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s">&#39;INCAR&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span> <span class="o">=</span> <span class="n">constrain_total_magmom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_structure</span> <span class="o">=</span> <span class="n">sort_structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hubbard_off</span> <span class="o">=</span> <span class="n">hubbard_off</span>
+        <span class="k">if</span> <span class="n">hubbard_off</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;LDAU&quot;</span><span class="p">):</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DictVaspInputSet.get_incar"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.DictVaspInputSet.get_incar">[docs]</a>    <span class="k">def</span> <span class="nf">get_incar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="n">incar</span> <span class="o">=</span> <span class="n">Incar</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_structure</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
         <span class="n">comp</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">composition</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">comp</span><span class="o">.</span><span class="n">elements</span> <span class="k">if</span> <span class="n">comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">],</span>
                           <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">el</span><span class="p">:</span> <span class="n">el</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
@@ -304,10 +331,19 @@
 
         <span class="k">return</span> <span class="n">incar</span>
 </div>
+<div class="viewcode-block" id="DictVaspInputSet.get_poscar"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.DictVaspInputSet.get_poscar">[docs]</a>    <span class="k">def</span> <span class="nf">get_poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_structure</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="DictVaspInputSet.get_potcar"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.DictVaspInputSet.get_potcar">[docs]</a>    <span class="k">def</span> <span class="nf">get_potcar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_structure</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">Potcar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_potcar_symbols</span><span class="p">(</span><span class="n">structure</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="DictVaspInputSet.get_potcar_symbols"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.DictVaspInputSet.get_potcar_symbols">[docs]</a>    <span class="k">def</span> <span class="nf">get_potcar_symbols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_structure</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_poscar</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">site_symbols</span>
         <span class="n">potcar_symbols</span> <span class="o">=</span> <span class="p">[]</span>
@@ -325,6 +361,8 @@
 <span class="sd">            Uses a simple approach scaling the number of divisions along each</span>
 <span class="sd">            reciprocal lattice vector proportional to its length.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_structure</span><span class="p">:</span>
+            <span class="n">structure</span> <span class="o">=</span> <span class="n">structure</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
         <span class="n">dens</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kpoints_settings</span><span class="p">[</span><span class="s">&#39;grid_density&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">dens</span><span class="p">)</span>
 </div>
@@ -355,32 +393,36 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s">&quot;config_dict&quot;</span><span class="p">:</span> <span class="n">config_dict</span><span class="p">,</span>
+            <span class="s">&quot;hubbard_off&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hubbard_off</span><span class="p">,</span>
             <span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span><span class="p">,</span>
+            <span class="s">&quot;sort_structure&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_structure</span><span class="p">,</span>
             <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
         <span class="p">}</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="DictVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.DictVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;config_dict&quot;</span><span class="p">],</span>
-                   <span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">])</span>
-
-</div></div>
-<div class="viewcode-block" id="VaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.VaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">VaspInputSet</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Standard implementation of VaspInputSet that uses a config file to</span>
-<span class="sd">    initialize settings. See DictVaspInputSet for specific details regarding</span>
-<span class="sd">    how MAGMOM, LDAU settings are set.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                   <span class="n">hubbard_off</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;hubbard_off&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">],</span>
+                   <span class="n">sort_structure</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;sort_structure&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="DictVaspInputSet.from_json_file"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.DictVaspInputSet.from_json_file">[docs]</a>    <span class="k">def</span> <span class="nf">from_json_file</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">hubbard_off</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                       <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                       <span class="n">sort_structure</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a DictVaspInputSet from a json file.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            name:</span>
-<span class="sd">                The name in the config file.</span>
-<span class="sd">            config_file:</span>
-<span class="sd">                The config file to use. If None (the default), a default config</span>
-<span class="sd">                file containing Materials Project and MIT parameters is used.</span>
+<span class="sd">                A name for the input set.</span>
+<span class="sd">            json_file:</span>
+<span class="sd">                An actual file containing the settings.</span>
+<span class="sd">            hubbard_off:</span>
+<span class="sd">                Whether to turn off Hubbard U if it is specified in</span>
+<span class="sd">                config_dict. Defaults to False, i.e., follow settings in</span>
+<span class="sd">                config_dict.</span>
 <span class="sd">            user_incar_settings:</span>
 <span class="sd">                User INCAR settings. This allows a user to override INCAR</span>
 <span class="sd">                settings, e.g., setting a different MAGMOM for various elements</span>
@@ -389,159 +431,137 @@
 <span class="sd">                Whether to constrain the total magmom (NUPDOWN in INCAR) to be</span>
 <span class="sd">                the sum of the expected MAGMOM for all species. Defaults to</span>
 <span class="sd">                False.</span>
+<span class="sd">            sort_structure:</span>
+<span class="sd">                Whether to sort the structure (using the default sort</span>
+<span class="sd">                order of electronegativity) before generating input files.</span>
+<span class="sd">                Defaults to True, the behavior you would want most of the</span>
+<span class="sd">                time. This ensures that similar atomic species are grouped</span>
+<span class="sd">                together.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span> <span class="o">=</span> <span class="n">config_file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">SafeConfigParser</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">optionxform</span> <span class="o">=</span> <span class="nb">str</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">readfp</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
-        <span class="n">potcar_settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;POTCAR&#39;</span><span class="p">))</span>
-        <span class="n">kpoints_settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;KPOINTS&#39;</span><span class="p">))</span>
-        <span class="n">incar_settings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;INCAR&#39;</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;MAGMOM&#39;</span><span class="p">,</span> <span class="s">&#39;LDAUU&#39;</span><span class="p">,</span> <span class="s">&#39;LDAUJ&#39;</span><span class="p">,</span> <span class="s">&#39;LDAUL&#39;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">incar_settings</span><span class="p">:</span>
-                <span class="n">incar_settings</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">incar_settings</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
-        <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;INCAR&quot;</span><span class="p">:</span> <span class="n">incar_settings</span><span class="p">,</span> <span class="s">&quot;KPOINTS&quot;</span><span class="p">:</span> <span class="n">kpoints_settings</span><span class="p">,</span>
-                         <span class="s">&quot;POTCAR&quot;</span><span class="p">:</span> <span class="n">potcar_settings</span><span class="p">},</span>
-            <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="VaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.VaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s">&quot;config_file&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span>
-            <span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span><span class="p">,</span>
-            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">,</span>
-            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__module__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-        <span class="p">}</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="VaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.VaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;config_file&quot;</span><span class="p">],</span>
-                   <span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">],</span>
-                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">])</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DictVaspInputSet</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
+                <span class="n">hubbard_off</span><span class="o">=</span><span class="n">hubbard_off</span><span class="p">,</span>
+                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">,</span>
+                <span class="n">user_incar_settings</span><span class="o">=</span><span class="n">user_incar_settings</span><span class="p">,</span>
+                <span class="n">sort_structure</span><span class="o">=</span><span class="n">sort_structure</span><span class="p">)</span>
 
 </div></div>
-<div class="viewcode-block" id="MITVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MITVaspInputSet</span><span class="p">(</span><span class="n">VaspInputSet</span><span class="p">):</span>
+<span class="n">MITVaspInputSet</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">from_json_file</span><span class="p">,</span> <span class="s">&quot;MIT&quot;</span><span class="p">,</span>
+                          <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MITVaspInputSet.json&quot;</span><span class="p">))</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Standard implementation of VaspInputSet utilizing parameters in the MIT</span>
+<span class="sd">High-throughput project.</span>
+<span class="sd">The parameters are chosen specifically for a high-throughput project,</span>
+<span class="sd">which means in general pseudopotentials with fewer electrons were chosen.</span>
+
+<span class="sd">Please refer::</span>
+
+<span class="sd">    A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer, T. Mueller,</span>
+<span class="sd">    K. A. Persson, G. Ceder. A high-throughput infrastructure for density</span>
+<span class="sd">    functional theory calculations. Computational Materials Science,</span>
+<span class="sd">    2011, 50(8), 2295-2310. doi:10.1016/j.commatsci.2011.02.023</span>
+
+<span class="sd">for more information. Supports the same kwargs as :class:`JSONVaspInputSet`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">MITGGAVaspInputSet</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">from_json_file</span><span class="p">,</span> <span class="s">&quot;MIT GGA&quot;</span><span class="p">,</span>
+                             <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MITVaspInputSet.json&quot;</span><span class="p">),</span>
+                             <span class="n">hubbard_off</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">GGA (no U) version of MITVaspInputSet.</span>
+<span class="sd">Supports the same kwargs as :class:`JSONVaspInputSet`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">MITHSEVaspInputSet</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+    <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">from_json_file</span><span class="p">,</span> <span class="s">&quot;MIT HSE&quot;</span><span class="p">,</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MITHSEVaspInputSet.json&quot;</span><span class="p">))</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Typical implementation of input set for a HSE run using MIT parameters.</span>
+<span class="sd">Supports the same kwargs as :class:`JSONVaspInputSet`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="MITNEBVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITNEBVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MITNEBVaspInputSet</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Standard implementation of VaspInputSet utilizing parameters in the MIT</span>
-<span class="sd">    High-throughput project.</span>
-<span class="sd">    The parameters are chosen specifically for a high-throughput project,</span>
-<span class="sd">    which means in general pseudopotentials with fewer electrons were chosen.</span>
-
-<span class="sd">    Please refer to A Jain, G. Hautier, C. Moore, S. P. Ong, C. Fischer,</span>
-<span class="sd">    T. Mueller, K. A. Persson, G. Ceder. A high-throughput infrastructure for</span>
-<span class="sd">    density functional theory calculations. Computational Materials Science,</span>
-<span class="sd">    2011, 50(8), 2295-2310.</span>
-<span class="sd">    doi:10.1016/j.commatsci.2011.02.023 for more information.</span>
+<span class="sd">    Class for writing NEB inputs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MITVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MIT&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            nimages:</span>
+<span class="sd">                Number of NEB images (excluding start and ending structures).</span>
+<span class="sd">            **kwargs:</span>
+<span class="sd">                Other kwargs supported by :class:`JSONVaspInputSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MITVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MIT NEB&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nimages</span> <span class="o">=</span> <span class="n">nimages</span>
+        <span class="c"># NEB settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s">&#39;IMAGES&#39;</span><span class="p">:</span> <span class="n">nimages</span><span class="p">,</span> <span class="s">&#39;IBRION&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;NFREE&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+
+<div class="viewcode-block" id="MITNEBVaspInputSet.write_input"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITNEBVaspInputSet.write_input">[docs]</a>    <span class="k">def</span> <span class="nf">write_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structures</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                    <span class="n">write_cif</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        NEB inputs has a special directory structure where inputs are in 00,</span>
+<span class="sd">        01, 02, ....</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structures:</span>
+<span class="sd">                list of Structure objects. There should be nimages + 2</span>
+<span class="sd">                structures (including start and end structures).</span>
+<span class="sd">            output_dir:</span>
+<span class="sd">                Directory to output the VASP input files</span>
+<span class="sd">            make_dir_if_not_present:</span>
+<span class="sd">                Set to True if you want the directory (and the whole path) to</span>
+<span class="sd">                be created if it is not present.</span>
+<span class="sd">            write_cif:</span>
+<span class="sd">                If true, writes a cif along with each POSCAR</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;IMAGES&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;incorrect number of structures&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">make_dir_if_not_present</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="n">s0</span> <span class="o">=</span> <span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_incar</span><span class="p">(</span><span class="n">s0</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&#39;INCAR&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_kpoints</span><span class="p">(</span><span class="n">s0</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&#39;KPOINTS&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_potcar</span><span class="p">(</span><span class="n">s0</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&#39;POTCAR&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">make_dir_if_not_present</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_poscar</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s">&#39;POSCAR&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">write_cif</span><span class="p">:</span>
+                <span class="n">write_structure</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s">&#39;{}.cif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)))</span>
+</div>
     <span class="nd">@property</span>
-<div class="viewcode-block" id="MITVaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITVaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span><span class="p">,</span>
-            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">,</span>
-            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
-        <span class="p">}</span>
+<div class="viewcode-block" id="MITNEBVaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITNEBVaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MITNEBVaspInputSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span>
+        <span class="n">d</span><span class="p">[</span><span class="s">&quot;nimages&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nimages</span>
+        <span class="k">return</span> <span class="n">d</span>
 </div>
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MITVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">],</span>
-                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">])</span>
+<div class="viewcode-block" id="MITNEBVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITNEBVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">],</span>
+                   <span class="n">sort_structure</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;sort_structure&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span>
+                   <span class="n">hubbard_off</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;hubbard_off&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                   <span class="n">nimages</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;nimages&quot;</span><span class="p">])</span>
 
 </div></div>
-<div class="viewcode-block" id="MITGGAVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITGGAVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MITGGAVaspInputSet</span><span class="p">(</span><span class="n">VaspInputSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Typical implementation of input set for a GGA run based on MIT parameters.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MITVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MIT GGA&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
-        <span class="c"># INCAR settings to override for GGA runs, since we are basing off a</span>
-        <span class="c"># GGA+U inputset</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAU&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="s">&#39;LDAUU&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">:</span>
-            <span class="c"># technically not needed, but clarifies INCAR</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUU&#39;</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUJ&#39;</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUL&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="MITGGAVaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITGGAVaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span><span class="p">,</span>
-            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">,</span>
-            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
-        <span class="p">}</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MITGGAVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITGGAVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">],</span>
-                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">])</span>
-
-</div></div>
-<div class="viewcode-block" id="MITHSEVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITHSEVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MITHSEVaspInputSet</span><span class="p">(</span><span class="n">VaspInputSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Typical implementation of input set for a HSE run.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MITHSEVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MIT HSE&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="MITHSEVaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITHSEVaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span><span class="p">,</span>
-            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">,</span>
-            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
-        <span class="p">}</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MITHSEVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITHSEVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">],</span>
-                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">])</span>
-
-</div></div>
-<div class="viewcode-block" id="MITMDVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITMDVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MITMDVaspInputSet</span><span class="p">(</span><span class="n">VaspInputSet</span><span class="p">):</span>
+<div class="viewcode-block" id="MITMDVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITMDVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MITMDVaspInputSet</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class for writing a vasp md run. This DOES NOT do multiple stage</span>
 <span class="sd">    runs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_temp</span><span class="p">,</span> <span class="n">end_temp</span><span class="p">,</span> <span class="n">nsteps</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                 <span class="n">prec</span><span class="o">=</span><span class="s">&quot;Low&quot;</span><span class="p">,</span> <span class="n">ggau</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">hubbard_off</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">spin_polarized</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">sort_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            start_temp:</span>
@@ -553,173 +573,112 @@
 <span class="sd">            time_step:</span>
 <span class="sd">                The time step for the simulation. The POTIM parameter.</span>
 <span class="sd">                Defaults to 2fs.</span>
-<span class="sd">            prec:</span>
-<span class="sd">                precision - Normal or LOW. Defaults to Low.</span>
-<span class="sd">            ggau:</span>
-<span class="sd">                whether to use +U or not. Defaults to False.</span>
+<span class="sd">            hubbard_off:</span>
+<span class="sd">                Whether to turn off Hubbard U. Defaults to *True* (different</span>
+<span class="sd">                behavior from standard input sets) for MD runs.</span>
+<span class="sd">            sort_structure:</span>
+<span class="sd">                Whether to sort structure. Defaults to False (different</span>
+<span class="sd">                behavior from standard input sets).</span>
 <span class="sd">            user_incar_settings:</span>
-<span class="sd">                dictionary of incar settings to override</span>
+<span class="sd">                Settings to override the default incar settings (as a dict)</span>
+<span class="sd">            **kwargs:</span>
+<span class="sd">                Other kwargs supported by :class:`DictVaspInputSet`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MITVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="c">#MD default settings</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span> <span class="s">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span>
+                    <span class="s">&#39;EDIFF&#39;</span><span class="p">:</span> <span class="mf">0.000001</span><span class="p">,</span> <span class="s">&#39;LSCALU&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                    <span class="s">&#39;LPLANE&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;ICHARG&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;ISMEAR&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s">&#39;SIGMA&#39;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s">&#39;NELMIN&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s">&#39;LREAL&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;BMIX&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s">&#39;MAXMIX&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s">&#39;NELM&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s">&#39;NSIM&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s">&#39;ISYM&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s">&#39;ISIF&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;IBRION&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;NBLOCK&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;KBLOCK&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                    <span class="s">&#39;SMASS&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;POTIM&#39;</span><span class="p">:</span> <span class="n">time_step</span><span class="p">,</span> <span class="s">&#39;PREC&#39;</span><span class="p">:</span> <span class="s">&#39;Normal&#39;</span><span class="p">,</span>
+                    <span class="s">&#39;ISPIN&#39;</span><span class="p">:</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">spin_polarized</span> <span class="k">else</span> <span class="mi">1</span><span class="p">}</span>
+
+        <span class="c">#override default settings with user supplied settings</span>
+        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
+            <span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MITVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MITMD&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MIT MD&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
+                <span class="n">hubbard_off</span><span class="o">=</span><span class="n">hubbard_off</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="n">sort_structure</span><span class="p">,</span>
+                <span class="n">user_incar_settings</span><span class="o">=</span><span class="n">defaults</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">start_temp</span> <span class="o">=</span> <span class="n">start_temp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_temp</span> <span class="o">=</span> <span class="n">end_temp</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span> <span class="o">=</span> <span class="n">nsteps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">time_step</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prec</span> <span class="o">=</span> <span class="n">prec</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ggau</span> <span class="o">=</span> <span class="n">ggau</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spin_polarized</span> <span class="o">=</span> <span class="n">spin_polarized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span> <span class="ow">or</span> <span class="p">{}</span>
 
-        <span class="c">#Optimized parameters for MD simulations.</span>
-        <span class="n">incar_settings</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;TEBEG&#39;</span><span class="p">:</span> <span class="n">start_temp</span><span class="p">,</span> <span class="s">&#39;TEEND&#39;</span><span class="p">:</span> <span class="n">end_temp</span><span class="p">,</span>
-                          <span class="s">&#39;NSW&#39;</span><span class="p">:</span> <span class="n">nsteps</span><span class="p">,</span> <span class="s">&#39;PREC&#39;</span><span class="p">:</span> <span class="n">prec</span><span class="p">,</span>
-                          <span class="s">&#39;EDIFF&#39;</span><span class="p">:</span> <span class="mf">0.000001</span><span class="p">,</span> <span class="s">&#39;LSCALU&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-                          <span class="s">&#39;LCHARG&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&#39;LPLANE&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-                          <span class="s">&#39;LWAVE&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                          <span class="s">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s">&quot;NELMIN&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s">&quot;LREAL&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-                          <span class="s">&quot;BMIX&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;MAXMIX&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s">&quot;NELM&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span> <span class="s">&quot;NSIM&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-                          <span class="s">&quot;ISYM&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;ISIF&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;IBRION&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;NBLOCK&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-                          <span class="s">&quot;KBLOCK&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s">&quot;SMASS&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;POTIM&quot;</span><span class="p">:</span> <span class="n">time_step</span><span class="p">}</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">incar_settings</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">ggau</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAU&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
-            <span class="k">if</span> <span class="s">&#39;LDAUU&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">:</span>
-                <span class="c"># technically not needed, but clarifies INCAR</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUU&#39;</span><span class="p">]</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUJ&#39;</span><span class="p">]</span>
-                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUL&#39;</span><span class="p">]</span>
+        <span class="c">#use VASP default ENCUT</span>
+        <span class="k">if</span> <span class="s">&#39;ENCUT&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;ENCUT&#39;</span><span class="p">]</span>
 
 <div class="viewcode-block" id="MITMDVaspInputSet.get_kpoints"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITMDVaspInputSet.get_kpoints">[docs]</a>    <span class="k">def</span> <span class="nf">get_kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">()</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="MITMDVaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITMDVaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MITMDVaspInputSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
             <span class="s">&quot;start_temp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_temp</span><span class="p">,</span>
             <span class="s">&quot;end_temp&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_temp</span><span class="p">,</span>
             <span class="s">&quot;nsteps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">nsteps</span><span class="p">,</span>
             <span class="s">&quot;time_step&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">,</span>
-            <span class="s">&quot;ggau&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ggau</span><span class="p">,</span>
-            <span class="s">&quot;prec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">prec</span><span class="p">,</span>
-            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">,</span>
-            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
-        <span class="p">}</span>
+            <span class="s">&quot;spin_polarized&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_polarized</span><span class="p">,</span>
+            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">d</span>
 </div>
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="MITMDVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MITMDVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">start_temp</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;start_temp&quot;</span><span class="p">],</span> <span class="n">end_temp</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;end_temp&quot;</span><span class="p">],</span>
                    <span class="n">nsteps</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;nsteps&quot;</span><span class="p">],</span> <span class="n">time_step</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;time_step&quot;</span><span class="p">],</span>
-                   <span class="n">prec</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;prec&quot;</span><span class="p">],</span> <span class="n">ggau</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;ggau&quot;</span><span class="p">],</span>
-                   <span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">])</span>
+                   <span class="n">hubbard_off</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;hubbard_off&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                   <span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">],</span>
+                   <span class="n">spin_polarized</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;spin_polarized&quot;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">],</span>
+                   <span class="n">sort_structure</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;sort_structure&quot;</span><span class="p">,</span> <span class="bp">True</span><span class="p">))</span>
 
 </div></div>
-<div class="viewcode-block" id="MPVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MPVaspInputSet</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Implementation of VaspInputSet utilizing parameters in the public</span>
-<span class="sd">    Materials Project. Typically, the pseudopotentials chosen contain more</span>
-<span class="sd">    electrons than the MIT parameters, and the k-point grid is ~50% more dense.</span>
-<span class="sd">    The LDAUU parameters are also different due to the different psps used,</span>
-<span class="sd">    which result in different fitted values (even though the methodology of</span>
-<span class="sd">    fitting is exactly the same as the MIT scheme).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MaterialsProject&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
+<span class="n">MPVaspInputSet</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">from_json_file</span><span class="p">,</span> <span class="s">&quot;MP&quot;</span><span class="p">,</span>
+                         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">))</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implementation of VaspInputSet utilizing parameters in the public</span>
+<span class="sd">Materials Project. Typically, the pseudopotentials chosen contain more</span>
+<span class="sd">electrons than the MIT parameters, and the k-point grid is ~50% more dense.</span>
+<span class="sd">The LDAUU parameters are also different due to the different psps used,</span>
+<span class="sd">which result in different fitted values. Supports the same kwargs as</span>
+<span class="sd">:class:`JSONVaspInputSet`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="MPVaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPVaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span><span class="p">,</span>
-            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">,</span>
-            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
-        <span class="p">}</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MPVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span>
-            <span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">],</span>
-            <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">])</span>
+<span class="n">MPGGAVaspInputSet</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">from_json_file</span><span class="p">,</span> <span class="s">&quot;MP GGA&quot;</span><span class="p">,</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">),</span>
+                            <span class="n">hubbard_off</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Same as the MPVaspInput set, but the +U is enforced to be turned off.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-</div></div>
-<div class="viewcode-block" id="MPGGAVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPGGAVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MPGGAVaspInputSet</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Same as the MaterialsProjectVaspInput set, but the +U is enforced to be</span>
-<span class="sd">    turned off.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MaterialsProject GGA&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
-        <span class="c"># INCAR settings to override for GGA runs, since we are basing off a</span>
-        <span class="c"># GGA+U inputset</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAU&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">if</span> <span class="s">&#39;LDAUU&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">:</span>
-            <span class="c"># technically not needed, but clarifies INCAR</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUU&#39;</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUJ&#39;</span><span class="p">]</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="p">[</span><span class="s">&#39;LDAUL&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-<div class="viewcode-block" id="MPGGAVaspInputSet.to_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPGGAVaspInputSet.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_nupdown</span><span class="p">,</span>
-            <span class="s">&quot;user_incar_settings&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span><span class="p">,</span>
-            <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
-            <span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
-        <span class="p">}</span>
-</div>
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="MPGGAVaspInputSet.from_dict"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPGGAVaspInputSet.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;user_incar_settings&quot;</span><span class="p">],</span>
-                   <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;constrain_total_magmom&quot;</span><span class="p">])</span>
-
-</div></div>
-<div class="viewcode-block" id="MPStaticVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPStaticVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MPStaticVaspInputSet</span><span class="p">(</span><span class="n">MPVaspInputSet</span><span class="p">):</span>
+<div class="viewcode-block" id="MPStaticVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPStaticVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MPStaticVaspInputSet</span><span class="p">(</span><span class="n">DictVaspInputSet</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet</span>
 <span class="sd">    for static calculations that typically follow relaxation runs.</span>
 <span class="sd">    It is recommended to use the static from_previous_run method to construct</span>
 <span class="sd">    the input set to inherit most of the functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Args:</span>
-<span class="sd">            user_incar_settings:</span>
-<span class="sd">                A dict specify customized settings for INCAR</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MaterialsProject Static&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Supports the same kwargs as :class:`JSONVaspInputSet`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MP Static&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="p">{</span><span class="s">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="s">&quot;LAECHG&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-             <span class="s">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s">&quot;LVHAR&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
-        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
+             <span class="s">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s">&quot;LVHAR&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="s">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;EDIFF&quot;</span><span class="p">:</span> <span class="mf">0.000001</span><span class="p">})</span>
 
 <div class="viewcode-block" id="MPStaticVaspInputSet.get_kpoints"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_kpoints">[docs]</a>    <span class="k">def</span> <span class="nf">get_kpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">,</span> <span class="n">kpoints_density</span><span class="o">=</span><span class="mi">90</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -733,9 +692,14 @@
 <span class="sd">                metallic materials.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kpoints_density</span> <span class="o">=</span> <span class="n">kpoints_density</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_settings</span><span class="p">[</span><span class="s">&#39;grid_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kpoints_density</span> <span class="o">*</span> \
-            <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kpoints_settings</span><span class="p">[</span><span class="s">&#39;grid_density&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">kpoints_density</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> \
+            <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MPStaticVaspInputSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_kpoints</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MPStaticVaspInputSet.get_poscar"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_poscar">[docs]</a>    <span class="k">def</span> <span class="nf">get_poscar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">structure</span><span class="p">):</span>
+        <span class="n">sym_finder</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Poscar</span><span class="p">(</span><span class="n">sym_finder</span><span class="o">.</span><span class="n">get_primitive_standard_structure</span><span class="p">())</span>
 </div>
     <span class="nd">@staticmethod</span>
 <div class="viewcode-block" id="MPStaticVaspInputSet.get_structure"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPStaticVaspInputSet.get_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_structure</span><span class="p">(</span><span class="n">vasp_run</span><span class="p">,</span> <span class="n">outcar</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">initial_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
@@ -814,15 +778,67 @@
             <span class="n">vasp_run</span> <span class="o">=</span> <span class="n">Vasprun</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">previous_vasp_dir</span><span class="p">,</span> <span class="s">&quot;vasprun.xml&quot;</span><span class="p">),</span>
                                <span class="n">parse_dos</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">parse_eigen</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
             <span class="n">outcar</span> <span class="o">=</span> <span class="n">Outcar</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">previous_vasp_dir</span><span class="p">,</span> <span class="s">&quot;OUTCAR&quot;</span><span class="p">))</span>
+            <span class="n">previous_incar</span> <span class="o">=</span> <span class="n">vasp_run</span><span class="o">.</span><span class="n">incar</span>
+            <span class="n">previous_kpoints</span> <span class="o">=</span> <span class="n">vasp_run</span><span class="o">.</span><span class="n">kpoints</span>
+            <span class="n">previous_final_structure</span> <span class="o">=</span> <span class="n">vasp_run</span><span class="o">.</span><span class="n">final_structure</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Can&#39;t get valid results from previous run&quot;</span><span class="p">)</span>
-
-        <span class="n">structure</span> <span class="o">=</span> <span class="n">MPStaticVaspInputSet</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span>
-            <span class="n">vasp_run</span><span class="p">,</span> <span class="n">outcar</span><span class="p">)</span>
-        <span class="n">mpsvip</span> <span class="o">=</span> <span class="n">MPStaticVaspInputSet</span><span class="p">(</span>
-            <span class="n">user_incar_settings</span><span class="o">=</span><span class="n">user_incar_settings</span><span class="p">)</span>
+        <span class="n">structure</span> <span class="o">=</span> <span class="n">MPStaticVaspInputSet</span><span class="o">.</span><span class="n">get_structure</span><span class="p">(</span><span class="n">vasp_run</span><span class="p">,</span> <span class="n">outcar</span><span class="p">)</span>
+        <span class="n">mpsvip</span> <span class="o">=</span> <span class="n">MPStaticVaspInputSet</span><span class="p">()</span>
         <span class="n">mpsvip</span><span class="o">.</span><span class="n">write_input</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">make_dir_if_not_present</span><span class="p">)</span>
+        <span class="c">#new_incar = Incar.from_file(os.path.join(output_dir, &quot;INCAR&quot;))</span>
+        <span class="n">new_incar</span> <span class="o">=</span> <span class="n">mpsvip</span><span class="o">.</span><span class="n">get_incar</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+        <span class="c"># Use previous run INCAR and override necessary parameters</span>
+        <span class="n">previous_incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="s">&quot;LAECHG&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                               <span class="s">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&quot;LORBIT&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s">&quot;LVHAR&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                               <span class="s">&quot;LWAVE&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s">&quot;NSW&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;ICHARG&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+
+        <span class="k">for</span> <span class="n">incar_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;MAGMOM&quot;</span><span class="p">,</span> <span class="s">&quot;NUPDOWN&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">new_incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">incar_key</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+                <span class="n">previous_incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">incar_key</span><span class="p">:</span> <span class="n">new_incar</span><span class="p">[</span><span class="n">incar_key</span><span class="p">]})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">previous_incar</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">incar_key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="c"># use new LDAUU when possible b/c the Poscar might have changed</span>
+        <span class="c"># representation</span>
+        <span class="k">if</span> <span class="n">previous_incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;LDAU&#39;</span><span class="p">):</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">previous_incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;LDAUU&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">previous_incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;LDAUJ&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">([</span><span class="n">u</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">-</span> <span class="n">j</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">u</span><span class="p">)])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;LDAUU&#39;</span><span class="p">,</span> <span class="s">&#39;LDAUL&#39;</span><span class="p">,</span> <span class="s">&#39;LDAUJ&#39;</span><span class="p">):</span>
+                    <span class="n">previous_incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">tag</span><span class="p">:</span> <span class="n">new_incar</span><span class="p">[</span><span class="n">tag</span><span class="p">]})</span>
+
+        <span class="c"># Compare ediff between previous and staticinputset values,</span>
+        <span class="c"># choose the tighter ediff</span>
+        <span class="n">previous_incar</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&quot;EDIFF&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">previous_incar</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;EDIFF&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                                            <span class="n">new_incar</span><span class="p">[</span><span class="s">&quot;EDIFF&quot;</span><span class="p">])})</span>
+
+        <span class="c"># add user settings</span>
+        <span class="k">if</span> <span class="n">user_incar_settings</span><span class="p">:</span>
+            <span class="n">previous_incar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">user_incar_settings</span><span class="p">)</span>
+        <span class="n">previous_incar</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&quot;INCAR&quot;</span><span class="p">))</span>
+
+        <span class="c"># Prefer to use k-point scheme from previous run</span>
+        <span class="n">previous_kpoints_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">previous_kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> \
+            <span class="n">previous_final_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">volume</span>
+        <span class="n">new_kpoints_density</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">previous_kpoints_density</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+        <span class="n">new_kpoints</span> <span class="o">=</span> <span class="n">mpsvip</span><span class="o">.</span><span class="n">get_kpoints</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span>
+                                         <span class="n">kpoints_density</span><span class="o">=</span><span class="n">new_kpoints_density</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">previous_kpoints</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">new_kpoints</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">previous_kpoints</span><span class="o">.</span><span class="n">style</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;M&quot;</span> <span class="ow">and</span> \
+                    <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">get_lattice_type</span><span class="p">()</span> <span class="o">!=</span> \
+                    <span class="s">&quot;hexagonal&quot;</span><span class="p">:</span>
+                <span class="n">k_div</span> <span class="o">=</span> <span class="p">(</span><span class="n">kp</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">kp</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">kp</span>
+                         <span class="k">for</span> <span class="n">kp</span> <span class="ow">in</span> <span class="n">new_kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">Kpoints</span><span class="o">.</span><span class="n">monkhorst_automatic</span><span class="p">(</span><span class="n">k_div</span><span class="p">)</span><span class="o">.</span> \
+                    <span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&quot;KPOINTS&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Kpoints</span><span class="o">.</span><span class="n">gamma_automatic</span><span class="p">(</span><span class="n">new_kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span> \
+                    <span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&quot;KPOINTS&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_kpoints</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&quot;KPOINTS&quot;</span><span class="p">))</span>
 
 </div></div>
 <div class="viewcode-block" id="MPNonSCFVaspInputSet"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.MPNonSCFVaspInputSet">[docs]</a><span class="k">class</span> <span class="nc">MPNonSCFVaspInputSet</span><span class="p">(</span><span class="n">MPStaticVaspInputSet</span><span class="p">):</span>
@@ -833,8 +849,9 @@
 <span class="sd">    It is recommended to use the NonSCF from_previous_run method to construct</span>
 <span class="sd">    the input set to inherit most of the functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_incar_settings</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;Line&quot;</span><span class="p">,</span>
-                 <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                 <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">sort_structure</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            user_incar_settings:</span>
@@ -845,15 +862,15 @@
 <span class="sd">                Line: Generate k-points along symmetry lines for bandstructure</span>
 <span class="sd">                Uniform: Generate uniform k-points grids for DOS</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">module_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;Line&quot;</span><span class="p">,</span> <span class="s">&quot;Uniform&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Supported modes for NonSCF runs are &#39;Line&#39; and &quot;</span>
                              <span class="s">&quot;&#39;Uniform&#39;!&quot;</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_dir</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODULE_DIR</span><span class="p">,</span> <span class="s">&quot;MPVaspInputSet.json&quot;</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">DictVaspInputSet</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span> <span class="s">&quot;MaterialsProject Static&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">),</span>
-                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">)</span>
+                <span class="n">constrain_total_magmom</span><span class="o">=</span><span class="n">constrain_total_magmom</span><span class="p">,</span>
+                <span class="n">sort_structure</span><span class="o">=</span><span class="n">sort_structure</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user_incar_settings</span> <span class="o">=</span> <span class="n">user_incar_settings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">incar_settings</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="p">{</span><span class="s">&quot;IBRION&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;ISMEAR&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;SIGMA&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span> <span class="s">&quot;LCHARG&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
@@ -888,14 +905,14 @@
             <span class="k">return</span> <span class="n">Kpoints</span><span class="p">(</span><span class="n">comment</span><span class="o">=</span><span class="s">&quot;Non SCF run along symmetry lines&quot;</span><span class="p">,</span>
                            <span class="n">style</span><span class="o">=</span><span class="s">&quot;Reciprocal&quot;</span><span class="p">,</span> <span class="n">num_kpts</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">frac_k_points</span><span class="p">),</span>
                            <span class="n">kpts</span><span class="o">=</span><span class="n">frac_k_points</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">k_points_labels</span><span class="p">,</span>
-                           <span class="n">kpts_weights</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">cart_k_points</span><span class="p">))</span>
+                           <span class="n">kpts_weights</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cart_k_points</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">num_kpoints</span> <span class="o">=</span> <span class="n">kpoints_density</span> <span class="o">*</span> \
                 <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="o">.</span><span class="n">volume</span>
             <span class="n">kpoints</span> <span class="o">=</span> <span class="n">Kpoints</span><span class="o">.</span><span class="n">automatic_density</span><span class="p">(</span>
                 <span class="n">structure</span><span class="p">,</span> <span class="n">num_kpoints</span> <span class="o">*</span> <span class="n">structure</span><span class="o">.</span><span class="n">num_sites</span><span class="p">)</span>
             <span class="n">mesh</span> <span class="o">=</span> <span class="n">kpoints</span><span class="o">.</span><span class="n">kpts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">ir_kpts</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>\
+            <span class="n">ir_kpts</span> <span class="o">=</span> <span class="n">SymmetryFinder</span><span class="p">(</span><span class="n">structure</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span> \
                 <span class="o">.</span><span class="n">get_ir_reciprocal_mesh</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
             <span class="n">kpts</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="p">[]</span>
@@ -969,34 +986,10 @@
                                 <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s">&quot;CHGCAR&quot;</span><span class="p">))</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Can&#39;t copy CHGCAR from SC run&quot;</span><span class="o">+</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Can&#39;t copy CHGCAR from SC run&quot;</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
                                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 </div></div>
-<span class="nd">@deprecated</span><span class="p">(</span><span class="n">MPVaspInputSet</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MaterialsProjectVaspInputSet</span><span class="p">(</span><span class="n">MPVaspInputSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A direct subclass of MPVaspInputSet (for backwards compatibility).</span>
-
-<span class="sd">    .. deprecated:: v2.6.7</span>
-
-<span class="sd">        Use MPVaspInputSet instead.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-
-<span class="nd">@deprecated</span><span class="p">(</span><span class="n">MPGGAVaspInputSet</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">MaterialsProjectGGAVaspInputSet</span><span class="p">(</span><span class="n">MPGGAVaspInputSet</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A direct subclass of MPGGAVaspInputSet (for backwards compatibility).</span>
-
-<span class="sd">    .. deprecated:: v2.6.7</span>
-
-<span class="sd">        Use MPGGAVaspInputSet instead.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
-
-
 <div class="viewcode-block" id="batch_write_vasp_input"><a class="viewcode-back" href="../../../pymatgen.io.html#pymatgen.io.vaspio_set.batch_write_vasp_input">[docs]</a><span class="k">def</span> <span class="nf">batch_write_vasp_input</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">vasp_input_set</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span>
                            <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">subfolder</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                            <span class="n">sanitize</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">include_cif</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
@@ -1038,10 +1031,9 @@
             <span class="n">s</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">make_dir_if_not_present</span><span class="o">=</span><span class="n">make_dir_if_not_present</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">include_cif</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">pymatgen.io.cifio</span> <span class="kn">import</span> <span class="n">CifWriter</span>
             <span class="n">writer</span> <span class="o">=</span> <span class="n">CifWriter</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s">&quot;{}_{}.cif&quot;</span>
-                                           <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span></div>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">dirname</span><span class="p">,</span> <span class="s">&quot;{}_{}.cif&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span></div>
 </pre></div>
 
           </div>
@@ -1082,7 +1074,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

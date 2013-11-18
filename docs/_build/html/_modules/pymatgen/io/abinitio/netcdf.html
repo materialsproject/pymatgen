@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -60,11 +61,12 @@
 
 <span class="kn">import</span> <span class="nn">os.path</span>
 
-<span class="kn">from</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">import</span> <span class="n">Bohr2Ang</span><span class="p">,</span> <span class="n">Ha2eV</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">ArrayWithUnit</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.bandstructure</span> <span class="kn">import</span> <span class="n">BandStructureSymmLine</span>
 <span class="kn">from</span> <span class="nn">pymatgen.electronic_structure.core</span> <span class="kn">import</span> <span class="n">Spin</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.decorators</span> <span class="kn">import</span> <span class="n">requires</span>
+
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Matteo Giantomassi&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2013, The Materials Project&quot;</span>
@@ -79,7 +81,6 @@
     <span class="s">&quot;as_etsfreader&quot;</span><span class="p">,</span>
     <span class="s">&quot;NetcdfReader&quot;</span><span class="p">,</span>
     <span class="s">&quot;ETSF_Reader&quot;</span><span class="p">,</span>
-    <span class="s">&quot;GSR_Reader&quot;</span><span class="p">,</span>
     <span class="s">&quot;structure_from_etsf_file&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
@@ -107,8 +108,6 @@
 </div>
 <div class="viewcode-block" id="as_etsfreader"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.netcdf.as_etsfreader">[docs]</a><span class="k">def</span> <span class="nf">as_etsfreader</span><span class="p">(</span><span class="nb">file</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">_asreader</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">ETSF_Reader</span><span class="p">)</span>
-
-<span class="c">################################################################################</span>
 
 </div>
 <span class="k">class</span> <span class="nc">NetcdfReaderError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -157,7 +156,7 @@
 
     <span class="c">#@staticmethod</span>
     <span class="c">#def pathjoin(*args):</span>
-    <span class="c">#    return &quot;/&quot;.join([arg for arg in args])</span>
+    <span class="c">#    return &quot;/&quot;.join(args)</span>
 </div>
 <div class="viewcode-block" id="NetcdfReader.walk_tree"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.netcdf.NetcdfReader.walk_tree">[docs]</a>    <span class="k">def</span> <span class="nf">walk_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -304,7 +303,7 @@
             <span class="n">symbols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s">&quot;chemical_symbols&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_chemical_symbols</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">symbols</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_chemical_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_chemical_symbols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chemical_symbols</span>
 </div>
@@ -325,50 +324,6 @@
 
         <span class="k">return</span> <span class="n">structure_from_etsf_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-
-<span class="c">################################################################################</span>
-
-</div></div>
-<div class="viewcode-block" id="GSR_Reader"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.netcdf.GSR_Reader">[docs]</a><span class="k">class</span> <span class="nc">GSR_Reader</span><span class="p">(</span><span class="n">ETSF_Reader</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This object reads the results stored in the _GSR (Ground-State Results)</span>
-<span class="sd">    file. produced by ABINIT. It provides helper function to access the most</span>
-<span class="sd">    important quantities.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="GSR_Reader.read_band_structure"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.netcdf.GSR_Reader.read_band_structure">[docs]</a>    <span class="k">def</span> <span class="nf">read_band_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_structure</span><span class="p">()</span>
-        <span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
-
-        <span class="n">kpoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s">&quot;reduced_coordinates_of_kpoints&quot;</span><span class="p">)</span>
-        <span class="n">efermi</span> <span class="o">=</span> <span class="n">Ha2eV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s">&quot;fermie&quot;</span><span class="p">))</span>
-        <span class="n">np_eigvals</span> <span class="o">=</span> <span class="n">Ha2eV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s">&quot;eigenvalues&quot;</span><span class="p">))</span>
-        <span class="c"># TODO</span>
-        <span class="c">#assert np_eigvals.units == &quot;atomic units&quot;</span>
-        <span class="n">nsppol</span> <span class="o">=</span> <span class="n">np_eigvals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-        <span class="c"># FIXME: Here I need the labels</span>
-        <span class="n">labels_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">kpoint</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kpoints</span><span class="p">):</span>
-            <span class="n">labels_dict</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">kpoint</span>
-
-        <span class="n">eigenvals</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">isp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsppol</span><span class="p">):</span>
-            <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">up</span>
-            <span class="k">if</span> <span class="n">isp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">spin</span> <span class="o">=</span> <span class="n">Spin</span><span class="o">.</span><span class="n">down</span>
-            <span class="n">eigenvals</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span> <span class="o">=</span> <span class="n">np_eigvals</span><span class="p">[</span><span class="n">isp</span><span class="p">,:,:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-            <span class="k">print</span><span class="p">(</span><span class="n">eigenvals</span><span class="p">[</span><span class="n">spin</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-            <span class="c">#tmp = np_eigvals[isp,:,:].transpose()</span>
-
-        <span class="c">#bands = BandStructure(kpoints, eigenvals, structure.lattice, efermi,</span>
-        <span class="c"># labels_dict=None, structure=structure)</span>
-
-        <span class="n">bands</span> <span class="o">=</span> <span class="n">BandStructureSymmLine</span><span class="p">(</span><span class="n">kpoints</span><span class="p">,</span> <span class="n">eigenvals</span><span class="p">,</span> <span class="n">structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                                      <span class="n">efermi</span><span class="p">,</span> <span class="n">labels_dict</span><span class="p">,</span> <span class="n">structure</span><span class="o">=</span><span class="n">structure</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">bands</span>
-
-<span class="c">##########################################################################################</span>
-
 </div></div>
 <div class="viewcode-block" id="structure_from_etsf_file"><a class="viewcode-back" href="../../../../pymatgen.io.abinitio.html#pymatgen.io.abinitio.netcdf.structure_from_etsf_file">[docs]</a><span class="k">def</span> <span class="nf">structure_from_etsf_file</span><span class="p">(</span><span class="n">ncdata</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -384,7 +339,8 @@
     <span class="n">ncdata</span><span class="p">,</span> <span class="n">closeit</span> <span class="o">=</span> <span class="n">as_ncreader</span><span class="p">(</span><span class="n">ncdata</span><span class="p">)</span>
 
     <span class="c"># TODO check whether atomic units are used</span>
-    <span class="n">lattice</span> <span class="o">=</span> <span class="n">Bohr2Ang</span><span class="p">(</span><span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s">&quot;primitive_vectors&quot;</span><span class="p">))</span>
+    <span class="n">lattice</span> <span class="o">=</span> <span class="n">ArrayWithUnit</span><span class="p">(</span><span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s">&quot;primitive_vectors&quot;</span><span class="p">),</span>
+                            <span class="s">&quot;bohr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;ang&quot;</span><span class="p">)</span>
 
     <span class="n">red_coords</span> <span class="o">=</span> <span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="s">&quot;reduced_atom_positions&quot;</span><span class="p">)</span>
     <span class="n">natom</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">red_coords</span><span class="p">)</span>
@@ -406,6 +362,14 @@
             <span class="n">d</span><span class="p">[</span><span class="nb">property</span><span class="p">]</span> <span class="o">=</span> <span class="n">ncdata</span><span class="o">.</span><span class="n">read_value</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
 
     <span class="n">structure</span> <span class="o">=</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">red_coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="c"># Quick and dirty hack.</span>
+    <span class="c"># I need an abipy structure since I need to_abivars and other methods.</span>
+    <span class="c">#from pymatgen.io.abinitio.abiobjects import AbiStructure</span>
+    <span class="c">#structure.__class__ = AbiStructure</span>
+
+    <span class="kn">from</span> <span class="nn">abipy.core.structure</span> <span class="kn">import</span> <span class="n">Structure</span> <span class="k">as</span> <span class="n">AbipyStructure</span>
+    <span class="n">structure</span><span class="o">.</span><span class="n">__class__</span> <span class="o">=</span> <span class="n">AbipyStructure</span>
 
     <span class="k">if</span> <span class="n">closeit</span><span class="p">:</span>
         <span class="n">ncdata</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -451,7 +415,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

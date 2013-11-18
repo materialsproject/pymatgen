@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -68,7 +69,7 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;2.0&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Sep 23, 2011&quot;</span>
 
@@ -79,9 +80,11 @@
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">abstractproperty</span>
+<span class="kn">import</span> <span class="nn">random</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
+<span class="kn">from</span> <span class="nn">fractions</span> <span class="kn">import</span> <span class="n">gcd</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.operations</span> <span class="kn">import</span> <span class="n">SymmOp</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.lattice</span> <span class="kn">import</span> <span class="n">Lattice</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Specie</span><span class="p">,</span> \
@@ -89,10 +92,11 @@
 <span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.sites</span> <span class="kn">import</span> <span class="n">Site</span><span class="p">,</span> <span class="n">PeriodicSite</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.bonds</span> <span class="kn">import</span> <span class="n">CovalentBond</span><span class="p">,</span> <span class="n">get_bond_length</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">import</span> <span class="n">AMU_TO_KG</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
-<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="kn">import</span> <span class="n">get_points_in_sphere_pbc</span><span class="p">,</span> <span class="n">get_angle</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="kn">import</span> <span class="n">get_points_in_sphere_pbc</span><span class="p">,</span> <span class="n">get_angle</span><span class="p">,</span> \
+    <span class="n">pbc_all_distances</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.decorators</span> <span class="kn">import</span> <span class="n">singleton</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Mass</span><span class="p">,</span> <span class="n">Length</span>
 
 
 <div class="viewcode-block" id="SiteCollection"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.SiteCollection">[docs]</a><span class="k">class</span> <span class="nc">SiteCollection</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
@@ -422,7 +426,8 @@
                                   <span class="s">&quot;less than 0.01 Angstrom apart!&quot;</span><span class="p">))</span>
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="IStructure.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.from_sites">[docs]</a>    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.from_sites"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.from_sites">[docs]</a>    <span class="k">def</span> <span class="nf">from_sites</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">validate_proximity</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                   <span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convenience constructor to make a Structure from a list of sites.</span>
 
@@ -432,7 +437,8 @@
 <span class="sd">            validate_proximity:</span>
 <span class="sd">                Whether to check if there are sites that are less than 0.01 Ang</span>
 <span class="sd">                apart. Defaults to False.</span>
-
+<span class="sd">            to_unit_cell:</span>
+<span class="sd">                Whether to translate sites into the unit cell.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">props</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="bp">None</span>
@@ -446,7 +452,8 @@
         <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">],</span>
                    <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">],</span>
                    <span class="n">site_properties</span><span class="o">=</span><span class="n">props</span><span class="p">,</span>
-                   <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">)</span>
+                   <span class="n">validate_proximity</span><span class="o">=</span><span class="n">validate_proximity</span><span class="p">,</span>
+                   <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">)</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="IStructure.sites"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.sites">[docs]</a>    <span class="k">def</span> <span class="nf">sites</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -489,8 +496,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the density in units of g/cc</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">constant</span> <span class="o">=</span> <span class="n">AMU_TO_KG</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">/</span> <span class="mf">1e-24</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">constant</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">Mass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="s">&quot;amu&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;g&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span> <span class="o">*</span> <span class="n">Length</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;ang&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;cm&quot;</span><span class="p">)</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -780,7 +787,8 @@
             <span class="n">new_sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">new_sites</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="IStructure.interpolate"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<div class="viewcode-block" id="IStructure.interpolate"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.interpolate">[docs]</a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_structure</span><span class="p">,</span> <span class="n">nimages</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                    <span class="n">interpolate_lattices</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Interpolate between this structure and end_structure. Useful for</span>
 <span class="sd">        construction of NEB inputs.</span>
@@ -790,6 +798,13 @@
 <span class="sd">                structure to interpolate between this structure and end.</span>
 <span class="sd">            nimages:</span>
 <span class="sd">                number of interpolation images. Defaults to 10 images.</span>
+<span class="sd">            interpolate_lattices:</span>
+<span class="sd">                whether to interpolate the lattices. Interpolates the lengths</span>
+<span class="sd">                and angles (rather than the matrix) so orientation may be</span>
+<span class="sd">                affected.</span>
+<span class="sd">            pbc:</span>
+<span class="sd">                whether to use periodic boundary conditions to find the</span>
+<span class="sd">                shortest path between endpoints.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of interpolated structures. The starting and ending</span>
@@ -800,8 +815,14 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">end_structure</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Structures have different lengths!&quot;</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">interpolate_lattices</span><span class="p">:</span>
+            <span class="c">#interpolate lattices</span>
+            <span class="n">lstart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">)</span>
+            <span class="n">lend</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">end_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">lengths_and_angles</span><span class="p">)</span>
+            <span class="n">lvec</span> <span class="o">=</span> <span class="n">lend</span> <span class="o">-</span> <span class="n">lstart</span>
+
         <span class="c">#Check that both structures have the same lattice</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">end_structure</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span> <span class="o">==</span> <span class="n">end_structure</span><span class="o">.</span><span class="n">lattice</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Structures with different lattices!&quot;</span><span class="p">)</span>
 
         <span class="c">#Check that both structures have the same species</span>
@@ -813,13 +834,20 @@
 
         <span class="n">start_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
         <span class="n">end_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">end_structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
-
         <span class="n">vec</span> <span class="o">=</span> <span class="n">end_coords</span> <span class="o">-</span> <span class="n">start_coords</span>
+        <span class="k">if</span> <span class="n">pbc</span><span class="p">:</span>
+            <span class="n">vec</span> <span class="o">-=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
         <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_and_occu</span>
-        <span class="n">structs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
-                   <span class="n">sp</span><span class="p">,</span> <span class="n">start_coords</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">nimages</span><span class="p">)</span> <span class="o">*</span> <span class="n">vec</span><span class="p">,</span>
-                   <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
-                   <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nimages</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">structs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">nimages</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">interpolate_lattices</span><span class="p">:</span>
+                <span class="n">l_a</span> <span class="o">=</span> <span class="n">lstart</span> <span class="o">+</span> <span class="n">x</span> <span class="o">/</span> <span class="n">nimages</span> <span class="o">*</span> <span class="n">lvec</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_lengths_and_angles</span><span class="p">(</span><span class="o">*</span><span class="n">l_a</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span>
+            <span class="n">fcoords</span> <span class="o">=</span> <span class="n">start_coords</span> <span class="o">+</span> <span class="n">x</span> <span class="o">/</span> <span class="n">nimages</span> <span class="o">*</span> <span class="n">vec</span>
+            <span class="n">structs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">,</span>
+                           <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">structs</span>
 </div>
 <div class="viewcode-block" id="IStructure.get_primitive_structure"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.get_primitive_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_primitive_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">0.25</span><span class="p">):</span>
@@ -853,16 +881,16 @@
 <span class="sd">            guaranteed to have len(new structure) &lt;= len(structure).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">original_volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span>
-        <span class="p">(</span><span class="n">reduced_formula</span><span class="p">,</span> <span class="n">num_fu</span><span class="p">)</span> <span class="o">=</span>\
-            <span class="bp">self</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()</span>
-
-        <span class="n">min_vol</span> <span class="o">=</span> <span class="n">original_volume</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">num_fu</span>
 
         <span class="c">#get the possible symmetry vectors</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">site</span><span class="p">:</span> <span class="n">site</span><span class="o">.</span><span class="n">species_string</span><span class="p">)</span>
         <span class="n">grouped_sites</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">a</span>
                          <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">sites</span><span class="p">,</span>
                                               <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">species_string</span><span class="p">)]</span>
+
+        <span class="n">num_fu</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="n">gcd</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">grouped_sites</span><span class="p">))</span>
+        <span class="n">min_vol</span> <span class="o">=</span> <span class="n">original_volume</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="n">num_fu</span>
+
         <span class="n">min_site_list</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">grouped_sites</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">group</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">))</span>
 
         <span class="n">min_site_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">site</span><span class="o">.</span><span class="n">to_unit_cell</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">min_site_list</span><span class="p">]</span>
@@ -1014,6 +1042,46 @@
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;lattice&quot;</span><span class="p">])</span>
         <span class="n">sites</span> <span class="o">=</span> <span class="p">[</span><span class="n">PeriodicSite</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span> <span class="k">for</span> <span class="n">sd</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s">&quot;sites&quot;</span><span class="p">]]</span>
         <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">sites</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="IStructure.dot"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.dot">[docs]</a>    <span class="k">def</span> <span class="nf">dot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords_a</span><span class="p">,</span> <span class="n">coords_b</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the scalar producr of vector(s) either in real space or</span>
+<span class="sd">        reciprocal space.</span>
+<span class="sd">                                                                                                </span>
+<span class="sd">        Args:</span>
+<span class="sd">            coords:</span>
+<span class="sd">                Array-like object with the coordinates.</span>
+<span class="sd">            space:</span>
+<span class="sd">               &quot;r&quot; for real space, &quot;g&quot; for reciprocal space.</span>
+<span class="sd">            frac_coords:</span>
+<span class="sd">                Boolean stating whether the vector corresponds to fractional or</span>
+<span class="sd">                cartesian coordinates.</span>
+
+<span class="sd">       Returns:</span>
+<span class="sd">           one-dimensional `numpy` array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;r&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">,</span>
+                   <span class="s">&quot;g&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reciprocal_lattice</span><span class="p">}[</span><span class="n">space</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">lattice</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">coords_a</span><span class="p">,</span> <span class="n">coords_b</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="n">frac_coords</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="IStructure.norm"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IStructure.norm">[docs]</a>    <span class="k">def</span> <span class="nf">norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the norm of vector(s) either in real space or reciprocal space.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            coords:</span>
+<span class="sd">                Array-like object with the coordinates.</span>
+<span class="sd">            space:</span>
+<span class="sd">               &quot;r&quot; for real space, &quot;g&quot; for reciprocal space.</span>
+<span class="sd">            frac_coords:</span>
+<span class="sd">                Boolean stating whether the vector corresponds to fractional or</span>
+<span class="sd">                cartesian coordinates.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            one-dimensional `numpy` array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">coords</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="n">space</span><span class="p">,</span>
+                                <span class="n">frac_coords</span><span class="o">=</span><span class="n">frac_coords</span><span class="p">))</span>
 
 </div></div>
 <div class="viewcode-block" id="IMolecule"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IMolecule">[docs]</a><span class="k">class</span> <span class="nc">IMolecule</span><span class="p">(</span><span class="n">SiteCollection</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
@@ -1267,6 +1335,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;@module&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span>
              <span class="s">&quot;@class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+             <span class="s">&quot;charge&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_charge</span><span class="p">,</span>
+             <span class="s">&quot;spin_multiplicity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spin_multiplicity</span><span class="p">,</span>
              <span class="s">&quot;sites&quot;</span><span class="p">:</span> <span class="p">[]}</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="n">site_dict</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">to_dict</span>
@@ -1302,7 +1372,9 @@
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">siteprops</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">props</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">site_properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;charge&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                   <span class="n">spin_multiplicity</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;spin_multiplicity&quot;</span><span class="p">),</span>
+                   <span class="n">site_properties</span><span class="o">=</span><span class="n">props</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="IMolecule.get_distance"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IMolecule.get_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1379,11 +1451,12 @@
         <span class="n">inner</span> <span class="o">=</span> <span class="n">r</span> <span class="o">-</span> <span class="n">dr</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">site</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span> <span class="ow">in</span> <span class="n">outer</span> <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">inner</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="IMolecule.get_boxed_structure"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IMolecule.get_boxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_boxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<div class="viewcode-block" id="IMolecule.get_boxed_structure"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IMolecule.get_boxed_structure">[docs]</a>    <span class="k">def</span> <span class="nf">get_boxed_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">images</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                            <span class="n">random_rotation</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">min_dist</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates a Structure from a Molecule by putting the Molecule in a box.</span>
-<span class="sd">        Useful for creating Structure for calculating molecules using periodic</span>
-<span class="sd">        codes.</span>
+<span class="sd">        Creates a Structure from a Molecule by putting the Molecule in the</span>
+<span class="sd">        center of a orthorhombic box. Useful for creating Structure for</span>
+<span class="sd">        calculating molecules using periodic codes.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            a:</span>
@@ -1392,6 +1465,19 @@
 <span class="sd">                b-lattice parameter.</span>
 <span class="sd">            c:</span>
 <span class="sd">                c-lattice parameter.</span>
+<span class="sd">            images:</span>
+<span class="sd">                No. of boxed images in each direction. Defaults to (1, 1, 1),</span>
+<span class="sd">                meaning single molecule with 1 lattice parameter in each</span>
+<span class="sd">                direction.</span>
+<span class="sd">            random_rotation:</span>
+<span class="sd">                Whether to apply a random rotation to each molecule. This</span>
+<span class="sd">                jumbles all the molecules so that they are not exact images</span>
+<span class="sd">                of each other.</span>
+<span class="sd">            min_dist:</span>
+<span class="sd">                The minimum distance that atoms should be from each other.</span>
+<span class="sd">                This is only used if random_rotation is True. The randomized</span>
+<span class="sd">                rotations are searched such that no two atoms are less than</span>
+<span class="sd">                min_dist from each other.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Structure containing molecule in a box.</span>
@@ -1402,10 +1488,38 @@
         <span class="n">z_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="n">x_range</span> <span class="ow">or</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">y_range</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="n">z_range</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Box is not big enough to contain Molecule.&quot;</span><span class="p">)</span>
-        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cart_coords</span><span class="p">,</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="o">.</span><span class="n">from_parameters</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b</span> <span class="o">*</span> <span class="n">images</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                          <span class="n">c</span> <span class="o">*</span> <span class="n">images</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                                          <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+        <span class="n">nimages</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">images</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">centered_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cart_coords</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_of_mass</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">range</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                                         <span class="nb">range</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="mi">2</span><span class="p">])):</span>
+            <span class="n">box_center</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">b</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">c</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">random_rotation</span><span class="p">:</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">op</span> <span class="o">=</span> <span class="n">SymmOp</span><span class="o">.</span><span class="n">from_origin_axis_angle</span><span class="p">(</span>
+                        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+                        <span class="n">angle</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="mi">180</span><span class="p">))</span>
+                    <span class="n">m</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">rotation_matrix</span>
+                    <span class="n">new_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">centered_coords</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">box_center</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">distances</span> <span class="o">=</span> <span class="n">pbc_all_distances</span><span class="p">(</span>
+                        <span class="n">lattice</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">new_coords</span><span class="p">),</span>
+                        <span class="n">lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">min_dist</span><span class="p">:</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_coords</span> <span class="o">=</span> <span class="n">centered_coords</span> <span class="o">+</span> <span class="n">box_center</span>
+            <span class="n">coords</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_coords</span><span class="p">)</span>
+        <span class="n">sprops</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="o">*</span> <span class="n">nimages</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="k">return</span> <span class="n">Structure</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">*</span> <span class="n">nimages</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span>
                          <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                         <span class="n">site_properties</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">site_properties</span><span class="p">)</span>
+                         <span class="n">site_properties</span><span class="o">=</span><span class="n">sprops</span><span class="p">)</span><span class="o">.</span><span class="n">get_sorted_structure</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="IMolecule.get_centered_molecule"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.IMolecule.get_centered_molecule">[docs]</a>    <span class="k">def</span> <span class="nf">get_centered_molecule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -1701,20 +1815,27 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modify_lattice</span><span class="p">(</span><span class="n">Lattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">matrix</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">strain</span><span class="p">)))</span>
 </div>
-<div class="viewcode-block" id="Structure.translate_sites"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.Structure.translate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Structure.translate_sites"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.Structure.translate_sites">[docs]</a>    <span class="k">def</span> <span class="nf">translate_sites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">vector</span><span class="p">,</span> <span class="n">frac_coords</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                        <span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Translate specific sites by some vector, keeping the sites within the</span>
 <span class="sd">        unit cell.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sites:</span>
-<span class="sd">                List of site indices on which to perform the translation.</span>
+<span class="sd">            indices:</span>
+<span class="sd">                Integer or List of site indices on which to perform the</span>
+<span class="sd">                translation.</span>
 <span class="sd">            vector:</span>
 <span class="sd">                Translation vector for sites.</span>
 <span class="sd">            frac_coords:</span>
 <span class="sd">                Boolean stating whether the vector corresponds to fractional or</span>
 <span class="sd">                cartesian coordinates.</span>
+<span class="sd">            to_unit_cell:</span>
+<span class="sd">                Boolean stating whether new sites are transformed to unit cell</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
             <span class="n">site</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">frac_coords</span><span class="p">:</span>
@@ -1723,7 +1844,7 @@
                 <span class="n">fcoords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">coords</span>
                                                               <span class="o">+</span> <span class="n">vector</span><span class="p">)</span>
             <span class="n">new_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">fcoords</span><span class="p">,</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="p">,</span> <span class="n">to_unit_cell</span><span class="o">=</span><span class="n">to_unit_cell</span><span class="p">,</span>
                                     <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                                     <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_site</span>
@@ -1832,37 +1953,61 @@
 <span class="sd">                   c.</span>
 <span class="sd">                c. A number, which simply scales all lattice vectors by the</span>
 <span class="sd">                   same factor.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scale_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scaling_matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">scale_matrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
             <span class="n">scale_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">scale_matrix</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
         <span class="n">old_lattice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span>
         <span class="n">new_lattice</span> <span class="o">=</span> <span class="n">Lattice</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">,</span> <span class="n">old_lattice</span><span class="o">.</span><span class="n">matrix</span><span class="p">))</span>
-        <span class="n">new_sites</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">def</span> <span class="nf">range_vec</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">[:][:,</span> <span class="n">i</span><span class="p">])</span>
-                         <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">[:][:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">low</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">high</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">scale_matrix</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">z</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">high</span> <span class="o">+=</span> <span class="n">z</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">low</span> <span class="o">+=</span> <span class="n">z</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">arange</span> <span class="o">=</span> <span class="n">range_vec</span><span class="p">(</span><span class="mi">0</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">brange</span> <span class="o">=</span> <span class="n">range_vec</span><span class="p">(</span><span class="mi">1</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">crange</span> <span class="o">=</span> <span class="n">range_vec</span><span class="p">(</span><span class="mi">2</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">all_points</span> <span class="o">=</span> <span class="n">arange</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">brange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">+</span>\
+            <span class="n">crange</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">all_points</span> <span class="o">=</span> <span class="n">all_points</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
+        <span class="c">#find the translation vectors (in terms of the initial lattice vectors)</span>
+        <span class="c">#that are inside the unit cell defined by the scale matrix</span>
+        <span class="c">#we&#39;re using a slightly offset interval from 0 to 1 to avoid numerical</span>
+        <span class="c">#precision issues</span>
+        <span class="n">frac_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">all_points</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">))</span>
+        <span class="n">tvects</span> <span class="o">=</span> <span class="n">all_points</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">frac_points</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">-</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                                     <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">frac_points</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tvects</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">scale_matrix</span><span class="p">)))</span>
+
+        <span class="n">new_sites</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">range_vec</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">range_vec</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-                                               <span class="n">range_vec</span><span class="p">(</span><span class="mi">2</span><span class="p">)):</span>
-                <span class="n">fcoords</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tvects</span><span class="p">:</span>
+                <span class="n">fcoords</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">frac_coords</span> <span class="o">+</span> <span class="n">t</span>
                 <span class="n">coords</span> <span class="o">=</span> <span class="n">old_lattice</span><span class="o">.</span><span class="n">get_cartesian_coords</span><span class="p">(</span><span class="n">fcoords</span><span class="p">)</span>
-                <span class="n">new_coords</span> <span class="o">=</span> <span class="n">new_lattice</span><span class="o">.</span><span class="n">get_fractional_coords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
-                <span class="n">new_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">new_coords</span><span class="p">,</span>
-                                        <span class="n">new_lattice</span><span class="p">,</span>
-                                        <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span>
-                <span class="n">contains_site</span> <span class="o">=</span> <span class="bp">False</span>
-                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">new_sites</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">is_periodic_image</span><span class="p">(</span><span class="n">new_site</span><span class="p">):</span>
-                        <span class="n">contains_site</span> <span class="o">=</span> <span class="bp">True</span>
-                        <span class="k">break</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">contains_site</span><span class="p">:</span>
-                    <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_site</span><span class="p">)</span>
+                <span class="n">new_site</span> <span class="o">=</span> <span class="n">PeriodicSite</span><span class="p">(</span>
+                    <span class="n">site</span><span class="o">.</span><span class="n">species_and_occu</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">new_lattice</span><span class="p">,</span>
+                    <span class="n">coords_are_cartesian</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="n">site</span><span class="o">.</span><span class="n">properties</span><span class="p">,</span>
+                    <span class="n">to_unit_cell</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">new_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_site</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sites</span> <span class="o">=</span> <span class="n">new_sites</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span> <span class="o">=</span> <span class="n">new_lattice</span>
+</div>
+<div class="viewcode-block" id="Structure.scale_lattice"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.Structure.scale_lattice">[docs]</a>    <span class="k">def</span> <span class="nf">scale_lattice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs a scaling of the lattice vectors so that length proportions</span>
+<span class="sd">        and angles are preserved.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            volume:</span>
+<span class="sd">                New volume of the unit cell in A^3.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modify_lattice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lattice</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">volume</span><span class="p">))</span>
 
 </div></div>
 <div class="viewcode-block" id="Molecule"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.structure.Molecule">[docs]</a><span class="k">class</span> <span class="nc">Molecule</span><span class="p">(</span><span class="n">IMolecule</span><span class="p">):</span>
@@ -2196,16 +2341,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c"># Find the nearest neighbor that is not a terminal atom.</span>
+        <span class="n">all_non_terminal_nn</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nn</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="c"># Check that the nn has neighbors within a sensible distance but</span>
+            <span class="c"># is not the site being substituted.</span>
+            <span class="k">for</span> <span class="n">inn</span><span class="p">,</span> <span class="n">dist2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">inn</span> <span class="o">!=</span> <span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">and</span> \
+                        <span class="n">dist2</span> <span class="o">&lt;</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">get_bond_length</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">specie</span><span class="p">,</span> <span class="n">inn</span><span class="o">.</span><span class="n">specie</span><span class="p">):</span>
+                    <span class="n">all_non_terminal_nn</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nn</span><span class="p">,</span> <span class="n">dist</span><span class="p">))</span>
+                    <span class="k">break</span>
 
-        <span class="n">non_terminal_nn</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">for</span> <span class="n">nn</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="mi">5</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="mf">1.1</span> <span class="o">*</span> <span class="n">dist</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">non_terminal_nn</span> <span class="o">=</span> <span class="n">nn</span>
-                <span class="k">break</span>
-
-        <span class="k">if</span> <span class="n">non_terminal_nn</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_non_terminal_nn</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s">&quot;Can&#39;t find a non-terminal neighbor to attach&quot;</span>
                                <span class="s">&quot; functional group to.&quot;</span><span class="p">)</span>
+
+        <span class="n">non_terminal_nn</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_non_terminal_nn</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c"># Set the origin point to be the coordinates of the nearest</span>
         <span class="c"># non-terminal neighbor.</span>
@@ -2324,7 +2474,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

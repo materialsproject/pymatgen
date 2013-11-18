@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -90,6 +91,7 @@
 <span class="kn">import</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">as</span> <span class="nn">phyc</span>
 <span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
 <span class="kn">from</span> <span class="nn">pymatgen.io.vaspio.vasp_output</span> <span class="kn">import</span> <span class="n">Vasprun</span>
+<span class="kn">from</span> <span class="nn">pymatgen.util.coord_utils</span> <span class="kn">import</span> <span class="n">pbc_diff</span>
 
 
 <div class="viewcode-block" id="DiffusionAnalyzer"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.diffusion_analyzer.DiffusionAnalyzer">[docs]</a><span class="k">class</span> <span class="nc">DiffusionAnalyzer</span><span class="p">(</span><span class="n">MSONable</span><span class="p">):</span>
@@ -200,6 +202,8 @@
             <span class="n">min_dt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1000</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step_skip</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span><span class="p">))</span>
             <span class="n">max_dt</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">dc_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">dc_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_obs</span><span class="p">,</span>
                          <span class="n">dc_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">min_dt</span> <span class="o">&gt;=</span> <span class="n">max_dt</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Not enough data to calculate diffusivity&#39;</span><span class="p">)</span>
             <span class="n">timesteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">min_dt</span><span class="p">,</span> <span class="n">max_dt</span><span class="p">,</span>
                                   <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">max_dt</span> <span class="o">-</span> <span class="n">min_dt</span><span class="p">)</span> <span class="o">/</span> <span class="mi">200</span><span class="p">),</span> <span class="mi">1</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">timesteps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_skip</span>
@@ -292,11 +296,20 @@
 <span class="sd">                proportional to dt)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">structure</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">initial_structure</span>
-        <span class="n">step_skip</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ionic_step_skip</span>
+        <span class="n">step_skip</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ionic_step_skip</span> <span class="ow">or</span> <span class="mi">1</span>
 
         <span class="n">p</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">final_structure</span> <span class="o">=</span> <span class="n">vaspruns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">initial_structure</span>
         <span class="k">for</span> <span class="n">vr</span> <span class="ow">in</span> <span class="n">vaspruns</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">vr</span><span class="o">.</span><span class="n">ionic_step_skip</span> <span class="o">==</span> <span class="n">step_skip</span>
+            <span class="c">#check that the runs are continuous</span>
+            <span class="n">fdist</span> <span class="o">=</span> <span class="n">pbc_diff</span><span class="p">(</span><span class="n">vr</span><span class="o">.</span><span class="n">initial_structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">,</span> 
+                             <span class="n">final_structure</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">fdist</span> <span class="o">&gt;</span> <span class="mf">0.001</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;initial and final structures do not &#39;</span>
+                                 <span class="s">&#39;match.&#39;</span><span class="p">)</span>
+            <span class="n">final_structure</span> <span class="o">=</span> <span class="n">vr</span><span class="o">.</span><span class="n">final_structure</span>
+            
+            <span class="k">assert</span> <span class="p">(</span><span class="n">vr</span><span class="o">.</span><span class="n">ionic_step_skip</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">step_skip</span>
             <span class="n">p</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s">&#39;structure&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frac_coords</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span>
                       <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">vr</span><span class="o">.</span><span class="n">ionic_steps</span><span class="p">])</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -501,7 +514,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -67,12 +68,13 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2012, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Feb 1, 2012&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Beta&quot;</span>
 
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
-<span class="kn">from</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">import</span> <span class="n">ELECTRON_TO_AMPERE_HOURS</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">Charge</span><span class="p">,</span> <span class="n">Time</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.physical_constants</span> <span class="kn">import</span> <span class="n">AVOGADROS_CONST</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.reaction_calculator</span> <span class="kn">import</span> <span class="n">BalancedReaction</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.composition</span> <span class="kn">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen.apps.battery.battery_abc</span> <span class="kn">import</span> <span class="n">AbstractElectrode</span><span class="p">,</span> \
@@ -443,7 +445,8 @@
         <span class="n">working_ion</span> <span class="o">=</span> <span class="n">working_ion_entry</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">symbol</span>
         <span class="n">voltage</span> <span class="o">=</span> <span class="o">-</span><span class="n">step1</span><span class="p">[</span><span class="s">&quot;chempot&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">working_ion_entry</span><span class="o">.</span><span class="n">energy_per_atom</span>
         <span class="n">mAh</span> <span class="o">=</span> <span class="p">(</span><span class="n">step2</span><span class="p">[</span><span class="s">&quot;evolution&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">step1</span><span class="p">[</span><span class="s">&quot;evolution&quot;</span><span class="p">])</span> \
-            <span class="o">*</span> <span class="n">ELECTRON_TO_AMPERE_HOURS</span> <span class="o">*</span> <span class="mi">1000</span>
+            <span class="o">*</span> <span class="n">Charge</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;e&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;C&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">Time</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;s&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s">&quot;h&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">AVOGADROS_CONST</span>\
+            <span class="o">*</span> <span class="mi">1000</span>
         <span class="n">licomp</span> <span class="o">=</span> <span class="n">Composition</span><span class="o">.</span><span class="n">from_formula</span><span class="p">(</span><span class="n">working_ion</span><span class="p">)</span>
         <span class="n">prev_rxn</span> <span class="o">=</span> <span class="n">step1</span><span class="p">[</span><span class="s">&quot;reaction&quot;</span><span class="p">]</span>
         <span class="n">reactants</span> <span class="o">=</span> <span class="p">{</span><span class="n">comp</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prev_rxn</span><span class="o">.</span><span class="n">get_coeff</span><span class="p">(</span><span class="n">comp</span><span class="p">))</span>
@@ -638,7 +641,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

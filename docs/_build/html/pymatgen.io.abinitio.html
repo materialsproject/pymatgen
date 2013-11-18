@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +14,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '2.8.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -1091,14 +1092,12 @@ a Smearing object is via the class method Smearing.assmearing(string)</p>
 <dt id="pymatgen.io.abinitio.abiobjects.Smearing.assmearing">
 <em class="property">classmethod </em><tt class="descname">assmearing</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/abiobjects.html#Smearing.assmearing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.abiobjects.Smearing.assmearing" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs an instance of Smearing from obj. Accepts obj in the form:</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li>Smearing instance</li>
 <li>&#8220;name:tsmear&#8221;  e.g. &#8220;gaussian:0.004&#8221;  (Hartree units)</li>
 <li>&#8220;name:tsmear units&#8221; e.g. &#8220;gaussian:0.1 eV&#8221;</li>
 <li>None &#8211;&gt; no smearing</li>
 </ul>
-</div></blockquote>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -1162,13 +1161,11 @@ One can use asspinmode to construct the object via SpinMode.asspinmode
 <dt id="pymatgen.io.abinitio.abiobjects.asabistructure">
 <tt class="descname">asabistructure</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/abiobjects.html#asabistructure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.abiobjects.asabistructure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert obj into an AbiStructure object. Accepts:</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li>AbiStructure instance</li>
 <li>Subinstances of pymatgen.</li>
 <li>File paths</li>
 </ul>
-</div></blockquote>
 </dd></dl>
 
 </div>
@@ -1637,7 +1634,7 @@ vinet
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.eos.EOS.MODELS">
-<tt class="descname">MODELS</tt><em class="property"> = {'birch_murnaghan': &lt;function birch_murnaghan at 0x105499cf8&gt;, 'pourier_tarantola': &lt;function pourier_tarantola at 0x105499de8&gt;, 'vinet': &lt;function vinet at 0x10556ec08&gt;, 'deltafactor': &lt;function deltafactor_polyfit at 0x10556ec80&gt;, 'murnaghan': &lt;function murnaghan at 0x105499668&gt;, 'birch': &lt;function birch at 0x105499c08&gt;}</em><a class="headerlink" href="#pymatgen.io.abinitio.eos.EOS.MODELS" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">MODELS</tt><em class="property"> = {'birch_murnaghan': &lt;function birch_murnaghan at 0x105f0c9b0&gt;, 'pourier_tarantola': &lt;function pourier_tarantola at 0x105f0caa0&gt;, 'vinet': &lt;function vinet at 0x105f0cc08&gt;, 'deltafactor': &lt;function deltafactor_polyfit at 0x105f0cd70&gt;, 'murnaghan': &lt;function murnaghan at 0x105f0c410&gt;, 'birch': &lt;function birch at 0x105f0c8c0&gt;}</em><a class="headerlink" href="#pymatgen.io.abinitio.eos.EOS.MODELS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Models available.</p>
 </dd></dl>
 
@@ -1674,7 +1671,7 @@ Notice that the units for the bulk modulus is eV/Angstrom^3.</p>
 provides a parser to extract these events form the main output file and the log file.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinitio.events.EventsParser">
-<em class="property">class </em><tt class="descname">EventsParser</tt><a class="headerlink" href="#pymatgen.io.abinitio.events.EventsParser" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">EventsParser</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/events.html#EventsParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.events.EventsParser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Parses the output or the log file produced by abinit and extract the list of events.</p>
 <dl class="attribute">
@@ -1685,14 +1682,14 @@ provides a parser to extract these events form the main output file and the log 
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.abinitio.events.EventsParser.parse">
-<em class="property">static </em><tt class="descname">parse</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.events.EventsParser.parse" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">parse</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/events.html#EventsParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.events.EventsParser.parse" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is the new parser, it will be used when we implement
 the new format in abinit.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.events.EventsParser.report_exception">
-<tt class="descname">report_exception</tt><big>(</big><em>filename</em>, <em>exc</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.events.EventsParser.report_exception" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">report_exception</tt><big>(</big><em>filename</em>, <em>exc</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/events.html#EventsParser.report_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.events.EventsParser.report_exception" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used when self.parser raises an Exception so that
 we can report a customized <cite>EventReport</cite> object with info the exception.</p>
 </dd></dl>
@@ -1781,19 +1778,15 @@ its task and raise new signals when some particular condition occurs.</p>
 <dl class="method">
 <dt id="pymatgen.io.abinitio.flows.AbinitFlow.iflat_tasks">
 <tt class="descname">iflat_tasks</tt><big>(</big><em>status=None</em>, <em>op='='</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/flows.html#AbinitFlow.iflat_tasks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.flows.AbinitFlow.iflat_tasks" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Returns:</dt>
-<dd>task</dd>
-</dl>
+<dd><p>Returns:
+task</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.flows.AbinitFlow.iflat_tasks_wti">
 <tt class="descname">iflat_tasks_wti</tt><big>(</big><em>status=None</em>, <em>op='='</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/flows.html#AbinitFlow.iflat_tasks_wti"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.flows.AbinitFlow.iflat_tasks_wti" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Returns:</dt>
-<dd>(task, work_index, task_index)</dd>
-</dl>
+<dd><p>Returns:
+(task, work_index, task_index)</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -1821,7 +1814,7 @@ we have submitted the task to the queue manager.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.flows.AbinitFlow.num_tasks_with_error">
-<tt class="descname">num_tasks_with_error</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/flows.html#AbinitFlow.num_tasks_with_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.flows.AbinitFlow.num_tasks_with_error" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">num_tasks_with_error</tt><a class="headerlink" href="#pymatgen.io.abinitio.flows.AbinitFlow.num_tasks_with_error" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of tasks whose status is <cite>S_ERROR</cite>.</p>
 </dd></dl>
 
@@ -1953,7 +1946,7 @@ of the different tasks on the specified stream.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.flows.AbinitFlow.status_counter">
-<tt class="descname">status_counter</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/flows.html#AbinitFlow.status_counter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.flows.AbinitFlow.status_counter" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">status_counter</tt><a class="headerlink" href="#pymatgen.io.abinitio.flows.AbinitFlow.status_counter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <cite>Counter</cite> object that counts the number of task with 
 given status (use the string representation of the status as key).</p>
 </dd></dl>
@@ -2131,7 +2124,7 @@ given status (use the string representation of the status as key).</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinitio.launcher.PyLauncher">
-<em class="property">class </em><tt class="descname">PyLauncher</tt><big>(</big><em>flow</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyLauncher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">PyLauncher</tt><big>(</big><em>flow</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyLauncher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyLauncher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>This object handle the submission of the tasks contained in a <cite>AbinitFlow</cite></p>
 <p>Initialize the object</p>
@@ -2151,7 +2144,7 @@ given status (use the string representation of the status as key).</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.launcher.PyLauncher.rapidfire">
-<tt class="descname">rapidfire</tt><big>(</big><em>max_nlaunch=-1</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyLauncher.rapidfire" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">rapidfire</tt><big>(</big><em>max_nlaunch=-1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyLauncher.rapidfire"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyLauncher.rapidfire" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keeps submitting <cite>Tasks</cite> until we are out of jobs or no job is ready to run.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -2173,7 +2166,7 @@ given status (use the string representation of the status as key).</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.launcher.PyLauncher.single_shot">
-<tt class="descname">single_shot</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyLauncher.single_shot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">single_shot</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyLauncher.single_shot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyLauncher.single_shot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the first <cite>Task</cite> than is ready for execution.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
@@ -2185,7 +2178,7 @@ given status (use the string representation of the status as key).</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinitio.launcher.PyFlowsScheduler">
-<em class="property">class </em><tt class="descname">PyFlowsScheduler</tt><big>(</big><em>weeks=0</em>, <em>days=0</em>, <em>hours=0</em>, <em>minutes=0</em>, <em>seconds=0</em>, <em>start_date=None</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">PyFlowsScheduler</tt><big>(</big><em>weeks=0</em>, <em>days=0</em>, <em>hours=0</em>, <em>minutes=0</em>, <em>seconds=0</em>, <em>start_date=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyFlowsScheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>This object schedules the submission of the tasks in an <cite>AbinitFlow</cite>.</p>
 <dl class="docutils">
@@ -2223,13 +2216,13 @@ given status (use the string representation of the status as key).</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.launcher.PyFlowsScheduler.add_flow">
-<tt class="descname">add_flow</tt><big>(</big><em>flow</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.add_flow" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_flow</tt><big>(</big><em>flow</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyFlowsScheduler.add_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.add_flow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an <cite>AbinitFlow</cite> to the scheduler.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.launcher.PyFlowsScheduler.flows">
-<tt class="descname">flows</tt><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.flows" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">flows</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyFlowsScheduler.flows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.flows" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of <cite>AbinitFlows</cite>.</p>
 </dd></dl>
 
@@ -2253,25 +2246,25 @@ directory of abipy.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid">
-<tt class="descname">pid</tt><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pid</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyFlowsScheduler.pid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pid of the process</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid_files">
-<tt class="descname">pid_files</tt><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid_files" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pid_files</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyFlowsScheduler.pid_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.pid_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of files with the pid. The files are located in the workdir of the flows</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.launcher.PyFlowsScheduler.shutdown">
-<tt class="descname">shutdown</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.shutdown" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">shutdown</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyFlowsScheduler.shutdown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.shutdown" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shutdown the scheduler.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.launcher.PyFlowsScheduler.start">
-<tt class="descname">start</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.start" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">start</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/launcher.html#PyFlowsScheduler.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.launcher.PyFlowsScheduler.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Starts the scheduler in a new thread.
 In standalone mode, this method will block until there are no more scheduled jobs.</p>
 </dd></dl>
@@ -2468,12 +2461,10 @@ implemented by the concrete pseudopotential classes.</p>
 <dt id="pymatgen.io.abinitio.pseudos.Pseudo.aspseudo">
 <em class="property">classmethod </em><tt class="descname">aspseudo</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/pseudos.html#Pseudo.aspseudo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.Pseudo.aspseudo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert obj into a pseudo. Accepts:</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li>Pseudo object.</li>
 <li>string defining a valid path.</li>
 </ul>
-</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -2496,7 +2487,7 @@ None if self does not have info on the deltafactor.</p>
 
 <dl class="staticmethod">
 <dt id="pymatgen.io.abinitio.pseudos.Pseudo.from_file">
-<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.Pseudo.from_file" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><tt class="descname">from_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/pseudos.html#Pseudo.from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.Pseudo.from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a pseudopotential object from filename.
 Note: the parser knows the concrete class that should be instanciated</p>
 </dd></dl>
@@ -2676,7 +2667,7 @@ Return an empty list if no pseudo is avaiable</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.pseudos.PseudoTable.select">
-<tt class="descname">select</tt><big>(</big><em>condition</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.PseudoTable.select" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">select</tt><big>(</big><em>condition</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/pseudos.html#PseudoTable.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.PseudoTable.select" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select only those pseudopotentials for which condition is True.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -2690,13 +2681,13 @@ Return an empty list if no pseudo is avaiable</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.pseudos.PseudoTable.sorted">
-<tt class="descname">sorted</tt><big>(</big><em>attrname</em>, <em>reverse=False</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.PseudoTable.sorted" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">sorted</tt><big>(</big><em>attrname</em>, <em>reverse=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/pseudos.html#PseudoTable.sorted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.PseudoTable.sorted" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sort the table according to the value of attribute attrname.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.pseudos.PseudoTable.with_dojo_report">
-<tt class="descname">with_dojo_report</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.PseudoTable.with_dojo_report" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">with_dojo_report</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/pseudos.html#PseudoTable.with_dojo_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.pseudos.PseudoTable.with_dojo_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select pseudos containing the DOJO_REPORT section.</p>
 </dd></dl>
 
@@ -2751,11 +2742,11 @@ different syntax and options supported by the different mpirunners.</p>
 <p>Strategy objects for creating ABINIT calculations.</p>
 <dl class="class">
 <dt id="pymatgen.io.abinitio.strategies.AnaddbInput">
-<em class="property">class </em><tt class="descname">AnaddbInput</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">AnaddbInput</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#AnaddbInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.AnaddbInput.add_extra_abivars">
-<tt class="descname">add_extra_abivars</tt><big>(</big><em>abivars</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.add_extra_abivars" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_extra_abivars</tt><big>(</big><em>abivars</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#AnaddbInput.add_extra_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.add_extra_abivars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connection is explicit via the input file
 since we can pass the paths of the output files 
 produced by the previous runs.</p>
@@ -2763,17 +2754,17 @@ produced by the previous runs.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.AnaddbInput.make_input">
-<tt class="descname">make_input</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.make_input" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">make_input</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#AnaddbInput.make_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.make_input" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.strategies.AnaddbInput.structure">
-<tt class="descname">structure</tt><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.structure" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">structure</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#AnaddbInput.structure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.structure" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.AnaddbInput.to_string">
-<tt class="descname">to_string</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.to_string" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">to_string</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#AnaddbInput.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.AnaddbInput.to_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2893,7 +2884,7 @@ model dielectric function and the scissors operator</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinitio.strategies.OpticInput">
-<em class="property">class </em><tt class="descname">OpticInput</tt><big>(</big><em>string</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">OpticInput</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#OpticInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>abo_1WF7      ! Name of the first d/dk response wavefunction file, produced by abinit
 abo_1WF8      ! Name of the second d/dk response wavefunction file, produced by abinit
@@ -2909,7 +2900,7 @@ abo_WFK       ! Name of the ground-state wavefunction file, produced by abinit
 123 222       ! Non-linear coefficients to be computed</p>
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.OpticInput.add_extra_abivars">
-<tt class="descname">add_extra_abivars</tt><big>(</big><em>abivars</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput.add_extra_abivars" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_extra_abivars</tt><big>(</big><em>abivars</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#OpticInput.add_extra_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput.add_extra_abivars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Connection is explicit via the input file
 since we can pass the paths of the output files 
 produced by the previous runs.</p>
@@ -2917,12 +2908,12 @@ produced by the previous runs.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.OpticInput.make_input">
-<tt class="descname">make_input</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput.make_input" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">make_input</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#OpticInput.make_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput.make_input" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.OpticInput.to_string">
-<tt class="descname">to_string</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput.to_string" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">to_string</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#OpticInput.to_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticInput.to_string" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -2934,7 +2925,7 @@ produced by the previous runs.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinitio.strategies.OpticVar">
-<em class="property">class </em><tt class="descname">OpticVar</tt><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticVar" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">OpticVar</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#OpticVar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.OpticVar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.abinitio.strategies.OpticVar" title="pymatgen.io.abinitio.strategies.OpticVar"><tt class="xref py py-class docutils literal"><span class="pre">pymatgen.io.abinitio.strategies.OpticVar</span></tt></a></p>
 </dd></dl>
 
@@ -3122,7 +3113,7 @@ such as tolerances, basis set truncation ...</dd>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.Strategy.copy">
-<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.Strategy.copy" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#Strategy.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.Strategy.copy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Shallow copy of self.</p>
 </dd></dl>
 
@@ -3134,7 +3125,7 @@ such as tolerances, basis set truncation ...</dd>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.Strategy.deepcopy">
-<tt class="descname">deepcopy</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.Strategy.deepcopy" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">deepcopy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#Strategy.deepcopy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.Strategy.deepcopy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deep copy of self.</p>
 </dd></dl>
 
@@ -3194,7 +3185,7 @@ such as tolerances, basis set truncation ...</dd>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.Strategy.remove_extra_abivars">
-<tt class="descname">remove_extra_abivars</tt><big>(</big><em>keys</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.Strategy.remove_extra_abivars" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">remove_extra_abivars</tt><big>(</big><em>keys</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#Strategy.remove_extra_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.Strategy.remove_extra_abivars" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -3219,27 +3210,27 @@ such as tolerances, basis set truncation ...</dd>
 
 <dl class="class">
 <dt id="pymatgen.io.abinitio.strategies.StrategyWithInput">
-<em class="property">class </em><tt class="descname">StrategyWithInput</tt><big>(</big><em>abinit_input</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">StrategyWithInput</tt><big>(</big><em>abinit_input</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#StrategyWithInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.StrategyWithInput.add_extra_abivars">
-<tt class="descname">add_extra_abivars</tt><big>(</big><em>abivars</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.add_extra_abivars" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_extra_abivars</tt><big>(</big><em>abivars</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#StrategyWithInput.add_extra_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.add_extra_abivars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add variables (dict) to extra_abivars.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.StrategyWithInput.make_input">
-<tt class="descname">make_input</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.make_input" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">make_input</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#StrategyWithInput.make_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.make_input" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.strategies.StrategyWithInput.pseudos">
-<tt class="descname">pseudos</tt><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.pseudos" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">pseudos</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#StrategyWithInput.pseudos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.pseudos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.strategies.StrategyWithInput.remove_extra_abivars">
-<tt class="descname">remove_extra_abivars</tt><big>(</big><em>keys</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.remove_extra_abivars" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">remove_extra_abivars</tt><big>(</big><em>keys</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#StrategyWithInput.remove_extra_abivars"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.StrategyWithInput.remove_extra_abivars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove variables from extra_abivars.</p>
 </dd></dl>
 
@@ -3247,7 +3238,7 @@ such as tolerances, basis set truncation ...</dd>
 
 <dl class="function">
 <dt id="pymatgen.io.abinitio.strategies.order_pseudos">
-<tt class="descname">order_pseudos</tt><big>(</big><em>pseudos</em>, <em>structure</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.strategies.order_pseudos" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">order_pseudos</tt><big>(</big><em>pseudos</em>, <em>structure</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/strategies.html#order_pseudos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.strategies.order_pseudos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -3369,7 +3360,7 @@ Assume the shell environment has been already initialized.</p>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.tasks.TaskManager.set_mem_per_cpu">
-<tt class="descname">set_mem_per_cpu</tt><big>(</big><em>mem_mb</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/tasks.html#TaskManager.set_mem_per_cpu"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.tasks.TaskManager.set_mem_per_cpu" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">set_mem_per_cpu</tt><big>(</big><em>mem_mb</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.tasks.TaskManager.set_mem_per_cpu" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the memory (in Megabytes) per CPU.</p>
 </dd></dl>
 
@@ -3843,7 +3834,7 @@ hence we don&#8217;t need to create symbolic links.</p>
 <p>Tools and helper functions for abinit calculations</p>
 <dl class="class">
 <dt id="pymatgen.io.abinitio.utils.Condition">
-<em class="property">class </em><tt class="descname">Condition</tt><big>(</big><em>cmap</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Condition" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Condition</tt><big>(</big><em>cmap</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Condition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>This object receive a dictionary that defines a boolean condition whose syntax is similar
 to the one used in mongodb (albeit not all the operators available in mongodb are supported here).</p>
@@ -3861,32 +3852,32 @@ Consider the following example:</p>
 db.inventory.find({ $and: [ { price: 1.99 }, { qty: { $lt: 20 } }, { sale: true } ] } )</p>
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.Condition.apply">
-<tt class="descname">apply</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Condition.apply" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">apply</tt><big>(</big><em>obj</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Condition.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Condition.apply" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.io.abinitio.utils.Directory">
-<em class="property">class </em><tt class="descname">Directory</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Directory</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>Very simple class that provides helper functions
 wrapping the most commonly used functions defined in os.path.</p>
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.utils.Directory.basename">
-<tt class="descname">basename</tt><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.basename" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">basename</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.basename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.basename" title="Permalink to this definition">¶</a></dt>
 <dd><p>Directory basename.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.utils.Directory.exists">
-<tt class="descname">exists</tt><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.exists" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">exists</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.exists" title="Permalink to this definition">¶</a></dt>
 <dd><p>True if file exists.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.Directory.has_abiext">
-<tt class="descname">has_abiext</tt><big>(</big><em>ext</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.has_abiext" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">has_abiext</tt><big>(</big><em>ext</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.has_abiext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.has_abiext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the absolute path of the ABINIT file with extension ext.
 Support both Fortran files and netcdf files. In the later case,
 we check whether a file with extension ext + &#8221;.nc&#8221; is present 
@@ -3900,13 +3891,13 @@ This implies that this method is not compatible with multiple datasets.</dd>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.Directory.list_filepaths">
-<tt class="descname">list_filepaths</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.list_filepaths" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">list_filepaths</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.list_filepaths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.list_filepaths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the list of absolute filepaths in the top-level directory.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.Directory.makedirs">
-<tt class="descname">makedirs</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.makedirs" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">makedirs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.makedirs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Super-mkdir; create a leaf directory and all intermediate ones.
 Works like mkdir, except that any intermediate path segment (not
 just the rightmost) will be created if it does not exist.</p>
@@ -3914,26 +3905,26 @@ just the rightmost) will be created if it does not exist.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.utils.Directory.path">
-<tt class="descname">path</tt><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.path" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">path</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Absolute path of the directory.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.Directory.path_in">
-<tt class="descname">path_in</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.path_in" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">path_in</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.path_in"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.path_in" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the absolute path of filename in the directory.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.Directory.path_join">
-<tt class="descname">path_join</tt><big>(</big><em>*p</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.path_join" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">path_join</tt><big>(</big><em>*p</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.path_join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.path_join" title="Permalink to this definition">¶</a></dt>
 <dd><p>Join two or more pathname components, inserting &#8216;/&#8217; as needed.
 If any component is an absolute path, all previous path components will be discarded.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.Directory.rmtree">
-<tt class="descname">rmtree</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.rmtree" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">rmtree</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#Directory.rmtree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.Directory.rmtree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recursively delete the directory tree</p>
 </dd></dl>
 
@@ -3977,7 +3968,7 @@ Provides wrappers for the most commonly used functions defined in os.path.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.io.abinitio.utils.File.path">
-<tt class="descname">path</tt><a class="headerlink" href="#pymatgen.io.abinitio.utils.File.path" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">path</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#File.path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.File.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Absolute path of the file.</p>
 </dd></dl>
 
@@ -4009,7 +4000,7 @@ Provides wrappers for the most commonly used functions defined in os.path.</p>
 
 <dl class="class">
 <dt id="pymatgen.io.abinitio.utils.FilepathFixer">
-<em class="property">class </em><tt class="descname">FilepathFixer</tt><a class="headerlink" href="#pymatgen.io.abinitio.utils.FilepathFixer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">FilepathFixer</tt><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#FilepathFixer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.FilepathFixer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>This object modifies the names of particular output files
 produced by ABINIT so that the file extension is preserved.
@@ -4040,7 +4031,7 @@ to the initial extension and therefore we have to call
 </div>
 <dl class="method">
 <dt id="pymatgen.io.abinitio.utils.FilepathFixer.fix_paths">
-<tt class="descname">fix_paths</tt><big>(</big><em>paths</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.FilepathFixer.fix_paths" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">fix_paths</tt><big>(</big><em>paths</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#FilepathFixer.fix_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.FilepathFixer.fix_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fix the filenames in the iterable paths</p>
 <dl class="docutils">
 <dt>Returns:</dt>
@@ -4056,13 +4047,13 @@ to the initial extension and therefore we have to call
 
 <dl class="function">
 <dt id="pymatgen.io.abinitio.utils.abi_extensions">
-<tt class="descname">abi_extensions</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.abi_extensions" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">abi_extensions</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#abi_extensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.abi_extensions" title="Permalink to this definition">¶</a></dt>
 <dd><p>List with all the ABINIT extensions that are registered.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.abinitio.utils.abi_splitext">
-<tt class="descname">abi_splitext</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.abi_splitext" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">abi_splitext</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#abi_splitext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.abi_splitext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split the ABINIT extension from a filename.
 &#8220;Extension&#8221; are found by searching in an internal database.</p>
 <p>Returns &#8220;(root, ext)&#8221; where ext is the registered ABINIT extension 
@@ -4079,7 +4070,7 @@ The final &#8221;.nc&#8221; is included (if any)</p>
 
 <dl class="function">
 <dt id="pymatgen.io.abinitio.utils.evaluate_rpn">
-<tt class="descname">evaluate_rpn</tt><big>(</big><em>rpn</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.evaluate_rpn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">evaluate_rpn</tt><big>(</big><em>rpn</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#evaluate_rpn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.evaluate_rpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluates the RPN form produced my map2rpn.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
@@ -4089,14 +4080,14 @@ The final &#8221;.nc&#8221; is included (if any)</p>
 
 <dl class="function">
 <dt id="pymatgen.io.abinitio.utils.irdvars_for_ext">
-<tt class="descname">irdvars_for_ext</tt><big>(</big><em>ext</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.irdvars_for_ext" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">irdvars_for_ext</tt><big>(</big><em>ext</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#irdvars_for_ext"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.irdvars_for_ext" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with the ABINIT variables 
 that must be used to read the file with extension ext.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="pymatgen.io.abinitio.utils.map2rpn">
-<tt class="descname">map2rpn</tt><big>(</big><em>map</em>, <em>obj</em><big>)</big><a class="headerlink" href="#pymatgen.io.abinitio.utils.map2rpn" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">map2rpn</tt><big>(</big><em>map</em>, <em>obj</em><big>)</big><a class="reference internal" href="_modules/pymatgen/io/abinitio/utils.html#map2rpn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.io.abinitio.utils.map2rpn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a Mongodb-like dictionary to a RPN list of operands and operators.</p>
 <p>Reverse Polish notation (RPN) is a mathematical notation in which every 
 operator follows all of its operands, e.g.</p>
@@ -4811,7 +4802,7 @@ the final DDB file in the outdir of the <cite>Workflow</cite>.</p>
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

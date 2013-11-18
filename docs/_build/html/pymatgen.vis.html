@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +14,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '2.8.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -65,7 +66,7 @@ Structure viewer.</p>
 <dl class="class">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle">
 <em class="property">class </em><tt class="descname">StructureInteractorStyle</tt><big>(</big><em>parent</em><big>)</big><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureInteractorStyle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureInteractorStyle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">vtkRenderingPython.vtkInteractorStyleTrackballCamera</span></tt></p>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">vtkInteractionStylePython.vtkInteractorStyleTrackballCamera</span></tt></p>
 <p>A custom interactor style for visualizing structures.</p>
 <dl class="staticmethod">
 <dt id="pymatgen.vis.structure_vtk.StructureInteractorStyle.keyPressEvent">
@@ -161,12 +162,12 @@ clock/anticlockwise</dd>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_edges">
-<tt class="descname">add_edges</tt><big>(</big><em>edges, type='line', linewidth=2, color=[0.0, 0.0, 0.0]</em><big>)</big><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_edges" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_edges</tt><big>(</big><em>edges, type='line', linewidth=2, color=[0.0, 0.0, 0.0]</em><big>)</big><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_edges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_edges" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_faces">
-<tt class="descname">add_faces</tt><big>(</big><em>faces</em>, <em>color</em>, <em>opacity=0.35</em><big>)</big><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_faces" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_faces</tt><big>(</big><em>faces</em>, <em>color</em>, <em>opacity=0.35</em><big>)</big><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_faces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_faces" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -262,7 +263,7 @@ still shows the partial occupancy.</p>
 
 <dl class="method">
 <dt id="pymatgen.vis.structure_vtk.StructureVis.add_triangle">
-<tt class="descname">add_triangle</tt><big>(</big><em>neighbors, color, center=None, opacity=0.4, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><big>)</big><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_triangle" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_triangle</tt><big>(</big><em>neighbors, color, center=None, opacity=0.4, draw_edges=False, edges_color=[0.0, 0.0, 0.0], edges_linewidth=2</em><big>)</big><a class="reference internal" href="_modules/pymatgen/vis/structure_vtk.html#StructureVis.add_triangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.vis.structure_vtk.StructureVis.add_triangle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a triangular surface between three atoms.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -456,7 +457,7 @@ on the structure.</dd>
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

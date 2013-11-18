@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -72,20 +73,23 @@
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Development&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Nov 1, 2012&quot;</span>
 
-<span class="n">PREFAC</span> <span class="o">=</span> <span class="mf">0.0591</span>
-<span class="n">MU_H2O</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.4583</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">pyhull.convex_hull</span> <span class="kn">import</span> <span class="n">ConvexHull</span>
 <span class="kn">from</span> <span class="nn">pymatgen.analysis.pourbaix.entry</span> <span class="kn">import</span> <span class="n">MultiEntry</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core</span> <span class="kn">import</span> <span class="n">Composition</span>
 <span class="kn">from</span> <span class="nn">pymatgen.core.ion</span> <span class="kn">import</span> <span class="n">Ion</span>
 
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">PREFAC</span> <span class="o">=</span> <span class="mf">0.0591</span>
+<span class="n">MU_H2O</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.4583</span>
 
 
 <div class="viewcode-block" id="PourbaixDiagram"><a class="viewcode-back" href="../../../../pymatgen.analysis.pourbaix.html#pymatgen.analysis.pourbaix.maker.PourbaixDiagram">[docs]</a><span class="k">class</span> <span class="nc">PourbaixDiagram</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -98,7 +102,7 @@
 <span class="sd">            entries:</span>
 <span class="sd">                Entries list containing both Solids and Ions</span>
 <span class="sd">            comp_dict:</span>
-<span class="sd">                Dictionary of compositions </span>
+<span class="sd">                Dictionary of compositions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ion_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -176,29 +180,30 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">)</span>  <span class="c"># No. of elements</span>
         <span class="n">entries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unprocessed_entries</span>
-        <span class="n">elt_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="n">composition_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elt_list</span><span class="p">]</span>
+        <span class="n">el_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">comp_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">el_list</span><span class="p">]</span>
         <span class="n">list_of_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span>
             <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">))],</span> <span class="n">N</span><span class="p">))</span>
         <span class="n">processed_entries</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_entry_components_list</span> <span class="o">=</span> <span class="n">list_of_entries</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_entry_components_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">entry_list</span> <span class="ow">in</span> <span class="n">list_of_entries</span><span class="p">:</span>
-            <span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">elt_list</span><span class="p">))]</span>
-                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">))]</span>
+            <span class="c"># Check if all elements in composition list are present in entry_list</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">el_list</span><span class="p">])</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">([</span><span class="n">entries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">entry_list</span><span class="p">]))))):</span>
+                <span class="k">continue</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">el_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
             <span class="n">multi_entries</span> <span class="o">=</span> <span class="p">[</span><span class="n">entries</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">entry_list</span><span class="p">]</span>
-            <span class="n">sum_nel</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="n">entry0</span> <span class="o">=</span> <span class="n">entries</span><span class="p">[</span><span class="n">entry_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">comp0</span> <span class="o">=</span> <span class="n">entry0</span><span class="o">.</span><span class="n">composition</span>
             <span class="k">if</span> <span class="n">entry0</span><span class="o">.</span><span class="n">phase_type</span> <span class="o">==</span> <span class="s">&quot;Solid&quot;</span><span class="p">:</span>
-                <span class="n">red_fac</span> <span class="o">=</span> \
-                    <span class="n">entry0</span><span class="o">.</span><span class="n">composition</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">red_fac</span> <span class="o">=</span> <span class="n">comp0</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">red_fac</span> <span class="o">=</span> <span class="mf">1.0</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elt_list</span><span class="p">)):</span>
-                <span class="n">sum_nel</span> <span class="o">+=</span> <span class="n">entry0</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">elt_list</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span> <span class="o">/</span> <span class="n">red_fac</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">entry0</span><span class="o">.</span><span class="n">composition</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">elt_list</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span> <span class="o">/</span> <span class="n">red_fac</span> <span class="o">-</span>
-                 <span class="n">composition_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">sum_nel</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span>
-                                                               <span class="nb">len</span><span class="p">(</span><span class="n">elt_list</span><span class="p">))]</span>
+            <span class="n">sum_nel</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">comp0</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">red_fac</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">el_list</span><span class="p">])</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">comp0</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el_list</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span> <span class="o">/</span> <span class="n">red_fac</span> <span class="o">-</span> <span class="n">comp_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">sum_nel</span>
+                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">el_list</span><span class="p">))]</span>
             <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry_list</span><span class="p">)):</span>
                 <span class="n">entry</span> <span class="o">=</span> <span class="n">entries</span><span class="p">[</span><span class="n">entry_list</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
                 <span class="n">comp</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">composition</span>
@@ -206,12 +211,10 @@
                     <span class="n">red_fac</span> <span class="o">=</span> <span class="n">comp</span><span class="o">.</span><span class="n">get_reduced_composition_and_factor</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">red_fac</span> <span class="o">=</span> <span class="mf">1.0</span>
-                <span class="n">sum_nel</span> <span class="o">=</span> <span class="mf">0.0</span>
-                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elt_comp</span><span class="p">:</span>
-                    <span class="n">sum_nel</span> <span class="o">+=</span> <span class="n">comp</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)]</span> <span class="o">/</span> <span class="n">red_fac</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">elt_list</span><span class="p">)):</span>
-                    <span class="n">el</span> <span class="o">=</span> <span class="n">elt_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                    <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">composition_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">sum_nel</span> <span class="o">-</span>\
+                <span class="n">sum_nel</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">comp</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">/</span> <span class="n">red_fac</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">el_list</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">el_list</span><span class="p">)):</span>
+                    <span class="n">el</span> <span class="o">=</span> <span class="n">el_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">sum_nel</span> <span class="o">-</span>\
                         <span class="n">comp</span><span class="p">[</span><span class="n">Element</span><span class="p">(</span><span class="n">el</span><span class="p">)]</span> <span class="o">/</span> <span class="n">red_fac</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
@@ -227,8 +230,6 @@
             <span class="n">super_entry</span> <span class="o">=</span> <span class="n">MultiEntry</span><span class="p">(</span><span class="n">multi_entries</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_entry_components_dict</span><span class="p">[</span><span class="n">super_entry</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry_list</span>
             <span class="n">processed_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">super_entry</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_entry_components_dict</span><span class="p">[</span><span class="n">super_entry</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry_list</span>
-        <span class="n">processed_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">super_entry</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">processed_entries</span>
 
     <span class="k">def</span> <span class="nf">_make_pourbaixdiagram</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -398,7 +399,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

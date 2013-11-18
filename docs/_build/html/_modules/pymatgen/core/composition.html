@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -67,7 +68,7 @@
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2011, The Materials Project&quot;</span>
 <span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Shyue Ping Ong&quot;</span>
-<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyue@mit.edu&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;shyuep@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;Nov 10, 2012&quot;</span>
 
@@ -79,6 +80,7 @@
 <span class="kn">from</span> <span class="nn">pymatgen.core.periodic_table</span> <span class="kn">import</span> <span class="n">smart_element_or_specie</span><span class="p">,</span> <span class="n">Element</span>
 <span class="kn">from</span> <span class="nn">pymatgen.util.string_utils</span> <span class="kn">import</span> <span class="n">formula_double_format</span>
 <span class="kn">from</span> <span class="nn">pymatgen.serializers.json_coders</span> <span class="kn">import</span> <span class="n">MSONable</span>
+<span class="kn">from</span> <span class="nn">pymatgen.core.units</span> <span class="kn">import</span> <span class="n">unitized</span>
 
 
 <div class="viewcode-block" id="Composition"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.composition.Composition">[docs]</a><span class="k">class</span> <span class="nc">Composition</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">MSONable</span><span class="p">):</span>
@@ -159,9 +161,12 @@
             <span class="n">elmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_formula</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">elmap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">e</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elmap</span><span class="o">.</span><span class="n">values</span><span class="p">()]):</span>
-            <span class="k">raise</span> <span class="n">CompositionError</span><span class="p">(</span><span class="s">&quot;Amounts in Composition cannot be &quot;</span>
-                                   <span class="s">&quot;negative!&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">elmap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">Composition</span><span class="o">.</span><span class="n">amount_tolerance</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">CompositionError</span><span class="p">(</span><span class="s">&quot;Amounts in Composition cannot be &quot;</span>
+                                       <span class="s">&quot;negative!&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">elmap</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_elmap</span> <span class="o">=</span> <span class="p">{</span><span class="n">smart_element_or_specie</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">elmap</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elmap</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
@@ -413,6 +418,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_natoms</span>
 </div>
     <span class="nd">@property</span>
+    <span class="nd">@unitized</span><span class="p">(</span><span class="s">&quot;amu&quot;</span><span class="p">)</span>
 <div class="viewcode-block" id="Composition.weight"><a class="viewcode-back" href="../../../pymatgen.core.html#pymatgen.core.composition.Composition.weight">[docs]</a>    <span class="k">def</span> <span class="nf">weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Total molecular weight of Composition</span>
@@ -872,7 +878,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

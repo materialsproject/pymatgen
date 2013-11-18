@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -13,7 +14,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
+        URL_ROOT:    '',
         VERSION:     '2.8.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -285,9 +286,8 @@ for easier introspection.</p>
 <dl class="staticmethod">
 <dt id="pymatgen.core.composition.Composition.from_formula">
 <em class="property">static </em><tt class="descname">from_formula</tt><big>(</big><em>formula</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.from_formula"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.from_formula" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span>Deprecated since version 1.6.1.</span></p>
-</div>
+<dd><p class="deprecated">
+<span class="versionmodified">Deprecated since version 1.6.1.</span></p>
 <p>Use Composition(formula) instead.</p>
 </dd></dl>
 
@@ -309,11 +309,9 @@ for easier introspection.</p>
 <dl class="method">
 <dt id="pymatgen.core.composition.Composition.get_el_amt_dict">
 <tt class="descname">get_el_amt_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/core/composition.html#Composition.get_el_amt_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.composition.Composition.get_el_amt_dict" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Returns:</dt>
-<dd>Dict with element symbol and (unreduced) amount e.g.,
-{&#8220;Fe&#8221;: 4.0, &#8220;O&#8221;:6.0} or {&#8220;Fe3+&#8221;: 4.0, &#8220;O2-&#8221;:6.0}</dd>
-</dl>
+<dd><p>Returns:
+Dict with element symbol and (unreduced) amount e.g.,
+{&#8220;Fe&#8221;: 4.0, &#8220;O&#8221;:6.0} or {&#8220;Fe3+&#8221;: 4.0, &#8220;O2-&#8221;:6.0}</p>
 </dd></dl>
 
 <dl class="method">
@@ -490,7 +488,7 @@ reduced_cell_formula, elements and nelements.</dd>
 obj[&#8216;foo&#8217;]&#8221;</p>
 <dl class="method">
 <dt id="pymatgen.core.design_patterns.AttrDict.copy">
-<tt class="descname">copy</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.core.design_patterns.AttrDict.copy" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/core/design_patterns.html#AttrDict.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.design_patterns.AttrDict.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -504,31 +502,31 @@ obj[&#8216;foo&#8217;]&#8221;</p>
 
 <dl class="class">
 <dt id="pymatgen.core.design_patterns.FrozenDict">
-<em class="property">class </em><tt class="descname">FrozenDict</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pymatgen.core.design_patterns.FrozenDict" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">FrozenDict</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/design_patterns.html#FrozenDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.design_patterns.FrozenDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></p>
 <p>A dictionary that does not permit to redefine its keys.</p>
 <dl class="method">
 <dt id="pymatgen.core.design_patterns.FrozenDict.update">
-<tt class="descname">update</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#pymatgen.core.design_patterns.FrozenDict.update" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">update</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/design_patterns.html#FrozenDict.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.design_patterns.FrozenDict.update" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.core.design_patterns.NullFile">
-<em class="property">class </em><tt class="descname">NullFile</tt><a class="headerlink" href="#pymatgen.core.design_patterns.NullFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">NullFile</tt><a class="reference internal" href="_modules/pymatgen/core/design_patterns.html#NullFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.design_patterns.NullFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A file object that is associated to /dev/null.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="pymatgen.core.design_patterns.NullStream">
-<em class="property">class </em><tt class="descname">NullStream</tt><a class="headerlink" href="#pymatgen.core.design_patterns.NullStream" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">NullStream</tt><a class="reference internal" href="_modules/pymatgen/core/design_patterns.html#NullStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.design_patterns.NullStream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
 <p>A fake stream with a no-op write..</p>
 <dl class="method">
 <dt id="pymatgen.core.design_patterns.NullStream.write">
-<tt class="descname">write</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pymatgen.core.design_patterns.NullStream.write" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">write</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/design_patterns.html#NullStream.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.design_patterns.NullStream.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>no-op</p>
 </dd></dl>
 
@@ -723,7 +721,7 @@ lattice vectors [10,0,0], [20,10,0] and [0,0,30].</p>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.dot">
-<tt class="descname">dot</tt><big>(</big><em>coords_a</em>, <em>coords_b</em>, <em>frac_coords=False</em><big>)</big><a class="headerlink" href="#pymatgen.core.lattice.Lattice.dot" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">dot</tt><big>(</big><em>coords_a</em>, <em>coords_b</em>, <em>frac_coords=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.dot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the scalar product of vector(s).</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -998,7 +996,7 @@ lattice vectors b and c.</dd>
 
 <dl class="method">
 <dt id="pymatgen.core.lattice.Lattice.norm">
-<tt class="descname">norm</tt><big>(</big><em>coords</em>, <em>frac_coords=True</em><big>)</big><a class="headerlink" href="#pymatgen.core.lattice.Lattice.norm" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">norm</tt><big>(</big><em>coords</em>, <em>frac_coords=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/lattice.html#Lattice.norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.lattice.Lattice.norm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the norm of vector(s).</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -1235,9 +1233,8 @@ vector.</p>
 <dl class="staticmethod">
 <dt id="pymatgen.core.operations.SymmOp.from_rotation_matrix_and_translation_vector">
 <em class="property">static </em><tt class="descname">from_rotation_matrix_and_translation_vector</tt><big>(</big><em>rotation_matrix=((1</em>, <em>0</em>, <em>0)</em>, <em>(0</em>, <em>1</em>, <em>0)</em>, <em>(0</em>, <em>0</em>, <em>1))</em>, <em>translation_vec=(0</em>, <em>0</em>, <em>0)</em>, <em>tol=0.1</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/operations.html#SymmOp.from_rotation_matrix_and_translation_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.operations.SymmOp.from_rotation_matrix_and_translation_vector" title="Permalink to this definition">¶</a></dt>
-<dd><div class="deprecated">
-<p><span>Deprecated since version 2.2.1: </span>Use <a class="reference internal" href="#pymatgen.core.operations.SymmOp.from_rotation_and_translation" title="pymatgen.core.operations.SymmOp.from_rotation_and_translation"><tt class="xref py py-func docutils literal"><span class="pre">from_rotation_and_translation()</span></tt></a> instead.</p>
-</div>
+<dd><p class="deprecated">
+<span class="versionmodified">Deprecated since version 2.2.1: </span>Use <a class="reference internal" href="#pymatgen.core.operations.SymmOp.from_rotation_and_translation" title="pymatgen.core.operations.SymmOp.from_rotation_and_translation"><tt class="xref py py-func docutils literal"><span class="pre">from_rotation_and_translation()</span></tt></a> instead.</p>
 <p>Creates a symmetry operation from a rotation matrix and a translation
 vector.</p>
 <dl class="docutils">
@@ -1738,9 +1735,8 @@ assigned to Site objects, and not Specie.</p>
 <dd><p>Ionic radius of Specie (with specific oxidation state).</p>
 </dd></dl>
 
-<div class="versionchanged">
-<p><span>Changed in version 2.6.7: </span>Properties are now checked when comparing two Species for equality.</p>
-</div>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 2.6.7.</span></p>
 </dd></dl>
 
 <dl class="function">
@@ -2543,11 +2539,11 @@ optionally sanitized.</dd>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.dot">
-<tt class="descname">dot</tt><big>(</big><em>coords_a</em>, <em>coords_b</em>, <em>space='r'</em>, <em>frac_coords=False</em><big>)</big><a class="headerlink" href="#pymatgen.core.structure.IStructure.dot" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><p>Compute the scalar producr of vector(s) either in real space or
-reciprocal space.</p>
-<dl class="docutils">
+<tt class="descname">dot</tt><big>(</big><em>coords_a</em>, <em>coords_b</em>, <em>space='r'</em>, <em>frac_coords=False</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.dot" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Compute the scalar producr of vector(s) either in real space or</dt>
+<dd><p class="first">reciprocal space.</p>
+<dl class="last docutils">
 <dt>Args:</dt>
 <dd><dl class="first last docutils">
 <dt>coords:</dt>
@@ -2560,8 +2556,7 @@ cartesian coordinates.</dd>
 </dl>
 </dd>
 </dl>
-</div></blockquote>
-<dl class="docutils">
+</dd>
 <dt>Returns:</dt>
 <dd>one-dimensional <cite>numpy</cite> array.</dd>
 </dl>
@@ -2854,7 +2849,7 @@ vectors.</dd>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.IStructure.norm">
-<tt class="descname">norm</tt><big>(</big><em>coords</em>, <em>space='r'</em>, <em>frac_coords=True</em><big>)</big><a class="headerlink" href="#pymatgen.core.structure.IStructure.norm" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">norm</tt><big>(</big><em>coords</em>, <em>space='r'</em>, <em>frac_coords=True</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/structure.html#IStructure.norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.IStructure.norm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the norm of vector(s) either in real space or reciprocal space.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -3708,7 +3703,7 @@ have .375 Ge and .125 C.</dd>
 
 <dl class="method">
 <dt id="pymatgen.core.structure.Structure.scale_lattice">
-<tt class="descname">scale_lattice</tt><big>(</big><em>volume</em><big>)</big><a class="headerlink" href="#pymatgen.core.structure.Structure.scale_lattice" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">scale_lattice</tt><big>(</big><em>volume</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/structure.html#Structure.scale_lattice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.structure.Structure.scale_lattice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a scaling of the lattice vectors so that length proportions
 and angles are preserved.</p>
 <dl class="docutils">
@@ -3788,7 +3783,7 @@ units are detected. An ArrayWithUnit is also implemented, which is a subclass
 of numpy&#8217;s ndarray with similar unit features.</p>
 <dl class="class">
 <dt id="pymatgen.core.units.ArrayWithUnit">
-<em class="property">class </em><tt class="descname">ArrayWithUnit</tt><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">ArrayWithUnit</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></p>
 <p>Subclasses <cite>numpy.ndarray</cite> to attach a unit type. Typically, you should
 use the pre-defined unit type subclasses such as EnergyArray,
@@ -3813,20 +3808,20 @@ leftmost quantity).</p>
 
 <dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.conversions">
-<tt class="descname">conversions</tt><big>(</big><big>)</big><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.conversions" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">conversions</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.conversions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.conversions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a string showing the available conversions.
 Useful tool in interactive mode.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.units.ArrayWithUnit.supported_units">
-<tt class="descname">supported_units</tt><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">supported_units</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.supported_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Supported units for specific unit type.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.units.ArrayWithUnit.to">
-<tt class="descname">to</tt><big>(</big><em>new_unit</em><big>)</big><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.to" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">to</tt><big>(</big><em>new_unit</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conversion to a new_unit.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -3846,19 +3841,19 @@ array([ 27.21138386,  29.93252225]) eV</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.units.ArrayWithUnit.unit">
-<tt class="descname">unit</tt><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unit</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.units.ArrayWithUnit.unit_type">
-<tt class="descname">unit_type</tt><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unit_type</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#ArrayWithUnit.unit_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.ArrayWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Charge">
-<tt class="descname">Charge</tt><em class="property"> = &lt;functools.partial object at 0x104a094c8&gt;</em><a class="headerlink" href="#pymatgen.core.units.Charge" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Charge</tt><em class="property"> = &lt;functools.partial object at 0x1038209f0&gt;</em><a class="headerlink" href="#pymatgen.core.units.Charge" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a charge unit.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -3875,7 +3870,7 @@ is raised.</dd>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Energy">
-<tt class="descname">Energy</tt><em class="property"> = &lt;functools.partial object at 0x104a09158&gt;</em><a class="headerlink" href="#pymatgen.core.units.Energy" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Energy</tt><em class="property"> = &lt;functools.partial object at 0x103820680&gt;</em><a class="headerlink" href="#pymatgen.core.units.Energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with an energy unit.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -3891,7 +3886,7 @@ is raised.</dd>
 
 <dl class="class">
 <dt id="pymatgen.core.units.FloatWithUnit">
-<em class="property">class </em><tt class="descname">FloatWithUnit</tt><big>(</big><em>val</em>, <em>unit</em>, <em>unit_type=None</em><big>)</big><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">FloatWithUnit</tt><big>(</big><em>val</em>, <em>unit</em>, <em>unit_type=None</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">float</span></tt></p>
 <p>Subclasses float to attach a unit type. Typically, you should use the
 pre-defined unit type subclasses such as Energy, Length, etc. instead of
@@ -3920,13 +3915,13 @@ are expected.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.units.FloatWithUnit.supported_units">
-<tt class="descname">supported_units</tt><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">supported_units</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.supported_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.supported_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Supported units for specific unit type.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pymatgen.core.units.FloatWithUnit.to">
-<tt class="descname">to</tt><big>(</big><em>new_unit</em><big>)</big><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.to" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">to</tt><big>(</big><em>new_unit</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conversion to a new_unit. Right now, only supports 1 to 1 mapping of
 units of each type.</p>
 <dl class="docutils">
@@ -3948,19 +3943,19 @@ units of each type.</p>
 
 <dl class="attribute">
 <dt id="pymatgen.core.units.FloatWithUnit.unit">
-<tt class="descname">unit</tt><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unit</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="pymatgen.core.units.FloatWithUnit.unit_type">
-<tt class="descname">unit_type</tt><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unit_type</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#FloatWithUnit.unit_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.FloatWithUnit.unit_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Length">
-<tt class="descname">Length</tt><em class="property"> = &lt;functools.partial object at 0x104a09208&gt;</em><a class="headerlink" href="#pymatgen.core.units.Length" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Length</tt><em class="property"> = &lt;functools.partial object at 0x103820730&gt;</em><a class="headerlink" href="#pymatgen.core.units.Length" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a length unit.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -3977,7 +3972,7 @@ raised.</dd>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Mass">
-<tt class="descname">Mass</tt><em class="property"> = &lt;functools.partial object at 0x104a092b8&gt;</em><a class="headerlink" href="#pymatgen.core.units.Mass" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Mass</tt><em class="property"> = &lt;functools.partial object at 0x1038207e0&gt;</em><a class="headerlink" href="#pymatgen.core.units.Mass" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a mass unit.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -3994,7 +3989,7 @@ raised.</dd>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Temp">
-<tt class="descname">Temp</tt><em class="property"> = &lt;functools.partial object at 0x104a09368&gt;</em><a class="headerlink" href="#pymatgen.core.units.Temp" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Temp</tt><em class="property"> = &lt;functools.partial object at 0x103820890&gt;</em><a class="headerlink" href="#pymatgen.core.units.Temp" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a temperature unit.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -4010,7 +4005,7 @@ raised.</dd>
 
 <dl class="data">
 <dt id="pymatgen.core.units.Time">
-<tt class="descname">Time</tt><em class="property"> = &lt;functools.partial object at 0x104a09418&gt;</em><a class="headerlink" href="#pymatgen.core.units.Time" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">Time</tt><em class="property"> = &lt;functools.partial object at 0x103820940&gt;</em><a class="headerlink" href="#pymatgen.core.units.Time" title="Permalink to this definition">¶</a></dt>
 <dd><p>A float with a time unit.</p>
 <dl class="docutils">
 <dt>Args:</dt>
@@ -4027,7 +4022,7 @@ raised.</dd>
 
 <dl class="class">
 <dt id="pymatgen.core.units.Unit">
-<em class="property">class </em><tt class="descname">Unit</tt><big>(</big><em>unit_def</em><big>)</big><a class="headerlink" href="#pymatgen.core.units.Unit" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Unit</tt><big>(</big><em>unit_def</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">_abcoll.Mapping</span></tt></p>
 <p>Represents a unit, e.g., &#8220;m&#8221; for meters, etc. Supports compound units.
 Only integer powers are supported for units.</p>
@@ -4052,7 +4047,7 @@ space-separated.</dd>
 
 <dl class="attribute">
 <dt id="pymatgen.core.units.Unit.as_base_units">
-<tt class="descname">as_base_units</tt><a class="headerlink" href="#pymatgen.core.units.Unit.as_base_units" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">as_base_units</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit.as_base_units"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit.as_base_units" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts all units to base SI units, including derived units.</p>
 <dl class="docutils">
 <dt>Returns:</dt>
@@ -4063,7 +4058,7 @@ contain any constants, which are gathered in the scaling factor.</dd>
 
 <dl class="method">
 <dt id="pymatgen.core.units.Unit.get_conversion_factor">
-<tt class="descname">get_conversion_factor</tt><big>(</big><em>new_unit</em><big>)</big><a class="headerlink" href="#pymatgen.core.units.Unit.get_conversion_factor" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_conversion_factor</tt><big>(</big><em>new_unit</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#Unit.get_conversion_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.Unit.get_conversion_factor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a conversion factor between this unit and a new unit.
 Compound units are supported, but must have the same powers in each
 unit type.</p>
@@ -4081,7 +4076,7 @@ unit type.</p>
 
 <dl class="exception">
 <dt id="pymatgen.core.units.UnitError">
-<em class="property">exception </em><tt class="descname">UnitError</tt><a class="headerlink" href="#pymatgen.core.units.UnitError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><tt class="descname">UnitError</tt><a class="reference internal" href="_modules/pymatgen/core/units.html#UnitError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.UnitError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.BaseException</span></tt></p>
 <p>Exception class for unit errors.</p>
 </dd></dl>
@@ -4096,7 +4091,7 @@ The SI units must have factor 1.</p>
 
 <dl class="function">
 <dt id="pymatgen.core.units.obj_with_unit">
-<tt class="descname">obj_with_unit</tt><big>(</big><em>obj</em>, <em>unit</em><big>)</big><a class="headerlink" href="#pymatgen.core.units.obj_with_unit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">obj_with_unit</tt><big>(</big><em>obj</em>, <em>unit</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#obj_with_unit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.obj_with_unit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <cite>FloatWithUnit</cite> instance if obj is scalar, a dictionary of
 objects with units if obj is a dict, else an instance of
 <cite>ArrayWithFloatWithUnit</cite>.</p>
@@ -4112,7 +4107,7 @@ objects with units if obj is a dict, else an instance of
 
 <dl class="function">
 <dt id="pymatgen.core.units.unitized">
-<tt class="descname">unitized</tt><big>(</big><em>unit</em><big>)</big><a class="headerlink" href="#pymatgen.core.units.unitized" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unitized</tt><big>(</big><em>unit</em><big>)</big><a class="reference internal" href="_modules/pymatgen/core/units.html#unitized"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pymatgen.core.units.unitized" title="Permalink to this definition">¶</a></dt>
 <dd><p>Useful decorator to assign units to the output of a function. For
 sequences, all values in the sequences are assigned the same unit. It
 works with Python sequences only. The creation of numpy arrays loses all
@@ -4199,7 +4194,7 @@ unit information. For mapping types, the values are assigned units.</p>
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

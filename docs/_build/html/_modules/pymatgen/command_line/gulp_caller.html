@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -58,7 +59,7 @@
 <span class="c">#!/usr/bin/env python</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Interface with command line GULP. </span>
+<span class="sd">Interface with command line GULP.</span>
 <span class="sd">http://projects.ivec.org</span>
 <span class="sd">WARNING: you need to have GULP installed on your system.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -141,7 +142,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            args:</span>
-<span class="sd">                1st line keywords </span>
+<span class="sd">                1st line keywords</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">_gulp_kw</span><span class="p">,</span> <span class="n">args</span><span class="p">)))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">GulpError</span><span class="p">(</span><span class="s">&quot;Wrong keywords given&quot;</span><span class="p">)</span>
@@ -159,10 +160,10 @@
 <span class="sd">            structure:</span>
 <span class="sd">                pymatgen Structure object</span>
 <span class="sd">            cell_flg (default = True):</span>
-<span class="sd">                Option to use lattice parameters. </span>
+<span class="sd">                Option to use lattice parameters.</span>
 <span class="sd">            fractional_flg (default = True):</span>
 <span class="sd">                If True, fractional coordinates are used.</span>
-<span class="sd">                Else, cartesian coodinates in Angstroms are used. </span>
+<span class="sd">                Else, cartesian coodinates in Angstroms are used.</span>
 <span class="sd">                ******</span>
 <span class="sd">                GULP convention is to use fractional coordinates for periodic</span>
 <span class="sd">                structures and cartesian coordinates for non-periodic</span>
@@ -219,28 +220,29 @@
 <span class="sd">            potential:</span>
 <span class="sd">                String specifying the type of potential used</span>
 <span class="sd">            kwargs:</span>
-<span class="sd">                Additional parameters related to potential.</span>
-<span class="sd">                For potential == &quot;buckingham&quot;:</span>
-<span class="sd">                    anion_shell_flg (default = False):</span>
-<span class="sd">                        If True, anions are considered polarizable.</span>
-<span class="sd">                        anion_core_chrg=float</span>
-<span class="sd">                        anion_shell_chrg=float</span>
-<span class="sd">                    cation_shell_flg (default = False):</span>
-<span class="sd">                        If True, cations are considered polarizable.</span>
-<span class="sd">                        cation_core_chrg=float</span>
-<span class="sd">                        cation_shell_chrg=float</span>
+<span class="sd">                Additional parameters related to potential. For potential ==</span>
+<span class="sd">                 &quot;buckingham&quot;,</span>
+<span class="sd">                anion_shell_flg (default = False):</span>
+<span class="sd">                    If True, anions are considered polarizable.</span>
+<span class="sd">                    anion_core_chrg=float</span>
+<span class="sd">                    anion_shell_chrg=float</span>
+<span class="sd">                cation_shell_flg (default = False):</span>
+<span class="sd">                    If True, cations are considered polarizable.</span>
+<span class="sd">                    cation_core_chrg=float</span>
+<span class="sd">                    cation_shell_chrg=float</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            string containing specie and potential specification for gulp input</span>
+<span class="sd">            string containing specie and potential specification for gulp</span>
+<span class="sd">            input.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;gulp_specie_potential not yet implemented.&quot;</span> <span class="o">+</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;gulp_specie_potential not yet implemented.&quot;</span>
                                   <span class="s">&quot;</span><span class="se">\n</span><span class="s">Use library_line instead&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="GulpIO.library_line"><a class="viewcode-back" href="../../../pymatgen.command_line.html#pymatgen.command_line.gulp_caller.GulpIO.library_line">[docs]</a>    <span class="k">def</span> <span class="nf">library_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Specifies GULP library file to read species and potential parameters.</span>
-<span class="sd">        If using library don&#39;t specify species and potential </span>
-<span class="sd">        in the input file and vice versa. Make sure the elements of </span>
+<span class="sd">        If using library don&#39;t specify species and potential</span>
+<span class="sd">        in the input file and vice versa. Make sure the elements of</span>
 <span class="sd">        structure are in the library file.</span>
 
 <span class="sd">        Args:</span>
@@ -444,7 +446,7 @@
         <span class="n">output_lines</span> <span class="o">=</span> <span class="n">gout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
         <span class="n">no_lines</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_lines</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="c"># Compute the input lattice parameters </span>
+        <span class="c"># Compute the input lattice parameters</span>
         <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">no_lines</span><span class="p">:</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">output_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="k">if</span> <span class="s">&quot;Full cell parameters&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
@@ -752,7 +754,7 @@
 </div>
 <div class="viewcode-block" id="BuckinghamPotBush"><a class="viewcode-back" href="../../../pymatgen.command_line.html#pymatgen.command_line.gulp_caller.BuckinghamPotBush">[docs]</a><span class="k">class</span> <span class="nc">BuckinghamPotBush</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate the Buckingham Potential Table from the bush.lib </span>
+<span class="sd">    Generate the Buckingham Potential Table from the bush.lib</span>
 
 <span class="sd">    Ref:</span>
 <span class="sd">        T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,</span>
@@ -856,7 +858,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -173,7 +174,7 @@
         <span class="n">h1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_molecule_hash</span><span class="p">(</span><span class="n">obmol1</span><span class="p">)</span>
         <span class="n">h2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_molecule_hash</span><span class="p">(</span><span class="n">obmol2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">h1</span> <span class="o">!=</span> <span class="n">h2</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
 
         <span class="n">query</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">CompileMoleculeQuery</span><span class="p">(</span><span class="n">obmol1</span><span class="p">)</span>
         <span class="n">isomapper</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBIsomorphismMapper</span><span class="o">.</span><span class="n">GetInstance</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
@@ -181,7 +182,8 @@
         <span class="n">isomapper</span><span class="o">.</span><span class="n">MapAll</span><span class="p">(</span><span class="n">obmol2</span><span class="p">,</span> <span class="n">isomorph</span><span class="p">)</span>
 
         <span class="n">sorted_isomorph</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">isomorph</span><span class="p">]</span>
-        <span class="n">label2_list</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_isomorph</span><span class="p">])</span>
+        <span class="n">label2_list</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">tuple</span><span class="p">([</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span>
+                             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sorted_isomorph</span><span class="p">])</span>
 
         <span class="n">vmol1</span> <span class="o">=</span> <span class="n">obmol1</span>
         <span class="n">aligner</span> <span class="o">=</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBAlign</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
@@ -198,11 +200,8 @@
             <span class="k">if</span> <span class="n">rmsd</span> <span class="o">&lt;</span> <span class="n">least_rmsd</span><span class="p">:</span>
                 <span class="n">least_rmsd</span> <span class="o">=</span> <span class="n">rmsd</span>
                 <span class="n">best_label2</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">label2</span><span class="p">)</span>
-
         <span class="n">label1</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">obmol1</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">(</span><span class="n">label1</span><span class="p">,</span> <span class="n">best_label2</span><span class="p">)</span>
-
+        <span class="k">return</span> <span class="n">label1</span><span class="p">,</span> <span class="n">best_label2</span>
 </div>
 <div class="viewcode-block" id="IsomorphismMolAtomMapper.get_molecule_hash"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.get_molecule_hash">[docs]</a>    <span class="k">def</span> <span class="nf">get_molecule_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -213,7 +212,7 @@
         <span class="n">obConv</span><span class="o">.</span><span class="n">AddOption</span><span class="p">(</span><span class="s">&quot;X&quot;</span><span class="p">,</span> <span class="n">ob</span><span class="o">.</span><span class="n">OBConversion</span><span class="o">.</span><span class="n">OUTOPTIONS</span><span class="p">,</span> <span class="s">&quot;DoNotAddH&quot;</span><span class="p">)</span>
         <span class="n">inchi_text</span> <span class="o">=</span> <span class="n">obConv</span><span class="o">.</span><span class="n">WriteString</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&quot;InChI=(?P&lt;inchi&gt;.+)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">inchi_text</span><span class="p">)</span>
-        <span class="n">inchi</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s">&quot;inchi&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s">&quot;inchi&quot;</span><span class="p">)</span>
 </div>
     <span class="nd">@property</span>
 <div class="viewcode-block" id="IsomorphismMolAtomMapper.to_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.molecule_matcher.IsomorphismMolAtomMapper.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -346,7 +345,8 @@
                 <span class="n">min_distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&quot;inf&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">vmol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
                     <span class="n">va</span> <span class="o">=</span> <span class="n">vmol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                    <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">c1x</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">x</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1y</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">y</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1z</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">z</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">c1x</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">x</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">c1y</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">y</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span>
+                                         <span class="o">+</span> <span class="p">(</span><span class="n">c1z</span> <span class="o">-</span> <span class="n">va</span><span class="o">.</span><span class="n">z</span><span class="p">())</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">min_distance</span><span class="p">:</span>
                         <span class="n">min_distance</span> <span class="o">=</span> <span class="n">distance</span>
                 <span class="k">if</span> <span class="n">min_distance</span> <span class="o">&gt;</span> <span class="mf">0.2</span><span class="p">:</span>
@@ -356,7 +356,8 @@
 
         <span class="k">return</span> <span class="n">vmol</span>
 
-    <span class="k">def</span> <span class="nf">_align_heavy_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">,</span> <span class="n">vmol1</span><span class="p">,</span> <span class="n">vmol2</span><span class="p">,</span> <span class="n">ilabel1</span><span class="p">,</span> <span class="n">ilabel2</span><span class="p">,</span> <span class="n">eq_atoms</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_align_heavy_atoms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">,</span> <span class="n">vmol1</span><span class="p">,</span> <span class="n">vmol2</span><span class="p">,</span> <span class="n">ilabel1</span><span class="p">,</span> <span class="n">ilabel2</span><span class="p">,</span>
+                           <span class="n">eq_atoms</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Align the label of topologically identical atoms of second molecule</span>
 <span class="sd">        towards first molecule</span>
@@ -367,9 +368,11 @@
 <span class="sd">            mol2:</span>
 <span class="sd">                Second molecule. OpenBabel OBMol object</span>
 <span class="sd">            vmol1:</span>
-<span class="sd">                First virtual molecule constructed by centroids. OpenBabel OBMol object</span>
+<span class="sd">                First virtual molecule constructed by centroids. OpenBabel</span>
+<span class="sd">                OBMol object</span>
 <span class="sd">            vmol2:</span>
-<span class="sd">                First virtual molecule constructed by centroids. OpenBabel OBMol object</span>
+<span class="sd">                First virtual molecule constructed by centroids. OpenBabel</span>
+<span class="sd">                OBMol object</span>
 <span class="sd">            ilabel1:</span>
 <span class="sd">                inchi label map of the first molecule</span>
 <span class="sd">            ilabel2:</span>
@@ -532,7 +535,7 @@
         <span class="k">return</span> <span class="n">elements</span>
 
     <span class="k">def</span> <span class="nf">_is_molecule_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Is the molecule a linear one</span>
 
 <span class="sd">        Args:</span>
@@ -541,7 +544,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Boolean value.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">mol</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">True</span>
         <span class="n">a1</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">GetAtom</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -569,13 +572,11 @@
         <span class="k">if</span> <span class="n">iequal_atom1</span> <span class="o">!=</span> <span class="n">iequal_atom2</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Design Error! Equavilent atoms are inconsistent&quot;</span><span class="p">)</span>
 
-
         <span class="n">vmol1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtual_molecule</span><span class="p">(</span><span class="n">obmol1</span><span class="p">,</span> <span class="n">ilabel1</span><span class="p">,</span> <span class="n">iequal_atom1</span><span class="p">)</span>
         <span class="n">vmol2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_virtual_molecule</span><span class="p">(</span><span class="n">obmol2</span><span class="p">,</span> <span class="n">ilabel2</span><span class="p">,</span> <span class="n">iequal_atom2</span><span class="p">)</span>
 
-        <span class="n">clabel1</span><span class="p">,</span> <span class="n">clabel2</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
         <span class="k">if</span> <span class="n">vmol1</span><span class="o">.</span><span class="n">NumAtoms</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_molecule_linear</span><span class="p">(</span><span class="n">vmol1</span><span class="p">)</span> \
-        <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_molecule_linear</span><span class="p">(</span><span class="n">vmol2</span><span class="p">):</span>
+                <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_molecule_linear</span><span class="p">(</span><span class="n">vmol2</span><span class="p">):</span>
             <span class="c"># using isomorphism for difficult (actually simple) molecules</span>
             <span class="n">clabel1</span><span class="p">,</span> <span class="n">clabel2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_assistant_mapper</span><span class="o">.</span><span class="n">uniform_labels</span><span class="p">(</span><span class="n">mol1</span><span class="p">,</span> <span class="n">mol2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -585,7 +586,6 @@
             <span class="n">clabel1</span><span class="p">,</span> <span class="n">clabel2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_align_hydrogen_atoms</span><span class="p">(</span><span class="n">obmol1</span><span class="p">,</span> <span class="n">obmol2</span><span class="p">,</span>
                                                           <span class="n">ilabel1</span><span class="p">,</span>
                                                           <span class="n">heavy_atom_indices2</span><span class="p">)</span>
-
 
         <span class="n">elements1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_elements</span><span class="p">(</span><span class="n">obmol1</span><span class="p">,</span> <span class="n">clabel1</span><span class="p">)</span>
         <span class="n">elements2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_elements</span><span class="p">(</span><span class="n">obmol2</span><span class="p">,</span> <span class="n">clabel2</span><span class="p">)</span>
@@ -734,7 +734,8 @@
                     <span class="n">mutual_pairs</span> <span class="o">=</span> <span class="n">candidate_pairs</span> <span class="o">&amp;</span> <span class="n">mol_eq</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mutual_pairs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="k">break</span>
-                    <span class="n">mutual_mols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">mutual_pairs</span><span class="p">))</span>
+                    <span class="n">mutual_mols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span>
+                                      <span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">mutual_pairs</span><span class="p">))</span>
                     <span class="n">current_group</span> <span class="o">|=</span> <span class="n">mutual_mols</span>
                     <span class="n">not_alone_mols</span> <span class="o">-=</span> <span class="n">mutual_mols</span>
                 <span class="n">group_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">current_group</span><span class="p">))</span>
@@ -753,8 +754,8 @@
 <div class="viewcode-block" id="MoleculeMatcher.from_dict"><a class="viewcode-back" href="../../../pymatgen.analysis.html#pymatgen.analysis.molecule_matcher.MoleculeMatcher.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">MoleculeMatcher</span><span class="p">(</span>
             <span class="n">tolerance</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;tolerance&quot;</span><span class="p">],</span>
-            <span class="n">mapper</span><span class="o">=</span><span class="n">AbstractMolAtomMapper</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;mapper&quot;</span><span class="p">]))</span>
-</pre></div></div></div>
+            <span class="n">mapper</span><span class="o">=</span><span class="n">AbstractMolAtomMapper</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">&quot;mapper&quot;</span><span class="p">]))</span></div></div>
+</pre></div>
 
           </div>
         </div>
@@ -794,7 +795,7 @@
 
     <div class="footer">
         &copy; Copyright 2011, Shyue Ping Ong, Anubhav Jain, Geoffroy Hautier, William Davidson Richard, Stephen Dacek, Sai Jayaraman, Michael Kocher, Dan Gunter, Shreyas Cholia, Vincent L Chevrier, Rickard Armiento.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
 <div class="footer">This page uses <a href="http://analytics.google.com/">
 Google Analytics</a> to collect statistics. You can disable it by blocking
