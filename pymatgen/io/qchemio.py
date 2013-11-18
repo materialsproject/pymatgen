@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 
 """
 This module implements input and output processing from QChem.
@@ -304,6 +305,18 @@ class QcInput(MSONable):
             exponent: The exponent of the threshold. (Integer)
         """
         self.params["rem"]["scf_convergence"] = exponent
+
+    def set_integral_threshold(self, thresh=12):
+        """
+        Cutoff for neglect of two electron integrals. 10−THRESH (THRESH ≤ 14).
+        In QChem, the default values are:
+            8	For single point energies.
+            10	For optimizations and frequency calculations.
+            14	For coupled-cluster calculations.
+        Args:
+            thresh. The exponent of the threshold. (Integer)
+        """
+        self.params["rem"]["thresh"] = thresh
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
