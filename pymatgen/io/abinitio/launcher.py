@@ -551,12 +551,39 @@ class PyFlowScheduler(object):
         self.sched.start()
 
     def _runem_all(self):
+        """
+        This function tries to run all the tasks that can be submitted.
+        """
         max_nlaunch, excs = -1, []
 
         flow = self.flow
-
         flow.check_status()
 
+        # Try to restart the unconverged tasks
+        #for task in self.flow.unconverged_tasks
+        #    try:
+        #        fired = task.restart()
+        #        self.nlaunch += 1
+        #    except:
+
+        # Test whether some task should be restarted.
+        #if self.auto_restart:
+        #    num_restarts = 0
+        #    for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
+        #        msg = "AbinitFlow will try restart task %s" % task
+        #        print(msg)
+        #        logger.info(msg)
+        #        retcode = task.restart_if_needed()
+        #        if retcode == 0: 
+        #            num_restarts += 1
+        #                                                                 
+        #    if num_restarts:
+        #        print("num_restarts done successfully: ", num_restarts)
+        #        self.pickle_dump()
+
+
+
+        # Submit the tasks that are ready.
         try:
             nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
             self.nlaunch += nlaunch
@@ -567,11 +594,8 @@ class PyFlowScheduler(object):
         except Exception:
             excs.append(straceback())
 
-        if self.verbose:
-            flow.show_status()
-        else:
-            if flow.num_tasks_with_error or flow.num_tasks_unconverged:
-                flow.show_status()
+        show_status = (self.verbose or flow.num_errored_tasks or flow.num_unconverged_tasks)
+        if show_status: flow.show_status()
         
         if excs:
             logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
@@ -623,18 +647,24 @@ class PyFlowScheduler(object):
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_ERROR.
-        if self.flow.num_tasks_with_error > self.MAX_NUM_ABIERRS:
+        if self.flow.num_errored_tasks > self.MAX_NUM_ABIERRS:
             msg = "Number of tasks with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
-               self.flow.num_tasks_with_error, self.MAX_NUM_ABIERRS)
+               self.flow.num_errored_tasks, self.MAX_NUM_ABIERRS)
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_UNCONVERGED.
-        if self.flow.num_tasks_unconverged:
+        if self.flow.num_unconverged_tasks:
             # TODO: this is needed to avoid deadlocks, automatic restarting is not available yet
             msg = ("Found %d unconverged tasks." 
                    "Automatic restarting is not available yet. Will shutdown the scheduler and exit" 
-                   % self.flow.num_tasks_unconverged)
+                   % self.flow.num_unconverged_tasks)
             err_msg += boxed(msg)
+
+        #deadlocks = self.detect_deadlocks()
+        #if deadlocks:
+        #    msg = ("Detected deadlocks in flow. Will shutdown the scheduler and exit" 
+        #           % self.flow.num_unconverged_tasks)
+        #    err_msg += boxed(msg)
 
         if err_msg:
             # Something wrong. Quit
@@ -695,8 +725,8 @@ class PyFlowScheduler(object):
         app("Submitted on %s" % time.ctime(self.start_time))
         app("Completed on %s" % time.asctime())
         app("Elapsed time %s" % str(self.get_delta_etime()))
-        app("Number of errored tasks: %d" % self.flow.num_tasks_with_error)
-        app("Number of unconverged tasks: %d" % self.flow.num_tasks_unconverged)
+        app("Number of errored tasks: %d" % self.flow.num_errored_tasks)
+        app("Number of unconverged tasks: %d" % self.flow.num_unconverged_tasks)
 
         strio = StringIO.StringIO()
         strio.writelines("\n".join(header) + 4 * "\n")

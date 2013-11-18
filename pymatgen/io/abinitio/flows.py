@@ -59,15 +59,13 @@ class AbinitFlow(Node):
 
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
-    def __init__(self, workdir, manager, auto_restart=False, pickle_protocol=-1):
+    def __init__(self, workdir, manager, pickle_protocol=-1):
         """
         Args:
             workdir:
                 String specifying the directory where the workflows will be produced.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
-            auto_restart:
-                True if unconverged calculations should be restarted automatically.
             pickle_procol:
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
@@ -78,7 +76,6 @@ class AbinitFlow(Node):
         self.creation_date = time.asctime()
 
         self.manager = manager.deepcopy()
-        self.auto_restart = auto_restart
 
         # List of workflows.
         self._works = []
@@ -171,19 +168,31 @@ class AbinitFlow(Node):
         return all(work.all_ok for work in self)
 
     @property
+    def all_tasks(self):
+        return self.iflat_tasks()
+
+    @property
     def num_tasks(self):
         """Total number of tasks"""
         return len(list(self.iflat_tasks()))
 
     @property
-    def num_tasks_with_error(self):
-        """The number of tasks whose status is `S_ERROR`."""
-        return len(list(self.iflat_tasks(status=self.S_ERROR, op="=")))
+    def errored_tasks(self):
+        return self.iflat_tasks(status=self.S_ERROR)
 
     @property
-    def num_tasks_unconverged(self):
+    def num_errored_tasks(self):
+        """The number of tasks whose status is `S_ERROR`."""
+        return len(list(self.errored_tasks))
+
+    @property
+    def unconverged_tasks(self):
+        return self.iflat_tasks(status=self.S_UNCONVERGED)
+
+    @property
+    def num_unconverged_tasks(self):
         """The number of tasks whose status is `S_UNCONVERGED`."""
-        return len(list(self.iflat_tasks(status=self.S_UNCONVERGED, op="=")))
+        return len(list(self.unconverged_tasks))
 
     @property
     def status_counter(self):
@@ -281,16 +290,27 @@ class AbinitFlow(Node):
                         else:
                             yield task
 
+    def check_dependencies(self):
+        """Test the dependencies of the nodes for possible deadlocks."""
+        deadlocks = []
+
+        for task in self.all_tasks:
+            for dep in task.deps:
+                if dep.node.depends_on(task):
+                    deadlocks.append((task, dep.node))
+
+        if deadlocks:
+           lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
+           lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
+           raise ValueError("\n".join(lines))
+
     #def detect_deadlock(self):
-    #    if self.num_tasks_with_error == 0 and self.num_tasks_unconverged == 0:
+    #    eu_tasks = list(self.errored_tasks) + list(self.unconverged_tasks)
+    #     if not eu_tasks:
     #        return []
 
-    #    error_tasks = [task for task in self.iflat_tasks(status=None, op="=")]
-    #    uncoverged_tasks = [task for task in self.iflat_tasks(status=None, op="=")]
-    #    eu_tasks = error_tasks + unconverged_tasks
-
     #    deadlocked = []
-    #    for task in self.iflat_tasks(status=None, op="="):
+    #    for task in self.all_tasks:
     #        if any(task.depends_on(eu_task) for eu_task in eu_tasks):
     #            deadlocked.append(task)
 
@@ -300,21 +320,6 @@ class AbinitFlow(Node):
         """Check the status of the workflows in self."""
         for work in self:
             work.check_status()
-
-        # Test whether some task should be restarted.
-        if self.auto_restart:
-            num_restarts = 0
-            for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
-                msg = "AbinitFlow will try restart task %s" % task
-                print(msg)
-                logger.info(msg)
-                retcode = task.restart_if_needed()
-                if retcode == 0: 
-                    num_restarts += 1
-
-            if num_restarts:
-                print("num_restarts done successfully: ", num_restarts)
-                self.pickle_dump()
 
     def show_status(self, stream=sys.stdout):
         """
@@ -527,6 +532,8 @@ class AbinitFlow(Node):
 
         for task in self.iflat_tasks():
             task.set_flow(self)
+
+        self.check_dependencies()
 
         return self
 
