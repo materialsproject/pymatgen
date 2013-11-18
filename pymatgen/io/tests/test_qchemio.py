@@ -25,15 +25,7 @@ heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
 
 class TestQcInput(TestCase):
 
-    def test_to_and_from_dict(self):
-        qcinp = QcInput(mol, title="Test Methane", exchange="xygjos",
-                        job_type="Freq",
-                        basis_set={"C": "6-31G*", "h": "6-31g*",
-                                   "CL":"6-31+g*"},
-                        aux_basis_set={"c": "rimp2-cc-pvdz",
-                                       "H": "rimp2-cc-pvdz",
-                                       "Cl": "rimp2-aug-cc-pvdz"},
-                        ecp={"C":"srlc", "Cl":"srsc"})
+    def to_and_from_dict_test(self, qcinp):
         d1 = qcinp.to_dict
         qc2 = QcInput.from_dict(d1)
         d2 = qc2.to_dict
@@ -67,6 +59,7 @@ $end
                         job_type="SP",
                         basis_set="6-31+G*")
         self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
 
 
     def test_aux_basis_str(self):
@@ -127,6 +120,7 @@ $end
                                        "H": "rimp2-cc-pvdz",
                                        "Cl": "rimp2-aug-cc-pvdz"})
         self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
 
 
     def test_ecp_str(self):
@@ -176,6 +170,7 @@ $end
                         basis_set={"Br":"srlc", "Cd": "srsc"},
                         ecp={"Br": "SrlC", "Cd": "srsc"})
         self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
 
     def test_set_memory(self):
         ans = '''$comments
@@ -207,3 +202,4 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_memory(total=18000, static=500)
         self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)

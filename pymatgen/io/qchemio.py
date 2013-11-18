@@ -142,7 +142,13 @@ class QcInput(MSONable):
             self.params["rem"]["correlation"] = correlation.lower()
         if rem_params is not None:
             for k, v in rem_params.iteritems():
-                self.params["rem"][k.lower()] = v.lower()
+                if isinstance(v, str):
+                    self.params["rem"][k.lower()] = v.lower()
+                elif isinstance(v, int):
+                    self.params["rem"][k.lower()] = v
+                else:
+                    raise ValueError("The value in $rem can only be Integer "
+                                     "or string")
         if optional_params:
             op_key = set([k.lower() for k in optional_params.keys()])
             if len(op_key - self.optional_keywords_list) > 0:
@@ -359,7 +365,7 @@ class QcInput(MSONable):
         correlation = d["params"]["rem"].get("correlation", None)
         basis_set = d["params"]["rem"]["basis"]
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
-        ecp = d["params"]["ecp"].get("ecp", None)
+        ecp = d["params"]["rem"].get("ecp", None)
         optional_params = None
         op_keys = set(d["params"].keys()) - set(["comments", "rem"])
         if len(op_keys) > 0:
