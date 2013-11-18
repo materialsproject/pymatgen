@@ -254,9 +254,9 @@ class QcInput(MSONable):
 
         Args:
             total: The total memory. Integer. Unit: MBytes. If set to None,
-            this parameter will be neglected.
+                this parameter will be neglected.
             static: The static memory. Integer. Unit MBytes. If set to None,
-            this parameterwill be neglected.
+                this parameterwill be neglected.
         """
         if total:
             self.params["rem"]["mem_total"] = total
@@ -271,8 +271,7 @@ class QcInput(MSONable):
         to increase the number of scratch files:
 
         Args:
-            num: The max number of the scratch files.
-            Integer.
+            num: The max number of the scratch files. (Integer)
         """
         self.params["rem"]["max_sub_file_num"] = num
 
@@ -317,6 +316,39 @@ class QcInput(MSONable):
             thresh. The exponent of the threshold. (Integer)
         """
         self.params["rem"]["thresh"] = thresh
+
+    def set_dft_grid(self, radical_points=128, angular_points=302,
+                     grid_type="lebedev"):
+        """
+        Set the grid for DFT numerical integrations.
+        Args:
+            radical_points: Radical points. (Integer)
+            angular_points: Angular points. (Integer)
+            grid_type: The type of of the grid. There are two standard grids:
+                SG-1 and SG-0. The other two supported grids are "Lebedev" and
+                "Gauss-Legendre"
+        """
+        available_lebedev_angular_points = {6, 18, 26, 38, 50, 74, 86, 110, 146,
+                                            170, 194, 230, 266, 302, 350, 434,
+                                            590, 770, 974, 1202, 1454, 1730,
+                                            2030, 2354, 2702, 3074, 3470, 3890,
+                                            4334, 4802, 5294}
+        if grid_type.lower() == "sg-0":
+            self.params["rem"]["xc_grid"] = 0
+        elif grid_type.lower() == "sg-1":
+            self.params["rem"]["xc_grid"] = 1
+        elif grid_type.lower() == "lebedev":
+            if angular_points not in available_lebedev_angular_points:
+                raise ValueError(str(angular_points) + " is not a valid "
+                                 "Lebedev angular points number")
+            self.params["rem"]["xc_grid"] = "{rp:06d}{ap:06d}".format(
+                rp=radical_points, ap=angular_points)
+        elif grid_type.lower() == "gauss-legendre":
+            self.params["rem"]["xc_grid"] = "-{rp:06d}{ap:06d}".format(
+                rp=radical_points, ap=angular_points)
+        else:
+            raise ValueError("Grid type " + grid_type + " is not supported "
+                                                        "currently")
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
