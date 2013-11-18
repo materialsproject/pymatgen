@@ -25,6 +25,21 @@ heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
 
 class TestQcInput(TestCase):
 
+    def test_to_and_from_dict(self):
+        qcinp = QcInput(mol, title="Test Methane", exchange="xygjos",
+                        job_type="Freq",
+                        basis_set={"C": "6-31G*", "h": "6-31g*",
+                                   "CL":"6-31+g*"},
+                        aux_basis_set={"c": "rimp2-cc-pvdz",
+                                       "H": "rimp2-cc-pvdz",
+                                       "Cl": "rimp2-aug-cc-pvdz"},
+                        ecp={"C":"srlc", "Cl":"srsc"})
+        d1 = qcinp.to_dict
+        qc2 = QcInput.from_dict(d1)
+        d2 = qc2.to_dict
+        self.assertEqual(d1, d2)
+
+
     def test_simple_basis_str(self):
         ans = '''$comments
  Test Methane

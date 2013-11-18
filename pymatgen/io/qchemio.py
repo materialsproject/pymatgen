@@ -340,22 +340,26 @@ class QcInput(MSONable):
             lines.append(" ****")
         return lines
 
+    @property
     def to_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "molecule": "read" if self.mol == "read" else self.mol.to_dict,
                 "charge": self.charge,
                 "spin_multiplicity": self.spin_multiplicity,
-                "parameters": self.params}
+                "params": self.params}
 
+    @classmethod
     def from_dict(cls, d):
         mol = "read" if d["molecule"] == "read" \
                      else Molecule.from_dict(d["molecule"])
+        job_type = d["params"]["rem"]["job_type"]
         title = d["params"].get("comments", None)
         exchange = d["params"]["rem"]["exchange"]
         correlation = d["params"]["rem"].get("correlation", None)
         basis_set = d["params"]["rem"]["basis"]
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
+        ecp = d["params"]["ecp"].get("ecp", None)
         optional_params = None
         op_keys = set(d["params"].keys()) - set(["comments", "rem"])
         if len(op_keys) > 0:
@@ -363,10 +367,13 @@ class QcInput(MSONable):
             for k in op_keys:
                 optional_params[k] = d["params"][k]
         return QcInput(molecule=mol, charge=d["charge"],
-                       spin_multiplicity=d["spin_multiplicity"], title=title,
+                       spin_multiplicity=d["spin_multiplicity"],
+                       job_type=job_type, title=title,
                        exchange=exchange, correlation=correlation,
                        basis_set=basis_set, aux_basis_set=aux_basis_set,
-                       rem_params=d["params"]["rem"], optional_params=optional_params)
+                       ecp=ecp, rem_params=d["params"]["rem"],
+                       optional_params=optional_params)
+
 
     def write_file(self, filename):
         with zopen(filename, "w") as f:
