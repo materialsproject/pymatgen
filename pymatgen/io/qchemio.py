@@ -3,7 +3,6 @@
 """
 This module implements input and output processing from QChem.
 """
-import os
 from string import Template
 from pymatgen import zopen
 from pymatgen.core.structure import Molecule
@@ -22,16 +21,14 @@ class QcInput(MSONable):
         An object representing a QChem input file.
     """
 
-    optional_keywords_list = set(["basis", "ecp", "empirical_dispersion",
-                                  "external_charges", "force_field_params",
-                                  "intracule", "isotopes", "aux_basis",
-                                  "localized_diabatization", "multipole_field",
-                                  "nbo", "occupied",
-                                  "swap_occupied_virtual", "opt", "pcm",
-                                  "pcm_solvent", "plots",
-                                  "qm_atoms", "svp", "svpirf", "van_der_waals",
-                                  "xc_functional", "cdft",
-                                  "efp_fragments", "efp_params"])
+    optional_keywords_list = {"basis", "ecp", "empirical_dispersion",
+                              "external_charges", "force_field_params",
+                              "intracule", "isotopes", "aux_basis",
+                              "localized_diabatization", "multipole_field",
+                              "nbo", "occupied", "swap_occupied_virtual", "opt",
+                              "pcm", "pcm_solvent", "plots", "qm_atoms", "svp",
+                              "svpirf", "van_der_waals", "xc_functional",
+                              "cdft", "efp_fragments", "efp_params"}
 
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
                  job_type='SP', title=None, exchange="HF", correlation=None,
@@ -126,7 +123,7 @@ class QcInput(MSONable):
                 if (nelectrons + spin_multiplicity) % 2 != 1:
                     raise ValueError("Charge of {} and spin multiplicity of {} "
                                      "is not possible for this molecule"
-                    .format(self.charge, spin_multiplicity))
+                                     .format(self.charge, spin_multiplicity))
             else:
                 self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
         if (self.charge is None) != (self.spin_multiplicity is None):
@@ -174,7 +171,6 @@ class QcInput(MSONable):
         if ecp:
             self.set_ecp(ecp)
 
-
     def _aux_basis_required(self):
         if self.params["rem"]["exchange"] in ['xygjos', 'xyg3', 'lxygjos']:
             return True
@@ -192,17 +188,18 @@ class QcInput(MSONable):
                 bs[element.strip().capitalize()] = basis.lower()
             self.params["basis"] = bs
             if self.mol:
-                    mol_elements = set([site.species_string for site
-                                        in self.mol.sites])
-                    basis_elements = set(self.params["basis"].keys())
-                    if len(mol_elements - basis_elements) > 0:
-                        raise ValueError("The basis set for elements " +
-                            ", ".join(list(mol_elements - basis_elements)) +
-                            " is missing")
-                    if len(basis_elements - mol_elements) > 0:
-                        raise ValueError("Basis set error: the molecule "
-                            "doesn't contain element " +
-                            ", ".join(basis_elements - mol_elements))
+                mol_elements = set([site.species_string for site
+                                    in self.mol.sites])
+                basis_elements = set(self.params["basis"].keys())
+                if len(mol_elements - basis_elements) > 0:
+                    raise ValueError("The basis set for elements " +
+                                     ", ".join(
+                                         list(mol_elements - basis_elements)) +
+                                     " is missing")
+                if len(basis_elements - mol_elements) > 0:
+                    raise ValueError("Basis set error: the molecule "
+                                     "doesn't contain element " +
+                                     ", ".join(basis_elements - mol_elements))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
         if isinstance(aux_basis_set, str):
@@ -214,19 +211,19 @@ class QcInput(MSONable):
                 bs[element.strip().capitalize()] = basis.lower()
             self.params["aux_basis"] = bs
             if self.mol:
-                    mol_elements = set([site.species_string for site
-                                        in self.mol.sites])
-                    basis_elements = set(self.params["aux_basis"].keys())
-                    if len(mol_elements - basis_elements) > 0:
-                        raise ValueError("The auxiliary basis set for "
-                            "elements " +
-                            ", ".join(list(mol_elements - basis_elements)) +
-                            " is missing")
-                    if len(basis_elements - mol_elements) > 0:
-                        raise ValueError("Auxiliary asis set error: the "
-                            "molecule doesn't contain element " +
-                            ", ".join(basis_elements - mol_elements))
-
+                mol_elements = set([site.species_string for site
+                                    in self.mol.sites])
+                basis_elements = set(self.params["aux_basis"].keys())
+                if len(mol_elements - basis_elements) > 0:
+                    raise ValueError("The auxiliary basis set for "
+                                     "elements " +
+                                     ", ".join(
+                                         list(mol_elements - basis_elements)) +
+                                     " is missing")
+                if len(basis_elements - mol_elements) > 0:
+                    raise ValueError("Auxiliary asis set error: the "
+                                     "molecule doesn't contain element " +
+                                     ", ".join(basis_elements - mol_elements))
 
     def set_ecp(self, ecp):
         if isinstance(ecp, str):
@@ -238,18 +235,17 @@ class QcInput(MSONable):
                 potentials[element.strip().capitalize()] = p.lower()
             self.params["ecp"] = potentials
             if self.mol:
-                    mol_elements = set([site.species_string for site
-                                        in self.mol.sites])
-                    ecp_elements = set(self.params["ecp"].keys())
-                    if len(ecp_elements - mol_elements) > 0:
-                        raise ValueError("ECP error: the molecule "
-                            "doesn't contain element " +
-                            ", ".join(ecp_elements - mol_elements))
+                mol_elements = set([site.species_string for site
+                                    in self.mol.sites])
+                ecp_elements = set(self.params["ecp"].keys())
+                if len(ecp_elements - mol_elements) > 0:
+                    raise ValueError("ECP error: the molecule "
+                                     "doesn't contain element " +
+                                     ", ".join(ecp_elements - mol_elements))
 
     @property
     def molecule(self):
         return self.mol
-
 
     def set_memory(self, total=None, static=None):
         """
@@ -265,7 +261,6 @@ class QcInput(MSONable):
             self.params["rem"]["mem_total"] = total
         if static:
             self.params["rem"]["mem_static"] = static
-
 
     def set_max_num_of_scratch_files(self, num=16):
         """
@@ -289,17 +284,30 @@ class QcInput(MSONable):
             algorithm: The algorithm used for converging SCF. (str)
             iterations: The max number of SCF iterations. (Integer)
         """
-        available_algorithms = set(["diis", "dm", "diis_dm", "diis_gdm", "gdm",
-                                    "rca", "rca_diis", "roothaan"])
+        available_algorithms = {"diis", "dm", "diis_dm", "diis_gdm", "gdm",
+                                "rca", "rca_diis", "roothaan"}
         if algorithm.lower() not in available_algorithms:
-            raise ValueError("Algorithm " + algorithm + " is not available in QChem")
+            raise ValueError("Algorithm " + algorithm +
+                             " is not available in QChem")
         self.params["rem"]["scf_algorithm"] = algorithm.lower()
         self.params["rem"]["max_scf_cycles"] = iterations
 
+    def set_scf_convergence_threshold(self, exponent=8):
+        """
+        SCF is considered converged when the wavefunction error is less than
+        10**(-exponent).
+        In QChem, the default values are:
+            5	For single point energy calculations.
+            7	For geometry optimizations and vibrational analysis.
+            8	For SSG calculations
+        Args:
+            exponent: The exponent of the threshold. (Integer)
+        """
+        self.params["rem"]["scf_convergence"] = exponent
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
-                   sorted(list(self.optional_keywords_list))
+            sorted(list(self.optional_keywords_list))
         lines = []
         for sec in sections:
             if sec in self.params or sec == "molecule":
@@ -310,26 +318,23 @@ class QcInput(MSONable):
                 lines.append('\n')
         return '\n'.join(lines)
 
-
     def _format_comments(self):
         lines = [' ' + self.params["comments"].strip()]
         return lines
-
 
     def _format_molecule(self):
         lines = []
         if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
-            .charge, multi=self.spin_multiplicity))
+                         .charge, multi=self.spin_multiplicity))
         if self.mol == "read":
             lines.append(" read")
         else:
             for site in self.mol.sites:
                 lines.append(" {element:<4} {x:>17.8f} {y:>17.8f} "
                              "{z:>17.8f}".format(element=site.species_string,
-                                                  x=site.x, y=site.y, z=site.z))
+                                                 x=site.x, y=site.y, z=site.z))
         return lines
-
 
     def _format_rem(self):
         rem_format_template = Template("  {name:>$name_width} = "
@@ -388,7 +393,7 @@ class QcInput(MSONable):
     @classmethod
     def from_dict(cls, d):
         mol = "read" if d["molecule"] == "read" \
-                     else Molecule.from_dict(d["molecule"])
+            else Molecule.from_dict(d["molecule"])
         job_type = d["params"]["rem"]["job_type"]
         title = d["params"].get("comments", None)
         exchange = d["params"]["rem"]["exchange"]
@@ -397,7 +402,7 @@ class QcInput(MSONable):
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
         ecp = d["params"]["rem"].get("ecp", None)
         optional_params = None
-        op_keys = set(d["params"].keys()) - set(["comments", "rem"])
+        op_keys = set(d["params"].keys()) - {"comments", "rem"}
         if len(op_keys) > 0:
             optional_params = dict()
             for k in op_keys:
@@ -410,8 +415,6 @@ class QcInput(MSONable):
                        ecp=ecp, rem_params=d["params"]["rem"],
                        optional_params=optional_params)
 
-
     def write_file(self, filename):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
-

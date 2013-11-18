@@ -34,7 +34,6 @@ class TestQcInput(TestCase):
         d2 = qc2.to_dict
         self.assertEqual(d1, d2)
 
-
     def test_simple_basis_str(self):
         ans = '''$comments
  Test Methane
@@ -63,7 +62,6 @@ $end
                         basis_set="6-31+G*")
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
-
 
     def test_aux_basis_str(self):
         ans = '''$comments
@@ -118,13 +116,12 @@ $end
         qcinp = QcInput(mol, title="Test Methane", exchange="xygjos",
                         job_type="Freq",
                         basis_set={"C": "6-31G*", "h": "6-31g*",
-                                   "CL":"6-31+g*"},
+                                   "CL": "6-31+g*"},
                         aux_basis_set={"c": "rimp2-cc-pvdz",
                                        "H": "rimp2-cc-pvdz",
                                        "Cl": "rimp2-aug-cc-pvdz"})
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
-
 
     def test_ecp_str(self):
         ans = '''$comments
@@ -170,7 +167,7 @@ $end
 '''
         qcinp = QcInput(heavy_mol, title="Test ECP", exchange="B3LYP",
                         job_type="Opt",
-                        basis_set={"Br":"srlc", "Cd": "srsc"},
+                        basis_set={"Br": "srlc", "Cd": "srsc"},
                         ecp={"Br": "SrlC", "Cd": "srsc"})
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
@@ -207,7 +204,6 @@ $end
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
 
-
     def test_set_max_num_of_scratch_files(self):
         ans = '''$comments
  Test Methane
@@ -239,7 +235,6 @@ $end
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
 
-
     def test_set_max_scf_iterations(self):
         ans = '''$comments
  Test Methane
@@ -270,5 +265,36 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
                                                iterations=100)
+        self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
+
+    def test_set_scf_convergence_threshold(self):
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         job_type = sp
+         exchange = b3lyp
+            basis = 6-31+g*
+  scf_convergence = 8
+$end
+
+'''
+        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+                        job_type="SP",
+                        basis_set="6-31+G*")
+        qcinp.set_scf_convergence_threshold(exponent=8)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
