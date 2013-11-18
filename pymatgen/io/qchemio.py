@@ -267,6 +267,20 @@ class QcInput(MSONable):
             self.params["rem"]["mem_static"] = static
 
 
+    def set_max_num_of_scratch_files(self, num=16):
+        """
+        In QChem, the size of a single scratch is limited 2GB. By default,
+        the max number of scratich is 16, which is cooresponding to 32GB
+        scratch space. If you want to use more scratch disk space, you need
+        to increase the number of scratch files:
+
+        Args:
+            num: The max number of the scratch files.
+            Integer.
+        """
+        self.params["rem"]["max_sub_file_num"] = num
+
+
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
                    sorted(list(self.optional_keywords_list))
