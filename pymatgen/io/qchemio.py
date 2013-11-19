@@ -147,7 +147,7 @@ class QcInput(MSONable):
             for k, v in rem_params.iteritems():
                 if isinstance(v, str):
                     self.params["rem"][k.lower()] = v.lower()
-                elif isinstance(v, int):
+                elif isinstance(v, int) or isinstance(v, float):
                     self.params["rem"][k.lower()] = v
                 else:
                     raise ValueError("The value in $rem can only be Integer "
@@ -447,6 +447,16 @@ class QcInput(MSONable):
         """
         self.params["rem"]["sym_ignore"] = True
         self.params["rem"]["symmetry"] = False
+
+    def use_cosmo(self, dielectric_constant=78.4):
+        """
+        Set the solvent model to COSMO.
+
+        Args:
+            dielectric_constant: the dielectric constant for the solvent.
+        """
+        self.params["rem"]["solvent_method"] = "cosmo"
+        self.params["rem"]["solvent_dielectric"] = dielectric_constant
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
