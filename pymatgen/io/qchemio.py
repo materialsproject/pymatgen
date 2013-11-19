@@ -365,8 +365,8 @@ class QcInput(MSONable):
         Args:
             guess: The initial guess method. (str)
         """
-        availabel_guesses = {"CORE", "SAD", "GWH", "READ", "FRAGMO"}
-        if guess not in availabel_guesses:
+        availabel_guesses = {"core", "sad", "gwh", "read", "fragmo"}
+        if guess.lower() not in availabel_guesses:
             raise ValueError("The guess method " + guess + " is not supported "
                                                            "yet")
         self.params["rem"]["scf_guess"] = guess.lower()
