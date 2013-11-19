@@ -441,6 +441,13 @@ class QcInput(MSONable):
         subspace_size = subspace_size if subspace_size else -1
         self.params["rem"]["geom_opt_max_diis"] = subspace_size
 
+    def disable_symmetry(self):
+        """
+        Turn the symmetry off.
+        """
+        self.params["rem"]["sym_ignore"] = True
+        self.params["rem"]["symmetry"] = False
+
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
             sorted(list(self.optional_keywords_list))
