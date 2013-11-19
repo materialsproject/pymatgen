@@ -453,3 +453,37 @@ $end
         qcinp.set_geom_opt_coords_type("cartesian")
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+
+    def test_scale_geom_opt_threshold(self):
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+                   job_type = sp
+                   exchange = b3lyp
+                      basis = 6-31+g*
+  geom_opt_tol_displacement = 120
+        geom_opt_tol_energy = 20
+      geom_opt_tol_gradient = 30
+$end
+
+'''
+        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+                        job_type="SP",
+                        basis_set="6-31+G*")
+        qcinp.scale_geom_opt_threshold(gradient=0.1, displacement=0.1,
+                                       energy=0.2)
+        self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
