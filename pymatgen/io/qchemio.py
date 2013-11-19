@@ -318,7 +318,7 @@ class QcInput(MSONable):
         self.params["rem"]["thresh"] = thresh
 
     def set_dft_grid(self, radical_points=128, angular_points=302,
-                     grid_type="lebedev"):
+                     grid_type="Lebedev"):
         """
         Set the grid for DFT numerical integrations.
         Args:
@@ -349,6 +349,18 @@ class QcInput(MSONable):
         else:
             raise ValueError("Grid type " + grid_type + " is not supported "
                                                         "currently")
+
+    def set_scf_initial_guess(self, guess="SAD"):
+        """
+        Set initial guess method to be used for SCF
+        Args:
+            guess: The initial guess method. (str)
+        """
+        availabel_guesses = {"CORE", "SAD", "GWH", "READ", "FRAGMO"}
+        if guess not in availabel_guesses:
+            raise ValueError("The guess method " + guess + " is not supported "
+                                                           "yet")
+        self.params["rem"]["scf_guess"] = guess.lower()
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
