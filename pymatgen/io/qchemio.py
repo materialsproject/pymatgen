@@ -376,6 +376,29 @@ class QcInput(MSONable):
         """
         self.params["rem"]["geom_opt_max_cycles"] = iterations
 
+    def set_geom_opt_coords_type(self, coords_type="internal_switch"):
+        """
+        Set the coordinates system used in geometry optimization.
+        "cartesian"       --- always cartesian coordinates.
+        "internal"        --- always internal coordinates.
+        "internal-switch" --- try internal coordinates first, if fails, switch
+            to cartesian coordinates.
+        "z-matrix"        --- always z-matrix coordinates.
+        "z-matrix-switch" --- try z-matrix first, if fails, switch to
+            cartesian coordinates.
+
+        Args:
+            coords_type: The type of the coordinates. (str)
+        """
+        coords_map = {"cartesian": 0, "internal": 1, "internal-switch": -1,
+                      "z-matrix": 2, "z-matrix-switch": -2}
+        if coords_type.lower() not in set(coords_map.keys()):
+            raise ValueError("Coodinate system " + coords_type + " is not "
+                             "supported yet")
+        else:
+            self.params["rem"]["geom_opt_coords"] = \
+                coords_map[coords_type.lower()]
+
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
             sorted(list(self.optional_keywords_list))
