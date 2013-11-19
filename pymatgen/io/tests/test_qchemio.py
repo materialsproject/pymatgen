@@ -360,3 +360,34 @@ $end
         qcinp.set_dft_grid(radical_points=110, angular_points=590)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+
+    def test_set_scf_initial_guess(self):
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   job_type = sp
+   exchange = b3lyp
+      basis = 6-31+g*
+  scf_guess = gwh
+$end
+
+'''
+        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+                        job_type="SP",
+                        basis_set="6-31+G*")
+        qcinp.set_scf_initial_guess("GWH")
+        self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
