@@ -51,14 +51,14 @@ $end
 
 
 $rem
-  job_type = sp
+   jobtype = sp
   exchange = b3lyp
      basis = 6-31+g*
 $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
@@ -80,7 +80,7 @@ $end
 
 
 $rem
-   job_type = freq
+    jobtype = freq
    exchange = xygjos
       basis = gen
   aux_basis = gen
@@ -114,7 +114,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="xygjos",
-                        job_type="Freq",
+                        jobtype="Freq",
                         basis_set={"C": "6-31G*", "h": "6-31g*",
                                    "CL": "6-31+g*"},
                         aux_basis_set={"c": "rimp2-cc-pvdz",
@@ -138,7 +138,7 @@ $end
 
 
 $rem
-  job_type = opt
+   jobtype = opt
   exchange = b3lyp
      basis = gen
        ecp = gen
@@ -166,7 +166,7 @@ $end
 
 '''
         qcinp = QcInput(heavy_mol, title="Test ECP", exchange="B3LYP",
-                        job_type="Opt",
+                        jobtype="Opt",
                         basis_set={"Br": "srlc", "Cd": "srsc"},
                         ecp={"Br": "SrlC", "Cd": "srsc"})
         self.assertEqual(str(qcinp), ans)
@@ -189,7 +189,7 @@ $end
 
 
 $rem
-    job_type = sp
+     jobtype = sp
     exchange = b3lyp
        basis = 6-31+g*
   mem_static = 500
@@ -198,7 +198,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_memory(total=18000, static=500)
         self.assertEqual(str(qcinp), ans)
@@ -221,7 +221,7 @@ $end
 
 
 $rem
-          job_type = sp
+           jobtype = sp
           exchange = b3lyp
              basis = 6-31+g*
   max_sub_file_num = 500
@@ -229,7 +229,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_max_num_of_scratch_files(500)
         self.assertEqual(str(qcinp), ans)
@@ -252,7 +252,7 @@ $end
 
 
 $rem
-        job_type = sp
+         jobtype = sp
         exchange = b3lyp
            basis = 6-31+g*
   max_scf_cycles = 100
@@ -261,7 +261,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
                                                iterations=100)
@@ -285,7 +285,7 @@ $end
 
 
 $rem
-         job_type = sp
+          jobtype = sp
          exchange = b3lyp
             basis = 6-31+g*
   scf_convergence = 8
@@ -293,7 +293,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_scf_convergence_threshold(exponent=8)
         self.assertEqual(str(qcinp), ans)
@@ -316,7 +316,7 @@ $end
 
 
 $rem
-  job_type = sp
+   jobtype = sp
   exchange = b3lyp
      basis = 6-31+g*
     thresh = 14
@@ -324,7 +324,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_integral_threshold(thresh=14)
         self.assertEqual(str(qcinp), ans)
@@ -347,7 +347,7 @@ $end
 
 
 $rem
-  job_type = sp
+   jobtype = sp
   exchange = b3lyp
      basis = 6-31+g*
    xc_grid = 000110000590
@@ -355,7 +355,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_dft_grid(radical_points=110, angular_points=590)
         self.assertEqual(str(qcinp), ans)
@@ -378,7 +378,7 @@ $end
 
 
 $rem
-   job_type = sp
+    jobtype = sp
    exchange = b3lyp
       basis = 6-31+g*
   scf_guess = gwh
@@ -386,7 +386,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_scf_initial_guess("GWH")
         self.assertEqual(str(qcinp), ans)
@@ -409,7 +409,7 @@ $end
 
 
 $rem
-             job_type = sp
+              jobtype = sp
              exchange = b3lyp
                 basis = 6-31+g*
   geom_opt_max_cycles = 100
@@ -417,7 +417,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP", charge=1, spin_multiplicity=2,
+                        jobtype="SP", charge=1, spin_multiplicity=2,
                         basis_set="6-31+G*")
         qcinp.set_geom_max_iterations(100)
         self.assertEqual(str(qcinp), ans)
@@ -440,7 +440,7 @@ $end
 
 
 $rem
-         job_type = sp
+          jobtype = sp
          exchange = b3lyp
             basis = 6-31+g*
   geom_opt_coords = 0
@@ -448,7 +448,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_geom_opt_coords_type("cartesian")
         self.assertEqual(str(qcinp), ans)
@@ -471,7 +471,7 @@ $end
 
 
 $rem
-                   job_type = sp
+                    jobtype = sp
                    exchange = b3lyp
                       basis = 6-31+g*
   geom_opt_tol_displacement = 120
@@ -481,7 +481,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.scale_geom_opt_threshold(gradient=0.1, displacement=0.1,
                                        energy=0.1)
@@ -505,7 +505,7 @@ $end
 
 
 $rem
-           job_type = sp
+            jobtype = sp
            exchange = b3lyp
               basis = 6-31+g*
   geom_opt_max_diis = -1
@@ -513,7 +513,7 @@ $end
 
 '''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
-                        job_type="SP",
+                        jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_geom_opt_use_gdiis()
         self.assertEqual(str(qcinp), ans)
