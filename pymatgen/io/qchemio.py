@@ -300,6 +300,7 @@ class QcInput(MSONable):
             5	For single point energy calculations.
             7	For geometry optimizations and vibrational analysis.
             8	For SSG calculations
+
         Args:
             exponent: The exponent of the threshold. (Integer)
         """
@@ -312,6 +313,7 @@ class QcInput(MSONable):
             8	For single point energies.
             10	For optimizations and frequency calculations.
             14	For coupled-cluster calculations.
+
         Args:
             thresh. The exponent of the threshold. (Integer)
         """
@@ -321,6 +323,7 @@ class QcInput(MSONable):
                      grid_type="Lebedev"):
         """
         Set the grid for DFT numerical integrations.
+
         Args:
             radical_points: Radical points. (Integer)
             angular_points: Angular points. (Integer)
@@ -353,6 +356,7 @@ class QcInput(MSONable):
     def set_scf_initial_guess(self, guess="SAD"):
         """
         Set initial guess method to be used for SCF
+
         Args:
             guess: The initial guess method. (str)
         """
@@ -361,6 +365,16 @@ class QcInput(MSONable):
             raise ValueError("The guess method " + guess + " is not supported "
                                                            "yet")
         self.params["rem"]["scf_guess"] = guess.lower()
+
+    def set_geom_max_iterations(self, iterations):
+        """
+        Set the max iterations of geometry optimization.
+
+        Args:
+            iterations: the maximum iterations of geometry optimization.
+            (Integer)
+        """
+        self.params["rem"]["geom_opt_max_cycles"] = iterations
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
