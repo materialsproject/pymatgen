@@ -32,7 +32,7 @@ class QcInput(MSONable):
                               "cdft", "efp_fragments", "efp_params"}
 
     def __init__(self, molecule=None, charge=None, spin_multiplicity=None,
-                 job_type='SP', title=None, exchange="HF", correlation=None,
+                 jobtype='SP', title=None, exchange="HF", correlation=None,
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
                  rem_params=None, optional_params=None):
         """
@@ -53,7 +53,7 @@ class QcInput(MSONable):
                 molecule has no unpaired electrons and to 2 if there are
                 unpaired electrons.
                 Type: Integer
-            job_type:
+            jobtype:
                 The type the QChem job. "SP" for Single Point Energy,
                 "opt" for geometry optimization, "freq" for
                 vibrational frequency.
@@ -135,7 +135,12 @@ class QcInput(MSONable):
         if "rem" not in self.params:
             self.params["rem"] = dict()
         self.params["rem"]["exchange"] = exchange.lower()
-        self.params["rem"]["job_type"] = job_type.lower()
+        available_jobtypes = {"sp", "opt", "ts", "freq", "force", "rpath",
+                              "nmr", "bsse", "eda", "pes_scan", "fsm", "aimd",
+                              "pimc", "makeefp"}
+        if jobtype.lower() not in available_jobtypes:
+            raise ValueError("Job type " + jobtype + " is not supported yet")
+        self.params["rem"]["jobtype"] = jobtype.lower()
         if correlation is not None:
             self.params["rem"]["correlation"] = correlation.lower()
         if rem_params is not None:
@@ -477,7 +482,7 @@ class QcInput(MSONable):
         rem = rem_format_template.substitute(name_width=name_width)
         lines = []
         all_keys = set(self.params["rem"].keys())
-        priority_keys = ["job_type", "exchange", "basis"]
+        priority_keys = ["jobtype", "exchange", "basis"]
         additional_keys = all_keys - set(priority_keys)
         ordered_keys = priority_keys + sorted(list(additional_keys))
         for name in ordered_keys:
@@ -525,7 +530,7 @@ class QcInput(MSONable):
     def from_dict(cls, d):
         mol = "read" if d["molecule"] == "read" \
             else Molecule.from_dict(d["molecule"])
-        job_type = d["params"]["rem"]["job_type"]
+        jobtype = d["params"]["rem"]["jobtype"]
         title = d["params"].get("comments", None)
         exchange = d["params"]["rem"]["exchange"]
         correlation = d["params"]["rem"].get("correlation", None)
@@ -540,7 +545,7 @@ class QcInput(MSONable):
                 optional_params[k] = d["params"][k]
         return QcInput(molecule=mol, charge=d["charge"],
                        spin_multiplicity=d["spin_multiplicity"],
-                       job_type=job_type, title=title,
+                       jobtype=jobtype, title=title,
                        exchange=exchange, correlation=correlation,
                        basis_set=basis_set, aux_basis_set=aux_basis_set,
                        ecp=ecp, rem_params=d["params"]["rem"],
