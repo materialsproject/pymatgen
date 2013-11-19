@@ -416,13 +416,25 @@ class QcInput(MSONable):
                 threshold. The base value is 100 × 10E−8.
         """
         if gradient < 1.0/(300-1) or displacement < 1.0/(1200-1) or \
-            energy < 1.0/(100-1):
+                energy < 1.0/(100-1):
             raise ValueError("The geometry optimization convergence criteria "
                              "is too tight")
         self.params["rem"]["geom_opt_tol_gradient"] = int(gradient * 300)
         self.params["rem"]["geom_opt_tol_displacement"] = int(displacement *
                                                               1200)
         self.params["rem"]["geom_opt_tol_energy"] = int(energy * 100)
+
+    def set_geom_opt_use_gdiis(self, subspace_size=None):
+        """
+        Use GDIIS algorithm in geometry optimization.
+
+        Args:
+            subspace_size: The size of the DIIS subsapce. None for default
+                value. The default value is min(NDEG, NATOMS, 4) NDEG = number
+                of moleculardegrees of freedom.
+        """
+        subspace_size = subspace_size if subspace_size else -1
+        self.params["rem"]["geom_opt_max_diis"] = subspace_size
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
