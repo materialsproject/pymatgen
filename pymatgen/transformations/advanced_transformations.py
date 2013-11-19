@@ -15,6 +15,7 @@ __date__ = "Jul 24, 2012"
 
 import numpy as np
 
+from pymatgen.core.structure import Specie, Composition
 from pymatgen.core.periodic_table import smart_element_or_specie
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
@@ -25,6 +26,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.structure_prediction.substitution_probability import \
     SubstitutionPredictor
+from pymatgen.analysis.structure_matcher import StructureMatcher
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -392,15 +394,16 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         """
         self._kwargs = kwargs
         self._threshold = threshold
-        self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
+        self._substitutor = SubstitutionPredictor(threshold=threshold,
+                                                  **kwargs)
 
     def apply_transformation(self, structure, return_ranked_list=False):
         if not return_ranked_list:
             raise ValueError("SubstitutionPredictorTransformation doesn't"
                              " support returning 1 structure")
 
-        preds = self._substitutor.composition_prediction(structure.composition,
-                                                         to_this_composition=False)
+        preds = self._substitutor.composition_prediction(
+            structure.composition, to_this_composition=False)
         preds.sort(key=lambda x: x['probability'], reverse=True)
 
         outputs = []
@@ -436,3 +439,76 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
              "@class": self.__class__.__name__}
         d["init_args"]["threshold"] = self._threshold
         return d
+
+
+class MagOrderingTransformation(AbstractTransformation):
+    """
+    This transformation takes a structure and returns a list of magnetic
+    orderings. Currently only works for ordered structures, AFM only,
+    and no supercells generated.
+    """
+
+    def __init__(self, mag_species_spin):
+        """
+        Args:
+            mag_elements_spin:
+                A mapping of elements/species to magnetically order to spin
+                magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
+        """
+        self.mag_species_spin = mag_species_spin
+
+    def apply_transformation(self, structure, return_ranked_list=False):
+        #Make a mutable structure first
+        mods = Structure.from_sites(structure)
+        for sp, spin in self.mag_species_spin.items():
+            sp = smart_element_or_specie(sp)
+            oxi_state = getattr(sp, "oxi_state", 0)
+            up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
+            down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
+            mods.replace_species({sp: Composition({up: 0.5, down: 0.5})})
+        t = EnumerateStructureTransformation()
+        alls = t.apply_transformation(mods,
+                                      return_ranked_list=return_ranked_list)
+        unique = []
+        m = StructureMatcher()
+
+        def get_sg_num(d):
+            f = SymmetryFinder(d["structure"], 0.1)
+            return f.get_spacegroup_number()
+
+        for d1 in alls:
+            found = False
+            for d2 in unique:
+                if m.fit_anonymous(d1["structure"], d2["structure"]) is not \
+                        None:
+                    found = True
+                    break
+            if not found:
+                d1["sg_num"] = get_sg_num(d1)
+                unique.append(d1)
+
+        #Ranking by symmetry number. Higher symmetry is given higher ranking.
+        return sorted(unique, key=lambda d: d["sg_num"], reverse=True)
+
+
+    def __str__(self):
+        return "MagOrderingTransformation"
+
+    def __repr__(self):
+        return self.__str__()
+
+    @property
+    def inverse(self):
+        return None
+
+    @property
+    def is_one_to_many(self):
+        return True
+
+    @property
+    def to_dict(self):
+        return {
+            "name": self.__class__.__name__, "version": __version__,
+            "init_args": {"mag_species_spin": self.mag_species_spin},
+            "@module": self.__class__.__module__,
+            "@class": self.__class__.__name__}
