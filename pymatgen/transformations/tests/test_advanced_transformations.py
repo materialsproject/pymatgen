@@ -23,7 +23,7 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
-    SubstitutionPredictorTransformation
+    SubstitutionPredictorTransformation, MagOrderingTransformation
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 
@@ -185,6 +185,34 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
                          'incorrect threshold passed through dict')
         self.assertEqual(t._substitutor.p.alpha, -2,
                          'incorrect alpha passed through dict')
+
+
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+class MagOrderingTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        trans = MagOrderingTransformation({"Fe": 5})
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        s = p.structure
+        alls = trans.apply_transformation(s, 10)
+        self.assertEqual(len(alls), 3)
+        self.assertEqual(alls[0]["sg_num"], 31)
+
+        #TODO: Remove the debug print below.
+        from pymatgen.io.vaspio_set import MITVaspInputSet
+        vis = MITVaspInputSet()
+
+        for d in alls:
+            for site in d["structure"][4:8]:
+                print "{} {}".format(site.frac_coords, site.specie.spin)
+        print vis.get_incar(d["structure"])["MAGMOM"]
+
+    def test_to_from_dict(self):
+        trans = MagOrderingTransformation({"Fe": 5})
+        d = trans.to_dict
+        trans = MagOrderingTransformation.from_dict(d)
+        self.assertEqual(trans.mag_species_spin, {"Fe": 5})
 
 
 if __name__ == "__main__":
