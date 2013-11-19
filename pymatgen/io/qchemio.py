@@ -399,6 +399,31 @@ class QcInput(MSONable):
             self.params["rem"]["geom_opt_coords"] = \
                 coords_map[coords_type.lower()]
 
+    def scale_geom_opt_threshold(self, gradient=0.1, displacement=0.1,
+                                 energy=0.1):
+        """
+        Adjust the convergence criteria of geometry optimization.
+
+        Args:
+            gradient: the scale factor for gradient criteria. If less than
+                1.0, you are tightening the threshold. The base value is
+                300 × 10E−6
+            displacement: the scale factor for atomic displacement. If less
+                then 1.0, you are tightening the threshold. The base value is
+                1200 × 10E−6
+            energy: the scale factor for energy change between successive
+                iterations. If less than 1.0, you are tightening the
+                threshold. The base value is 100 × 10E−8.
+        """
+        if gradient < 1.0/(300-1) or displacement < 1.0/(1200-1) or \
+            energy < 1.0/(100-1):
+            raise ValueError("The geometry optimization convergence criteria "
+                             "is too tight")
+        self.params["rem"]["geom_opt_tol_gradient"] = int(gradient * 300)
+        self.params["rem"]["geom_opt_tol_displacement"] = int(displacement *
+                                                              1200)
+        self.params["rem"]["geom_opt_tol_energy"] = int(energy * 100)
+
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
             sorted(list(self.optional_keywords_list))
