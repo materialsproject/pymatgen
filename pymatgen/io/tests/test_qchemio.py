@@ -285,6 +285,7 @@ $end
         qcinp.set_memory(total=18000, static=500)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_max_num_of_scratch_files(self):
         ans = '''$comments
@@ -316,6 +317,7 @@ $end
         qcinp.set_max_num_of_scratch_files(500)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_max_scf_iterations(self):
         ans = '''$comments
@@ -349,6 +351,7 @@ $end
                                                iterations=100)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_scf_convergence_threshold(self):
         ans = '''$comments
@@ -380,6 +383,7 @@ $end
         qcinp.set_scf_convergence_threshold(exponent=8)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_integral_threshold(self):
         ans = '''$comments
@@ -411,6 +415,7 @@ $end
         qcinp.set_integral_threshold(thresh=14)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_dft_grid(self):
         ans = '''$comments
@@ -442,6 +447,7 @@ $end
         qcinp.set_dft_grid(radical_points=110, angular_points=590)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_scf_initial_guess(self):
         ans = '''$comments
@@ -473,6 +479,7 @@ $end
         qcinp.set_scf_initial_guess("GWH")
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_geom_opt_max_cycles(self):
         ans = '''$comments
@@ -504,6 +511,7 @@ $end
         qcinp.set_geom_max_iterations(100)
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_geom_opt_coords_type(self):
         ans = '''$comments
