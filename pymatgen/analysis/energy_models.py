@@ -38,13 +38,7 @@ class EnergyModel(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        for m in ['energy_models']:
-            mod = __import__('pymatgen.analysis.' + m,
-                             globals(), locals(), [d['@class']], -1)
-            if hasattr(mod, d['@class']):
-                model = getattr(mod, d['@class'])
-                return model(**d['init_args'])
-        raise ValueError("Invalid filter dict")
+        return cls(**d['init_args'])
 
 
 class EwaldElectrostaticModel(EnergyModel):
