@@ -26,8 +26,10 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.structure_prediction.substitution_probability import \
     SubstitutionPredictor
-from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.structure_matcher import StructureMatcher, \
+    SpinComparator
 from pymatgen.analysis.energy_models import SymmetryModel
+from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -473,31 +475,26 @@ class MagOrderingTransformation(AbstractTransformation):
         t = EnumerateStructureTransformation()
         alls = t.apply_transformation(mods,
                                       return_ranked_list=return_ranked_list)
-        unique = []
-        m = StructureMatcher()
-
-        for d1 in alls:
-            found = False
-            for d2 in unique:
-                if m.fit_anonymous(d1["structure"], d2["structure"]) is not \
-                        None:
-                    found = True
-                    break
-            if not found:
-                unique.append(d1)
-
-        self._all_structures = sorted(
-            unique, key=lambda d: self.emodel.get_energy(d["structure"]))
 
         try:
             num_to_return = int(return_ranked_list)
         except ValueError:
             num_to_return = 1
 
-        if return_ranked_list:
-            return self._all_structures[0:num_to_return]
-        else:
-            return self._all_structures[0]["structure"]
+        if num_to_return == 1:
+            return alls[0]["structure"]
+
+        m = StructureMatcher(comparator=SpinComparator())
+
+        grouped = m.group_structures([d["structure"] for d in alls])
+
+        alls = [{"structure": g[0], "energy": self.emodel.get_energy(g[0])}
+                for g in grouped]
+
+        self._all_structures = sorted(alls, key=lambda d: d["energy"])
+
+        return self._all_structures[0:num_to_return]
+
 
     def __str__(self):
         return "MagOrderingTransformation"
@@ -518,6 +515,14 @@ class MagOrderingTransformation(AbstractTransformation):
         return {
             "name": self.__class__.__name__, "version": __version__,
             "init_args": {"mag_species_spin": self.mag_species_spin,
-                          "energy_model": self.emodel},
+                          "energy_model": self.emodel.to_dict},
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__}
+
+    @classmethod
+    def from_dict(cls, d):
+        init = d["init_args"]
+        return MagOrderingTransformation(
+            init["mag_species_spin"],
+            energy_model=PMGJSONDecoder().process_decoded(
+                init["energy_model"]))
