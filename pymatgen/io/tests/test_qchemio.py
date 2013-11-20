@@ -90,9 +90,20 @@ $end
 '''
         ans_tokens = ans.split('\n')
         ans_text_part = ans_tokens[:2] + ans_tokens[11:]
+        ans_coords_part = ans_tokens[2:11]
         converted_tokens = str(qcinp).split('\n')
-        converted_text_pat = converted_tokens[:2] + converted_tokens[11:]
-        self.assertEqual(str(qcinp), ans)
+        converted_text_part = converted_tokens[:2] + converted_tokens[11:]
+        converted_coords_part = converted_tokens[2:11]
+        self.assertEqual(ans_text_part, converted_text_part)
+        for ans_coords, converted_coords in zip(ans_coords_part,
+                                                converted_coords_part):
+            ans_coords_tokens = ans_coords.split()
+            converted_coords_tokens = converted_coords.split()
+            self.assertEqual(ans_coords_tokens[0], converted_coords_tokens[0])
+            xyz1 = ans_coords_tokens[1:]
+            xyz2 = converted_coords_tokens[1:]
+            for t1, t2 in zip(xyz1, xyz2):
+                self.assertTrue(abs(float(t1)-float(t2)) < 0.0001)
 
     def test_no_mol(self):
         ans = '''$comments
