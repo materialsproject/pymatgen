@@ -27,6 +27,7 @@ from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.structure_prediction.substitution_probability import \
     SubstitutionPredictor
 from pymatgen.analysis.structure_matcher import StructureMatcher
+from pymatgen.analysis.energy_models import SymmetryModel
 
 
 class ChargeBalanceTransformation(AbstractTransformation):
@@ -448,14 +449,17 @@ class MagOrderingTransformation(AbstractTransformation):
     and no supercells generated.
     """
 
-    def __init__(self, mag_species_spin):
+    def __init__(self, mag_species_spin, energy_model=SymmetryModel()):
         """
         Args:
             mag_elements_spin:
                 A mapping of elements/species to magnetically order to spin
                 magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
+            energy_model:
+                Energy model used to rank the structures.
         """
         self.mag_species_spin = mag_species_spin
+        self.emodel = energy_model
 
     def apply_transformation(self, structure, return_ranked_list=False):
         #Make a mutable structure first
@@ -487,9 +491,18 @@ class MagOrderingTransformation(AbstractTransformation):
                 d1["sg_num"] = get_sg_num(d1)
                 unique.append(d1)
 
-        #Ranking by symmetry number. Higher symmetry is given higher ranking.
-        return sorted(unique, key=lambda d: d["sg_num"], reverse=True)
+        self._all_structures = sorted(
+            unique, key=lambda d: self.emodel.get_energy(d["structure"]))
 
+        try:
+            num_to_return = int(return_ranked_list)
+        except ValueError:
+            num_to_return = 1
+
+        if return_ranked_list:
+            return self._all_structures[0:num_to_return]
+        else:
+            return self._all_structures[0]["structure"]
 
     def __str__(self):
         return "MagOrderingTransformation"
@@ -509,6 +522,7 @@ class MagOrderingTransformation(AbstractTransformation):
     def to_dict(self):
         return {
             "name": self.__class__.__name__, "version": __version__,
-            "init_args": {"mag_species_spin": self.mag_species_spin},
+            "init_args": {"mag_species_spin": self.mag_species_spin,
+                          "energy_model": self.emodel},
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__}

@@ -14,7 +14,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "11/19/13"
 
 from pymatgen.analysis.energy_models import EwaldElectrostaticModel, \
-    SymmetryModel
+    SymmetryModel, IsingModel
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -65,6 +65,26 @@ class SymmetryModelTest(unittest.TestCase):
         o = SymmetryModel.from_dict(d)
         self.assertIsInstance(o, SymmetryModel)
         self.assertEqual(o.symprec, 0.2)
+
+
+class IsingModelTest(unittest.TestCase):
+
+    def test_get_energy(self):
+        m = IsingModel(5, 6)
+        from pymatgen.core.periodic_table import Specie
+        s = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
+        s.replace_species({"Fe": Specie("Fe", 2, {"spin": 4})})
+        self.assertEqual(m.get_energy(s), 172.81260515787977)
+        s.replace(4, Specie("Fe", 2, {"spin": -4}))
+        s.replace(5, Specie("Fe", 2, {"spin": -4}))
+        self.assertEqual(m.get_energy(s), 51.97424405382921)
+
+    def test_to_from_dict(self):
+        m = IsingModel(5, 4)
+        d = m.to_dict
+        o = IsingModel.from_dict(d)
+        self.assertIsInstance(o, IsingModel)
+        self.assertEqual(o.j, 5)
 
 
 if __name__ == "__main__":
