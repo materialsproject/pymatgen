@@ -40,8 +40,10 @@ class TestQcInput(TestCase):
         self.assertEqual(ref_dict, d2)
 
     def test_read_zmatrix(self):
-        contents = '''$molecule
+        contents = '''$moLEcule
+
  1 2
+
  S
  C  1 1.726563
  H  2 1.085845 1 119.580615
@@ -53,9 +55,9 @@ class TestQcInput(TestCase):
  F  8 1.292591 6 124.884374 4 -180.000000 0
 $end
 
-$rem
-   basis  =  6-31+g*
-   exchange  =  b3lyp
+$reM
+   BASIS  =  6-31+G*
+   EXCHANGE  =  B3LYP
    jobtype  =  freq
 $end
 
@@ -200,6 +202,7 @@ $end
                                        "Cl": "rimp2-aug-cc-pvdz"})
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_ecp_str(self):
         ans = '''$comments

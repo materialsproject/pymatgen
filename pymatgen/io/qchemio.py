@@ -661,7 +661,6 @@ class QcInput(MSONable):
     def _parse_comments(cls, contents):
         return '\n'.join(contents).strip()
 
-
     @classmethod
     def _parse_coords(cls, coord_lines):
         """
@@ -806,18 +805,40 @@ class QcInput(MSONable):
             if len(tokens) < 2:
                 raise ValueError("Can't parse $rem section, there should be "
                                  "at least two field: key and value!")
-            k, v = tokens[:2]
-            if k == "xc_grid":
-                d[k] = v
+            k1, v = tokens[:2]
+            k2 = k1.lower()
+            if k2 == "xc_grid":
+                d[k2] = v
             elif v == "True":
-                d[k] = True
+                d[k2] = True
             elif v == "False":
-                d[k] = False
+                d[k2] = False
             elif int_pattern.match(v):
-                d[k] = int(v)
+                d[k2] = int(v)
             elif float_pattern.match(v):
-                d[k] = float(v)
+                d[k2] = float(v)
             else:
-                d[k] = v
+                d[k2] = v.lower()
         return d
 
+    @classmethod
+    def _parse_aux_basis(cls, contents):
+        if len(contents) % 3 != 0:
+            raise  ValueError("Auxiliary basis set section format error")
+        chunks = zip(*[iter(contents)]*3)
+        d = dict()
+        for ch in chunks:
+            element, basis = ch[:2]
+            d[element.strip().capitalize()] = basis.strip().lower()
+        return d
+
+    @classmethod
+    def _parse_basis(cls, contents):
+        if len(contents) % 3 != 0:
+            raise  ValueError("Basis set section format error")
+        chunks = zip(*[iter(contents)]*3)
+        d = dict()
+        for ch in chunks:
+            element, basis = ch[:2]
+            d[element.strip().capitalize()] = basis.strip().lower()
+        return d
