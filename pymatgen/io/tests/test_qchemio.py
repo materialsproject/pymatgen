@@ -25,11 +25,11 @@ heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
 
 class TestQcInput(TestCase):
 
-    def elementary_io_test(self, text, qcinp):
+    def elementary_io_verify(self, text, qcinp):
         self.to_and_from_dict_test(qcinp)
         self.from_string_test(contents=text, ref_dict=qcinp.to_dict)
 
-    def to_and_from_dict_test(self, qcinp):
+    def to_and_from_dict_verify(self, qcinp):
         """
         Helper function. This function should be called in each specific test.
         """
