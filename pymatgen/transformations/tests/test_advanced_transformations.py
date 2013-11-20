@@ -213,7 +213,7 @@ class MagOrderingTransformationTest(unittest.TestCase):
         trans = MagOrderingTransformation({"Fe": 5})
         d = trans.to_dict
         #Check json encodability
-        print json.dump(d)
+        s = json.dumps(d)
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
         from pymatgen.analysis.energy_models import SymmetryModel
