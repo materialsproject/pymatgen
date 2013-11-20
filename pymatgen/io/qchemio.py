@@ -115,7 +115,7 @@ class QcInput(MSONable):
 
         """
 
-        self.mol = molecule if molecule else "read"
+        self.mol = copy.deepcopy(molecule) if molecule else "read"
         if isinstance(self.mol, str):
             self.mol = self.mol.lower()
         self.charge = charge
@@ -136,6 +136,8 @@ class QcInput(MSONable):
                 self.spin_multiplicity = 1 if nelectrons % 2 == 0 else 2
         if (self.charge is None) != (self.spin_multiplicity is None):
             raise ValueError("spin multiplicity must be set together")
+        if self.charge is not None and isinstance(self.mol, Molecule):
+            self.mol.set_charge_and_spin(self.charge, self.spin_multiplicity)
         self.params = dict()
         if title is not None:
             self.params["comments"] = title
