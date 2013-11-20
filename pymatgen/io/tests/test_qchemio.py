@@ -39,6 +39,51 @@ class TestQcInput(TestCase):
         d2 = qcinp.to_dict
         self.assertEqual(ref_dict, d2)
 
+    def test_read_zmatrix(self):
+        contents = '''$molecule
+ 1 2
+ S
+ C  1 1.726563
+ H  2 1.085845 1 119.580615
+ C  2 1.423404 1 114.230851 3 -180.000000 0
+ H  4 1.084884 2 122.286346 1 -180.000000 0
+ C  4 1.381259 2 112.717365 1 0.000000 0
+ H  6 1.084731 4 127.143779 2 -180.000000 0
+ C  6 1.415867 4 110.076147 2 0.000000 0
+ F  8 1.292591 6 124.884374 4 -180.000000 0
+$end
+
+$rem
+   basis  =  6-31+g*
+   exchange  =  b3lyp
+   jobtype  =  freq
+$end
+
+'''
+        qcinp = QcInput.from_string(contents)
+        ans = '''$molecule
+ 1  2
+ S           0.00000000        0.00000000        0.00000000
+ C           0.00000000        0.00000000        1.72656300
+ H          -0.94431813        0.00000000        2.26258784
+ C           1.29800105       -0.00000002        2.31074808
+ H           1.45002821       -0.00000002        3.38492732
+ C           2.30733813       -0.00000003        1.36781908
+ H           3.37622632       -0.00000005        1.55253338
+ C           1.75466906       -0.00000003        0.06427152
+ F           2.44231414       -0.00000004       -1.03023099
+$end
+
+
+$rem
+   jobtype = freq
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+'''
+        self.assertEqual(str(qcinp), ans)
+
     def test_no_mol(self):
         ans = '''$comments
  Test Methane
@@ -94,6 +139,7 @@ $end
                         basis_set="6-31+G*")
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_aux_basis_str(self):
         ans = '''$comments
