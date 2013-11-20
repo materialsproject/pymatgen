@@ -213,6 +213,7 @@ class MagOrderingTransformationTest(unittest.TestCase):
         d = trans.to_dict
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
+        print trans.emodel
 
 
 if __name__ == "__main__":

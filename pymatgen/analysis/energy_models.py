@@ -129,3 +129,37 @@ class SymmetryModel(EnergyModel):
                 "@class": self.__class__.__name__,
                 "init_args": {"symprec": self.symprec,
                               "angle_tolerance": self.angle_tolerance}}
+
+class IsingModel(EnergyModel):
+    """
+    A very simple Ising model, with r^2 decay.
+    """
+
+    def __init__(self, j, max_radius):
+        """
+        Args:
+            j:
+                The interaction parameter. E = J * spin1 * spin2.
+            radius:
+                The max_radius for the interaction.
+        """
+        self.j = j
+        self.max_radius = max_radius
+
+    def get_energy(self, structure):
+        all_nn = structure.get_all_neighbors(r=self.max_radius)
+        energy = 0
+        for i, nn in enumerate(all_nn):
+            s1 = getattr(structure[i].specie, "spin", 0)
+            for site, dist in nn:
+                energy += self.j * s1 * getattr(site.specie, "spin",
+                                                0) / (dist ** 2)
+        return energy
+
+    @property
+    def to_dict(self):
+        return {"version": __version__,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {"j": self.j, "max_radius": self.max_radius}}
+
