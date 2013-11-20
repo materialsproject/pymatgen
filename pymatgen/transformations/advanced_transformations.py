@@ -476,10 +476,6 @@ class MagOrderingTransformation(AbstractTransformation):
         unique = []
         m = StructureMatcher()
 
-        def get_sg_num(d):
-            f = SymmetryFinder(d["structure"], 0.1)
-            return f.get_spacegroup_number()
-
         for d1 in alls:
             found = False
             for d2 in unique:
@@ -488,7 +484,6 @@ class MagOrderingTransformation(AbstractTransformation):
                     found = True
                     break
             if not found:
-                d1["sg_num"] = get_sg_num(d1)
                 unique.append(d1)
 
         self._all_structures = sorted(

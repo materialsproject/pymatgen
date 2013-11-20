@@ -26,7 +26,8 @@ from pymatgen.transformations.advanced_transformations import \
     SubstitutionPredictorTransformation, MagOrderingTransformation
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
-
+from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.analysis.energy_models import IsingModel
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -197,23 +198,22 @@ class MagOrderingTransformationTest(unittest.TestCase):
         s = p.structure
         alls = trans.apply_transformation(s, 10)
         self.assertEqual(len(alls), 3)
-        self.assertEqual(alls[0]["sg_num"], 31)
+        f = SymmetryFinder(alls[0]["structure"], 0.1)
+        self.assertEqual(f.get_spacegroup_number(), 31)
 
-        #TODO: Remove the debug print below.
-        from pymatgen.io.vaspio_set import MITVaspInputSet
-        vis = MITVaspInputSet()
-
-        for d in alls:
-            for site in d["structure"][4:8]:
-                print "{} {}".format(site.frac_coords, site.specie.spin)
-        print vis.get_incar(d["structure"])["MAGMOM"]
+        model = IsingModel(5, 5)
+        trans = MagOrderingTransformation({"Fe": 5},
+                                          energy_model=model)
+        alls2 = trans.apply_transformation(s, 10)
+        #Ising model with +J penalizes similar neighbor magmom.
+        self.assertNotEqual(alls[0]["structure"], alls2[0]["structure"])
+        self.assertEqual(alls[0]["structure"], alls2[2]["structure"])
 
     def test_to_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5})
         d = trans.to_dict
         trans = MagOrderingTransformation.from_dict(d)
         self.assertEqual(trans.mag_species_spin, {"Fe": 5})
-        print trans.emodel
 
 
 if __name__ == "__main__":
