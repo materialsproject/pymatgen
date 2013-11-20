@@ -776,7 +776,8 @@ class QcInput(MSONable):
     @classmethod
     def _parse_molecule(cls, contents):
         text = copy.deepcopy(contents[:2])
-        charge_multi_pattern = re.compile('\s*(?P<charge>[-+]?\d+)\s+(?P<multi>\d+)')
+        charge_multi_pattern = re.compile('\s*(?P<charge>'
+                                          '[-+]?\d+)\s+(?P<multi>\d+)')
         line = text.pop(0)
         m = charge_multi_pattern.match(line)
         if m:
@@ -824,7 +825,7 @@ class QcInput(MSONable):
     @classmethod
     def _parse_aux_basis(cls, contents):
         if len(contents) % 3 != 0:
-            raise  ValueError("Auxiliary basis set section format error")
+            raise ValueError("Auxiliary basis set section format error")
         chunks = zip(*[iter(contents)]*3)
         d = dict()
         for ch in chunks:
@@ -835,10 +836,21 @@ class QcInput(MSONable):
     @classmethod
     def _parse_basis(cls, contents):
         if len(contents) % 3 != 0:
-            raise  ValueError("Basis set section format error")
+            raise ValueError("Basis set section format error")
         chunks = zip(*[iter(contents)]*3)
         d = dict()
         for ch in chunks:
             element, basis = ch[:2]
             d[element.strip().capitalize()] = basis.strip().lower()
+        return d
+
+    @classmethod
+    def _parse_ecp(cls, contents):
+        if len(contents) % 3 != 0:
+            raise ValueError("ECP section format error")
+        chunks = zip(*[iter(contents)]*3)
+        d = dict()
+        for ch in chunks:
+            element, ecp = ch[:2]
+            d[element.strip().capitalize()] = ecp.strip().lower()
         return d
