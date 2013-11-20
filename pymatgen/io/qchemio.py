@@ -856,3 +856,35 @@ class QcInput(MSONable):
             element, ecp = ch[:2]
             d[element.strip().capitalize()] = ecp.strip().lower()
         return d
+
+
+class QcBatchInput(MSONable):
+    """
+    An object representing a multiple step QChem input file.
+    """
+
+    def __init__(self, jobs):
+        """
+        Args:
+            jobs: The QChem jobs
+                (List of QcInput object)
+        """
+        jobs = jobs if isinstance(jobs, list) else [jobs]
+        for j in jobs:
+            if not isinstance(j, QcInput):
+                raise ValueError("jobs must be a list QcInput object")
+            self.jobs = jobs
+
+    def __str__(self):
+        return "@@@\n\n".join(self.jobs)
+
+    @property
+    def to_dict(self):
+        return {"@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "jobs": [j.to_dict for j in self.jobs]}
+
+    @classmethod
+    def from_dict(cls, d):
+        jobs = [QcInput.from_dict(j) for j in d["jobs"]]
+        return QcBatchInput(jobs)
