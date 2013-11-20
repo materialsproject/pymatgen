@@ -560,11 +560,15 @@ class PyFlowScheduler(object):
         flow.check_status()
 
         # Try to restart the unconverged tasks
-        #for task in self.flow.unconverged_tasks
-        #    try:
-        #        fired = task.restart()
-        #        self.nlaunch += 1
-        #    except:
+        for task in self.flow.unconverged_tasks:
+            try:
+                fired = task.restart()
+                if fired: self.nlaunch += 1
+
+            except Exception:
+                excs.append(straceback())
+
+        flow.pickle_dump()
 
         # Test whether some task should be restarted.
         #if self.auto_restart:
@@ -581,7 +585,11 @@ class PyFlowScheduler(object):
         #        print("num_restarts done successfully: ", num_restarts)
         #        self.pickle_dump()
 
-
+        #if self.num_restarts == self.max_num_restarts:
+        #    info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
+        #    logger.info(info_msg)
+        #    self.history.append(info_msg)
+        #    return 1
 
         # Submit the tasks that are ready.
         try:
@@ -653,12 +661,12 @@ class PyFlowScheduler(object):
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_UNCONVERGED.
-        if self.flow.num_unconverged_tasks:
-            # TODO: this is needed to avoid deadlocks, automatic restarting is not available yet
-            msg = ("Found %d unconverged tasks." 
-                   "Automatic restarting is not available yet. Will shutdown the scheduler and exit" 
-                   % self.flow.num_unconverged_tasks)
-            err_msg += boxed(msg)
+        #if self.flow.num_unconverged_tasks:
+        #    # TODO: this is needed to avoid deadlocks, automatic restarting is not available yet
+        #    msg = ("Found %d unconverged tasks." 
+        #           "Automatic restarting is not available yet. Will shutdown the scheduler and exit" 
+        #           % self.flow.num_unconverged_tasks)
+        #    err_msg += boxed(msg)
 
         #deadlocks = self.detect_deadlocks()
         #if deadlocks:
@@ -695,7 +703,8 @@ class PyFlowScheduler(object):
             retcode = self.send_email(msg)
 
             # Write text file with the list of exceptions:
-            if retcode and self.exceptions:
+            #if self.exceptions and retcode: 
+            if self.exceptions:
                 dump_file = os.path.join(self.flow.workdir, "launcher.log")
                 with open(dump_file, "w") as fh:
                     fh.writelines(self.exceptions)

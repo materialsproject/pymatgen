@@ -1096,9 +1096,8 @@ class Task(Node):
         # Set the initial status.
         self.set_status(self.S_INIT)
 
-        # Number of restarts effectuated and max number (-1 --> no limit).
+        # Number of restarts effectuated.
         self.num_restarts = 0
-        self.max_num_restarts = -1
 
     def __getstate__(self):
         """
@@ -1270,44 +1269,18 @@ class Task(Node):
         if not fired:
             self.history.append("[%s], restart failed" % time.asctime())
 
-        return 0
+        return fired
 
     def restart(self):
         """
-        Restart the calculation. This method is called if the calculation is not converged 
-        and we can restart the task. See restart_if_needed.
-        """
-        logger.debug("Calling the **empty** restart method of the base class")
-
-    def restart_if_needed(self):
-        """
-        Callback that is executed once the job is done. 
-        The implementation of the two methods: 
-
-           - not_converged
-           - restart 
-           
-        is delegated to the subclasses.
+        Restart the calculation.  Subclasses should provide a concrete version that 
+        performs all the actions needed for preparing the restart and then calls self._restart
+        to restart the task. The default implementation is empty.
 
         Returns:
-            0 if succes, 1 if restart was not possible.
+            1 if job was restarted, 0 otherwise.
         """
-        if self.not_converged():
-            if self.num_restarts == self.max_num_restarts:
-                info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
-                logger.info(info_msg)
-                self.history.append(info_msg)
-                return 1
-
-            try:
-                self.restart()
-    
-            except TaskRestartError as exc:
-                info_msg = "Calculation not converged but restart was not possible!\nException: %s" % exc
-                logger.debug(info_msg)
-                self.set_status(self.S_ERROR, info_msg=info_msg)
-                return 1
-     
+        logger.debug("Calling the **empty** restart method of the base class")
         return 0
 
     def poll(self):
@@ -2069,7 +2042,7 @@ class ScfTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
     def inspect(self, **kwargs):
         """
@@ -2108,7 +2081,7 @@ class NscfTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
 
 class RelaxTask(AbinitTask):
@@ -2174,7 +2147,7 @@ class RelaxTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
     def inspect(self, **kwargs):
         """
@@ -2224,7 +2197,7 @@ class PhononTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
     def inspect(self, **kwargs):
         """
@@ -2263,7 +2236,7 @@ class G_Task(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
 
 class BseTask(AbinitTask):
@@ -2339,7 +2312,7 @@ class HaydockBseTask(BseTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
 
 class OpticTask(Task):

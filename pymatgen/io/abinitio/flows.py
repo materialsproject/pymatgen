@@ -333,7 +333,7 @@ class AbinitFlow(Node):
             table = [["Task", "Status", "Queue_id", 
                       "Errors", "Warnings", "Comments", 
                       "MPI", "OMP", 
-                      "num_restarts", "max_restarts", "Task Class"
+                      "num_restarts", "Task Class"
                      ]]
 
             for task in work:
@@ -347,7 +347,7 @@ class AbinitFlow(Node):
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
 
                 cpu_info = map(str, [task.mpi_ncpus, task.omp_ncpus])
-                task_info = map(str, [task.num_restarts, task.max_num_restarts, task.__class__.__name__])
+                task_info = map(str, [task.num_restarts, task.__class__.__name__])
 
                 table.append(
                     [task_name, str(task.status), str(task.queue_id)] + 
