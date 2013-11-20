@@ -25,6 +25,10 @@ heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
 
 class TestQcInput(TestCase):
 
+    def elementary_io_test(self, text, qcinp):
+        self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=text, ref_dict=qcinp.to_dict)
+
     def to_and_from_dict_test(self, qcinp):
         """
         Helper function. This function should be called in each specific test.
@@ -110,8 +114,7 @@ $end
                         spin_multiplicity=2,
                         basis_set="6-31+G*")
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_simple_basis_str(self):
         ans = '''$comments
@@ -140,8 +143,7 @@ $end
                         jobtype="SP",
                         basis_set="6-31+G*")
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_aux_basis_str(self):
         ans = '''$comments
@@ -201,8 +203,7 @@ $end
                                        "H": "rimp2-cc-pvdz",
                                        "Cl": "rimp2-aug-cc-pvdz"})
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_ecp_str(self):
         ans = '''$comments
@@ -251,8 +252,7 @@ $end
                         basis_set={"Br": "srlc", "Cd": "srsc"},
                         ecp={"Br": "SrlC", "Cd": "srsc"})
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_memory(self):
         ans = '''$comments
@@ -284,8 +284,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_memory(total=18000, static=500)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_max_num_of_scratch_files(self):
         ans = '''$comments
@@ -316,8 +315,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_max_num_of_scratch_files(500)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_max_scf_iterations(self):
         ans = '''$comments
@@ -350,8 +348,7 @@ $end
         qcinp.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
                                                iterations=100)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_scf_convergence_threshold(self):
         ans = '''$comments
@@ -382,8 +379,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_scf_convergence_threshold(exponent=8)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_integral_threshold(self):
         ans = '''$comments
@@ -414,8 +410,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_integral_threshold(thresh=14)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_dft_grid(self):
         ans = '''$comments
@@ -446,8 +441,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_dft_grid(radical_points=110, angular_points=590)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_scf_initial_guess(self):
         ans = '''$comments
@@ -478,8 +472,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_scf_initial_guess("GWH")
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_geom_opt_max_cycles(self):
         ans = '''$comments
@@ -510,8 +503,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_geom_max_iterations(100)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
-        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_geom_opt_coords_type(self):
         ans = '''$comments
@@ -542,7 +534,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_geom_opt_coords_type("cartesian")
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
+        self.elementary_io_test(ans, qcinp)
 
     def test_scale_geom_opt_threshold(self):
         ans = '''$comments
@@ -576,7 +568,7 @@ $end
         qcinp.scale_geom_opt_threshold(gradient=0.1, displacement=0.1,
                                        energy=0.1)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
+        self.elementary_io_test(ans, qcinp)
 
     def test_set_geom_opt_use_gdiis(self):
         ans = '''$comments
@@ -607,7 +599,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.set_geom_opt_use_gdiis()
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
+        self.elementary_io_test(ans, qcinp)
 
     def test_disable_symmetry(self):
         ans = '''$comments
@@ -639,7 +631,7 @@ $end
                         basis_set="6-31+G*")
         qcinp.disable_symmetry()
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
+        self.elementary_io_test(ans, qcinp)
 
     def test_use_cosmo(self):
         ans = '''$comments
@@ -671,4 +663,4 @@ $end
                         basis_set="6-31+G*")
         qcinp.use_cosmo(dielectric_constant=35.0)
         self.assertEqual(str(qcinp), ans)
-        self.to_and_from_dict_test(qcinp)
+        self.elementary_io_test(ans, qcinp)
