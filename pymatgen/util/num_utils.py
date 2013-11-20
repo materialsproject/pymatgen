@@ -190,4 +190,3 @@ def ilotri(items, diago=True, with_inds=False):
                     yield (ii, jj), (item1, item2)
                 else:
                     yield item1, item2
-
