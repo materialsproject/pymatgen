@@ -209,6 +209,15 @@ class MagOrderingTransformationTest(unittest.TestCase):
         self.assertNotEqual(alls[0]["structure"], alls2[0]["structure"])
         self.assertEqual(alls[0]["structure"], alls2[2]["structure"])
 
+        from pymatgen.io.smartio import read_structure
+        s = read_structure(os.path.join(test_dir, 'Li2O.cif'))
+        #Li2O doesn't have magnetism of course, but this is to test the
+        # enumeration.
+        trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
+        alls = trans.apply_transformation(s, 100)
+        self.assertEqual(len(alls), 10)
+
+
     def test_to_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5})
         d = trans.to_dict

@@ -451,7 +451,8 @@ class MagOrderingTransformation(AbstractTransformation):
     and no supercells generated.
     """
 
-    def __init__(self, mag_species_spin, energy_model=SymmetryModel()):
+    def __init__(self, mag_species_spin, energy_model=SymmetryModel(),
+                 **kwargs):
         """
         Args:
             mag_elements_spin:
@@ -459,9 +460,13 @@ class MagOrderingTransformation(AbstractTransformation):
                 magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
             energy_model:
                 Energy model used to rank the structures.
+            **kwargs:
+                Same keyword args as :class:EnumerateStructureTransformation,
+                i.e., min_cell_size, etc.
         """
         self.mag_species_spin = mag_species_spin
         self.emodel = energy_model
+        self.enum_kwargs = kwargs
 
     def apply_transformation(self, structure, return_ranked_list=False):
         #Make a mutable structure first
@@ -472,7 +477,8 @@ class MagOrderingTransformation(AbstractTransformation):
             up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
             down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
             mods.replace_species({sp: Composition({up: 0.5, down: 0.5})})
-        t = EnumerateStructureTransformation()
+
+        t = EnumerateStructureTransformation(**self.enum_kwargs)
         alls = t.apply_transformation(mods,
                                       return_ranked_list=return_ranked_list)
 
@@ -515,7 +521,8 @@ class MagOrderingTransformation(AbstractTransformation):
         return {
             "name": self.__class__.__name__, "version": __version__,
             "init_args": {"mag_species_spin": self.mag_species_spin,
-                          "energy_model": self.emodel.to_dict},
+                          "energy_model": self.emodel.to_dict,
+                          "enum_kwargs": self.enum_kwargs},
             "@module": self.__class__.__module__,
             "@class": self.__class__.__name__}
 
@@ -525,4 +532,5 @@ class MagOrderingTransformation(AbstractTransformation):
         return MagOrderingTransformation(
             init["mag_species_spin"],
             energy_model=PMGJSONDecoder().process_decoded(
-                init["energy_model"]))
+                init["energy_model"]),
+            **init["enum_kwargs"])
