@@ -4,6 +4,8 @@
 """
 This module implements input and output processing from QChem.
 """
+import copy
+import re
 from string import Template
 from pymatgen import zopen
 from pymatgen.core.structure import Molecule
@@ -113,7 +115,7 @@ class QcInput(MSONable):
             self.mol = self.mol.lower()
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        if self.mol is not "read":
+        if self.mol != "read":
             if not isinstance(self.mol, Molecule):
                 raise ValueError("The molecule must be a pymatgen Molecule "
                                  "object or read/None")
@@ -571,3 +573,136 @@ class QcInput(MSONable):
     def write_file(self, filename):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
+
+    @classmethod
+    def from_string(cls, contents):
+        """
+        Creates QcInput from a string.
+
+        Args:
+            contents:
+                String representing a QChem input file.
+
+        Returns:
+            QcInput object
+        """
+        mol = None
+        charge = None
+        spin_multiplicity = None
+        params = dict()
+        lines = contents.split('\n')
+        parse_section = False
+        section_name = None
+        section_text = []
+        for line_num, line in enumerate(lines):
+            l = line.strip().lower()
+
+            if len(l) == 0:
+                continue
+            if (not parse_section) and (l == "$end" or not l.startswith("$")):
+                raise ValueError("Format error, parsing failed")
+            if parse_section and l != "$end":
+                section_text.append(line)
+            if l.startswith("$") and not parse_section:
+                parse_section = True
+                section_name = l[1:]
+                available_sections = ["comments", "molecule", "rem"] + \
+                    sorted(list(cls.optional_keywords_list))
+                if section_name not in available_sections:
+                    raise ValueError("Unrecognized keyword " + line.strip() +
+                                     "at line " + str(line_num))
+                if section_name in params:
+                    raise ValueError("duplicated keyword " + line.strip() +
+                                     "at line " + str(line_num))
+            if parse_section and l == "$end":
+                func_name = "_parse_" + section_name
+                if func_name not in QcInput.__dict__:
+                    raise Exception(func_name + " is not implemented yet, "
+                                    "please implement it")
+                parse_func = QcInput.__dict__[func_name].__get__(None, QcInput)
+                if section_name == "molecule":
+                    mol, charge, spin_multiplicity = parse_func(section_text)
+                else:
+                    d = parse_func(section_text)
+                    params[section_name] = d
+                parse_section = False
+                section_name = None
+                section_text = []
+        if parse_section:
+            raise ValueError("Format error. " + section_name + " is not "
+                             "terminated")
+        jobtype = params["rem"]["jobtype"]
+        title = params.get("comments", None)
+        exchange = params["rem"]["exchange"]
+        correlation = params["rem"].get("correlation", None)
+        basis_set = params["rem"]["basis"]
+        aux_basis_set = params["rem"].get("aux_basis", None)
+        ecp = params["rem"].get("ecp", None)
+        optional_params = None
+        op_keys = set(params.keys()) - {"comments", "rem"}
+        if len(op_keys) > 0:
+            optional_params = dict()
+            for k in op_keys:
+                optional_params[k] = params[k]
+        return QcInput(molecule=mol, charge=charge,
+                       spin_multiplicity=spin_multiplicity,
+                       jobtype=jobtype, title=title,
+                       exchange=exchange, correlation=correlation,
+                       basis_set=basis_set, aux_basis_set=aux_basis_set,
+                       ecp=ecp, rem_params=params["rem"],
+                       optional_params=optional_params)
+
+    @classmethod
+    def _parse_comments(cls, contents):
+        return '\n'.join(contents).strip()
+
+
+    @classmethod
+    def _parse_coords(cls, contents, charge, spin_multiplicity):
+        raise Exception("_parse_coords is not implemented")
+
+    @classmethod
+    def _parse_molecule(cls, contents):
+        text = copy.deepcopy(contents[:2])
+        charge_multi_pattern = re.compile('\s*(?P<charge>[-+]?\d+)\s+(?P<multi>\d+)')
+        line = text.pop(0)
+        m = charge_multi_pattern.match(line)
+        if m:
+            charge = int(m.group("charge"))
+            spin_multiplicity = int(m.group("multi"))
+            line = text.pop(0)
+        else:
+            charge = None
+            spin_multiplicity = None
+        if line.strip().lower() == "read":
+            return "read", charge, spin_multiplicity
+        elif charge is None or spin_multiplicity is None:
+            raise ValueError("Charge or spin multiplicity is not found")
+        else:
+            cls._parse_coords(contents[1:])
+
+    @classmethod
+    def _parse_rem(cls, contents):
+        d = dict()
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+        for line in contents:
+            tokens = line.strip().replace("=", ' ').split()
+            if len(tokens) < 2:
+                raise ValueError("Can't parse $rem section, there should be "
+                                 "at least two field: key and value!")
+            k, v = tokens[:2]
+            if k == "xc_grid":
+                d[k] = v
+            elif v == "True":
+                d[k] = True
+            elif v == "False":
+                d[k] = False
+            elif int_pattern.match(v):
+                d[k] = int(v)
+            elif float_pattern.match(v):
+                d[k] = float(v)
+            else:
+                d[k] = v
+        return d
+

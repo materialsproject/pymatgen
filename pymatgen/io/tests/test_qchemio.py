@@ -34,6 +34,38 @@ class TestQcInput(TestCase):
         d2 = qc2.to_dict
         self.assertEqual(d1, d2)
 
+    def from_string_test(self, contents, ref_dict):
+        qcinp = QcInput.from_string(contents)
+        d2 = qcinp.to_dict
+        self.assertEqual(ref_dict, d2)
+
+    def test_no_mol(self):
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ -1  2
+ read
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+'''
+        qcinp = QcInput(molecule="READ", title="Test Methane",
+                        exchange="B3LYP", jobtype="SP", charge=-1,
+                        spin_multiplicity=2,
+                        basis_set="6-31+G*")
+        self.assertEqual(str(qcinp), ans)
+        self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
+
     def test_simple_basis_str(self):
         ans = '''$comments
  Test Methane
