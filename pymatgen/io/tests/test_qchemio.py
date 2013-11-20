@@ -252,6 +252,7 @@ $end
                         ecp={"Br": "SrlC", "Cd": "srsc"})
         self.assertEqual(str(qcinp), ans)
         self.to_and_from_dict_test(qcinp)
+        self.from_string_test(contents=ans, ref_dict=qcinp.to_dict)
 
     def test_set_memory(self):
         ans = '''$comments
