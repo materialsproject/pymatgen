@@ -217,7 +217,6 @@ class MagOrderingTransformationTest(unittest.TestCase):
         alls = trans.apply_transformation(s, 100)
         self.assertEqual(len(alls), 10)
 
-
     def test_to_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5})
         d = trans.to_dict
