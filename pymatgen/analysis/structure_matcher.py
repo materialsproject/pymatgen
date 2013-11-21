@@ -129,6 +129,60 @@ class SpeciesComparator(AbstractComparator):
         return structure.composition.reduced_formula
 
 
+class SpinComparator(AbstractComparator):
+    """
+    A Comparator that matches magnetic structures to their inverse spins.
+    This comparator is primarily used to filter magnetically ordered
+    structures with opposite spins, which are equivalent.
+    """
+
+    def are_equal(self, sp1, sp2):
+        """
+        True if species are exactly the same, i.e., Fe2+ == Fe2+ but not
+        Fe3+. and the spins are reversed. i.e., spin up maps to spin down,
+        and vice versa.
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            Boolean indicating whether species are equal.
+        """
+        for s1, amt2 in sp1.items():
+            spin1 = getattr(s1, "spin", 0)
+            oxi1 = getattr(s1, "oxi_state", 0)
+            found = False
+            for s2, amt2 in sp2.items():
+                spin2 = getattr(s2, "spin", 0)
+                oxi2 = getattr(s2, "oxi_state", 0)
+                if (s1.symbol == s2.symbol and oxi1 == oxi2
+                        and spin2 == -spin1):
+                    found = True
+                    break
+            if not found:
+                return False
+        return True
+
+    def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            Reduced formula for the structure is used as a hash for the
+            SpeciesComparator.
+        """
+        return structure.composition.reduced_formula
+
+
 class ElementComparator(AbstractComparator):
     """
     A Comparator that matches elements. i.e. oxidation states are
