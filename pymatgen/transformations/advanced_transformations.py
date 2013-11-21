@@ -447,8 +447,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 class MagOrderingTransformation(AbstractTransformation):
     """
     This transformation takes a structure and returns a list of magnetic
-    orderings. Currently only works for ordered structures, AFM only,
-    and no supercells generated.
+    orderings. Currently only works for AFM only.
     """
 
     def __init__(self, mag_species_spin, energy_model=SymmetryModel(),
@@ -459,9 +458,10 @@ class MagOrderingTransformation(AbstractTransformation):
                 A mapping of elements/species to magnetically order to spin
                 magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
             energy_model:
-                Energy model used to rank the structures.
+                Energy model used to rank the structures. Some models are
+                provided in :mod:`pymatgen.analysis.energy_models`.
             **kwargs:
-                Same keyword args as :class:EnumerateStructureTransformation,
+                Same keyword args as :class:`EnumerateStructureTransformation`,
                 i.e., min_cell_size, etc.
         """
         self.mag_species_spin = mag_species_spin
