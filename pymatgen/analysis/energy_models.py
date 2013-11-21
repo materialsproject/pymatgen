@@ -94,7 +94,7 @@ class EwaldElectrostaticModel(EnergyModel):
 class SymmetryModel(EnergyModel):
     """
     Sets the energy to the -ve of the spacegroup number. Higher symmetry =>
-    higher "energy"
+    lower "energy"
     """
 
     def __init__(self, symprec=0.1, angle_tolerance=5):
@@ -123,6 +123,7 @@ class SymmetryModel(EnergyModel):
                 "@class": self.__class__.__name__,
                 "init_args": {"symprec": self.symprec,
                               "angle_tolerance": self.angle_tolerance}}
+
 
 class IsingModel(EnergyModel):
     """
@@ -157,3 +158,23 @@ class IsingModel(EnergyModel):
                 "@class": self.__class__.__name__,
                 "init_args": {"j": self.j, "max_radius": self.max_radius}}
 
+
+class NsitesModel(EnergyModel):
+    """
+    Sets the energy to the number of sites. More sites => higher "energy".
+    Used to rank structures from smallest number of sites to largest number
+    of sites after enumeration.
+    """
+
+    def __init__(self):
+        pass
+
+    def get_energy(self, structure):
+        return len(structure)
+
+    @property
+    def to_dict(self):
+        return {"version": __version__,
+                "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {}}
