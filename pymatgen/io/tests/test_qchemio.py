@@ -680,6 +680,7 @@ $end
         self.assertEqual(str(qcinp), ans)
         self.elementary_io_verify(ans, qcinp)
 
+
 class TestQcBatchInput(TestCase):
     def test_str(self):
         ans = '''$comments
@@ -745,31 +746,24 @@ $end
 
 '''
         qcinp1 = QcInput(mol, title="Test Methane Opt", exchange="B3LYP",
-                        jobtype="Opt",
-                        basis_set="6-31+G*")
+                         jobtype="Opt", basis_set="6-31+G*")
         qcinp2 = QcInput(molecule="read", title="Test Methane Frequency",
-                         exchange="B3LYP",
-                        jobtype="Freq",
-                        basis_set="6-31+G*")
+                         exchange="B3LYP", jobtype="Freq", basis_set="6-31+G*")
         qcinp3 = QcInput(title="Test Methane Single Point Energy",
-                         exchange="B3LYP",
-                        jobtype="SP",
-                        basis_set="6-311+G(3df,2p)")
+                         exchange="B3LYP", jobtype="SP",
+                         basis_set="6-311+G(3df,2p)")
         qcbat = QcBatchInput(jobs=[qcinp1, qcinp2, qcinp3])
         self.assertEqual(str(qcbat), ans)
 
     def test_to_and_from_dict(self):
         qcinp1 = QcInput(mol, title="Test Methane Opt", exchange="B3LYP",
-                        jobtype="Opt",
-                        basis_set="6-31+G*")
+                         jobtype="Opt", basis_set="6-31+G*")
         qcinp2 = QcInput(molecule="read", title="Test Methane Frequency",
-                         exchange="B3LYP",
-                        jobtype="Freq",
-                        basis_set="6-31+G*")
+                         exchange="B3LYP", jobtype="Freq",
+                         basis_set="6-31+G*")
         qcinp3 = QcInput(title="Test Methane Single Point Energy",
-                         exchange="B3LYP",
-                        jobtype="SP",
-                        basis_set="6-311+G(3df,2p)")
+                         exchange="B3LYP", jobtype="SP",
+                         basis_set="6-311+G(3df,2p)")
         qcbat1 = QcBatchInput(jobs=[qcinp1, qcinp2, qcinp3])
         d1 = qcbat1.to_dict
         qcbat2 = QcBatchInput.from_dict(d1)
