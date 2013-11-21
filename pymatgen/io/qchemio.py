@@ -876,7 +876,7 @@ class QcBatchInput(MSONable):
             self.jobs = jobs
 
     def __str__(self):
-        return "@@@\n\n".join(self.jobs)
+        return "\n@@@\n\n\n".join([str(j) for j in self.jobs])
 
     @property
     def to_dict(self):
