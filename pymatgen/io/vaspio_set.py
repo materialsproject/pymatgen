@@ -268,7 +268,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
                     del incar[key]
 
         if self.set_nupdown:
-            nupdown = sum([mag if mag > 0.6 else 0 for mag in incar['MAGMOM']])
+            nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
 
         return incar
