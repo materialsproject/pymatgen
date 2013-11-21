@@ -459,7 +459,8 @@ class MagOrderingTransformation(AbstractTransformation):
                 A mapping of elements/species to magnetically order to spin
                 magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
             order_parameter:
-                degree of magnetization. 0.5 corresponds to Antiferromagnetic order
+                degree of magnetization. 0.5 corresponds to
+                antiferromagnetic order
             energy_model:
                 Energy model used to rank the structures. Some models are
                 provided in :mod:`pymatgen.analysis.energy_models`.
@@ -488,9 +489,11 @@ class MagOrderingTransformation(AbstractTransformation):
             return n1 * n2 / gcd(n1, n2)
 
         d1 = Fraction(self.order_parameter).limit_denominator(100).denominator
-        d2 = Fraction(1 - self.order_parameter).limit_denominator(100).denominator
+        d2 = Fraction(1 - self.order_parameter).limit_denominator(100)\
+            .denominator
 
-        atom_per_specie = [structure.composition.get(m) for m in self.mag_species_spin.keys()]
+        atom_per_specie = [structure.composition.get(m)
+                           for m in self.mag_species_spin.keys()]
 
         n_gcd = reduce(gcd, atom_per_specie)
 
@@ -504,13 +507,15 @@ class MagOrderingTransformation(AbstractTransformation):
             oxi_state = getattr(sp, "oxi_state", 0)
             up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
             down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
-            mods.replace_species({sp: Composition({up: self.order_parameter,
-                                                   down: 1 - self.order_parameter})})
+            mods.replace_species(
+                {sp: Composition({up: self.order_parameter,
+                                  down: 1 - self.order_parameter})})
 
         enum_args = self.enum_kwargs
 
-        enum_args["min_cell_size"] = max(int(self.determine_min_cell(structure)),
-                                         enum_args.get("min_cell_size"))
+        enum_args["min_cell_size"] = max(int(
+            self.determine_min_cell(structure)),
+            enum_args.get("min_cell_size"))
 
         max_cell = self.enum_kwargs.get('max_cell_size')
         if max_cell:
