@@ -501,7 +501,6 @@ class MagOrderingTransformation(AbstractTransformation):
 
         return self._all_structures[0:num_to_return]
 
-
     def __str__(self):
         return "MagOrderingTransformation"
 
