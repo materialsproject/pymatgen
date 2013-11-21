@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 from pymatgen import Molecule
-from pymatgen.io.qchemio import QcInput
+from pymatgen.io.qchemio import QcInput, QcBatchInput
 
 __author__ = 'xiaohuiqu'
 
@@ -679,3 +679,81 @@ $end
         qcinp.use_cosmo(dielectric_constant=35.0)
         self.assertEqual(str(qcinp), ans)
         self.elementary_io_verify(ans, qcinp)
+
+class TestQcBatchInput(TestCase):
+    def test_str(self):
+        ans = '''$comments
+ Test Methane Opt
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+   jobtype = opt
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+
+@@@
+
+
+$comments
+ Test Methane Frequency
+$end
+
+
+$molecule
+ read
+$end
+
+
+$rem
+   jobtype = freq
+  exchange = b3lyp
+     basis = 6-31+g*
+$end
+
+
+@@@
+
+
+$comments
+ Test Methane Single Point Energy
+$end
+
+
+$molecule
+ read
+$end
+
+
+$rem
+   jobtype = sp
+  exchange = b3lyp
+     basis = 6-311+g(3df,2p)
+$end
+
+'''
+        qcinp1 = QcInput(mol, title="Test Methane Opt", exchange="B3LYP",
+                        jobtype="Opt",
+                        basis_set="6-31+G*")
+        qcinp2 = QcInput(molecule="read", title="Test Methane Frequency",
+                         exchange="B3LYP",
+                        jobtype="Freq",
+                        basis_set="6-31+G*")
+        qcinp3 = QcInput(title="Test Methane Single Point Energy",
+                         exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-311+G(3df,2p)")
+        qcbat = QcBatchInput(jobs=[qcinp1, qcinp2, qcinp3])
+        self.assertEqual(str(qcbat), ans)
