@@ -29,7 +29,8 @@ from pymatgen.structure_prediction.substitution_probability import \
     SubstitutionPredictor
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator
-from pymatgen.analysis.energy_models import SymmetryModel
+from pymatgen.analysis.energy_models import SymmetryModel, \
+    EwaldElectrostaticModel, NsitesModel
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 
@@ -476,7 +477,8 @@ class MagOrderingTransformation(AbstractTransformation):
         self.emodel = energy_model
         self.enum_kwargs = kwargs
 
-    def determine_min_cell(self, structure):
+    @classmethod
+    def determine_min_cell(cls, structure, mag_species_spin, order_parameter):
         """
         Determine the smallest supercell that is able to enumerate
         the provided structure with the given order parameter
@@ -488,10 +490,10 @@ class MagOrderingTransformation(AbstractTransformation):
             """
             return n1 * n2 / gcd(n1, n2)
 
-        denom = Fraction(self.order_parameter).limit_denominator(100).denominator
+        denom = Fraction(order_parameter).limit_denominator(100).denominator
 
         atom_per_specie = [structure.composition.get(m)
-                           for m in self.mag_species_spin.keys()]
+                           for m in mag_species_spin.keys()]
 
         n_gcd = reduce(gcd, atom_per_specie)
 
@@ -512,7 +514,9 @@ class MagOrderingTransformation(AbstractTransformation):
         enum_args = self.enum_kwargs
 
         enum_args["min_cell_size"] = max(int(
-            self.determine_min_cell(structure)),
+            MagOrderingTransformation.determine_min_cell(
+                structure, self.mag_species_spin,
+                self.order_parameter)),
             enum_args.get("min_cell_size"))
 
         max_cell = self.enum_kwargs.get('max_cell_size')
