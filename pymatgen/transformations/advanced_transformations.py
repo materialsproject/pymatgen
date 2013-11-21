@@ -14,6 +14,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 24, 2012"
 
 import numpy as np
+from fractions import gcd, Fraction
 
 from pymatgen.core.structure import Specie, Composition
 from pymatgen.core.periodic_table import smart_element_or_specie
@@ -56,13 +57,13 @@ class ChargeBalanceTransformation(AbstractTransformation):
             raise ValueError("addition of specie not yet supported by "
                              "ChargeBalanceTransformation")
         trans = SubstitutionTransformation({self._charge_balance_sp:
-                                            {self._charge_balance_sp:
-                                             1 - removal_fraction}})
+                                                {self._charge_balance_sp:
+                                                     1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
     def __str__(self):
         return "Charge Balance Transformation : " + \
-            "Species to remove = {}".format(str(self._charge_balance_sp))
+               "Species to remove = {}".format(str(self._charge_balance_sp))
 
     def __repr__(self):
         return self.__str__()
@@ -113,7 +114,7 @@ class SuperTransformation(AbstractTransformation):
 
     def __str__(self):
         return "Super Transformation : Transformations = " + \
-            "{}".format(" ".join([str(t) for t in self._transformations]))
+               "{}".format(" ".join([str(t) for t in self._transformations]))
 
     def __repr__(self):
         return self.__str__()
@@ -191,7 +192,7 @@ class MultipleSubstitutionTransformation(object):
                 sign = "-"
             dummy_sp = "X{}{}".format(str(charge), sign)
             mapping[self._sp_to_replace] = {self._sp_to_replace:
-                                            1 - self._r_fraction,
+                                                1 - self._r_fraction,
                                             dummy_sp: self._r_fraction}
             trans = SubstitutionTransformation(mapping)
             dummy_structure = trans.apply_transformation(structure)
@@ -208,8 +209,8 @@ class MultipleSubstitutionTransformation(object):
                 else:
                     sign = "-"
                 st = SubstitutionTransformation({"X{}+".format(str(charge)):
-                                                 "{}{}{}".format(el, charge,
-                                                                 sign)})
+                                                     "{}{}{}".format(el, charge,
+                                                                     sign)})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
         return outputs
@@ -236,7 +237,7 @@ class MultipleSubstitutionTransformation(object):
                               "r_fraction": self._r_fraction,
                               "substitution_dict": self._substitution_dict,
                               "charge_balance_species":
-                              self._charge_balance_species},
+                                  self._charge_balance_species},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -447,16 +448,18 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 class MagOrderingTransformation(AbstractTransformation):
     """
     This transformation takes a structure and returns a list of magnetic
-    orderings. Currently only works for AFM only.
+    orderings. Currently only works for ordered structures.
     """
 
-    def __init__(self, mag_species_spin, energy_model=SymmetryModel(),
-                 **kwargs):
+    def __init__(self, mag_species_spin, order_parameter=0.5,
+                 energy_model=SymmetryModel(), **kwargs):
         """
         Args:
             mag_elements_spin:
                 A mapping of elements/species to magnetically order to spin
                 magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
+            order_parameter:
+                degree of magnetization. 0.5 corresponds to Antiferromagnetic order
             energy_model:
                 Energy model used to rank the structures. Some models are
                 provided in :mod:`pymatgen.analysis.energy_models`.
@@ -465,8 +468,33 @@ class MagOrderingTransformation(AbstractTransformation):
                 i.e., min_cell_size, etc.
         """
         self.mag_species_spin = mag_species_spin
+        if order_parameter > 1 or order_parameter < 0:
+            raise ValueError('Order Parameter must lie between 0 and 1')
+        else:
+            self.order_parameter = order_parameter
         self.emodel = energy_model
         self.enum_kwargs = kwargs
+
+    def determine_min_cell(self, structure):
+        """
+        Determine the smallest supercell that is able to enumerate
+        the provided structure with the given order parameter
+        """
+
+        def lcm(n1, n2):
+            """
+            Find least common multiple of two numbers
+            """
+            return n1 * n2 / gcd(n1, n2)
+
+        d1 = Fraction(self.order_parameter).limit_denominator(100).denominator
+        d2 = Fraction(1 - self.order_parameter).limit_denominator(100).denominator
+
+        atom_per_specie = [structure.composition.get(m) for m in self.mag_species_spin.keys()]
+
+        n_gcd = reduce(gcd, atom_per_specie)
+
+        return lcm(n_gcd, lcm(d1, d2)) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
         #Make a mutable structure first
@@ -476,9 +504,24 @@ class MagOrderingTransformation(AbstractTransformation):
             oxi_state = getattr(sp, "oxi_state", 0)
             up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
             down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
-            mods.replace_species({sp: Composition({up: 0.5, down: 0.5})})
+            mods.replace_species({sp: Composition({up: self.order_parameter,
+                                                   down: 1 - self.order_parameter})})
 
-        t = EnumerateStructureTransformation(**self.enum_kwargs)
+        enum_args = self.enum_kwargs
+
+        enum_args["min_cell_size"] = max(int(self.determine_min_cell(structure)),
+                                         enum_args.get("min_cell_size"))
+
+        max_cell = self.enum_kwargs.get('max_cell_size')
+        if max_cell:
+            if enum_args["min_cell_size"] > max_cell:
+                raise ValueError('Specified max cell size is smaller'
+                                 ' than the minimum enumerable cell size')
+        else:
+            enum_args["max_cell_size"] = enum_args["min_cell_size"]
+
+        t = EnumerateStructureTransformation(**enum_args)
+
         alls = t.apply_transformation(mods,
                                       return_ranked_list=return_ranked_list)
 
@@ -520,6 +563,7 @@ class MagOrderingTransformation(AbstractTransformation):
         return {
             "name": self.__class__.__name__, "version": __version__,
             "init_args": {"mag_species_spin": self.mag_species_spin,
+                          "order_parameter": self.order_parameter,
                           "energy_model": self.emodel.to_dict,
                           "enum_kwargs": self.enum_kwargs},
             "@module": self.__class__.__module__,
@@ -529,7 +573,7 @@ class MagOrderingTransformation(AbstractTransformation):
     def from_dict(cls, d):
         init = d["init_args"]
         return MagOrderingTransformation(
-            init["mag_species_spin"],
+            init["mag_species_spin"], init["order_parameter"],
             energy_model=PMGJSONDecoder().process_decoded(
                 init["energy_model"]),
             **init["enum_kwargs"])
