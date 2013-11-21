@@ -478,7 +478,7 @@ class MagOrderingTransformation(AbstractTransformation):
     def determine_min_cell(self, structure):
         """
         Determine the smallest supercell that is able to enumerate
-        the provides structure with the given order parameter
+        the provided structure with the given order parameter
         """
 
         def lcm(n1, n2):
@@ -490,11 +490,11 @@ class MagOrderingTransformation(AbstractTransformation):
         d1 = Fraction(self.order_parameter).limit_denominator(100).denominator
         d2 = Fraction(1 - self.order_parameter).limit_denominator(100).denominator
 
-        args = [structure.composition.get(m) for m in self.mag_species_spin.keys()]
+        atom_per_specie = [structure.composition.get(m) for m in self.mag_species_spin.keys()]
 
-        n = reduce(gcd, args)
+        n_gcd = reduce(gcd, atom_per_specie)
 
-        return lcm(n, lcm(d1, d2)) / n
+        return lcm(n_gcd, lcm(d1, d2)) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
         #Make a mutable structure first
@@ -513,7 +513,6 @@ class MagOrderingTransformation(AbstractTransformation):
                                          enum_args.get("min_cell_size"))
 
         max_cell = self.enum_kwargs.get('max_cell_size')
-
         if max_cell:
             if enum_args["min_cell_size"] > max_cell:
                 raise ValueError('Specified max cell size is smaller'
