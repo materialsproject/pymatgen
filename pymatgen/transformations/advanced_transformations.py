@@ -14,6 +14,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Jul 24, 2012"
 
 import numpy as np
+from fractions import gcd, Fraction
 
 from pymatgen.core.structure import Specie, Composition
 from pymatgen.core.periodic_table import smart_element_or_specie
@@ -447,16 +448,20 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 class MagOrderingTransformation(AbstractTransformation):
     """
     This transformation takes a structure and returns a list of magnetic
-    orderings. Currently only works for AFM only.
+    orderings. Currently only works for ordered structures.
     """
 
-    def __init__(self, mag_species_spin, energy_model=SymmetryModel(),
-                 **kwargs):
+    def __init__(self, mag_species_spin, order_parameter=0.5, max_cell=None,
+                 energy_model=SymmetryModel(), **kwargs):
         """
         Args:
             mag_elements_spin:
                 A mapping of elements/species to magnetically order to spin
                 magnitudes. E.g., {"Fe3+": 5, "Mn3+": 4}
+            order_parameter:
+                degree of magnetization. 0.5 corresponds to Antiferromagnetic order
+            max_cell:
+                Largest supercell scaling
             energy_model:
                 Energy model used to rank the structures. Some models are
                 provided in :mod:`pymatgen.analysis.energy_models`.
@@ -465,8 +470,35 @@ class MagOrderingTransformation(AbstractTransformation):
                 i.e., min_cell_size, etc.
         """
         self.mag_species_spin = mag_species_spin
+        if order_parameter > 1 or order_parameter < 0:
+            raise ValueError('Order Parameter must lie between 0 and 1')
+        else:
+            self.order_parameter = order_parameter
+
+        self.max_cell = max_cell
         self.emodel = energy_model
         self.enum_kwargs = kwargs
+
+
+    def determine_min_cell(self, structure):
+        """
+        Determine the smallest supercell that is able to enumerate
+        the provides structure with the given order parameter
+        """
+        def lcm(n1, n2):
+            """
+            Find least common multiple of two numbers
+            """
+            return n1 * n2 / gcd(n1, n2)
+
+        d1 = Fraction(self.order_parameter).limit_denominator(100).denominator
+        d2 = Fraction(1 - self.order_parameter).limit_denominator(100).denominator
+
+        args = [structure.composition.get(m) for m in self.mag_species_spin.keys()]
+
+        n = reduce(gcd, args)
+
+        return lcm(n, lcm(d1, d2)) / n
 
     def apply_transformation(self, structure, return_ranked_list=False):
         #Make a mutable structure first
@@ -476,9 +508,22 @@ class MagOrderingTransformation(AbstractTransformation):
             oxi_state = getattr(sp, "oxi_state", 0)
             up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
             down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})
-            mods.replace_species({sp: Composition({up: 0.5, down: 0.5})})
+            mods.replace_species({sp: Composition({up: self.order_parameter,
+                                                   down: 1-self.order_parameter})})
 
-        t = EnumerateStructureTransformation(**self.enum_kwargs)
+        min_cell = int(self.determine_min_cell(structure))
+
+        if self.max_cell:
+            if min_cell <= self.max_cell:
+                max_cell = self.max_cell
+            else:
+                raise ValueError('Specified max cell size is smaller'
+                             ' than the minimum acceptable cell size')
+        else:
+            max_cell = min_cell
+
+        t = EnumerateStructureTransformation(min_cell, max_cell)
+
         alls = t.apply_transformation(mods,
                                       return_ranked_list=return_ranked_list)
 
