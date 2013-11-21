@@ -888,3 +888,9 @@ class QcBatchInput(MSONable):
     def from_dict(cls, d):
         jobs = [QcInput.from_dict(j) for j in d["jobs"]]
         return QcBatchInput(jobs)
+
+    @classmethod
+    def from_string(cls, contents):
+        qc_contents = contents.split("@@@")
+        jobs = [QcInput.from_string(cont) for cont in qc_contents]
+        return QcBatchInput(jobs)
