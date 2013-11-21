@@ -131,8 +131,9 @@ class SpeciesComparator(AbstractComparator):
 
 class SpinComparator(AbstractComparator):
     """
-    A Comparator that matches magnetic structures to their inverse
-    spins.
+    A Comparator that matches magnetic structures to their inverse spins.
+    This comparator is primarily used to filter magnetically ordered
+    structures with opposite spins, which are equivalent.
     """
 
     def are_equal(self, sp1, sp2):

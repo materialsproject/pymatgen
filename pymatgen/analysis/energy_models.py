@@ -49,8 +49,8 @@ class EwaldElectrostaticModel(EnergyModel):
     def __init__(self, real_space_cut=None, recip_space_cut=None,
                  eta=None, acc_factor=8.0):
         """
-        Initializes the model. Args have the same definitions as in the
-        EwaldSummatation class.
+        Initializes the model. Args have the same definitions as in
+        :class:`pymatgen.analysis.ewald.EwaldSummation`.
 
         Args:
             real_space_cut:
@@ -100,7 +100,7 @@ class SymmetryModel(EnergyModel):
     def __init__(self, symprec=0.1, angle_tolerance=5):
         """
         Args have same meaning as in
-        :class:pymatgen.symmetry.finder.SymmetryFinder.
+        :class:`pymatgen.symmetry.finder.SymmetryFinder`.
 
         Args:
             symprec:
