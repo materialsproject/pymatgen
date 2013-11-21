@@ -488,16 +488,14 @@ class MagOrderingTransformation(AbstractTransformation):
             """
             return n1 * n2 / gcd(n1, n2)
 
-        d1 = Fraction(self.order_parameter).limit_denominator(100).denominator
-        d2 = Fraction(1 - self.order_parameter).limit_denominator(100)\
-            .denominator
+        denom = Fraction(self.order_parameter).limit_denominator(100).denominator
 
         atom_per_specie = [structure.composition.get(m)
                            for m in self.mag_species_spin.keys()]
 
         n_gcd = reduce(gcd, atom_per_specie)
 
-        return lcm(n_gcd, lcm(d1, d2)) / n_gcd
+        return lcm(n_gcd, denom) / n_gcd
 
     def apply_transformation(self, structure, return_ranked_list=False):
         #Make a mutable structure first
