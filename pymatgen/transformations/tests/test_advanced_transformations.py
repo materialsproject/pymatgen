@@ -217,9 +217,16 @@ class MagOrderingTransformationTest(unittest.TestCase):
         alls = trans.apply_transformation(s, 100)
         self.assertEqual(len(alls), 10)
 
+    def test_ferrimagnetic(self):
+        trans = MagOrderingTransformation({"Fe": 5}, 0.75, max_cell_size=1)
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        s = p.structure
+        alls = trans.apply_transformation(s, 10)
+        self.assertEqual(len(alls), 2)
 
     def test_to_from_dict(self):
-        trans = MagOrderingTransformation({"Fe": 5})
+        trans = MagOrderingTransformation({"Fe": 5}, 0.75)
         d = trans.to_dict
         #Check json encodability
         s = json.dumps(d)
