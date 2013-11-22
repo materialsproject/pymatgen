@@ -1,7 +1,9 @@
+import glob
 import os
 from unittest import TestCase
+import unittest
 from pymatgen import Molecule
-from pymatgen.io.qchemio import QcInput, QcBatchInput
+from pymatgen.io.qchemio import QcInput, QcBatchInput, QcOutput
 
 __author__ = 'xiaohuiqu'
 
@@ -771,3 +773,18 @@ $end
         qcbat2 = QcBatchInput.from_dict(d1)
         d2 = qcbat2.to_dict
         self.assertEqual(d1, d2)
+
+
+class TestQcOutput(TestCase):
+
+
+    def test_parse_energies(self):
+        for qcfile in glob.glob(os.path.join(test_dir, "qchem_energies",
+                                             "*.qcout")):
+            print qcfile
+            qcout = QcOutput(qcfile)
+            print
+
+
+if __name__ == "__main__":
+    unittest.main()
