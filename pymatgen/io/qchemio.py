@@ -895,6 +895,7 @@ class QcBatchInput(MSONable):
         jobs = [QcInput.from_string(cont) for cont in qc_contents]
         return QcBatchInput(jobs)
 
+
 class QcOutput(object):
     def __init__(self, filename):
         self.filename = filename
@@ -903,19 +904,25 @@ class QcOutput(object):
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
         self._parse_job(chunks[0])
 
-    def _parse_job(self, output):
+    @classmethod
+    def _parse_job(cls, output):
         scf_energy_pattern = re.compile("Total energy in the final basis set ="
                                         "\s+(?P<energy>-\d+\.\d+)")
         corr_energy_pattern = re.compile("(?P<name>[A-Z\-\(\)0-9]+)\s+"
-                                          "([tT]otal\s+)?[eE]nergy\s+=\s+"
-                                          "(?P<energy>-\d+\.\d+)")
+                                         "([tT]otal\s+)?[eE]nergy\s+=\s+"
+                                         "(?P<energy>-\d+\.\d+)")
         energies = []
         for line in output.split("\n"):
+            name = None
+            energy = None
             m = scf_energy_pattern.search(line)
             if m:
-                energies.append(tuple(["SCF", float(m.group("energy"))]))
+                name = "SCF"
+                energy = float(m.group("energy"))
             m = corr_energy_pattern.search(line)
             if m and m.group("name") != "SCF":
-                energies.append(tuple([m.group("name"),
-                                       float(m.group("energy"))]))
+                name = m.group("name")
+                energy = float(m.group("energy"))
+            if name and energy:
+                energies.append(tuple([name, energy]))
         print energies
