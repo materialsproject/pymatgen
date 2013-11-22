@@ -912,18 +912,49 @@ class QcOutput(object):
         corr_energy_pattern = re.compile("(?P<name>[A-Z\-\(\)0-9]+)\s+"
                                          "([tT]otal\s+)?[eE]nergy\s+=\s+"
                                          "(?P<energy>-\d+\.\d+)")
+
         energies = []
+        parse_input = False
+        parse_coords = False
+        parse_scf_iter = False
+        parse_mulliken_charge = False
+        parse_gradient = False
+        parse_freq = False
+        qcinp_lines = []
+        qcinp = None
+        jobtype = None
         for line in output.split("\n"):
-            name = None
-            energy = None
-            m = scf_energy_pattern.search(line)
-            if m:
-                name = "SCF"
-                energy = Energy(m.group("energy"), "Ha").to("eV")
-            m = corr_energy_pattern.search(line)
-            if m and m.group("name") != "SCF":
-                name = m.group("name")
-                energy = Energy(m.group("energy"), "Ha").to("eV")
-            if name and energy:
-                energies.append(tuple([name, energy]))
-        print energies
+            if parse_input:
+                if "-" * 50 in line:
+                    if len(qcinp_lines) == 0:
+                        continue
+                    else:
+                        qcinp = QcInput.from_string('\n'.join(qcinp_lines))
+                        jobtype = qcinp.params["rem"]["jobtype"]
+                        parse_input = False
+                        continue
+                qcinp_lines.append(line)
+            else:
+                name = None
+                energy = None
+                m = scf_energy_pattern.search(line)
+                if m:
+                    name = "SCF"
+                    energy = Energy(m.group("energy"), "Ha").to("eV")
+                m = corr_energy_pattern.search(line)
+                if m and m.group("name") != "SCF":
+                    name = m.group("name")
+                    energy = Energy(m.group("energy"), "Ha").to("eV")
+                if name and energy:
+                    energies.append(tuple([name, energy]))
+                if "User input:" in line:
+                    parse_input = True
+                elif "Standard Nuclear Orientation (Angstroms)" in line:
+                    parse_coords = True
+                elif "Cycle       Energy         DIIS Error" in line:
+                    parse_scf_iter = True
+                elif "Gradient of SCF Energy" in line:
+                    parse_gradient = True
+                elif "VIBRATIONAL ANALYSIS" in line:
+                    parse_freq = True
+        print jobtype
