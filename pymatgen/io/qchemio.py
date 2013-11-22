@@ -10,6 +10,7 @@ import numpy as np
 from string import Template
 from pymatgen import zopen, SymmOp
 from pymatgen.core.structure import Molecule
+from pymatgen.core.units import Energy
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.coord_utils import get_angle
 
@@ -918,11 +919,11 @@ class QcOutput(object):
             m = scf_energy_pattern.search(line)
             if m:
                 name = "SCF"
-                energy = float(m.group("energy"))
+                energy = Energy(m.group("energy"), "Ha").to("eV")
             m = corr_energy_pattern.search(line)
             if m and m.group("name") != "SCF":
                 name = m.group("name")
-                energy = float(m.group("energy"))
+                energy = Energy(m.group("energy"), "Ha").to("eV")
             if name and energy:
                 energies.append(tuple([name, energy]))
         print energies
