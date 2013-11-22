@@ -776,14 +776,10 @@ $end
 
 
 class TestQcOutput(TestCase):
+    def test_parse(self):
+        filename = os.path.join(test_dir, "CdBr2.qcout")
+        qcout = QcOutput(filename)
 
-
-    def test_parse_energies(self):
-        for qcfile in glob.glob(os.path.join(test_dir, "qchem_energies",
-                                             "*.qcout")):
-            print qcfile
-            qcout = QcOutput(qcfile)
-            print
 
 
 if __name__ == "__main__":
