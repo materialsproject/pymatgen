@@ -25,6 +25,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, \
     pbc_shortest_vectors
+from pymatgen.symmetry.finder import SymmetryFinder
 
 
 class AbstractComparator(MSONable):
@@ -180,7 +181,9 @@ class SpinComparator(AbstractComparator):
             Reduced formula for the structure is used as a hash for the
             SpeciesComparator.
         """
-        return structure.composition.reduced_formula
+        f = SymmetryFinder(structure, 0.1)
+        return "{} {}".format(f.get_spacegroup_number(),
+                              structure.composition.reduced_formula)
 
 
 class ElementComparator(AbstractComparator):
