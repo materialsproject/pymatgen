@@ -907,20 +907,15 @@ class QcOutput(object):
         scf_energy_pattern = re.compile("Total energy in the final basis set ="
                                         "\s+(?P<energy>-\d+\.\d+)")
         corr_energy_pattern = re.compile("(?P<name>[A-Z\-\(\)0-9]+)\s+"
-                                          "(total\s+)?energy\s+=\s+"
+                                          "([tT]otal\s+)?[eE]nergy\s+=\s+"
                                           "(?P<energy>-\d+\.\d+)")
-
-        '''
-        corr_energy_pattern2 = re.compile("Total(\s+Local)?\s+"
-                                         "(?P<name>[A-Z\-\(\)0-9]+)\s+energy"
-                                         "\s+=\s+(?P<energy>-\d+\.\d+)")
-        '''
         energies = []
         for line in output.split("\n"):
             m = scf_energy_pattern.search(line)
             if m:
-                energies.append(tuple(["SCF", m.group("energy")]))
+                energies.append(tuple(["SCF", float(m.group("energy"))]))
             m = corr_energy_pattern.search(line)
             if m and m.group("name") != "SCF":
-                energies.append(tuple([m.group("name"), m.group("energy")]))
+                energies.append(tuple([m.group("name"),
+                                       float(m.group("energy"))]))
         print energies
