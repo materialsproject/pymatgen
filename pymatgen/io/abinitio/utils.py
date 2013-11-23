@@ -380,7 +380,7 @@ _BIN_OPS = {
     }
 
 
-ops = _UNARY_OPS.keys() + _BIN_OPS.keys()
+_ALL_OPS = list(_UNARY_OPS.keys()) + list(_BIN_OPS.keys())
 
 
 def map2rpn(map, obj):
@@ -400,7 +400,7 @@ def map2rpn(map, obj):
 
     for k, v in map.items():
 
-        if k in ops:
+        if k in _ALL_OPS:
             if isinstance(v, collections.Mapping):
                 # e.g "$not": {"$gt": "one"}
                 # print("in op_vmap",k, v)
@@ -457,7 +457,7 @@ def evaluate_rpn(rpn):
                                                                               
     for item in rpn:
                                                                               
-        if item in ops:
+        if item in _ALL_OPS:
             # Apply the operator and push to the task.
             v2 = vals_stack.pop()
                                                                               
