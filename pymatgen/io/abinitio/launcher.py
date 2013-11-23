@@ -761,7 +761,7 @@ class PyFlowScheduler(object):
 
 def sendmail(subject, text, mailto, sender=None):
     """
-    Sends an e-mail either with smtplib.SMTP or with the unix sendmail.
+    Sends an e-mail either with unix sendmail. 
 
     Args:
         subject:
@@ -774,9 +774,6 @@ def sendmail(subject, text, mailto, sender=None):
             string with the sender address.
             If sender is None, username@hostname is used.
     """
-    import smtplib
-    from email.mime.text import MIMEText
-
     def user_at_host():
         from socket import gethostname
         return os.getlogin() + "@" + gethostname()
@@ -785,6 +782,7 @@ def sendmail(subject, text, mailto, sender=None):
     sender = user_at_host() if sender is None else sender 
     if is_string(mailto): mailto = [mailto]
 
+    from email.mime.text import MIMEText
     mail = MIMEText(text)
     mail["Subject"] = subject
     mail["From"] = sender
@@ -792,22 +790,21 @@ def sendmail(subject, text, mailto, sender=None):
 
     msg = mail.as_string()
 
-    try:
-        # Send the message via our own SMTP server.
-        server = smtplib.SMTP("localhost")
-        server.sendmail(sender, mailto, msg)
-        return server.quit()
+    # sendmail works much better than the python interface.
+    # Note that sendmail is available only on Unix-like OS.
+    #print("Using sendmail")
+    from subprocess import Popen, PIPE
+    SENDMAIL = "/usr/sbin/sendmail" 
+    p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
 
-    except:
-        # Fallback to sendmail that seems to work much better than the python interface.
-        # Note that sendmail is available only on Unix-like OS.
-        #print("Using sendmail")
-        from subprocess import Popen, PIPE
-        SENDMAIL = "/usr/sbin/sendmail" 
-        p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
+    outdata, errdata = p.communicate(msg)
+    return len(errdata)
 
-        outdata, errdata = p.communicate(msg)
-        return len(errdata)
+    # Send the message via our own SMTP server.
+    #import smtplib
+    #server = smtplib.SMTP("localhost")
+    #server.sendmail(sender, mailto, msg)
+    #return server.quit()
 
 
 # Test for sendmail
