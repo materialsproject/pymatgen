@@ -623,7 +623,7 @@ class PyFlowScheduler(object):
         self._runem_all()
 
         # Mission accomplished. Shutdown the scheduler.
-        all_ok = self.flow.all_ok:
+        all_ok = self.flow.all_ok
         if self.verbose: print("all_ok", all_ok)
         if all_ok:
             self.shutdown(msg="All tasks have reached S_OK. Will shutdown the scheduler and exit")
