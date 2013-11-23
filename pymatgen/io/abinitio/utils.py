@@ -468,7 +468,7 @@ def evaluate_rpn(rpn):
                 v1 = vals_stack.pop()
                 res = _BIN_OPS[item](v1, v2)
             else:
-                raise ValuError("%s not in unary_ops or bin_ops" % str(item))
+                raise ValueError("%s not in unary_ops or bin_ops" % str(item))
                                                                               
             vals_stack.append(res)
                                                                               
