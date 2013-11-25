@@ -80,3 +80,48 @@ class CijTensor(object):
 
         return Cij
 
+
+    def fitCij2(self, tol=0.1):
+        # an extension of fitCij, taking into account the possibility of not all stress-calculations having finished yet
+        # this method will attempt fitting the elastic constants in those cases of incomplete calculations
+        stress_dict = self._sig_eps
+        Cij = np.zeros((6, 6))
+
+        inds = [[0,0], [1,1], [2,2], [1,2], [0,2], [0,1]]
+
+        for n1 in range(0, 6):
+            strain = []
+            stress = []
+            count1 = 0
+
+            for c in stress_dict:
+                if c.i == inds[n1][0] and c.j== inds[n1][1]:
+                    strain.append(c.strain[c.i, c.j])
+                    stress.append(stress_dict[c].stress_matrix)
+
+            for k in inds:
+                true_data = self._chain_stresses(stress, k[0], k[1])
+                #print strain, true_data
+                true_data[3] = np.nan
+                #print strain, true_data
+                # remove all nan's and continue the fitting
+
+
+                #for nc in range(0, len(true_data)):
+#                    print nc, np.isnsan(true_data[nc]), true_data[nc]
+                    #true_data[1]
+            true_data.pop(1)
+
+
+
+
+
+
+
+
+
+
+
+        return Cij
+
+

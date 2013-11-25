@@ -138,6 +138,10 @@ Cij = CijTensor(stress_dict).fitCij()
 
 print Cij
 
+Cij2 = CijTensor(stress_dict).fitCij2()
+
+print Cij2
+
 
 
 
