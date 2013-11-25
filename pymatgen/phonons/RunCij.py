@@ -22,6 +22,7 @@ from pymatgen.phonons.stress import Stress
 from pymatgen.phonons.strain import Strain
 from pymatgen.phonons.strain import IndependentStrain
 from pymatgen.phonons.Cij import CijTensor
+from pymatgen.phonons.tensors import SQTensor
 
 np.set_printoptions(precision=3)
 
@@ -142,9 +143,10 @@ Cij2 = CijTensor(stress_dict).fitCij2()
 
 print Cij2
 
+Cij = 0.5*(Cij + np.transpose(Cij))
 
 
-
+SQTensor(Cij).KG_average
 
 
 

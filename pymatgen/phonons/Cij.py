@@ -9,6 +9,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import *
 from pymatgen.core.structure_modifier import StructureEditor
+import copy
 import numpy as np
 
 __author__="Maarten de Jong"
@@ -101,26 +102,40 @@ class CijTensor(object):
 
             for k in inds:
                 true_data = self._chain_stresses(stress, k[0], k[1])
-                #print strain, true_data
-                true_data[3] = np.nan
-                #print strain, true_data
-                # remove all nan's and continue the fitting
+                true_data[2] = np.nan
+                true_data[0] = np.nan
+                straink = copy.copy(strain)
+
+                #print true_data, strain
 
 
-                #for nc in range(0, len(true_data)):
-#                    print nc, np.isnsan(true_data[nc]), true_data[nc]
-                    #true_data[1]
-            true_data.pop(1)
+                naninds = []
+
+                for kk in range(0, len(true_data)):
+                    if np.isnan(true_data[kk]) == True:
+                        naninds.append(kk)
 
 
+                for kk in naninds[::-1]:
+                    #print kk
+                    true_data.pop(kk)
+                    straink.pop(kk)
 
 
+                p1 = np.polyfit(straink, true_data, 1)
+                f1 = np.polyval(p1, straink)
+
+                Cij[count1, n1] = -0.10*p1[0]
+                count1 += 1
 
 
+        for n1 in range(0,6):
+            for n2 in range(0,6):
+                if np.abs(Cij[n1, n2]) < tol:
+                    Cij[n1, n2] = 0
 
-
-
-
+                if n2 > 2:
+                    Cij[n1, n2] = Cij[n1, n2]*0.50
 
         return Cij
 
