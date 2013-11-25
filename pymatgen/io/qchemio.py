@@ -35,6 +35,10 @@ class QcInput(MSONable):
                               "pcm", "pcm_solvent", "plots", "qm_atoms", "svp",
                               "svpirf", "van_der_waals", "xc_functional",
                               "cdft", "efp_fragments", "efp_params"}
+    alternative_keys = {"job_type": "jobtype",
+                            "symmetry_ignore": "sym_ignore"}
+    alternative_values = {"optimization": "opt",
+                              "frequency": "freq"}
     zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
     xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
                           "([\d\.eE\-]+)[\-\.\s,\w.]*$")
@@ -148,17 +152,26 @@ class QcInput(MSONable):
         available_jobtypes = {"sp", "opt", "ts", "freq", "force", "rpath",
                               "nmr", "bsse", "eda", "pes_scan", "fsm", "aimd",
                               "pimc", "makeefp"}
-        if jobtype.lower() not in available_jobtypes:
+        jt = jobtype.lower()
+        if jt in self.alternative_values:
+            jt = self.alternative_values[jt]
+        if jt not in available_jobtypes:
             raise ValueError("Job type " + jobtype + " is not supported yet")
         self.params["rem"]["jobtype"] = jobtype.lower()
         if correlation is not None:
             self.params["rem"]["correlation"] = correlation.lower()
         if rem_params is not None:
             for k, v in rem_params.iteritems():
+                k = k.lower()
+                if k in self.alternative_keys:
+                    k = self.alternative_keys[k]
                 if isinstance(v, str):
-                    self.params["rem"][k.lower()] = v.lower()
+                    v = v.lower()
+                    if v in self.alternative_values:
+                        v = self.alternative_values[v]
+                    self.params["rem"][k] = v
                 elif isinstance(v, int) or isinstance(v, float):
-                    self.params["rem"][k.lower()] = v
+                    self.params["rem"][k] = v
                 else:
                     raise ValueError("The value in $rem can only be Integer "
                                      "or string")
@@ -804,6 +817,7 @@ class QcInput(MSONable):
         d = dict()
         int_pattern = re.compile('^[-+]?\d+$')
         float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+
         for line in contents:
             tokens = line.strip().replace("=", ' ').split()
             if len(tokens) < 2:
@@ -811,6 +825,10 @@ class QcInput(MSONable):
                                  "at least two field: key and value!")
             k1, v = tokens[:2]
             k2 = k1.lower()
+            if k2 in cls.alternative_keys:
+                k2 = cls.alternative_keys[k2]
+            if v in cls.alternative_values:
+                v = cls.alternative_values
             if k2 == "xc_grid":
                 d[k2] = v
             elif v == "True":
@@ -954,6 +972,8 @@ class QcOutput(object):
         coords = []
         species = []
         molecules = []
+        gradients = []
+        grad_comp = None
         errors = []
         parse_input = False
         parse_coords = False
@@ -1006,6 +1026,31 @@ class QcOutput(object):
                 if m:
                     scf_iters[-1].append((float(m.group("energy")),
                                           float(m.group("diis_error"))))
+            elif parse_gradient:
+                if "Max gradient component" in line:
+                    gradients[-1]["max_gradient"] = \
+                        float(line.split("=")[1])
+                    if grad_comp:
+                        if len(grad_comp) == 3:
+                            gradients[-1]["gradients"].extend(zip(*grad_comp))
+                        else:
+                            raise Exception("Gradient section parsing failed")
+                    continue
+                elif "RMS gradient" in line:
+                    gradients[-1]["rms_gradient"] = \
+                        float(line.split("=")[1])
+                    parse_gradient = False
+                    grad_comp = None
+                    continue
+                elif "." not in line:
+                    if grad_comp:
+                        if len(grad_comp) == 3:
+                            gradients[-1]["gradients"].extend(zip(*grad_comp))
+                        else:
+                            raise Exception("Gradient section parsing failed")
+                    grad_comp = []
+                else:
+                    grad_comp.append([float(x) for x in line.split()[1:]])
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1037,6 +1082,7 @@ class QcOutput(object):
                     scf_iters.append([])
                 elif "Gradient of SCF Energy" in line:
                     parse_gradient = True
+                    gradients.append({"gradients": []})
                 elif "VIBRATIONAL ANALYSIS" in line:
                     parse_freq = True
                 elif "Thank you very much for using Q-Chem." in line:
@@ -1048,3 +1094,9 @@ class QcOutput(object):
         else:
             for mol in molecules:
                 mol.set_charge_and_spin(charge, spin_multiplicity)
+        for i, g in enumerate(gradients):
+            print "cycle", i
+            print g["max_gradient"], g["rms_gradient"]
+            for grad in g["gradients"]:
+                print grad
+            print
