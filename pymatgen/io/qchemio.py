@@ -903,7 +903,22 @@ class QcOutput(object):
         with zopen(filename) as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
-        self._parse_job(chunks[0])
+        self._parse_job(chunks[1])
+    @classmethod
+    def _expected_successful_pattern(cls, qcinp):
+        text = []
+        text.append("Convergence criterion met")
+        if "correlation" in qcinp.params["rem"]:
+            if "ccsd" in qcinp.params["rem"]["correlation"]\
+                    or "qcisd" in qcinp.params["rem"]["correlation"]:
+                text.append('CC.*converged')
+        if qcinp.params["rem"]["jobtype"] == "opt"\
+                or qcinp.params["rem"]["jobtype"] == "ts":
+            text.append("OPTIMIZATION CONVERGED")
+        if qcinp.params["rem"]["jobtype"] == "freq":
+            text.append("VIBRATIONAL ANALYSIS")
+        if qcinp.params["rem"]["jobtype"] == "gradient":
+            text.append("Gradient of SCF Energy")
 
     @classmethod
     def _parse_job(cls, output):
@@ -912,8 +927,31 @@ class QcOutput(object):
         corr_energy_pattern = re.compile("(?P<name>[A-Z\-\(\)0-9]+)\s+"
                                          "([tT]otal\s+)?[eE]nergy\s+=\s+"
                                          "(?P<energy>-\d+\.\d+)")
+        coord_pattern = re.compile("\s*\d+\s+(?P<element>[A-Z][a-z]*)\s+"
+                                   "(?P<x>\-?\d+\.\d+)\s+"
+                                   "(?P<y>\-?\d+\.\d+)\s+"
+                                   "(?P<z>\-?\d+\.\d+)")
+        num_ele_pattern = re.compile("There are\s+(?P<alpha>\d+)\s+alpha "
+                                     "and\s+(?P<beta>\d+)\s+beta electrons")
+        charge_pattern = re.compile("Sum of atomic charges ="
+                                    "\s+(?P<charge>\-?\d+\.\d+)")
+        error_defs = (
+            (re.compile("Convergence failure"), "Bad SCF convergence"),
+            (re.compile("Coordinates do not transform within specified "
+                        "threshold"), "autoz error"),
+            (re.compile("MAXIMUM OPTIMIZATION CYCLES REACHED"),
+                "Geometry optimization failed"),
+            (re.compile("\s+[Nn][Aa][Nn]\s+"), "NAN values"),
+            (re.compile("energy\s+=\s*(\*)+"), "Numerical disaster"),
+            (re.compile("NewFileMan::OpenFile():\s+nopenfiles=\d+\s+"
+                        "maxopenfiles=\d+s+errno=\d+"), "Open file error")
+        )
 
         energies = []
+        coords = []
+        species = []
+        molecules = []
+        errors = []
         parse_input = False
         parse_coords = False
         parse_scf_iter = False
@@ -923,7 +961,14 @@ class QcOutput(object):
         qcinp_lines = []
         qcinp = None
         jobtype = None
+        charge = None
+        spin_multiplicity = None
+        properly_terminated = False
+        job_successful = False
         for line in output.split("\n"):
+            for ep, message in error_defs:
+                if ep.search(line):
+                    errors.append(message)
             if parse_input:
                 if "-" * 50 in line:
                     if len(qcinp_lines) == 0:
@@ -934,7 +979,33 @@ class QcOutput(object):
                         parse_input = False
                         continue
                 qcinp_lines.append(line)
+            elif parse_coords:
+                if "-" * 50 in line:
+                    if len(coords) == 0:
+                        continue
+                    else:
+                        molecules.append(Molecule(species, coords))
+                        coords = []
+                        species = []
+                        parse_coords = False
+                        continue
+                if "I     Atom         X            Y            Z" in line:
+                    continue
+                m = coord_pattern.match(line)
+                coords.append([float(m.group("x")), float(m.group("y")),
+                              float(m.group("z"))])
+                species.append(m.group("element"))
+
             else:
+                if spin_multiplicity is None:
+                    m = num_ele_pattern.search(line)
+                    if m:
+                        spin_multiplicity = int(m.group("alpha")) - \
+                                            int(m.group("beta")) + 1
+                if charge is None:
+                    m = charge_pattern.search(line)
+                    if m:
+                        charge = int(float(m.group("charge")))
                 name = None
                 energy = None
                 m = scf_energy_pattern.search(line)
@@ -957,4 +1028,12 @@ class QcOutput(object):
                     parse_gradient = True
                 elif "VIBRATIONAL ANALYSIS" in line:
                     parse_freq = True
-        print jobtype
+                elif "Thank you very much for using Q-Chem." in line:
+                    properly_terminated = True
+        if charge is None:
+            errors.append("Molecular charge is not found")
+        elif spin_multiplicity is None:
+            errors.append("Molecular spin multipilicity is not found")
+        else:
+            for mol in molecules:
+                mol.set_charge_and_spin(charge, spin_multiplicity)
