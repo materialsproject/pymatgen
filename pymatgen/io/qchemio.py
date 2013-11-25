@@ -916,6 +916,7 @@ class QcBatchInput(MSONable):
 
 
 class QcOutput(object):
+    kcal_per_mol_2_eV = 4.3363E-2
     def __init__(self, filename):
         self.filename = filename
         with zopen(filename) as f:
@@ -955,6 +956,8 @@ class QcOutput(object):
                                     "\s+(?P<charge>\-?\d+\.\d+)")
         scf_iter_pattern = re.compile("\d+\s+(?P<energy>\-\d+\.\d+)\s+"
                                       "(?P<diis_error>\d+\.\d+E[-+]\d+)")
+        zpe_pattern = re.compile("Zero point vibrational energy:"
+                                 "\s+(?P<zpe>\d+\.\d+)\s+kcal/mol")
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
             (re.compile("Coordinates do not transform within specified "
@@ -990,6 +993,7 @@ class QcOutput(object):
         jobtype = None
         charge = None
         spin_multiplicity = None
+        zpe = None
         properly_terminated = False
         job_successful = False
         for line in output.split("\n"):
@@ -1083,11 +1087,15 @@ class QcOutput(object):
                     m = num_ele_pattern.search(line)
                     if m:
                         spin_multiplicity = int(m.group("alpha")) - \
-                                            int(m.group("beta")) + 1
+                            int(m.group("beta")) + 1
                 if charge is None:
                     m = charge_pattern.search(line)
                     if m:
                         charge = int(float(m.group("charge")))
+                if jobtype and jobtype == "freq":
+                    m = zpe_pattern.search(line)
+                    if m:
+                        zpe = float(m.group("zpe")) * cls.kcal_per_mol_2_eV
                 name = None
                 energy = None
                 m = scf_energy_pattern.search(line)
@@ -1127,4 +1135,4 @@ class QcOutput(object):
             for grad in g["gradients"]:
                 print grad
             print
-        print freqs
+        print zpe
