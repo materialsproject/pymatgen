@@ -921,7 +921,7 @@ class QcOutput(object):
         with zopen(filename) as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
-        self._parse_job(chunks[0])
+        self._parse_job(chunks[1])
     @classmethod
     def _expected_successful_pattern(cls, qcinp):
         text = []
@@ -973,6 +973,9 @@ class QcOutput(object):
         species = []
         molecules = []
         gradients = []
+        freqs = []
+        vib_freqs = []
+        vib_modes = []
         grad_comp = None
         errors = []
         parse_input = False
@@ -981,6 +984,7 @@ class QcOutput(object):
         parse_mulliken_charge = False
         parse_gradient = False
         parse_freq = False
+        parse_modes = False
         qcinp_lines = []
         qcinp = None
         jobtype = None
@@ -1050,7 +1054,30 @@ class QcOutput(object):
                             raise Exception("Gradient section parsing failed")
                     grad_comp = []
                 else:
-                    grad_comp.append([float(x) for x in line.split()[1:]])
+                    grad_comp.append([float(x) for x
+                                      in line.strip().split()[1:]])
+            elif parse_freq:
+                if parse_modes:
+                    if "TransDip" in line:
+                        parse_modes = False
+                        for freq, mode in zip(vib_freqs, zip(*vib_modes)):
+                            freqs.append({"frequency:": freq,
+                                          "vib_mode:": mode})
+                        continue
+                    dis_flat = [float(x) for x in line.strip().split()[1:]]
+                    dis_atom = zip(*([iter(dis_flat)]*3))
+                    vib_modes.append(dis_atom)
+                if "STANDARD THERMODYNAMIC QUANTITIES" in line\
+                        or "Imaginary Frequencies" in line:
+                    parse_freq = False
+                    continue
+                if "Frequency:" in line:
+                    vib_freqs = [float(vib) for vib
+                                      in line.strip().strip().split()[1:]]
+                elif "X      Y      Z" in line:
+                    parse_modes = True
+                    continue
+
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1100,3 +1127,4 @@ class QcOutput(object):
             for grad in g["gradients"]:
                 print grad
             print
+        print freqs
