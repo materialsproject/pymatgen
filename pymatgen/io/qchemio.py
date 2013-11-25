@@ -903,7 +903,7 @@ class QcOutput(object):
         with zopen(filename) as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
-        self._parse_job(chunks[1])
+        self._parse_job(chunks[0])
     @classmethod
     def _expected_successful_pattern(cls, qcinp):
         text = []
@@ -935,6 +935,8 @@ class QcOutput(object):
                                      "and\s+(?P<beta>\d+)\s+beta electrons")
         charge_pattern = re.compile("Sum of atomic charges ="
                                     "\s+(?P<charge>\-?\d+\.\d+)")
+        scf_iter_pattern = re.compile("\d+\s+(?P<energy>\-\d+\.\d+)\s+"
+                                      "(?P<diis_error>\d+\.\d+E[-+]\d+)")
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
             (re.compile("Coordinates do not transform within specified "
@@ -948,6 +950,7 @@ class QcOutput(object):
         )
 
         energies = []
+        scf_iters = []
         coords = []
         species = []
         molecules = []
@@ -995,7 +998,14 @@ class QcOutput(object):
                 coords.append([float(m.group("x")), float(m.group("y")),
                               float(m.group("z"))])
                 species.append(m.group("element"))
-
+            elif parse_scf_iter:
+                if "SCF time:  CPU" in line:
+                    parse_scf_iter = False
+                    continue
+                m = scf_iter_pattern.search(line)
+                if m:
+                    scf_iters[-1].append((float(m.group("energy")),
+                                          float(m.group("diis_error"))))
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1024,6 +1034,7 @@ class QcOutput(object):
                     parse_coords = True
                 elif "Cycle       Energy         DIIS Error" in line:
                     parse_scf_iter = True
+                    scf_iters.append([])
                 elif "Gradient of SCF Energy" in line:
                     parse_gradient = True
                 elif "VIBRATIONAL ANALYSIS" in line:
