@@ -138,7 +138,7 @@ class Directory(object):
 
     @property
     def exists(self):
-        "True if file exists."
+        """True if file exists."""
         return os.path.exists(self.path)
 
     def makedirs(self):

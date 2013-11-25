@@ -6,8 +6,6 @@ from __future__ import division, print_function
 import os
 import sys
 import time
-import collections
-import itertools
 import warnings
 import cPickle as pickle
 #import pickle as pickle

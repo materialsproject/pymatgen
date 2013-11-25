@@ -1143,7 +1143,8 @@ class DeltaFactorWorkflow(Workflow):
 
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
-                 accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
+                 accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0,
+                 workdir=None, manager=None):
                  # FIXME Hack in chksymbreak
         """
         Build a `Workflow` for the computation of the deltafactor.
@@ -1243,7 +1244,8 @@ class DeltaFactorWorkflow(Workflow):
             wien2k = df_database().get_entry(self.pseudo.symbol)
                                                                                                  
             # Compute deltafactor estimator.
-            dfact = df_compute(wien2k.v0, wien2k.b0_GPa, wien2k.b1, eos_fit.v0, eos_fit.b0_GPa, eos_fit.b1, b0_GPa=True)
+            dfact = df_compute(wien2k.v0, wien2k.b0_GPa, wien2k.b1,
+                               eos_fit.v0, eos_fit.b0_GPa, eos_fit.b1, b0_GPa=True)
 
             print("delta",eos_fit)
             print("Deltafactor = %.3f meV" % dfact)
@@ -1324,7 +1326,7 @@ class G0W0_Workflow(Workflow):
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
             task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
-            self.sigma_tasks.append(tasks)
+            self.sigma_tasks.append(task)
 
 
 class SigmaConvWorkflow(Workflow):
