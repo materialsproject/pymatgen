@@ -1,21 +1,20 @@
 """Tools for the submission of Tasks."""
 from __future__ import division, print_function
 
-import os 
+import os
 import time
 import collections
 import yaml
 import cStringIO as StringIO
 
-from subprocess import Popen, PIPE
 from datetime import timedelta
 from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.string_utils import is_string
 from pymatgen.io.abinitio.utils import File
 
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "ScriptEditor",
@@ -23,9 +22,11 @@ __all__ = [
     "PyFlowScheduler",
 ]
 
+
 def straceback():
     """Returns a string with the traceback."""
     import traceback
+
     return traceback.format_exc()
 
 
@@ -44,7 +45,7 @@ class ScriptEditor(object):
 
     def _add(self, text, pre=""):
         if is_string(text):
-            self._lines.append(pre+text)
+            self._lines.append(pre + text)
         else:
             self._lines.extend([pre + t for t in text])
 
@@ -64,13 +65,13 @@ class ScriptEditor(object):
         if val is not None:
             line = "export " + key + '=' + str(val)
         else:
-            line = "unset " + key 
+            line = "unset " + key
 
         self._add(line)
 
     def declare_vars(self, d):
         """Declare the variables defined in the dictionary d."""
-        for k,v in d.items():
+        for k, v in d.items():
             self.declare_var(k, v)
 
     def export_envar(self, key, val):
@@ -80,7 +81,7 @@ class ScriptEditor(object):
 
     def export_envars(self, env):
         """Export the environment variables contained in the dict env."""
-        for k,v in env.items():
+        for k, v in env.items():
             self.export_envar(k, v)
 
     def add_emptyline(self):
@@ -119,17 +120,17 @@ class OmpEnv(dict):
     see https://computing.llnl.gov/tutorials/openMP/#EnvironmentVariables
     """
     _KEYS = [
-       "OMP_SCHEDULE",
-       "OMP_NUM_THREADS",
-       "OMP_DYNAMIC",
-       "OMP_PROC_BIND",
-       "OMP_NESTED",
-       "OMP_STACKSIZE",
-       "OMP_WAIT_POLICY",
-       "OMP_MAX_ACTIVE_LEVELS",
-       "OMP_THREAD_LIMIT",
-       "OMP_STACKSIZE",
-       "OMP_PROC_BIND",
+        "OMP_SCHEDULE",
+        "OMP_NUM_THREADS",
+        "OMP_DYNAMIC",
+        "OMP_PROC_BIND",
+        "OMP_NESTED",
+        "OMP_STACKSIZE",
+        "OMP_WAIT_POLICY",
+        "OMP_MAX_ACTIVE_LEVELS",
+        "OMP_THREAD_LIMIT",
+        "OMP_STACKSIZE",
+        "OMP_PROC_BIND",
     ]
 
     def __init__(self, *args, **kwargs):
@@ -150,24 +151,25 @@ class OmpEnv(dict):
             if key not in self._KEYS:
                 err_msg += "unknown option %s\n" % key
 
-        if err_msg: 
+        if err_msg:
             raise ValueError(err_msg)
 
-    @staticmethod
-    def from_file(filename, allow_empty=False):
+    @classmethod
+    def from_file(cls, filename, allow_empty=False):
         """Reads the OpenMP variables from a INI file."""
         if filename.endswith(".ini"):
             from ConfigParser import SafeConfigParser, NoOptionError
+
             parser = SafeConfigParser()
             parser.read(filename)
 
-            obj = OMPEnv()
+            obj = OmpEnv()
 
             # Consistency check. Note that we only check if the option name is correct, 
             # we do not check whether the value is correct or not.
             if "openmp" not in parser.sections():
                 if not allow_empty:
-                    raise ValueError("%s does not contain any [openmp] section" % filename) 
+                    raise ValueError("%s does not contain any [openmp] section" % filename)
                 return obj
 
             err_msg = ""
@@ -175,10 +177,10 @@ class OmpEnv(dict):
                 if key.upper() not in self._KEYS:
                     err_msg += "unknown option %s, maybe a typo" % key
 
-            if err_msg: 
+            if err_msg:
                 raise ValueError(err_msg)
 
-            for key in self._KEYS:
+            for key in cls._KEYS:
                 try:
                     obj[key] = str(parser.get("openmp", key))
                 except NoOptionError:
@@ -188,7 +190,7 @@ class OmpEnv(dict):
                         pass
 
             if not allow_empty and not obj:
-                raise ValueError("Refusing to return with an empty dict") 
+                raise ValueError("Refusing to return with an empty dict")
 
             return obj
 
@@ -245,10 +247,10 @@ class PyLauncher(object):
         if tasks:
             tasks[0].start()
             num_launched += 1
-            
+
             self.flow.pickle_dump()
 
-        return num_launched 
+        return num_launched
 
     def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None): # nlaunches=0, 
         """
@@ -297,7 +299,7 @@ class PyLauncher(object):
                 if fired:
                     launched.append(task)
                     num_launched += 1
-                                                
+
                 if num_launched == max_nlaunch:
                     # Exit the outermst loop.
                     num_loops = max_loops
@@ -310,7 +312,7 @@ class PyLauncher(object):
         self.flow.check_status()
         self.flow.pickle_dump()
 
-        return num_launched 
+        return num_launched
 
     def fetch_tasks_to_run(self):
         """
@@ -322,7 +324,7 @@ class PyLauncher(object):
         for work in self.flow:
             try:
                 task = work.fetch_task_to_run()
-                                                                                                   
+
                 if task is not None:
                     tasks_to_run.append(task)
                 else:
@@ -338,13 +340,13 @@ class PyLauncher(object):
 
 
 def boxed(msg, ch="=", pad=5):
-    if pad > 0: 
-        msg = pad*ch + msg + pad*ch
+    if pad > 0:
+        msg = pad * ch + msg + pad * ch
 
     return "\n".join([len(msg) * ch,
                       msg,
                       len(msg) * ch,
-                      "",])
+                      "", ])
 
 
 class PyFlowScheduler(object):
@@ -392,13 +394,13 @@ class PyFlowScheduler(object):
         """
         # Options passed to the scheduler.
         self.sched_options = AttrDict(
-             weeks=kwargs.pop("weeks", 0),
-             days=kwargs.pop("days", 0),
-             hours=kwargs.pop("hours", 0),
-             minutes=kwargs.pop("minutes",0),
-             seconds=kwargs.pop("seconds", 0),
-             #start_date=kwargs.pop("start_date", None),
-             )
+            weeks=kwargs.pop("weeks", 0),
+            days=kwargs.pop("days", 0),
+            hours=kwargs.pop("hours", 0),
+            minutes=kwargs.pop("minutes", 0),
+            seconds=kwargs.pop("seconds", 0),
+            #start_date=kwargs.pop("start_date", None),
+        )
 
         if all(not v for v in self.sched_options.values()):
             raise ValueError("Wrong set of options passed to the scheduler.")
@@ -415,6 +417,7 @@ class PyFlowScheduler(object):
             raise ValueError("Unknown arguments %s" % kwargs)
 
         from apscheduler.scheduler import Scheduler
+
         self.sched = Scheduler(standalone=True)
 
         self.nlaunch = 0
@@ -456,15 +459,16 @@ class PyFlowScheduler(object):
 
         if os.path.exists(path):
             return cls.from_file(path)
-    
-        raise RuntimeError("Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath))
+
+        err_msg = "Cannot locate %s neither in current directory nor in %s" % (cls.YAML_FILE, dirpath)
+        raise RuntimeError(err_msg)
 
     def __str__(self):
         """String representation."""
         lines = [self.__class__.__name__ + ", Pid: %d" % self.pid]
         app = lines.append
 
-        app("Scheduler options: %s" % str(self.sched_options)) 
+        app("Scheduler options: %s" % str(self.sched_options))
         app(80 * "=")
         app(str(self.flow))
 
@@ -482,9 +486,12 @@ class PyFlowScheduler(object):
 
     @property
     def pid_file(self):
-        """Absolute path of the file with the pid. The file is located in the workdir of the flow"""
+        """
+        Absolute path of the file with the pid. 
+        The file is located in the workdir of the flow
+        """
         return self._pidfile
-                                                                                            
+
     @property
     def flow(self):
         """`AbinitFlow`."""
@@ -503,7 +510,7 @@ class PyFlowScheduler(object):
         """Add an `AbinitFlow` to the scheduler."""
         if hasattr(self, "_flow"):
             raise ValueError("Only one flow can be added to the scheduler.")
-            
+
         pid_file = os.path.join(flow.workdir, "_PyFlowScheduler.pid")
 
         if os.path.isfile(pid_file):
@@ -512,15 +519,15 @@ class PyFlowScheduler(object):
             err_msg = (
                 "pid_file %s already exists\n"
                 "There are two possibilities:\n\n"
-                "       1) There's an another instance of PyFlowScheduler running.\n"
-                "       2) The previous scheduler didn't exit in a clean way.\n\n"
+                "   1) There's an another instance of PyFlowScheduler running.\n"
+                "   2) The previous scheduler didn't exit in a clean way.\n\n"
                 "To solve case 1:\n"
-                "       Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)\n"
-                "       Then you run can start the new scheduler.\n\n"
+                "   Kill the previous scheduler (use 'kill pid' where pid is the number reported in the file)\n"
+                "   Then you run can start the new scheduler.\n\n"
                 "To solve case 2:\n"
                 "   Remove the pid_file and restart the scheduler.\n\n"
                 "Exiting\n" % pid_file
-                )
+            )
 
             raise RuntimeError(err_msg)
 
@@ -604,7 +611,7 @@ class PyFlowScheduler(object):
 
         show_status = (self.verbose or flow.num_errored_tasks or flow.num_unconverged_tasks)
         if show_status: flow.show_status()
-        
+
         if excs:
             logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
             self.exceptions.extend(excs)
@@ -633,33 +640,35 @@ class PyFlowScheduler(object):
 
         # Shall we send a reminder to the user?
         delta_etime = self.get_delta_etime()
-                                                                                                                              
+
         if delta_etime.total_seconds() > self.num_reminders * self.REMINDME_S:
             self.num_reminders += 1
-            msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " % 
-                  (self.pid, self.flow, delta_etime))
+            msg = ("Just to remind you that the scheduler with pid %s, flow %s\n has been running for %s " %
+                   (self.pid, self.flow, delta_etime))
             retcode = self.send_email(msg, tag="[REMINDER]")
 
             if retcode:
                 # Cannot send mail, shutdown now!
-                msg += "\nThe scheduler tried to send mail to remind user but send_email returned %d. Aborting now" % retcode
+                msg += "\nThe scheduler tried to send an e-mail to remind user but send_email returned %d. Aborting now" % retcode
                 err_msg += msg
 
         # Too many exceptions. Shutdown the scheduler.
         if self.num_excs > self.MAX_NUM_PYEXCS:
-            msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (self.num_excs, self.MAX_NUM_PYEXCS)
+            msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (
+            self.num_excs, self.MAX_NUM_PYEXCS)
             err_msg += boxed(msg)
 
         # Paranoid check: disable the scheduler if we have submitted 
         # too many jobs (it might be due to some bug or other external reasons such as race conditions betwee difference callbacks.!) 
         if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
-            msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" %  (self.nlaunch, self.flow.num_tasks)
+            msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
+            self.nlaunch, self.flow.num_tasks)
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_ERROR.
         if self.flow.num_errored_tasks > self.MAX_NUM_ABIERRS:
             msg = "Number of tasks with ERROR status %s > %s. Will shutdown the scheduler and exit" % (
-               self.flow.num_errored_tasks, self.MAX_NUM_ABIERRS)
+                self.flow.num_errored_tasks, self.MAX_NUM_ABIERRS)
             err_msg += boxed(msg)
 
         # Count the number of tasks with status == S_UNCONVERGED.
@@ -680,17 +689,18 @@ class PyFlowScheduler(object):
             # Something wrong. Quit
             self.shutdown(err_msg)
 
-        return len(self.exceptions) 
+        return len(self.exceptions)
 
     def cleanup(self):
         """
         Cleanup routine: remove the pid file and save the pickle database
         """
         try:
-            os.unlink(self.pid_file)
-        except:
+            os.remove(self.pid_file)
+        except OSError:
+            logger.critical("Could not remove pid_file")
             pass
-                                                                    
+
         # Save the final status of the flow.
         self.flow.pickle_dump()
 
@@ -727,7 +737,7 @@ class PyFlowScheduler(object):
             return -2
 
     def _send_email(self, msg, tag):
-        if self.mailto is None: 
+        if self.mailto is None:
             return -1
 
         header = msg.splitlines()
@@ -749,8 +759,7 @@ class PyFlowScheduler(object):
             # Report the list of exceptions.
             strio.writelines(self.exceptions)
 
-        strio.seek(0)
-        text = strio.read()
+        text = strio.getvalue()
         #print("text", text)
 
         if tag is None:
@@ -778,11 +787,12 @@ def sendmail(subject, text, mailto, sender=None):
         from socket import gethostname
         return os.getlogin() + "@" + gethostname()
 
-    # Body of the message
-    sender = user_at_host() if sender is None else sender 
+    # Body of the message.
+    sender = user_at_host() if sender is None else sender
     if is_string(mailto): mailto = [mailto]
 
     from email.mime.text import MIMEText
+
     mail = MIMEText(text)
     mail["Subject"] = subject
     mail["From"] = sender
@@ -792,19 +802,13 @@ def sendmail(subject, text, mailto, sender=None):
 
     # sendmail works much better than the python interface.
     # Note that sendmail is available only on Unix-like OS.
-    #print("Using sendmail")
     from subprocess import Popen, PIPE
-    SENDMAIL = "/usr/sbin/sendmail" 
+
+    SENDMAIL = "/usr/sbin/sendmail"
     p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
 
     outdata, errdata = p.communicate(msg)
     return len(errdata)
-
-    # Send the message via our own SMTP server.
-    #import smtplib
-    #server = smtplib.SMTP("localhost")
-    #server.sendmail(sender, mailto, msg)
-    #return server.quit()
 
 
 # Test for sendmail
@@ -813,4 +817,3 @@ def sendmail(subject, text, mailto, sender=None):
 #    mailto = "matteo.giantomassi@uclouvain.be"
 #    retcode = sendmail("sendmail_test", text, mailto)
 #    print("Retcode", retcode)
-

@@ -15,7 +15,6 @@ import os
 import abc
 import string
 import copy
-import functools
 import getpass
 
 from subprocess import Popen, PIPE
@@ -30,6 +29,7 @@ __all__ = [
     "MpiRunner",
     "qadapter_class",
 ]
+
 
 class Command(object):
     """
