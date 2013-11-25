@@ -7,6 +7,7 @@ right away.
 """
 import os
 import unittest
+import tempfile
 import numpy.testing.utils as nptu
 
 
@@ -69,7 +70,6 @@ class PymatgenTest(unittest.TestCase):
         Returns:
             Nested list with the objects deserialized with the specified protocols.
         """
-        import tempfile
         # Use the python version so that we get the traceback in case of errors 
         import pickle as pickle  
         #import cPickle as pickle
@@ -111,3 +111,14 @@ class PymatgenTest(unittest.TestCase):
             return [o[0] for o in objects_by_protocol]
         else:
             return objects_by_protocol
+
+    def tmpfile_write(self, string):
+        """
+        Write string to a temporary file. Returns the name of the temporary file.
+        """
+        fd, tmpfile = tempfile.mkstemp(text=True)
+
+        with open(tmpfile, "w") as fh:
+            fh.write(string)
+
+        return tmpfile

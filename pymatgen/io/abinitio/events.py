@@ -128,12 +128,13 @@ class AbinitBug(AbinitEvent):
 
 
 class AbinitWarning(AbinitEvent):
-    yaml_tag = u'!WARNING'
     """
     Base class for Warning events (the most important class).
     Developers should subclass this class to define the different exceptions
     raised by the code and the possible actions that can be performed.
     """
+    yaml_tag = u'!WARNING'
+
 
 class AbinitYamlWarning(AbinitWarning):
     """
