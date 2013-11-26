@@ -922,7 +922,8 @@ class QcOutput(object):
         with zopen(filename) as f:
             data = f.read()
         chunks = re.split("\n\nRunning Job \d+ of \d+ \S+", data)
-        self._parse_job(chunks[1])
+        self.data = map(self._parse_job, chunks)
+
     @classmethod
     def _expected_successful_pattern(cls, qcinp):
         text = []
@@ -938,6 +939,7 @@ class QcOutput(object):
             text.append("VIBRATIONAL ANALYSIS")
         if qcinp.params["rem"]["jobtype"] == "gradient":
             text.append("Gradient of SCF Energy")
+        return text
 
     @classmethod
     def _parse_job(cls, output):
@@ -998,7 +1000,6 @@ class QcOutput(object):
         spin_multiplicity = None
         thermal_corr = dict()
         properly_terminated = False
-        job_successful = False
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1137,12 +1138,6 @@ class QcOutput(object):
         else:
             for mol in molecules:
                 mol.set_charge_and_spin(charge, spin_multiplicity)
-        for i, g in enumerate(gradients):
-            print "cycle", i
-            print g["max_gradient"], g["rms_gradient"]
-            for grad in g["gradients"]:
-                print grad
-            print
         for k in thermal_corr.keys():
             v = thermal_corr[k]
             if "Entropy" in k:
@@ -1150,3 +1145,21 @@ class QcOutput(object):
             else:
                 v *= cls.kcal_per_mol_2_eV
             thermal_corr[k] = v
+        for text in cls._expected_successful_pattern(qcinp):
+            success_pattern = re.compile(text)
+            if not success_pattern.search(output):
+                errors.append("Can't find text to indicate success")
+        data = {
+            "jobtype": jobtype,
+            "energies": energies,
+            "corrections": thermal_corr,
+            "molecules": molecules,
+            "errors": errors,
+            "has_error": len(errors) > 0,
+            "frequencys": freqs,
+            "gradients": gradients,
+            "input": qcinp,
+            "gracefully_terminated": properly_terminated,
+            "scf_iteration_energies": scf_iters
+        }
+        return data

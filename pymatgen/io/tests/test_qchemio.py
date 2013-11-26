@@ -1,4 +1,5 @@
 import glob
+import json
 import os
 from unittest import TestCase
 import unittest
@@ -779,6 +780,7 @@ class TestQcOutput(TestCase):
     def test_parse(self):
         filename = os.path.join(test_dir, "CdBr2.qcout")
         qcout = QcOutput(filename)
+        print qcout.data
 
 
 
