@@ -1145,10 +1145,11 @@ class QcOutput(object):
             else:
                 v *= cls.kcal_per_mol_2_eV
             thermal_corr[k] = v
-        for text in cls._expected_successful_pattern(qcinp):
-            success_pattern = re.compile(text)
-            if not success_pattern.search(output):
-                errors.append("Can't find text to indicate success")
+        if len(errors) == 0:
+            for text in cls._expected_successful_pattern(qcinp):
+                success_pattern = re.compile(text)
+                if not success_pattern.search(output):
+                    errors.append("Can't find text to indicate success")
         data = {
             "jobtype": jobtype,
             "energies": energies,
