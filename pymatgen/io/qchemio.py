@@ -958,6 +958,9 @@ class QcOutput(object):
                                       "(?P<diis_error>\d+\.\d+E[-+]\d+)")
         zpe_pattern = re.compile("Zero point vibrational energy:"
                                  "\s+(?P<zpe>\d+\.\d+)\s+kcal/mol")
+        thermal_corr_pattern = re.compile("(?P<name>\S.*\S):\s+"
+                                          "(?P<correction>\d+\.\d+)\s+"
+                                          "k?cal/mol")
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
             (re.compile("Coordinates do not transform within specified "
@@ -993,7 +996,7 @@ class QcOutput(object):
         jobtype = None
         charge = None
         spin_multiplicity = None
-        zpe = None
+        thermal_corr = dict()
         properly_terminated = False
         job_successful = False
         for line in output.split("\n"):
@@ -1095,7 +1098,12 @@ class QcOutput(object):
                 if jobtype and jobtype == "freq":
                     m = zpe_pattern.search(line)
                     if m:
-                        zpe = float(m.group("zpe")) * cls.kcal_per_mol_2_eV
+                        zpe = float(m.group("zpe"))
+                        thermal_corr["ZPE"] = zpe
+                    m = thermal_corr_pattern.search(line)
+                    if m:
+                        thermal_corr[m.group("name")] = \
+                            float(m.group("correction"))
                 name = None
                 energy = None
                 m = scf_energy_pattern.search(line)
@@ -1135,4 +1143,10 @@ class QcOutput(object):
             for grad in g["gradients"]:
                 print grad
             print
-        print zpe
+        for k in thermal_corr.keys():
+            v = thermal_corr[k]
+            if "Entropy" in k:
+                v *= cls.kcal_per_mol_2_eV * 1.0E-3
+            else:
+                v *= cls.kcal_per_mol_2_eV
+            thermal_corr[k] = v
