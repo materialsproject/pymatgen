@@ -1053,7 +1053,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
         #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
         #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
 
-        self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
+        # Old XML files do not define this field!
+        # In this case we set the PAW radius to None.
+        #self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
+
+        pawr_element = root.find("PAW_radius")
+        self._paw_radius = None
+        if pawr_element is not None:
+            self._paw_radius = float(pawr_element.attrib["rpaw"])
 
         #<valence_states>
         #  <state n="2" l="0" f="2"  rc="1.10" e="-0.6766" id="N-2s"/>
