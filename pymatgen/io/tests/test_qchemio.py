@@ -778,7 +778,7 @@ $end
 
 class TestQcOutput(TestCase):
     def test_parse(self):
-        filename = os.path.join(test_dir, "CdBr2.qcout")
+        filename = os.path.join(test_dir, "hf_opt_failed.qcout")
         qcout = QcOutput(filename)
         print qcout.data
 
