@@ -1223,7 +1223,7 @@ class Task(Node):
         if exit_status != 0:
             return 0
 
-        # Remove output files.
+        # Remove output files and reset the status.
         self.reset()
 
         return 1
