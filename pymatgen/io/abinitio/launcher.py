@@ -490,7 +490,7 @@ class PyFlowScheduler(object):
         Absolute path of the file with the pid. 
         The file is located in the workdir of the flow
         """
-        return self._pidfile
+        return self._pid_file
 
     @property
     def flow(self):
