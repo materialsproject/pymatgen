@@ -357,6 +357,29 @@ class AbinitFlow(Node):
 
             pprint_table(table, out=stream)
 
+    def cancel(self):
+        """
+        Cancel all the tasks that are in the queue.
+
+        Returns:
+            Number of jobs cancelles.
+        """
+        # If we are running with the scheduler, we must send a SIGKILL signal.
+        pid_file = os.path.join(self.workdir, "_PyFlowScheduler.pid")
+        if os.path.exists(pid_file):
+            with open(pid_file, "r") as fh:
+                pid = int(fh.readline())
+                
+            retcode = os.system("kill -9 %d" % pid)
+            print("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            #os.remove(pid_file)
+
+        num_cancelled = 0
+        for task in self.iflat_tasks():
+            num_cancelled += task.cancel()
+
+        return num_cancelled
+
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""
         self.indir.makedirs()
