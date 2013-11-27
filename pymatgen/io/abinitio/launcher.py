@@ -713,15 +713,15 @@ class PyFlowScheduler(object):
             self.history.append("Elapsed time %s" % self.get_delta_etime())
 
             retcode = self.send_email(msg)
+            print("send_mail retcode", retcode)
 
-            # Write text file with the list of exceptions:
-            #if self.exceptions and retcode: 
+        finally:
+            # Write file with the list of exceptions:
             if self.exceptions:
-                dump_file = os.path.join(self.flow.workdir, "launcher.log")
+                dump_file = os.path.join(self.flow.workdir, "_exceptions")
                 with open(dump_file, "w") as fh:
                     fh.writelines(self.exceptions)
 
-        finally:
             # Shutdown the scheduler thus allowing the process to exit.
             self.sched.shutdown(wait=False)
 
