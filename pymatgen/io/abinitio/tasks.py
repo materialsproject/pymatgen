@@ -1210,6 +1210,24 @@ class Task(Node):
         report = self.get_event_report()
         return report.filter_types(self.CRITICAL_EVENTS)
 
+    def cancel(self):
+        """
+        Cancel the job. Returns 1 if job was cancelled.
+        """
+        queue_id = self.queue_id
+        if queue_id is None: return 0 
+        if self.status >= self.S_DONE: return 0 
+
+        exit_status = self.manager.qadapter.cancel(queue_id)
+
+        if exit_status != 0:
+            return 0
+
+        # Remove output files.
+        self.reset()
+
+        return 1
+
     def _on_done(self):
         self.fix_ofiles()
 
@@ -1343,7 +1361,15 @@ class Task(Node):
             return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        self.set_queue_id(None)
+
+        # Remove output files otherwise the EventParser will think the job is still running
+        self.output_file.remove()
+        self.log_file.remove()
+        self.stderr_file.path.remove()
         self.start_lockfile.remove()
+        self.qerr_file.remove()
+        self.qout_file.remove()
 
         # TODO send a signal to the flow 
         #self.workflow.check_status()
