@@ -126,7 +126,7 @@ class AbinitFlow(Node):
                     filepath = os.path.join(dirpath, fnames[0])
                     break
             else:
-                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, path)
+                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
 
         with FileLock(filepath) as lock:

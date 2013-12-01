@@ -190,6 +190,10 @@ class Pseudo(object):
             return _PTABLE[int(self.Z)]
 
     @property
+    def type(self):
+        return self.__class__.__name__
+
+    @property
     def symbol(self):
         """Element symbol."""
         return self.element.symbol
@@ -558,6 +562,7 @@ def _int_from_str(string):
     else:
         raise TypeError("Cannot convert string %s to int" % string)
 
+
 class NcAbinitHeader(AbinitHeader):
     """
     The abinit header found in the NC pseudopotential files.
@@ -879,7 +884,7 @@ class PseudoParser(object):
         # List of files that could not been parsed.
         self._wrong_paths  = []
 
-    def scan_directory(self, dirname, exclude_exts=(), exclude_fnames=()):
+    def scan_dir(self, dirname, exclude_exts=(), exclude_fnames=()):
         """
         Analyze the files contained in directory dirname.
 
@@ -902,13 +907,14 @@ class PseudoParser(object):
         paths = []
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
-            if ext in exclude_exts or fname in exclude_fnames or fname.startswith("."):
-                continue
-            paths.append(os.path.join(dirname, fname))
+            path = os.path.join(dirname, fname)
+            if (ext in exclude_exts or fname in exclude_fnames or 
+                fname.startswith(".") or not os.path.isfile(path)): continue
+            paths.append(path)
 
         pseudos = []
         for path in paths:
-            # parse the file and generate the pseudo.
+            # Parse the file and generate the pseudo.
             pseudo = self.parse(path)
 
             if pseudo is not None:
