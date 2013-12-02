@@ -777,10 +777,12 @@ $end
 
 
 class TestQcOutput(TestCase):
-    def test_parse(self):
-        filename = os.path.join(test_dir, "hf_opt_failed.qcout")
-        qcout = QcOutput(filename)
-        print qcout.data
+    def test_energy(self):
+        for filename in glob.glob(os.path.join(test_dir, "qchem_energies",
+                                           "*.qcout")):
+            print filename
+            qcout = QcOutput(filename)
+            print qcout.data
 
 
 
