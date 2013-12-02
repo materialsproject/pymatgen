@@ -778,11 +778,77 @@ $end
 
 class TestQcOutput(TestCase):
     def test_energy(self):
+        ref_energies_text = '''
+{
+    "hf-rimp2.qcout": {
+        "RIMP2": -2726.6860779805256,
+        "SCF": -2721.541435904716
+    },
+    "hf_b3lyp.qcout": {
+        "SCF": -2733.1747178920828
+    },
+    "hf_ccsd(t).qcout": {
+        "CCSD": -2726.7627121001865,
+        "CCSD(T)": -2726.8283514003333,
+        "MP2": -2726.685664155242,
+        "SCF": -2721.5414360843106
+    },
+    "hf_hf.qcout": {
+        "SCF": -2721.541435904716
+    },
+    "hf_lxygjos.qcout": {
+        "SCF": -2724.0769973875713,
+        "XYGJ-OS": -2726.3445157759393
+    },
+    "hf_mosmp2.qcout": {
+        "MOS-MP2": -2725.302538779482,
+        "SCF": -2721.541435904716
+    },
+    "hf_mp2.qcout": {
+        "MP2": -2726.685661962005,
+        "SCF": -2721.541435904716
+    },
+    "hf_qcisd(t).qcout": {
+        "QCISD": -2726.7853751012344,
+        "QCISD(T)": -2726.8346541282745,
+        "SCF": -2721.5414360843106
+    },
+    "hf_riccsd(t).qcout": {
+        "CCSD": -2726.7641790658904,
+        "CCSD(T)": -2726.829853468723,
+        "MP2": -2726.6860802173014,
+        "SCF": -2721.5414360843106
+    },
+    "hf_tpssh.qcout": {
+        "SCF": -2732.938974944255
+    },
+    "hf_xyg3.qcout": {
+        "SCF": -2728.769906036435,
+        "XYG3": -2731.0640917605806
+    },
+    "hf_xygjos.qcout": {
+        "SCF": -2724.0769973875713,
+        "XYGJ-OS": -2726.3447230967517
+    }
+}'''
+        ref_energies = json.loads(ref_energies_text)
+        parsed_energies = dict()
         for filename in glob.glob(os.path.join(test_dir, "qchem_energies",
                                            "*.qcout")):
-            print filename
+            mol = os.path.basename(filename)
             qcout = QcOutput(filename)
-            print qcout.data
+            d = dict(qcout.data[0]["energies"])
+            parsed_energies[mol] = d
+        self.assertEqual(sorted(ref_energies.keys()),
+                         sorted(parsed_energies.keys()))
+        mols = sorted(ref_energies.keys())
+        for mol in mols:
+            self.assertEqual(sorted(ref_energies[mol].keys()),
+                             sorted(parsed_energies[mol].keys()))
+            methods = sorted(ref_energies[mol].keys())
+            for method in methods:
+                self.assertAlmostEqual(ref_energies[mol][method],
+                                       parsed_energies[mol][method])
 
 
 
