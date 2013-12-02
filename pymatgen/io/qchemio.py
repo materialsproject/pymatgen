@@ -1157,7 +1157,7 @@ class QcOutput(object):
             "molecules": molecules,
             "errors": errors,
             "has_error": len(errors) > 0,
-            "frequencys": freqs,
+            "frequencies": freqs,
             "gradients": gradients,
             "input": qcinp,
             "gracefully_terminated": properly_terminated,
