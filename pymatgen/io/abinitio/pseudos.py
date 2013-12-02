@@ -884,7 +884,7 @@ class PseudoParser(object):
         # List of files that could not been parsed.
         self._wrong_paths  = []
 
-    def scan_dir(self, dirname, exclude_exts=(), exclude_fnames=()):
+    def scan_directory(self, dirname, exclude_exts=(), exclude_fnames=()):
         """
         Analyze the files contained in directory dirname.
 
