@@ -833,6 +833,7 @@ class TestQcOutput(TestCase):
 }'''
         ref_energies = json.loads(ref_energies_text)
         parsed_energies = dict()
+        # noinspection PyUnresolvedReferences
         for filename in glob.glob(os.path.join(test_dir, "qchem_energies",
                                                          "*.qcout")):
             molname = os.path.basename(filename)
