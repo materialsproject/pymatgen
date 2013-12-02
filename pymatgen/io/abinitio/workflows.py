@@ -1144,7 +1144,7 @@ class DeltaFactorWorkflow(Workflow):
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0,
-                 workdir=None, manager=None):
+                 workdir=None, manager=None, **kwargs):
                  # FIXME Hack in chksymbreak
         """
         Build a `Workflow` for the computation of the deltafactor.
@@ -1201,6 +1201,8 @@ class DeltaFactorWorkflow(Workflow):
                 prtwf=0,
                 paral_kgb=0,
             )
+
+            extra_abivars.update(**kwargs)
 
             if ecut is not None:
                 extra_abivars.update({"ecut": ecut})
