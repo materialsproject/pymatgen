@@ -862,388 +862,40 @@ class TestQcOutput(TestCase):
                         ('SCF', -20180.15020789526),
                         ('SCF', -20180.150206202714)]
         self.assertEqual(qcout.data[0]["energies"], ans_energies)
-        ans_mol1_dict_text = '''
-{
-    "@class": "Molecule",
-    "@module": "pymatgen.core.structure",
-    "charge": -1,
-    "sites": [
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                0.158839,
-                -0.165379,
-                5.9e-05
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -0.520531,
-                -1.36672,
-                0.000349
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -1.930811,
-                -1.19846,
-                -4.1e-05
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -2.297971,
-                0.127429,
-                -0.000691
-            ]
-        },
-        {
-            "name": "S",
-            "properties": {},
-            "species": [
-                {
-                    "element": "S",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -0.938312,
-                1.18963,
-                0.0004
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -0.01472,
-                -2.32534,
-                0.000549
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -2.64172,
-                -2.017721,
-                -0.000161
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -3.301032,
-                0.535659,
-                -0.001261
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                1.603079,
-                0.076231,
-                -0.000101
-            ]
-        },
-        {
-            "name": "O",
-            "properties": {},
-            "species": [
-                {
-                    "element": "O",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                2.131988,
-                1.173581,
-                -0.00033
-            ]
-        },
-        {
-            "name": "O",
-            "properties": {},
-            "species": [
-                {
-                    "element": "O",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                2.322109,
-                -1.079218,
-                -2.1e-05
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                3.262059,
-                -0.820188,
-                -0.000171
-            ]
-        }
-    ],
-    "spin_multiplicity": 2
-}'''
-        ans_mol_last_dict_text = '''
-{
-    "@class": "Molecule",
-    "@module": "pymatgen.core.structure",
-    "charge": -1,
-    "sites": [
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                0.194695,
-                -0.158362,
-                -0.001887
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -0.535373,
-                -1.381241,
-                -0.001073
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -1.927071,
-                -1.199274,
-                -5.2e-05
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -2.332651,
-                0.131916,
-                0.000329
-            ]
-        },
-        {
-            "name": "S",
-            "properties": {},
-            "species": [
-                {
-                    "element": "S",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -0.942111,
-                1.224916,
-                -0.001267
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -0.03826,
-                -2.345185,
-                -0.001256
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -2.636299,
-                -2.025939,
-                0.00062
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                -3.339756,
-                0.529895,
-                0.001288
-            ]
-        },
-        {
-            "name": "C",
-            "properties": {},
-            "species": [
-                {
-                    "element": "C",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                1.579982,
-                0.071245,
-                -0.002733
-            ]
-        },
-        {
-            "name": "O",
-            "properties": {},
-            "species": [
-                {
-                    "element": "O",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                2.196383,
-                1.165675,
-                -0.000178
-            ]
-        },
-        {
-            "name": "O",
-            "properties": {},
-            "species": [
-                {
-                    "element": "O",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                2.352341,
-                -1.114671,
-                0.001634
-            ]
-        },
-        {
-            "name": "H",
-            "properties": {},
-            "species": [
-                {
-                    "element": "H",
-                    "occu": 1
-                }
-            ],
-            "xyz": [
-                3.261096,
-                -0.76947,
-                0.003158
-            ]
-        }
-    ],
-    "spin_multiplicity": 2
-}'''
-        mol1_dict = json.loads(ans_mol1_dict_text)
-        mol_last_dict = json.loads(ans_mol_last_dict_text)
-        self.assertEqual(qcout.data[0]["molecules"][0].to_dict, mol1_dict)
-        self.assertEqual(qcout.data[0]["molecules"][-1].to_dict, mol_last_dict)
+        ans_mol1 = '''Molecule Summary (H4 S1 C5 O2)
+Reduced Formula: H4C5SO2
+Charge = -1, Spin Mult = 2
+Sites (12)
+1 C     0.158839    -0.165379     0.000059
+2 C    -0.520531    -1.366720     0.000349
+3 C    -1.930811    -1.198460    -0.000041
+4 C    -2.297971     0.127429    -0.000691
+5 S    -0.938312     1.189630     0.000400
+6 H    -0.014720    -2.325340     0.000549
+7 H    -2.641720    -2.017721    -0.000161
+8 H    -3.301032     0.535659    -0.001261
+9 C     1.603079     0.076231    -0.000101
+10 O     2.131988     1.173581    -0.000330
+11 O     2.322109    -1.079218    -0.000021
+12 H     3.262059    -0.820188    -0.000171'''
+        ans_mol_last = '''Molecule Summary (H4 S1 C5 O2)
+Reduced Formula: H4C5SO2
+Charge = -1, Spin Mult = 2
+Sites (12)
+1 C     0.194695    -0.158362    -0.001887
+2 C    -0.535373    -1.381241    -0.001073
+3 C    -1.927071    -1.199274    -0.000052
+4 C    -2.332651     0.131916     0.000329
+5 S    -0.942111     1.224916    -0.001267
+6 H    -0.038260    -2.345185    -0.001256
+7 H    -2.636299    -2.025939     0.000620
+8 H    -3.339756     0.529895     0.001288
+9 C     1.579982     0.071245    -0.002733
+10 O     2.196383     1.165675    -0.000178
+11 O     2.352341    -1.114671     0.001634
+12 H     3.261096    -0.769470     0.003158'''
+        self.assertEqual(str(qcout.data[0]["molecules"][0]), ans_mol1)
+        self.assertEqual(str(qcout.data[0]["molecules"][-1]), ans_mol_last)
         self.assertFalse(qcout.data[0]["has_error"])
         ans_gradient = [{'max_gradient': 0.07996,
                          'gradients': [(-0.0623076, -0.0157774, -2.05e-05),
@@ -1437,6 +1089,118 @@ $end
                          (-741.6069065075, 1.89e-08),
                          (-741.6069065075, 7.38e-09)]]
         self.assertEqual(qcout.data[0]['scf_iteration_energies'], ans_scf_iter)
+
+    def test_multiple_step_job(self):
+        filename = os.path.join(test_dir, "CdBr2.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(len(qcout.data), 3)
+        self.assertEqual(qcout.data[0]['jobtype'], 'opt')
+        self.assertEqual(qcout.data[1]['jobtype'], 'freq')
+        ans_thermo_corr_text = '''
+{
+    "Rotational Enthalpy": 0.025714259,
+    "Rotational Entropy": 0.000833523586,
+    "Total Enthalpy": 0.199729978,
+    "Total Entropy": 0.003218965579,
+    "Translational Enthalpy": 0.038549707,
+    "Translational Entropy": 0.001851513374,
+    "Vibrational Enthalpy": 0.109795116,
+    "Vibrational Entropy": 0.000533928619,
+    "ZPE": 0.039330241,
+    "Zero point vibrational energy": 0.039330241,
+    "gas constant (RT)": 0.025714259
+}'''
+        ans_thermo_corr = json.loads(ans_thermo_corr_text)
+        self.assertEqual(sorted(qcout.data[1]['corrections'].keys()),
+                         sorted(ans_thermo_corr.keys()))
+        for k, ref in ans_thermo_corr.iteritems():
+            self.assertAlmostEqual(qcout.data[1]['corrections'][k], ref)
+        self.assertEqual(len(qcout.data[1]['molecules']), 1)
+        ans_mol1 = '''Molecule Summary (Br2 Cd1)
+Reduced Formula: CdBr2
+Charge = 0, Spin Mult = 1
+Sites (3)
+1 Br     0.000000     0.000000    -2.453720
+2 Cd     0.000000     0.000000     0.000000
+3 Br     0.000000     0.000000     2.453720'''
+        self.assertEqual(str(qcout.data[1]['molecules'][0]), ans_mol1)
+        self.assertFalse(qcout.data[1]['has_error'])
+        self.assertEqual(qcout.data[1]['gradients'], [])
+        ans_inp = '''$molecule
+ read
+$end
+
+
+$rem
+         jobtype = freq
+        exchange = b3lyp
+           basis = gen
+             ecp = gen
+       scf_guess = gwh
+  scf_max_cycles = 100
+$end
+
+
+$basis
+ Br
+ srlc
+ ****
+ Cd
+ srsc
+ ****
+$end
+
+
+$ecp
+ Br
+ srlc
+ ****
+ Cd
+ srsc
+ ****
+$end
+
+'''
+        self.assertEqual(str(qcout.data[1]['input']), ans_inp)
+        ans_freq = [{'vib_mode:': ((0.17, -0.475, 0.0),
+                                   (-0.236, 0.659, 0.0),
+                                   (0.17, -0.475, 0.0)),
+                     'frequency:': 61.36},
+                    {'vib_mode:': ((-0.475, -0.17, 0.0),
+                                   (0.659, 0.236, 0.0),
+                                   (-0.475, -0.17, 0.0)),
+                     'frequency:': 61.36},
+                    {'vib_mode:': ((0.0, 0.0, 0.707),
+                                   (0.0, 0.0, 0.0),
+                                   (0.0, 0.0, -0.707)),
+                     'frequency:': 199.94},
+                    {'vib_mode:': ((0.17, -0.475, 0.0),
+                                   (-0.236, 0.659, 0.0),
+                                   (0.17, -0.475, 0.0),
+                                   (0.0, 0.0, -0.505),
+                                   (0.0, 0.0, 0.7),
+                                   (0.0, 0.0, -0.505)),
+                     'frequency:': 311.74}]
+        self.assertEqual(qcout.data[1]['frequencies'], ans_freq)
+        self.assertEqual(qcout.data[2]['energies'],
+                         [('SCF', -5296.720321211475)])
+        ans_scf_iter_ene = [[(-176.9147092199, 0.779),
+                             (-156.8236033975, 0.115),
+                             (-152.9396694452, 0.157),
+                             (-183.2743425778, 0.138),
+                             (-182.2994943574, 0.142),
+                             (-181.990425533, 0.143),
+                             (-182.1690180647, 0.142),
+                             (-106.6454708618, 0.239),
+                             (-193.8056267625, 0.0432),
+                             (-193.0854096948, 0.0455),
+                             (-194.6340538334, 0.0062),
+                             (-194.6495072245, 0.00205),
+                             (-194.6508787796, 0.000189),
+                             (-194.6508984743, 2.18e-05),
+                             (-194.6508986262, 2.17e-06)]]
+        self.assertEqual(qcout.data[2]['scf_iteration_energies'],
+                         ans_scf_iter_ene)
 
 
 if __name__ == "__main__":
