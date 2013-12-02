@@ -36,9 +36,9 @@ class QcInput(MSONable):
                               "svpirf", "van_der_waals", "xc_functional",
                               "cdft", "efp_fragments", "efp_params"}
     alternative_keys = {"job_type": "jobtype",
-                            "symmetry_ignore": "sym_ignore"}
+                        "symmetry_ignore": "sym_ignore"}
     alternative_values = {"optimization": "opt",
-                              "frequency": "freq"}
+                          "frequency": "freq"}
     zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
     xyz_patt = re.compile("^(\w+)[\s,]+([\d\.eE\-]+)[\s,]+([\d\.eE\-]+)[\s,]+"
                           "([\d\.eE\-]+)[\-\.\s,\w.]*$")
@@ -916,7 +916,9 @@ class QcBatchInput(MSONable):
 
 
 class QcOutput(object):
+
     kcal_per_mol_2_eV = 4.3363E-2
+
     def __init__(self, filename):
         self.filename = filename
         with zopen(filename) as f:
@@ -926,8 +928,7 @@ class QcOutput(object):
 
     @classmethod
     def _expected_successful_pattern(cls, qcinp):
-        text = []
-        text.append("Convergence criterion met")
+        text = ["Convergence criterion met"]
         if "correlation" in qcinp.params["rem"]:
             if "ccsd" in qcinp.params["rem"]["correlation"]\
                     or "qcisd" in qcinp.params["rem"]["correlation"]:
@@ -989,7 +990,6 @@ class QcOutput(object):
         parse_input = False
         parse_coords = False
         parse_scf_iter = False
-        parse_mulliken_charge = False
         parse_gradient = False
         parse_freq = False
         parse_modes = False
@@ -1081,7 +1081,7 @@ class QcOutput(object):
                     continue
                 if "Frequency:" in line:
                     vib_freqs = [float(vib) for vib
-                                      in line.strip().strip().split()[1:]]
+                                 in line.strip().strip().split()[1:]]
                 elif "X      Y      Z" in line:
                     parse_modes = True
                     continue
