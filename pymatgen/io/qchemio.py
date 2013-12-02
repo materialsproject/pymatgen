@@ -654,7 +654,7 @@ class QcInput(MSONable):
                              "terminated")
         jobtype = params["rem"]["jobtype"]
         title = params.get("comments", None)
-        exchange = params["rem"]["exchange"]
+        exchange = params["rem"].get("exchange", "hf")
         correlation = params["rem"].get("correlation", None)
         basis_set = params["rem"]["basis"]
         aux_basis_set = params["rem"].get("aux_basis", None)
