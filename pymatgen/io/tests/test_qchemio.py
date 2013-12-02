@@ -834,21 +834,21 @@ class TestQcOutput(TestCase):
         ref_energies = json.loads(ref_energies_text)
         parsed_energies = dict()
         for filename in glob.glob(os.path.join(test_dir, "qchem_energies",
-                                           "*.qcout")):
-            mol = os.path.basename(filename)
+                                                         "*.qcout")):
+            molname = os.path.basename(filename)
             qcout = QcOutput(filename)
             d = dict(qcout.data[0]["energies"])
-            parsed_energies[mol] = d
+            parsed_energies[molname] = d
         self.assertEqual(sorted(ref_energies.keys()),
                          sorted(parsed_energies.keys()))
         mols = sorted(ref_energies.keys())
-        for mol in mols:
-            self.assertEqual(sorted(ref_energies[mol].keys()),
-                             sorted(parsed_energies[mol].keys()))
-            methods = sorted(ref_energies[mol].keys())
+        for molname in mols:
+            self.assertEqual(sorted(ref_energies[molname].keys()),
+                             sorted(parsed_energies[molname].keys()))
+            methods = sorted(ref_energies[molname].keys())
             for method in methods:
-                self.assertAlmostEqual(ref_energies[mol][method],
-                                       parsed_energies[mol][method])
+                self.assertAlmostEqual(ref_energies[molname][method],
+                                       parsed_energies[molname][method])
 
     def test_geom_opt(self):
         filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
