@@ -1202,6 +1202,19 @@ $end
         self.assertEqual(qcout.data[2]['scf_iteration_energies'],
                          ans_scf_iter_ene)
 
+    def test_failed_message(self):
+        scf_file = os.path.join(test_dir, "hf.qcout")
+        scf_qcout = QcOutput(scf_file)
+        self.assertTrue(scf_qcout.data[0]['has_error'])
+        self.assertEqual(scf_qcout.data[0]['errors'],
+                         ['Bad SCF convergence',
+                          'Molecular charge is not found'])
+        geom_file = os.path.join(test_dir, "hf_opt_failed.qcout")
+        geom_qcout = QcOutput(geom_file)
+        self.assertTrue(geom_qcout.data[0]['has_error'])
+        self.assertEqual(geom_qcout.data[0]['errors'],
+                         ['Geometry optimization failed'])
+
 
 if __name__ == "__main__":
     unittest.main()
