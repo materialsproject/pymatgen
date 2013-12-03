@@ -6,7 +6,7 @@ This module implements more advanced transformations.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong"
+__author__ = "Shyue Ping Ong, Stephen Dacek"
 __copyright__ = "Copyright 2012, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -313,10 +313,10 @@ class EnumerateStructureTransformation(AbstractTransformation):
             finder = SymmetryFinder(structure, self.symm_prec)
             structure = finder.get_refined_structure()
 
-        contains_oxidation_state = True
+        contains_oxidation_state = False
         for sp in structure.composition.elements:
-            if not hasattr(sp, "oxi_state"):
-                contains_oxidation_state = False
+            if hasattr(sp, "oxi_state") and sp._oxi_state != 0:
+                contains_oxidation_state = True
                 break
 
         adaptor = EnumlibAdaptor(structure, min_cell_size=self.min_cell_size,
@@ -496,6 +496,10 @@ class MagOrderingTransformation(AbstractTransformation):
                            for m in mag_species_spin.keys()]
 
         n_gcd = reduce(gcd, atom_per_specie)
+
+        if not n_gcd:
+            raise ValueError('The specified species do not exist in the structure'
+                             ' to be enumerated')
 
         return lcm(n_gcd, denom) / n_gcd
 
