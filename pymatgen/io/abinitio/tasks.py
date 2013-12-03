@@ -41,6 +41,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 __all__ = [
     "TaskManager",
+    "ParalHintsParser",
     "ScfTask",
     "NscfTask",
     "RelaxTask",
@@ -199,8 +200,8 @@ class ParalHintsParser(object):
         """
         with abiinspect.YamlTokenizer(filename) as r:
             doc = r.next_doc_with_tag("!Autoparal")
-            #print(d)
 
+            #print(doc.text)
             #with open(os.path.join(os.path.dirname(filename), "autoparal.yml"), "w") as fh:
             #    fh.write(doc.text)
 
@@ -245,8 +246,11 @@ class ParalHints(collections.Iterable):
                 `Condition` object with operators expressed with a Mongodb-like syntax
         """
         new_confs = []
+
         for conf in self:
-            if condition.apply(obj=conf):
+            add_it = condition.apply(obj=conf)
+            #print("add_it", add_it, "conf", conf)
+            if add_it:
                 new_confs.append(conf)
 
         self._confs = new_confs
@@ -281,18 +285,22 @@ class ParalHints(collections.Iterable):
         Find the optimal configuration according to the `TaskPolicy` policy.
         """
         # Make a copy since we are gonna change the object in place.
-        hints = self.copy()
+        #hints = self.copy()
+
+        hints = ParalHints(self.info, confs=[c for c in self if c.tot_ncpus <= policy.max_ncpus])
+        #print(hints)
 
         # First select the configurations satisfying the 
         # condition specified by the user (if any)
         if policy.condition:
+            print("condition",policy.condition)
             hints.select_with_condition(policy.condition)
-            #if not hints: hints = self.copy()
-            #print("after condition", hints)
+            print("after condition", hints)
 
             # If no configuration fullfills the requirements, 
             # we return the one with the highest speedup.
             if not hints:
+                #print("no configuration")
                 hints = self.copy()
                 hints.sort_by_speedup()
                 return hints[-1].copy()
@@ -315,7 +323,7 @@ class ParalHints(collections.Iterable):
 
         # Return a copy of the configuration.
         optimal = hints[-1].copy()
-        logger.debug("Will relaunch the job with optimized parameters:\n %s" % str(optimal))
+        logger.debug("Will relaunch the job with optimized parameters:\n %s" % optimal)
 
         return optimal
 
@@ -329,11 +337,16 @@ class TaskPolicy(object):
     and the condition used to select the optimal configuration for the parallel run 
     """
 
-    def __init__(self, autoparal=0, mode="default", max_ncpus=None, use_fw=False, condition=None): 
+    def __init__(self, autoparal=0, automemory=0, mode="default", max_ncpus=None, use_fw=False, condition=None): 
         """
         Args:
             autoparal: 
                 Value of ABINIT autoparal input variable. None to disable the autoparal feature.
+            automemory:
+                int defining the memory policy. 
+                If > 0 the memory requirements will be computed at run-time from the autoparal section
+                produced by ABINIT. In this case, the job script will report the autoparal memory
+                instead of the one specified by the user.
             mode:
                 Select the algorith to select the optimal configuration for the parallel execution.
                 Possible values: ["default", "aggressive", "conservative"]
@@ -345,6 +358,7 @@ class TaskPolicy(object):
                 condition used to filter the autoparal configuration (Mongodb syntax)
         """
         self.autoparal = autoparal
+        self.automemory = automemory
         self.mode = mode 
         self.max_ncpus = max_ncpus
         self.use_fw = use_fw 
@@ -405,6 +419,7 @@ class TaskManager(object):
 
     @classmethod
     def from_dict(cls, d):
+        """Create an instance from a dictionary."""
         return cls(**d)
 
     @classmethod
@@ -487,6 +502,14 @@ class TaskManager(object):
 
         return new
 
+    def new_with_policy(self, policy):
+        """
+        Returns a new `TaskManager` with same parameters as self except for policy.
+        """
+        new = self.deepcopy()
+        new.policy = policy
+        return new
+
     def copy(self):
         """Shallow copy of self."""
         return copy.copy(self)
@@ -506,96 +529,6 @@ class TaskManager(object):
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory (in Megabytes) per CPU."""
         self.qadapter.set_mem_per_cpu(mem_mb)
-
-    def autoparal(self, task):
-        """
-        Find an optimal set of parameters for the execution of the task 
-        using the options specified in `TaskPolicy`.
-        This method can change the ABINIT input variables and/or the 
-        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
-
-        Returns:
-           confs, optimal 
-           where confs is a `ParalHints` object with the configuration reported by 
-           autoparal and optimal is the optimal configuration selected.
-           Returns (None, None) if some problem occurred.
-        """
-        #print("in autoparal")
-        policy = self.policy
-
-        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
-            logger.info("Nothing to do in autoparal, returning (None, None)")
-            print("Returning from autoparal with None")
-            return None, None
-
-        assert policy.autoparal == 1
-        # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
-
-        # Set the variables for automatic parallelization
-        autoparal_vars = dict(
-            autoparal=policy.autoparal,
-            max_ncpus=policy.max_ncpus,
-        )
-
-        task.strategy.add_extra_abivars(autoparal_vars)
-        task.build()
-        #print("after build")
-
-        # Build a simple manager to run the job in a shell subprocess on the frontend
-        # we don't want to make a request to the queue manager for this simple job!
-        seq_manager = self.to_shell_manager(mpi_ncpus=1)
-
-        # Return code is always != 0 
-        process = seq_manager.launch(task)
-        #print("launched")
-        process.wait()  
-
-        # Remove the variables added for the automatic parallelization
-        task.strategy.remove_extra_abivars(autoparal_vars.keys())
-
-        # 2) Parse the autoparal configurations
-        #print("parsing")
-        parser = ParalHintsParser()
-
-        try:
-            confs = parser.parse(task.log_file.path)
-            #print("confs", confs)
-
-        except parser.Error:
-            print("Error while parsing Autoparal section:\n%s" % straceback())
-            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
-            return None, None
-
-        # 3) Select the optimal configuration according to policy
-        optimal = confs.select_optimal_conf(policy)
-        print("optimal Autoparal conf:\n %s" % optimal)
-
-        # 4) Change the input file and/or the submission script
-        task.strategy.add_extra_abivars(optimal.vars)
-                                                                  
-        # Change the number of MPI nodes.
-        self.set_mpi_ncpus(optimal.mpi_ncpus)
-
-        # Change the number of OpenMP threads.
-        #if optimal.omp_ncpus > 1:
-        #    self.set_omp_ncpus(optimal.omp_ncpus)
-        #else:
-        #    self.qadapter.disable_omp()
-
-        # Change the memory per node.
-        if optimal.mem_per_cpu:
-            self.set_mem_per_cpu(optimal.mem_per_cpu)
-
-        # Reset the status, remove garbage files ...
-        task.set_status(task.S_READY)
-
-        # Remove the output file since Abinit likes to create new files 
-        # with extension .outA, .outB if the file already exists.
-        os.remove(task.output_file.path)
-        os.remove(task.log_file.path)
-        os.remove(task.stderr_file.path)
-
-        return confs, optimal
 
     def write_jobfile(self, task):
         """
@@ -864,7 +797,7 @@ class Node(object):
     implemented by the nodes of the calculation.
 
     Nodes are hashable and can be tested for equality
-    (both operation use the node identifier).
+    (hash uses the node identifier, while eq uses workdir).
     """
     __metaclass__ = abc.ABCMeta
 
@@ -896,7 +829,9 @@ class Node(object):
         if not isinstance(other, Node):
             return False
 
-        return self.node_id == other.node_id and self.__class__ == other.__class__
+        return (self.__class__ == other.__class__ and 
+                self.workdir == other.workdir)
+               #self.node_id == other.node_id and 
                                                        
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1161,9 +1096,8 @@ class Task(Node):
         # Set the initial status.
         self.set_status(self.S_INIT)
 
-        # Number of restarts effectuated and max number (-1 --> no limit).
+        # Number of restarts effectuated.
         self.num_restarts = 0
-        self.max_num_restarts = -1
 
     def __getstate__(self):
         """
@@ -1187,6 +1121,7 @@ class Task(Node):
         self.job_file = File(os.path.join(self.workdir, "job.sh"))
         self.log_file = File(os.path.join(self.workdir, "run.log"))
         self.stderr_file = File(os.path.join(self.workdir, "run.err"))
+        self.start_lockfile = File(os.path.join(self.workdir, "__startlock__"))
 
         # Directories with input|output|temporary data.
         self.indir = Directory(os.path.join(self.workdir, "indata"))
@@ -1266,7 +1201,7 @@ class Task(Node):
     @property
     def can_run(self):
         """The task can run if its status is < S_SUB and all the other depencies (if any) are done!"""
-        all_ok = all(stat == self.S_OK for stat in self.deps_status)
+        all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and all_ok
 
     def not_converged(self):
@@ -1321,49 +1256,31 @@ class Task(Node):
         """
         self.set_status(self.S_READY, info_msg="Restarted on %s" % time.asctime())
 
-        # Increase the counter and relaunch the task.
+        # Increase the counter.
         self.num_restarts += 1
         self.history.append("Restarted on %s, num_restarts %d" % (time.asctime(), self.num_restarts))
-        self.start()
 
-        return 0
+        # Remove the lock file
+        self.start_lockfile.remove()
+ 
+        # Relaunch the task.
+        fired = self.start()
+
+        if not fired:
+            self.history.append("[%s], restart failed" % time.asctime())
+
+        return fired
 
     def restart(self):
         """
-        Restart the calculation. This method is called if the calculation is not converged 
-        and we can restart the task. See restart_if_needed.
-        """
-        logger.debug("Calling the **empty** restart method of the base class")
-
-    def restart_if_needed(self):
-        """
-        Callback that is executed once the job is done. 
-        The implementation of the two methods: 
-
-           - not_converged
-           - restart 
-           
-        is delegated to the subclasses.
+        Restart the calculation.  Subclasses should provide a concrete version that 
+        performs all the actions needed for preparing the restart and then calls self._restart
+        to restart the task. The default implementation is empty.
 
         Returns:
-            0 if succes, 1 if restart was not possible.
+            1 if job was restarted, 0 otherwise.
         """
-        if self.not_converged():
-            if self.num_restarts == self.max_num_restarts:
-                info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
-                logger.info(info_msg)
-                self.history.append(info_msg)
-                return 1
-
-            try:
-                self.restart()
-    
-            except TaskRestartError as exc:
-                info_msg = "Calculation not converged but restart was not possible!\nException: %s" % exc
-                logger.debug(info_msg)
-                self.set_status(self.S_ERROR, info_msg=info_msg)
-                return 1
-     
+        logger.debug("Calling the **empty** restart method of the base class")
         return 0
 
     def poll(self):
@@ -1426,6 +1343,7 @@ class Task(Node):
             return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        self.start_lockfile.remove()
 
         # TODO send a signal to the flow 
         #self.workflow.check_status()
@@ -1858,9 +1776,19 @@ class Task(Node):
             - build dirs and files
             - call the _setup method
             - execute the job file by executing/submitting the job script.
+
+        Returns:
+            1 if task was started, 0 otherwise.
+            
         """
-        if self._status >= self.S_SUB:
+        if self.status >= self.S_SUB:
             raise self.Error("Task status: %s" % str(self.status))
+
+        if self.start_lockfile.exists:
+            logger.critical("Found lock file: %s" % self.start_lockfile.relpath)
+            return 0
+
+        self.start_lockfile.write("Started on %s" % time.asctime())
 
         self.build()
         self._setup()
@@ -1868,24 +1796,27 @@ class Task(Node):
         # Add the variables needed to connect the node.
         for d in self.deps:
             vars = d.connecting_vars()
-            logger.debug("Adding connecting vars %s " % str(vars))
+            logger.debug("Adding connecting vars %s " % vars)
             self.strategy.add_extra_abivars(vars)
 
         # Automatic parallelization
-        self.manager.autoparal(self)
+        if hasattr(self, "autoparal_fake_run"):
+            self.autoparal_fake_run()
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
 
-    def start_and_wait(self, *args, **kwargs):
-        """
-        Helper method to start the task and wait.
+        return 1
 
-        Mainly used when we are submitting the task via the shell
-        without passing through a queue manager.
-        """
-        self.start(*args, **kwargs)
-        return self.wait()
+    #def start_and_wait(self, *args, **kwargs):
+    #    """
+    #    Helper method to start the task and wait.
+
+    #    Mainly used when we are submitting the task via the shell
+    #    without passing through a queue manager.
+    #    """
+    #    self.start(*args, **kwargs)
+    #    return self.wait()
 
 
 class AbinitTask(Task):
@@ -1980,6 +1911,101 @@ class AbinitTask(Task):
 
         return "\n".join(lines)
 
+    def autoparal_fake_run(self):
+        """
+        Find an optimal set of parameters for the execution of the task 
+        using the options specified in `TaskPolicy`.
+        This method can change the ABINIT input variables and/or the 
+        parameters passed to the `TaskManager` e.g. the number of CPUs for MPI and OpenMp.
+
+        Returns:
+           confs, optimal 
+           where confs is a `ParalHints` object with the configuration reported by 
+           autoparal and optimal is the optimal configuration selected.
+           Returns (None, None) if some problem occurred.
+        """
+        #print("in autoparal")
+        manager = self.manager
+        policy = manager.policy
+
+        if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
+            logger.info("Nothing to do in autoparal, returning (None, None)")
+            print("Returning from autoparal with None")
+            return None, None
+
+        if policy.autoparal != 1:
+            raise NotImplementedError("autoparal != 1")
+
+        # 1) Run ABINIT in sequential to get the possible configurations with max_ncpus
+
+        # Set the variables for automatic parallelization
+        autoparal_vars = dict(
+            autoparal=policy.autoparal,
+            max_ncpus=policy.max_ncpus,
+        )
+
+        self.strategy.add_extra_abivars(autoparal_vars)
+
+        # Build a simple manager to run the job in a shell subprocess on the frontend
+        # we don't want to make a request to the queue manager for this simple job!
+        seq_manager = manager.to_shell_manager(mpi_ncpus=1)
+
+        # Return code is always != 0 
+        process = seq_manager.launch(self)
+        #print("launched")
+        process.wait()  
+
+        # Remove the variables added for the automatic parallelization
+        self.strategy.remove_extra_abivars(autoparal_vars.keys())
+
+        # 2) Parse the autoparal configurations
+        #print("parsing")
+        parser = ParalHintsParser()
+
+        try:
+            confs = parser.parse(self.log_file.path)
+            #print("confs", confs)
+            #self.all_autoparal_confs = confs 
+
+        except parser.Error:
+            logger.critical("Error while parsing Autoparal section:\n%s" % straceback())
+            return None, None
+
+        # 3) Select the optimal configuration according to policy
+        optimal = confs.select_optimal_conf(policy)
+        print("optimal Autoparal conf:\n %s" % optimal)
+
+        # 4) Change the input file and/or the submission script
+        self.strategy.add_extra_abivars(optimal.vars)
+                                                                  
+        # Change the number of MPI nodes.
+        manager.set_mpi_ncpus(optimal.mpi_ncpus)
+
+        # Change the number of OpenMP threads.
+        #if optimal.omp_ncpus > 1:
+        #    manager.set_omp_ncpus(optimal.omp_ncpus)
+        #else:
+        #    manager.disable_omp()
+
+        # Change the memory per node if automemory evaluates to True.
+        mem_per_cpu = optimal.mem_per_cpu
+
+        if policy.automemory and mem_per_cpu:
+            # mem_per_cpu = max(mem_per_cpu, policy.automemory)
+            manager.set_mem_per_cpu(mem_per_cpu)
+
+        # Reset the status, remove garbage files ...
+        self.set_status(self.S_INIT)
+
+        # Remove the output file since Abinit likes to create new files 
+        # with extension .outA, .outB if the file already exists.
+        os.remove(self.output_file.path)
+        os.remove(self.log_file.path)
+        os.remove(self.stderr_file.path)
+
+        return confs, optimal
+
+
 # TODO
 # Enable restarting capabilites:
 # Before doing so I need:
@@ -2016,7 +2042,7 @@ class ScfTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
     def inspect(self, **kwargs):
         """
@@ -2055,7 +2081,7 @@ class NscfTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
 
 class RelaxTask(AbinitTask):
@@ -2121,7 +2147,7 @@ class RelaxTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
     def inspect(self, **kwargs):
         """
@@ -2171,7 +2197,7 @@ class PhononTask(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
     def inspect(self, **kwargs):
         """
@@ -2210,7 +2236,7 @@ class G_Task(AbinitTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
 
 class BseTask(AbinitTask):
@@ -2286,7 +2312,7 @@ class HaydockBseTask(BseTask):
         self.strategy.add_extra_abivars(irdvars)
 
         # Now we can resubmit the job.
-        self._restart()
+        return self._restart()
 
 
 class OpticTask(Task):
@@ -2503,3 +2529,5 @@ class AnaddbTask(Task):
         Anaddb allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
+

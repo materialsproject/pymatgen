@@ -44,6 +44,11 @@ class File(object):
         return os.path.basename(self.path)
 
     @property
+    def relpath(self):
+        """Relative path."""
+        return os.path.relpath(self.path)
+
+    @property
     def dirname(self):
         """Absolute path of the directory where the file is located."""
         return os.path.dirname(self.path)
@@ -84,6 +89,13 @@ class File(object):
         """Make the directory where the file is located."""
         if not os.path.exists(self.dirname):
             os.makedirs(self.dirname)
+
+    def remove(self):
+        """Remove the file."""
+        try:
+            os.remove(self.path)
+        except:
+            pass
 
 
 class Directory(object):
@@ -126,7 +138,7 @@ class Directory(object):
 
     @property
     def exists(self):
-        "True if file exists."
+        """True if file exists."""
         return os.path.exists(self.path)
 
     def makedirs(self):
@@ -368,7 +380,7 @@ _BIN_OPS = {
     }
 
 
-ops = _UNARY_OPS.keys() + _BIN_OPS.keys()
+_ALL_OPS = list(_UNARY_OPS.keys()) + list(_BIN_OPS.keys())
 
 
 def map2rpn(map, obj):
@@ -388,7 +400,7 @@ def map2rpn(map, obj):
 
     for k, v in map.items():
 
-        if k in ops:
+        if k in _ALL_OPS:
             if isinstance(v, collections.Mapping):
                 # e.g "$not": {"$gt": "one"}
                 # print("in op_vmap",k, v)
@@ -445,7 +457,7 @@ def evaluate_rpn(rpn):
                                                                               
     for item in rpn:
                                                                               
-        if item in ops:
+        if item in _ALL_OPS:
             # Apply the operator and push to the task.
             v2 = vals_stack.pop()
                                                                               
@@ -456,7 +468,7 @@ def evaluate_rpn(rpn):
                 v1 = vals_stack.pop()
                 res = _BIN_OPS[item](v1, v2)
             else:
-                raise ValuError("%s not in unary_ops or bin_ops" % str(item))
+                raise ValueError("%s not in unary_ops or bin_ops" % str(item))
                                                                               
             vals_stack.append(res)
                                                                               

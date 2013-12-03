@@ -15,7 +15,6 @@ import os
 import abc
 import string
 import copy
-import functools
 import getpass
 
 from subprocess import Popen, PIPE
@@ -30,6 +29,7 @@ __all__ = [
     "MpiRunner",
     "qadapter_class",
 ]
+
 
 class Command(object):
     """
@@ -468,7 +468,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
-        self.qparams["mem_per_cpu"] = mem_mb
+        self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
         self.qparams.pop("mem", None)
 

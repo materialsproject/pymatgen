@@ -192,9 +192,7 @@ class ScfCycle(collections.Mapping):
                 # Don't show the first iteration since it's not very useful.
                 xx, yy = xx[1:] + 1, values[1:]
 
-            print("xx ",xx)
-            print("yy ",yy)
-
+            #print("xx ",xx, "yy ",yy)
             ax.plot(xx, yy, "-o", lw=2.0)
 
         # Get around a bug in matplotlib.
@@ -442,7 +440,7 @@ class YamlTokenizer(collections.Iterator):
             if in_doc and line.startswith("..."):
                 return YamlDoc(text="".join(lines), lineno=lineno, tag=doc_tag)
 
-        raise StopIteration()
+        raise StopIteration("Cannot find next YAML document")
 
     def all_yaml_docs(self):
         """

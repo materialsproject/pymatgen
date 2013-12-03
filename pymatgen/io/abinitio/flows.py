@@ -6,8 +6,7 @@ from __future__ import division, print_function
 import os
 import sys
 import time
-import collections
-import itertools
+import warnings
 import cPickle as pickle
 #import pickle as pickle
 
@@ -58,15 +57,13 @@ class AbinitFlow(Node):
 
     PICKLE_FNAME = "__AbinitFlow__.pickle"
 
-    def __init__(self, workdir, manager, auto_restart=False, pickle_protocol=-1):
+    def __init__(self, workdir, manager, pickle_protocol=-1):
         """
         Args:
             workdir:
                 String specifying the directory where the workflows will be produced.
             manager:
                 `TaskManager` object responsible for the submission of the jobs.
-            auto_restart:
-                True if unconverged calculations should be restarted automatically.
             pickle_procol:
                 Pickle protocol version used for saving the status of the object.
                 -1 denotes the latest version supported by the python interpreter.
@@ -77,7 +74,6 @@ class AbinitFlow(Node):
         self.creation_date = time.asctime()
 
         self.manager = manager.deepcopy()
-        self.auto_restart = auto_restart
 
         # List of workflows.
         self._works = []
@@ -92,6 +88,7 @@ class AbinitFlow(Node):
 
         self.pickle_protocol = int(pickle_protocol)
 
+        # TODO
         # Signal slots: a dictionary with the list 
         # of callbacks indexed by node_id and SIGNAL_TYPE.
         # When the node changes its status, it broadcast a signal.
@@ -103,6 +100,51 @@ class AbinitFlow(Node):
 
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
+
+    @classmethod
+    def pickle_load(cls, filepath, disable_signals=False):
+        """
+        Loads the object from a pickle file and performs initial setup.
+
+        Args:
+            filepath:
+                Filename or directory name. It filepath is a directory, we 
+                scan the directory tree starting from filepath and we 
+                read the first pickle database.
+            disable_signals:
+                If True, the nodes of the flow are not connected by signals.
+                This option is usually used when we want to read a flow 
+                in read-only mode and we want to avoid any possible side effect.
+        """
+        if os.path.isdir(filepath):
+            # Walk through each directory inside path and find the pickle database.
+            for dirpath, dirnames, filenames in os.walk(filepath):
+                fnames = [f for f in filenames if f == cls.PICKLE_FNAME]
+                if fnames:
+                    assert len(fnames) == 1
+                    filepath = os.path.join(dirpath, fnames[0])
+                    break
+            else:
+                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, path)
+                raise ValueError(err_msg)
+
+        with FileLock(filepath) as lock:
+            with open(filepath, "rb") as fh:
+                flow = pickle.load(fh)
+
+        # Check if versions match.
+        if flow.VERSION != cls.VERSION:
+            msg = ("File flow version %s != latest version %s\n."
+                   "Regerate the flow to solve the problem " % (flow.VERSION, cls.VERSION))
+            warnings.warn(msg)
+
+        if not disable_signals:
+            flow.connect_signals()
+
+        # Recompute the status of each task since tasks that
+        # have been submitted previously might be completed.
+        flow.check_status()
+        return flow
 
     def __len__(self):
         return len(self.works)
@@ -124,64 +166,31 @@ class AbinitFlow(Node):
         return all(work.all_ok for work in self)
 
     @property
-    def num_tasks_with_error(self):
+    def all_tasks(self):
+        return self.iflat_tasks()
+
+    @property
+    def num_tasks(self):
+        """Total number of tasks"""
+        return len(list(self.iflat_tasks()))
+
+    @property
+    def errored_tasks(self):
+        return self.iflat_tasks(status=self.S_ERROR)
+
+    @property
+    def num_errored_tasks(self):
         """The number of tasks whose status is `S_ERROR`."""
-        return len(list(self.iflat_tasks(status=self.S_ERROR, op="=")))
+        return len(list(self.errored_tasks))
 
-    #@property
-    #def completed(self):
-    #    """True if all the tasks of the flow have reached S_OK."""
-    #    return all(task.status == task.S_OK for task in self.iflat_tasks())
+    @property
+    def unconverged_tasks(self):
+        return self.iflat_tasks(status=self.S_UNCONVERGED)
 
-    def iflat_tasks_wti(self, status=None, op="="):
-        """
-        Returns:
-            (task, work_index, task_index)
-        """
-        return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
-
-    def iflat_tasks(self, status=None, op="="):
-        """
-        Returns:
-            task
-        """
-        return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
-
-    def _iflat_tasks_wti(self, status=None, op="=", with_wti=True):
-        """
-        Generators that produces a flat sequence of task.
-        if status is not None, only the tasks with the specified status are selected.
-
-        Returns:
-            (task, work_index, task_index) if with_wti is True else task
-        """
-        if status is None:
-            for wi, work in enumerate(self):
-                for ti, task in enumerate(work):
-                    if with_wti:
-                        yield task, wi, ti
-                    else:
-                        yield task
-
-        else:
-            # Get the operator from the string.
-            import operator
-            op = {
-                "=": operator.eq,
-                "!=": operator.ne,
-                ">": operator.gt,
-                ">=": operator.ge,
-                "<": operator.lt,
-                "<=": operator.le,
-            }[op]
-
-            for wi, work in enumerate(self):
-                for ti, task in enumerate(work):
-                    if op(task.status, status):
-                        if with_wti:
-                            yield task, wi, ti
-                        else:
-                            yield task
+    @property
+    def num_unconverged_tasks(self):
+        """The number of tasks whose status is `S_UNCONVERGED`."""
+        return len(list(self.unconverged_tasks))
 
     @property
     def status_counter(self):
@@ -222,25 +231,93 @@ class AbinitFlow(Node):
         """
         return sum(work.ncpus_inuse for work in self)
 
+    def iflat_tasks_wti(self, status=None, op="="):
+        """
+        Generator to iterate over all the tasks of the `Flow`.
+        Yields
+
+            (task, work_index, task_index)
+
+        If status is not None, only the tasks whose status satisfies
+        the condition (task.status op status) are selected
+        """
+        return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
+
+    def iflat_tasks(self, status=None, op="="):
+        """
+        Generator to iterate over all the tasks of the `Flow`.
+
+        If status is not None, only the tasks whose status satisfies
+        the condition (task.status op status) are selected
+        """
+        return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
+
+    def _iflat_tasks_wti(self, status=None, op="=", with_wti=True):
+        """
+        Generators that produces a flat sequence of task.
+        if status is not None, only the tasks with the specified status are selected.
+
+        Returns:
+            (task, work_index, task_index) if with_wti is True else task
+        """
+        if status is None:
+            for wi, work in enumerate(self):
+                for ti, task in enumerate(work):
+                    if with_wti:
+                        yield task, wi, ti
+                    else:
+                        yield task
+
+        else:
+            # Get the operator from the string.
+            import operator
+            op = {
+                "=": operator.eq,
+                "!=": operator.ne,
+                ">": operator.gt,
+                ">=": operator.ge,
+                "<": operator.lt,
+                "<=": operator.le,
+            }[op]
+
+            for wi, work in enumerate(self):
+                for ti, task in enumerate(work):
+                    if op(task.status, status):
+                        if with_wti:
+                            yield task, wi, ti
+                        else:
+                            yield task
+
+    def check_dependencies(self):
+        """Test the dependencies of the nodes for possible deadlocks."""
+        deadlocks = []
+
+        for task in self.all_tasks:
+            for dep in task.deps:
+                if dep.node.depends_on(task):
+                    deadlocks.append((task, dep.node))
+
+        if deadlocks:
+           lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
+           lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
+           raise ValueError("\n".join(lines))
+
+    #def detect_deadlock(self):
+    #    eu_tasks = list(self.errored_tasks) + list(self.unconverged_tasks)
+    #     if not eu_tasks:
+    #        return []
+
+    #    deadlocked = []
+    #    for task in self.all_tasks:
+    #        if any(task.depends_on(eu_task) for eu_task in eu_tasks):
+    #            deadlocked.append(task)
+
+    #    return deadlocked
+
     def check_status(self):
         """Check the status of the workflows in self."""
         for work in self:
             work.check_status()
-
-        # Test whether some task should be restarted.
-        if self.auto_restart:
-            num_restarts = 0
-            for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
-                msg = "AbinitFlow will try restart task %s" % task
-                print(msg)
-                logger.info(msg)
-                retcode = task.restart_if_needed()
-                if retcode == 0: 
-                    num_restarts += 1
-
-            if num_restarts:
-                print("num_restarts done successfully: ", num_restarts)
-                self.pickle_dump()
 
     def show_status(self, stream=sys.stdout):
         """
@@ -251,11 +328,10 @@ class AbinitFlow(Node):
             print(80*"=")
             print("Workflow #%d: %s, Finalized=%s\n" % (i, work, work.finalized) )
 
-            table = [[
-                     "Task", "Status", "Queue_id", 
-                     "Errors", "Warnings", "Comments", 
-                     "MPI", "OMP", 
-                     "num_restarts", "max_restarts", "Task Class"
+            table = [["Task", "Status", "Queue_id", 
+                      "Errors", "Warnings", "Comments", 
+                      "MPI", "OMP", 
+                      "num_restarts", "Task Class"
                      ]]
 
             for task in work:
@@ -269,7 +345,7 @@ class AbinitFlow(Node):
                     events = map(str, [report.num_errors, report.num_warnings, report.num_comments])
 
                 cpu_info = map(str, [task.mpi_ncpus, task.omp_ncpus])
-                task_info = map(str, [task.num_restarts, task.max_num_restarts, task.__class__.__name__])
+                task_info = map(str, [task.num_restarts, task.__class__.__name__])
 
                 table.append(
                     [task_name, str(task.status), str(task.queue_id)] + 
@@ -336,45 +412,6 @@ class AbinitFlow(Node):
         #        pass
         return 0
 
-    @classmethod
-    def pickle_load(cls, filepath, disable_signals=False):
-        """
-        Loads the object from a pickle file and performs initial setup.
-
-        Args:
-            filepath:
-                Filename or directory name. It filepath is a directory, we 
-                scan the directory tree starting from filepath and we 
-                read the first pickle database.
-            disable_signals:
-                If True, the nodes of the flow are not connected by signals.
-                This option is usually used when we want to read a flow 
-                in read-only mode and we want to avoid any possible side effect.
-        """
-        if os.path.isdir(filepath):
-            # Walk through each directory inside path and find the pickle database.
-            for dirpath, dirnames, filenames in os.walk(filepath):
-                fnames = [f for f in filenames if f == cls.PICKLE_FNAME]
-                if fnames:
-                    assert len(fnames) == 1
-                    filepath = os.path.join(dirpath, fnames[0])
-                    break
-            else:
-                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, path)
-                raise ValueError(err_msg)
-
-        with FileLock(filepath) as lock:
-            with open(filepath, "rb") as fh:
-                flow = pickle.load(fh)
-
-        if not disable_signals:
-            flow.connect_signals()
-
-        # Recompute the status of each task since tasks that
-        # have been submitted previously might be completed.
-        flow.check_status()
-        return flow
-
     def register_task(self, input, deps=None, manager=None, task_class=None):
         """
         Utility function that generates a `Workflow` made of a single task
@@ -424,7 +461,7 @@ class AbinitFlow(Node):
         if workdir is None:
             work_workdir = os.path.join(self.workdir, "work_" + str(len(self)))
         else:
-            work_workdir = os.path.join(self.workdir, os.path.basenane(workdir))
+            work_workdir = os.path.join(self.workdir, os.path.basename(workdir))
 
         work.set_workdir(work_workdir)
 
@@ -493,6 +530,8 @@ class AbinitFlow(Node):
 
         for task in self.iflat_tasks():
             task.set_flow(self)
+
+        self.check_dependencies()
 
         return self
 
@@ -715,7 +754,7 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_ncpus=1)
-    print(shell_manager)
+    #print(shell_manager)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
@@ -743,6 +782,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
+        #import sys
+        #sys.exit(1)
         print(irred_perts)
         w.rmtree()
 
