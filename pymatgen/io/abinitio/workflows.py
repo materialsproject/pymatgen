@@ -50,6 +50,7 @@ __all__ = [
     "RelaxWorkflow",
     "DeltaFactorWorkflow",
     "G0W0_Workflow",
+    "SigmaConvWorkflow",
     "BSEMDF_Workflow",
     "PhononWorkflow",
 ]
@@ -166,6 +167,13 @@ class BaseWorkflow(Node):
         # Beware of possible deadlocks here!
         logger.warning("Possible deadlock in fetch_task_to_run!")
         return None
+
+    def fetch_alltasks_to_run(self):
+        """
+        Returns a list with all the tasks that can be submitted.
+        Empty list if not task has been found.
+        """
+        return [task for task in self if task.can_run]
 
     @abc.abstractmethod
     def setup(self, *args, **kwargs):
@@ -364,10 +372,9 @@ class Workflow(BaseWorkflow):
                 `TaskManager` object or None
         """
         for i, task in enumerate(self):
-            #print(hasattr(task, "manager"))
+
             if not hasattr(task, "manager"):
                 # Set the manager
-
                 if manager is not None:
                     # Use the one provided in input.
                     task.set_manager(manager)
@@ -1136,7 +1143,8 @@ class DeltaFactorWorkflow(Workflow):
 
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
-                 accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0, workdir=None, manager=None): 
+                 accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0,
+                 workdir=None, manager=None):
                  # FIXME Hack in chksymbreak
         """
         Build a `Workflow` for the computation of the deltafactor.
@@ -1236,7 +1244,8 @@ class DeltaFactorWorkflow(Workflow):
             wien2k = df_database().get_entry(self.pseudo.symbol)
                                                                                                  
             # Compute deltafactor estimator.
-            dfact = df_compute(wien2k.v0, wien2k.b0_GPa, wien2k.b1, eos_fit.v0, eos_fit.b0_GPa, eos_fit.b1, b0_GPa=True)
+            dfact = df_compute(wien2k.v0, wien2k.b0_GPa, wien2k.b1,
+                               eos_fit.v0, eos_fit.b0_GPa, eos_fit.b1, b0_GPa=True)
 
             print("delta",eos_fit)
             print("Deltafactor = %.3f meV" % dfact)
@@ -1316,7 +1325,36 @@ class G0W0_Workflow(Workflow):
 
         self.sigma_tasks = []
         for sigma_input in sigma_inputs:
-            self.sigma_tasks.append(self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"}))
+            task = self.register(sigma_input, deps={nscf_task: "WFK", scr_task: "SCR"})
+            self.sigma_tasks.append(task)
+
+
+class SigmaConvWorkflow(Workflow):
+
+    def __init__(self, wfk_node, scr_node, sigma_inputs, workdir=None, manager=None):
+        """
+        Workflow for self-energy convergence studies.
+
+        Args:
+            wfk_node:
+                The node who has produced the WFK file
+            scr_node:
+                The node who has produced the SCR file
+            sigma_inputs:
+                List of Strategies for the self-energy run.
+            workdir:
+                Working directory of the calculation.
+            manager:
+                `TaskManager` object.
+        """
+        super(SigmaConvWorkflow, self).__init__(workdir=workdir, manager=manager)
+
+        # Register the SIGMA runs.
+        if not isinstance(sigma_inputs, (list, tuple)): 
+            sigma_inputs = [sigma_inputs]
+
+        for sigma_input in sigma_inputs:
+            self.register(sigma_input, deps={wfk_node: "WFK", scr_node: "SCR"})
 
 
 #class SCGW_Workflow(Workflow):
