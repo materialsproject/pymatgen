@@ -365,6 +365,14 @@ class NcPseudo(object):
         """True if the pseudo is generated with non-linear core correction."""
         return self.nlcc_radius > 0.0
 
+    @property
+    def rcore(self):
+        """Radius of the pseudization sphere in a.u."""
+        try:
+            return self._core
+        except AttributeError:
+            return None
+
 
 class PawPseudo(object):
     """
@@ -373,9 +381,27 @@ class PawPseudo(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    #def nlcc_radius(self):
+    #    """
+    #    Radius at which the core charge vanish (i.e. cut-off in a.u.).
+    #    Returns 0.0 if nlcc is not used.
+    #    """
+    #    return 0.0
+    #                                                                           
+
+    #@property
+    #def has_nlcc(self):
+    #    """True if the pseudo is generated with non-linear core correction."""
+    #    return True
+
     @abc.abstractproperty
     def paw_radius(self):
         """Radius of the PAW sphere in a.u."""
+
+    @property
+    def rcore(self):
+        """Alias of paw_radius."""
+        return self.paw_radius
 
 
 class AbinitPseudo(Pseudo):
