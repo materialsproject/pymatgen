@@ -72,6 +72,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.8
+------
+1. Minor bug fix release for Structure species substitution methods.
+
 v2.8.7
 ------
 1. Massive update to pymatgen.io.abinitio package (by Matteo Giantomassi).

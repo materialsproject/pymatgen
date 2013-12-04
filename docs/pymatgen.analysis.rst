@@ -25,6 +25,14 @@ analysis Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`energy_models` Module
+---------------------------
+
+.. automodule:: pymatgen.analysis.energy_models
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`ewald` Module
 -------------------
 

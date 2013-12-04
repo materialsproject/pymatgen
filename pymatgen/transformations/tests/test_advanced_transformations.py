@@ -23,10 +23,11 @@ from pymatgen.transformations.standard_transformations import \
 from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
-    SubstitutionPredictorTransformation
+    SubstitutionPredictorTransformation, MagOrderingTransformation
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
-
+from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.analysis.energy_models import IsingModel
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -185,6 +186,54 @@ class SubstitutionPredictorTransformationTest(unittest.TestCase):
                          'incorrect threshold passed through dict')
         self.assertEqual(t._substitutor.p.alpha, -2,
                          'incorrect alpha passed through dict')
+
+
+@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+class MagOrderingTransformationTest(unittest.TestCase):
+
+    def test_apply_transformation(self):
+        trans = MagOrderingTransformation({"Fe": 5})
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        s = p.structure
+        alls = trans.apply_transformation(s, 10)
+        self.assertEqual(len(alls), 3)
+        f = SymmetryFinder(alls[0]["structure"], 0.1)
+        self.assertEqual(f.get_spacegroup_number(), 31)
+
+        model = IsingModel(5, 5)
+        trans = MagOrderingTransformation({"Fe": 5},
+                                          energy_model=model)
+        alls2 = trans.apply_transformation(s, 10)
+        #Ising model with +J penalizes similar neighbor magmom.
+        self.assertNotEqual(alls[0]["structure"], alls2[0]["structure"])
+        self.assertEqual(alls[0]["structure"], alls2[2]["structure"])
+
+        from pymatgen.io.smartio import read_structure
+        s = read_structure(os.path.join(test_dir, 'Li2O.cif'))
+        #Li2O doesn't have magnetism of course, but this is to test the
+        # enumeration.
+        trans = MagOrderingTransformation({"Li+": 1}, max_cell_size=3)
+        alls = trans.apply_transformation(s, 100)
+        self.assertEqual(len(alls), 10)
+
+    def test_ferrimagnetic(self):
+        trans = MagOrderingTransformation({"Fe": 5}, 0.75, max_cell_size=1)
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.LiFePO4'),
+                             check_for_POTCAR=False)
+        s = p.structure
+        alls = trans.apply_transformation(s, 10)
+        self.assertEqual(len(alls), 2)
+
+    def test_to_from_dict(self):
+        trans = MagOrderingTransformation({"Fe": 5}, 0.75)
+        d = trans.to_dict
+        #Check json encodability
+        s = json.dumps(d)
+        trans = MagOrderingTransformation.from_dict(d)
+        self.assertEqual(trans.mag_species_spin, {"Fe": 5})
+        from pymatgen.analysis.energy_models import SymmetryModel
+        self.assertIsInstance(trans.emodel, SymmetryModel)
 
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, \
     pbc_shortest_vectors
+from pymatgen.symmetry.finder import SymmetryFinder
 
 
 class AbstractComparator(MSONable):
@@ -127,6 +128,62 @@ class SpeciesComparator(AbstractComparator):
             SpeciesComparator.
         """
         return structure.composition.reduced_formula
+
+
+class SpinComparator(AbstractComparator):
+    """
+    A Comparator that matches magnetic structures to their inverse spins.
+    This comparator is primarily used to filter magnetically ordered
+    structures with opposite spins, which are equivalent.
+    """
+
+    def are_equal(self, sp1, sp2):
+        """
+        True if species are exactly the same, i.e., Fe2+ == Fe2+ but not
+        Fe3+. and the spins are reversed. i.e., spin up maps to spin down,
+        and vice versa.
+
+        Args:
+            sp1:
+                First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2:
+                Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            Boolean indicating whether species are equal.
+        """
+        for s1, amt2 in sp1.items():
+            spin1 = getattr(s1, "spin", 0)
+            oxi1 = getattr(s1, "oxi_state", 0)
+            found = False
+            for s2, amt2 in sp2.items():
+                spin2 = getattr(s2, "spin", 0)
+                oxi2 = getattr(s2, "oxi_state", 0)
+                if (s1.symbol == s2.symbol and oxi1 == oxi2
+                        and spin2 == -spin1):
+                    found = True
+                    break
+            if not found:
+                return False
+        return True
+
+    def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure:
+                A structure
+
+        Returns:
+            Reduced formula for the structure is used as a hash for the
+            SpeciesComparator.
+        """
+        f = SymmetryFinder(structure, 0.1)
+        return "{} {}".format(f.get_spacegroup_number(),
+                              structure.composition.reduced_formula)
 
 
 class ElementComparator(AbstractComparator):
@@ -916,7 +973,7 @@ class StructureMatcher(MSONable):
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
         if self._supercell \
-                and self._get_supercell_size(supercell, struct) <= 1:
+                and self._get_supercell_size(supercell, struct) < 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         match = self._find_match(supercell, struct, break_on_match=False,
@@ -935,7 +992,7 @@ class StructureMatcher(MSONable):
         if self._primitive_cell:
             raise ValueError("get_s2_like_s1 cannot be used with the primitive"
                              " cell option")
-        if self._supercell and self._get_supercell_size(struct1, struct2) <= 1:
+        if self._supercell and self._get_supercell_size(struct1, struct2) < 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         if self._subset and struct2.num_sites > struct1.num_sites:
