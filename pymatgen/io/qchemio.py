@@ -596,6 +596,11 @@ class QcInput(MSONable):
             f.write(self.__str__())
 
     @classmethod
+    def from_file(cls, filename):
+        with zopen(filename) as f:
+            return cls.from_string(f.read())
+
+    @classmethod
     def from_string(cls, contents):
         """
         Creates QcInput from a string.
@@ -913,6 +918,11 @@ class QcBatchInput(MSONable):
         qc_contents = contents.split("@@@")
         jobs = [QcInput.from_string(cont) for cont in qc_contents]
         return QcBatchInput(jobs)
+
+    @classmethod
+    def from_file(cls, filename):
+        with zopen(filename) as f:
+            return cls.from_string(f.read())
 
 
 class QcOutput(object):
