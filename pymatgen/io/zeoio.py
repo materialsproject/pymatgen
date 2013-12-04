@@ -58,6 +58,7 @@ class ZeoCssr(Cssr):
         """
         CSSR.__str__ method is modified to padd 0's to the CSSR site data.
         The padding is to conform with the CSSR format supported Zeo++.
+        The oxidation state is stripped from site.specie 
         Also coordinate system is rotated from xyz to zxy
         """
         output = [
@@ -75,21 +76,19 @@ class ZeoCssr(Cssr):
             "0 {}".format(self.structure.formula)
         ]
         for i, site in enumerate(self.structure.sites):
-            if not hasattr(site, 'charge'):
-                output.append(
-                    "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(i + 1, site.specie, site.c, site.a, site.b, 0.0)
-                    #.format(i+1, site.specie, site.a, site.b, site.c, 0.0)
+            #if not hasattr(site, 'charge'):
+            #    charge = 0
+            #else:
+            #    charge = site.charge
+            charge = site.charge if hasattr(site, 'charge') else 0
+            specie = re.sub('[1-9,+,\-]', '', site.species_string)
+            output.append(
+                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
+                .format(
+                    i+1, specie, site.c, site.a, site.b, charge
+                    #i+1, site.specie, site.a, site.b, site.c, site.charge
                 )
-            else:
-                output.append(
-                    "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(
-                        i + 1, site.specie, site.c, site.a, site.b,
-                        #i+1, site.specie, site.a, site.b, site.c,
-                        site.charge
-                    )
-                )
+            )
 
         return "\n".join(output)
 
