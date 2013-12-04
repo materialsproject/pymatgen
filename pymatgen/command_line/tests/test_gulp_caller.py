@@ -11,7 +11,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 
-test_dir = os.path.join(os.path.dirname(__file__))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 gulp_present = which('gulp')
 
 
@@ -107,7 +108,7 @@ class GulpIOTest(unittest.TestCase):
 
     def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4 
+        mgo_specie = ["Mg", 'O']*4
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -189,8 +190,7 @@ class GulpIOTest(unittest.TestCase):
 
     def test_get_relaxed_structure(self):
         #Output string obtained from running GULP on a terminal
-        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
-                                'test_files')
+
         with open(os.path.join(test_dir, 'example21.gout'),'r') as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
@@ -220,7 +220,7 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'))
         structure = p.structure
         enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)
