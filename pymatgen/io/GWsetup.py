@@ -21,12 +21,14 @@ import json
 import os.path
 import pymatgen as pmg
 
+
 from pymatgen.io.vaspio.vasp_input import Kpoints
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.abinitio.abiobjects import asabistructure
 from pymatgen.io.abinitio.calculations import g0w0_with_ppmodel
-# from pymatgen.io.abinitio.flows import AbinitFlow
+from pymatgen.io.abinitio.flows import AbinitFlow
+from pymatgen.io.abinitio.tasks import TaskManager
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -79,7 +81,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         all_tests.update(MPGWG0W0VaspInputSet.get_defaults_tests())
         test_type = all_tests[_test_.keys()[0]]['method']
         npar = self.get_npar(self.structure)
-        #npar int(os.environ['NPARGWCALC'])
+        npar = int(os.environ['NPARGWCALC'])
         if test_type == 'incar_settings':
             self.incar_settings.update(_test_)
         if test_type == 'set_nomega':
@@ -337,16 +339,16 @@ def create_single_job_script(structure, task, option=[{}, {}]):
         job_file.close()
 
 
-def create_single_ABINIT_gw_flow(structure, pseudos, work_dir, **kwargs):
+def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
     """
     create single abinit G0W0 flow
     """
     abi_structure = asabistructure(structure)
-    manager = abilab.TaskManager.from_user_config() if not manager else manager
+    manager = TaskManager.from_user_config()
     # Initialize the flow.
     # FIXME
     # Don't know why protocol=-1 does not work here.
-    #flow = AbinitFlow(work_dir, manager, pickle_protocol=0)
+    flow = AbinitFlow(work_dir, manager, pickle_protocol=0)
 
     scf_kppa = 40
     nscf_nband = 100
@@ -387,9 +389,9 @@ def main():
 
     mp_list = ['mp-23818', 'mp-28069', 'mp-23037', 'mp-10627', 'mp-3807', 'mp-252', 'mp-504488', 'mp-1541', 'mp-650026']
 
-    #abi_pseudo_dir = os.environ('ABINIT_PS')+'GGA_PBE_FHI'
+    abi_pseudo_dir = os.environ['ABINIT_PS']+'GGA_PBE_FHI'
 
-    spec = {'mode': 'ceci', 'jobs': ['prep'], 'test': False, 'source': 'mp', 'code': 'VASP'}
+    spec = {'mode': 'ceci', 'jobs': ['prep'], 'test': False, 'source': 'mp', 'code': 'ABINIT'}
 
     if 'ceci' in spec['mode']:
        if os.path.isfile('job_collection'):
@@ -459,11 +461,12 @@ def main():
             manager = 'slurm' if 'ceci' in spec['mode'] else 'shell'
             print manager
             pseudos = []
-            for element in structure.species:
-                pseudo = os.path.join(abi_pseudo_dir, element + '.ncps')
+            for element in structure.composition.element_composition:
+                pseudo = os.path.join(abi_pseudo_dir, str(element) + '.ncps')
+                print pseudo
                 pseudos.append(pseudo)
-            work_dir = structure.structure.composition.reduced_formula
-            flow = create_single_ABINIT_gw_flow(structure=structure, pseudos=pseudos, work_dir=work_dir)
+            work_dir = structure.composition.reduced_formula
+            flow = create_single_abinit_gw_flow(structure=structure, pseudos=pseudos, work_dir=work_dir)
             flow.build_and_pickle_dump()
 
 if __name__ == "__main__":
