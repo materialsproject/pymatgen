@@ -54,7 +54,8 @@ class GulpCallerTest(unittest.TestCase):
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpIOTest(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
+                             check_for_POTCAR=False)
         self.structure = p.structure
         self.gio = GulpIO()
 
@@ -95,11 +96,6 @@ class GulpIOTest(unittest.TestCase):
         gin = self.gio.library_line(
                 '/Users/mbkumar/Research/Defects/GulpExe/Libraries/catlow.lib'
                 )
-        self.assertIn('lib', gin)
-
-    @unittest.expectedFailure
-    def test_library_line_default_path(self):
-        gin = self.gio.library_line('catlow.lib')
         self.assertIn('lib', gin)
 
     def test_library_line_wrong_file(self):
@@ -220,7 +216,8 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
+                             check_for_POTCAR=False)
         structure = p.structure
         enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)
