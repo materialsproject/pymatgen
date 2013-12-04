@@ -902,6 +902,10 @@ class QcBatchInput(MSONable):
     def __str__(self):
         return "\n@@@\n\n\n".join([str(j) for j in self.jobs])
 
+    def write_file(self, filename):
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
+
     @property
     def to_dict(self):
         return {"@module": self.__class__.__module__,
