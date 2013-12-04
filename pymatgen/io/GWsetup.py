@@ -26,7 +26,7 @@ from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.abinitio.abiobjects import asabistructure
 from pymatgen.io.abinitio.calculations import g0w0_with_ppmodel
-from pymatgen.io.abinitio.flows import AbinitFlow
+# from pymatgen.io.abinitio.flows import AbinitFlow
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -241,30 +241,30 @@ def create_single_vasp_gw_task(structure, task, spec, option=[{}, {}]):
     if len(option_name) > 0:
         option_name = "." + option_name
     if task == 'prep':
-        inpset = MPGWscDFTPrepVaspInputSet()
+        inpset = MPGWscDFTPrepVaspInputSet(structure)
         if spec['test']:
-            if option[0].keys()[0] in MPGWscDFTPrepVaspInputSet().tests.keys():
+            if option[0].keys()[0] in MPGWscDFTPrepVaspInputSet(structure).tests.keys():
                 inpset.set_test(option[0])
         inpset.write_input(structure, structure.composition.reduced_formula+option_prep_name)
-        inpset = MPGWDFTDiagVaspInputSet()
+        inpset = MPGWDFTDiagVaspInputSet(structure)
         if spec['test']:
             inpset.set_test(option[0])
         inpset.get_incar(structure).write_file(structure.composition.reduced_formula+option_prep_name+'/INCAR.DIAG')
     if task == 'G0W0':
-        inpset = MPGWG0W0VaspInputSet()
+        inpset = MPGWG0W0VaspInputSet(structure)
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, structure.composition.reduced_formula+option_prep_name+'/G0W0'+option_name)
     if task == 'GW0':
-        inpset = MPGWG0W0VaspInputSet()
+        inpset = MPGWG0W0VaspInputSet(structure)
         inpset.gw0_on()
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, structure.composition.reduced_formula+option_prep_name+'/GW0'+option_name)
     if task == 'scGW0':
-        inpset = MPGWG0W0VaspInputSet()
+        inpset = MPGWG0W0VaspInputSet(structure)
         inpset.gw0_on(qpsc=True)
         if spec['test']:
             inpset.set_test(option[0])
@@ -276,7 +276,7 @@ def create_single_job_script(structure, task, option=[{}, {}]):
     """
     Create job script for ceci.
     """
-    npar = MPGWscDFTPrepVaspInputSet().get_npar(structure)
+    npar = MPGWscDFTPrepVaspInputSet(structure).get_npar(structure)
     option_prep_name = str(option[0])
     option_name = str(option[1])
     for char in ["'", ":", " ", ",", "{", "}"]:
@@ -337,16 +337,16 @@ def create_single_job_script(structure, task, option=[{}, {}]):
         job_file.close()
 
 
-def create_single_ABINIT_gw_flow(structure, pseudos, manager, work_dir):
+def create_single_ABINIT_gw_flow(structure, pseudos, work_dir, **kwargs):
     """
     create single abinit G0W0 flow
     """
     abi_structure = asabistructure(structure)
-
+    manager = abilab.TaskManager.from_user_config() if not manager else manager
     # Initialize the flow.
     # FIXME
     # Don't know why protocol=-1 does not work here.
-    flow = AbinitFlow(work_dir, manager, pickle_protocol=0)
+    #flow = AbinitFlow(work_dir, manager, pickle_protocol=0)
 
     scf_kppa = 40
     nscf_nband = 100
@@ -387,7 +387,7 @@ def main():
 
     mp_list = ['mp-23818', 'mp-28069', 'mp-23037', 'mp-10627', 'mp-3807', 'mp-252', 'mp-504488', 'mp-1541', 'mp-650026']
 
-    abi_pseudo_dir = os.environ('ABINIT_PS')+'GGA_PBE_FHI'
+    #abi_pseudo_dir = os.environ('ABINIT_PS')+'GGA_PBE_FHI'
 
     spec = {'mode': 'ceci', 'jobs': ['prep'], 'test': False, 'source': 'mp', 'code': 'VASP'}
 
@@ -400,6 +400,9 @@ def main():
     elif spec['source'] == 'poscar':
         files = os.listdir('.')
         items_list = files
+    else:
+        print 'no structures defined'
+        exit()
 
     for item in items_list:
         if item.startswith('POSCAR_'):
@@ -419,9 +422,9 @@ def main():
                     for value_prep in tests_prep[test_prep]['test_range']:
                         task = 'prep'
                         print "**" + str(value_prep) + "**"
-                        create_single_vasp_gw_task(structure, 'prep', option=[{test_prep: value_prep}, {}])
+                        create_single_vasp_gw_task(structure=structure, task='prep', spec=spec, option=[{test_prep: value_prep}, {}])
                         if 'ceci' in spec['mode']:
-                            create_single_job_script(structure, option=[{test_prep: value_prep}, {}])
+                            create_single_job_script(structure=structure, task=task, option=[{test_prep: value_prep}, {}])
                         for task in spec['jobs'][1:]:
                             if task == 'G0W0':
                                 tests = MPGWG0W0VaspInputSet(structure).tests
@@ -438,9 +441,9 @@ def main():
                                         create_single_job_script(structure, task, option=[{test_prep: value_prep}, {test: value}])
             else:
                 for task in spec['jobs']:
-                    create_single_vasp_gw_task(structure, task, option=[{}, {}])
+                    create_single_vasp_gw_task(structure=structure, task=task, spec=spec, option=[{}, {}])
                     if 'ceci' in spec['mode']:
-                        create_single_job_script()
+                        create_single_job_script(structure=structure, task=task)
         if 'ceci' in spec['mode']:
             # create the tar
             pass
@@ -454,12 +457,13 @@ def main():
         if spec['code'] == 'ABINIT':
             # todo based on spec['mode'] set the manager
             manager = 'slurm' if 'ceci' in spec['mode'] else 'shell'
+            print manager
             pseudos = []
             for element in structure.species:
                 pseudo = os.path.join(abi_pseudo_dir, element + '.ncps')
                 pseudos.append(pseudo)
             work_dir = structure.structure.composition.reduced_formula
-            flow = create_single_ABINIT_gw_flow(structure=structure, pseudos=pseudos, work_dir=work_dir, manager=manager)
+            flow = create_single_ABINIT_gw_flow(structure=structure, pseudos=pseudos, work_dir=work_dir)
             flow.build_and_pickle_dump()
 
 if __name__ == "__main__":
