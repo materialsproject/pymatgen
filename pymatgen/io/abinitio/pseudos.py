@@ -10,8 +10,6 @@ import abc
 import collections
 import json
 import warnings
-import cPickle as pickle
-import cStringIO as StringIO
 import numpy as np
 
 from pymatgen.core.design_patterns import FrozenDict, AttrDict

@@ -989,7 +989,7 @@ class IStructure(SiteCollection, MSONable):
         """
         Compute the scalar producr of vector(s) either in real space or
         reciprocal space.
-                                                                                                
+
         Args:
             coords:
                 Array-like object with the coordinates.
@@ -1644,7 +1644,7 @@ class Structure(IStructure):
             new_atom_occu = collections.defaultdict(int)
             for sp, amt in site.species_and_occu.items():
                 if sp in species_mapping:
-                    if isinstance(species_mapping[sp], dict):
+                    if isinstance(species_mapping[sp], collections.Mapping):
                         for new_sp, new_amt in species_mapping[sp].items():
                             new_atom_occu[smart_element_or_specie(new_sp)] \
                                 += amt * new_amt
@@ -2168,7 +2168,7 @@ class Molecule(IMolecule):
                             new_atom_occu[species_mapping[sp]] += amt
                         else:
                             new_atom_occu[species_mapping[sp]] = amt
-                    elif isinstance(species_mapping[sp], dict):
+                    elif isinstance(species_mapping[sp], collections.Mapping):
                         for new_sp, new_amt in species_mapping[sp].items():
                             if new_sp in new_atom_occu:
                                 new_atom_occu[new_sp] += amt * new_amt

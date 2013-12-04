@@ -179,6 +179,7 @@ class AbinitTimerParser(collections.Iterable):
 
     def section_names(self, ordkey="wall_time"):
         """Return the names of sections ordered by ordkey."""
+        section_names = [] # Avoid UnboundLocalError
 
         # FIXME this is not trivial
         for (idx, timer) in enumerate(self.timers()):

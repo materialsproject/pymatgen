@@ -23,6 +23,7 @@ class RpnTest(PymatgenTest):
             ( {"four": {"$divisible": 3.0}}, False),
             ( {"two": {"$gt": "one"}}, True ),
             ( {"$and": [ {"one": 1.0}, {"two": {"$lt": 3}}]}, True),
+            ( {"$and": [{"one": {"$ge": 0.8}}, {"two": {"$le": 6.0}}]}, True),
             ( {"$or": [ {"$not": {"one": 1.0}}, {"two": {"$lt": 20}}]}, True),
             ( {"$not": {"$and": [ {"$not": {"one": 1.0}}, {"two": {"$lt": 3}}] }}, True),
         ]
@@ -31,7 +32,7 @@ class RpnTest(PymatgenTest):
             print("map", map)
             rpn = map2rpn(map, obj=Foo)
             print("rpn", rpn)
-            self.assertTrue(res == evaluate_rpn(rpn))
+            self.assertEqual(res, evaluate_rpn(rpn), msg="map %s" % map)
 
 
 if __name__ == '__main__':
