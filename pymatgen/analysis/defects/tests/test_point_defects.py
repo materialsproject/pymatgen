@@ -145,7 +145,7 @@ class VacancyFormationEnergyTest(unittest.TestCase):
             self.assertIsInstance(vfe, float)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialTest(unittest.TestCase):
     def setUp(self):
         """
@@ -203,7 +203,7 @@ class InterstitialTest(unittest.TestCase):
             self.assertTrue(rad, float)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp not present.")
 class InterstitialAnalyzerTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -259,7 +259,7 @@ class InterstitialAnalyzerTest(unittest.TestCase):
                     self.assertTrue(match)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialStructureRelaxerTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -306,7 +306,7 @@ class InterstitialStructureRelaxerTest(unittest.TestCase):
         self.assertIsInstance(ri, RelaxedInterstitial)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class RelaxedInsterstitialTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -348,7 +348,6 @@ class RelaxedInsterstitialTest(unittest.TestCase):
             del_bd = self.ri.get_percentage_bond_distance_change(i)
             #self.assertIsInstance(del_bd, float)
             #print del_bd
-
 
 if __name__ == "__main__":
     unittest.main()
