@@ -1677,11 +1677,11 @@ class Structure(IStructure):
 
     def remove_species(self, species):
         """
-        Remove all occurrences of a species from a structure.
+        Remove all occurrences of several species from a structure.
 
         Args:
             species:
-                species to remove.
+                Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
         species = map(smart_element_or_specie, species)

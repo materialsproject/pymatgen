@@ -1,0 +1,575 @@
+
+Running Job 1 of 1 hf.inp
+qchem hf.inp_8272.0 /Users/xiaohuiqu/scratch/qchem8272/ 1
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ A. I. Krylov, P. M. W. Gill, M. Head-Gordon
+
+ Additional authors for Version 3.1: 
+ Z. Gan, Y. Zhao, N. E. SchultzD. Truhlar, E. Epifanovsky, M. Oana
+
+ Additional authors for Version 3.2: 
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
+
+ Additional authors for Version 4.0: 
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
+
+ Additional authors for Version 4.1: 
+ X. Feng, M. W. D. Hason-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
+
+
+ Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
+
+ MAC (Intel) OSX Version 4.1.0.1 
+
+ Q-chem begins on Thu Nov 21 17:46:02 2013  
+
+Host: 
+0
+
+     Scratch files written to /Users/xiaohuiqu/scratch/qchem8272//
+ Aug3013 17693_zgan 4696   
+Processing $rem in /Users/xiaohuiqu/program/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+0 1
+H       0.000000     0.000000    -0.862674
+F       0.000000     0.000000     0.043813
+$end
+
+$rem
+job_type = sp
+correlation = qcisd(t)
+basis = 6-31+G(d)
+$end
+
+--------------------------------------------------------------
+ ----------------------------------------------------
+       Standard Nuclear Orientation (Angstroms)
+    I     Atom         X            Y            Z
+ ----------------------------------------------------
+    1      H       0.000000     0.000000    -0.815838
+    2      F       0.000000     0.000000     0.090649
+ ----------------------------------------------------
+ Molecular Point Group                 C2v   NOp =  4
+ Largest Abelian Subgroup              C2v   NOp =  4
+ Nuclear Repulsion Energy =     5.2539031417 hartrees
+ There are        5 alpha and        5 beta electrons
+ Requested basis set is 6-31+G(d)
+ There are 7 shells and 21 basis functions
+Total memory of 1801MB is distributed as follows: 
+   QALLOC including MEM_STATIC uses 1301MB
+   MEM_STATIC is set to 301MB
+   CCMAN JOB total memory use is  1500MB
+Warning: actual memory use might exceed 1801MB
+
+Total QAlloc Memory Limit   1301 MB
+Mega-Array Size       295 MB
+MEM_STATIC part       301 MB
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   F (  2)  0.906487
+ 
+ A cutoff of  1.0D-14 yielded     28 shell pairs
+ There are       264 function pairs
+ Smallest overlap matrix eigenvalue = 7.26E-03
+
+  Scale SEOQF with 1.000000e+00/1.000000e+00/1.000000e+00
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =    -0.0000000008 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ A restricted Hartree-Fock SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ SCF converges when DIIS error is below 1.0E-08
+ using 2 threads for integral computing 
+ reading int configure file ... done
+ 
+ -------------------------------------------------------
+ OpenMP Integral Computing Module                       
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ Integral Job Info:
+ Integral screening is                        1
+ Integral computing path is                   2
+ max size of driver memeory is           800000
+ size of driver memeory is               593606
+ size of scratch memory is               800000
+ max col of scratch BK array               1296
+ max len of scratch array in speh3          155
+ max len of scratch index in speh4           18
+ max int batch size is                       50
+ min int batch size is                       15
+ fixed nKL is                                18
+ max L of basis functions is                  2
+ order of int derivative is                   0
+ number of shells is                          7
+ number of basis is                          21
+ number of cartesian basis is                21
+ number of contracted shell pairs            28
+ number of primitive shell pairs            153
+ maxK2 (contraction) of shell pair           36
+ max number of K2 of shell pair               1
+ max number of CS2 of shell pair              3
+ max number of PS2 of shell pair             36
+ -------------------------------------------------------
+         cpu   0.01 wall   0.00
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1     -99.8636362112      1.15E-01
+         cpu   0.01 wall   0.00
+    2     -99.9907495260      2.30E-02
+         cpu   0.01 wall   0.00
+    3    -100.0097342691      1.28E-02
+         cpu   0.01 wall   0.00
+    4    -100.0146875999      1.31E-03
+         cpu   0.01 wall   0.00
+    5    -100.0147988660      3.89E-04
+         cpu   0.01 wall   0.00
+    6    -100.0148112943      6.28E-05
+         cpu   0.01 wall   0.00
+    7    -100.0148118048      1.03E-05
+         cpu   0.01 wall   0.00
+    8    -100.0148118187      7.89E-07
+         cpu   0.01 wall   0.00
+    9    -100.0148118187      6.94E-08
+         cpu   0.01 wall   0.00
+   10    -100.0148118187      5.94E-09 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 1.35 s  wall 0.80 s
+ SCF   energy in the final basis set = -100.0148118187
+ Total energy in the final basis set = -100.0148118187
+
+******************************************************
+*                    C C M A N                       *
+*                                                    *
+*                   Anna I. Krylov                   *
+*                  C. David Sherrill                 *
+*                  Steven R. Gwaltney                *
+*                  Edward F. C. Byrd                 *
+*                     June 2000                      *
+*                                                    *
+*                     AND                            *
+*                                                    *
+*                  Sergey V. Levchenko               *
+*                  Lyudmila V. Slipchenko            *
+*                  Tao Wang                          *
+*                  Ana-Maria C. Cristian             *
+*                                                    *
+*                     November 2003                  *
+*                                                    *
+*                    AND                             *
+*                                                    *
+*          Piotr A. Pieniazek                        *
+*          C. Melania Oana                           *
+*          E. Epifanovsky                            *
+*                                                    *
+*                    October 2007                    *
+*                                                    *
+*                                                    *
+******************************************************
+
+
+
+blck_tnsr_buffsz = 1404
+ccjobtype = sp
+ccman2 = 0
+do_efp = 0
+do_ri = 0
+eomcorr = none
+print_lvl = 1
+refcorr = qcisd(t)
+test_mode = 0
+threads = 2
+tmp_maxbuffsz = 96
+unrestricted = 0
+ccsd.dOV_threshold = 0
+ccsd.diis_freq = 1
+ccsd.diis_max_overlap = 1
+ccsd.diis_min_overlap = 1e-11
+ccsd.diis_size = 7
+ccsd.diis_start = 3
+ccsd.energy_convergence = 1e-08
+ccsd.maxiter = 100
+ccsd.restart = 0
+ccsd.saveampl = 0
+ccsd.scale_amp = 1
+ccsd.solver = diis
+ccsd.t_convergence = 1e-08
+ccsd.z_convergence = 1e-08
+eom.convergence = 1e-06
+eom.do_fake_ipea = 0
+eom.dthreshold = 1e-06
+eom.filter_ipea = 0
+eom.maxiter = 30
+eom.maxvectors = 60
+eom.nguess_doubles = 0
+eom.nguess_singles = 0
+eom.preconv_doubles = 0
+eom.preconv_sd = 0
+eom.preconv_singles = 0
+eom.use_exdiag = 0
+mgc.amodel = 0
+mgc.canonize = 0
+mgc.canonize_final = 0
+mgc.canonize_freq = 50
+mgc.dOV_threshold = 0
+mgc.diis = 0
+mgc.diis12_switch = 1e-05
+mgc.diis_freq = 2
+mgc.diis_max_overlap = 1
+mgc.diis_min_overlap = 1e-11
+mgc.diis_size = 7
+mgc.diis_start = 2
+mgc.do_ed_ccd = 0
+mgc.do_qccd = 0
+mgc.energy_convergence = 1e-08
+mgc.hess_threshold = 0.01
+mgc.iterate_ov = 0
+mgc.maxiter = 100
+mgc.maxtrank = 0
+mgc.mgc_ampread = 0
+mgc.mgc_amps = 2
+mgc.mgc_ampscale = 0
+mgc.mgc_cc_gvb_guess = 0
+mgc.mgc_create_dm = 0
+mgc.mgc_eom = 0
+mgc.mgc_frzn_core = 0
+mgc.mgc_gvb_n_pairs = 0
+mgc.mgc_ip = 0
+mgc.mgc_localinter = 0
+mgc.mgc_localints = 1
+mgc.mgc_oo_type = 0
+mgc.mgc_ph = 0
+mgc.mgc_renorm = 0
+mgc.mgc_skip_ae = 0
+mgc.mgc_write_ints = 0
+mgc.nlpairs = 2
+mgc.preconv_frozen = 0
+mgc.preconv_t2z = 0
+mgc.preconv_t2z_each = 0
+mgc.reset_theta = 15
+mgc.restart = 0
+mgc.saveampl = 0
+mgc.scale_amp = 1
+mgc.solver = diis
+mgc.t_convergence = 1e-08
+mgc.theta_convergence = 0.0001
+mgc.theta_grad_convergence = 0.0001
+mgc.theta_grad_threshold = 0.01
+mgc.theta_stepsize = 1
+mgc.turn_on_qccd = 0.01
+mgc.z_convergence = 1e-08
+ooccd.canonize_final = 0
+ooccd.canonize_freq = 50
+ooccd.dOV_threshold = 0
+ooccd.diis = 0
+ooccd.diis12_switch = 1e-05
+ooccd.diis_freq = 2
+ooccd.diis_max_overlap = 1
+ooccd.diis_min_overlap = 1e-11
+ooccd.diis_size = 7
+ooccd.diis_start = 2
+ooccd.do_ed_ccd = 0
+ooccd.do_qccd = 0
+ooccd.energy_convergence = 1e-08
+ooccd.hess_threshold = 0.01
+ooccd.iterate_ov = 0
+ooccd.maxiter = 100
+ooccd.preconv_frozen = 0
+ooccd.preconv_t2z = 0
+ooccd.preconv_t2z_each = 0
+ooccd.reset_theta = 15
+ooccd.restart = 0
+ooccd.saveampl = 0
+ooccd.scale_amp = 1
+ooccd.solver = diis
+ooccd.t_convergence = 1e-08
+ooccd.theta_convergence = 0.0001
+ooccd.theta_grad_convergence = 0.0001
+ooccd.theta_grad_threshold = 0.01
+ooccd.theta_stepsize = 1
+ooccd.turn_on_qccd = 0.01
+ooccd.z_convergence = 1e-08
+orbitals.canonize = 1
+orbitals.do_fno = 0
+orbitals.mp2_grad = 0
+orbitals.mp2no_guess = 0
+orbitals.reorthogonalize_mo = 0
+orbitals.restart_no_scf = 0
+orbitals.restricted_amplitudes = 1
+orbitals.restricted_triples = 0
+pt_corr.incl_core_corr = 1
+pt_corr.incl_virt_corr = 1
+pt_corr.sd_corr_only = 0
+solvent_model.cc_solvent = 0
+svd.analyze_t2 = 0
+svd.d1_d2_diag = 0
+svd.energy_decomp = 0
+svd.svd_algorithm = 1
+svd.svd_decompose_geminals = 0
+svd.svd_first_geminal = 0
+svd.svd_incl_singles = 1
+svd.svd_n_values = 1
+svd.svd_plot_geminals = 0
+svd.t2_lowrank = 0
+
+Testing symmetry... Orbitals in the original order:
+ 
+ Alpha MOs, Restricted
+ -- Occupied --                  
+-26.314  -1.610  -0.775  -0.652  -0.652
+  1 A1    2 A1    3 A1    1 B1    1 B2                                         
+ -- Virtual --                   
+  0.192   0.306   0.311   0.311   0.376   1.278   1.780   1.780
+  4 A1    5 A1    2 B1    2 B2    6 A1    7 A1    3 B1    3 B2                 
+  1.812   1.855   2.067   2.067   2.134   2.134   3.050   4.617
+  8 A1    9 A1    4 B1    4 B2   10 A1    1 A2   11 A1   12 A1                 
+ 
+ Beta MOs, Restricted
+ -- Occupied --                  
+-26.314  -1.610  -0.775  -0.652  -0.652
+  1 A1    2 A1    3 A1    1 B1    1 B2                                         
+ -- Virtual --                   
+  0.192   0.306   0.311   0.311   0.376   1.278   1.780   1.780
+  4 A1    5 A1    2 B1    2 B2    6 A1    7 A1    3 B1    3 B2                 
+  1.812   1.855   2.067   2.067   2.134   2.134   3.050   4.617
+  8 A1    9 A1    4 B1    4 B2   10 A1    1 A2   11 A1   12 A1                 
+Setting symmetry... Orbitals will be reordered.
+No MO reordering is requested
+
+The orbitals are ordered and numbered as follows:
+Alpha orbitals:
+Number  Energy    Type    Symmetry  ANLMAN number  Total number:
+  0    -26.314     AOCC      A1      1A1     1
+  1     -1.610     AOCC      A1      2A1     2
+  2     -0.775     AOCC      A1      3A1     3
+  3     -0.652     AOCC      B1      1B1     4
+  4     -0.652     AOCC      B2      1B2     5
+
+  0      0.192     AVIRT     A1      4A1     6
+  1      0.306     AVIRT     A1      5A1     7
+  2      0.376     AVIRT     A1      6A1     8
+  3      1.278     AVIRT     A1      7A1     9
+  4      1.812     AVIRT     A1      8A1     10
+  5      1.855     AVIRT     A1      9A1     11
+  6      2.134     AVIRT     A1     10A1     12
+  7      3.050     AVIRT     A1     11A1     13
+  8      4.617     AVIRT     A1     12A1     14
+  9      2.134     AVIRT     A2      1A2     15
+ 10      0.311     AVIRT     B1      2B1     16
+ 11      1.780     AVIRT     B1      3B1     17
+ 12      2.067     AVIRT     B1      4B1     18
+ 13      0.311     AVIRT     B2      2B2     19
+ 14      1.780     AVIRT     B2      3B2     20
+ 15      2.067     AVIRT     B2      4B2     21
+
+
+MOLECULAR PARAMETERS: 
+ORB SYMM INFO:
+     POINT GROUP=C2v               NIRREPS   =  4
+     MOL ORB= 21
+
+     IRREPS =   A1   A2   B1   B2  
+     ORBSPI =   12    1    4    4 
+     DOCC   =    3    0    1    1 
+     SOCC   =    0    0    0    0 
+
+     FDOCC  =    0    0    0    0 
+     RDOCC  =    0    0    0    0 
+     AAOCC  =    3    0    1    1 
+     BAOCC  =    3    0    1    1 
+     AAVIRT =    9    1    3    3 
+     BAVIRT =    9    1    3    3 
+     RUOCC  =    0    0    0    0 
+     FUOCC  =    0    0    0    0 
+
+     IRREP MULT TABLE:
+       0   1   2   3 
+       1   0   3   2 
+       2   3   0   1 
+       3   2   1   0 
+
+     ORBSYM ALPHA= A1   A1   A1   B1   B2   A1   A1   A1   A1   A1   
+                   A1   A1   A1   A1   A2   B1   B1   B1   B2   B2   
+                   B2   
+     ORBSYM BETA = A1   A1   A1   B1   B2   A1   A1   A1   A1   A1   
+                   A1   A1   A1   A1   A2   B1   B1   B1   B2   B2   
+                   B2   
+
+
+   BASIS ORBS   =      21      MOL ORBS     =      21
+   NAUXBASIS    =       0
+   FROZEN OCC   =       0      FROZEN VIR   =       0
+   CORR ORBS    =      21      CORR SP ORBS =      42
+   NUM ALP ELEC =       5      NUM BET ELEC =       5
+   NUM ALP EXPL =       5      NUM BET EXPL =       5
+   NUM SO OCC   =      10      NUM SO VIR   =      32
+   NUM RESTR DOCC=      0      NUM RESTR DVIRT=     0
+   ORBS PER BLCK =     16      RESTRICTED_REF =    1
+
+BLOCKING PARAMETERS: 
+   NUM ROCC BLOCKS =     0      NUM AOCC  BLOCKS=     3
+   NUM AVIRT BLOCKS=     4      NUM RVIRT BLOCKS=     0
+
+   ORBITALS/BLOCK =   3   1   1   3   1   1   9   1   3   3   9   1   3   3 
+
+BIRREP = A1   B1   B2   A1   B1   B2   A1   A2   B1   B2   A1   A2   B1   B2   
+ 
+EHF =  -100.014811819 EMP2 =  -100.203858730
+
+Beginning CC iterations
+Itr|Var|D|Energy         |Delta_E|Delta_t|Comments
+  1|QCI|-| -100.202379425|1.5E-03|6.6E-02|
+  2|QCI|-| -100.206711168|4.3E-03|2.5E-02|
+  3|QCI|-| -100.206895130|1.8E-04|8.5E-03|
+  4|QCI|+| -100.207352461|4.6E-04|3.9E-03|
+  5|QCI|+| -100.207522415|1.7E-04|3.8E-04|
+  6|QCI|+| -100.207522950|5.3E-07|8.9E-05|
+  7|QCI|+| -100.207522903|4.8E-08|2.4E-05|
+  8|QCI|+| -100.207523017|1.1E-07|4.4E-06|
+  9|QCI|+| -100.207523038|2.0E-08|9.5E-07|
+ 10|QCI|+| -100.207523040|2.5E-09|2.6E-07|
+ 11|QCI|+| -100.207523040|6.2E-10|8.2E-08|
+ 12|QCI|+| -100.207523039|4.7E-11|1.6E-08|
+ 13|QCI|+| -100.207523040|6.6E-11|4.3E-09|
+ CC calculation converged,    13 iterations
+
+
+Largest T amplitudes
+Largest singles amplitudes:
+       Value                   i            ->    a
+       0.0229                  4( B2  ) B   ->   13( B2  ) B  
+       0.0229                  3( B1  ) B   ->   10( B1  ) B  
+       0.0229                  4( B2  ) A   ->   13( B2  ) A  
+       0.0229                  3( B1  ) A   ->   10( B1  ) A  
+       0.0091                  2( A1  ) B   ->    1( A1  ) B  
+
+Largest doubles amplitudes:
+       Value      i             j           ->   a             b
+     -0.0347      4( B2  ) A,   4( B2  ) B  ->  14( B2  ) A,  14( B2  ) B 
+     -0.0347      3( B1  ) A,   3( B1  ) B  ->  11( B1  ) A,  11( B1  ) B 
+     -0.0326      2( A1  ) A,   2( A1  ) B  ->   3( A1  ) A,   3( A1  ) B 
+     -0.0243      3( B1  ) A,   4( B2  ) B  ->  11( B1  ) A,  14( B2  ) B 
+     -0.0243      4( B2  ) A,   3( B1  ) B  ->  14( B2  ) A,  11( B1  ) B 
+
+EHF                    =  -100.014811819
+EMP2                   =  -100.203858730
+Correlation Energy     =    -0.192711221
+QCISD Total Energy     =  -100.207523040
+
+
+ CCSD or (V)OO-CCD job:  CPU 0.93 s  wall 0.49 s
+Doing only closed-shell triples contributions
+(T) Correction         =    -0.001810972
+QCISD(T) Total Energy  =  -100.209334011
+
+
+ (2) or (T) job:  CPU 0.23 s  wall 0.14 s
+
+
+ CCMAN JOB: ALL  CPU 1.17 s  wall 0.64 s
+ Analysis of SCF Wavefunction
+ 
+ --------------------------------------------------------------
+             Orbital Energies (a.u.) and Symmetries
+ --------------------------------------------------------------
+ 
+ Alpha MOs, Restricted
+ -- Occupied --                  
+-26.314  -1.610  -0.775  -0.652  -0.652
+  1 A1    2 A1    3 A1    1 B1    1 B2                                         
+ -- Virtual --                   
+  0.192   0.306   0.376   1.278   1.812   1.855   2.134   3.050
+  4 A1    5 A1    6 A1    7 A1    8 A1    9 A1   10 A1   11 A1                 
+  4.617   2.134   0.311   1.780   2.067   0.311   1.780   2.067
+ 12 A1    1 A2    2 B1    3 B1    4 B1    2 B2    3 B2    4 B2                 
+ 
+ Beta MOs, Restricted
+ -- Occupied --                  
+-26.314  -1.610  -0.775  -0.652  -0.652
+  1 A1    2 A1    3 A1    1 B1    1 B2                                         
+ -- Virtual --                   
+  0.192   0.306   0.376   1.278   1.812   1.855   2.134   3.050
+  4 A1    5 A1    6 A1    7 A1    8 A1    9 A1   10 A1   11 A1                 
+  4.617   2.134   0.311   1.780   2.067   0.311   1.780   2.067
+ 12 A1    1 A2    2 B1    3 B1    4 B1    2 B2    3 B2    4 B2                 
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 H                     0.575177
+      2 F                    -0.575177
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       0.0000      Y       0.0000      Z      -2.0651
+       Tot       2.0651
+    Quadrupole Moments (Debye-Ang)
+        XX      -5.7266     XY       0.0000     YY      -5.7266
+        XZ       0.0000     YZ       0.0000     ZZ      -3.5335
+    Octapole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY       0.0000    XYY       0.0000
+       YYY       0.0000    XXZ      -0.2468    XYZ       0.0000
+       YYZ      -0.2468    XZZ       0.0000    YZZ       0.0000
+       ZZZ      -2.0601
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -3.7400   XXXY       0.0000   XXYY      -1.2467
+      XYYY       0.0000   YYYY      -3.7400   XXXZ       0.0000
+      XXYZ       0.0000   XYYZ       0.0000   YYYZ       0.0000
+      XXZZ      -1.3619   XYZZ       0.0000   YYZZ      -1.3619
+      XZZZ       0.0000   YZZZ       0.0000   ZZZZ      -3.0663
+ -----------------------------------------------------------------
+Archival summary:
+1\1\macqu.dhcp.lbnl.us\SP\ProcedureUnspecified\6-31+G*\11\ThuNov2117:46:032013ThuNov2117:46:032013\0\\#,ProcedureUnspecified,6-31+G*,\\0,1\H\F,1,0.906487\\HF=-100.014812\\@
+
+ Total job time:  1.68s(wall), 2.87s(cpu) 
+ Thu Nov 21 17:46:03 2013
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+
