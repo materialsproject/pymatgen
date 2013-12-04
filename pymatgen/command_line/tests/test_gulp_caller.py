@@ -189,7 +189,9 @@ class GulpIOTest(unittest.TestCase):
 
     def test_get_relaxed_structure(self):
         #Output string obtained from running GULP on a terminal
-        with open('example21.gout','r') as fp:
+        test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                                'test_files')
+        with open(os.path.join(test_dir, 'example21.gout'),'r') as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)
