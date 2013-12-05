@@ -114,12 +114,14 @@ class VacancyTest(unittest.TestCase):
             min_chrg, max_chrg = self._mgo_vac.get_coordsites_min_max_charge(i)
             self.assertEqual(min_chrg, max_chrg)
 
+    @unittest.skip("deprecated")
     def test_get_volume(self):
         for i in range(self._mgo_vac.defectsite_count()):
             vol = self._mgo_vac.get_volume(i)
             #Once the zeo++ is properly working, make sure vol is +ve
             self.assertIsInstance(vol, float)
 
+    @unittest.skip("deprecated")
     def test_get_surface_area(self):
         for i in range(self._mgo_vac.defectsite_count()):
             sa = self._mgo_vac.get_surface_area(i)

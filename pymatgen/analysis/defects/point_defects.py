@@ -66,7 +66,7 @@ class ValenceIonicRadiusEvaluator:
             el = re.sub('[1-9,+,\-]', '', k)
             if val:
                 #rad_dict[k] = Specie(el, val).ionic_radius
-                rad_dict[k] = Element(el).ionic_radii[val]
+                rad_dict[k] = float(Element(el).ionic_radii[val])
                 if not rad_dict[k]:  
                     raise LookupError()
             else:
@@ -305,6 +305,7 @@ class Vacancy(Defect):
         coordinated_site_valences.sort()
         return coordinated_site_valences[0], coordinated_site_valences[-1]
 
+    # deprecated
     def get_volume(self, n):
         """
         Volume of the nth vacancy
@@ -330,6 +331,7 @@ class Vacancy(Defect):
 
         return self._vol[n]
 
+    # deprecated
     def get_surface_area(self, n):
         """
         Surface area of the nth vacancy
@@ -619,7 +621,7 @@ class Interstitial(Defect):
         Prune all the defect sites which can't acoomodate the input elment 
         with the input oxidation state.
         """
-        rad = Specie(el, oxi_state).ionic_radius - dlta
+        rad = float(Specie(el, oxi_state).ionic_radius) - dlta
         self.radius_prune_defectsites(rad)
 
     def prune_close_defectsites(self, dist=0.5):
