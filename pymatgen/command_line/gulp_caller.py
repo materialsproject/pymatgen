@@ -197,30 +197,49 @@ class GulpIO:
         gulplib_set = lambda: 'GULP_LIB' in os.environ.keys()
         readable = lambda f: os.path.isfile(f) and os.access(f, os.R_OK)
 
+        #dirpath, fname = os.path.split(file_name)
+        #if dirpath:  # Full path specified
+        #    if readable(file_name):
+        #        gin = 'library ' + file_name
+        #    else:
+        #        raise GulpError('GULP Library not found')
+        #else:
+        #    fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
+        #    if readable(fpath):
+        #        gin = 'library ' + fpath
+        #    elif gulplib_set():
+        #        fpath = os.path.join(os.environ['GULP_LIB'], file_name)
+        #        if readable(fpath):
+        #            gin = 'library ' + file_name
+        #        else:
+        #            raise GulpError('GULP Library not found')
+        #    else:
+        #        raise GulpError('GULP Library not found')
+        #gin += "\n"
+        #return gin
+
+        gin = ""
         dirpath, fname = os.path.split(file_name)
-        if dirpath:  # Full path specified
-            if readable(file_name):
-                gin = 'library ' + file_name
-            else:
-                raise GulpError('GULP Library not found')
+        if dirpath and readable(file_name):  # Full path specified
+            gin = 'library ' + file_name
         else:
             fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
                 gin = 'library ' + fpath
-            elif gulplib_set():
+            elif gulplib_set():         # Check the GULP_LIB path
                 fpath = os.path.join(os.environ['GULP_LIB'], file_name)
                 if readable(fpath):
                     gin = 'library ' + file_name
-                else:
-                    raise GulpError('GULP Library not found')
-        gin += "\n"
-        return gin
+        if gin:
+            return gin + "\n"
+        else:
+            raise GulpError('GULP Library not found')
 
     def buckingham_input(self, structure, keywords, library=None,
                          uc=True, valence_dict=None):
         """
         Gets a GULP input for an oxide structure and buckingham potential
-        from library.
+    from library.
 
         Args:
             structure:
