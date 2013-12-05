@@ -6,6 +6,7 @@ import sys
 from pymatgen.analysis.defects.point_defects import *
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.io.cssrio import Cssr
 from pymatgen.util.io_utils import which
 
 try:
@@ -23,18 +24,20 @@ class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
         """
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
         mgo_specie = ["Mg"] * 4 + ["O"] * 4
-        mgo_frac_cord = [[0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
-                         [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
+        mgo_frac_cord = [[0,0,0], [0.5,0.5,0], [0.5,0,0.5], [0,0.5,0.5],
+                         [0.5,0,0], [0,0.5,0], [0,0,0.5], [0.5,0.5,0.5]]
         self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
                                  True)
         self._mgo_valrad_evaluator = ValenceIonicRadiusEvaluator(self._mgo_uc)
+        #self._si = Cssr.from_file("../../../../test_files/Si.cssr").structure
+        #self._ci_valrad_evaluator = ValenceIonicRadiusEvaluator(self._si)
 
-    def test_valences(self):
+    def test_valences_ionic_structure(self):
         valence_dict = self._mgo_valrad_evaluator.valences
         for val in valence_dict.values():
             self.assertTrue(val in {2, -2})
 
-    def test_radii(self):
+    def test_radii_ionic_structure(self):
         rad_dict = self._mgo_valrad_evaluator.radii
         for rad in rad_dict.values():
             self.assertTrue(rad in {0.86, 1.26})
@@ -111,12 +114,14 @@ class VacancyTest(unittest.TestCase):
             min_chrg, max_chrg = self._mgo_vac.get_coordsites_min_max_charge(i)
             self.assertEqual(min_chrg, max_chrg)
 
+    @unittest.skip("deprecated")
     def test_get_volume(self):
         for i in range(self._mgo_vac.defectsite_count()):
             vol = self._mgo_vac.get_volume(i)
             #Once the zeo++ is properly working, make sure vol is +ve
             self.assertIsInstance(vol, float)
 
+    @unittest.skip("deprecated")
     def test_get_surface_area(self):
         for i in range(self._mgo_vac.defectsite_count()):
             sa = self._mgo_vac.get_surface_area(i)
@@ -145,7 +150,7 @@ class VacancyFormationEnergyTest(unittest.TestCase):
             self.assertIsInstance(vfe, float)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialTest(unittest.TestCase):
     def setUp(self):
         """
@@ -183,6 +188,11 @@ class InterstitialTest(unittest.TestCase):
             print >> sys.stderr, self._mgo_interstitial.get_defectsite_coordination_number(
                 i)
 
+    def test_get_coordinated_sites(self):
+        for i in range(self._mgo_interstitial.defectsite_count()):
+            print >> sys.stderr, self._mgo_interstitial.get_coordinated_sites(
+                i)
+
     def test_get_coordsites_charge_sum(self):
         for i in range(self._mgo_interstitial.defectsite_count()):
             print >> sys.stderr, self._mgo_interstitial.get_coordsites_charge_sum(
@@ -203,7 +213,7 @@ class InterstitialTest(unittest.TestCase):
             self.assertTrue(rad, float)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp not present.")
 class InterstitialAnalyzerTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -259,7 +269,7 @@ class InterstitialAnalyzerTest(unittest.TestCase):
                     self.assertTrue(match)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialStructureRelaxerTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -306,7 +316,7 @@ class InterstitialStructureRelaxerTest(unittest.TestCase):
         self.assertIsInstance(ri, RelaxedInterstitial)
 
 
-@unittest.skipIf(not gulp_present, "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class RelaxedInsterstitialTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
@@ -348,7 +358,6 @@ class RelaxedInsterstitialTest(unittest.TestCase):
             del_bd = self.ri.get_percentage_bond_distance_change(i)
             #self.assertIsInstance(del_bd, float)
             #print del_bd
-
 
 if __name__ == "__main__":
     unittest.main()
