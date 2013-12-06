@@ -1366,7 +1366,7 @@ class Task(Node):
         # Remove output files otherwise the EventParser will think the job is still running
         self.output_file.remove()
         self.log_file.remove()
-        self.stderr_file.path.remove()
+        self.stderr_file.remove()
         self.start_lockfile.remove()
         self.qerr_file.remove()
         self.qout_file.remove()
