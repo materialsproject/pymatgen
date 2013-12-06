@@ -125,6 +125,11 @@ class Directory(object):
         return self._path
 
     @property
+    def relpath(self):
+        """Relative path."""
+        return os.path.relpath(self.path)
+
+    @property
     def basename(self):
         """Directory basename."""
         return os.path.basename(self.path)

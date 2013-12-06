@@ -412,6 +412,7 @@ class PyFlowScheduler(object):
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
         self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
         self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
+        #self.MAX_ETIME_S = kwargs.pop("MAX_ETIME_S", )
 
         if kwargs:
             raise ValueError("Unknown arguments %s" % kwargs)
@@ -651,6 +652,9 @@ class PyFlowScheduler(object):
                 # Cannot send mail, shutdown now!
                 msg += "\nThe scheduler tried to send an e-mail to remind user but send_email returned %d. Aborting now" % retcode
                 err_msg += msg
+
+        #if delta_etime.total_seconds() > self.MAX_ETIME_S:
+        #    err_msg += "\nExceeded MAX_ETIME_S %s. Will shutdown the scheduler and exit" % self.MAX_ETIME_S
 
         # Too many exceptions. Shutdown the scheduler.
         if self.num_excs > self.MAX_NUM_PYEXCS:
