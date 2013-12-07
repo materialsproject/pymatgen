@@ -349,15 +349,16 @@ class Lattice(MSONable):
     @property
     def reciprocal_lattice(self):
         """
-        Return the reciprocal lattice. The property is lazily generated for efficiency.
-        This implies that Lattice is an immutable object.
+        Return the reciprocal lattice. The property is lazily generated for
+        efficiency.
         """
         try:
             return self._reciprocal_lattice
         except AttributeError:
             v = [np.cross(self._matrix[(i + 1) % 3], self._matrix[(i + 2) % 3])
                 for i in xrange(3)]
-            self._reciprocal_lattice = Lattice(np.array(v) * 2 * np.pi / self.volume)
+            self._reciprocal_lattice = Lattice(np.array(v) * 2 * np.pi /
+                                               self.volume)
             return self._reciprocal_lattice
 
     def __repr__(self):
