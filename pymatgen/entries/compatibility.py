@@ -36,6 +36,20 @@ class Correction(object):
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
+    def get_correction(self, entry):
+        """
+        Returns correction for a single entry.
+
+        Args:
+            entry:
+                A ComputedEntry object.
+
+        Returns:
+            The energy correction ot be applied. None if the entry is
+            incompatible.
+        """
+        return
+
     def correct_entry(self, entry):
         """
         Corrects a single entry.
@@ -48,7 +62,11 @@ class Correction(object):
             An processed entry. None if entry is not compatible within the
             processing scheme.
         """
-        return
+        c = self.get_correction(entry)
+        if c is not None:
+            entry.correction += c
+            return entry
+        return None
 
 
 class PotcarCorrection(Correction):
@@ -83,8 +101,9 @@ class PotcarCorrection(Correction):
             raise ValueError("Only MIT and MP POTCAR corrections are "
                              "supported currently.")
         self.valid_potcars = set(input_set.potcar_settings.values())
+        self.name = name
 
-    def correct_entry(self, entry):
+    def get_correction(self, entry):
         try:
             psp_settings = set([sym.split(" ")[1]
                                 for sym
@@ -95,7 +114,10 @@ class PotcarCorrection(Correction):
                              "entry.parameters")
         if not self.valid_potcars.issuperset(psp_settings):
             return None
-        return entry
+        return 0
+
+    def __str__(self):
+        return "{} Potcar Correction".format(self.name)
 
 
 class GasCorrection(Correction):
@@ -121,15 +143,15 @@ class GasCorrection(Correction):
         self.oxide_correction = {
             k: float(v) for k, v
             in config.items("{}OxideCorrection".format(name))}
+        self.name = name
 
-    def correct_entry(self, entry):
+    def get_correction(self, entry):
         comp = entry.composition
 
         rform = entry.composition.reduced_formula
         if rform in self.cpd_energies:
-            entry.correction += self.cpd_energies[rform] * comp.num_atoms \
+            return self.cpd_energies[rform] * comp.num_atoms \
                 - entry.uncorrected_energy
-            return entry
 
         correction = 0
         #Check for oxide, peroxide, superoxide, and ozonide corrections.
@@ -164,8 +186,10 @@ class GasCorrection(Correction):
                 elif Element("O") in comp.elements and len(comp.elements) > 1:
                     correction += self.oxide_correction['oxide'] * comp["O"]
 
-        entry.correction += correction
-        return entry
+        return correction
+
+    def __str__(self):
+        return "{} Gas Correction".format(self.name)
 
 
 class AqueousCorrection(Correction):
@@ -185,25 +209,28 @@ class AqueousCorrection(Correction):
         config.optionxform = str
         config.readfp(open(os.path.join(module_dir,
                                         "Compatibility.cfg")))
-
         cpd_energies = dict(
             config.items("{}AqueousCompoundEnergies".format(name)))
-
         self.cpd_energies = {k: float(v) for k, v in cpd_energies.items()}
+        self.name = name
 
-    def correct_entry(self, entry):
+    def get_correction(self, entry):
         comp = entry.composition
         rform = comp.reduced_formula
         cpdenergies = self.cpd_energies
+        correction = 0
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
-                entry.correction = cpdenergies[rform] * comp.num_atoms \
+                correction = cpdenergies[rform] * comp.num_atoms \
                     - entry.uncorrected_energy
             else:
-                entry.correction += cpdenergies[rform] * comp.num_atoms
+                correction += cpdenergies[rform] * comp.num_atoms
         if not rform == "H2O":
-            entry.correction += 0.5 * 2.46 * min(comp["H"]/2.0, comp["O"])
-        return entry
+            correction += 0.5 * 2.46 * min(comp["H"]/2.0, comp["O"])
+        return correction
+
+    def __str__(self):
+        return "{} Aqueous Correction".format(self.name)
 
 
 class UCorrection(Correction):
@@ -266,7 +293,10 @@ class UCorrection(Correction):
             self.u_corrections = {}
             self.u_settings = {}
 
-    def correct_entry(self, entry):
+        self.name = name
+        self.compat_type = compat_type
+
+    def get_correction(self, entry):
         if entry.parameters.get("run_type", "GGA") == "HF":
             return None
 
@@ -290,8 +320,10 @@ class UCorrection(Correction):
             if sym in ucorr:
                 correction += float(ucorr[sym]) * comp[el]
 
-        entry.correction += correction
-        return entry
+        return correction
+
+    def __str__(self):
+        return "{} {} Correction".format(self.name, self.compat_type)
 
 
 class Compatibility(object):
@@ -330,6 +362,16 @@ class Compatibility(object):
             if entry is None:
                 return None
         return entry
+
+    def get_corrections_dict(self, entry):
+        corrections = {}
+        for c in self.corrections:
+            correction = c.get_correction(entry)
+            if correction is None:
+                return None
+            elif correction != 0:
+                corrections[str(c)] = correction
+        return corrections
 
     def process_entries(self, entries):
         """
