@@ -941,7 +941,10 @@ class PseudoParser(object):
         pseudos = []
         for path in paths:
             # Parse the file and generate the pseudo.
-            pseudo = self.parse(path)
+            try:
+                pseudo = self.parse(path)
+            except:
+                pseudo = None
 
             if pseudo is not None:
                 pseudos.append(pseudo)
