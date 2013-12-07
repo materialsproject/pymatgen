@@ -127,6 +127,27 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertAlmostEqual(ggacompat.process_entry(entry).energy,
                                -1)
 
+    def test_get_corrections_dict(self):
+        compat = MaterialsProjectCompatibility()
+        ggacompat = MaterialsProjectCompatibility("GGA")
+
+        #Correct parameters
+        entry = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
+                                           'PAW_PBE O 08Apr2002']})
+        c = compat.get_corrections_dict(entry)
+
+        self.assertAlmostEqual(c["MP Gas Correction"], -2.10687)
+        self.assertAlmostEqual(c["MP Advanced Correction"], -5.466)
+
+        entry.parameters["is_hubbard"] = False
+        del entry.parameters["hubbards"]
+        c = ggacompat.get_corrections_dict(entry)
+        self.assertNotIn("MP Advanced Correction", c)
+
 
 class MITCompatibilityTest(unittest.TestCase):
 
