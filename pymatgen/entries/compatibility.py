@@ -356,21 +356,22 @@ class Compatibility(object):
             An adjusted entry if entry is compatible, otherwise None is
             returned.
         """
-        entry.correction = 0
-        for c in self.corrections:
-            entry = c.correct_entry(entry)
-            if entry is None:
-                return None
+        corrections = self.get_corrections_dict(entry)
+        if corrections is None:
+            return None
+
+        entry.correction = sum(corrections.values())
+
         return entry
 
     def get_corrections_dict(self, entry):
         corrections = {}
         for c in self.corrections:
-            correction = c.get_correction(entry)
-            if correction is None:
+            val = c.get_correction(entry)
+            if val is None:
                 return None
-            elif correction != 0:
-                corrections[str(c)] = correction
+            elif val != 0:
+                corrections[str(c)] = val
         return corrections
 
     def process_entries(self, entries):
