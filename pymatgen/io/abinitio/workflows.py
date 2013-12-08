@@ -285,10 +285,9 @@ class Workflow(BaseWorkflow):
             if self._flow != flow:
                 raise ValueError("self._flow != flow")
 
-    def set_workdir(self, workdir):
-        """Set the working directory. Cannot be set more than once."""
-
-        if hasattr(self, "workdir") and self.workdir != workdir:
+    def set_workdir(self, workdir, chroot=False):
+        """Set the working directory. Cannot be set more than once unless chroot is True"""
+        if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
             raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
 
         self.workdir = os.path.abspath(workdir)
@@ -300,6 +299,13 @@ class Workflow(BaseWorkflow):
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
+    def chroot(self, new_workdir):
+        self.set_workdir(new_workdir, chroot=True)
+
+        for i, task in enumerate(self):
+            new_tdir = os.path.join(self.workdir, "task_" + str(i))
+            task.set_workdir(new_tdir, chroot=True)
 
     def __len__(self):
         return len(self._tasks)
