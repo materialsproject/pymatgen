@@ -1109,9 +1109,11 @@ class Task(Node):
         """
         return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
-    def set_workdir(self, workdir):
-        """Set the working directory. Cannot be set more than once."""
-        assert not hasattr(self, "workdir")
+    def set_workdir(self, workdir, chroot=False):
+        """Set the working directory. Cannot be set more than once unless chroot is True"""
+        if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
+                raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
+
         self.workdir = os.path.abspath(workdir)
 
         # Files required for the execution.
