@@ -16,7 +16,7 @@ except ImportError:
     pass
 
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import pprint_table
+from pymatgen.util.string_utils import pprint_table, is_string
 from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
@@ -308,6 +308,10 @@ class AbinitFlow(Node):
                 "<=": operator.le,
             }[op]
 
+            # Accept Task.S_FLAG or string.
+            if is_string(status):
+                status = getattr(Task, status)
+
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
                     if op(task.status, status):
@@ -435,7 +439,7 @@ class AbinitFlow(Node):
         """
         if self.has_chrooted:
             print("cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
-            return
+            return -1
 
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
