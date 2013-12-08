@@ -109,9 +109,9 @@ class PotcarCorrection(Correction):
                                 for sym
                                 in entry.parameters["potcar_symbols"]])
         except KeyError:
-            raise ValueError("PotcarCorrection can only be "
-                             "checked for entries with a \"potcar_symbols\" in "
-                             "entry.parameters")
+            raise ValueError(
+                "PotcarCorrection can only be checked for entries with a "
+                "\"potcar_symbols\" in entry.parameters")
         if not self.valid_potcars.issuperset(psp_settings):
             return None
         return 0
@@ -359,9 +359,7 @@ class Compatibility(object):
         corrections = self.get_corrections_dict(entry)
         if corrections is None:
             return None
-
         entry.correction = sum(corrections.values())
-
         return entry
 
     def get_corrections_dict(self, entry):
