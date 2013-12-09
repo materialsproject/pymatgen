@@ -6,7 +6,7 @@ import collections
 import shutil
 import operator
 
-from pymatgen.util.string_utils import list_strings, StringColorizer
+from pymatgen.util.string_utils import list_strings, StringColorizer, WildCard
 
 import logging
 logger = logging.getLogger(__name__)
@@ -163,10 +163,31 @@ class Directory(object):
         """Return the absolute path of filename in the directory."""
         return os.path.join(self.path, filename)
 
-    def list_filepaths(self):
-        """Return the list of absolute filepaths in the top-level directory."""
+    def list_filepaths(self, wildcard=None):
+        """
+        Return the list of absolute filepaths in the directory.
+
+        Args:
+            wildcard:
+                String of tokens separated by "|".
+                Each token represents a pattern.
+                If wildcard is not None, we return only those files that
+                match the given shell pattern (uses fnmatch).
+
+                Example:
+                  wildcard="*.nc|*.pdf" selects only those files that end with .nc or .pdf
+        """
+        # Selecte the files in the directory.
         fnames = [f for f in os.listdir(self.path)]
-        return [os.path.join(self.path, f) for f in fnames]
+        filepaths = filter(os.path.isfile, [os.path.join(self.path, f) for f in fnames])
+
+        # Filter using the shell patterns.
+        if wildcard is not None:
+            filepaths =  WildCard(wildcard).filter(filepaths)
+            #print(filepaths)
+
+        return filepaths
+
 
     def has_abiext(self, ext):
         """
