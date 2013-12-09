@@ -320,13 +320,22 @@ class AqueousCorrectionTest(unittest.TestCase):
         self.corr = AqueousCorrection("MIT")
 
     def test_compound_energy(self):
+
+        O2_entry = self.corr.correct_entry(ComputedEntry(Composition("O2"),
+                                                          -4.9355 * 2))
+        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3))
+        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3))
+        H2O_formation_energy = H2O_entry.energy - (H2_entry.energy +
+                                                    O2_entry.energy / 2.0)
+        self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
+
         entry = ComputedEntry(Composition("H2O"), -16)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.10057, 4)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
 
         entry = ComputedEntry(Composition("H2O"), -24)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.10057, 4)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
 
         entry = ComputedEntry(Composition("Cl"), -24)
         entry = self.corr.correct_entry(entry)
