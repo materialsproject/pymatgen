@@ -6,6 +6,7 @@ from __future__ import division, print_function
 import os
 import sys
 import time
+import collections
 import warnings
 import cPickle as pickle
 #import pickle as pickle
@@ -259,6 +260,20 @@ class AbinitFlow(Node):
             new_wdir = os.path.join(self.workdir, "work_" + str(i))
             work.chroot(new_wdir)
 
+    def groupby_status(self):
+        """
+        Returns a ordered dictionary mapping the task status to 
+        the list of named tuples (task, work_index, task_index).
+        """
+        Entry = collections.namedtuple("Entry", "task wi ti")
+        d = collections.defaultdict(list)
+
+        for task, wi, ti in self.iflat_tasks_wti():
+            d[task.status].append(Entry(task, wi, ti))
+
+        # Sort keys according to their status.
+        return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
+
     def iflat_tasks_wti(self, status=None, op="="):
         """
         Generator to iterate over all the tasks of the `Flow`.
@@ -268,6 +283,8 @@ class AbinitFlow(Node):
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
+        status can be either one of the flags defined in the `Task` class 
+        (e.g Task.S_OK) or a string e.g "S_OK" 
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
 
@@ -277,6 +294,8 @@ class AbinitFlow(Node):
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
+        status can be either one of the flags defined in the `Task` class 
+        (e.g Task.S_OK) or a string e.g "S_OK" 
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
 
