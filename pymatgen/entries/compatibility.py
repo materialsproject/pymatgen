@@ -222,7 +222,7 @@ class AqueousCorrection(Correction):
         if rform in cpdenergies:
             if rform in ["H2", "H2O"]:
                 correction = cpdenergies[rform] * comp.num_atoms \
-                    - entry.uncorrected_energy
+                    - entry.uncorrected_energy - entry.correction
             else:
                 correction += cpdenergies[rform] * comp.num_atoms
         if not rform == "H2O":
