@@ -279,6 +279,19 @@ class AbstractQueueAdapter(object):
     #    """Total memory required by the job n Megabytes."""
     #    return self.mem_per_cpu * self.mpi_ncpus
 
+    @abc.abstractmethod
+    def cancel(self, job_id):
+        """
+        Cancel the job. 
+
+        Args:
+            job_id:
+                (in) Job identifier.
+
+        Returns:
+            Exit status.
+        """
+
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         qtemplate = QScriptTemplate(self.QTEMPLATE)
@@ -409,6 +422,9 @@ export MPI_NCPUS=$${MPI_NCPUS}
     def set_mem_per_cpu(self, mem_mb):
         """mem_per_cpu is not available in ShellAdapter."""
 
+    def cancel(self, job_id):
+        return os.system("kill -9 %d" % job_id)
+
     def submit_to_queue(self, script_file):
 
         if not os.path.exists(script_file):
@@ -471,6 +487,9 @@ class SlurmAdapter(AbstractQueueAdapter):
         self.qparams["mem_per_cpu"] = int(mem_mb)
         # Remove mem if it's defined.
         self.qparams.pop("mem", None)
+
+    def cancel(self, job_id):
+        return os.system("scancel %d" % job_id)
 
     def submit_to_queue(self, script_file):
 
@@ -569,6 +588,9 @@ class PbsAdapter(AbstractQueueAdapter):
         #self.qparams["mem_per_cpu"] = mem_mb
         ## Remove mem if it's defined.
         #self.qparams.pop("mem", None)
+
+    def cancel(self, job_id):
+        return os.system("qdel %d" % job_id)
 
     def submit_to_queue(self, script_file):
 
