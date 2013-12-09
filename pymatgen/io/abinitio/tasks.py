@@ -888,6 +888,11 @@ class Node(object):
     def finalize(self, boolean):
         self._finalized = boolean
         self.history.append("Finalized on %s" % time.asctime())
+
+    @property
+    def str_history(self):
+        """String representation of history."""
+        return "\n".join(self.history)
                                                          
     #@abc.abstractproperty
     #def workdir(self):
@@ -1829,7 +1834,13 @@ class Task(Node):
 
         # Automatic parallelization
         if hasattr(self, "autoparal_fake_run"):
-            self.autoparal_fake_run()
+            try:
+                self.autoparal_fake_run()
+            except:
+                # Log the exception and continue with the parameters specified by the user.
+                logger.critical("autoparal_fake_run raised:\n%s" % straceback())
+                self.set_status(self.S_ERROR)
+                return 0
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
@@ -1952,13 +1963,14 @@ class AbinitTask(Task):
            autoparal and optimal is the optimal configuration selected.
            Returns (None, None) if some problem occurred.
         """
-        #print("in autoparal")
+        logger.info("in autoparal_fake_run")
         manager = self.manager
         policy = manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
-            logger.info("Nothing to do in autoparal, returning (None, None)")
-            print("Returning from autoparal with None")
+            msg = "Nothing to do in autoparal, returning (None, None)"
+            logger.info(msg)
+            print(msg)
             return None, None
 
         if policy.autoparal != 1:
@@ -2313,8 +2325,7 @@ class HaydockBseTask(BseTask):
 
         if not count:
             # outdir does not contain the BSR|BSC file.
-            # This means that num_restart > 1 and the files should
-            # be in task.indir
+            # This means that num_restart > 1 and the files should be in task.indir
             count = 0
             for ext in ["BSR", "BSC"]:
                 ifile = self.indir.has_abiext(ext)
