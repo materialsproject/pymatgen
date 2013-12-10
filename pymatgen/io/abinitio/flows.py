@@ -6,6 +6,7 @@ from __future__ import division, print_function
 import os
 import sys
 import time
+import collections
 import warnings
 import cPickle as pickle
 #import pickle as pickle
@@ -16,7 +17,7 @@ except ImportError:
     pass
 
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import pprint_table
+from pymatgen.util.string_utils import pprint_table, is_string
 from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask 
 from pymatgen.io.abinitio.utils import Directory
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
@@ -70,7 +71,8 @@ class AbinitFlow(Node):
         """
         super(AbinitFlow, self).__init__()
 
-        self.workdir = os.path.abspath(workdir)
+        self.set_workdir(workdir)
+
         self.creation_date = time.asctime()
 
         self.manager = manager.deepcopy()
@@ -80,11 +82,6 @@ class AbinitFlow(Node):
 
         # List of callbacks that must be executed when the dependencies reach S_OK
         self._callbacks = []
-
-        # Directories with (input|output|temporary) data.
-        self.indir = Directory(os.path.join(self.workdir, "indata"))
-        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
-        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
         self.pickle_protocol = int(pickle_protocol)
 
@@ -100,6 +97,17 @@ class AbinitFlow(Node):
 
         #for task in self.iflat_tasks():
         #    slots[task] = {s: [] for s in work.S_ALL}
+
+    def set_workdir(self, workdir, chroot=False):
+        """Set the working directory. Cannot be set more than once unless chroot is True"""
+        if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
+            raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
+
+        # Directories with (input|output|temporary) data.
+        self.workdir = os.path.abspath(workdir)
+        self.indir = Directory(os.path.join(self.workdir, "indata"))
+        self.outdir = Directory(os.path.join(self.workdir, "outdata"))
+        self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
     @classmethod
     def pickle_load(cls, filepath, disable_signals=False):
@@ -125,7 +133,7 @@ class AbinitFlow(Node):
                     filepath = os.path.join(dirpath, fnames[0])
                     break
             else:
-                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, path)
+                err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
 
         with FileLock(filepath) as lock:
@@ -231,6 +239,41 @@ class AbinitFlow(Node):
         """
         return sum(work.ncpus_inuse for work in self)
 
+    @property
+    def has_chrooted(self):
+        """
+        Returns a string that evaluates to True if we have changed 
+        the workdir for visualization purposes e.g. we are using sshfs.
+        The string gives the previous workdir of the flow.
+        """
+        try:
+            return self._chrooted_from
+
+        except AttributeError:
+            return ""
+
+    def chroot(self, new_workdir):
+        self._chrooted_from = self.workdir
+        self.set_workdir(new_workdir, chroot=True)
+
+        for i, work in enumerate(self):
+            new_wdir = os.path.join(self.workdir, "work_" + str(i))
+            work.chroot(new_wdir)
+
+    def groupby_status(self):
+        """
+        Returns a ordered dictionary mapping the task status to 
+        the list of named tuples (task, work_index, task_index).
+        """
+        Entry = collections.namedtuple("Entry", "task wi ti")
+        d = collections.defaultdict(list)
+
+        for task, wi, ti in self.iflat_tasks_wti():
+            d[task.status].append(Entry(task, wi, ti))
+
+        # Sort keys according to their status.
+        return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
+
     def iflat_tasks_wti(self, status=None, op="="):
         """
         Generator to iterate over all the tasks of the `Flow`.
@@ -240,6 +283,8 @@ class AbinitFlow(Node):
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
+        status can be either one of the flags defined in the `Task` class 
+        (e.g Task.S_OK) or a string e.g "S_OK" 
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
 
@@ -249,6 +294,8 @@ class AbinitFlow(Node):
 
         If status is not None, only the tasks whose status satisfies
         the condition (task.status op status) are selected
+        status can be either one of the flags defined in the `Task` class 
+        (e.g Task.S_OK) or a string e.g "S_OK" 
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
 
@@ -279,6 +326,10 @@ class AbinitFlow(Node):
                 "<": operator.lt,
                 "<=": operator.le,
             }[op]
+
+            # Accept Task.S_FLAG or string.
+            if is_string(status):
+                status = getattr(Task, status)
 
             for wi, work in enumerate(self):
                 for ti, task in enumerate(work):
@@ -356,6 +407,29 @@ class AbinitFlow(Node):
 
             pprint_table(table, out=stream)
 
+    def cancel(self):
+        """
+        Cancel all the tasks that are in the queue.
+
+        Returns:
+            Number of jobs cancelles.
+        """
+        # If we are running with the scheduler, we must send a SIGKILL signal.
+        pid_file = os.path.join(self.workdir, "_PyFlowScheduler.pid")
+        if os.path.exists(pid_file):
+            with open(pid_file, "r") as fh:
+                pid = int(fh.readline())
+                
+            retcode = os.system("kill -9 %d" % pid)
+            print("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
+            #os.remove(pid_file)
+
+        num_cancelled = 0
+        for task in self.iflat_tasks():
+            num_cancelled += task.cancel()
+
+        return num_cancelled
+
     def build(self, *args, **kwargs):
         """Make directories and files of the `Flow`."""
         self.indir.makedirs()
@@ -382,6 +456,10 @@ class AbinitFlow(Node):
         Returns:
             0 if success
         """
+        if self.has_chrooted:
+            print("cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
+            return -1
+
         protocol = self.pickle_protocol
         filepath = os.path.join(self.workdir, self.PICKLE_FNAME)
 
