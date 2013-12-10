@@ -52,6 +52,18 @@ class ExecWrapper(object):
     def __str__(self):
         return "%s" % self.executable
 
+    def set_mpi_runner(self, mpi_runner="mpirun"):
+        # TODO better treatment of mpirunner syntax.
+        self._mpi_runner = mpi_runner
+
+    @property
+    def mpi_runner(self):
+        try:
+            return self._mpi_runner 
+
+        except AttributeError:
+            return ""
+
     @property
     def name(self):
         return self._name
@@ -59,6 +71,8 @@ class ExecWrapper(object):
     def execute(self, cwd=None, **kwargs):
         """Execute the executable in a subprocess."""
         args = [self.executable, "<", self.stdin_fname, ">", self.stdout_fname, "2>", self.stderr_fname]
+
+        if self.mpi_runner: args += self.mpi_runner
 
         self.cmd_str = " ".join(args)
 
