@@ -57,7 +57,8 @@ setup(
                   "pymatgen.io": ["*.cfg", "*.json"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.structure_prediction": ["data/*.json"],
-                  "pymatgen.vis": ["ElementColorSchemes.cfg"]},
+                  "pymatgen.vis": ["ElementColorSchemes.cfg"],
+                  "pymatgen.command_line": ["OxideTersoffPotentials"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
