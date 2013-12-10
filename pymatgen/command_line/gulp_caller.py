@@ -663,54 +663,54 @@ class BuckinghamPotLewis(object):
     """
 
     def __init__(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fid = open(os.path.join(module_dir, 'lewis.lib'), 'rU')
-        # In lewis.lib there is no shell for cation
-        species_dict, pot_dict, spring_dict = {}, {}, {}
-        sp_flg, pot_flg, spring_flg = False, False, False
-        for row in fid:
-            if row[0] == "#":
-                continue
-            if row.split()[0] == "species":
-                sp_flg, pot_flg, spring_flg = True, False, False
-                continue
-            if row.split()[0] == "buckingham":
-                sp_flg, pot_flg, spring_flg = False, True, False
-                continue
-            if row.split()[0] == "spring":
-                sp_flg, pot_flg, spring_flg = False, False, True
-                continue
+        with open(os.path.join(os.environ["GULP_LIB"], 'lewis.lib'), 'rU') as\
+            f:
+            # In lewis.lib there is no shell for cation
+            species_dict, pot_dict, spring_dict = {}, {}, {}
+            sp_flg, pot_flg, spring_flg = False, False, False
+            for row in f:
+                if row[0] == "#":
+                    continue
+                if row.split()[0] == "species":
+                    sp_flg, pot_flg, spring_flg = True, False, False
+                    continue
+                if row.split()[0] == "buckingham":
+                    sp_flg, pot_flg, spring_flg = False, True, False
+                    continue
+                if row.split()[0] == "spring":
+                    sp_flg, pot_flg, spring_flg = False, False, True
+                    continue
 
-            metaloxi = row.split()[0]
-            if sp_flg:
-                if metaloxi == "O":
-                    if row.split()[1] == "core":
-                        species_dict["O_core"] = row
-                        continue
-                    if row.split()[1] == "shel":
-                        species_dict["O_shel"] = row
-                        continue
-                metal = metaloxi.split('_')[0]
-                #oxi_state = metaloxi.split('_')[1][0]
-                species_dict[metaloxi] = metal + " core " + row.split()[
-                    2] + "\n"
-                continue
+                metaloxi = row.split()[0]
+                if sp_flg:
+                    if metaloxi == "O":
+                        if row.split()[1] == "core":
+                            species_dict["O_core"] = row
+                            continue
+                        if row.split()[1] == "shel":
+                            species_dict["O_shel"] = row
+                            continue
+                    metal = metaloxi.split('_')[0]
+                    #oxi_state = metaloxi.split('_')[1][0]
+                    species_dict[metaloxi] = metal + " core " + row.split()[
+                        2] + "\n"
+                    continue
 
-            if pot_flg:
-                if metaloxi == "O":
-                    pot_dict["O"] = row
-                metal = metaloxi.split('_')[0]
-                #oxi_state = metaloxi.split('_')[1][0]
-                pot_dict[metaloxi] = metal + " " + " ".join(
-                    row.split()[1:]) + "\n"
-                continue
+                if pot_flg:
+                    if metaloxi == "O":
+                        pot_dict["O"] = row
+                    metal = metaloxi.split('_')[0]
+                    #oxi_state = metaloxi.split('_')[1][0]
+                    pot_dict[metaloxi] = metal + " " + " ".join(
+                        row.split()[1:]) + "\n"
+                    continue
 
-            if spring_flg:
-                spring_dict["O"] = row
-                continue
-        self.species_dict = species_dict
-        self.pot_dict = pot_dict
-        self.spring_dict = spring_dict
+                if spring_flg:
+                    spring_dict["O"] = row
+                    continue
+            self.species_dict = species_dict
+            self.pot_dict = pot_dict
+            self.spring_dict = spring_dict
 
 
 class BuckinghamPotBush(object):
@@ -723,44 +723,44 @@ class BuckinghamPotBush(object):
     """
 
     def __init__(self):
-        fid = open(os.path.join(os.environ["GULP_LIB"], 'bush.lib'), 'rU')
-        # In lewis.lib there is no shell for cation
-        species_dict, pot_dict, spring_dict = {}, {}, {}
-        sp_flg, pot_flg, spring_flg = False, False, False
-        for row in fid:
-            if row[0] == "#":
-                continue
-            if row.split()[0] == "species":
-                sp_flg, pot_flg, spring_flg = True, False, False
-                continue
-            if row.split()[0] == "buckingham":
-                sp_flg, pot_flg, spring_flg = False, True, False
-                continue
-            if row.split()[0] == "spring":
-                sp_flg, pot_flg, spring_flg = False, False, True
-                continue
+        with open(os.path.join(os.environ["GULP_LIB"], 'bush.lib'), 'rU') as f:
+            # In lewis.lib there is no shell for cation
+            species_dict, pot_dict, spring_dict = {}, {}, {}
+            sp_flg, pot_flg, spring_flg = False, False, False
+            for row in f:
+                if row[0] == "#":
+                    continue
+                if row.split()[0] == "species":
+                    sp_flg, pot_flg, spring_flg = True, False, False
+                    continue
+                if row.split()[0] == "buckingham":
+                    sp_flg, pot_flg, spring_flg = False, True, False
+                    continue
+                if row.split()[0] == "spring":
+                    sp_flg, pot_flg, spring_flg = False, False, True
+                    continue
 
-            met = row.split()[0]
-            if sp_flg:
-                if met not in species_dict.keys():
-                    species_dict[met] = {'inp_str': '', 'oxi': 0}
-                species_dict[met]['inp_str'] += row
-                species_dict[met]['oxi'] += float(row.split()[2])
+                met = row.split()[0]
+                if sp_flg:
+                    if met not in species_dict.keys():
+                        species_dict[met] = {'inp_str': '', 'oxi': 0}
+                    species_dict[met]['inp_str'] += row
+                    species_dict[met]['oxi'] += float(row.split()[2])
 
-            if pot_flg:
-                pot_dict[met] = row
+                if pot_flg:
+                    pot_dict[met] = row
 
-            if spring_flg:
-                spring_dict[met] = row
+                if spring_flg:
+                    spring_dict[met] = row
 
-        #Fill the null keys in spring dict with empty strings
-        for key in pot_dict.keys():
-            if key not in spring_dict.keys():
-                spring_dict[key] = ""
+            #Fill the null keys in spring dict with empty strings
+            for key in pot_dict.keys():
+                if key not in spring_dict.keys():
+                    spring_dict[key] = ""
 
-        self.species_dict = species_dict
-        self.pot_dict = pot_dict
-        self.spring_dict = spring_dict
+            self.species_dict = species_dict
+            self.pot_dict = pot_dict
+            self.spring_dict = spring_dict
 
 
 class Tersoff_pot(object):
@@ -770,11 +770,11 @@ class Tersoff_pot(object):
 
     def __init__(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        fid = open(os.path.join(module_dir, "OxideTersoffPotentials"), "rU")
-        data = dict()
-        for row in fid:
-            metaloxi = row.split()[0]
-            line = row.split(")")
-            data[metaloxi] = line[1]
-        fid.close()
+        with open(os.path.join(module_dir, "OxideTersoffPotentials"),
+                  "rU") as f:
+            data = dict()
+            for row in f:
+                metaloxi = row.split()[0]
+                line = row.split(")")
+                data[metaloxi] = line[1]
         self.data = data
