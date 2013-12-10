@@ -723,8 +723,7 @@ class BuckinghamPotBush(object):
     """
 
     def __init__(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fid = open(os.path.join(module_dir, 'bush.lib'), 'rU')
+        fid = open(os.path.join(os.environ["GULP_LIB"], 'bush.lib'), 'rU')
         # In lewis.lib there is no shell for cation
         species_dict, pot_dict, spring_dict = {}, {}, {}
         sp_flg, pot_flg, spring_flg = False, False, False
