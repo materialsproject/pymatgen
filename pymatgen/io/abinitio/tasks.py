@@ -2568,5 +2568,3 @@ class AnaddbTask(Task):
         Anaddb allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
-
-

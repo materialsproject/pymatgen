@@ -173,6 +173,9 @@ class BaseWorkflow(Node):
         Returns a list with all the tasks that can be submitted.
         Empty list if not task has been found.
         """
+        #if all(task.is_completed for task in self):
+        #    return []
+
         return [task for task in self if task.can_run]
 
     @abc.abstractmethod
@@ -1475,6 +1478,7 @@ class PhononWorkflow(Workflow):
         desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
         mrgddb = wrappers.Mrgddb(verbose=1)
+        mrgddb.set_mpi_runner("mpirun")
         mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
 
     def merge_gkk_files(self):
@@ -1495,6 +1499,7 @@ class PhononWorkflow(Workflow):
         out_ggk = self.outdir.path_in("out_GKK")
 
         mrggkk = wrappers.Mrggkk(verbose=1)
+        mrggkk.set_mpi_runner("mpirun")
         raise NotImplementedError("Have to check mrggkk")
         #mrggkk.merge(gswfk_file, dfpt_files, gkk_files, out_fname, binascii=0, cwd=self.outdir.path)
 

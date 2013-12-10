@@ -322,19 +322,20 @@ class PyLauncher(object):
         tasks_to_run = []
 
         for work in self.flow:
-            try:
-                task = work.fetch_task_to_run()
+            tasks_to_run.extend(work.fetch_alltasks_to_run())
+            #try:
+            #    task = work.fetch_task_to_run()
 
-                if task is not None:
-                    tasks_to_run.append(task)
-                else:
-                    # No task found, this usually happens when we have dependencies. 
-                    # Beware of possible deadlocks here!
-                    logger.debug("fetch_task_to_run returned None.")
+            #    if task is not None:
+            #        tasks_to_run.append(task)
+            #    else:
+            #        # No task found, this usually happens when we have dependencies. 
+            #        # Beware of possible deadlocks here!
+            #        logger.debug("fetch_task_to_run returned None.")
 
-            except StopIteration:
-                # All the tasks in work are done.
-                logger.debug("Out of tasks in work %s" % work)
+            #except StopIteration:
+            #    # All the tasks in work are done.
+            #    logger.debug("Out of tasks in work %s" % work)
 
         return tasks_to_run
 
@@ -570,6 +571,10 @@ class PyFlowScheduler(object):
         # Try to restart the unconverged tasks
         for task in self.flow.unconverged_tasks:
             try:
+                msg = "AbinitFlow will try restart task %s" % task
+                print(msg)
+                logger.info(msg)
+
                 fired = task.restart()
                 if fired: self.nlaunch += 1
 
@@ -577,21 +582,6 @@ class PyFlowScheduler(object):
                 excs.append(straceback())
 
         flow.pickle_dump()
-
-        # Test whether some task should be restarted.
-        #if self.auto_restart:
-        #    num_restarts = 0
-        #    for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
-        #        msg = "AbinitFlow will try restart task %s" % task
-        #        print(msg)
-        #        logger.info(msg)
-        #        retcode = task.restart_if_needed()
-        #        if retcode == 0: 
-        #            num_restarts += 1
-        #                                                                 
-        #    if num_restarts:
-        #        print("num_restarts done successfully: ", num_restarts)
-        #        self.pickle_dump()
 
         #if self.num_restarts == self.max_num_restarts:
         #    info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
