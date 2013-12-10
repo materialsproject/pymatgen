@@ -1,0 +1,22 @@
+#
+#  Potentials for silica from the following paper:
+#
+#  Vashishta et al, Phys. Rev. B, 41, 12197 (1990)
+#
+#  Note that the polarisability term is coded as a two-body potential
+#
+species
+Si core  1.60
+O  core -0.80
+lennard 11 6
+Si core Si core 0.8207862288 0.0 0.0 16.0
+lennard  9 6
+Si core O  core 163.97004890 0.0 0.0 16.0
+lennard  7 6
+O  core O  core 744.35231121 0.0 0.0 16.0
+general 4 6
+Si core O  core -44.2360578 4.43 0.0 0.0 16.0
+O  core O  core -22.1180289 4.43 0.0 0.0 16.0
+sw3
+Si core O  core O  core  5.03991544 109.47 1.0 1.0 2.60 2.60 5.20
+O  core Si core Si core 20.15966176 141.00 1.0 1.0 2.60 2.60 5.20

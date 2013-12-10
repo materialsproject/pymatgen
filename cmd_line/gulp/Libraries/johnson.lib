@@ -1,0 +1,60 @@
+#
+#  JOHNSON - library of potentials for GULP
+#
+#  from R.A. Johnson
+#  Phys. Rev. B, 39, 12554 (1989)
+#
+#  These potentials use the Embedded Atom Model
+#
+#  NB: The library file is set up to run calculations
+#      involving a single metal species. To run an 
+#      alloy it is important to add in the cross terms
+#      between the metals of interest.
+#
+species
+Cu core  0.000
+Ag core  0.000
+Au core  0.000
+Ni core  0.000
+Pd core  0.000
+Pt core  0.000
+manybody
+Cu core Cu core  0.0 12.0
+Ag core Ag core  0.0 12.0
+Au core Au core  0.0 12.0
+Ni core Ni core  0.0 12.0
+Pd core Pd core  0.0 12.0
+Pt core Pt core  0.0 12.0
+#
+#  EAM functional:
+#  F1 = 6 x phi_e probably should be = F0, but deviates due to
+#  rounding error. However, values are left at those given 
+#  in the paper.
+#
+eam_functional johnson
+Cu core  3.54 3.54 3.60 5.09 5.85 8.00
+Ag core  2.85 2.88 2.04 5.92 5.96 8.26
+Au core  3.93 3.90 2.76 6.37 6.67 8.20
+Ni core  4.45 4.44 4.92 4.98 6.41 8.86
+Pd core  3.91 3.90 3.24 6.42 5.91 8.23
+Pt core  5.77 5.70 4.56 6.44 6.69 8.57
+#
+#  Density term
+#
+eam_density exponential 0
+Cu core  0.30 2.288561366496 2.556191013989
+Ag core  0.17 2.060809983311 2.892066735053
+Au core  0.23 2.311961877703 2.884995667241
+Ni core  0.41 2.575315038299 2.489015869776
+Pd core  0.27 2.148586671883 2.750645378815
+Pt core  0.38 2.413543043948 2.771858582251
+#
+#  Repulsive two-body components
+#
+buckingham
+Cu core Cu core 1758.765212354619 0.319523876748 0.0 12.0
+Ag core Ag core 1855.725168230905 0.350129144679 0.0 12.0
+Au core Au core 2366.617699766030 0.351828739907 0.0 12.0
+Ni core Ni core 5212.917230978366 0.280927299071 0.0 12.0
+Pd core Pd core 2438.691938858548 0.334221795724 0.0 12.0
+Pt core Pt core 5007.573300684413 0.323437407497 0.0 12.0
