@@ -655,7 +655,8 @@ class GulpConvergenceError(Exception):
 
 class BuckinghamPotential(object):
     """
-        Generate the Buckingham Potential Table from the bush.lib
+        Generate the Buckingham Potential Table from the bush.lib and 
+        lewis.lib.
         
         Ref:
         T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
@@ -665,6 +666,7 @@ class BuckinghamPotential(object):
         """
     
     def __init__(self, bush_lewis_flag):
+        assert bush_lewis_flag in {'bush', 'lewis'}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
         with open(os.path.join(os.environ["GULP_LIB"], pot_file), 'rU') as f:
             # In lewis.lib there is no shell for cation
