@@ -660,6 +660,8 @@ class BuckinghamPotential(object):
         Ref:
         T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
         4, 831-837 (1994).
+        G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
+        1149-1161 (1985)
         """
     
     def __init__(self, bush_lewis_flag):
