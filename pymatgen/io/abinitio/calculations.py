@@ -404,13 +404,13 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
 
     # Strategy for the BSE calculation.
     coulomb_mode = "model_df"
-    raise NotImplementedError("")
 
     exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode, ecuteps, 
                              mdf_epsinf=mdf_epsinf, exc_type="TDA", algo="haydock", 
                              bs_freq_mesh=None, with_lf=True, zcut=None)
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
+    #raise NotImplementedError("")
 
     return BSEMDF_Workflow(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
 

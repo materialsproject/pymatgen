@@ -1294,7 +1294,7 @@ class ExcHamiltonian(AbivarAble):
         assert algo in self._ALGO2VAR
         self.with_lf = with_lf
 
-        self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freqmesh
+        self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
 
         # Extra options.

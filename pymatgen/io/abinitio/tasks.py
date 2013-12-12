@@ -1014,7 +1014,7 @@ class Node(object):
                 string or list of strings with the path of the files
         """
         # We want a list of absolute paths.
-        files = map(os.path.abspath, list_strings(required_files)))
+        files = map(os.path.abspath, list_strings(required_files))
 
         # Convert to list of products.
         files = [Product.from_file(path) for path in files]
