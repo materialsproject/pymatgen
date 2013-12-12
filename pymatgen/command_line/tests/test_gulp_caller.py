@@ -246,57 +246,6 @@ class GlobalFunctionsTest(unittest.TestCase):
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotLewisTest(unittest.TestCase):
-    def setUp(self):
-        self.bpl = BuckinghamPotLewis()
-
-    def test_existing_element(self):
-        self.assertIn("Sc_2+", self.bpl.pot_dict.keys())
-        self.assertIn("Sc_2+", self.bpl.species_dict.keys())
-        self.assertIn("O", self.bpl.pot_dict.keys())
-        self.assertIn("O_core", self.bpl.species_dict.keys())
-        self.assertIn("O_shel", self.bpl.species_dict.keys())
-
-    def test_non_exisitng_element(self):
-        self.assertNotIn("Li_1+", self.bpl.pot_dict.keys())
-        self.assertNotIn("Li_1+", self.bpl.species_dict.keys())
-
-    def test_element_different_valence(self):
-        self.assertNotIn("Sc_4+", self.bpl.species_dict.keys())
-
-    def test_values(self):
-        self.assertNotEqual('', self.bpl.species_dict['Sc_2+'])
-        self.assertNotEqual('', self.bpl.pot_dict['Sc_2+'])
-
-    def test_spring(self):
-        self.assertNotIn('Li', self.bpl.spring_dict.keys())
-        self.assertNotEqual('', self.bpl.spring_dict['O'])
-
-
-@unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotBushTest(unittest.TestCase):
-
-    def setUp(self):
-        self.bpb = BuckinghamPotBush()
-
-    def test_existing_element(self):
-        self.assertIn("Li", self.bpb.pot_dict.keys())
-        self.assertIn("Li", self.bpb.species_dict.keys())
-        self.assertIn("O", self.bpb.pot_dict.keys())
-        self.assertIn("O", self.bpb.species_dict.keys())
-
-    def test_non_exisitng_element(self):
-        self.assertNotIn("Mn", self.bpb.pot_dict.keys())
-        self.assertNotIn("Mn", self.bpb.species_dict.keys())
-
-    def test_element_different_valence(self):
-        self.assertNotEqual(2, self.bpb.species_dict["Li"]['oxi'])
-
-    def test_spring(self):
-        self.assertEqual('', self.bpb.spring_dict["Li"])
-        self.assertNotEqual('', self.bpb.spring_dict['O'])
-
-@unittest.skipIf(not gulp_present, "gulp not present.")
 class BuckinghamPotentialLewisTest(unittest.TestCase):
     def setUp(self):
         self.bpl = BuckinghamPotential('lewis')
