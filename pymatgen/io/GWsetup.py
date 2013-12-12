@@ -228,71 +228,78 @@ def folder_name(option):
     return [option_prep_name, option_name]
 
 
-def create_single_vasp_gw_task(structure, task, spec, option=[{}, {}]):
+def create_single_vasp_gw_task(structure, task, spec, option=None):
     """
     Create VASP input for a single standard G0W0 and GW0 calculations
     """
     # create vasp input
-    option_prep_name = str(option[0])
-    option_name = str(option[1])
-    for char in ["'", ":", " ", ",", "{", "}"]:
-        option_prep_name = option_prep_name.replace(char, "")
-        option_name = option_name.replace(char, "")
-    if len(option_prep_name) > 0:
-        option_prep_name = "." + option_prep_name
-    if len(option_name) > 0:
-        option_name = "." + option_name
+    if option is not None:
+        option_prep_name = str(option[0])
+        option_name = str(option[1])
+        for char in ["'", ":", " ", ",", "{", "}"]:
+            option_prep_name = option_prep_name.replace(char, "")
+            option_name = option_name.replace(char, "")
+        if len(option_prep_name) > 0:
+            option_prep_name = "." + option_prep_name
+        if len(option_name) > 0:
+            option_name = "." + option_name
+    else:
+        option_name = option_prep_name = ''
+    path = structure.composition.reduced_formula+option_prep_name
     if task == 'prep':
         inpset = MPGWscDFTPrepVaspInputSet(structure)
         if spec['test']:
             if option[0].keys()[0] in MPGWscDFTPrepVaspInputSet(structure).tests.keys():
                 inpset.set_test(option[0])
-        inpset.write_input(structure, structure.composition.reduced_formula+option_prep_name)
+        inpset.write_input(structure, path)
         inpset = MPGWDFTDiagVaspInputSet(structure)
         if spec['test']:
             inpset.set_test(option[0])
-        inpset.get_incar(structure).write_file(structure.composition.reduced_formula+option_prep_name+'/INCAR.DIAG')
+        inpset.get_incar(structure).write_file(os.path.join(path, 'INCAR.DIAG'))
     if task == 'G0W0':
         inpset = MPGWG0W0VaspInputSet(structure)
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
-        inpset.write_input(structure, structure.composition.reduced_formula+option_prep_name+'/G0W0'+option_name)
+        inpset.write_input(structure, os.path.join(path, 'G0W0'+option_name))
     if task == 'GW0':
         inpset = MPGWG0W0VaspInputSet(structure)
         inpset.gw0_on()
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
-        inpset.write_input(structure, structure.composition.reduced_formula+option_prep_name+'/GW0'+option_name)
+        inpset.write_input(structure, os.path.join(path, 'GW0'+option_name))
     if task == 'scGW0':
         inpset = MPGWG0W0VaspInputSet(structure)
         inpset.gw0_on(qpsc=True)
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
-        inpset.write_input(structure, structure.composition.reduced_formula+option_prep_name+'/scGW0'+option_name)
+        inpset.write_input(structure, os.path.join(path, 'scGW0'+option_name))
 
 
-def create_single_job_script(structure, task, option=[{}, {}]):
+def create_single_job_script(structure, task, option=None):
     """
     Create job script for ceci.
     """
     npar = MPGWscDFTPrepVaspInputSet(structure).get_npar(structure)
-    option_prep_name = str(option[0])
-    option_name = str(option[1])
-    for char in ["'", ":", " ", ",", "{", "}"]:
-        option_prep_name = option_prep_name.replace(char, "")
-        option_name = option_name.replace(char, "")
-    if len(option_prep_name) > 0:
-        option_prep_name = "." + option_prep_name
-    if len(option_name) > 0:
-        option_name = "." + option_name
+    if option is not None:
+        option_prep_name = str(option[0])
+        option_name = str(option[1])
+        for char in ["'", ":", " ", ",", "{", "}"]:
+            option_prep_name = option_prep_name.replace(char, "")
+            option_name = option_name.replace(char, "")
+        if len(option_prep_name) > 0:
+            option_prep_name = "." + option_prep_name
+        if len(option_name) > 0:
+            option_name = "." + option_name
+    else:
+        option_prep_name = option_name = ''
     # npar = int(os.environ['NPARGWCALC'])
     header = ("#!/bin/bash \n"
               "## standard header for Ceci clusters ## \n"
               "#SBATCH --mail-user=michiel.vansetten@uclouvain.be \n"
-              "#SBATCH --mail-type=ALL"
+              "#SBATCH --mail-type=ALL\n"
               "#SBATCH --time=2-24:0:0 \n"
               "#SBATCH --cpus-per-task=1 \n"
               "#SBATCH --mem-per-cpu=4000 \n")
@@ -358,10 +365,13 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
     #scr_nband = 50
     #sigma_nband = 50
 
+    ecut = 8
+
     extra_abivars = dict(
-        ecut=8,
+        ecut=ecut,
         istwfk="*1",
         timopt=-1,
+        pawecutdg=ecut*2
     )
 
     work = g0w0_with_ppmodel(abi_structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
@@ -388,17 +398,19 @@ def main():
     """
 
     mp_list = ['mp-23818', 'mp-28069', 'mp-23037', 'mp-10627', 'mp-3807', 'mp-252', 'mp-504488', 'mp-1541', 'mp-650026']
+    mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
+                    'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
+    abi_pseudo = '.GGA_PBE-JTH-paw.xml'
+    abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
 
-    abi_pseudo_dir = os.environ['ABINIT_PS']+'GGA_PBE_FHI'
-
-    spec = {'mode': 'ceci', 'jobs': ['prep'], 'test': False, 'source': 'mp', 'code': 'ABINIT'}
+    spec = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp', 'code': 'ABINIT'}
 
     if 'ceci' in spec['mode']:
        if os.path.isfile('job_collection'):
            os.remove('job_collection')
 
     if spec['source'] == 'mp':
-        items_list = mp_list
+        items_list = mp_list_vasp
     elif spec['source'] == 'poscar':
         files = os.listdir('.')
         items_list = files
@@ -414,7 +426,7 @@ def main():
             with MPRester("wvfSQSO6T3wVdvB9") as mp_database:
                 structure = mp_database.get_structure_by_material_id(item, final=False)
         print structure.composition.reduced_formula
-        if 'input' or 'ceci' in spec['mode'] and spec['code'] == 'VASP':
+        if ('input' or 'ceci' in spec['mode']) and spec['code'] == 'VASP':
             # create all input files locally
             if spec['test']:
                 tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
@@ -462,7 +474,7 @@ def main():
             print manager
             pseudos = []
             for element in structure.composition.element_composition:
-                pseudo = os.path.join(abi_pseudo_dir, str(element) + '.ncps')
+                pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
                 print pseudo
                 pseudos.append(pseudo)
             work_dir = structure.composition.reduced_formula
