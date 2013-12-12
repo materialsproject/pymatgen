@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Low-level objects providing an abstraction for the objects involved in the
 calculation.
@@ -583,7 +581,7 @@ class KSampling(AbivarAble):
             False if time-reversal symmetry should not be used to reduced the number of independent k-points.
 
         Returns:
-            KSampling object
+            `KSampling` object.
         """
         return cls(kpts              = [kpts],
                    use_symmetries    = use_symmetries,
@@ -608,7 +606,7 @@ class KSampling(AbivarAble):
                 Use time-reversal symmetry to reduce the number of k-points.
 
         Returns:
-            KSampling object
+            `KSampling` object.
         """
         return cls(kpts              = [ngkpt],
                    kpt_shifts        = shiftk,
@@ -972,8 +970,11 @@ class PPModel(AbivarAble, MSONable):
 
 
 class HilbertTransform(AbivarAble):
-    "Parameters for the Hilbert-transform method (RPA, Screening code)"
-
+    """
+    Parameters for the Hilbert-transform method (Screening code)
+    i.e. the parameters defining the frequency mesh used for the spectral function 
+    and the frequency mesh used for the polarizability
+    """
     def __init__(self, nomegasf, spmeth=1):
         """
         Args:
@@ -982,18 +983,25 @@ class HilbertTransform(AbivarAble):
             spmeth
                 Algorith for the representation of the delta function.
         """
-        self.spmeth   = spmeth
         self.nomegasf = nomegasf
+        self.spmeth   = spmeth
+
+        #"""Mesh for the contour-deformation method used for the integration of the self-energy"""
 
     def to_abivars(self):
-        return {"spmeth"  : self.spmeth,
-                "nomegasf": self.nomegasf,}
-
+        """Returns a dictionary with the abinit variables"""
+        return {"nomegasf": self.nomegasf,
+                "spmeth"  : self.spmeth,
+                #"freqremax"   : self.freqremax,
+                #"freqremin"   : self.freqremin,
+                #"nfreqre"     : self.nfreqre,
+                #"nfreqim"     : self.nfreqim,
+                #"freqim_alpha": self.freqim_alpha
+                }
 
 
 class ModelDielectricFunction(AbivarAble):
-    "Model dielectric function used for BSE calculation"
-
+    """Model dielectric function used for BSE calculation"""
     def __init__(self, mdf_epsinf):
         self.mdf_epsinf = mdf_epsinf
 
@@ -1003,40 +1011,6 @@ class ModelDielectricFunction(AbivarAble):
 ##########################################################################################
 #################################  WORK IN PROGRESS ######################################
 ##########################################################################################
-
-
-class CDFrequencyMesh(AbivarAble):
-    "Mesh for the contour-deformation method used for the integration of the self-energy"
-    #
-    #    def __init__(self, r_slice, nfreqim=10, freqim_alpha=5, units="Ha"):
-             #np.arange(start, s.stop, step))
-    #        self.r_slice = r_slice
-    #        self.units = units
-
-    #    #def from_slice
-    #    #def from_linspace
-    #    #FrequencyMesh(real_slice=slice(0,15,1), units="Ha")
-
-    #    @property
-    #    def num_real_points(self)
-    #        """Number of points along the real axis."""
-    #    @property
-    #    def num_imag_points(self)
-    #        """Number of points along the imaginary axis."""
-    #    @property
-    #    def r_step(self)
-    #        """Step used to sample the real axis (Ha units)"""
-
-    def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
-        abivars = {
-            "freqremax"   : self.freqremax,
-            "freqremin"   : self.freqremin,
-            "nfreqre"     : self.nfreqre,
-            "nfreqim"     : self.nfreqim,
-            "freqim_alpha": self.freqim_alpha
-        }
-        return abivars
 
 
 class Screening(AbivarAble):
@@ -1057,7 +1031,7 @@ class Screening(AbivarAble):
     }
 
     def __init__(self, ecuteps, nband, w_type="RPA", sc_mode="one_shot",
-                 freq_mesh=None, hilbert_transform=None, ecutwfn=None, inclvkb=2):
+                 hilbert=None, ecutwfn=None, inclvkb=2):
         """
         Args:
             ecuteps:
@@ -1068,9 +1042,7 @@ class Screening(AbivarAble):
                 Screening type
             sc_mode:
                 Self-consistency mode.
-            freq_mesh=None, 
-                Instance of `CDFrequencyMesh` defining the parameters for the contour deformation technique.
-            hilbert_transform:
+            hilbert:
                 Instance of `HilbertTransform` defining the paramentes for the Hilber transform method.
             ecutwfn:
                 Cutoff energy for the wavefunctions (Default: ecutwfn == ecut).
@@ -1091,21 +1063,9 @@ class Screening(AbivarAble):
         self.ecutwfn = ecutwfn
         self.inclvkb = inclvkb
 
-        #if [obj is not None for obj in [ppmodel, freq_mesh]].count(True) != 1:
-        #    raise ValueError("Either ppmodel or freq_mesh can be specified")
-
-        #if ppmodel is not None:
-        #    self.ppmodel = PPModel.asppmodel(ppmodel)
-
-        if freq_mesh is not None:
-            raise NotImplementedError("")
-            self.wmesh = WMesh.aswmesh(wmesh)
-
-        if hilbert_transform is not None:
-            if not self.has_wmesh:
-                raise ValueError("Hilber transform method requires the "
-                                 "specification of the frequency mesh")
-            self.hilbert_transform = hilbert_transform
+        if hilbert is not None:
+            raise NotImplementedError("Hilber transform not coded yet")
+            self.hilbert = hilbert
 
         # Default values
         # TODO Change abinit defaults
@@ -1114,12 +1074,8 @@ class Screening(AbivarAble):
         self.symchi = 1
 
     @property
-    def has_wmesh(self):
-        return hasattr(self, "wmesh")
-
-    @property
-    def has_hilbert_transform(self):
-        return hasattr(self, "hilbert_transform")
+    def use_hilbert(self):
+        return hasattr(self, "hilbert")
 
     #@property
     #def gwcalctyp(self):
@@ -1141,17 +1097,10 @@ class Screening(AbivarAble):
             #"fftgw"    : self.fftgw,
         }
 
-        # Variables for PPmodel.
-        #if self.has_ppmodel:
-        #    abivars.update(self.ppmodel.to_abivars())
-
         # Variables for the Hilber transform.
-        if self.has_hilbert_transform:
-            abivars.update(self.hilbert_transform.to_abivars())
+        if self.use_hilbert:
+            abivars.update(self.hilbert.to_abivars())
 
-        # Frequency mesh.
-        if self.has_wmesh:
-            abivars.update(self.wmesh.to_abivars())
 
         return abivars
 
@@ -1210,11 +1159,11 @@ class SelfEnergy(AbivarAble):
         self.screening = screening
 
         if ppmodel is not None:
+            assert not screening.use_hilbert
             self.ppmodel = PPModel.asppmodel(ppmodel)
 
-        self.ecuteps  = ecuteps if ecuteps is not None else screening.ecuteps
-
-        self.ecutwfn  = ecutwfn
+        self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps
+        self.ecutwfn = ecutwfn
 
         #band_mode in ["gap", "full"]
 
@@ -1303,12 +1252,12 @@ class ExcHamiltonian(AbivarAble):
         "model_df"
         ]
 
-    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, bs_freq_mesh, mdf_epsinf=None, 
-                exc_type="TDA", algo="haydock", with_lf=True, zcut=None, **kwargs):
+    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, mdf_epsinf=None, 
+                exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
             bs_loband: 
-                Lowest band index used in the e-h  basis set.
+                Lowest band index used in the e-h  basis set. Can be scalar or array of shape (nsppol,)
             nband: 
                 Max band index used in the e-h  basis set.
             soenergy: 
@@ -1317,15 +1266,15 @@ class ExcHamiltonian(AbivarAble):
                 Treatment of the Coulomb term.
             ecuteps: 
                 Cutoff energy for W in Hartree.
-            bs_freq_mesh:
-                Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
             mdf_epsinf: 
                 Macroscopic dielectric function :math:`\epsilon_\inf` used in 
                 the model dielectric function.
             exc_type:
                 Approximation used for the BSE Hamiltonian
             with_lf:
-                True if local field effects are includes <==> exchange term is included
+                True if local field effects are included <==> exchange term is included
+            bs_freq_mesh:
+                Frequency mesh for the macroscopic dielectric function (start, stop, step) in Ha.
             zcut:
                 Broadening parameter in Ha.
             **kwargs:
@@ -1337,20 +1286,21 @@ class ExcHamiltonian(AbivarAble):
         self.coulomb_mode = coulomb_mode
         assert coulomb_mode in self._COULOMB_MODES
         self.ecuteps = ecuteps
-        self.bs_freq_mesh = np.array(bs_freq_mesh)
+
         self.mdf_epsinf = mdf_epsinf
         self.exc_type = exc_type
         assert exc_type in self._EXC_TYPES
         self.algo = algo
         assert algo in self._ALGO2VAR
         self.with_lf = with_lf
-        self.zcut = zcut
 
-        # TODO
-        #self.chksymbreak = 0
+        self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freqmesh
+        self.zcut = zcut
 
         # Extra options.
         self.kwargs = kwargs
+        if "chksymbreak" not in self.kwargs:
+            self.kwargs["chksymbreak"] = 0
 
     @property
     def inclvkb(self):
@@ -1372,31 +1322,32 @@ class ExcHamiltonian(AbivarAble):
         """True if we are performing the direct diagonalization of the BSE Hamiltonian."""
         return self.algo == "direct_diago"
 
-    @classmethod
-    def TDA_with_model_df(cls, bs_loband, nband, soenery, mdf_einf, soenergy, **kwargs):
-        """
-        Static constructor used for performing Tamm-Dancoff calculations 
-        with the model dielectric functions and the scissors operator.
-        """
-        raise NotImplementedError("")
-        return cls(bs_loband, nband, soenergy, "model_df", ecuteps, bs_freq_mesh, 
-                   mdf_epsinf=mdf_eing, exc_type="TDA", with_lf=True, **kwargs)
+    #@classmethod
+    #def TDA_with_model_df(cls, bs_loband, nband, soenery, mdf_einf, soenergy, **kwargs):
+    #    """
+    #    Static constructor used for performing Tamm-Dancoff calculations 
+    #    with the model dielectric functions and the scissors operator.
+    #    """
+    #    raise NotImplementedError("")
+    #    return cls(bs_loband, nband, soenergy, "model_df", ecuteps, bs_freq_mesh, 
+    #               mdf_epsinf=mdf_eing, exc_type="TDA", with_lf=True, **kwargs)
 
     def to_abivars(self):
-        "Returns a dictionary with the abinit variables"
+        """Returns a dictionary with the abinit variables."""
 
         abivars = dict(
             bs_loband=self.bs_loband,
+            nband=self.nband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
-            bs_freq_mesh=self.bs_freq_mesh,
             #bs_algo = self._ALGO2VAR[self.algo],
+            mdf_epsinf=self.mdf_epsinf,
             bs_coulomb_term=21,
             bs_calctype=1,
             inclvkb=self.inclvkb,
             bs_exchange_term=1 if self.with_lf else 0,
             zcut=self.zcut,
-            mdf_epsinf=self.mdf_epsinf,
+            bs_freq_mesh=self.bs_freq_mesh,
             )
 
         if self.use_haydock:
@@ -1423,9 +1374,7 @@ class ExcHamiltonian(AbivarAble):
             raise ValueError("Unknown algorithm for EXC: %s" % self.algo)
 
         abivars.update(self.kwargs)
-
         return abivars
-
 
 
 class Perturbation(AbivarAble):

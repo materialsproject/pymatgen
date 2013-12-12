@@ -238,15 +238,11 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
     nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
-    if scr_nband is None:
-        scr_nband = nscf_nband
-
-    if sigma_nband is None:
-        sigma_nband = nscf_nband
+    if scr_nband is None: scr_nband = nscf_nband
+    if sigma_nband is None: sigma_nband = nscf_nband
 
     screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot",
-                          freq_mesh=None, hilbert_transform=None, ecutwfn=None,
-                          inclvkb=inclvkb)
+                          hilbert=None, ecutwfn=None, inclvkb=inclvkb)
 
     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
                              ppmodel=ppmodel)
@@ -260,13 +256,91 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                          workdir=workdir, manager=manager)
 
 
+#def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
+#                 accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+#                 charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
+#                 sigma_nband=None, workdir=None, manager=None, **extra_abivars):
+#    """
+#    Returns a Work object that performs G0W0 calculations for the given the material.
+#
+#    Args:
+#        structure:
+#            Pymatgen structure.
+#        pseudos:
+#            List of `Pseudo` objects.
+#        scf_kppa:
+#            Defines the sampling used for the SCF run.
+#        nscf_nband:
+#            Number of bands included in the NSCF run.
+#        ecuteps:
+#            Cutoff energy [Ha] for the screening matrix.
+#        ecutsigx:
+#            Cutoff energy [Ha] for the exchange part of the self-energy.
+#        hilbert:
+#            `HilbertTransform` object with the parameters defining the frequency mesh 
+#            used for the spectral function and the frequency mesh used for the polarizability
+#        accuracy:
+#            Accuracy of the calculation.
+#        spin_mode:
+#            Spin polarization.
+#        smearing:
+#            Smearing technique.
+#        charge:
+#            Electronic charge added to the unit cell.
+#        scf_algorithm:
+#            Algorithm used for solving of the SCF cycle.
+#        inclvkb:
+#            Treatment of the dipole matrix elements (see abinit variable).
+#        scr_nband:
+#            Number of bands used to compute the screening (default is nscf_nband)
+#        sigma_nband:
+#            Number of bands used to compute the self-energy (default is nscf_nband)
+#        workdir:
+#            Working directory.
+#        manager:
+#            `TaskManager` instance.
+#        extra_abivars
+#            Dictionary with extra variables passed to ABINIT.
+#    """
+#    # TODO: Cannot use istwfk != 1.
+#    if "istwfk" not in extra_abivars:
+#        extra_abivars["istwfk"] = "*1"
+#
+#    scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+#
+#    scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
+#                               accuracy=accuracy, spin_mode=spin_mode,
+#                               smearing=smearing, charge=charge,
+#                               scf_algorithm=None, **extra_abivars)
+#
+#    nscf_ksampling = KSampling.automatic_density(structure, 1, chksymbreak=0)
+#
+#    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
+#
+#    if scr_nband is None: scr_nband = nscf_nband
+#    if sigma_nband is None: sigma_nband = nscf_nband
+#
+#    screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot",
+#                          hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
+#
+#    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
+#                             hilbert=hilbert)
+#
+#    scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
+#
+#    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
+#                                        **extra_abivars)
+#
+#    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
+#                         workdir=workdir, manager=manager)
+
 
 def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
-                 ecuteps, bs_loband, soenergy, mdf_epsinf, accuracy="normal", spin_mode="polarized", 
+                 ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, accuracy="normal", spin_mode="polarized", 
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
                  **extra_abivars):
     """
-    Returns a Work object that performs a GS + NSCF + Bethe-Salpeter calculation.
+    Returns a `Work` object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
     in modeled by the model dielectric function.
 
@@ -288,8 +362,11 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
         bs_loband:
             Index of the first occupied band included the e-h basis set
             (ABINIT convention i.e. first band starts at 1).
+            Can be scalar or array of shape (nsppol,)
+        bs_nband:
+            Highest band idex used for the construction of the e-h basis set.
         soenergy:
-            Scissor energy in Hartree
+            Scissor energy in Hartree.
         mdf_epsinf:
             Value of the macroscopic dielectric function used in expression for the model dielectric function.
         accuracy:
@@ -326,15 +403,12 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
     nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
     # Strategy for the BSE calculation.
-    raise NotImplementedError("")
-    # FIXME
-    bs_nband = 6
     coulomb_mode = "model_df"
-    bs_freq_mesh = [0, 2, 0.1]
+    raise NotImplementedError("")
 
-    exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode, ecuteps, bs_freq_mesh, 
-                             mdf_epsinf=mdf_epsinf, exc_type="TDA", algo="haydock", with_lf=True, 
-                             zcut=None)
+    exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode, ecuteps, 
+                             mdf_epsinf=mdf_epsinf, exc_type="TDA", algo="haydock", 
+                             bs_freq_mesh=None, with_lf=True, zcut=None)
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 

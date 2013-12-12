@@ -445,8 +445,7 @@ class TaskManager(object):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        home = os.getenv("HOME")
-        dirpath = os.path.join(home, ".abinit", "abipy")
+        dirpath = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
         path = os.path.join(dirpath, cls.YAML_FILE)
 
         if os.path.exists(path):
@@ -671,6 +670,19 @@ class Product(object):
         self.ext = ext
         self.file = File(path)
 
+    @classmethod
+    def from_file(cls, filepath):
+        """Build a `Product` instance from a filepath."""
+        # Find the abinit extension.
+        for i in range(len(filepath)):
+            if filepath[i:] in abi_extensions():
+                ext = filepath[i:]
+                break
+        else:
+            raise ValueError("Cannot detect abinit extension in %s" % filepath)
+        
+        return cls(ext, filepath)
+
     def __str__(self):
         return "File=%s, Extension=%s, " % (self.file.path, self.ext)
 
@@ -726,6 +738,10 @@ class Dependency(object):
 
     def __str__(self):
         return "Node %s will produce: %s " % (str(self.node), str(self.exts))
+
+    @property
+    def info(self):
+        return str(self.node)
 
     @property
     def node(self):
@@ -819,6 +835,9 @@ class Node(object):
         # List of dependencies
         self._deps = []
 
+        # List of files (products) needed by this node.
+        self._required_files = []
+
         # Used to push additional info during the execution. 
         self.history = collections.deque(maxlen=100)
 
@@ -885,7 +904,7 @@ class Node(object):
         return self._finalized
 
     @finalized.setter
-    def finalize(self, boolean):
+    def finalized(self, boolean):
         self._finalized = boolean
         self.history.append("Finalized on %s" % time.asctime())
 
@@ -975,9 +994,33 @@ class Node(object):
 
         app("Dependencies of node %s:" % str(self))
         for i, dep in enumerate(self.deps):
-            app("%d) %s, status=%s" % (i, str(dep.node), str(dep.status)))
+            app("%d) %s, status=%s" % (i, dep.info, str(dep.status)))
 
         return "\n".join(lines)
+
+    @property
+    def required_files(self):
+        """
+        List of `Product` objects with info on the files needed by the `Node`.
+        """
+        return self._required_files
+
+    def add_required_files(self, files):
+        """
+        Add a list of path to the list of files required by the `Node`.
+
+        Args:
+            files:
+                string or list of strings with the path of the files
+        """
+        # We want a list of absolute paths.
+        files = map(os.path.abspath, list_strings(required_files)))
+
+        # Convert to list of products.
+        files = [Product.from_file(path) for path in files]
+
+        # Add the dependencies to the node.
+        self._required_files.extend(files)
 
     #@abc.abstractmethod
     #def set_status(self, status):
@@ -994,48 +1037,6 @@ class Node(object):
     #@abc.abstractmethod
     #def connect_signals():
     #    """Connect the signals."""
-
-
-class FakeDirectory(Directory):
-
-    def __init__(self, dirname, filepath):
-        Directory.__init__(self, dirname)
-        self.filepath = filepath
-
-    def has_abiext(self, ext):
-        """Redefine has_abiext so that we only check self.filepath."""
-        if self.filepath.endswith(ext) or self.filepath.endswith(ext + ".nc"):
-            return self.filepath
-        return ""
-
-
-class FileNode(Node):
-    """
-    A node of the calculation consisting of an already existing file
-    """
-    def __init__(self, filepath):
-        super(FileNode, self).__init__()
-
-        self.filepath = os.path.abspath(filepath)
-        if not os.path.exists(self.filepath):
-            err_msg = "File %s \n must exist when the FileNode is initialized" % self.filepath
-            raise ValueError(err_msg)
-
-        self.workdir = os.path.dirname(self.filepath)
-        self.set_node_id(self.filepath)
-        self._finalized = True
-        self.status = self.S_OK
-
-        # FIXME: Find a better aproach for this
-        self.outdir = FakeDirectory(self.workdir, self.filepath)
-
-    def opath_from_ext(self, ext):
-        """
-        Returns the path of the output file with extension ext.
-        Use it when the file does not exist yet.
-        """
-        return self.filepath
-        #return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
 
 class TaskError(Exception):
@@ -1063,7 +1064,7 @@ class Task(Node):
     prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
-    def __init__(self, strategy, workdir=None, manager=None, deps=None):
+    def __init__(self, strategy, workdir=None, manager=None, deps=None, required_files=None):
         """
         Args:
             strategy: 
@@ -1075,6 +1076,8 @@ class Task(Node):
             deps:
                 Dictionary specifying the dependency of this node.
                 None means that this obj has no dependency.
+            required_files:
+                List of strings with the path of the files used by the task.
         """
         # Init the node
         super(Task, self).__init__()
@@ -1088,15 +1091,15 @@ class Task(Node):
             self.set_workdir(workdir)
                                                                
         if manager is not None:
-            print("setting manager")
             self.set_manager(manager)
-        #else:
-        #    self.set_manager(TaskManager.sequential())
 
         # Handle possible dependencies.
         if deps:
             deps = [Dependency(node, exts) for (node, exts) in deps.items()]
             self.add_deps(deps)
+
+        if required_files:
+            self.add_required_files(required_files)
 
         # Set the initial status.
         self.set_status(self.S_INIT)
@@ -1597,18 +1600,15 @@ class Task(Node):
         """
         for dep in self.deps:
             filepaths, exts = dep.get_filepaths_and_exts()
-            #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
-                logger.info("need path %s with ext %s" % (path, ext))
+                logger.info("Need path %s with ext %s" % (path, ext))
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path): 
-                    # Try netcdf file.
-                    # TODO: this case should be treated in a cleaner way.
+                    # Try netcdf file. TODO: this case should be treated in a cleaner way.
                     path += "-etsf.nc"
-                    if os.path.exists(path):
-                        dest += "-etsf.nc"
+                    if os.path.exists(path): dest += "-etsf.nc"
 
                 if not os.path.exists(path):
                     err_msg = "%s: %s is needed by this task but it does not exist" % (self, path)
@@ -1624,6 +1624,20 @@ class Task(Node):
                 else:
                     if os.path.realpath(dest) != path:
                         raise self.Error("dest %s does not point to path %s" % (dest, path))
+
+        for f in self.required_files:
+            path, dest = f.filepath, self.ipath_from_ext(f.ext)
+      
+            # Link path to dest if dest link does not exist.
+            # else check that it points to the expected file.
+            print("Linking path %s --> %s" % (path, dest))
+                                                                                         
+            if not os.path.exists(dest):
+                os.symlink(path, dest)
+            else:
+                if os.path.realpath(dest) != path:
+                    raise self.Error("dest %s does not point to path %s" % (dest, path))
+
 
     @abc.abstractmethod
     def setup(self):
@@ -1830,6 +1844,13 @@ class Task(Node):
         for d in self.deps:
             vars = d.connecting_vars()
             logger.debug("Adding connecting vars %s " % vars)
+            self.strategy.add_extra_abivars(vars)
+
+        # Add the variables needed to read the required files
+        for f in self.required_files:
+            #raise NotImplementedError("")
+            vars = irdvars_for_ext("DEN")
+            print("Adding connecting vars %s " % vars)
             self.strategy.add_extra_abivars(vars)
 
         # Automatic parallelization
