@@ -438,7 +438,8 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
         #NEB specific defaults
-        defaults = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2, 'ISYM': 0}
+        defaults = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2, 'ISYM': 0,
+                    'LORBIT': 0, 'LCHARG': False}
         if user_incar_settings:
             defaults.update(user_incar_settings)
         
