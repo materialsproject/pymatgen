@@ -399,7 +399,7 @@ class Workflow(BaseWorkflow):
                 if task.workdir != task_workdir:
                     raise ValueError("task.workdir != task_workdir: %s, %s" % (task.workdir, task_workdir))
 
-    def register(self, obj, deps=None, manager=None, task_class=None):
+    def register(self, obj, deps=None, required_files=None, manager=None, task_class=None):
         """
         Registers a new `Task` and add it to the internal list, taking into account possible dependencies.
 
@@ -410,6 +410,8 @@ class Workflow(BaseWorkflow):
             deps:
                 Dictionary specifying the dependency of this node.
                 None means that this obj has no dependency.
+            required_files:
+                List of strings with the path of the files used by the task.
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
                 the `TaskManager` specified during the creation of the `Workflow`.
@@ -444,6 +446,10 @@ class Workflow(BaseWorkflow):
         if deps is not None:
             deps = [Dependency(node, exts) for (node, exts) in deps.items()]
             task.add_deps(deps)
+
+        # Handle possible dependencies.
+        if required_files is not None:
+            task.add_required_files(required_files)
 
         return task
 
@@ -1515,12 +1521,9 @@ class PhononWorkflow(Workflow):
         # Merge GKK files.
         #self.merge_gkk_files()
 
-        results = dict(
-            returncode=0,
-            message="DDB merge done",
-        )
-
-        return results
+        return dict(returncode=0,
+                    message="DDB merge done"
+                    )
 
 
 class WorkflowResults(dict, MSONable):

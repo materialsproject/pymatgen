@@ -183,11 +183,9 @@ class Directory(object):
 
         # Filter using the shell patterns.
         if wildcard is not None:
-            filepaths =  WildCard(wildcard).filter(filepaths)
-            #print(filepaths)
+            filepaths = WildCard(wildcard).filter(filepaths)
 
         return filepaths
-
 
     def has_abiext(self, ext):
         """

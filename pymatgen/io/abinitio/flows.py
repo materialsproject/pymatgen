@@ -412,8 +412,13 @@ class AbinitFlow(Node):
         Cancel all the tasks that are in the queue.
 
         Returns:
-            Number of jobs cancelles.
+            Number of jobs cancelles, negative value if error
         """
+        if self.has_chrooted:
+            # TODO: Use paramiko to kill the job?
+            warnings.warn("Cannot cancel the flow via sshfs!")
+            return -1
+
         # If we are running with the scheduler, we must send a SIGKILL signal.
         pid_file = os.path.join(self.workdir, "_PyFlowScheduler.pid")
         if os.path.exists(pid_file):
@@ -422,7 +427,10 @@ class AbinitFlow(Node):
                 
             retcode = os.system("kill -9 %d" % pid)
             print("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
-            #os.remove(pid_file)
+            try:
+                os.remove(pid_file)
+            except IOError:
+                pass
 
         num_cancelled = 0
         for task in self.iflat_tasks():
@@ -457,7 +465,7 @@ class AbinitFlow(Node):
             0 if success
         """
         if self.has_chrooted:
-            print("cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
+            warnings.warn("Cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
             return -1
 
         protocol = self.pickle_protocol
@@ -832,7 +840,6 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_ncpus=1)
-    #print(shell_manager)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
@@ -844,11 +851,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
         w = Workflow(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
-        #print(w)
-        #print("manager",w.manager)
 
-        # Use the magic value paral_rf = -1 
-        # to get the list of irreducible perturbations for this q-point.
+        # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
         vars = dict(paral_rf=-1,
                     rfatpol=[1, natom],  # Set of atoms to displace.
                     rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
@@ -860,9 +864,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        #import sys
-        #sys.exit(1)
         print(irred_perts)
+
         w.rmtree()
 
         # Now we can build the final list of workflows:
