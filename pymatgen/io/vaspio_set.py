@@ -429,7 +429,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
     Class for writing NEB inputs.
     """
 
-    def __init__(self, nimages=8, **kwargs):
+    def __init__(self, nimages=8, user_incar_settings=None, **kwargs):
         """
         Args:
             nimages:
@@ -437,13 +437,15 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
+        #NEB specific defaults
+        defaults = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2, 'ISYM': 0}
+        if user_incar_settings:
+            defaults.update(user_incar_settings)
+        
         with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MIT NEB", json.load(f), **kwargs)
+            DictVaspInputSet.__init__(self, "MIT NEB", json.load(f),
+                                      user_incar_settings=defaults, **kwargs)
         self.nimages = nimages
-        # NEB settings
-        self.incar_settings.update(
-            {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2})
 
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
