@@ -357,13 +357,17 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
     # Don't know why protocol=-1 does not work here.
     flow = AbinitFlow(work_dir, manager, pickle_protocol=0)
 
+    # kpoint grid defined over density
     scf_kppa = 40
-    nscf_nband = 100
+        # alternatively:
     #nscf_ngkpt = [4,4,4]
     #nscf_shiftk = [0.0, 0.0, 0.0]
+
+    nscf_nband = 100
+    #scr_nband = 50 takes nscf_nbands if not specified
+    #sigma_nband = 50 takes scr_nbands if not specified
+
     ecuteps, ecutsigx = 6, 8
-    #scr_nband = 50
-    #sigma_nband = 50
 
     ecut = 8
 
@@ -406,8 +410,13 @@ def main():
     spec = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp', 'code': 'ABINIT'}
 
     if 'ceci' in spec['mode']:
-       if os.path.isfile('job_collection'):
-           os.remove('job_collection')
+        if os.path.isfile('job_collection'):
+            os.remove('job_collection')
+        if 'ABINIT' in spec['code']:
+            job_file = open('job_collection', mode='w')
+            job_file.write('source ~gmatteo/.bashrc \n')
+            job_file.close()
+
 
     if spec['source'] == 'mp':
         items_list = mp_list_vasp
@@ -480,6 +489,12 @@ def main():
             work_dir = structure.composition.reduced_formula
             flow = create_single_abinit_gw_flow(structure=structure, pseudos=pseudos, work_dir=work_dir)
             flow.build_and_pickle_dump()
+            job_file = open("job_collection", mode='a')
+            job_file.write('nohub abirun ' + work_dir + ' scheduler > ' + work_dir + '.log & \n')
+
+    if 'ceci' in spec['mode']:
+        os.chmod("job_collection", stat.S_IRWXU)
+
 
 if __name__ == "__main__":
     main()

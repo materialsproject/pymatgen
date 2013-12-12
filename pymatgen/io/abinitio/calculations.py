@@ -234,7 +234,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                                smearing=smearing, charge=charge,
                                scf_algorithm=None, **extra_abivars)
 
-    nscf_ksampling = KSampling.automatic_density(structure, 1, chksymbreak=0)
+    nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
     nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
