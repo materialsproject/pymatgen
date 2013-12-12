@@ -490,7 +490,7 @@ def main():
             flow = create_single_abinit_gw_flow(structure=structure, pseudos=pseudos, work_dir=work_dir)
             flow.build_and_pickle_dump()
             job_file = open("job_collection", mode='a')
-            job_file.write('nohup abirun ' + work_dir + ' scheduler > ' + work_dir + '.log & \n')
+            job_file.write('nohup abirun.py ' + work_dir + ' scheduler > ' + work_dir + '.log & \n')
 
     if 'ceci' in spec['mode']:
         os.chmod("job_collection", stat.S_IRWXU)
