@@ -181,7 +181,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, 
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                       ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
-                      sigma_nband=None, workdir=None, manager=None, **extra_abivars):
+                      sigma_nband=None, gw_kbpolicy=1, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -216,6 +216,10 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
             Number of bands used to compute the screening (default is nscf_nband)
         sigma_nband:
             Number of bands used to compute the self-energy (default is nscf_nband)
+        gw_kbpolicy:
+            Option for the automatic selection of k-points and bands for GW corrections.
+            See Abinit docs for more detail. The default value makes the code computie the 
+            QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
         workdir:
             Working directory.
         manager:
@@ -234,7 +238,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                                smearing=smearing, charge=charge,
                                scf_algorithm=None, **extra_abivars)
 
-    nscf_ksampling = KSampling.automatic_density(structure, 1, chksymbreak=0)
+    nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
     nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
@@ -326,7 +330,8 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 #    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
 #                             hilbert=hilbert)
 #
-#    scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
+#    scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, 
+#                                     **extra_abivars)
 #
 #    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
 #                                        **extra_abivars)
@@ -336,17 +341,18 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
 
 def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
-                 ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, accuracy="normal", spin_mode="polarized", 
+                 ecuteps, bs_loband, bs_nband, soenergy, mdf_epsinf, 
+                 exc_type="TDA", bs_algo="haydock", accuracy="normal", spin_mode="polarized", 
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
                  **extra_abivars):
     """
-    Returns a `Work` object that performs a GS + NSCF + Bethe-Salpeter calculation.
+    Returns a `Workflow` object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
     in modeled by the model dielectric function.
 
     Args:
         structure:
-            Pymatgen structure.
+            `Structure` object.
         pseudos:
             List of `Pseudo` objects.
         scf_kppa:
@@ -369,6 +375,10 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
             Scissor energy in Hartree.
         mdf_epsinf:
             Value of the macroscopic dielectric function used in expression for the model dielectric function.
+        exc_type:
+            Approximation used for the BSE Hamiltonian (Tamm-Dancoff or coupling).
+        bs_algo:
+            Algorith for the computatio of the macroscopic dielectric function.
         accuracy:
             Accuracy of the calculation.
         spin_mode:
@@ -406,11 +416,11 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
     coulomb_mode = "model_df"
 
     exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode, ecuteps, 
-                             mdf_epsinf=mdf_epsinf, exc_type="TDA", algo="haydock", 
+                             mdf_epsinf=mdf_epsinf, exc_type=exc_type, algo=bs_algo,
                              bs_freq_mesh=None, with_lf=True, zcut=None)
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
-    #raise NotImplementedError("")
+    raise NotImplementedError("")
 
     return BSEMDF_Workflow(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
 
