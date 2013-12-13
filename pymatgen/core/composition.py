@@ -159,6 +159,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                 raise CompositionError(
                     "All elements in subtracted composition must exist in "
                     "original composition in equal or lesser amount!")
+
+            new_el_map = {sp: amt for sp, amt in new_el_map.iteritems() if amt != 0}
         return Composition(new_el_map)
 
     def __mul__(self, other):

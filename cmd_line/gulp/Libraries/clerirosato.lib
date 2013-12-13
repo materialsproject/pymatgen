@@ -1,0 +1,73 @@
+#
+#  Cleri-Rosato - library of potentials for GULP
+#
+#  from F. Cleri and V. Rosato
+#  Phys. Rev. Lett., 48, 22 (1993)
+#
+#  These potentials use the Embedded Atom Model
+#
+species
+Ni core  0.000
+Cu core  0.000
+Rh core  0.000
+Pd core  0.000
+Ag core  0.000
+Ir core  0.000
+Pt core  0.000
+Au core  0.000
+Al core  0.000
+Pb core  0.000
+manybody
+Ni core Ni core  0.0 12.0
+Cu core Cu core  0.0 12.0
+Rh core Rh core  0.0 12.0
+Pd core Pd core  0.0 12.0
+Ag core Ag core  0.0 12.0
+Ir core Ir core  0.0 12.0
+Pt core Pt core  0.0 12.0
+Au core Au core  0.0 12.0
+Al core Al core  0.0 12.0
+Pb core Pb core  0.0 12.0
+#
+#  Functional
+#
+eam_functional square_root
+Ni core  1.000
+Cu core  1.000
+Rh core  1.000
+Pd core  1.000
+Ag core  1.000
+Ir core  1.000
+Pt core  1.000
+Au core  1.000
+Al core  1.000
+Pb core  1.000
+#
+#  Density term
+#
+eam_density exponential 0
+Ni core  1.144900 0.954584 2.491137
+Cu core  1.498176 1.782339 2.556191
+Rh core  2.755600 1.388555 2.689127
+Pd core  2.951524 2.722916 2.748524
+Ag core  1.387684 2.173423 2.888531
+Ir core  5.239521 1.982625 2.714583
+Pt core  7.263025 2.886091 2.774687
+Au core  3.204100 2.798610 2.884289
+Al core  1.731856 1.757117 2.863782
+Pb core  0.835396 2.084044 3.500886
+#
+#  Repulsive two-body components -
+#  second power is a dummy argument
+#
+buckingham
+Ni core Ni core  1814636.902545 0.146546 0.0 0.0 12.0
+Cu core Cu core     9837.021760 0.233229 0.0 0.0 12.0
+Rh core Rh core 12954296.475881 0.145752 0.0 0.0 12.0
+Pd core Pd core    18304.268170 0.252924 0.0 0.0 12.0
+Ag core Ag core    11454.950282 0.264324 0.0 0.0 12.0
+Ir core Ir core  5474042.091025 0.159869 0.0 0.0 12.0
+Pt core Pt core    24168.517285 0.261467 0.0 0.0 12.0
+Au core Au core    11415.797143 0.281972 0.0 0.0 12.0
+Al core Al core     1342.424092 0.332534 0.0 0.0 12.0
+Pb core Pb core     2825.270469 0.365590 0.0 0.0 12.0

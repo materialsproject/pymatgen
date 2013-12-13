@@ -213,7 +213,7 @@ class InterstitialTest(unittest.TestCase):
             self.assertTrue(rad, float)
 
 
-@unittest.skipIf(not (gulp_present and zeo), "gulp not present.")
+@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialAnalyzerTest(unittest.TestCase):
     def setUp(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]

@@ -1,0 +1,499 @@
+#
+#  Potentials for MOX fuels from the following papers:
+#
+#  Tiwary, van de Walle, Jeon and Gronbech-Jensen, Phys. Rev. B 83, 094104 (2011) 
+#  Tiwary, van de Walle and Gronbech-Jensen, Phys. Rev. B 80, 174302 (2009)
+#
+
+species 4
+U 4
+Np 4
+Pu 4
+O -2
+
+#order:
+# U-U
+# U-O
+# O-O
+# Pu-Pu
+# U-Pu
+# U-Np
+# Np-Np
+# O-Pu
+# O-Np
+
+#####
+#######
+####   U-U potential
+#######
+#####
+general 1 0
+U core U core 2.026709011e+04 0.0259 0 0 12 
+general 1 0
+U core U core 56854.9027 0.0879 0 0 12
+general 1 0
+U core U core 31247.5598 0.2055 0 0 12
+general 1 0
+U core U core 3141.3711 0.4107 0 0 12
+
+general 0 1
+U core U core 0 0.666 -.315 0 12
+general 1 0
+U core U core 300.6685 0.0032266 0 0 12
+general 0 0
+U core U core 46596.384 0.0032266 0 0 12
+general 1 0
+U core U core 1988.0 0.0115 0 0 12
+general 0 0
+U core U core 115613.06 0.0115 0 0 12
+general -1 0
+U core U core 2521300 0.0115 0 0 12
+general 1 0
+U core U core 4437.5 0.0303 0 0 12
+general 0 0
+U core U core 109750 0.0303 0 0 12
+general -1 0
+U core U core 1206500 0.0303 0 0 12
+general -2 0
+U core U core 6630900 0.0303 0 0 12
+general 1 0
+U core U core 3410.9 0.0725 0 0 12
+general 0 0
+U core U core 37655 0.0725 0 0 12
+general -1 0
+U core U core 194860 0.0725 0 0 12
+general -2 0
+U core U core 597580 0.0725 0 0 12
+general -3 0
+U core U core 1030800 0.0725 0 0 12
+
+#####
+#######
+####   O-U potential
+#######
+#####
+
+general 1 0
+O core U core 2303.1 .0330 0 0 1.42
+general 1 0
+O core U core 6460.8 .1119 0 0 1.42
+general 1 0
+O core U core 3550.9 .2617 0 0 1.42
+general 1 0
+O core U core 357.0 .5231 0 0 1.42
+ 
+general 0 1
+O core U core 0 .0666 -.4441 0 1.42
+general 1 0
+O core U core 436.2924 .1477 0 0 1.42
+general 1 0
+O core U core 139.2491 .0325 0 0 1.42
+general 0 0
+O core U core 1.9691e+03 .1477 0 0 1.42
+general 0 0
+O core U core 2.1417e+03 .0325 0 0 1.42
+general -1 0
+O core U core 3.3328e+03 .1477 0 0 1.42
+
+general 0 1
+U core O core 0 0.666 -57.5198 0 1.42
+general 1 0
+U core O core -75.1671 0.0032266 0 0 1.42
+general 0 0
+U core O core -1.1649e+04 0.0032266 0 0 1.42
+general 1 0
+U core O core -497.0 0.0115 0 0 1.42
+general 0 0
+U core O core -2.8903e+04 0.0115 0 0 1.42
+general -1 0
+U core O core -630325 0.0115 0 0 1.42
+general 1 0
+U core O core -1.1094e+03 0.0303 0 0 1.42
+general 0 0
+U core O core -2.7438e+04 0.0303 0 0 1.42
+general -1 0
+U core O core -301625 0.0303 0 0 1.42
+general -2 0
+U core O core -1657725 0.0303 0 0 1.42
+general 1 0
+U core O core -852.7250 0.0725 0 0 1.42
+general 0 0
+U core O core -9.4138e+03 0.0725 0 0 1.42
+general -1 0
+U core O core -48715 0.0725 0 0 1.42
+general -2 0
+U core O core -149395 0.0725 0 0 1.42
+general -3 0
+U core O core -257700 0.0725 0 0 1.42
+
+polynomial
+5
+O U -1.172025574e+05 3.80922345e+05 -4.9295942505e+05 3.1773391713e+05 &
+ -1.0203678534e+05 1.3064571294e+04 1.42 1.7
+
+buck
+O core U core 394.391 0.534286 1.49515 1.7 10
+
+#####
+#######
+####   O-O potential
+#######
+#####
+
+general 1 0
+O core O core 261.7135 0.0454 0 0 1.17 
+general 1 0
+O core O core 734.1800 0.1541 0 0 1.17
+general 1 0
+O core O core 403.5067 0.3604 0 0 1.17
+general 1 0
+O core O core 40.5652 0.7202 0 0 1.17
+
+general 0 1
+O core O core 0 .0666 .4441 0 1.17
+general 1 0 
+O core O core -436.2924 .1477 0 0 1.17
+general 1 0 
+O core O core -139.2491 .0325 0 0 1.17
+general 0 0
+O core O core -1.9691e+03 .1477 0 0 1.17
+general 0 0
+O core O core -2.1417e+03 .0325 0 0 1.17
+general -1 0
+O core O core -3.3328e+03 .1477 0 0 1.17
+
+polynomial
+5
+O  core O  core   520.0148 -1.2876031e+03 1.3434286e+03 &
+ -719.0438 193.3402  -20.6558 1.17 2.28
+
+polynomial
+3
+O  core O  core  108.5801897 -129.2716 49.3670 -6.1456 2.28 2.84
+
+general 0 6
+O core O core 0 0.0000666 603.268 2.84 12
+
+#####
+#######
+####   Pu-Pu potential
+#######
+#####
+
+general 1 0
+Pu core Pu core 2.119879e+04 0.0257 0 0 10 
+general 1 0
+Pu core Pu core 59468.58 0.0874 0 0 10
+general 1 0
+Pu core Pu core 32684.044 0.2045 0 0 10
+general 1 0
+Pu core Pu core 3285.783 0.4086 0 0 10
+
+general 0 1
+Pu core Pu core 0 0.666 -.3222 0 10
+general 1 0
+Pu core Pu core 307.5019 0.0032266 0 0 10
+general 0 0
+Pu core Pu core 4.7655393e+04 0.0032266 0 0 10
+general 1 0
+Pu core Pu core 2.0332e+03 0.0115 0 0 10
+general 0 0
+Pu core Pu core  1.18241e+05 0.0115 0 0 10
+general -1 0
+Pu core Pu core 2.5786e+06 0.0115 0 0 10
+general 1 0
+Pu core Pu core 4.5384e+03 0.0303 0 0 10
+general 0 0
+Pu core Pu core 1.1224432e+05 0.0303 0 0 10
+general -1 0
+Pu core Pu core 1.2339205e+06 0.0303 0 0 10
+general -2 0
+Pu core Pu core 6.7816e+06 0.0303 0 0 10
+general 1 0
+Pu core Pu core 3.4884e+03 0.0725 0 0 10
+general 0 0
+Pu core Pu core 3.8511e+04 0.0725 0 0 10
+general -1 0
+Pu core Pu core 1.9929e+05 0.0725 0 0 10
+general -2 0
+Pu core Pu core 6.1116e+05 0.0725 0 0 10
+general -3 0
+Pu core Pu core 1.0542273e+06 0.0725 0 0 10
+
+#####
+#######
+####   U-Pu potential
+#######
+#####
+
+general 1 0
+U core Pu core 2.04973980e+04 0.0258 0 0 12
+general 1 0
+U core Pu core 5.7500982e+04 0.0877 0 0 12
+general 1 0
+U core Pu core 3.1602614e+04 0.2050 0 0 12
+general 1 0
+U core Pu core 3.177073e+03 0.4097 0 0 12
+
+general 0 1
+U core Pu core 0 0.666 -.3186 0 12
+general 1 0
+U core Pu core 304.0852 0.0032266 0 0 12
+general 0 0
+U core Pu core 4.7125888e+04 0.0032266 0 0 12
+general 1 0
+U core Pu core 2.0106e+03 0.0115 0 0 12
+general 0 0
+U core Pu core 1.1692684e+05 0.0115 0 0 12
+general -1 0
+U core Pu core 2.5500e+06 0.0115 0 0 12
+general 1 0
+U core Pu core 4.4879e+03 0.0303 0 0 12
+general 0 0
+U core Pu core 1.1099716e+05 0.0303 0 0 12
+general -1 0
+U core Pu core 1.2202e+06 0.0303 0 0 12
+general -2 0
+U core Pu core 6.7063e+06 0.0303 0 0 12
+general 1 0
+U core Pu core 3.4497e+03 0.0725 0 0 12
+general 0 0
+U core Pu core 3.8083e+04 0.0725 0 0 12
+general -1 0
+U core Pu core 1.9707e+05 0.0725 0 0 12
+general -2 0
+U core Pu core 6.0437e+05 0.0725 0 0 12
+general -3 0
+U core Pu core 1.0425e+06 0.0725 0 0 12
+
+#####
+#######
+####   U-Np potential
+#######
+#####
+
+general 1 0
+U core Np core 2.038224e+04 0.0259 0 0 12
+general 1 0
+U core Np core 5.7177942e+04 0.0878 0 0 12
+general 1 0
+U core Np core 3.1425103e+04 0.2052 0 0 12
+general 1 0
+U core Np core 3.1592198e+03 0.4102 0 0 12
+
+general 0 1
+U core Np core 0 0.666 -.3168 0 12
+general 1 0
+U core Np core 302.3768 0.0032266 0 0 12
+general 0 0
+U core Np core 4.6861136e+04 0.0032266 0 0 12
+general 1 0
+U core Np core 1.9993e+03 0.0115 0 0 12
+general 0 0
+U core Np core 1.1626995e+05 0.0115 0 0 12
+general -1 0
+U core Np core 2.53562557e+06 0.0115 0 0 12
+general 1 0
+U core Np core 4.4627e+03 0.0303 0 0 12
+general 0 0
+U core Np core 1.1037e+05 0.0303 0 0 12
+general -1 0
+U core Np core 1.2134e+06 0.0303 0 0 12
+general -2 0
+U core Np core 6.6686e+06 0.0303 0 0 12
+general 1 0
+U core Np core 3.4303e+03 0.0725 0 0 12
+general 0 0
+U core Np core 3.7869e+04 0.0725 0 0 12
+general -1 0
+U core Np core 1.9597e+05 0.0725 0 0 12
+general -2 0
+U core Np core 6.0098e+05 0.0725 0 0 12
+general -3 0
+U core Np core  1.0367e+06 0.0725 0 0 12
+
+#####
+#######
+####   Np-Np potential
+#######
+#####
+
+general 1 0
+Np core Np core 2.0730322929e+04 0.0258 0 0 12
+general 1 0
+Np core Np core 5.8154401e+04 0.0876 0 0 12
+general 1 0
+Np core Np core 3.1961767e+04 0.2050 0 0 12
+general 1 0
+Np core Np core 3.2131715e+03 0.4096 0 0 12
+
+general 0 1
+Np core Np core 0 0.666 -.3186 0 12
+general 1 0
+Np core Np core 304.0852 0.0032266 0 0 12
+general 0 0
+Np core Np core 4.7125888e+04 0.0032266 0 0 12
+general 1 0
+Np core Np core 2.0106e+03 0.0115 0 0 12
+general 0 0
+Np core Np core 1.1692684e+05 0.0115 0 0 12
+general -1 0
+Np core Np core 2.5500e+06 0.0115 0 0 12
+general 1 0
+Np core Np core 4.4879e+03 0.0303 0 0 12
+general 0 0
+Np core Np core 1.1099716e+05 0.0303 0 0 12
+general -1 0
+Np core Np core 1.2202102e+06 0.0303 0 0 12
+general -2 0
+Np core Np core 6.7062511e+06 0.0303 0 0 12
+general 1 0
+Np core Np core 3.4497e+03 0.0725 0 0 12
+general 0 0
+Np core Np core 3.8083e+04 0.0725 0 0 12
+general -1 0
+Np core Np core 1.9707e+05 0.0725 0 0 12
+general -2 0
+Np core Np core 6.0437e+05 0.0725 0 0 12
+general -3 0
+Np core Np core 1.0425e+06 0.0725 0 0 12
+
+#####
+#######
+####   O-Pu potential
+#######
+#####
+
+general 1 0
+O core Pu core 2.3554e+03 0.0329 0 0 1.42
+general 1 0
+O core Pu core 6.6076e+03 0.1115 0 0 1.42
+general 1 0
+O core Pu core 3.6316e+03 .2609 0 0 1.42
+general 1 0
+O core Pu core 365.1 .5215 0 0 1.42
+ 
+general 0 1
+O core Pu core 0 .0666 -.4441 0 1.42
+general 1 0
+O core Pu core 436.2924 .1477 0 0 1.42
+general 1 0
+O core Pu core 139.2491 .0325 0 0 1.42
+general 0 0
+O core Pu core 1.9691e+03 .1477 0 0 1.42
+general 0 0
+O core Pu core 2.1417e+03 .0325 0 0 1.42
+general -1 0
+O core Pu core 3.3328e+03 .1477 0 0 1.42
+
+general 0 1
+Pu core O core 0 0.666 -58.8271 0 1.42
+general 1 0
+Pu core O core -76.8754 0.0032266 0 0 1.42
+general 0 0
+Pu core O core -1.1914e+04 0.0032266 0 0 1.42
+general 1 0
+Pu core O core -508.2955 0.0115 0 0 1.42
+general 0 0
+Pu core O core -2.9560e+04 0.0115 0 0 1.42
+general -1 0
+Pu core O core -6.44651e+05 0.0115 0 0 1.42
+general 1 0
+Pu core O core -1.1346e+03 0.0303 0 0 1.42
+general 0 0
+Pu core O core -2.8062e+04 0.0303 0 0 1.42
+general -1 0
+Pu core O core -3.08480e+05 0.0303 0 0 1.42
+general -2 0
+Pu core O core -1.695401e+06 0.0303 0 0 1.42
+general 1 0
+Pu core O core -872.1051 0.0725 0 0 1.42
+general 0 0
+Pu core O core -9.6277e+03 0.0725 0 0 1.42
+general -1 0
+Pu core O core -4.9822e+04 0.0725 0 0 1.42
+general -2 0
+Pu core O core -1.5279e+05 0.0725 0 0 1.42
+general -3 0
+Pu core O core -2.6356e+05 0.0725 0 0 1.42
+
+polynomial
+5
+O Pu -1.60142495e+05 5.2059894e+05 -6.74210156e+05 4.35015649e+05 &
+ -1.3987831e+05 0.17935210e+05 1.42 1.7
+
+buck
+O core Pu core 597.304 0.475712 0.311866 1.7 10
+polynomial harmonic
+3
+O core Pu core 0 0 0.0290852 0.000337448 2.84608 1.7 10
+
+#####
+#######
+####   O-Np potential
+#######
+#####
+
+general 1 0
+O core Np core 2.3293e+03 .0329 0 0 1.42
+general 1 0
+O core Np core 6.5342e+03 .1117 0 0 1.42
+general 1 0
+O core Np core 3.5913e+03 .2613 0 0 1.42
+general 1 0
+O core Np core 361.06 .5223 0 0 1.42
+ 
+general 0 1
+O core Np core 0 .0666 -.4441 0 1.42
+general 1 0
+O core Np core 436.2924 .1477 0 0 1.42
+general 1 0
+O core Np core 139.2491 .0325 0 0 1.42
+general 0 0
+O core Np core 1.9691e+03 .1477 0 0 1.42
+general 0 0
+O core Np core 2.1417e+03 .0325 0 0 1.42
+general -1 0
+O core Np core 3.3328e+03 .1477 0 0 1.42
+
+general 0 1
+Np core O core 0 0.666 -58.1734 0 1.42
+general 1 0
+Np core O core -76.0213 0.0032266 0 0 1.42
+general 0 0
+Np core O core -1.1781e+04 0.0032266 0 0 1.42
+general 1 0
+Np core O core -502.6477 0.0115 0 0 1.42
+general 0 0
+Np core O core -2.9231e+04 0.0115 0 0 1.42
+general -1 0
+Np core O core -6.3748778e+05 0.0115 0 0 1.42
+general 1 0
+Np core O core -1.1220e+03 0.0303 0 0 1.42
+general 0 0
+Np core O core -2.7750e+04 0.0303 0 0 1.42
+general -1 0
+Np core O core -3.0505256e+05 0.0303 0 0 1.42
+general -2 0
+Np core O core -1.676563e+06 0.0303 0 0 1.42
+general 1 0
+Np core O core -862.4151 0.0725 0 0 1.42
+general 0 0
+Np core O core -9.5208e+03 0.0725 0 0 1.42
+general -1 0
+Np core O core -4.9269e+04 0.0725 0 0 1.42
+general -2 0
+Np core O core -1.51093e+05 0.0725 0 0 1.42
+general -3 0
+Np core O core -2.6062841e+05 0.0725 0 0 1.42
+
+polynomial
+5
+O Np -1.871303377549e+05 6.082689988e+05 -7.87845281983e+05 5.084711333e+05 &
+ -1.635571414804e+05 0.20980295229e+05 1.42 1.7
+
+buck
+O core Np core 597.605 0.484948 0.311866 1.7 10
+polynomial harmonic
+3
+O core Np core 0 0 0.048972 -0.0735556 2.93669 1.7 10

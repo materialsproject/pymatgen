@@ -33,7 +33,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.util.decorators import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.util.io_utils import zopen, clean_lines
+from pymatgen.util.io_utils import zopen, clean_lines, zpath
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 import pymatgen
 
@@ -1148,11 +1148,12 @@ class PotcarSingle(object):
     def from_symbol_and_functional(symbol, functional="PBE"):
         funcdir = PotcarSingle.functional_dir[functional]
         paths_to_try = [os.path.join(get_potcar_dir(), funcdir,
-                                     "POTCAR.{}.gz".format(symbol)),
+                                     "POTCAR.{}".format(symbol)),
                         os.path.join(get_potcar_dir(), funcdir, symbol,
                                      "POTCAR")]
         for p in paths_to_try:
             p = os.path.expanduser(p)
+            p = zpath(p)
             if os.path.exists(p):
                 return PotcarSingle.from_file(p)
         raise IOError("You do not have the right POTCAR with functional " +
