@@ -1,0 +1,27 @@
+#
+#  Parameters for the Streitz and Mintmire variable charge model for alumina
+#
+#  Phys. Rev. B, 50, 11996 (1994)
+#
+keyword sm
+smelectronegativity
+Al 0.000000 5.164327 0.968438 0.746759
+O  5.484763 7.017857 2.143957 0.000000
+buck
+Al core Al core    4.474755 0.991317 0.0 0.0 12.0
+Al core O  core   62.933909 0.443658 0.0 0.0 12.0
+O  core O  core 3322.784218 0.291065 0.0 0.0 12.0
+rydberg
+Al core Al core 0.159472  5.949143672000 3.365875 0.0 12.0
+Al core O  core 0.094594  9.985407051900 2.358570 0.0 12.0
+O  core O  core 1.865072 16.822405075464 2.005092 0.0 12.0
+manybody
+Al core Al core  0.0 8.0
+Al core O  core  0.0 8.0
+O  core O  core  0.0 8.0
+eam_functional square_root
+Al core 1.987699
+O  core 2.116850
+eam_density exponential 0
+Al core 0.147699 2.017519 3.365875
+O  core 1.000000 6.871329 2.005092

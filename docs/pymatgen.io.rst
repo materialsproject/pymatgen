@@ -73,6 +73,14 @@ io Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`qchemio` Module
+---------------------
+
+.. automodule:: pymatgen.io.qchemio
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`smartio` Module
 ---------------------
 
