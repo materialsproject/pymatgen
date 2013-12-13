@@ -983,19 +983,28 @@ class HilbertTransform(AbivarAble):
             spmeth
                 Algorith for the representation of the delta function.
         """
+        # Spectral function
         self.nomegasf = nomegasf
         self.spmeth   = spmeth
 
-        #"""Mesh for the contour-deformation method used for the integration of the self-energy"""
+        # Mesh for the contour-deformation method used for the integration of the self-energy
+        #self.freqremax,
+        #self.freqremin,
+        #self.nfreqre,
+        #self.nfreqim,
+        #"freqim_alpha": self.freqim_alpha
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables"""
-        return {"nomegasf": self.nomegasf,
+        return {
+                # Spectral function
+                "nomegasf": self.nomegasf,
                 "spmeth"  : self.spmeth,
-                #"freqremax"   : self.freqremax,
-                #"freqremin"   : self.freqremin,
-                #"nfreqre"     : self.nfreqre,
-                #"nfreqim"     : self.nfreqim,
+                 # Frequency mesh for the polarizability
+                "freqremax"   : self.freqremax,
+                "freqremin"   : self.freqremin,
+                "nfreqre"     : self.nfreqre,
+                "nfreqim"     : self.nfreqim,
                 #"freqim_alpha": self.freqim_alpha
                 }
 
@@ -1101,7 +1110,6 @@ class Screening(AbivarAble):
         if self.use_hilbert:
             abivars.update(self.hilbert.to_abivars())
 
-
         return abivars
 
 
@@ -1126,7 +1134,7 @@ class SelfEnergy(AbivarAble):
     }
 
     def __init__(self, se_type, sc_mode, nband, ecutsigx, screening,
-                 ppmodel=None, ecuteps=None, ecutwfn=None):
+                 gw_kbpolicy=1, ppmodel=None, ecuteps=None, ecutwfn=None):
         """
         Args:
             se_type:
@@ -1139,6 +1147,10 @@ class SelfEnergy(AbivarAble):
                 Cutoff energy for the exchange part of the self-energy (Ha units).
             screening:
                 `Screening` instance.
+            gw_kbpolicy:
+                Option for the automatic selection of k-points and bands for GW corrections.
+                See Abinit docs for more detail. The default value makes the code computie the 
+                QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
             ppmodel:
                 `PPModel` instance with the parameters used for the plasmon-pole technique.
             ecuteps:
@@ -1157,6 +1169,7 @@ class SelfEnergy(AbivarAble):
         self.nband     = nband
         self.ecutsigx  = ecutsigx
         self.screening = screening
+        self.gw_kbpolicy = gw_kbpolicy
 
         if ppmodel is not None:
             assert not screening.use_hilbert
@@ -1189,13 +1202,13 @@ class SelfEnergy(AbivarAble):
         #self.freq_int = freq_int
 
     @property
-    def has_ppmodel(self):
+    def use_ppmodel(self):
         """True if we are using the plasmon-pole approximation."""
         return hasattr(self, "ppmodel")
 
     @property
     def gwcalctyp(self):
-        "Returns the value of the gwcalctyp input variable"
+        """Returns the value of the gwcalctyp input variable."""
         dig0 = str(self._SIGMA_TYPES[self.type])
         dig1 = str(self._SC_MODES[self.sc_mode])
         return dig1.strip() + dig0.strip()
@@ -1208,22 +1221,23 @@ class SelfEnergy(AbivarAble):
     def to_abivars(self):
         "Returns a dictionary with the abinit variables"
 
-        abivars = {
-            "gwcalctyp": self.gwcalctyp,
-            "ecuteps"  : self.ecuteps,
-            "ecutsigx" : self.ecutsigx,
-            "symsigma" : self.symsigma,
+        abivars = dict(
+            gwcalctyp=self.gwcalctyp,
+            ecuteps=self.ecuteps,
+            ecutsigx=self.ecutsigx,
+            symsigma=self.symsigma,
+            gw_kbpolicy=self.gw_kbpolicy,
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,
             #"bdgw"     : self.bdgw,
-        }
+        )
 
         # FIXME: problem with the spin
         #assert len(self.bdgw) == self.nkptgw
 
         # ppmodel variables
-        if self.has_ppmodel:
+        if self.use_ppmodel:
             abivars.update(self.ppmodel.to_abivars())
 
         return abivars
@@ -1252,7 +1266,7 @@ class ExcHamiltonian(AbivarAble):
         "model_df"
         ]
 
-    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, mdf_epsinf=None, 
+    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None, 
                 exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
@@ -1280,6 +1294,14 @@ class ExcHamiltonian(AbivarAble):
             **kwargs:
                 Extra keywords
         """
+        spin_mode = SpinMode.asspinmode(spin_mode)
+
+        try:
+            bs_loband = np.reshape(bs_loband, (spin_mode.nsppol))
+        except ValueError:
+            bs_loband = np.array(2 * [int(bs_loband)])
+            assert len(bs_loband) == 2
+
         self.bs_loband = bs_loband
         self.nband  = nband
         self.soenergy = soenergy
@@ -1336,16 +1358,16 @@ class ExcHamiltonian(AbivarAble):
         """Returns a dictionary with the abinit variables."""
 
         abivars = dict(
+            bs_calctype=1,
             bs_loband=self.bs_loband,
             nband=self.nband,
             soenergy=self.soenergy,
             ecuteps=self.ecuteps,
-            #bs_algo = self._ALGO2VAR[self.algo],
-            mdf_epsinf=self.mdf_epsinf,
+            #bs_algorithm = self._ALGO2VAR[self.algo],
             bs_coulomb_term=21,
-            bs_calctype=1,
-            inclvkb=self.inclvkb,
+            mdf_epsinf=self.mdf_epsinf,
             bs_exchange_term=1 if self.with_lf else 0,
+            inclvkb=self.inclvkb,
             zcut=self.zcut,
             bs_freq_mesh=self.bs_freq_mesh,
             )
@@ -1360,15 +1382,9 @@ class ExcHamiltonian(AbivarAble):
 
         elif self.use_direct_diago:
             raise NotImplementedError("")
-            abivars.update(
-                foo=1,
-            )
 
         elif self.use_cg:
             raise NotImplementedError("")
-            abivars.update(
-                foo=1,
-            )
 
         else:
             raise ValueError("Unknown algorithm for EXC: %s" % self.algo)
@@ -1441,7 +1457,7 @@ class PhononPerturbation(Perturbation):
         # kptopt  2        # Automatic generation of k points (time-reversal symmetry only)
         abivars = super(PhononPertubation, self).to_abivars()
 
-        abivars.extend(dict(
+        abivars.update(dict(
             rfphon=1,             
             rfatpol=self.rfatpol, 
             rfdir=self.rfdir,
@@ -1467,7 +1483,7 @@ class DDKPerturbation(Perturbation):
     def to_abivars(self):
         abivars = super(DDKPert, self).to_abivars()
 
-        abivars.extend(dict(
+        abivars.update(dict(
             rfelfd=2,           # Activate the calculation of the d/dk perturbation
             rfdir=self.rdfdir   # Direction of the perturbation
         ))
