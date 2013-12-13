@@ -36,7 +36,8 @@ class QcInput(MSONable):
                               "svpirf", "van_der_waals", "xc_functional",
                               "cdft", "efp_fragments", "efp_params"}
     alternative_keys = {"job_type": "jobtype",
-                        "symmetry_ignore": "sym_ignore"}
+                        "symmetry_ignore": "sym_ignore",
+                        "scf_max_cycles": "max_scf_cycles"}
     alternative_values = {"optimization": "opt",
                           "frequency": "freq"}
     zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
