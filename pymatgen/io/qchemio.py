@@ -462,7 +462,7 @@ class QcInput(MSONable):
                 value. The default value is min(NDEG, NATOMS, 4) NDEG = number
                 of moleculardegrees of freedom.
         """
-        subspace_size = subspace_size if subspace_size else -1
+        subspace_size = subspace_size if subspace_size is not None else -1
         self.params["rem"]["geom_opt_max_diis"] = subspace_size
 
     def disable_symmetry(self):
