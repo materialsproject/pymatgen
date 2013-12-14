@@ -1136,8 +1136,8 @@ $rem
         exchange = b3lyp
            basis = gen
              ecp = gen
+  max_scf_cycles = 100
        scf_guess = gwh
-  scf_max_cycles = 100
 $end
 
 
