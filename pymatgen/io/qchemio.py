@@ -482,6 +482,48 @@ class QcInput(MSONable):
         self.params["rem"]["solvent_method"] = "cosmo"
         self.params["rem"]["solvent_dielectric"] = dielectric_constant
 
+    def use_pcm(self, pcm_params=None, solvent_params=None,
+                radii_force_field=None):
+        """
+        Set the solvent model to PCM. Default parameters are trying to comply to
+        gaussian default value
+
+        Args:
+            pcm_params:
+                The parameters of "$pcm" section.
+                Type: dict
+            solvent_params:
+                The parameters of "pcm_solvent" section
+                Type: dict
+            radii_force_field:
+                The force fied used to set the solute radii. Default to UFF.
+                Type: str
+        """
+        default_pcm_params = {"Theory": "SSVPE",
+                              "vdwScale": 1.1,
+                              "Radii": "UFF"}
+        if radii_force_field:
+            default_pcm_params["Radii"] = "Bondi"
+            self.params["rem"]["force_fied"] = radii_force_field
+        if not solvent_params:
+            solvent_params = {"Dielectric": 78.3553}
+        if not pcm_params or len(pcm_params.keys()) == 0:
+            self.params["pcm"] = dict()
+        else:
+            for k, v in pcm_params.iteritems():
+                self.params["pcm"][k.lower()] = v.lower() \
+                    if isinstance(v, str) else v
+
+        for k, v in default_pcm_params.iteritems():
+            if k.lower() not in self.params["pcm"].keys():
+                self.params["pcm"][k.lower()] = v.lower() \
+                    if isinstance(v, str) else v
+        self.params["pcm_solvent"] = dict()
+        for k, v in solvent_params.iteritems():
+            self.params["pcm_solvent"][k.lower()] = v.lower() \
+                if isinstance(v, str) else copy.deepcopy(v)
+        self.params["rem"]["solvent_method"] = "pcm"
+
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
             sorted(list(self.optional_keywords_list))
@@ -556,6 +598,44 @@ class QcInput(MSONable):
             lines.append(" " + element)
             lines.append(" " + ecp)
             lines.append(" ****")
+        return lines
+
+    def _format_pcm(self):
+        pcm_format_template = Template("  {name:>$name_width}   "
+                                       "{value}")
+        name_width = 0
+        for name in self.params["pcm"].keys():
+            if len(name) > name_width:
+                name_width = len(name)
+        rem = pcm_format_template.substitute(name_width=name_width)
+        lines = []
+        for name in sorted(self.params["pcm"].keys()):
+            value = self.params["pcm"][name]
+            lines.append(rem.format(name=name, value=value))
+        return lines
+
+    def _format_pcm_solvent(self):
+        pp_format_template = Template("  {name:>$name_width}   "
+                                       "{value}")
+        name_width = 0
+        for name in self.params["pcm_solvent"].keys():
+            if len(name) > name_width:
+                name_width = len(name)
+        rem = pp_format_template.substitute(name_width=name_width)
+        lines = []
+        all_keys = set(self.params["pcm_solvent"].keys())
+        priority_keys = []
+        for k in ["Dielectric", "NonEls", "NSolventAtoms", "SolventAtom"]:
+            if k in all_keys:
+                priority_keys.append(k)
+        additional_keys = all_keys - set(priority_keys)
+        ordered_keys = priority_keys + sorted(list(additional_keys))
+        for name in ordered_keys:
+            value = self.params["pcm_solvent"][name]
+            if name == "SolventAtom":
+                v = copy.deepcopy(value)
+                value = "{:4d} {:4d} {:4d} {:4.2f}".format(*v)
+            lines.append(rem.format(name=name, value=value))
         return lines
 
     @property
