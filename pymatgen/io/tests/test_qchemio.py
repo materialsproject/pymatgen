@@ -683,6 +683,13 @@ $end
         self.assertEqual(str(qcinp), ans)
         self.elementary_io_verify(ans, qcinp)
 
+    def test_use_pcm(self):
+        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        qcinp.use_pcm()
+        print qcinp
+
 
 class TestQcBatchInput(TestCase):
     def test_str_and_from_string(self):
