@@ -684,11 +684,47 @@ $end
         self.elementary_io_verify(ans, qcinp)
 
     def test_use_pcm(self):
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+     radii   uff
+    theory   ssvpe
+  vdwscale   1.1
+$end
+
+
+$pcm_solvent
+  dielectric   78.3553
+$end
+
+'''
         qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.use_pcm()
-        print qcinp
+        self.assertEqual(str(qcinp), ans)
+        self.elementary_io_verify(ans, qcinp)
 
 
 class TestQcBatchInput(TestCase):
