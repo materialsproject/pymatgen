@@ -616,7 +616,7 @@ class QcInput(MSONable):
 
     def _format_pcm_solvent(self):
         pp_format_template = Template("  {name:>$name_width}   "
-                                       "{value}")
+                                      "{value}")
         name_width = 0
         for name in self.params["pcm_solvent"].keys():
             if len(name) > name_width:
@@ -960,6 +960,68 @@ class QcInput(MSONable):
         for ch in chunks:
             element, ecp = ch[:2]
             d[element.strip().capitalize()] = ecp.strip().lower()
+        return d
+
+    @classmethod
+    def _parse_pcm(cls, contents):
+        d = dict()
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+
+        for line in contents:
+            tokens = line.strip().replace("=", ' ').split()
+            if len(tokens) < 2:
+                raise ValueError("Can't parse $rem section, there should be "
+                                 "at least two field: key and value!")
+            k1, v = tokens[:2]
+            k2 = k1.lower()
+            if k2 in cls.alternative_keys:
+                k2 = cls.alternative_keys[k2]
+            if v in cls.alternative_values:
+                v = cls.alternative_values
+            if v == "True":
+                d[k2] = True
+            elif v == "False":
+                d[k2] = False
+            elif int_pattern.match(v):
+                d[k2] = int(v)
+            elif float_pattern.match(v):
+                d[k2] = float(v)
+            else:
+                d[k2] = v.lower()
+        return d
+
+    @classmethod
+    def _parse_pcm_solvent(cls, contents):
+        d = dict()
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+
+        for line in contents:
+            tokens = line.strip().replace("=", ' ').split()
+            if len(tokens) < 2:
+                raise ValueError("Can't parse $rem section, there should be "
+                                 "at least two field: key and value!")
+            k1, v = tokens[:2]
+            k2 = k1.lower()
+            if k2 in cls.alternative_keys:
+                k2 = cls.alternative_keys[k2]
+            if v in cls.alternative_values:
+                v = cls.alternative_values
+            if k2 == "solventatom":
+                v = [int(i) for i in tokens[1:4]]
+                # noinspection PyTypeChecker
+                v.append(float(tokens[4]))
+            elif v == "True":
+                d[k2] = True
+            elif v == "False":
+                d[k2] = False
+            elif int_pattern.match(v):
+                d[k2] = int(v)
+            elif float_pattern.match(v):
+                d[k2] = float(v)
+            else:
+                d[k2] = v.lower()
         return d
 
 
