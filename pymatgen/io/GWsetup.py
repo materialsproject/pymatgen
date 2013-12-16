@@ -22,7 +22,7 @@ import os.path
 import pymatgen as pmg
 
 
-from pymatgen.io.vaspio.vasp_input import Kpoints
+from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.abinitio.abiobjects import asabistructure
@@ -48,16 +48,16 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
     """
     TESTS = {}
 
-    def __init__(self, structure, **kwargs):
+    def __init__(self, structure, functional='PBE', **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        self.structure = structure
         with open(os.path.join(MODULE_DIR, "MPGWVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static Self consistent run for GW", json.load(f), **kwargs)
+        self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
-
+        self.functional = functional
     #  todo update the fromdict and todict ot include the new atributes
 
     @classmethod
@@ -81,19 +81,25 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         all_tests.update(MPGWG0W0VaspInputSet.get_defaults_tests())
         test_type = all_tests[_test_.keys()[0]]['method']
         npar = self.get_npar(self.structure)
-        npar = int(os.environ['NPARGWCALC'])
         if test_type == 'incar_settings':
             self.incar_settings.update(_test_)
         if test_type == 'set_nomega':
             nomega = npar * int(_test_['NOMEGA'] / npar)
             self.incar_settings.update({"NOMEGA": int(nomega)})
         if test_type == 'set_nbands':
-            #npar = int(os.environ['NPARGWCALC'])
             nbands = _test_['NBANDS'] * self.get_bands(self.structure)
             nbands = npar * int(nbands / npar + 1)
             self.incar_settings.update({"NBANDS": int(nbands)})
         if test_type == 'kpoint_grid':
             pass
+
+    def get_potcar(self, structure):
+        """
+        Method for getting LDA potcars
+        """
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
+        return Potcar(self.get_potcar_symbols(structure), functional=self.functional)
 
     def get_kpoints(self, structure):
         """
@@ -110,12 +116,9 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         Method for retrieving the standard number of bands
         """
         valence_list = {}
-        electrons = 0
         potcar = self.get_potcar(structure)
         for pot_single in potcar:
             valence_list.update({pot_single.element: pot_single.nelectrons})
-        #for element in structure.species:
-        #    electrons += valence_list[element.symbol]
         electrons = sum([valence_list[element.symbol] for element in structure.species])
         bands = electrons / 2 + len(structure)
         return int(bands)
@@ -136,22 +139,21 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     """
     TESTS = {'NBANDS': {'test_range': (10, 15, 20), 'method': 'set_nbands', 'control': "gap"}}
 
-    def __init__(self, structure, **kwargs):
-        self.structure = structure
+    def __init__(self, structure, functional='PBE', **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
         with open(os.path.join(MODULE_DIR, "MPGWVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static exact diagonalization", json.load(f), **kwargs)
+        self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
+        self.functional = functional
+        npar = self.get_npar(self.structure)
+        gw_bands = self.get_bands(self.structure)
+        gw_bands = npar * int((10 * gw_bands) / npar + 1)
         #single step exact diagonalization, output WAVEDER
         self.incar_settings.update({"ALGO": "Exact", "NELM": 1, "LOPTICS": "TRUE"})
-        #set the number of bands and npar
-        gw_bands = self.get_bands(self.structure)
-        #npar = int(os.environ['NPARGWCALC'])
-        npar = self.get_npar(self.structure)
-        gw_bands = npar * int((10 * gw_bands) / npar + 1)
         # for large systems exact diagonalization consumes too much memory
         if gw_bands > 800:
             self.incar_settings.update({"ALGO": 'fast'})
@@ -167,22 +169,23 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     TESTS = {'ENCUTGW': {'test_range': (150, 200, 250, 300), 'method': 'incar_settings', 'control': "gap"},
             'NOMEGA': {'test_range': (60, 80, 100), 'method': 'set_nomega', 'control': "gap"}}
 
-    def __init__(self, structure, **kwargs):
-        self.structure = structure
+    def __init__(self, structure, functional='PBE', **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
         with open(os.path.join(MODULE_DIR, "MPGWVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static G0W0", json.load(f), **kwargs)
-        # G0W0 calculation with reduced cutoff for the response function
-        self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 200, "LWAVE": "FALSE", "NELM": 1})
-        # npar = int(os.environ['NPARGWCALC'])
+        self.structure = structure
+        self.tests = self.__class__.get_defaults_tests()
+        self.functional = functional
         npar = self.get_npar(structure)
-        # set nomega to smallest integer times npar smaller 100
-        nomega = npar * int(104 / npar)
         gw_bands = self.get_bands(structure)
         gw_bands = npar * int((10 * gw_bands) / npar + 1)
+        # G0W0 calculation with reduced cutoff for the response function
+        self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 200, "LWAVE": "FALSE", "NELM": 1})
+        # set nomega to smallest integer times npar smaller 100
+        nomega = npar * int(104 / npar)
         self.incar_settings.update({"NBANDS": gw_bands})
         self.incar_settings.update({"NPAR": npar})
         self.incar_settings.update({"NOMEGA": nomega})
@@ -247,30 +250,30 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
         option_name = option_prep_name = ''
     path = structure.composition.reduced_formula+option_prep_name
     if task == 'prep':
-        inpset = MPGWscDFTPrepVaspInputSet(structure)
+        inpset = MPGWscDFTPrepVaspInputSet(structure, functional=spec['functional'])
         if spec['test']:
             if option[0].keys()[0] in MPGWscDFTPrepVaspInputSet(structure).tests.keys():
                 inpset.set_test(option[0])
         inpset.write_input(structure, path)
-        inpset = MPGWDFTDiagVaspInputSet(structure)
+        inpset = MPGWDFTDiagVaspInputSet(structure, functional=spec['functional'])
         if spec['test']:
             inpset.set_test(option[0])
         inpset.get_incar(structure).write_file(os.path.join(path, 'INCAR.DIAG'))
     if task == 'G0W0':
-        inpset = MPGWG0W0VaspInputSet(structure)
+        inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, os.path.join(path, 'G0W0'+option_name))
     if task == 'GW0':
-        inpset = MPGWG0W0VaspInputSet(structure)
+        inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
         inpset.gw0_on()
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, os.path.join(path, 'GW0'+option_name))
     if task == 'scGW0':
-        inpset = MPGWG0W0VaspInputSet(structure)
+        inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
         inpset.gw0_on(qpsc=True)
         if spec['test']:
             inpset.set_test(option[0])
@@ -278,11 +281,11 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
         inpset.write_input(structure, os.path.join(path, 'scGW0'+option_name))
 
 
-def create_single_job_script(structure, task, option=None):
+def create_single_job_script(structure, task, spec, option=None):
     """
     Create job script for ceci.
     """
-    npar = MPGWscDFTPrepVaspInputSet(structure).get_npar(structure)
+    npar = MPGWscDFTPrepVaspInputSet(structure, functional=spec['functional']).get_npar(structure)
     if option is not None:
         option_prep_name = str(option[0])
         option_name = str(option[1])
@@ -387,7 +390,7 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
     return flow.allocate()
 
 
-def main():
+def main(spec):
     """
     section for testing. The classes Should eventually be moved to vaspio_set.py
     source: where the structures come from
@@ -407,8 +410,6 @@ def main():
     abi_pseudo = '.GGA_PBE-JTH-paw.xml'
     abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
 
-    spec = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp', 'code': 'ABINIT'}
-
     if 'ceci' in spec['mode']:
         if os.path.isfile('job_collection'):
             os.remove('job_collection')
@@ -417,9 +418,10 @@ def main():
             job_file.write('source ~gmatteo/.bashrc \n')
             job_file.close()
 
-
-    if spec['source'] == 'mp':
+    if spec['source'] == 'mp-vasp':
         items_list = mp_list_vasp
+    elif spec['source'] == 'mp-tco':
+        items_list = mp_list
     elif spec['source'] == 'poscar':
         files = os.listdir('.')
         items_list = files
@@ -443,11 +445,11 @@ def main():
                 for test_prep in tests_prep:
                     print 'setting up test for: ' + test_prep
                     for value_prep in tests_prep[test_prep]['test_range']:
-                        task = 'prep'
                         print "**" + str(value_prep) + "**"
-                        create_single_vasp_gw_task(structure=structure, task='prep', spec=spec, option=[{test_prep: value_prep}, {}])
+                        option = [{test_prep: value_prep}, {}]
+                        create_single_vasp_gw_task(structure=structure, task='prep', spec=spec, option=option)
                         if 'ceci' in spec['mode']:
-                            create_single_job_script(structure=structure, task=task, option=[{test_prep: value_prep}, {}])
+                            create_single_job_script(structure=structure, task=task, spec=spec, option=option)
                         for task in spec['jobs'][1:]:
                             if task == 'G0W0':
                                 tests = MPGWG0W0VaspInputSet(structure).tests
@@ -459,14 +461,15 @@ def main():
                                 print '    setting up test for: ' + test
                                 for value in tests[test]['test_range']:
                                     print "    **" + str(value) + "**"
-                                    create_single_vasp_gw_task(structure, task, spec, option=[{test_prep: value_prep}, {test: value}])
+                                    option = [{test_prep: value_prep}, {test: value}]
+                                    create_single_vasp_gw_task(structure, task, spec, option)
                                     if 'ceci' in spec['mode']:
-                                        create_single_job_script(structure, task, option=[{test_prep: value_prep}, {test: value}])
+                                        create_single_job_script(structure, task, spec, option)
             else:
                 for task in spec['jobs']:
-                    create_single_vasp_gw_task(structure=structure, task=task, spec=spec, option=[{}, {}])
+                    create_single_vasp_gw_task(structure=structure, task=task, spec=spec)
                     if 'ceci' in spec['mode']:
-                        create_single_job_script(structure=structure, task=task)
+                        create_single_job_script(structure=structure, task=task, spec=spec)
         if 'ceci' in spec['mode']:
             # create the tar
             pass
@@ -497,4 +500,29 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    spec_inp = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
+            'functional': 'LDA'}
+    key = 'tmp'
+    while len(key) != 0:
+        print spec_inp
+        key = raw_input('enter key to change: ')
+        if key in spec_inp.keys():
+            value = raw_input('enter new value: ')
+            if key == 'jobs':
+                if len(value) == 0:
+                    print 'removed', spec_inp['jobs'].pop(-1)
+                else:
+                    spec_inp['jobs'].append(value)
+            else:
+                spec_inp[key] = value
+        elif key in ['help', 'h']:
+            print 'source: poscar, mp-vasp, mp-tco'
+            print 'mode: input, ceci, fw'
+            print 'functional: PBE, LDA'
+            print 'tasks: prep, G0W0, GW0, scGW0'
+            print 'code: VASP, ABINIT'
+        elif len(key) == 0:
+            print 'setup finished'
+        else:
+            print 'undefined key'
+    main(spec=spec_inp)
