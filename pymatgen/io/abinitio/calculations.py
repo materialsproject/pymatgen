@@ -181,7 +181,7 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, 
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
                       ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
-                      sigma_nband=None, gw_kbpolicy=1, workdir=None, manager=None, **extra_abivars):
+                      sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -216,7 +216,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
             Number of bands used to compute the screening (default is nscf_nband)
         sigma_nband:
             Number of bands used to compute the self-energy (default is nscf_nband)
-        gw_kbpolicy:
+        gw_qprange:
             Option for the automatic selection of k-points and bands for GW corrections.
             See Abinit docs for more detail. The default value makes the code computie the 
             QP energies for all the point in the IBZ and one band above and one band below the Fermi level.

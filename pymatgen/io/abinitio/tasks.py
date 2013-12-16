@@ -804,7 +804,17 @@ class Status(int):
         return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
 
     def __str__(self):
+        """String representation."""
         return STATUS2STR[self]
+
+    @classmethod
+    def from_string(cls, s):
+        """Return a `Status` instance from its string representation."""
+        for num, text in STATUS2STR.items():
+            if text == s:
+                return cls(num)
+        else:
+            raise ValueError("Wrong string %s" % s)
 
 
 class Node(object):
@@ -827,6 +837,18 @@ class Node(object):
     S_ERROR = Status(7)
     S_UNCONVERGED = Status(8)
     S_OK = Status(9)
+
+    ALL_STATUS = [
+        S_INIT,
+        S_LOCKED,
+        S_READY,
+        S_SUB,
+        S_RUN,
+        S_DONE,
+        S_ERROR,
+        S_UNCONVERGED,
+        S_OK,
+    ]
 
     def __init__(self):
         # Node identifier.
@@ -1424,6 +1446,13 @@ class Task(Node):
 
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
+        # Accepts strings as well.
+        if not isinstance(status, Status):
+            try:
+                status = getattr(Node, status)
+            except AttributeError:
+                status = Status.from_string(status)
+
         assert status in STATUS2STR
 
         changed = True
