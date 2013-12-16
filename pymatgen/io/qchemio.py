@@ -36,7 +36,8 @@ class QcInput(MSONable):
                               "svpirf", "van_der_waals", "xc_functional",
                               "cdft", "efp_fragments", "efp_params"}
     alternative_keys = {"job_type": "jobtype",
-                        "symmetry_ignore": "sym_ignore"}
+                        "symmetry_ignore": "sym_ignore",
+                        "scf_max_cycles": "max_scf_cycles"}
     alternative_values = {"optimization": "opt",
                           "frequency": "freq"}
     zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
@@ -461,7 +462,7 @@ class QcInput(MSONable):
                 value. The default value is min(NDEG, NATOMS, 4) NDEG = number
                 of moleculardegrees of freedom.
         """
-        subspace_size = subspace_size if subspace_size else -1
+        subspace_size = subspace_size if subspace_size is not None else -1
         self.params["rem"]["geom_opt_max_diis"] = subspace_size
 
     def disable_symmetry(self):
@@ -480,6 +481,47 @@ class QcInput(MSONable):
         """
         self.params["rem"]["solvent_method"] = "cosmo"
         self.params["rem"]["solvent_dielectric"] = dielectric_constant
+
+    def use_pcm(self, pcm_params=None, solvent_params=None,
+                radii_force_field=None):
+        """
+        Set the solvent model to PCM. Default parameters are trying to comply to
+        gaussian default value
+
+        Args:
+            pcm_params:
+                The parameters of "$pcm" section.
+                Type: dict
+            solvent_params:
+                The parameters of "pcm_solvent" section
+                Type: dict
+            radii_force_field:
+                The force fied used to set the solute radii. Default to UFF.
+                Type: str
+        """
+        self.params["pcm"] = dict()
+        self.params["pcm_solvent"] = dict()
+        default_pcm_params = {"Theory": "SSVPE",
+                              "vdwScale": 1.1,
+                              "Radii": "UFF"}
+        if not solvent_params:
+            solvent_params = {"Dielectric": 78.3553}
+        if pcm_params:
+            for k, v in pcm_params.iteritems():
+                self.params["pcm"][k.lower()] = v.lower() \
+                    if isinstance(v, str) else v
+
+        for k, v in default_pcm_params.iteritems():
+            if k.lower() not in self.params["pcm"].keys():
+                self.params["pcm"][k.lower()] = v.lower() \
+                    if isinstance(v, str) else v
+        for k, v in solvent_params.iteritems():
+            self.params["pcm_solvent"][k.lower()] = v.lower() \
+                if isinstance(v, str) else copy.deepcopy(v)
+        self.params["rem"]["solvent_method"] = "pcm"
+        if radii_force_field:
+            self.params["pcm"]["radii"] = "bondi"
+            self.params["rem"]["force_fied"] = radii_force_field.lower()
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
@@ -555,6 +597,46 @@ class QcInput(MSONable):
             lines.append(" " + element)
             lines.append(" " + ecp)
             lines.append(" ****")
+        return lines
+
+    def _format_pcm(self):
+        pcm_format_template = Template("  {name:>$name_width}   "
+                                       "{value}")
+        name_width = 0
+        for name in self.params["pcm"].keys():
+            if len(name) > name_width:
+                name_width = len(name)
+        rem = pcm_format_template.substitute(name_width=name_width)
+        lines = []
+        for name in sorted(self.params["pcm"].keys()):
+            value = self.params["pcm"][name]
+            lines.append(rem.format(name=name, value=value))
+        return lines
+
+    def _format_pcm_solvent(self):
+        pp_format_template = Template("  {name:>$name_width}   "
+                                      "{value}")
+        name_width = 0
+        for name in self.params["pcm_solvent"].keys():
+            if len(name) > name_width:
+                name_width = len(name)
+        rem = pp_format_template.substitute(name_width=name_width)
+        lines = []
+        all_keys = set(self.params["pcm_solvent"].keys())
+        priority_keys = []
+        for k in ["dielectric", "nonels", "nsolventatoms", "solventatom"]:
+            if k in all_keys:
+                priority_keys.append(k)
+        additional_keys = all_keys - set(priority_keys)
+        ordered_keys = priority_keys + sorted(list(additional_keys))
+        for name in ordered_keys:
+            value = self.params["pcm_solvent"][name]
+            if name == "solventatom":
+                for v in copy.deepcopy(value):
+                    value = "{:<4d} {:<4d} {:<4d} {:4.2f}".format(*v)
+                    lines.append(rem.format(name=name, value=value))
+                continue
+            lines.append(rem.format(name=name, value=value))
         return lines
 
     @property
@@ -879,6 +961,73 @@ class QcInput(MSONable):
         for ch in chunks:
             element, ecp = ch[:2]
             d[element.strip().capitalize()] = ecp.strip().lower()
+        return d
+
+    @classmethod
+    def _parse_pcm(cls, contents):
+        d = dict()
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+
+        for line in contents:
+            tokens = line.strip().replace("=", ' ').split()
+            if len(tokens) < 2:
+                raise ValueError("Can't parse $pcm section, there should be "
+                                 "at least two field: key and value!")
+            k1, v = tokens[:2]
+            k2 = k1.lower()
+            if k2 in cls.alternative_keys:
+                k2 = cls.alternative_keys[k2]
+            if v in cls.alternative_values:
+                v = cls.alternative_values
+            if v == "True":
+                d[k2] = True
+            elif v == "False":
+                d[k2] = False
+            elif int_pattern.match(v):
+                d[k2] = int(v)
+            elif float_pattern.match(v):
+                d[k2] = float(v)
+            else:
+                d[k2] = v.lower()
+        return d
+
+    @classmethod
+    def _parse_pcm_solvent(cls, contents):
+        d = dict()
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+
+        for line in contents:
+            tokens = line.strip().replace("=", ' ').split()
+            if len(tokens) < 2:
+                raise ValueError("Can't parse $pcm_solvent section, "
+                                 "there should be at least two field: "
+                                 "key and value!")
+            k1, v = tokens[:2]
+            k2 = k1.lower()
+            if k2 in cls.alternative_keys:
+                k2 = cls.alternative_keys[k2]
+            if v in cls.alternative_values:
+                v = cls.alternative_values
+            if k2 == "solventatom":
+                v = [int(i) for i in tokens[1:4]]
+                # noinspection PyTypeChecker
+                v.append(float(tokens[4]))
+                if k2 not in d:
+                    d[k2] = [v]
+                else:
+                    d[k2].append(v)
+            elif v == "True":
+                d[k2] = True
+            elif v == "False":
+                d[k2] = False
+            elif int_pattern.match(v):
+                d[k2] = int(v)
+            elif float_pattern.match(v):
+                d[k2] = float(v)
+            else:
+                d[k2] = v.lower()
         return d
 
 
