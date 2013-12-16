@@ -894,6 +894,9 @@ class TestQcOutput(TestCase):
         "MP2": -2726.685664155242,
         "SCF": -2721.5414360843106
     },
+    "hf_cosmo.qcout": {
+        "SCF": -2721.1752937496067
+    },
     "hf_hf.qcout": {
         "SCF": -2721.541435904716
     },
@@ -908,6 +911,9 @@ class TestQcOutput(TestCase):
     "hf_mp2.qcout": {
         "MP2": -2726.685661962005,
         "SCF": -2721.541435904716
+    },
+    "hf_pcm.qcout": {
+        "SCF": -2720.703940318968
     },
     "hf_qcisd(t).qcout": {
         "QCISD": -2726.7853751012344,
