@@ -683,6 +683,107 @@ $end
         self.assertEqual(str(qcinp), ans)
         self.elementary_io_verify(ans, qcinp)
 
+    def test_use_pcm(self):
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+     radii   uff
+    theory   ssvpe
+  vdwscale   1.1
+$end
+
+
+$pcm_solvent
+  dielectric   78.3553
+$end
+
+'''
+        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        qcinp.use_pcm()
+        self.assertEqual(str(qcinp), ans)
+        self.elementary_io_verify(ans, qcinp)
+
+        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        qcinp.use_pcm(pcm_params={"Radii": "FF",
+                                  "Theory": "CPCM",
+                                  "SASrad": 1.5,
+                                  "HPoints": 1202},
+                      solvent_params={"Dielectric": 20.0,
+                                      "Temperature": 300.75,
+                                      "NSolventAtoms": 2,
+                                      "SolventAtom": [[8, 1, 186, 1.30],
+                                                      [1, 2, 187, 1.01]]},
+                      radii_force_field="OPLSAA")
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+      force_fied = oplsaa
+  solvent_method = pcm
+$end
+
+
+$pcm
+   hpoints   1202
+     radii   bondi
+    sasrad   1.5
+    theory   cpcm
+  vdwscale   1.1
+$end
+
+
+$pcm_solvent
+     dielectric   20.0
+  nsolventatoms   2
+    solventatom   8    1    186  1.30
+    solventatom   1    2    187  1.01
+    temperature   300.75
+$end
+
+'''
+        self.assertEqual(str(qcinp), ans)
+        self.elementary_io_verify(ans, qcinp)
+
 
 class TestQcBatchInput(TestCase):
     def test_str_and_from_string(self):
@@ -793,6 +894,9 @@ class TestQcOutput(TestCase):
         "MP2": -2726.685664155242,
         "SCF": -2721.5414360843106
     },
+    "hf_cosmo.qcout": {
+        "SCF": -2721.1752937496067
+    },
     "hf_hf.qcout": {
         "SCF": -2721.541435904716
     },
@@ -807,6 +911,9 @@ class TestQcOutput(TestCase):
     "hf_mp2.qcout": {
         "MP2": -2726.685661962005,
         "SCF": -2721.541435904716
+    },
+    "hf_pcm.qcout": {
+        "SCF": -2720.703940318968
     },
     "hf_qcisd(t).qcout": {
         "QCISD": -2726.7853751012344,
@@ -1136,8 +1243,8 @@ $rem
         exchange = b3lyp
            basis = gen
              ecp = gen
+  max_scf_cycles = 100
        scf_guess = gwh
-  scf_max_cycles = 100
 $end
 
 
