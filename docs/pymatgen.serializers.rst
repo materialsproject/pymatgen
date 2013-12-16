@@ -1,19 +1,28 @@
-serializers Package
-===================
+pymatgen.serializers package
+============================
 
-:mod:`serializers` Package
---------------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.serializers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`json_coders` Module
--------------------------
+
+Submodules
+----------
+
+pymatgen.serializers.json_coders module
+---------------------------------------
 
 .. automodule:: pymatgen.serializers.json_coders
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.serializers
+    :members:
+    :undoc-members:
+    :show-inheritance:
