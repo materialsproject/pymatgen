@@ -499,17 +499,14 @@ class QcInput(MSONable):
                 The force fied used to set the solute radii. Default to UFF.
                 Type: str
         """
+        self.params["pcm"] = dict()
+        self.params["pcm_solvent"] = dict()
         default_pcm_params = {"Theory": "SSVPE",
                               "vdwScale": 1.1,
                               "Radii": "UFF"}
-        if radii_force_field:
-            default_pcm_params["Radii"] = "Bondi"
-            self.params["rem"]["force_fied"] = radii_force_field
         if not solvent_params:
             solvent_params = {"Dielectric": 78.3553}
-        if not pcm_params or len(pcm_params.keys()) == 0:
-            self.params["pcm"] = dict()
-        else:
+        if pcm_params:
             for k, v in pcm_params.iteritems():
                 self.params["pcm"][k.lower()] = v.lower() \
                     if isinstance(v, str) else v
@@ -518,11 +515,13 @@ class QcInput(MSONable):
             if k.lower() not in self.params["pcm"].keys():
                 self.params["pcm"][k.lower()] = v.lower() \
                     if isinstance(v, str) else v
-        self.params["pcm_solvent"] = dict()
         for k, v in solvent_params.iteritems():
             self.params["pcm_solvent"][k.lower()] = v.lower() \
                 if isinstance(v, str) else copy.deepcopy(v)
         self.params["rem"]["solvent_method"] = "pcm"
+        if radii_force_field:
+            self.params["pcm"]["radii"] = "bondi"
+            self.params["rem"]["force_fied"] = radii_force_field.lower()
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
@@ -625,16 +624,18 @@ class QcInput(MSONable):
         lines = []
         all_keys = set(self.params["pcm_solvent"].keys())
         priority_keys = []
-        for k in ["Dielectric", "NonEls", "NSolventAtoms", "SolventAtom"]:
+        for k in ["dielectric", "nonels", "nsolventatoms", "solventatom"]:
             if k in all_keys:
                 priority_keys.append(k)
         additional_keys = all_keys - set(priority_keys)
         ordered_keys = priority_keys + sorted(list(additional_keys))
         for name in ordered_keys:
             value = self.params["pcm_solvent"][name]
-            if name == "SolventAtom":
-                v = copy.deepcopy(value)
-                value = "{:4d} {:4d} {:4d} {:4.2f}".format(*v)
+            if name == "solventatom":
+                for v in copy.deepcopy(value):
+                    value = "{:<4d} {:<4d} {:<4d} {:4.2f}".format(*v)
+                    lines.append(rem.format(name=name, value=value))
+                continue
             lines.append(rem.format(name=name, value=value))
         return lines
 
@@ -971,7 +972,7 @@ class QcInput(MSONable):
         for line in contents:
             tokens = line.strip().replace("=", ' ').split()
             if len(tokens) < 2:
-                raise ValueError("Can't parse $rem section, there should be "
+                raise ValueError("Can't parse $pcm section, there should be "
                                  "at least two field: key and value!")
             k1, v = tokens[:2]
             k2 = k1.lower()
@@ -1000,8 +1001,9 @@ class QcInput(MSONable):
         for line in contents:
             tokens = line.strip().replace("=", ' ').split()
             if len(tokens) < 2:
-                raise ValueError("Can't parse $rem section, there should be "
-                                 "at least two field: key and value!")
+                raise ValueError("Can't parse $pcm_solvent section, "
+                                 "there should be at least two field: "
+                                 "key and value!")
             k1, v = tokens[:2]
             k2 = k1.lower()
             if k2 in cls.alternative_keys:
@@ -1012,6 +1014,10 @@ class QcInput(MSONable):
                 v = [int(i) for i in tokens[1:4]]
                 # noinspection PyTypeChecker
                 v.append(float(tokens[4]))
+                if k2 not in d:
+                    d[k2] = [v]
+                else:
+                    d[k2].append(v)
             elif v == "True":
                 d[k2] = True
             elif v == "False":
