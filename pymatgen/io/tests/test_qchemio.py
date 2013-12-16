@@ -1309,6 +1309,19 @@ $end
         self.assertEqual(qcout.data[2]['scf_iteration_energies'],
                          ans_scf_iter_ene)
 
+    def test_solvent_method(self):
+        filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["solvent_method"], "NA")
+
+        filename = os.path.join(test_dir, "qchem_energies", "hf_cosmo.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["solvent_method"], "cosmo")
+
+        filename = os.path.join(test_dir, "qchem_energies", "hf_pcm.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["solvent_method"], "pcm")
+
     def test_failed_message(self):
         scf_file = os.path.join(test_dir, "hf.qcout")
         scf_qcout = QcOutput(scf_file)
