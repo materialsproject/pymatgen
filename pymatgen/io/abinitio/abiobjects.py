@@ -1144,7 +1144,7 @@ class SelfEnergy(AbivarAble):
     }
 
     def __init__(self, se_type, sc_mode, nband, ecutsigx, screening,
-                 gw_kbpolicy=1, ppmodel=None, ecuteps=None, ecutwfn=None):
+                 gw_qprange=1, ppmodel=None, ecuteps=None, ecutwfn=None):
         """
         Args:
             se_type:
@@ -1157,7 +1157,7 @@ class SelfEnergy(AbivarAble):
                 Cutoff energy for the exchange part of the self-energy (Ha units).
             screening:
                 `Screening` instance.
-            gw_kbpolicy:
+            gw_qprange:
                 Option for the automatic selection of k-points and bands for GW corrections.
                 See Abinit docs for more detail. The default value makes the code computie the 
                 QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
@@ -1179,7 +1179,7 @@ class SelfEnergy(AbivarAble):
         self.nband     = nband
         self.ecutsigx  = ecutsigx
         self.screening = screening
-        self.gw_kbpolicy = gw_kbpolicy
+        self.gw_qprange = gw_qprange
 
         if ppmodel is not None:
             assert not screening.use_hilbert
@@ -1236,7 +1236,7 @@ class SelfEnergy(AbivarAble):
             ecuteps=self.ecuteps,
             ecutsigx=self.ecutsigx,
             symsigma=self.symsigma,
-            gw_kbpolicy=self.gw_kbpolicy,
+            gw_qprange=self.gw_qprange,
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,
