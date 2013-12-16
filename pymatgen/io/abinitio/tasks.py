@@ -432,7 +432,7 @@ class TaskManager(object):
     def from_user_config(cls):
         """
         Initialize the `TaskManager` from the YAML file 'taskmanager.yaml'.
-        Search first in the workind directory and then in the configuration
+        Search first in the working directory and then in the configuration
         directory of abipy.
 
         Raises:
@@ -888,6 +888,11 @@ class Node(object):
     def finalize(self, boolean):
         self._finalized = boolean
         self.history.append("Finalized on %s" % time.asctime())
+
+    @property
+    def str_history(self):
+        """String representation of history."""
+        return "\n".join(self.history)
                                                          
     #@abc.abstractproperty
     #def workdir(self):
@@ -1109,9 +1114,11 @@ class Task(Node):
         """
         return {k:v for k,v in self.__dict__.items() if k not in ["_process",]}
 
-    def set_workdir(self, workdir):
-        """Set the working directory. Cannot be set more than once."""
-        assert not hasattr(self, "workdir")
+    def set_workdir(self, workdir, chroot=False):
+        """Set the working directory. Cannot be set more than once unless chroot is True"""
+        if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
+                raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
+
         self.workdir = os.path.abspath(workdir)
 
         # Files required for the execution.
@@ -1209,6 +1216,24 @@ class Task(Node):
         logger.debug("not_converged method of the base class will always return False")
         report = self.get_event_report()
         return report.filter_types(self.CRITICAL_EVENTS)
+
+    def cancel(self):
+        """
+        Cancel the job. Returns 1 if job was cancelled.
+        """
+        queue_id = self.queue_id
+        if queue_id is None: return 0 
+        if self.status >= self.S_DONE: return 0 
+
+        exit_status = self.manager.qadapter.cancel(queue_id)
+
+        if exit_status != 0:
+            return 0
+
+        # Remove output files and reset the status.
+        self.reset()
+
+        return 1
 
     def _on_done(self):
         self.fix_ofiles()
@@ -1343,7 +1368,15 @@ class Task(Node):
             return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
+        self.set_queue_id(None)
+
+        # Remove output files otherwise the EventParser will think the job is still running
+        self.output_file.remove()
+        self.log_file.remove()
+        self.stderr_file.remove()
         self.start_lockfile.remove()
+        self.qerr_file.remove()
+        self.qout_file.remove()
 
         # TODO send a signal to the flow 
         #self.workflow.check_status()
@@ -1801,7 +1834,13 @@ class Task(Node):
 
         # Automatic parallelization
         if hasattr(self, "autoparal_fake_run"):
-            self.autoparal_fake_run()
+            try:
+                self.autoparal_fake_run()
+            except:
+                # Log the exception and continue with the parameters specified by the user.
+                logger.critical("autoparal_fake_run raised:\n%s" % straceback())
+                self.set_status(self.S_ERROR)
+                return 0
 
         # Start the calculation in a subprocess and return.
         self._process = self.manager.launch(self)
@@ -1924,13 +1963,14 @@ class AbinitTask(Task):
            autoparal and optimal is the optimal configuration selected.
            Returns (None, None) if some problem occurred.
         """
-        #print("in autoparal")
+        logger.info("in autoparal_fake_run")
         manager = self.manager
         policy = manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
-            logger.info("Nothing to do in autoparal, returning (None, None)")
-            print("Returning from autoparal with None")
+            msg = "Nothing to do in autoparal, returning (None, None)"
+            logger.info(msg)
+            print(msg)
             return None, None
 
         if policy.autoparal != 1:
@@ -2285,8 +2325,7 @@ class HaydockBseTask(BseTask):
 
         if not count:
             # outdir does not contain the BSR|BSC file.
-            # This means that num_restart > 1 and the files should
-            # be in task.indir
+            # This means that num_restart > 1 and the files should be in task.indir
             count = 0
             for ext in ["BSR", "BSC"]:
                 ifile = self.indir.has_abiext(ext)
