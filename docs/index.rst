@@ -72,6 +72,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.8.9
+------
+1. qchemio module (by Xiaohui Qu).
+
 v2.8.8
 ------
 1. Minor bug fix release for Structure species substitution methods.
