@@ -1,43 +1,52 @@
-command_line Package
-====================
+pymatgen.command_line package
+=============================
 
-:mod:`command_line` Package
----------------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.command_line
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`aconvasp_caller` Module
------------------------------
+
+Submodules
+----------
+
+pymatgen.command_line.aconvasp_caller module
+--------------------------------------------
 
 .. automodule:: pymatgen.command_line.aconvasp_caller
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`bader_caller` Module
---------------------------
+pymatgen.command_line.bader_caller module
+-----------------------------------------
 
 .. automodule:: pymatgen.command_line.bader_caller
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`enumlib_caller` Module
-----------------------------
+pymatgen.command_line.enumlib_caller module
+-------------------------------------------
 
 .. automodule:: pymatgen.command_line.enumlib_caller
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`gulp_caller` Module
--------------------------
+pymatgen.command_line.gulp_caller module
+----------------------------------------
 
 .. automodule:: pymatgen.command_line.gulp_caller
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.command_line
+    :members:
+    :undoc-members:
+    :show-inheritance:

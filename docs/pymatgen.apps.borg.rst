@@ -1,27 +1,36 @@
-borg Package
-============
+pymatgen.apps.borg package
+==========================
 
-:mod:`borg` Package
--------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.apps.borg
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`hive` Module
-------------------
+
+Submodules
+----------
+
+pymatgen.apps.borg.hive module
+------------------------------
 
 .. automodule:: pymatgen.apps.borg.hive
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`queen` Module
--------------------
+pymatgen.apps.borg.queen module
+-------------------------------
 
 .. automodule:: pymatgen.apps.borg.queen
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.apps.borg
+    :members:
+    :undoc-members:
+    :show-inheritance:
