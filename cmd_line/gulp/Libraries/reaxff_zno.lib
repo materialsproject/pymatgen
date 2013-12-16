@@ -1,0 +1,638 @@
+#
+#  ReaxFF force field
+#
+#  Original paper:
+#
+#  A.C.T. van Duin, S. Dasgupta, F. Lorant and W.A. Goddard III,
+#  J. Phys. Chem. A, 105, 9396-9409 (2001)
+#
+#  The ZnO parameters in this file are from:
+#
+#  D. Raymand, A.C.T. van Duin, M. Baudin, K. Hermannsson,
+#  Surf. Sci., 602, 1020-1031 (2008)
+#
+#  NB: There are some differences to values in tables, but this file
+#      was generated directly from the ffield. Important change is
+#      that the sign of p_bo1 changed to negative for Zn-Zn 
+#
+#  Cutoffs for VDW & Coulomb terms
+#
+reaxFFvdwcutoff      10.0000
+reaxFFqcutoff        10.0000
+#
+#  Bond order threshold - check anglemin as this is cutof2 given in control file
+#
+reaxFFtol       0.0010000000 0.001
+#
+#  Species independent parameters 
+#
+reaxff0_bond        50.000000     9.546900
+reaxff0_over        50.000000     0.699100     1.058800    12.117600    13.305600
+reaxff0_valence     33.866700     1.851200     1.056300     2.038400
+reaxff0_penalty      6.929000     0.398900     3.995400
+reaxff0_torsion      5.779600    10.000000     1.948700     2.164500
+reaxff0_vdw          1.559100
+reaxff0_lonepair     6.089100
+#
+#  Species parameters 
+#
+reaxff1_radii 
+C  core   1.3825   1.1359   1.2104
+H  core   0.8930  -0.1000  -0.1000
+O  core   1.2450   1.0548   0.9049
+N  core   1.2333   1.1748   1.0433
+S  core   1.9405   1.5479   1.4601
+Si core   2.0276   1.5758  -1.0000
+Pt core   1.9907  -1.0000  -1.0000
+Zr core   2.1000  -1.0000  -1.0000
+Ni core   1.8503  -1.0000  -1.0000
+Au core   1.8503  -1.0000  -1.0000
+V  core   2.2657   0.1000  -1.0000
+Bi core   2.1949   0.0535  -1.0000
+Ti core   2.1764   0.1000  -1.0000
+Zn core   1.8862  -1.6836  -1.2000
+Cu core   1.9202   0.1000  -1.0000
+reaxff1_valence 
+C  core   4.0000   4.0000   4.0000   4.0000
+H  core   1.0000   1.0000   1.0000   1.0000
+O  core   2.0000   4.0000   6.0000   4.0000
+N  core   3.0000   4.0000   5.0000   4.0000
+S  core   2.0000   6.2998   6.0000   4.0000
+Si core   4.0000   6.2998   4.0000   4.0000
+Pt core   3.0000   6.2998   3.0000   3.0000
+Zr core   4.0000   6.2998   4.0000   4.0000
+Ni core   2.0000   6.2998   2.0000   2.0000
+Au core   1.0000   6.2998   1.0000   1.0000
+V  core   3.0000   3.0000   5.0000   3.0000
+Bi core   3.0000   6.0000   5.0000   3.0000
+Ti core   4.0000   6.2998   4.0000   4.0000
+Zn core   2.0000   6.2998   2.0000   2.0000
+Cu core   2.0000   4.0000   1.0000   1.0000
+reaxff1_over 
+C  core  34.7289   8.6991  13.3894  -2.8983
+H  core   2.4197   3.0408   0.0003 -19.4571
+O  core   0.7640   3.5027   0.0021  -3.5500
+N  core   3.0696   2.1961   2.7683  -4.3875
+S  core  23.2859   5.7487  12.7147 -11.0000
+Si core   8.5961   6.4918   0.2368  -3.8112
+Pt core   5.2294   6.2293   0.1542  -6.7740
+Zr core   5.2294   6.2293   0.1542  -3.2224
+Ni core   5.2294   6.2293   0.1542  -3.2224
+Au core   5.2294   6.2293   0.1542  -3.2224
+V  core   6.5795  23.1946   0.0000  -3.5389
+Bi core   0.9856   3.8978   0.0314  -2.5000
+Ti core   2.3801  24.7417   0.0064  -2.5000
+Zn core  10.1260   5.3430   0.7590  -3.0614
+Cu core   0.4988  34.9555   0.0000  -5.1872
+reaxff1_under kcal 
+C  core  33.2433
+H  core   0.0000
+O  core  37.5000
+N  core  32.2482
+S  core  52.9998
+Si core  11.8211
+Pt core   0.0000
+Zr core   0.0000
+Ni core   0.0000
+Au core   0.0000
+V  core   0.0000
+Bi core   0.0000
+Ti core  -5.0000
+Zn core   0.0078
+Cu core   0.0000
+reaxff1_lonepair kcal 
+C  core   0.0000   0.0000
+H  core   0.0000   0.0000
+O  core   2.0000   0.4056
+N  core   1.0000  13.7673
+S  core   2.0000   9.7177
+Si core   0.0000   0.0000
+Pt core   0.0000   0.0000
+Zr core   0.0000   0.0000
+Ni core   0.0000   0.0000
+Au core   0.0000   0.0000
+V  core   1.0000   0.0000
+Bi core   1.0000   0.5785
+Ti core   0.0000   0.0000
+Zn core   0.0000   0.0000
+Cu core  -0.5000   0.0000
+reaxff1_angle 
+C  core   2.5000   2.9663
+H  core   4.2733   2.8793
+O  core   2.9000   2.9225
+N  core   2.6192   2.8793
+S  core   2.7466   2.8793
+Si core   3.1873   2.5791
+Pt core   2.9867   2.5791
+Zr core   2.9867   2.5791
+Ni core   2.9867   2.5791
+Au core   2.9867   2.5791
+V  core   1.5012   3.6411
+Bi core   5.0597   2.5791
+Ti core   4.0000   2.2632
+Zn core   2.1158   2.5791
+Cu core   3.1491   2.5791
+reaxff1_morse kcal 
+C  core   9.7602   0.1853   1.9133   2.1346
+H  core   8.2230   0.0930   1.3550  33.2894
+O  core   9.7300   0.1000   2.3890  13.8449
+N  core  10.0667   0.1376   1.9324   7.8431
+S  core   9.9575   0.2099   2.0677   4.9055
+Si core  11.9413   0.1322   2.2042   2.0618
+Pt core  12.8669   0.2452   1.9980   3.2118
+Zr core  12.8545   0.2542   2.1970   3.5938
+Ni core  12.1238   0.1582   1.9219   4.0351
+Au core  12.1238   0.1582   1.9219   4.0351
+V  core  12.3879   0.3005   1.7992   5.2243
+Bi core  12.9571   0.1607   2.4429  35.5167
+Ti core  12.8866   0.1319   2.1369   5.1705
+Zn core  11.5134   0.2998   1.9200  18.3776
+Cu core  10.9889   0.2826   1.9221 100.0000
+#
+#  Element parameters 
+#
+reaxff_chi  
+C  core   5.8678
+H  core   3.7248
+O  core   8.5000
+N  core   6.8418
+S  core   6.5000
+Si core   1.8038
+Pt core   1.8038
+Zr core   1.8038
+Ni core   1.8038
+Au core   1.8038
+V  core  -0.3628
+Bi core  -0.1926
+Ti core  -0.0265
+Zn core   2.0219
+Cu core   2.7875
+reaxff_mu  
+C  core   7.0000
+H  core   9.6093
+O  core   8.3122
+N  core   6.3404
+S  core   8.2545
+Si core   7.3852
+Pt core   7.3852
+Zr core   7.3852
+Ni core   7.3852
+Au core   7.3852
+V  core   6.6023
+Bi core   6.4153
+Ti core   5.5218
+Zn core   5.7915
+Cu core   6.0000
+reaxff_gamma  
+C  core   0.9000
+H  core   0.8203
+O  core   1.0898
+N  core   0.8596
+S  core   1.0336
+Si core   0.8218
+Pt core   0.8218
+Zr core   0.8218
+Ni core   0.8218
+Au core   0.8218
+V  core   0.6743
+Bi core   0.4960
+Ti core   0.4317
+Zn core   0.4828
+Cu core   1.0000
+#
+#  Bond parameters 
+#
+reaxff2_bo over bo13
+C  core C  core  -0.0777   6.7268  -0.1000   9.1628  -0.4550  37.6117
+O  core O  core  -0.1225   5.5000  -0.1055   9.0000  -0.1000  29.7503
+C  core N  core  -0.1000   5.0825  -0.3681   7.1611  -0.1428  27.0617
+O  core N  core  -0.1193   6.8773  -0.3579   7.0004  -0.1639  35.0000
+N  core N  core  -0.0861   5.4271  -0.1509  11.9186  -0.1034  12.4261
+C  core S  core  -0.1029   5.6731  -0.2398   8.1175  -0.5211  18.9617
+H  core S  core  -0.0290   7.0050   0.0000   0.0000   0.0000   6.0000
+O  core S  core  -0.1100   7.1145  -0.4577  12.7569  -0.4038  49.5611
+N  core S  core  -0.1805   5.6864  -0.3153   9.1227  -0.2034  40.3399
+S  core S  core  -0.0950   6.4757  -0.2373   9.7875  -0.4781  17.8574
+O  core Si core  -0.5004   4.2605  -0.3658   4.2151  -0.3000  36.0000
+N  core Si core  -0.5241   4.4529  -0.3887   4.4334  -0.3000  36.0000
+O  core V  core  -0.1761   4.6698  -0.3402  16.0000  -0.3000  36.0000
+H  core V  core  -0.2578   6.5219  -0.2500  20.0000  -0.3000  36.0000
+C  core V  core  -0.2578   6.5219  -0.2500  20.0000  -0.3000  36.0000
+O  core Bi core  -0.2379   8.0000  -0.3800  16.0000  -0.3000  36.0000
+H  core Bi core  -0.1911   4.0000  -0.2062   8.6647  -0.3000  36.0000
+C  core Bi core  -0.1613   4.3849  -0.1209  12.3682  -0.3000  36.0000
+O  core Ti core  -0.1809   5.5941  -0.2449  17.4702  -0.3000  36.0000
+C  core Ti core  -0.2578   6.5219  -0.2500  20.0000  -0.3000  36.0000
+H  core Ti core  -0.2578   6.5219  -0.2500  20.0000  -0.3000  36.0000
+reaxff2_bo bo13
+C  core H  core  -0.0500   6.9136   0.0000   0.0000   0.0000   6.0000
+H  core H  core  -0.0790   6.0552   0.0000   0.0000   0.0000   6.0000
+C  core O  core  -0.1447   5.2450  -0.3113   7.0000  -0.1743  10.8209
+H  core O  core  -0.0920   4.2790   0.0000   0.0000   0.0000   6.0000
+H  core N  core  -0.0327   6.5754   0.0000   0.0000   0.0000   6.0000
+Si core Si core  -0.0675   8.2993  -0.1994   8.1117  -0.3000  16.0000
+H  core Si core  -0.0377   6.4281   0.0000   0.0000   0.0000   6.0000
+H  core Zn core  -0.2000   8.0000  -0.5000  30.0000  -0.5000  50.0000
+C  core Cu core  -0.1000   9.0000  -0.2000  20.0000  -0.1418  13.1260
+H  core Cu core  -0.1000   9.0000  -0.2000  20.0000  -0.1418  13.1260
+O  core Cu core  -0.0742   9.3638  -0.2500  12.0000  -0.3000  36.0000
+reaxff2_bo 
+Pt core Pt core  -0.1014   5.7631  -0.2000  15.0000  -0.2000  16.0000
+Zr core Zr core  -0.1001   5.5699  -0.2000  15.0000  -0.2000  16.0000
+Ni core Ni core  -0.1015   5.7850  -0.2000  15.0000  -0.2000  16.0000
+Au core Au core  -0.1015   5.7850  -0.2000  15.0000  -0.2000  16.0000
+V  core V  core  -0.0717   7.9108  -0.3000  16.0000  -0.3000  16.0000
+Bi core Bi core  -0.0856   5.2857  -0.2000  15.0000  -0.2000  16.0000
+Ti core Ti core  -0.1211   5.6452  -0.2000  15.0000  -0.2000  16.0000
+O  core Zn core  -0.4787   4.6717  -0.5000  25.0000  -0.5000  35.0000
+Zn core Zn core  -0.0814   6.0333  -0.2000  15.0000  -0.2000  16.0000
+Zn core Cu core  -0.1449   5.4326  -0.2000  15.0000  -0.2000  16.0000
+Cu core Cu core  -0.1319   5.9254  -0.2000  15.0000  -0.2000  16.0000
+reaxff2_bond kcal 
+C  core C  core 158.2004  99.1897  78.0000  -0.7738   0.4590
+C  core H  core 169.4760   0.0000   0.0000  -0.6083   5.2290
+H  core H  core 153.3934   0.0000   0.0000  -0.4600   6.2500
+C  core O  core 158.6946 107.4583  23.3136  -0.4240   0.5322
+O  core O  core 142.2858 145.0000  50.8293   0.2506   0.3451
+C  core N  core 134.1215 140.2179  79.9745   0.0163   0.1387
+O  core N  core 130.8596 169.4551  40.0000   0.3837   1.0000
+N  core N  core 157.9384  82.5526 152.5336   0.4010   0.1578
+H  core O  core 160.0000   0.0000   0.0000  -0.5725   1.1150
+H  core N  core 231.8173   0.0000   0.0000  -0.3364   8.8910
+C  core S  core 128.9942  74.5848  55.2528   0.1035   0.2949
+H  core S  core 151.5159   0.0000   0.0000  -0.4721   9.4366
+O  core S  core   0.0000   0.0000   0.0000   0.5563   0.4259
+N  core S  core   0.0000   0.0000   0.0000   0.4438   0.3296
+S  core S  core  96.1871  93.7006  68.6860   0.0955   0.2723
+Si core Si core 109.1904  70.8314  30.0000   0.2765   0.2804
+H  core Si core 137.1002   0.0000   0.0000  -0.1902  17.7186
+O  core Si core 191.1743  52.0733  43.3991  -0.2584   1.0248
+N  core Si core 185.4488  39.2832  43.3991  -0.1922   0.8538
+Pt core Pt core  90.1462   0.0000   0.0000   0.0004   1.0000
+Zr core Zr core  85.2900   0.0000   0.0000   0.0004   1.0000
+Ni core Ni core  73.6182   0.0000   0.0000   0.0004   1.0000
+Au core Au core  73.6182   0.0000   0.0000   0.0004   1.0000
+V  core V  core  36.2751   0.0000   0.0000   0.8059   0.3414
+O  core V  core 106.8008  67.5543   0.0000   0.0323   0.2670
+H  core V  core   0.0000   0.0000   0.0000  -0.2872   1.7973
+C  core V  core   0.0000   0.0000   0.0000  -0.2872   1.7973
+Bi core Bi core  66.0677   0.0000   0.0000  -0.9557   0.5847
+O  core Bi core 152.2407  57.6204   0.0000  -0.8033   1.8097
+H  core Bi core  95.9209   0.0000   0.0000  -0.0153   1.0000
+C  core Bi core  78.9091  40.6322   0.0000   0.0040   0.0904
+Ti core Ti core  71.8046  10.0000   0.0000  -0.8553   0.3911
+O  core Ti core 141.4800  20.1639   0.0000  -0.7897   0.2129
+C  core Ti core   0.0000   0.0000   0.0000  -0.2872   1.7973
+H  core Ti core   0.0000   0.0000   0.0000  -0.2872   1.7973
+H  core Zn core   0.0000   0.0000   0.0000   0.0000   0.5000
+O  core Zn core 159.9755   0.0000   0.0000  -0.4548   1.3099
+Zn core Zn core  38.4643   0.0000   0.0000  -0.6944   0.5059
+C  core Cu core   0.0000   0.0000   0.0000   0.2000   0.5000
+H  core Cu core   0.0000   0.0000   0.0000   0.2000   0.5000
+O  core Cu core  81.4346   0.0000   0.0000  -0.1594   0.2904
+Zn core Cu core  63.8792   0.0000   0.0000  -0.1622   0.6833
+Cu core Cu core  73.6263   0.0000   0.0000   0.0209   0.4703
+reaxff2_over 
+C  core C  core   0.4147
+C  core H  core   0.7652
+H  core H  core   0.7300
+C  core O  core   1.0000
+O  core O  core   0.6051
+C  core N  core   0.2000
+O  core N  core   0.2000
+N  core N  core   0.5828
+H  core O  core   0.5626
+H  core N  core   0.4402
+C  core S  core   0.6000
+H  core S  core   0.6000
+O  core S  core   0.6000
+N  core S  core   0.6000
+S  core S  core   0.6000
+Si core Si core   0.1583
+H  core Si core   0.4256
+O  core Si core   0.8764
+N  core Si core   0.8217
+Pt core Pt core   0.3484
+Zr core Zr core   0.5438
+Ni core Ni core   0.3418
+Au core Au core   0.3418
+V  core V  core   0.1826
+O  core V  core   0.1000
+H  core V  core   0.0082
+C  core V  core   0.0082
+Bi core Bi core   0.2865
+O  core Bi core   0.0498
+H  core Bi core   0.0100
+C  core Bi core   0.0384
+Ti core Ti core   0.2896
+O  core Ti core   0.1900
+C  core Ti core   0.0082
+H  core Ti core   0.0082
+H  core Zn core   0.5000
+O  core Zn core   0.0375
+Zn core Zn core   0.2129
+C  core Cu core   0.5000
+H  core Cu core   0.5000
+O  core Cu core   0.0025
+Zn core Cu core   0.2569
+Cu core Cu core   0.3414
+reaxff2_morse kcal 
+C  core H  core   0.1219   9.8442   1.4000   1.1203  -1.0000  -1.0000
+H  core O  core   0.0283  10.9190   1.2885   0.9215  -1.0000  -1.0000
+H  core N  core   0.1059   9.7818   1.8290   0.9598  -1.0000  -1.0000
+C  core O  core   0.1131   9.8442   1.8523   1.2775   1.1342   1.0621
+C  core N  core   0.1447   9.7990   1.8766   1.3436   1.1885   1.1363
+O  core N  core   0.1048  10.1220   2.0003   1.3173   1.1096   1.0206
+H  core Si core   0.0470  11.6877   1.6738   1.1931  -1.0000  -1.0000
+O  core Si core   0.1263  10.6833   1.8163   1.6266   1.2052  -1.0000
+C  core V  core   0.1995  13.0000   2.2133   0.0102   1.4868  -1.0000
+H  core V  core   0.1319  12.5457   1.5855   0.0099   1.5065  -1.0000
+O  core V  core   0.0813  10.8791   1.8649   1.6498   1.6445  -1.0000
+C  core Bi core   0.4235  11.3664   1.7716   1.8000   1.7212  -1.0000
+H  core Bi core   0.0754  12.4204   1.6033   1.6896  -1.5000  -1.0000
+O  core Bi core   0.1648  11.2425   2.1260   2.0692   1.6939  -1.0000
+H  core Ti core   0.1463  10.5000   2.0000   1.0000  -1.0000  -1.0000
+O  core Ti core   0.1202  11.0408   1.8000   1.7065   1.5488  -1.0000
+C  core Ti core   0.3000  11.1307   1.6692   0.0100  -1.0000  -1.0000
+O  core Zn core   0.2744   9.7703   2.1414   1.9804  -1.0000  -1.0000
+H  core Zn core   0.0987  12.0654   1.8227   0.1000  -1.0000  -1.0000
+C  core Cu core   0.0500  12.3500   1.7500   0.1000  -1.0000  -1.0000
+H  core Cu core   0.0300  12.5000   1.5200   0.1000  -1.0000  -1.0000
+O  core Cu core   0.0348  12.3562   1.7637   1.7228  -1.0000  -1.0000
+Zn core Cu core   0.1830  11.7967   1.9599   1.8431  -1.0000  -1.0000
+#
+#  Angle parameters 
+#
+reaxff3_angle kcal 
+C  core C  core C  core  59.0573  30.7029   0.7606   1.1244   0.7180
+C  core C  core H  core  65.7758  14.5234   6.2481   1.6255   0.5665
+C  core H  core H  core  70.2607  25.2202   3.7312   2.7500   0.0050
+H  core C  core C  core   0.0000   3.4110   7.7350   1.0400   0.0000
+H  core H  core H  core   0.0000  27.9213   5.8635   1.0400   0.0000
+C  core C  core O  core  49.6811   7.1713   4.3889   1.0463   0.7171
+C  core O  core O  core  77.7473  40.1718   2.9802   2.2503   1.6170
+C  core C  core N  core  66.1305  12.4661   7.0000   1.1880   3.0000
+C  core O  core N  core  73.9544  12.4661   7.0000   1.1880   3.0000
+C  core N  core N  core  64.1581  12.4661   7.0000   1.1880   3.0000
+C  core H  core O  core  65.0000  13.8815   5.0583   1.4900   0.4985
+C  core H  core N  core  74.2929  31.0883   2.6184   1.0500   0.0755
+H  core C  core N  core   0.0000   0.0019   6.3000   1.0400   0.0000
+O  core C  core C  core  73.5312  44.7275   0.7354   1.0684   3.0000
+O  core C  core O  core  79.4761  36.3701   1.8943   3.0000   0.7351
+O  core C  core N  core  82.4890  31.4554   0.9953   1.0783   1.6310
+O  core O  core O  core  80.7324  30.4554   0.9953   1.0783   1.6310
+O  core O  core N  core  84.3637  31.4554   0.9953   1.0783   1.6310
+O  core N  core N  core  89.7071  31.4554   0.9953   1.1519   1.6310
+O  core C  core H  core  70.1880  20.9562   0.3864   1.6924   0.0050
+O  core H  core O  core  75.6935  50.0000   2.0000   1.1680   1.0000
+O  core H  core N  core  75.6201  18.7919   0.9833   1.0500   0.1218
+O  core H  core H  core  85.8000   9.8453   2.2720   1.5800   2.8635
+N  core C  core C  core  66.0330  22.0295   1.4442   1.0500   1.6777
+N  core C  core O  core 103.3204  33.0381   0.5787   1.0500   1.6777
+N  core C  core N  core 104.1335   8.6043   1.6495   1.0500   1.6777
+N  core O  core O  core  74.1978  42.1786   1.7845   1.0500   1.6777
+N  core O  core N  core  74.8600  43.7354   1.1572   1.0500   1.6777
+N  core N  core N  core  75.0538  14.8267   5.2794   1.0500   1.6777
+N  core C  core H  core  69.1106  25.5067   1.1003   1.0369   0.0222
+N  core H  core O  core  81.3686  40.0712   2.2396   1.0369   0.0222
+N  core H  core N  core  83.0104  43.4766   1.5328   1.0500   0.0222
+N  core H  core H  core  70.8687  12.0168   5.0132   1.1243   0.0222
+H  core C  core O  core   0.0000  25.0000   3.0000   1.0400   1.0000
+H  core C  core N  core   0.0000   0.0019   6.0000   1.0400   0.0000
+H  core C  core S  core   0.0000   0.0019   6.0000   1.0400   0.0000
+H  core O  core O  core   0.0000  15.0000   2.8900   2.8774   0.0000
+H  core O  core N  core   0.0000   0.0019   6.0000   1.0400   0.0000
+H  core N  core N  core   0.0000   0.0019   6.0000   1.0400   0.0000
+H  core H  core O  core   0.0000   8.5744   3.0000   1.0421   0.0000
+H  core H  core N  core   0.0000   0.0019   6.0000   1.0400   0.0000
+C  core C  core S  core  74.9397  25.0560   1.8787   1.0400   0.0559
+S  core C  core C  core  86.9521  36.9951   2.0903   1.0400   0.0559
+C  core H  core S  core  74.9397  25.0560   1.8787   1.0400   0.0000
+S  core C  core H  core  86.1791  36.9951   2.0903   1.0400   0.0000
+S  core C  core S  core  85.3644  36.9951   2.0903   1.0400   0.0559
+S  core H  core H  core  93.1959  36.9951   2.0903   1.0400   0.0000
+S  core H  core S  core  84.3331  36.9951   2.0903   1.0400   0.0000
+Si core Si core Si core  69.3456  21.7361   1.4283   1.3241  -0.2101
+Si core H  core Si core  75.6168  21.5317   1.0435   1.0400   2.5179
+Si core H  core H  core  78.3939  20.9772   0.8630   1.0400   2.8421
+Si core O  core Si core  70.3016  15.4081   1.3267   1.0400   2.1459
+Si core H  core O  core  73.8232  16.6592   3.7425   1.0400   0.8613
+Si core O  core O  core  90.0344   7.7656   1.7264   1.0400   0.7689
+O  core Si core Si core  22.1715   3.6615   0.3160   1.0400   4.1125
+O  core H  core Si core  83.7634   5.6693   2.7780   1.0400   1.6982
+O  core O  core Si core  73.4663  25.0761   0.9143   1.0400   2.2466
+H  core H  core Si core   0.0000  47.1300   6.0000   1.0400   1.6371
+H  core Si core Si core   0.0000  31.5209   6.0000   1.0400   1.6371
+H  core O  core Si core   0.0000  31.0427   4.5625   1.0400   1.6371
+H  core H  core S  core   0.0000   0.0019   6.0000   1.0400   0.0000
+V  core O  core O  core  62.4906  31.5023   1.3328   1.0794   2.8731
+O  core V  core V  core  31.0790  19.3435   0.4919   3.0000   2.9625
+O  core O  core V  core 100.0000  14.7642   7.0000   1.1599   1.0585
+O  core C  core V  core 100.0000  24.2569   0.9352   3.0000   3.0000
+O  core H  core V  core 100.0000   7.1401   1.0361   5.0000   3.0000
+Bi core O  core Bi core  23.8296   8.9089   7.0000   2.8891   1.0000
+Bi core O  core O  core  87.0764  19.4489   2.5080   3.0000   2.6056
+O  core Bi core Bi core  72.7369  13.7522   5.0243   1.5506   2.9700
+O  core O  core Bi core  68.8771  10.5000   2.5500   1.5892   2.5729
+O  core H  core Bi core  99.5836   5.4142   2.2105   1.1000   1.0513
+O  core C  core Bi core  90.0000  12.1772   2.2055   2.6056   1.9064
+C  core C  core Bi core  71.1708  32.6379   0.4516   1.1000   2.1609
+Bi core C  core O  core  90.0000  45.0000   0.9335   1.4846   0.2140
+Bi core C  core C  core  87.6204  45.0000   1.2740   1.1000   1.1519
+C  core O  core Bi core  54.7020   3.2967   7.0000   2.4032   2.0408
+Bi core H  core O  core  90.0000  28.2099   1.8036   1.2304   1.5461
+Bi core H  core H  core  90.0000  36.3001   0.6409   1.7755   3.0000
+Bi core C  core H  core  89.5835  45.0000   0.8465   2.2282   1.2118
+C  core H  core Bi core  68.7714  22.9669   0.4631   1.4680   2.4269
+H  core H  core Bi core   0.0000  30.2898   3.9181   1.3121   0.9914
+H  core O  core Bi core   0.0000   1.0000   4.1706   1.1000   1.0100
+H  core C  core Bi core   0.0000   1.0000   3.9722   1.2984   1.0075
+Ti core O  core O  core  89.3959  27.0027   1.3710   1.1000   0.0500
+O  core Ti core Ti core  99.2712  12.3711   5.0000   1.9797   2.0000
+O  core O  core Ti core  30.5424  40.0000   3.4318   1.1000   1.9988
+Ti core O  core Ti core  50.4834  12.8446   2.0766   2.6031   0.9180
+O  core H  core Ti core 100.0000   6.0015   0.7136   1.2580   2.0000
+O  core C  core Ti core  75.6931   9.9531   1.2607   1.3536   0.3643
+O  core H  core Zn core  77.5446   9.9016   2.3157   2.3770   0.4543
+Zn core O  core O  core  10.8790  38.9915   0.7072   2.6162   2.0000
+O  core Zn core Zn core  37.5284  32.3525   0.2657   1.1000   0.4403
+Zn core O  core Zn core  16.9624  30.3241   0.2697   3.0708   2.0000
+O  core O  core Zn core  60.0000  20.0000   0.5000   2.0000   1.0000
+Cu core O  core O  core  96.2265   4.5610  12.0000   1.5204   0.3211
+Cu core O  core O  core   0.0000   9.1552   7.9919   1.5386   0.1660
+O  core Cu core Cu core 100.0000  10.1065   6.0000   3.6601   1.0000
+O  core H  core Cu core  55.0417   3.5032   3.9979   1.0400   1.5171
+O  core O  core Cu core  70.0000  30.0000   2.0000   1.2500   1.0000
+O  core C  core Cu core  55.0000  15.0000   1.0000   1.5000   1.0000
+Cu core O  core Cu core  66.7783  14.3146   0.7911   1.2333   1.0000
+Zn core O  core Cu core  66.7783  14.3146   0.7911   1.2333   1.0000
+Cu core O  core Zn core  66.7783  14.3146   0.7911   1.2333   1.0000
+O  core Zn core Cu core  25.4164  31.9879   0.2637   1.1124   0.3755
+reaxff3_penalty kcal 
+C  core C  core C  core   6.2933
+C  core C  core H  core   0.0000
+C  core H  core H  core   0.0000
+H  core C  core H  core   0.0000
+H  core C  core C  core   0.0000
+H  core H  core H  core   0.0000
+C  core C  core O  core  10.2661
+C  core O  core O  core -46.1315
+C  core C  core N  core  50.0000
+C  core O  core N  core   0.0000
+C  core N  core N  core   0.0000
+C  core H  core O  core   0.0000
+C  core H  core N  core   0.0000
+H  core C  core N  core   0.0000
+O  core C  core C  core   0.0000
+O  core C  core O  core  67.6777
+O  core C  core N  core   0.0000
+O  core O  core O  core  50.0000
+O  core O  core N  core   0.0000
+O  core N  core N  core   0.0000
+O  core C  core H  core   0.0000
+O  core H  core O  core   0.0000
+O  core H  core N  core   0.0000
+O  core H  core H  core   0.0000
+N  core C  core C  core   0.0000
+N  core C  core O  core   0.0000
+N  core C  core N  core   0.0000
+N  core O  core O  core   0.0000
+N  core O  core N  core   0.0000
+N  core N  core N  core   0.0000
+N  core C  core H  core   0.0000
+N  core H  core O  core   0.0000
+N  core H  core N  core   0.0000
+N  core H  core H  core   0.0000
+H  core C  core O  core   0.0000
+H  core C  core N  core   0.0000
+H  core C  core S  core   0.0000
+H  core O  core O  core   0.0000
+H  core O  core N  core   0.0000
+H  core N  core N  core   0.0000
+H  core H  core O  core   0.0000
+H  core H  core N  core   0.0000
+C  core C  core S  core   0.0000
+S  core C  core C  core   0.0000
+C  core H  core S  core   0.0000
+S  core C  core H  core   0.0000
+S  core C  core S  core   0.0000
+S  core H  core H  core   0.0000
+S  core H  core S  core   0.0000
+Si core Si core Si core   0.0000
+Si core H  core Si core   0.0000
+Si core H  core H  core   0.0000
+Si core O  core Si core   0.0000
+Si core H  core O  core   0.0000
+Si core O  core O  core   0.0000
+O  core Si core Si core   0.0000
+O  core H  core Si core   0.0000
+O  core O  core Si core   0.0000
+H  core H  core Si core   0.0000
+H  core Si core Si core   0.0000
+H  core O  core Si core   0.0000
+H  core H  core S  core   0.0000
+V  core O  core O  core   0.0000
+O  core V  core V  core   0.0000
+O  core O  core V  core   0.0000
+O  core C  core V  core   0.0000
+O  core H  core V  core   0.0000
+Bi core O  core Bi core   0.0000
+Bi core O  core O  core   0.0000
+O  core Bi core Bi core   0.0000
+O  core O  core Bi core   0.0000
+O  core H  core Bi core   0.0000
+O  core C  core Bi core   0.0000
+C  core C  core Bi core   0.0000
+Bi core C  core O  core   0.0000
+Bi core C  core C  core   0.0000
+C  core O  core Bi core   0.0000
+Bi core H  core O  core   0.0000
+Bi core H  core H  core   0.0000
+Bi core C  core H  core   0.0000
+C  core H  core Bi core   0.0000
+H  core H  core Bi core   0.0000
+H  core O  core Bi core   0.0000
+H  core C  core Bi core   0.0000
+Ti core O  core O  core   0.0000
+O  core Ti core Ti core   0.0000
+O  core O  core Ti core   0.0000
+Ti core O  core Ti core   0.0000
+O  core H  core Ti core   0.0000
+O  core C  core Ti core   0.0000
+O  core H  core Zn core   0.0000
+Zn core O  core O  core   0.0000
+O  core Zn core Zn core   0.0000
+Zn core O  core Zn core   0.0000
+O  core O  core Zn core   0.0000
+Cu core O  core O  core   0.0000
+Cu core O  core O  core   0.0000
+O  core Cu core Cu core   0.0000
+O  core H  core Cu core   0.0000
+O  core O  core Cu core   0.0000
+O  core C  core Cu core   0.0000
+Cu core O  core Cu core   0.0000
+Zn core O  core Cu core   0.0000
+Cu core O  core Zn core   0.0000
+O  core Zn core Cu core   0.0000
+reaxff3_conjugation kcal 
+C  core O  core O  core -25.3063  26.5405   2.6962   2.1365
+N  core O  core O  core -18.0069  26.5405   2.6962   2.1365
+N  core O  core N  core  -0.9193  26.5405   2.6962   2.1365
+C  core C  core S  core   0.1463  26.5405   2.6962   2.1365
+S  core C  core C  core   0.1463  26.5405   2.6962   2.1365
+S  core C  core S  core   0.1463  26.5405   2.6962   2.1365
+#
+#  Hydrogen bond parameters 
+#
+reaxff3_hbond kcal 
+H  core O  core O  core   2.1200  -3.5800   1.4500  19.5000
+H  core O  core N  core   2.0000  -6.0000   1.7976   3.0000
+H  core N  core O  core   1.2000  -2.0000   1.7976   3.0000
+H  core N  core N  core   1.2979  -6.0000   1.7976   3.0000
+H  core O  core S  core   1.5000  -2.0000   1.7976   3.0000
+H  core N  core S  core   1.5000  -2.0000   1.7976   3.0000
+H  core S  core O  core   1.5000  -2.0000   1.7976   3.0000
+H  core S  core N  core   1.5000  -2.0000   1.7976   3.0000
+H  core S  core S  core   1.5000  -2.0000   1.7976   3.0000
+#
+#  Torsion parameters 
+#
+reaxff4_torsion kcal 
+C  core C  core C  core C  core  -0.2500  11.5822   0.1879  -4.7057  -2.2047
+C  core C  core C  core H  core  -0.2500  31.2596   0.1709  -4.6391  -1.9002
+H  core C  core C  core H  core  -0.1770  30.0252   0.4340  -5.0019  -2.0697
+C  core C  core C  core O  core  -0.7098  22.2951   0.0060  -2.5000  -2.1688
+H  core C  core C  core O  core  -0.3568  22.6472   0.6045  -4.0088  -1.0000
+O  core C  core C  core O  core  -0.0528   6.8150   0.7498  -5.0913  -1.0000
+C  core C  core O  core C  core   2.0007  25.5641  -0.0608  -2.6456  -1.1766
+C  core C  core O  core H  core  -1.1953  42.1545  -1.0000  -8.0821  -1.0000
+H  core C  core O  core C  core  -0.9284  34.3952   0.7285  -2.5440  -2.4641
+H  core C  core O  core H  core  -2.5000  79.6980   1.0000  -3.5697  -2.7501
+C  core C  core O  core O  core  -0.0179   5.0603  -0.1894  -2.5000  -2.0399
+H  core C  core O  core O  core  -0.5583  80.0000   1.0000  -4.4000  -3.0000
+O  core C  core O  core C  core  -2.5000  76.0427  -0.0141  -3.7586  -2.9000
+O  core C  core O  core H  core   0.0345  78.9586  -0.6810  -4.1777  -3.0000
+O  core C  core O  core O  core  -2.5000  66.3525   0.3986  -3.0293  -3.0000
+C  core O  core O  core C  core   2.5000  -0.5332   1.0000  -3.5096  -2.9000
+C  core O  core O  core H  core  -2.5000   3.3219   0.7180  -5.2021  -2.9330
+H  core O  core O  core H  core   2.2500  -6.2288   1.0000  -2.6189  -1.0000
+C  core O  core O  core O  core   0.0531 -17.3983   1.0000  -2.5000  -2.1584
+H  core O  core O  core O  core   0.4723 -12.4144  -1.0000  -2.5000  -1.0000
+O  core O  core O  core O  core  -2.5000 -25.0000   1.0000  -2.5000  -1.0000
+X  core C  core N  core X  core  -2.4242 128.1636   0.3739  -6.6098  -2.0000
+X  core H  core N  core X  core   0.0000   0.1000   0.0200  -2.5415   0.0000
+X  core O  core N  core X  core   1.4816  55.6641   0.0004  -7.0465  -2.7831
+X  core N  core N  core X  core  -0.3244  27.7086   0.0039  -2.8272  -2.0000
+N  core C  core N  core N  core  -5.5181   8.9706   0.0004  -6.1782  -2.0000
+X  core C  core S  core X  core   3.3423  30.3435   0.0365  -2.7171   0.0000
+X  core S  core S  core X  core  -0.0555 -42.7738   0.1515  -2.2056   0.0000
+X  core H  core S  core X  core   0.0000   0.0000   0.0000   0.0000   0.0000
+X  core Si core Si core X  core   0.0000   0.0000   0.1200  -2.4426   0.0000
+X  core H  core Si core X  core   0.0000   0.0000   0.1200  -2.4847   0.0000
+X  core O  core Si core X  core   0.0000   0.0000   0.1200  -2.4703   0.0000
+H  core O  core Cu core O  core  -1.5000   6.8333  -0.1978  -1.4683   0.0000
+H  core O  core Cu core N  core  -0.6181   7.1542  -0.0047  -1.6577   0.0000
+H  core N  core Cu core O  core  -1.5000   1.7820  -1.0000  -5.4916   0.0000
+H  core N  core Cu core N  core  -0.1959   2.3626  -1.0000  -3.0702   0.0000
+H  core C  core N  core Cu core   0.0000  10.0000   0.3000  -6.0000  -1.0000
+H  core C  core N  core H  core   0.0000  10.0000   0.3000  -6.0000  -1.0000
