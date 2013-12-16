@@ -975,37 +975,47 @@ class HilbertTransform(AbivarAble):
     i.e. the parameters defining the frequency mesh used for the spectral function 
     and the frequency mesh used for the polarizability
     """
-    def __init__(self, nomegasf, spmeth=1):
+    def __init__(self, nomegasf, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None, freqremin=None):
         """
         Args:
             nomegasf:
                 Number of points for sampling the spectral function along the real axis.
-            spmeth
+            domegasf:
+                Step in Ha for the linear mesh used for the spectral function.
+            spmeth:
                 Algorith for the representation of the delta function.
+            nfreqre:
+                Number of points along the real axis (linear mesh).
+            freqremax:
+                Maximum frequency for W along the real axis (in hartree).
+            nfreqim:
+                Number of point along the imaginary axis (Gauss-Legendre mesh).
+            freqremin:
+                Minimum frequency for W along the real axis (in hartree).
         """
         # Spectral function
         self.nomegasf = nomegasf
+        self.domegasg = domegasf
         self.spmeth   = spmeth
 
         # Mesh for the contour-deformation method used for the integration of the self-energy
-        #self.freqremax,
-        #self.freqremin,
-        #self.nfreqre,
-        #self.nfreqim,
-        #"freqim_alpha": self.freqim_alpha
+        self.nfreqre = nfreqre
+        self.freqremax = freqremax
+        self.freqremin = freqremin
+        self.nfreqim = nfreqim
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables"""
         return {
                 # Spectral function
                 "nomegasf": self.nomegasf,
+                "domegasf": self.domegasf,
                 "spmeth"  : self.spmeth,
                  # Frequency mesh for the polarizability
-                "freqremax"   : self.freqremax,
-                "freqremin"   : self.freqremin,
-                "nfreqre"     : self.nfreqre,
-                "nfreqim"     : self.nfreqim,
-                #"freqim_alpha": self.freqim_alpha
+                "nfreqre"  : self.nfreqre,
+                "freqremax": self.freqremax,
+                "nfreqim"  : self.nfreqim,
+                "freqremin": self.freqremin,
                 }
 
 
@@ -1296,6 +1306,7 @@ class ExcHamiltonian(AbivarAble):
         """
         spin_mode = SpinMode.asspinmode(spin_mode)
 
+        # We want an array bs_loband(nsppol).
         try:
             bs_loband = np.reshape(bs_loband, (spin_mode.nsppol))
         except ValueError:
@@ -1316,6 +1327,7 @@ class ExcHamiltonian(AbivarAble):
         assert algo in self._ALGO2VAR
         self.with_lf = with_lf
 
+        # if bs_freq_mesh is not given, abinit will select its own mesh.
         self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
 
@@ -1343,16 +1355,6 @@ class ExcHamiltonian(AbivarAble):
     def use_direct_diago(self):
         """True if we are performing the direct diagonalization of the BSE Hamiltonian."""
         return self.algo == "direct_diago"
-
-    #@classmethod
-    #def TDA_with_model_df(cls, bs_loband, nband, soenery, mdf_einf, soenergy, **kwargs):
-    #    """
-    #    Static constructor used for performing Tamm-Dancoff calculations 
-    #    with the model dielectric functions and the scissors operator.
-    #    """
-    #    raise NotImplementedError("")
-    #    return cls(bs_loband, nband, soenergy, "model_df", ecuteps, bs_freq_mesh, 
-    #               mdf_epsinf=mdf_eing, exc_type="TDA", with_lf=True, **kwargs)
 
     def to_abivars(self):
         """Returns a dictionary with the abinit variables."""
@@ -1389,219 +1391,131 @@ class ExcHamiltonian(AbivarAble):
         else:
             raise ValueError("Unknown algorithm for EXC: %s" % self.algo)
 
+        # Add extra kwargs
         abivars.update(self.kwargs)
-        return abivars
-
-
-class Perturbation(AbivarAble):
-    """
-    Base class for perturbations: a base perturbation is essentially defined 
-    by a q-point in reduced coordinates.
-
-    Subclasses should extend the base method `to_abivars` and provide the method `suggested_kptopt` 
-    that returns the value of kptopt that can be used to sample the Brillouin zone.
-    """
-    def __init__(self, qpt):
-        """
-        Args:
-            qpt:
-                reduced coordinates of the q-point associated to the perturbation.
-        """
-        self.qpt = np.reshape(qpt, (-1,3))
-        self.nqpt = len(self.qpt)
-
-    @property
-    def qpt_is_gamma(self):
-        """True if the q-point of the perturbation is Gamma."""
-        return np.all(np.abs(self.qpt) < 1.e-6)
-
-    @abc.abstractproperty
-    def suggested_kptopt(self):
-        """Returns the suggested value of kptopt to use for this perturbation."""
-        return 3
-
-    def to_abivars(self):
-        return dict(nqpt=1, qpt=self.qpt)
-
-
-class PhononPerturbation(Perturbation):
-    """
-    A phonon perturbation is specified by the q-point in reduced 
-    coordinates, the index of the displaced atom and the reduced direction.
-    along which the atom is moved.
-    """
-    def __init__(self, qpt, rfatpol, rfdir):
-        super(PhononPerturbation, self).__init__(qpt)
-        self.rfatpol = rfatpol
-        self.rfdir = np.reshape(rfdir, (3,))
-
-    @property
-    def suggested_kptopt(self):
-        if self.qpt_is_gamma:
-            # Automatic generation of k points, taking
-            # into account the time-reversal symmetry only.
-            return 2
-        else:
-            # Don't use symmetries
-            return 3
-
-    def to_abivars(self):
-        #Example::
-        #                                                                     
-        # Response-function calculation, with q=0
-        # rfphon  1        # Will consider phonon-type perturbation
-        # rfatpol 1 2      # All the atoms will be displaced
-        # rfdir   1 1 1    # Along all reduced coordinate axis
-        # nqpt    1        # One wavevector is to be considered
-        # qpt     0 0 0    # This wavevector is q=0 (Gamma)
-        # kptopt  2        # Automatic generation of k points (time-reversal symmetry only)
-        abivars = super(PhononPertubation, self).to_abivars()
-
-        abivars.update(dict(
-            rfphon=1,             
-            rfatpol=self.rfatpol, 
-            rfdir=self.rfdir,
-        ))
 
         return abivars
 
 
-class DDKPerturbation(Perturbation):
-    """
-    A DDK perturbation is specified by the q-point in reduced 
-    coordinates, and the direction in k-space.
-    """
-    def __init__(self, rfdir):
-        # Calculation at the Gamma point
-        super(DDKPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
-        self.rfdir = np.reshape(rfdir, (3,))
-
-    @property
-    def suggested_kptopt(self):
-        return 2
-
-    def to_abivars(self):
-        abivars = super(DDKPert, self).to_abivars()
-
-        abivars.update(dict(
-            rfelfd=2,           # Activate the calculation of the d/dk perturbation
-            rfdir=self.rdfdir   # Direction of the perturbation
-        ))
-        return abivars
-
-
-#class ElectricPertubation(Perturbation):
-#    def __init__(self, rfdir):
-#        # Calculation at the Gamma point
-#        super(ElectricPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
-
-
-#class ElasticPertubation(Perturbation):
-#    def __init__(self, rfdir):
-#        # Calculation at the Gamma point
-#        super(ElasticPertubation, self).__init__(qpt=[0.0, 0.0, 0.0])
-
-
-#def irred_perturbations(input, qpoint):
+#class Perturbation(AbivarAble):
 #    """
-#    This function returns the list of irreducible perturbations at the given q-point.
-#    """
-#    # Call abinit to get the irred perturbations.
-#    #pert_info = get_pert_info()
+#    Base class for perturbations: a base perturbation is essentially defined 
+#    by a q-point in reduced coordinates.
 #
-#    # Initialize the list of irreducible perturbations.
-#    perts = []
-#    return perts
-
-
-class IFC(AbivarAble):
-    """
-    This object defines the set of variables used for the
-    Fourier interpolation of the interatomic force constants.
-    """
-    def __init__(self, ddb_filename, ngqpt, q1shfts=(0.,0.,0.), ifcflag=1, brav=1):
-        """
-        For the complete description of the meaning of the variables see anaddb_help.html
-
-        Args:
-            ddb_filename:
-                Path to the DDB file.
-            ngqpt:
-                Monkhorst-Pack divisions.
-            q1shfts:
-                Monkhorst-Pack shifts.
-            ifcflag:
-                Interatomic force constant flag.
-            brav:
-                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex.
-        """
-        self.ddb_filename = os.path.abspath(ddb_filename)
-        if not os.path.exists(self.ddb_filename):
-            raise ValueError("%s: no such file" % self.ddb_filename)
-
-        self.ifcflag = ifcflag
-        self.brav = brav
-        self.ngqpt = ngqpt
-
-        self.q1shft = np.reshape(q1shft, (-1,3))
-        self.nqshft = len(self.q1shft)
-
-    def to_abivars(self):
-        d = dict(
-            ifcflag=self.ifcflag,
-            brav=self.brav,
-            ngqpt="%d %d %d" % tuple(q for q in self.ngqpt),
-            nqshft=self.nqshft,
-            )
-
-        lines = []
-        for shift in self.q1shfts:
-            lines.append("%f %f %f" % tuple(c for c in shift))
-        d["q1shfts"] = "\n".join(lines)
-
-        return d
-
-    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1, 
-                         executable=None, verbose=0):
-        """
-        Fourier interpolation of the IFCs.
-
-        Args:
-            asr:
-                Acoustic Sum Rule. 1 to impose it asymetrically.
-            chneut:
-                Charge neutrality requirement for effective charges.
-            dipdip:
-                Dipole-dipole interaction treatment.
-            symdinmat:
-                TODO
-        """
-        # Build input for anaddb. Variables are stored in the dict d.
-        d = {
-            "symdynmat": symdynmat,
-            "asr"      : asr,
-            "chneut"   : chneut,
-            "dipdip"   : dipdip,
-        }
-
-        # Phonon band structure.
-        if qpath is not None:
-            qpath = np.reshape(qpath, (-1,3))
-            d.update({
-                "nqpath": len(qpath),
-                "qpath" : "\n".join("%f %f %f" % tuple(q) for q in qpath),
-            })
-
-        # Phonon DOS calculations.
-        # TODO
-        #if qmesh is not None:
-        #    d.update({
-        #        "nph1l": 1,
-        #        "qph1l": 1,
-        #    })
-        d.update(self.to_abivars())
-
-        from .wrappers import Anaddb
-        anaddb = Anaddb(executable=executable, verbose=verbose)
-        #anaddb.set_input(d)
-        #phband, phdos, events = anaddb.fourier_interpolation()
+#    Subclasses should extend the base method `to_abivars` and provide the method `suggested_kptopt` 
+#    that returns the value of kptopt that can be used to sample the Brillouin zone.
+#    """
+#    def __init__(self, qpt):
+#        """
+#        Args:
+#            qpt:
+#                reduced coordinates of the q-point associated to the perturbation.
+#        """
+#        self.qpt = np.reshape(qpt, (-1,3))
+#        self.nqpt = len(self.qpt)
+#
+#    @property
+#    def qpt_is_gamma(self):
+#        """True if the q-point of the perturbation is Gamma."""
+#        return np.all(np.abs(self.qpt) < 1.e-6)
+#
+#    @abc.abstractproperty
+#    def suggested_kptopt(self):
+#        """Returns the suggested value of kptopt to use for this perturbation."""
+#        return 3
+#
+#    def to_abivars(self):
+#        return dict(nqpt=1, qpt=self.qpt)
+#
+#
+#class IFC(AbivarAble):
+#    """
+#    This object defines the set of variables used for the
+#    Fourier interpolation of the interatomic force constants.
+#    """
+#    def __init__(self, ddb_filename, ngqpt, q1shfts=(0.,0.,0.), ifcflag=1, brav=1):
+#        """
+#        For the complete description of the meaning of the variables see anaddb_help.html
+#
+#        Args:
+#            ddb_filename:
+#                Path to the DDB file.
+#            ngqpt:
+#                Monkhorst-Pack divisions.
+#            q1shfts:
+#                Monkhorst-Pack shifts.
+#            ifcflag:
+#                Interatomic force constant flag.
+#            brav:
+#                Bravais Lattice: 1-S.C., 2-F.C., 3-B.C., 4-Hex.
+#        """
+#        self.ddb_filename = os.path.abspath(ddb_filename)
+#        if not os.path.exists(self.ddb_filename):
+#            raise ValueError("%s: no such file" % self.ddb_filename)
+#
+#        self.ifcflag = ifcflag
+#        self.brav = brav
+#        self.ngqpt = ngqpt
+#
+#        self.q1shft = np.reshape(q1shft, (-1,3))
+#        self.nqshft = len(self.q1shft)
+#
+#    def to_abivars(self):
+#        d = dict(
+#            ifcflag=self.ifcflag,
+#            brav=self.brav,
+#            ngqpt="%d %d %d" % tuple(q for q in self.ngqpt),
+#            nqshft=self.nqshft,
+#            )
+#
+#        lines = []
+#        for shift in self.q1shfts:
+#            lines.append("%f %f %f" % tuple(c for c in shift))
+#        d["q1shfts"] = "\n".join(lines)
+#
+#        return d
+#
+#    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1, 
+#                         executable=None, verbose=0):
+#        """
+#        Fourier interpolation of the IFCs.
+#
+#        Args:
+#            asr:
+#                Acoustic Sum Rule. 1 to impose it asymetrically.
+#            chneut:
+#                Charge neutrality requirement for effective charges.
+#            dipdip:
+#                Dipole-dipole interaction treatment.
+#            symdinmat:
+#                TODO
+#        """
+#        # Build input for anaddb. Variables are stored in the dict d.
+#        d = {
+#            "symdynmat": symdynmat,
+#            "asr"      : asr,
+#            "chneut"   : chneut,
+#            "dipdip"   : dipdip,
+#        }
+#
+#        # Phonon band structure.
+#        if qpath is not None:
+#            qpath = np.reshape(qpath, (-1,3))
+#            d.update({
+#                "nqpath": len(qpath),
+#                "qpath" : "\n".join("%f %f %f" % tuple(q) for q in qpath),
+#            })
+#
+#        # Phonon DOS calculations.
+#        # TODO
+#        #if qmesh is not None:
+#        #    d.update({
+#        #        "nph1l": 1,
+#        #        "qph1l": 1,
+#        #    })
+#        d.update(self.to_abivars())
+#
+#        from .wrappers import Anaddb
+#        anaddb = Anaddb(executable=executable, verbose=verbose)
+#        #anaddb.set_input(d)
+#        #phband, phdos, events = anaddb.fourier_interpolation()
