@@ -1313,6 +1313,12 @@ class QcOutput(object):
                 success_pattern = re.compile(text)
                 if not success_pattern.search(output):
                     errors.append("Can't find text to indicate success")
+
+        if "solvent_method" in qcinp.params["rem"]:
+            solvent_method = qcinp.params["rem"]["solvent_method"]
+        else:
+            solvent_method = "NA"
+
         data = {
             "jobtype": jobtype,
             "energies": energies,
@@ -1324,6 +1330,7 @@ class QcOutput(object):
             "gradients": gradients,
             "input": qcinp,
             "gracefully_terminated": properly_terminated,
-            "scf_iteration_energies": scf_iters
+            "scf_iteration_energies": scf_iters,
+            "solvent_method": solvent_method
         }
         return data
