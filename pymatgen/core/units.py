@@ -767,6 +767,8 @@ def unitized(unit):
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
+            elif len(val) == 0:
+                pass
             else:
                 raise TypeError("Don't know how to assign units to %s" % str(val))
             return val
