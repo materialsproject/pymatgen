@@ -282,7 +282,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
     def test_get_incar(self):
         incar = self.vis.get_incar(self.struct)
         self.assertNotIn("LDAUU", incar)
-        self.assertAlmostEqual(incar['EDIFF'], 0.0012)
+        self.assertAlmostEqual(incar['EDIFF'], 0.00005)
 
     def test_get_kpoints(self):
         kpoints = self.vis.get_kpoints(self.struct)
