@@ -574,7 +574,7 @@ get_space_group_operations(SPGCONST PointSymmetry *lattice_sym,
 			   SPGCONST Cell *cell,
 			   const double symprec)
 {
-  int i, j, k, num_sym, total_num_sym;
+  int i, j, num_sym, total_num_sym;
   VecDBL **trans;
   Symmetry *symmetry;
 

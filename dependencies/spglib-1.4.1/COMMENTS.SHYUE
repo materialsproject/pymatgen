@@ -1,6 +1,0 @@
-In order for spglibg to be compiled properly on most machines with openmp,
-src/symmetry.c was patched to remove the #include<omp.h> dependency and the
-setup.py does not contain compiler options to link openmp.
-
-- Shyue Ping Ong
-

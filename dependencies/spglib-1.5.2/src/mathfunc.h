@@ -52,6 +52,9 @@ void mat_multiply_matrix_vector_d3(double v[3],
 void mat_multiply_matrix_vector_id3(double v[3],
 				    SPGCONST int a[3][3],
 				    const double b[3]);
+void mat_multiply_matrix_vector_di3(double v[3],
+				    SPGCONST double a[3][3],
+				    const int b[3]);
 void mat_add_matrix_i3( int m[3][3],
 			SPGCONST int a[3][3],
 			SPGCONST int b[3][3] );
