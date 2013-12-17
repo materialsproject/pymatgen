@@ -1232,8 +1232,8 @@ class QcOutput(object):
                     if "TransDip" in line:
                         parse_modes = False
                         for freq, mode in zip(vib_freqs, zip(*vib_modes)):
-                            freqs.append({"frequency:": freq,
-                                          "vib_mode:": mode})
+                            freqs.append({"frequency": freq,
+                                          "vib_mode": mode})
                         continue
                     dis_flat = [float(x) for x in line.strip().split()[1:]]
                     dis_atom = zip(*([iter(dis_flat)]*3))
