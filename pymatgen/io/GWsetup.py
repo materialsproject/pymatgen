@@ -315,8 +315,10 @@ def create_single_job_script(structure, task, spec, option=None):
         job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
         job_file.write('module load vasp \n')
         job_file.write('mpirun vasp \n')
+        job_file.write('cp OUTCAR OUTCAR.sc \n')
         job_file.write('cp INCAR.DIAG INCAR \n')
         job_file.write('mpirun vasp \n')
+        job_file.write('cp OUTCAR OUTCAR.diag \n')
         job_file.close()
         os.chmod(path+'/job', stat.S_IRWXU)
         print 'add this job to the set of jobs'
@@ -435,7 +437,7 @@ def main(spec):
         elif item.startswith('mp-'):
             print item
             with MPRester("wvfSQSO6T3wVdvB9") as mp_database:
-                structure = mp_database.get_structure_by_material_id(item, final=False)
+                structure = mp_database.get_structure_by_material_id(item, final=True)
         print structure.composition.reduced_formula
         if ('input' or 'ceci' in spec['mode']) and spec['code'] == 'VASP':
             # create all input files locally
