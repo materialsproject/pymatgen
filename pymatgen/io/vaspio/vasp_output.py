@@ -513,7 +513,7 @@ class Vasprun(object):
 
         vout = {"ionic_steps": self.ionic_steps,
                 "final_energy": self.final_energy,
-                "final_energy_per_atom": self.final_energy / nsites,
+#                "final_energy_per_atom": self.final_energy / nsites,
                 "crystal": self.final_structure.to_dict,
                 "efermi": self.efermi}
 
