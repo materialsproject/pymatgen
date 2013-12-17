@@ -225,7 +225,7 @@ class Vasprun(object):
         """
         Final energy from the vasp run.
         """
-        return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
+#        return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
 
     @property
     def final_structure(self):
