@@ -865,9 +865,9 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_positions = False
         elif name == "calculation":
             self.ionic_steps.append({"electronic_steps": self.scdata,
-                                     "structure": self.structures[-1],
-                                     "forces": self.forces,
-                                     "stress": self.stress})
+                                     "structure": self.structures[-1]})
+#                                     "forces": self.forces,
+#                                     "stress": self.stress})
             self.read_calculation = False
 
     def _read_structure(self, name):
