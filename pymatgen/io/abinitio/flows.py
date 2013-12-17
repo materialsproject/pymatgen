@@ -99,7 +99,9 @@ class AbinitFlow(Node):
         #    slots[task] = {s: [] for s in work.S_ALL}
 
     def set_workdir(self, workdir, chroot=False):
-        """Set the working directory. Cannot be set more than once unless chroot is True"""
+        """
+        Set the working directory. Cannot be set more than once unless chroot is True
+        """
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
             raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
 
@@ -184,26 +186,28 @@ class AbinitFlow(Node):
 
     @property
     def errored_tasks(self):
-        return self.iflat_tasks(status=self.S_ERROR)
+        """List of errored tasks."""
+        return list(self.iflat_tasks(status=self.S_ERROR))
 
     @property
     def num_errored_tasks(self):
         """The number of tasks whose status is `S_ERROR`."""
-        return len(list(self.errored_tasks))
+        return len(self.errored_tasks)
 
     @property
     def unconverged_tasks(self):
-        return self.iflat_tasks(status=self.S_UNCONVERGED)
+        """List of unconverged tasks."""
+        return list(self.iflat_tasks(status=self.S_UNCONVERGED))
 
     @property
     def num_unconverged_tasks(self):
         """The number of tasks whose status is `S_UNCONVERGED`."""
-        return len(list(self.unconverged_tasks))
+        return len(self.unconverged_tasks)
 
     @property
     def status_counter(self):
         """
-        Returns a `Counter` object that counts the number of task with 
+        Returns a `Counter` object that counts the number of tasks with 
         given status (use the string representation of the status as key).
         """
         # Count the number of tasks with given status in each workflow.
@@ -217,7 +221,7 @@ class AbinitFlow(Node):
     def ncpus_reserved(self):
         """
         Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if it's still not running but 
+        A CPUS is reserved if the task is not running but 
         we have submitted the task to the queue manager.
         """
         return sum(work.ncpus_reverved for work in self)
@@ -244,6 +248,7 @@ class AbinitFlow(Node):
         """
         Returns a string that evaluates to True if we have changed 
         the workdir for visualization purposes e.g. we are using sshfs.
+        to mount the remote directory where the `Flow` is located.
         The string gives the previous workdir of the flow.
         """
         try:
@@ -253,6 +258,14 @@ class AbinitFlow(Node):
             return ""
 
     def chroot(self, new_workdir):
+        """
+        Change the workir of the `Flow`. Mainly used for
+        allowing the user to open the GUI on the local host
+        and access the flow from remote via sshfs.
+
+        .. note:
+            Calling this method will make the flow go in read-only mode.
+        """
         self._chrooted_from = self.workdir
         self.set_workdir(new_workdir, chroot=True)
 
@@ -412,7 +425,7 @@ class AbinitFlow(Node):
         Cancel all the tasks that are in the queue.
 
         Returns:
-            Number of jobs cancelles, negative value if error
+            Number of jobs cancelled, negative value if error
         """
         if self.has_chrooted:
             # TODO: Use paramiko to kill the job?
@@ -618,7 +631,6 @@ class AbinitFlow(Node):
             task.set_flow(self)
 
         self.check_dependencies()
-
         return self
 
     def show_dependencies(self):
