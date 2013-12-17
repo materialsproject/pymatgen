@@ -1,4 +1,4 @@
-/* spglib.h version 1.5.1 */
+/* spglib.h version 1.4.1 */
 /* Copyright (C) 2008 Atsushi Togo */
 
 #ifndef __spglib_H__
@@ -71,6 +71,14 @@ typedef struct {
   int *wyckoffs; /* Wyckoff letters */
   int *equivalent_atoms;
 } SpglibDataset;
+
+typedef struct {
+  int size;
+  int (*triplets)[3];
+  int *weights;
+  int mesh[3];
+  int (*mesh_points)[3];
+} SpglibTriplets;
 
 SpglibDataset * spg_get_dataset(SPGCONST double lattice[3][3],
 				SPGCONST double position[][3],
@@ -266,12 +274,12 @@ int spg_get_ir_kpoints(int map[],
 /* faster when the mesh is very dense. */
 
 /* The reducible uniform grid points are returned in reduced */
-/* coordinates as ``grid_address``. A map between reducible and */
+/* coordinates as ``grid_point``. A map between reducible and */
 /* irreducible points are returned as ``map`` as in the indices of */
-/* ``grid_address``. The number of the irreducible k-points are */
+/* ``grid_point``. The number of the irreducible k-points are */
 /* returned as the return value.  The time reversal symmetry is */
 /* imposed by setting ``is_time_reversal`` 1. */
-int spg_get_ir_reciprocal_mesh(int grid_address[][3],
+int spg_get_ir_reciprocal_mesh(int grid_point[][3],
 			       int map[],
 			       const int mesh[3],
 			       const int is_shift[3],
@@ -287,10 +295,10 @@ int spg_get_ir_reciprocal_mesh(int grid_address[][3],
 /* symmetry operations in real space with stabilizers. The */
 /* stabilizers are written in reduced coordinates. Number of the */
 /* stabilizers are given by ``num_q``. Reduced k-points are stored */
-/* in ``map`` as indices of ``grid_address``. The number of the */
+/* in ``map`` as indices of ``grid_point``. The number of the */
 /* reduced k-points with stabilizers are returned as the return */
 /* value. */
-int spg_get_stabilized_reciprocal_mesh(int grid_address[][3],
+int spg_get_stabilized_reciprocal_mesh(int grid_point[][3],
 				       int map[],
 				       const int mesh[3],
 				       const int is_shift[3],
@@ -300,20 +308,18 @@ int spg_get_stabilized_reciprocal_mesh(int grid_address[][3],
 				       const int num_q,
 				       SPGCONST double qpoints[][3]);
 
-/* Grid addresses are relocated inside Brillouin zone. */
-/* Number of ir-grid-points inside Brillouin zone is returned. */
-int spg_relocate_BZ_grid_address(int bz_grid_address[][3],
-				 int bz_map[],
-				 int grid_address[][3],
-				 const int mesh[3],
-				 SPGCONST double rec_lattice[3][3],
-				 const int is_shift[3]);
-
 /* Irreducible triplets of k-points are searched under conservation of */
 /* :math:``\mathbf{k}_1 + \mathbf{k}_2 + \mathbf{k}_3 = \mathbf{G}``. */
 /* Don't forget to free memory space of triplets using spg_free_triplets */
+SpglibTriplets * spg_get_triplets_reciprocal_mesh(const int mesh[3],
+						  const int is_time_reversal,
+						  const int num_rot,
+						  SPGCONST int rotations[][3][3]);
+
+void spg_free_triplets(SpglibTriplets * triplets);
+
 int spg_get_triplets_reciprocal_mesh_at_q(int weights[],
-					  int grid_address[][3],
+					  int grid_points[][3],
 					  int third_q[],
 					  const int grid_point,
 					  const int mesh[3],
@@ -321,12 +327,14 @@ int spg_get_triplets_reciprocal_mesh_at_q(int weights[],
 					  const int num_rot,
 					  SPGCONST int rotations[][3][3]);
 
-/* Irreducible grid-point-triplets in BZ are stored. */
-/* Number of ir-triplets is returned. */
-int spg_get_BZ_triplets_at_q(int triplets[][3],
-			     const int grid_point,
-			     SPGCONST int bz_grid_address[][3],
-			     const int bz_map[],
-			     const int weights[],
-			     const int mesh[3]);
+int spg_extract_triplets_reciprocal_mesh_at_q(int triplets_at_q[][3],
+					      int weight_triplets_at_q[],
+					      const int fixed_grid_number,
+					      const int num_triplets,
+					      SPGCONST int triplets[][3],
+					      const int mesh[3],
+					      const int is_time_reversal,
+					      const int num_rot,
+					      SPGCONST int rotations[][3][3]);
+
 #endif
