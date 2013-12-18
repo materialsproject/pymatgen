@@ -4,7 +4,7 @@ import os
 from unittest import TestCase
 import unittest
 from pymatgen import Molecule
-from pymatgen.io.qchemio import QcInput, QcBatchInput, QcOutput
+from pymatgen.io.qchemio import QcTask, QcInput, QcOutput
 
 __author__ = 'xiaohuiqu'
 
@@ -37,12 +37,12 @@ class TestQcInput(TestCase):
         Helper function. This function should be called in each specific test.
         """
         d1 = qcinp.to_dict
-        qc2 = QcInput.from_dict(d1)
+        qc2 = QcTask.from_dict(d1)
         d2 = qc2.to_dict
         self.assertEqual(d1, d2)
 
     def from_string_verify(self, contents, ref_dict):
-        qcinp = QcInput.from_string(contents)
+        qcinp = QcTask.from_string(contents)
         d2 = qcinp.to_dict
         self.assertEqual(ref_dict, d2)
 
@@ -69,7 +69,7 @@ $reM
 $end
 
 '''
-        qcinp = QcInput.from_string(contents)
+        qcinp = QcTask.from_string(contents)
         ans = '''$molecule
  1  2
  S           0.00000000        0.00000000        0.00000000
@@ -127,7 +127,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(molecule="READ", title="Test Methane",
+        qcinp = QcTask(molecule="READ", title="Test Methane",
                         exchange="B3LYP", jobtype="SP", charge=-1,
                         spin_multiplicity=2,
                         basis_set="6-31+G*")
@@ -157,7 +157,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         self.assertEqual(str(qcinp), ans)
@@ -213,7 +213,7 @@ $basis
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="xygjos",
+        qcinp = QcTask(mol, title="Test Methane", exchange="xygjos",
                         jobtype="Freq",
                         basis_set={"C": "6-31G*", "h": "6-31g*",
                                    "CL": "6-31+g*"},
@@ -265,7 +265,7 @@ $ecp
 $end
 
 '''
-        qcinp = QcInput(heavy_mol, title="Test ECP", exchange="B3LYP",
+        qcinp = QcTask(heavy_mol, title="Test ECP", exchange="B3LYP",
                         jobtype="Opt",
                         basis_set={"Br": "srlc", "Cd": "srsc"},
                         ecp={"Br": "SrlC", "Cd": "srsc"})
@@ -297,7 +297,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_memory(total=18000, static=500)
@@ -328,7 +328,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_max_num_of_scratch_files(500)
@@ -360,7 +360,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
@@ -392,7 +392,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_scf_convergence_threshold(exponent=8)
@@ -423,7 +423,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_integral_threshold(thresh=14)
@@ -454,7 +454,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_dft_grid(radical_points=110, angular_points=590)
@@ -485,7 +485,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_scf_initial_guess("GWH")
@@ -516,7 +516,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP", charge=1, spin_multiplicity=2,
                         basis_set="6-31+G*")
         qcinp.set_geom_max_iterations(100)
@@ -547,7 +547,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_geom_opt_coords_type("cartesian")
@@ -580,7 +580,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.scale_geom_opt_threshold(gradient=0.1, displacement=0.1,
@@ -612,7 +612,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.set_geom_opt_use_gdiis()
@@ -644,7 +644,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.disable_symmetry()
@@ -676,7 +676,7 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.use_cosmo(dielectric_constant=35.0)
@@ -719,14 +719,14 @@ $pcm_solvent
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.use_pcm()
         self.assertEqual(str(qcinp), ans)
         self.elementary_io_verify(ans, qcinp)
 
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qcinp = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
         qcinp.use_pcm(pcm_params={"Radii": "FF",
@@ -849,30 +849,30 @@ $rem
 $end
 
 '''
-        qcinp1 = QcInput(mol, title="Test Methane Opt", exchange="B3LYP",
+        qcinp1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
                          jobtype="Opt", basis_set="6-31+G*")
-        qcinp2 = QcInput(molecule="read", title="Test Methane Frequency",
+        qcinp2 = QcTask(molecule="read", title="Test Methane Frequency",
                          exchange="B3LYP", jobtype="Freq", basis_set="6-31+G*")
-        qcinp3 = QcInput(title="Test Methane Single Point Energy",
+        qcinp3 = QcTask(title="Test Methane Single Point Energy",
                          exchange="B3LYP", jobtype="SP",
                          basis_set="6-311+G(3df,2p)")
-        qcbat1 = QcBatchInput(jobs=[qcinp1, qcinp2, qcinp3])
+        qcbat1 = QcInput(jobs=[qcinp1, qcinp2, qcinp3])
         self.assertEqual(str(qcbat1), ans)
-        qcbat2 = QcBatchInput.from_string(ans)
+        qcbat2 = QcInput.from_string(ans)
         self.assertEqual(qcbat1.to_dict, qcbat2.to_dict)
 
     def test_to_and_from_dict(self):
-        qcinp1 = QcInput(mol, title="Test Methane Opt", exchange="B3LYP",
+        qcinp1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
                          jobtype="Opt", basis_set="6-31+G*")
-        qcinp2 = QcInput(molecule="read", title="Test Methane Frequency",
+        qcinp2 = QcTask(molecule="read", title="Test Methane Frequency",
                          exchange="B3LYP", jobtype="Freq",
                          basis_set="6-31+G*")
-        qcinp3 = QcInput(title="Test Methane Single Point Energy",
+        qcinp3 = QcTask(title="Test Methane Single Point Energy",
                          exchange="B3LYP", jobtype="SP",
                          basis_set="6-311+G(3df,2p)")
-        qcbat1 = QcBatchInput(jobs=[qcinp1, qcinp2, qcinp3])
+        qcbat1 = QcInput(jobs=[qcinp1, qcinp2, qcinp3])
         d1 = qcbat1.to_dict
-        qcbat2 = QcBatchInput.from_dict(d1)
+        qcbat2 = QcInput.from_dict(d1)
         d2 = qcbat2.to_dict
         self.assertEqual(d1, d2)
 

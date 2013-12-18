@@ -22,7 +22,7 @@ __email__ = "xhqu1981@gmail.com"
 __date__ = "11/4/13"
 
 
-class QcInput(MSONable):
+class QcTask(MSONable):
     """
         An object representing a QChem input file.
     """
@@ -665,7 +665,7 @@ class QcInput(MSONable):
             optional_params = dict()
             for k in op_keys:
                 optional_params[k] = d["params"][k]
-        return QcInput(molecule=mol, charge=d["charge"],
+        return QcTask(molecule=mol, charge=d["charge"],
                        spin_multiplicity=d["spin_multiplicity"],
                        jobtype=jobtype, title=title,
                        exchange=exchange, correlation=correlation,
@@ -724,10 +724,10 @@ class QcInput(MSONable):
                                      "at line " + str(line_num))
             if parse_section and l == "$end":
                 func_name = "_parse_" + section_name
-                if func_name not in QcInput.__dict__:
+                if func_name not in QcTask.__dict__:
                     raise Exception(func_name + " is not implemented yet, "
                                     "please implement it")
-                parse_func = QcInput.__dict__[func_name].__get__(None, QcInput)
+                parse_func = QcTask.__dict__[func_name].__get__(None, QcTask)
                 if section_name == "molecule":
                     mol, charge, spin_multiplicity = parse_func(section_text)
                 else:
@@ -752,7 +752,7 @@ class QcInput(MSONable):
             optional_params = dict()
             for k in op_keys:
                 optional_params[k] = params[k]
-        return QcInput(molecule=mol, charge=charge,
+        return QcTask(molecule=mol, charge=charge,
                        spin_multiplicity=spin_multiplicity,
                        jobtype=jobtype, title=title,
                        exchange=exchange, correlation=correlation,
@@ -1031,7 +1031,7 @@ class QcInput(MSONable):
         return d
 
 
-class QcBatchInput(MSONable):
+class QcInput(MSONable):
     """
     An object representing a multiple step QChem input file.
     """
@@ -1044,7 +1044,7 @@ class QcBatchInput(MSONable):
         """
         jobs = jobs if isinstance(jobs, list) else [jobs]
         for j in jobs:
-            if not isinstance(j, QcInput):
+            if not isinstance(j, QcTask):
                 raise ValueError("jobs must be a list QcInput object")
             self.jobs = jobs
 
@@ -1063,14 +1063,14 @@ class QcBatchInput(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        jobs = [QcInput.from_dict(j) for j in d["jobs"]]
-        return QcBatchInput(jobs)
+        jobs = [QcTask.from_dict(j) for j in d["jobs"]]
+        return QcInput(jobs)
 
     @classmethod
     def from_string(cls, contents):
         qc_contents = contents.split("@@@")
-        jobs = [QcInput.from_string(cont) for cont in qc_contents]
-        return QcBatchInput(jobs)
+        jobs = [QcTask.from_string(cont) for cont in qc_contents]
+        return QcInput(jobs)
 
     @classmethod
     def from_file(cls, filename):
@@ -1172,7 +1172,7 @@ class QcOutput(object):
                     if len(qcinp_lines) == 0:
                         continue
                     else:
-                        qcinp = QcInput.from_string('\n'.join(qcinp_lines))
+                        qcinp = QcTask.from_string('\n'.join(qcinp_lines))
                         jobtype = qcinp.params["rem"]["jobtype"]
                         parse_input = False
                         continue
