@@ -215,6 +215,51 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         # todo update tests ....
 
 
+class GWSpecs():
+    """
+    Class for GW specifications
+    """
+    def __init__(self):
+        self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
+            'functional': 'LDA'}
+
+    def update_interactive(self):
+        """
+        method to make changes to the GW input setting interactively
+        """
+        key = 'tmp'
+        while len(key) != 0:
+            print self.data
+            key = raw_input('enter key to change: ')
+            if key in self.data.keys():
+                value = raw_input('enter new value: ')
+                if key == 'jobs':
+                    if len(value) == 0:
+                        print 'removed', self.data['jobs'].pop(-1)
+                    else:
+                        self.data['jobs'].append(value)
+                elif key == 'test':
+                    if value.lower() in ['true', 't']:
+                        self.data['test'] = True
+                    elif value.lower() in ['false', 'f']:
+                        self.data['test'] = False
+                    else:
+                        print 'undefined value, test should be True or False'
+                else:
+                    self.data[key] = value
+            elif key in ['help', 'h']:
+                print 'source: poscar, mp-vasp, mp-tco'
+                print 'mode: input, ceci, fw'
+                print 'functional: PBE, LDA'
+                print 'tasks: prep, G0W0, GW0, scGW0'
+                print 'code: VASP, ABINIT'
+            elif len(key) == 0:
+                print 'setup finished'
+            else:
+                print 'undefined key'
+#        return self
+
+
 def folder_name(option):
     """
     method to return the sub folder name
@@ -338,6 +383,7 @@ def create_single_job_script(structure, task, spec, option=None):
         job_file.write('module load vasp \n')
         job_file.write('cp ../WAVECAR ../WAVEDER . \n')
         job_file.write('mpirun vasp \n')
+        job_file.write('rm W* \n')
         job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
         job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
         job_file.close()
@@ -451,7 +497,7 @@ def main(spec):
                         option = [{test_prep: value_prep}, {}]
                         create_single_vasp_gw_task(structure=structure, task='prep', spec=spec, option=option)
                         if 'ceci' in spec['mode']:
-                            create_single_job_script(structure=structure, task=task, spec=spec, option=option)
+                            create_single_job_script(structure=structure, task='prep', spec=spec, option=option)
                         for task in spec['jobs'][1:]:
                             if task == 'G0W0':
                                 tests = MPGWG0W0VaspInputSet(structure).tests
@@ -502,29 +548,6 @@ def main(spec):
 
 
 if __name__ == "__main__":
-    spec_inp = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-            'functional': 'LDA'}
-    key = 'tmp'
-    while len(key) != 0:
-        print spec_inp
-        key = raw_input('enter key to change: ')
-        if key in spec_inp.keys():
-            value = raw_input('enter new value: ')
-            if key == 'jobs':
-                if len(value) == 0:
-                    print 'removed', spec_inp['jobs'].pop(-1)
-                else:
-                    spec_inp['jobs'].append(value)
-            else:
-                spec_inp[key] = value
-        elif key in ['help', 'h']:
-            print 'source: poscar, mp-vasp, mp-tco'
-            print 'mode: input, ceci, fw'
-            print 'functional: PBE, LDA'
-            print 'tasks: prep, G0W0, GW0, scGW0'
-            print 'code: VASP, ABINIT'
-        elif len(key) == 0:
-            print 'setup finished'
-        else:
-            print 'undefined key'
-    main(spec=spec_inp)
+    spec_in = GWSpecs()
+    spec_in.update_interactive()
+    main(spec=spec_in.data)
