@@ -1269,25 +1269,25 @@ $end
 
 '''
         self.assertEqual(str(qcout.data[1]['input']), ans_inp)
-        ans_freq = [{'vib_mode:': ((0.17, -0.475, 0.0),
+        ans_freq = [{'vib_mode': ((0.17, -0.475, 0.0),
                                    (-0.236, 0.659, 0.0),
                                    (0.17, -0.475, 0.0)),
-                     'frequency:': 61.36},
-                    {'vib_mode:': ((-0.475, -0.17, 0.0),
+                     'frequency': 61.36},
+                    {'vib_mode': ((-0.475, -0.17, 0.0),
                                    (0.659, 0.236, 0.0),
                                    (-0.475, -0.17, 0.0)),
-                     'frequency:': 61.36},
-                    {'vib_mode:': ((0.0, 0.0, 0.707),
+                     'frequency': 61.36},
+                    {'vib_mode': ((0.0, 0.0, 0.707),
                                    (0.0, 0.0, 0.0),
                                    (0.0, 0.0, -0.707)),
-                     'frequency:': 199.94},
-                    {'vib_mode:': ((0.17, -0.475, 0.0),
+                     'frequency': 199.94},
+                    {'vib_mode': ((0.17, -0.475, 0.0),
                                    (-0.236, 0.659, 0.0),
                                    (0.17, -0.475, 0.0),
                                    (0.0, 0.0, -0.505),
                                    (0.0, 0.0, 0.7),
                                    (0.0, 0.0, -0.505)),
-                     'frequency:': 311.74}]
+                     'frequency': 311.74}]
         self.assertEqual(qcout.data[1]['frequencies'], ans_freq)
         self.assertEqual(qcout.data[2]['energies'],
                          [('SCF', -5296.720321211475)])
