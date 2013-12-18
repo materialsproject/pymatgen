@@ -222,6 +222,8 @@ class GWSpecs():
     def __init__(self):
         self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
             'functional': 'LDA'}
+        self.warnings = []
+        self.errors = []
 
     def update_interactive(self):
         """
@@ -257,7 +259,31 @@ class GWSpecs():
                 print 'setup finished'
             else:
                 print 'undefined key'
-#        return self
+        self.data['functional'] = self.data['functional'].upper()
+
+    def get_code(self):
+        return self.data['code']
+
+    def test(self):
+        if self.data['mode'].lower() not in ['input', 'ceci']:
+            self.errors.append('unspecified mode')
+        if self.data['code'] == 'VASP':
+            if self.data['functional'] not in ['PBE', 'LDA']:
+                self.errors.append(str(self.data['functional'] + 'not defined for VASP yet'))
+        elif self.data['code'] == 'ABINIT':
+            if self.data['test'] and self.data['code'] == 'ABINIT':
+                self.warnings.append('no tests defined for ABINIT calculations')
+            if self.data['functional'] not in ['PBE']:
+                self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
+        else:
+            self.errors.append('unknown code')
+        if len(self.errors) > 0:
+            print str(len(self.errors)) + ' error(s) found:'
+            print self.errors
+            exit()
+        if len(self.warnings) > 0:
+            print str(len(self.warnings)) + ' warning(s) found:'
+            print self.warnings
 
 
 def folder_name(option):
@@ -550,4 +576,5 @@ def main(spec):
 if __name__ == "__main__":
     spec_in = GWSpecs()
     spec_in.update_interactive()
+    spec_in.test()
     main(spec=spec_in.data)
