@@ -34,10 +34,10 @@ For many settings the number of cores on which the calculations will be run is n
 number is assumed to be on the environment variable NPARGWCALC.
 """
 
+data = Vasprun('vasprun.xml', ionic_step_skip=1)
 
-data = Vasprun('vasprun.xml', )
 print data.converged
-bandstructure = data.get_band_structure('IBZKPT')
+bandstructure = data.get_band_structure('../IBZKPT')
 print 'gap: ', bandstructure.get_band_gap()['energy'], ' direct : ', bandstructure.get_band_gap()['direct']
 print 'cbm: ', bandstructure.get_cbm()['energy'], data.actual_kpoints[bandstructure.get_cbm()['kpoint_index'][0]]
 print 'vbm: ', bandstructure.get_vbm()['energy'], data.actual_kpoints[bandstructure.get_vbm()['kpoint_index'][0]]
