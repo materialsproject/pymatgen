@@ -3,7 +3,6 @@ from __future__ import division, print_function
 import os
 import cStringIO as StringIO
 
-from subprocess import Popen, PIPE
 from pymatgen.util.io_utils import which
 from pymatgen.util.string_utils import list_strings
 
@@ -68,11 +67,23 @@ class ExecWrapper(object):
     def name(self):
         return self._name
 
-    def execute(self, cwd=None, **kwargs):
-        """Execute the executable in a subprocess."""
+    def execute(self, cwd=None):
+
+        # Try to execute binary without and with mpirun.
+        try:
+            self._execute(cwd=cwd, with_mpirun=False)
+
+        except self.Error:
+            self._execute(cwd=cwd, with_mpirun=True)
+
+    def _execute(self, cwd=None, with_mpirun=False):
+        """
+        Execute the executable in a subprocess.
+        """
         args = [self.executable, "<", self.stdin_fname, ">", self.stdout_fname, "2>", self.stderr_fname]
 
-        if self.mpi_runner: args.insert(0, self.mpi_runner)
+        if self.mpi_runner and with_mpirun:
+            args.insert(0, self.mpi_runner)
 
         self.cmd_str = " ".join(args)
 
@@ -130,7 +141,7 @@ class Mrgscr(ExecWrapper):
 
         inp = StringIO.StringIO()
 
-        inp.write(str(nfiles) + "\n")      # Number of files to merge.
+        inp.write(str(nfiles) + "\n")     # Number of files to merge.
         inp.write(out_prefix + "\n")      # Prefix for the final output file:
 
         for filename in files_to_merge:
