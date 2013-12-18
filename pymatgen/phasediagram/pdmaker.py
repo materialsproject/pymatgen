@@ -162,9 +162,9 @@ class PhaseDiagram (MSONable):
             self.facets = [range(dim)]
         else:
             if HULL_METHOD == "scipy":
-                facets = ConvexHull(qhull_data, qhull_options="QJ i").simplices
+                facets = ConvexHull(qhull_data, qhull_options="Qt i").simplices
             else:
-                facets = ConvexHull(qhull_data, joggle=True).vertices
+                facets = ConvexHull(qhull_data, joggle=False).vertices
             finalfacets = []
             for facet in facets:
                 is_non_element_facet = any(
