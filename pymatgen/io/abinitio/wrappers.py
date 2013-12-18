@@ -3,6 +3,7 @@ from __future__ import division, print_function
 import os
 import cStringIO as StringIO
 
+from subprocess import Popen, PIPE
 from pymatgen.util.io_utils import which
 from pymatgen.util.string_utils import list_strings
 
