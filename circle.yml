@@ -5,7 +5,7 @@ dependencies:
     - pip install distribute fabric --upgrade
     - pip install -r requirements.txt
     - pip install -Iv https://wiki.fysik.dtu.dk/ase-files/python-ase-3.7.1.3184.tar.gz
-    - python setup.py install
+    - python setup.py develop
 test:
   override:
     - nosetests -v:
