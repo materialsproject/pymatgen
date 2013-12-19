@@ -17,4 +17,4 @@ deployment:
   production:
     branch: stable
     commands:
-      - fab release
+      - python setup.py release
