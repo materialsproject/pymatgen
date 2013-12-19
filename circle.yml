@@ -2,15 +2,20 @@ dependencies:
   override:
     - pip install -q numpy
     - pip install scipy
-    - pip install distribute --upgrade
+    - pip install distribute fabric --upgrade
     - pip install -r requirements.txt
     - pip install -Iv https://wiki.fysik.dtu.dk/ase-files/python-ase-3.7.1.3184.tar.gz
     - python setup.py install
 test:
   override:
-    - mv pymatgen pmg
+    - cd pymatgen
     - nosetests -v:
         environment:
             PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
             GULP_LIB: /`pwd`/cmd_line/gulp/Libraries
             PYTHONPATH: $PYTHONPATH:/usr/lib/python2.7/dist-packages/
+deployment:
+  production:
+    branch: stable
+    commands:
+      - fab release
