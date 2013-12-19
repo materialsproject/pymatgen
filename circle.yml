@@ -8,7 +8,6 @@ dependencies:
     - python setup.py install
 test:
   override:
-    - cd pymatgen
     - nosetests -v:
         environment:
             PATH: $PATH:`pwd`/cmd_line/enum/Linux_64bit:`pwd`/cmd_line/bader/Linux_64bit:`pwd`/cmd_line/gulp/Linux_64bit:`pwd`/cmd_line/aconvasp/Linux_64bit
