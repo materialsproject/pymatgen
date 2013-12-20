@@ -478,11 +478,12 @@ def main(spec):
     code: VASP, ABINIT
     """
 
-    
+
     mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
                     'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
     abi_pseudo = '.GGA_PBE-JTH-paw.xml'
     abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
+    mp_key = os.environ['MP_KEY']
 
     if 'ceci' in spec['mode']:
         if os.path.isfile('job_collection'):
@@ -508,7 +509,7 @@ def main(spec):
             structure = pmg.read_structure(item)
         elif item.startswith('mp-'):
             print item
-            with MPRester("wvfSQSO6T3wVdvB9") as mp_database:
+            with MPRester("mp_key") as mp_database:
                 structure = mp_database.get_structure_by_material_id(item, final=True)
         print structure.composition.reduced_formula
         if ('input' or 'ceci' in spec['mode']) and spec['code'] == 'VASP':
