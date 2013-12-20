@@ -478,7 +478,7 @@ def main(spec):
     code: VASP, ABINIT
     """
 
-    mp_list = ['mp-23818', 'mp-28069', 'mp-23037', 'mp-10627', 'mp-3807', 'mp-252', 'mp-504488', 'mp-1541', 'mp-650026']
+    
     mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
                     'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
     abi_pseudo = '.GGA_PBE-JTH-paw.xml'
