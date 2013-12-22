@@ -2383,7 +2383,7 @@ class HaydockBseTask(BseTask):
                     count += 1
 
             if not count:
-                raise TaskRestartError("Cannot find BSR|BSC files in %s" % sekf.indir)
+                raise TaskRestartError("Cannot find BSR|BSC files in %s" % self.indir)
 
         # Rename HAYDR_SAVE files
         count = 0
