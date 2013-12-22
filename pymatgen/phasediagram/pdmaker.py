@@ -147,10 +147,10 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            if entries[i].composition not in prev_c:
+            if entries[i].composition.get_fractional_composition() not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
-            prev_c.append(entries[i].composition)
+            prev_c.append(entries[i].composition.get_fractional_composition())
 
         #add the elemental references
         ind.extend(map(entries.index, el_refs.values()))
@@ -162,9 +162,9 @@ class PhaseDiagram (MSONable):
             self.facets = [range(dim)]
         else:
             if HULL_METHOD == "scipy":
-                facets = ConvexHull(qhull_data, qhull_options="QJ i").simplices
+                facets = ConvexHull(qhull_data, qhull_options="Qt i").simplices
             else:
-                facets = ConvexHull(qhull_data, joggle=True).vertices
+                facets = ConvexHull(qhull_data, joggle=False).vertices
             finalfacets = []
             for facet in facets:
                 is_non_element_facet = any(

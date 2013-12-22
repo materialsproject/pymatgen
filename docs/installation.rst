@@ -373,12 +373,16 @@ Here are the steps that I took to make it work:
         //Path to a library.
         PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
 
-12. Run make and install as follows::
+12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include the following flag in your CMakeCache.txt::
+
+		CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
+		
+13. Run make and install as follows::
 
         make -j2
         sudo make install
 
-13. With any luck, you should have openbabel with python bindings installed.
+14. With any luck, you should have openbabel with python bindings installed.
     You can test your installation by trying to import openbabel from the
     python command line. Please note that despite best efforts,
     openbabel seems to install the python bindings into /usr/local/lib even
