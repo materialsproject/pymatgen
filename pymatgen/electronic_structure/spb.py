@@ -94,6 +94,57 @@ class SPBModel(object):
         mass = self.massfromn(eta, n, T)
         return mass
 
+class Bands():
+    def __init__(self,numbands):
+        self.mass = [None] * numbands
+        self.mu0 = [None] * numbands
+        self.Edef = [None] * numbands
+        self.kay = [1.0] * numbands
+        self.results = {}
+        self.bands = [None] * numbands
+        ##Maybe should build in Edef at some point?
+        ##Definitely  need to add in Nv
+    def calczT(self, etas, T):
+        self.results['seebeck'] = [None] * numbands
+        self.results['n'] = [None] * numbands
+        self.results['L'] = [None] * numbands
+        self.results['mu'] = [None] * numbands
+        self.results['rH'] = [None] * numbands
+        self.results['nH'] = [None] * numbands
+        self.results['muH'] = [None] * numbands
+        self.results['RH'] = [None] * numbands
+        self.results['kappaE'] = [None] * numbands
+        self.results['all_seebeck'] = []
+        self.results['all_sigma'] = []
+        self.results['all_RH'] = []
+        self.results['all_muH'] = []
+        self.results['all_nH'] = []
+        self.results['all_n'] = []
+        self.results['all_kappaE_bipolar'] = []
+        self.results['all_kappaE'] = []
+        self.results['all_kappaE'] = []
+        self.results['all_L'] = []
+        for i in range(len(self.bands)):
+            self.bands[i].mass = self.mass[i]
+            self.bands[i].mu0 = self.mu0[i]
+            self.bands[i].kay = self.kay[i]
+            self.results['seebeck'][i] = self.bands[i].seebeck(etas)
+            self.results['n'][i] = self.bands[i].n(etas, mass=None, T=T)#None is passed for mass, it just takes its own value that is set in self.bands[i].mass
+            self.results['L'][i] = self.bands[i].lorenz(etas)
+            self.results['mu'][i] = self.bands[i].L(etas, mu0=None)
+            self.results['rH'][i] = self.bands[i].rH(etas)
+            self.results['nH'][i] = self.results['n'][i] / self.results['rH'][i]
+            self.results['muH'][i] = self.results['mu'][i] * self.results['rH'][i]
+            self.results['sigma'][i] = self.results['mu'][i] * self.results['n'][i] * echarge/1000. #1/(mohm-cm)#cm^2/Vs * c * cm-3
+            self.results['kappaE'][i] = self.results['sigma'][i]*1000*100 * self.results['L'][i] * T#w/m-k
+            self.results['RH'][i] = 1./self.results['nH'][i] / echarge#nH = 1/RHe #cm^3/e
+        self.results['all_seebeck'] = np.sum(np.array(self.results['seebeck'])*np.array(self.results['sigma']))
+            
+            
+        
+            
+        
+
 def fermi(eps, eta):
     """ eps is dimensionless energy (E/kbT), eta is the dimensionless
      chemical potential (mu/kBT)"""
@@ -119,7 +170,6 @@ def fermiint(eta, j):
         calc = lambda t: t ** j * fermi(t, eta)
         a = integinf(calc)
     return a
-
 
 def integinf(func, epsabs=1E-12):
     """ Numerically integrates func from 0 to infinity """
