@@ -535,6 +535,7 @@ class BoltztrapAnalyzer():
                 sorted(np.linalg.eig(self.get_average_eff_mass_tensor(
                     temperature=temperature, doping=doping)['n'])[0])}
 
+
     @staticmethod
     def from_files(path_dir):
         """
@@ -654,7 +655,6 @@ class BoltztrapAnalyzer():
 
         def _make_float_hall(a):
             return [i for i in a[:27]]
-
         return BoltztrapAnalyzer(
             float(data['gap']), [float(d) for d in data['mu_steps']],
             {int(d): [_make_float_array(v) for v in data['cond'][d]]
