@@ -1310,8 +1310,7 @@ class ExcHamiltonian(AbivarAble):
         try:
             bs_loband = np.reshape(bs_loband, (spin_mode.nsppol))
         except ValueError:
-            bs_loband = np.array(2 * [int(bs_loband)])
-            assert len(bs_loband) == 2
+            bs_loband = np.array(spin_mode.nsppol * [int(bs_loband)])
 
         self.bs_loband = bs_loband
         self.nband  = nband

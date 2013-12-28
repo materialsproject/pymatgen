@@ -6,6 +6,7 @@ import time
 import collections
 import yaml
 import cStringIO as StringIO
+from pymatgen.io.abinitio import myaml
 
 from datetime import timedelta
 from pymatgen.core.design_patterns import AttrDict
@@ -435,7 +436,7 @@ class PyFlowScheduler(object):
     def from_file(cls, filepath):
         """Read the configuration parameters from a Yaml file."""
         with open(filepath, "r") as fh:
-            d = yaml.load(fh)
+            d = myaml.load(fh)
             return cls(**d)
 
     @classmethod

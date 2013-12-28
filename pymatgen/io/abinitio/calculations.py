@@ -407,16 +407,14 @@ def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shif
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
 
-    # NSCF calculation on the randomly-shifted k-mesh.
+    # NSCF calculation with the randomly-shifted k-mesh.
     nscf_ksampling = KSampling.monkhorst(nscf_ngkpt, shiftk=nscf_shiftk, chksymbreak=0)
 
     nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
     # Strategy for the BSE calculation.
-    coulomb_mode = "model_df"
-
-    exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode, ecuteps, 
-                             mdf_epsinf=mdf_epsinf, exc_type=exc_type, algo=bs_algo,
+    exc_ham = ExcHamiltonian(bs_loband, bs_nband, soenergy, coulomb_mode="model_df", ecuteps=ecuteps, 
+                             spin_mode=spin_mode, mdf_epsinf=mdf_epsinf, exc_type=exc_type, algo=bs_algo,
                              bs_freq_mesh=None, with_lf=True, zcut=None)
 
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
