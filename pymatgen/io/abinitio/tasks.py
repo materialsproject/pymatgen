@@ -12,6 +12,7 @@ import warnings
 import copy
 import yaml
 import numpy as np
+from pymatgen.io.abinitio import myaml
 
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
@@ -206,7 +207,7 @@ class ParalHintsParser(object):
             #    fh.write(doc.text)
 
             try:
-                d = yaml.load(doc.text_notag)
+                d = myaml.load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
 
             except:
@@ -426,7 +427,7 @@ class TaskManager(object):
     def from_file(cls, filename):
         """Read the configuration parameters from a Yaml file."""
         with open(filename, "r") as fh:
-            return cls.from_dict(yaml.load(fh))
+            return cls.from_dict(myaml.load(fh))
 
     @classmethod
     def from_user_config(cls):

@@ -7,6 +7,7 @@ from __future__ import division, print_function
 import os.path
 import collections
 import yaml
+from pymatgen.io.abinitio import myaml
 
 from pymatgen.util.string_utils import WildCard
 from pymatgen.io.abinitio.abiinspect import YamlTokenizer, YamlDoc
@@ -326,7 +327,7 @@ class EventsParser(object):
                 if w.match(doc.tag):
                     #print("got doc.tag", doc.tag,"--")
                     try:
-                        event = yaml.load(doc.text)
+                        event = myaml.load(doc.text)
                     except:
                         # Wrong YAML doc. Check tha doc tag and instantiate the proper event.
                         message = "Malformatted YAML document at line: %d\n" % doc.lineno

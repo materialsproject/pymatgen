@@ -138,9 +138,9 @@ class AbinitFlow(Node):
                 err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
 
-        with FileLock(filepath) as lock:
-            with open(filepath, "rb") as fh:
-                flow = pickle.load(fh)
+        #with FileLock(filepath) as lock:
+        with open(filepath, "rb") as fh:
+            flow = pickle.load(fh)
 
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
