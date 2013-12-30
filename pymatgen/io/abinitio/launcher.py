@@ -6,6 +6,7 @@ import time
 import collections
 import yaml
 import cStringIO as StringIO
+from pymatgen.util.io_utils import which
 from pymatgen.io.abinitio import myaml
 
 from datetime import timedelta
@@ -777,6 +778,9 @@ def sendmail(subject, text, mailto, sender=None):
         sender:
             string with the sender address.
             If sender is None, username@hostname is used.
+
+    Returns:
+        exit status
     """
     def user_at_host():
         from socket import gethostname
@@ -799,8 +803,9 @@ def sendmail(subject, text, mailto, sender=None):
     # Note that sendmail is available only on Unix-like OS.
     from subprocess import Popen, PIPE
 
-    SENDMAIL = "/usr/sbin/sendmail"
-    p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
+    sendmail = which("sendmail")
+    if sendmail is None: return -1
+    p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
 
     outdata, errdata = p.communicate(msg)
     return len(errdata)

@@ -14,7 +14,6 @@ except ImportError:
 def has_cyaml():
     return HAS_CYAML
 
-#def use_libyaml():
 
 def load(stream, Loader=Loader):
     return yaml.load(stream, Loader=Loader)
