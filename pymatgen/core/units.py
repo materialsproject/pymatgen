@@ -31,10 +31,12 @@ import re
 Some conversion factors
 """
 Ha_to_eV = 27.21138386
+eV_to_Ha = 1 / Ha_to_eV
 Ry_to_eV = Ha_to_eV / 2
 amu_to_kg = 1.660538921e-27
 mile_to_meters = 1609.347219
 bohr_to_angstrom = 0.5291772083
+bohr_to_ang = bohr_to_angstrom
 
 """
 Definitions of supported units. Values below are essentially scaling and
@@ -392,7 +394,18 @@ class FloatWithUnit(float):
 
     def __getnewargs__(self):
         """Function used by pickle to recreate object."""
-        return float(self), self._unit, self._unit_type
+        #print(self.__dict__)
+        # FIXME
+        # There's a problem with _unit_type if we try to unpickle objects from file.
+        # since self._unit_type might not be defined. I think this is due to 
+        # the use of decorators (property and unitized). In particular I have problems with "amu"
+        # likely due to weight in core.composition
+        if hasattr(self, "_unit_type"):
+            args = float(self), self._unit, self._unit_type
+        else:
+            args = float(self), self._unit, None
+
+        return args
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -754,6 +767,8 @@ def unitized(unit):
                     val[k] = FloatWithUnit(v, unit_type=unit_type, unit=unit)
             elif isinstance(val, numbers.Number):
                 return FloatWithUnit(val, unit_type=unit_type, unit=unit)
+            else:
+                raise TypeError("Don't know how to assign units to %s" % str(val))
             return val
         return wrapped_f
     return wrap

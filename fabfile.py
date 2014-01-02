@@ -50,7 +50,12 @@ def makedoc():
                 with open(f, 'w') as fid:
                     fid.write("".join(newoutput))
         local("make html")
-        local("cp _static/* ../../pymatgen-docs/html/static")
+        local("cp _static/* _build/html/_static")
+
+        #This makes sure pymatgen.org works to redirect to the Gihub page
+        local("echo \"pymatgen.org\" > _build/html/CNAME")
+        #Avoid ths use of jekyll so that _dir works as intended.
+        local("touch _build/html/.nojekyll")
 
 
 def publish():
@@ -67,9 +72,9 @@ def setver():
     local("mv newsetup setup.py")
 
 
-def update_dev_doc():
+def update_doc():
     makedoc()
-    with lcd("../pymatgen-docs/html/"):
+    with lcd("docs/_build/html/"):
         local("git add .")
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")
@@ -87,4 +92,4 @@ def release():
     test()
     publish()
     log_ver()
-    update_dev_doc()
+    update_doc()

@@ -370,11 +370,23 @@ class StructureTest(PymatgenTest):
              [2.217138, -0.000000, 3.135509]], 5)
 
     def test_apply_strain(self):
+        initial_coord = self.structure[1].coords
         self.structure.apply_strain(0.01)
         self.assertAlmostEqual(
             self.structure.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
+        self.assertArrayAlmostEqual(self.structure[1].coords,
+            initial_coord * 1.01)
 
+    def test_scale_lattice(self):
+        initial_coord = self.structure[1].coords
+        self.structure.scale_lattice(self.structure.volume * 1.01 ** 3)
+        self.assertArrayAlmostEqual(
+            self.structure.lattice.abc,
+            (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
+        self.assertArrayAlmostEqual(self.structure[1].coords,
+            initial_coord * 1.01)
+    
     def test_translate_sites(self):
         self.structure.translate_sites([0, 1], [0.5, 0.5, 0.5],
                                        frac_coords=True)

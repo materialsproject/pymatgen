@@ -24,8 +24,8 @@ import itertools
 import warnings
 import xml.sax.handler
 import StringIO
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 import numpy as np
 
@@ -504,6 +504,7 @@ class Vasprun(object):
                        for i in xrange(len(self.actual_kpoints))]
         vin["kpoints"]["actual_points"] = actual_kpts
         vin["potcar"] = [s.split(" ")[1] for s in self.potcar_symbols]
+        vin["potcar_type"] = [s.split(" ")[0] for s in self.potcar_symbols]
         vin["parameters"] = {k: v for k, v in self.parameters.items()}
         vin["lattice_rec"] = self.lattice_rec.to_dict
         d["input"] = vin

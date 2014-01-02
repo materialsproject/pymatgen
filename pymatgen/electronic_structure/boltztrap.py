@@ -44,7 +44,11 @@ from pymatgen.util.decorators import requires
 from pymatgen.core.units import Energy, Length
 from pymatgen.core.physical_constants import e, ELECTRON_MASS
 import subprocess
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    pass
 
 
 class BoltztrapRunner():

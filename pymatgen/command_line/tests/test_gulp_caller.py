@@ -11,7 +11,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.io_utils import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 
-test_dir = os.path.join(os.path.dirname(__file__))
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
+                        'test_files')
 gulp_present = which('gulp')
 
 
@@ -53,7 +54,8 @@ class GulpCallerTest(unittest.TestCase):
 @unittest.skipIf(not gulp_present, "gulp not present.")
 class GulpIOTest(unittest.TestCase):
     def setUp(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
+                             check_for_POTCAR=False)
         self.structure = p.structure
         self.gio = GulpIO()
 
@@ -96,18 +98,13 @@ class GulpIOTest(unittest.TestCase):
                 )
         self.assertIn('lib', gin)
 
-    @unittest.expectedFailure
-    def test_library_line_default_path(self):
-        gin = self.gio.library_line('catlow.lib')
-        self.assertIn('lib', gin)
-
     def test_library_line_wrong_file(self):
         with self.assertRaises(GulpError):
             gin = self.gio.library_line('temp_to_fail.lib')
 
     def test_buckingham_potential(self):
         mgo_latt = [[4.212, 0, 0], [0, 4.212, 0], [0, 0, 4.212]]
-        mgo_specie = ["Mg",'O']*4 
+        mgo_specie = ["Mg", 'O']*4
         mgo_frac_cord = [[0,0,0], [0.5,0,0], [0.5,0.5,0], [0,0.5,0],
                          [0.5,0,0.5], [0,0,0.5], [0,0.5,0.5], [0.5,0.5,0.5]]
         mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True, True)
@@ -189,7 +186,8 @@ class GulpIOTest(unittest.TestCase):
 
     def test_get_relaxed_structure(self):
         #Output string obtained from running GULP on a terminal
-        with open('example21.gout','r') as fp:
+
+        with open(os.path.join(test_dir, 'example21.gout'),'r') as fp:
             out_str = fp.read()
         struct = self.gio.get_relaxed_structure(out_str)
         self.assertIsInstance(struct, Structure)
@@ -218,7 +216,8 @@ class GlobalFunctionsTest(unittest.TestCase):
         self.val_dict = dict(zip(el, val))
 
     def test_get_energy_tersoff(self):
-        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR'))
+        p = Poscar.from_file(os.path.join(test_dir, 'POSCAR.Al12O18'),
+                             check_for_POTCAR=False)
         structure = p.structure
         enrgy = get_energy_tersoff(structure)
         self.assertIsInstance(enrgy, float)
@@ -247,52 +246,52 @@ class GlobalFunctionsTest(unittest.TestCase):
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotLewisTest(unittest.TestCase):
+class BuckinghamPotentialLewisTest(unittest.TestCase):
     def setUp(self):
-        self.bpl = BuckinghamPotLewis()
-
+        self.bpl = BuckinghamPotential('lewis')
+    
     def test_existing_element(self):
         self.assertIn("Sc_2+", self.bpl.pot_dict.keys())
         self.assertIn("Sc_2+", self.bpl.species_dict.keys())
         self.assertIn("O", self.bpl.pot_dict.keys())
         self.assertIn("O_core", self.bpl.species_dict.keys())
         self.assertIn("O_shel", self.bpl.species_dict.keys())
-
+    
     def test_non_exisitng_element(self):
         self.assertNotIn("Li_1+", self.bpl.pot_dict.keys())
         self.assertNotIn("Li_1+", self.bpl.species_dict.keys())
-
+    
     def test_element_different_valence(self):
         self.assertNotIn("Sc_4+", self.bpl.species_dict.keys())
-
+    
     def test_values(self):
         self.assertNotEqual('', self.bpl.species_dict['Sc_2+'])
         self.assertNotEqual('', self.bpl.pot_dict['Sc_2+'])
-
+    
     def test_spring(self):
         self.assertNotIn('Li', self.bpl.spring_dict.keys())
         self.assertNotEqual('', self.bpl.spring_dict['O'])
 
 
 @unittest.skipIf(not gulp_present, "gulp not present.")
-class BuckinghamPotBushTest(unittest.TestCase):
-
+class BuckinghamPotentialBushTest(unittest.TestCase):
+    
     def setUp(self):
-        self.bpb = BuckinghamPotBush()
-
+        self.bpb = BuckinghamPotential('bush')
+    
     def test_existing_element(self):
         self.assertIn("Li", self.bpb.pot_dict.keys())
         self.assertIn("Li", self.bpb.species_dict.keys())
         self.assertIn("O", self.bpb.pot_dict.keys())
         self.assertIn("O", self.bpb.species_dict.keys())
-
+    
     def test_non_exisitng_element(self):
         self.assertNotIn("Mn", self.bpb.pot_dict.keys())
         self.assertNotIn("Mn", self.bpb.species_dict.keys())
-
+    
     def test_element_different_valence(self):
         self.assertNotEqual(2, self.bpb.species_dict["Li"]['oxi'])
-
+    
     def test_spring(self):
         self.assertEqual('', self.bpb.spring_dict["Li"])
         self.assertNotEqual('', self.bpb.spring_dict['O'])

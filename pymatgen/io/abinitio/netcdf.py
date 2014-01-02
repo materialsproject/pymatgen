@@ -9,6 +9,7 @@ from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.decorators import requires
 
+
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -49,8 +50,6 @@ def as_ncreader(file):
 
 def as_etsfreader(file):
     return _asreader(file, ETSF_Reader)
-
-################################################################################
 
 
 class NetcdfReaderError(Exception):
@@ -99,7 +98,7 @@ class NetcdfReader(object):
 
     #@staticmethod
     #def pathjoin(*args):
-    #    return "/".join([arg for arg in args])
+    #    return "/".join(args)
 
     def walk_tree(self, top=None):
         """
@@ -246,7 +245,7 @@ class ETSF_Reader(NetcdfReader):
             symbols = self.read_value("chemical_symbols")
             self._chemical_symbols = []
             for s in symbols:
-                self._chemical_symbols.append("".join(c for c in s))
+                self._chemical_symbols.append("".join(s))
 
         return self._chemical_symbols
 
@@ -267,8 +266,6 @@ class ETSF_Reader(NetcdfReader):
 
         return structure_from_etsf_file(self)
 
-
-################################################################################
 
 def structure_from_etsf_file(ncdata, site_properties=None):
     """
@@ -307,6 +304,16 @@ def structure_from_etsf_file(ncdata, site_properties=None):
             d[property] = ncdata.read_value(prop)
 
     structure = Structure(lattice, species, red_coords, site_properties=d)
+
+    # Quick and dirty hack.
+    # I need an abipy structure since I need to_abivars and other methods.
+    #from pymatgen.io.abinitio.abiobjects import AbiStructure
+    #structure.__class__ = AbiStructure
+    try:
+        from abipy.core.structure import Structure as AbipyStructure
+        structure.__class__ = AbipyStructure
+    except ImportError:
+        pass
 
     if closeit:
         ncdata.close()
