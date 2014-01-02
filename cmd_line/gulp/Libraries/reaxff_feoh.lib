@@ -1,0 +1,275 @@
+#
+#  ReaxFF force field for Fe/Cl in water + C
+#
+#  Original paper:
+#
+#  A.C.T. van Duin, S. Dasgupta, F. Lorant and W.A. Goddard III,
+#  J. Phys. Chem. A, 105, 9396-9409 (2001)
+#
+#  These parameters:
+#
+#  Aryanpour et al JPC-A 2010
+#
+#  Cutoffs for VDW & Coulomb terms
+#
+reaxFFvdwcutoff      10.0000
+reaxFFqcutoff        10.0000
+#
+#  Bond order threshold - check anglemin as this is cutof2 given in control file
+#
+reaxFFtol       0.0010000000 0.005
+#
+#  Species independent parameters 
+#
+reaxff0_bond        50.000000     9.546900
+reaxff0_over        50.000000     0.699100     1.058800    12.117600    13.305600
+reaxff0_valence     33.866700     1.851200     1.056300     2.038400
+reaxff0_penalty      6.929000     0.398900     3.995400
+reaxff0_torsion      5.779600    10.000000     1.948700     2.164500
+reaxff0_vdw          1.559100
+reaxff0_lonepair     6.089100
+#
+#  Species parameters 
+#
+reaxff1_radii 
+C  core   1.3817   1.1341   1.2114
+H  core   0.8930  -0.1000  -0.1000
+O  core   1.2450   1.0548   0.9049
+Fe core   1.9506  -1.0000  -1.2000
+Cl core   1.7140  -1.0000  -1.0000
+reaxff1_valence 
+C  core   4.0000   4.0000   4.0000   4.0000
+H  core   1.0000   1.0000   1.0000   1.0000
+O  core   2.0000   4.0000   6.0000   4.0000
+Fe core   3.0000   6.0000   3.0000   3.0000
+Cl core   1.0000   6.2998   7.0000   1.0000
+reaxff1_over 
+C  core  34.9289   8.9539  13.5366  -2.8983
+H  core   2.4197   3.0408   0.0003 -19.4571
+O  core   0.7640   3.5027   0.0021  -3.5500
+Fe core   1.0000  30.0000   0.0000 -16.2040
+Cl core   5.2294   6.2293   0.1542 -10.2080
+reaxff1_under kcal 
+C  core  34.9350
+H  core   0.0000
+O  core  37.5000
+Fe core   0.0000
+Cl core   0.0000
+reaxff1_lonepair kcal 
+C  core   0.0000   0.0000
+H  core   0.0000   0.0000
+O  core   2.0000   0.4056
+Fe core   0.0000   0.0000
+Cl core   3.0000   3.5750
+reaxff1_angle 
+C  core   2.5000   2.9663
+H  core   4.2733   2.8793
+O  core   2.9000   2.9225
+Fe core   2.7917   2.5791
+Cl core   2.9867   2.5791
+reaxff1_morse kcal 
+C  core   9.7559   0.1838   1.8903   2.1346
+H  core   8.2230   0.0930   1.3550  33.2894
+O  core   9.7300   0.1000   2.3890  13.8449
+Fe core  11.0534   0.1274   2.0308   2.2637
+Cl core  11.5345   0.2000   1.9139  10.1330
+#
+#  Element parameters 
+#
+reaxff_chi  
+C  core   5.9666
+H  core   3.7248
+O  core   8.5000
+Fe core   1.2457
+Cl core   9.9614
+reaxff_mu  
+C  core   7.0000
+H  core   9.6093
+O  core   8.3122
+Fe core   7.3021
+Cl core   6.5316
+reaxff_gamma  
+C  core   0.9000
+H  core   0.8203
+O  core   1.0898
+Fe core   0.7264
+Cl core   0.3837
+#
+#  Bond parameters 
+#
+reaxff2_bo over bo13
+C  core C  core  -0.0777   6.7268  -0.1000   9.1628  -0.4550  37.6117
+O  core O  core  -0.1225   5.5000  -0.1055   9.0000  -0.1000  29.7503
+C  core Fe core  -0.1143   4.5217  -0.3500  15.0000  -0.3000  36.0000
+O  core Fe core  -0.0555   7.9897  -0.3500  15.0000  -0.3000  36.0000
+reaxff2_bo bo13
+C  core H  core  -0.0500   6.9136   0.0000   0.0000   0.0000   6.0000
+H  core H  core  -0.0790   6.0552   0.0000   0.0000   0.0000   6.0000
+C  core O  core  -0.1363   4.8734  -0.2288   7.0250  -0.2351  10.5036
+H  core O  core  -0.0920   4.2790   0.0000   0.0000   0.0000   6.0000
+reaxff2_bo 
+H  core Fe core  -0.1216   4.5062   0.0000   0.0000   0.0000   6.0000
+Fe core Fe core  -0.0771   6.4477  -0.2000  15.0000  -0.2000  16.0000
+H  core Cl core  -0.1111   5.2687  -0.2000  15.0000  -0.2000  16.0000
+O  core Cl core  -0.1000  10.0000  -0.2000  15.0000  -0.2000  16.0000
+Fe core Cl core  -0.2000  10.0000  -0.2000  15.0000  -0.2000  16.0000
+Cl core Cl core  -0.1178   5.6715  -0.2000  15.0000  -0.2000  16.0000
+reaxff2_bond kcal 
+C  core C  core 158.2004  99.1897  78.0000  -0.7738   0.4590
+C  core H  core 169.4760   0.0000   0.0000  -0.6083   5.2290
+H  core H  core 153.3934   0.0000   0.0000  -0.4600   6.2500
+C  core O  core 164.4303  82.6772  60.8077  -0.3739   0.4475
+O  core O  core 142.2858 145.0000  50.8293   0.2506   0.3451
+H  core O  core 160.0000   0.0000   0.0000  -0.5725   1.1150
+C  core Fe core 133.0514   0.0000   0.0000   1.0000   0.2350
+H  core Fe core 105.0054   0.0000   0.0000  -0.0717   0.1000
+O  core Fe core  65.7713   0.0000   0.0000   0.1366   0.9495
+Fe core Fe core  38.7471   0.0000   0.0000   0.3595   1.0000
+H  core Cl core 109.1686   0.0000   0.0000  -0.1657   2.8463
+O  core Cl core   0.0000   0.0000   0.0000   0.5000   1.0001
+Fe core Cl core   0.0000   0.0000   0.0000   0.2500   0.5000
+Cl core Cl core   0.2500   0.0000   0.0000   0.1803   0.9228
+reaxff2_over 
+C  core C  core   0.4147
+C  core H  core   0.7652
+H  core H  core   0.7300
+C  core O  core   1.0000
+O  core O  core   0.6051
+H  core O  core   0.5626
+C  core Fe core   0.0673
+H  core Fe core   0.0505
+O  core Fe core   0.0494
+Fe core Fe core   0.2749
+H  core Cl core   1.2500
+O  core Cl core   0.5000
+Fe core Cl core   0.5000
+Cl core Cl core   0.3356
+reaxff2_morse kcal 
+C  core H  core   0.1239   9.8467   1.4004   1.1210  -1.0000  -1.0000
+H  core O  core   0.0283  10.9190   1.2885   0.9215  -1.0000  -1.0000
+C  core O  core   0.1345   9.7725   1.8422   1.2835   1.1576   1.0637
+C  core Fe core   0.1358  10.0425   1.8293   1.6096  -1.0000  -1.0000
+H  core Fe core   0.0640  11.5167   1.6974   1.3517  -1.0000  -1.0000
+O  core Fe core   0.0846  10.0808   1.4284   1.8339  -1.0000  -1.0000
+H  core Cl core   0.0568   9.6297   1.6740   1.2200  -1.0000  -1.0000
+O  core Cl core   0.1927  11.2308   2.2551  -1.0000  -1.0000  -1.0000
+Fe core Cl core   0.1500  11.0000   2.1500  -1.0000  -1.0000  -1.0000
+#
+#  Angle parameters 
+#
+reaxff3_angle kcal 
+C  core C  core C  core  59.0573  30.7029   0.7606   1.1244   0.7180
+C  core C  core H  core  65.7758  14.5234   6.2481   1.6255   0.5665
+C  core H  core H  core  70.2607  25.2202   3.7312   2.7500   0.0050
+H  core C  core C  core   0.0000   3.4110   7.7350   1.0400   0.0000
+H  core H  core H  core   0.0000  27.9213   5.8635   1.0400   0.0000
+C  core C  core O  core  53.9517   7.8968   2.6122   1.0338   3.0000
+C  core O  core O  core  76.9627  44.2852   2.4177   2.7392   1.6334
+C  core H  core O  core  65.0000  16.3141   5.2730   1.4077   0.4448
+O  core C  core C  core  72.6199  42.5510   0.7205   1.3096   2.9294
+O  core C  core O  core  81.9029  32.2258   1.7397   1.7777   0.9888
+O  core O  core O  core  80.7324  30.4554   0.9953   1.0783   3.0000
+O  core C  core H  core  70.1101  13.1217   4.4734   3.0000   0.8433
+O  core H  core O  core  75.6935  50.0000   2.0000   1.1680   1.0000
+O  core H  core H  core  85.8000   9.8453   2.2720   1.5800   2.8635
+H  core C  core O  core   0.0000  25.0000   3.0000   1.0400   1.0000
+H  core O  core O  core   0.0000  15.0000   2.8900   2.8774   0.0000
+H  core H  core O  core   0.0000   8.5744   3.0000   1.0421   0.0000
+Fe core C  core C  core  29.1655   3.3035   0.2000   1.0562   1.1221
+C  core C  core Fe core  59.8697   2.8115   1.9262   1.4056   0.7602
+Fe core C  core Fe core  25.4591  15.9430   0.9664   1.1088   2.2242
+C  core Fe core Fe core  88.6279  26.0015   1.0328   2.0576   0.2361
+C  core H  core Fe core  47.3695  16.9204   4.1052   1.0050   0.1000
+Fe core H  core H  core  34.1965   6.6782   6.5943   1.5365   1.3895
+H  core H  core Fe core   0.1000  30.0000   3.4094   1.5166   2.4379
+H  core Fe core Fe core   0.0000   8.2994   5.7832   1.7716   2.9873
+Fe core H  core Fe core  21.2590   6.5954   0.9951   1.0000   2.8006
+O  core C  core Fe core  90.0000  12.8684   1.4601   1.0000   0.8757
+C  core O  core Fe core  18.8567  24.3753   3.9647   1.5314   0.1000
+Fe core O  core O  core  79.7335   0.0100   0.1392   2.1948   0.4968
+O  core Fe core Fe core  57.6787   4.8566   2.5768   1.0000   0.7552
+O  core H  core Fe core  59.4556  10.2025   0.7481   1.0000   1.4521
+O  core O  core Fe core  73.6721  32.6330   1.7223   1.4351   1.0221
+Fe core O  core Fe core  65.7545   5.6268   4.0645   2.6730   1.7794
+H  core O  core Fe core   0.0000   4.6026   2.5343   1.1051   0.7284
+Fe core H  core O  core  34.0653  20.1868   4.7461   1.6752   0.1000
+H  core O  core Cl core   0.0000   0.0100   0.5211   1.3859   0.0000
+reaxff3_penalty kcal 
+C  core C  core C  core   6.2933
+C  core C  core H  core   0.0000
+C  core H  core H  core   0.0000
+H  core C  core H  core   0.0000
+H  core C  core C  core   0.0000
+H  core H  core H  core   0.0000
+C  core C  core O  core  58.6562
+C  core O  core O  core -50.0000
+C  core H  core O  core   0.0000
+O  core C  core C  core   0.0000
+O  core C  core O  core  68.1072
+O  core O  core O  core  50.0000
+O  core C  core H  core   0.0000
+O  core H  core O  core   0.0000
+O  core H  core H  core   0.0000
+H  core C  core O  core   0.0000
+H  core O  core O  core   0.0000
+H  core H  core O  core   0.0000
+Fe core C  core C  core   0.0000
+C  core C  core Fe core   0.0000
+Fe core C  core Fe core   0.0000
+C  core Fe core Fe core   0.0000
+C  core H  core Fe core   0.0000
+Fe core H  core H  core   0.0000
+H  core H  core Fe core   0.0000
+H  core Fe core Fe core   0.0000
+Fe core H  core Fe core   0.0000
+Fe core H  core Fe core   0.0000
+O  core C  core Fe core   0.0000
+C  core O  core Fe core   0.0000
+Fe core O  core O  core   0.0000
+O  core Fe core Fe core   0.0000
+O  core H  core Fe core   0.0000
+O  core O  core Fe core   0.0000
+Fe core O  core Fe core   0.0000
+H  core O  core Fe core   0.0000
+Fe core H  core O  core   0.0000
+H  core O  core Cl core   0.0000
+reaxff3_conjugation kcal 
+C  core O  core O  core -25.3063   1.6725   0.7903   1.7602
+#
+#  Hydrogen bond parameters 
+#
+reaxff3_hbond kcal 
+H  core O  core O  core   2.1200  -3.5800   1.4500  19.5000
+#
+#  Torsion parameters 
+#
+reaxff4_torsion kcal 
+C  core C  core C  core C  core  -0.2500  34.7453   0.0288  -6.3507  -1.6000
+C  core C  core C  core H  core  -0.2500  29.2131   0.2945  -4.9581  -2.1802
+H  core C  core C  core H  core  -0.2500  31.2081   0.4539  -4.8923  -2.2677
+C  core C  core C  core O  core   1.2799  20.7787  -0.5249  -2.5000  -1.0000
+H  core C  core C  core O  core   1.9159  19.8113   0.7914  -4.6995  -1.0000
+O  core C  core C  core O  core  -1.4477  16.6853   0.6461  -4.9622  -1.0000
+C  core C  core O  core C  core   0.4816  19.6316  -0.0057  -2.5000  -1.0000
+C  core C  core O  core H  core   1.2044  80.0000  -0.3139  -6.1481  -1.0000
+H  core C  core O  core C  core  -2.5000  31.0191   0.6165  -2.7733  -2.9807
+H  core C  core O  core H  core  -2.4875  70.8145   0.7582  -4.2274  -3.0000
+C  core C  core O  core O  core  -0.3566  10.0000   0.0816  -2.6110  -1.9631
+H  core C  core O  core O  core  -1.4383  80.0000   1.0000  -3.6877  -2.8000
+O  core C  core O  core C  core  -1.1390  78.0747  -0.0964  -4.5172  -3.0000
+O  core C  core O  core H  core  -2.5000  70.3345  -1.0000  -5.5315  -3.0000
+O  core C  core O  core O  core  -2.0234  80.0000   0.1684  -3.1568  -2.6174
+C  core O  core O  core C  core   1.1637 -17.3637   0.5459  -3.6005  -2.6938
+C  core O  core O  core H  core  -2.1289  12.8382   1.0000  -5.6657  -2.9759
+H  core O  core O  core H  core   2.5000 -22.9397   0.6991  -3.3961  -1.0000
+C  core O  core O  core O  core   2.5000 -25.0000   1.0000  -2.5000  -1.0000
+H  core O  core O  core O  core  -2.5000  -2.5103  -1.0000  -2.5000  -1.0000
+O  core O  core O  core O  core  -2.5000 -25.0000   1.0000  -2.5000  -1.0000
+X  core C  core H  core X  core   0.0000   0.0000   0.0000   0.0000   0.0000
+X  core H  core H  core X  core   0.0000   0.0000   0.0000   0.0000   0.0000
+X  core H  core O  core X  core   0.0000   0.1000   0.0200  -2.5415   0.0000
+X  core C  core C  core X  core   0.0000  50.0000   0.3000  -4.0000  -2.0000
+X  core O  core O  core X  core   0.5511  25.4150   1.1330  -5.1903  -1.0000
+C  core C  core O  core O  core  -0.0002  20.1851   0.1601  -9.0000  -2.0000
+C  core O  core O  core C  core   0.0002  80.0000  -1.5000  -4.4848  -2.0000
+O  core C  core O  core O  core  -0.1583  20.0000   1.5000  -9.0000  -2.0000

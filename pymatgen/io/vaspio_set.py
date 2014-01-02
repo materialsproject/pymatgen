@@ -177,7 +177,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
-                 constrain_total_magmom=False, sort_structure=True):
+                 constrain_total_magmom=False, sort_structure=True,
+                 ediff_per_atom=True):
         """
         Args:
             name:
@@ -202,6 +203,11 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 Defaults to True, the behavior you would want most of the
                 time. This ensures that similar atomic species are grouped
                 together.
+            ediff_per_atom:
+                Whether the EDIFF is specified on a per atom basis. This is
+                generally desired, though for some calculations (e.g. NEB)
+                this should be turned off (and an appropriate EDIFF supplied
+                in user_incar_settings)
         """
         self.name = name
         self.potcar_settings = config_dict["POTCAR"]
@@ -209,6 +215,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         self.incar_settings = config_dict['INCAR']
         self.set_nupdown = constrain_total_magmom
         self.sort_structure = sort_structure
+        self.ediff_per_atom = ediff_per_atom
         self.hubbard_off = hubbard_off
         if hubbard_off:
             for k in self.incar_settings.keys():
@@ -223,7 +230,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             structure = structure.get_sorted_structure()
         comp = structure.composition
         elements = sorted([el for el in comp.elements if comp[el] > 0],
-                           key=lambda el: el.X)
+                          key=lambda el: el.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
@@ -246,7 +253,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 else:
                     incar[key] = [0] * len(poscar.site_symbols)
             elif key == "EDIFF":
-                incar[key] = float(setting) * structure.num_sites
+                if self.ediff_per_atom:
+                    incar[key] = float(setting) * structure.num_sites
+                else:
+                    incar[key] = float(setting)
             else:
                 incar[key] = setting
 
@@ -268,7 +278,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
                     del incar[key]
 
         if self.set_nupdown:
-            nupdown = sum([mag if mag > 0.6 else 0 for mag in incar['MAGMOM']])
+            nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
 
         return incar
@@ -355,6 +365,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
                        user_incar_settings=None, constrain_total_magmom=False,
                        sort_structure=True):
         """
+        Creates a DictVaspInputSet from a json file.
+
         Args:
             name:
                 A name for the input set.
@@ -425,10 +437,11 @@ Supports the same kwargs as :class:`JSONVaspInputSet`.
 
 class MITNEBVaspInputSet(DictVaspInputSet):
     """
-    Class for writing NEB inputs.
+    Class for writing NEB inputs. Note that EDIFF is not on a per atom
+    basis for this input set
     """
 
-    def __init__(self, nimages=8, **kwargs):
+    def __init__(self, nimages=8, user_incar_settings=None, **kwargs):
         """
         Args:
             nimages:
@@ -436,13 +449,17 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
+        #NEB specific defaults
+        defaults = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2, 'ISYM': 0,
+                    'LORBIT': 0, 'LCHARG': False}
+        if user_incar_settings:
+            defaults.update(user_incar_settings)
+        
         with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MIT NEB", json.load(f), **kwargs)
+            DictVaspInputSet.__init__(self, "MIT NEB", json.load(f),
+                                      user_incar_settings=defaults,
+                                      ediff_per_atom=False, **kwargs)
         self.nimages = nimages
-        # NEB settings
-        self.incar_settings.update(
-            {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2})
 
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
@@ -609,9 +626,16 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     the input set to inherit most of the functions.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, kpoints_density=90, sym_prec=0.01, *args, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
+        Args:
+            kpoints_density:
+                kpoints density for the reciprocal cell of structure.
+                Might need to increase the default value when calculating
+                metallic materials.
+            sym_prec:
+                Tolerance for symmetry finding
         """
         with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
@@ -620,31 +644,26 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             {"IBRION": -1, "ISMEAR": -5, "LAECHG": True, "LCHARG": True,
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "EDIFF": 0.000001})
+        self.kpoints_settings.update({"kpoints_density": kpoints_density})
+        self.sym_prec= sym_prec
 
-    def get_kpoints(self, structure, kpoints_density=90):
+    def get_kpoints(self, structure):
         """
         Get a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
-
-        Args:
-            kpoints_density:
-                kpoints density for the reciprocal cell of structure.
-                Might need to increase the default value when calculating
-                metallic materials.
         """
-        kpoints_density = kpoints_density
         self.kpoints_settings['grid_density'] = \
-            kpoints_density * structure.lattice.reciprocal_lattice.volume * \
+            self.kpoints_settings["kpoints_density"] * structure.lattice.reciprocal_lattice.volume * \
             structure.num_sites
         return super(MPStaticVaspInputSet, self).get_kpoints(structure)
 
     def get_poscar(self, structure):
-        sym_finder = SymmetryFinder(structure, symprec=0.01)
+        sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
         return Poscar(sym_finder.get_primitive_standard_structure())
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
-                      additional_info=False):
+                      additional_info=False, sym_prec=0.01):
         """
         Process structure for static calculations from previous run.
 
@@ -669,7 +688,6 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             Returns the magmom-decorated structure that can be passed to get
             Vasp input files, e.g. get_kpoints.
         """
-        #TODO: fix magmom for get_*_structures
         if vasp_run.is_spin:
             if outcar and outcar.magnetization:
                 magmom = {"magmom": [i['tot'] for i in outcar.magnetization]}
@@ -682,7 +700,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         structure = vasp_run.final_structure
         if magmom:
             structure = structure.copy(site_properties=magmom)
-        sym_finder = SymmetryFinder(structure, symprec=0.01)
+        sym_finder = SymmetryFinder(structure, symprec=sym_prec)
         if initial_structure:
             return structure
         elif additional_info:
@@ -698,7 +716,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                user_incar_settings=None,
-                               make_dir_if_not_present=True):
+                               make_dir_if_not_present=True,
+                               kpoints_density=90, sym_prec=0.01):
         """
         Generate a set of Vasp input files for static calculations from a
         directory of previous Vasp run.
@@ -714,7 +733,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 Set to True if you want the directory (and the whole path) to
                 be created if it is not present.
         """
-
+        # Read input and output from previous run
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
@@ -725,10 +744,11 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
-        structure = MPStaticVaspInputSet.get_structure(vasp_run, outcar)
-        mpsvip = MPStaticVaspInputSet()
+
+        mpsvip = MPStaticVaspInputSet(kpoints_density=kpoints_density, sym_prec=sym_prec)
+        structure = mpsvip.get_structure(vasp_run, outcar)
+
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
-        #new_incar = Incar.from_file(os.path.join(output_dir, "INCAR"))
         new_incar = mpsvip.get_incar(structure)
 
         # Use previous run INCAR and override necessary parameters
@@ -764,9 +784,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         # Prefer to use k-point scheme from previous run
         previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
             previous_final_structure.lattice.reciprocal_lattice.volume
-        new_kpoints_density = max(previous_kpoints_density, 90)
-        new_kpoints = mpsvip.get_kpoints(structure,
-                                         kpoints_density=new_kpoints_density)
+        new_kpoints_density = max(previous_kpoints_density, kpoints_density)
+        new_kpoints = mpsvip.get_kpoints(structure)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
             if previous_kpoints.style[0] == "M" and \
                     SymmetryFinder(structure, 0.01).get_lattice_type() != \
@@ -814,7 +833,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
 
     def __init__(self, user_incar_settings, mode="Line",
-                 constrain_total_magmom=False, sort_structure=False):
+                 constrain_total_magmom=False, sort_structure=False,
+                 kpoints_density=1000, sym_prec=0.01):
         """
         Args:
             user_incar_settings:
@@ -826,6 +846,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 Uniform: Generate uniform k-points grids for DOS
         """
         self.mode = mode
+        self.sym_prec= sym_prec
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
@@ -838,6 +859,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         self.incar_settings.update(
             {"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001, "LCHARG": False,
              "LORBIT": 11, "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
+        self.kpoints_settings.update({"kpoints_density": kpoints_density})
         if mode == "Uniform":
             # Set smaller steps for DOS output
             self.incar_settings.update({"NEDOS": 601})
@@ -847,7 +869,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         else:
             self.incar_settings.update(user_incar_settings)
 
-    def get_kpoints(self, structure, kpoints_density=1000):
+    def get_kpoints(self, structure):
         """
         Get a KPOINTS file for NonSCF calculation. In "Line" mode, kpoints are
         generated along high symmetry lines. In "Uniform" mode, kpoints are
@@ -870,12 +892,12 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                            kpts=frac_k_points, labels=k_points_labels,
                            kpts_weights=[1] * len(cart_k_points))
         else:
-            num_kpoints = kpoints_density * \
+            num_kpoints = self.kpoints_settings["kpoints_density"] * \
                 structure.lattice.reciprocal_lattice.volume
             kpoints = Kpoints.automatic_density(
                 structure, num_kpoints * structure.num_sites)
             mesh = kpoints.kpts[0]
-            ir_kpts = SymmetryFinder(structure, symprec=0.01) \
+            ir_kpts = SymmetryFinder(structure, symprec=self.sym_prec) \
                 .get_ir_reciprocal_mesh(mesh)
             kpts = []
             weights = []
@@ -901,7 +923,11 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             ispin = 1
         nbands = int(np.ceil(vasp_run.to_dict["input"]["parameters"]["NBANDS"]
                              * 1.2))
-        return {"ISPIN": ispin, "NBANDS": nbands}
+        incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
+        for grid in ["NGX", "NGY", "NGZ"]:
+            if vasp_run.incar.get(grid):
+                incar_settings.update({grid:vasp_run.incar.get(grid)})
+        return incar_settings
 
     def get_incar(self, structure):
         incar = super(MPNonSCFVaspInputSet, self).get_incar(structure)

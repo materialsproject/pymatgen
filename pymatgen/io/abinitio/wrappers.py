@@ -4,9 +4,11 @@ import os
 import cStringIO as StringIO
 
 from subprocess import Popen, PIPE
-
 from pymatgen.util.io_utils import which
 from pymatgen.util.string_utils import list_strings
+
+import logging
+logger = logging.getLogger(__name__)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -19,14 +21,14 @@ __date__ = "$Feb 21, 2013M$"
 __all__ = [
     "Mrgscr",
     "Mrggkk",
-    "Mrgdbb",
+    "Mrgddb",
     "Anaddb",
 ]
 
 
 class ExecWrapper(object):
     """This class runs an executable in a subprocess."""
-    def __init__(self, executable, verbose=0):
+    def __init__(self, executable=None, verbose=0):
         """
         Args:
             executable:
@@ -34,7 +36,8 @@ class ExecWrapper(object):
             verbose:
                 Verbosity level.
         """
-        if executable is None: executable = self.name
+        if executable is None: 
+            executable = self.name
 
         self.executable = which(executable)
 
@@ -76,10 +79,10 @@ class ExecWrapper(object):
 
             raise self.Error("%s returned %s\n cmd_str: %s" % (self, self.returncode, self.cmd_str))
 
-##########################################################################################
 
 class MrgscrError(Exception):
     """Error class for Mrgscr"""
+
 
 class Mrgscr(ExecWrapper):
     _name = "mrgscr"
@@ -106,9 +109,10 @@ class Mrgscr(ExecWrapper):
 
         self.stdin_fname, self.stdout_fname, self.stderr_fname = (
             "mrgscr.stdin", "mrgscr.stdout", "mrgscr.stderr")
+
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
         inp = StringIO.StringIO()
 
@@ -131,7 +135,6 @@ class Mrgscr(ExecWrapper):
         except self.Error:
             raise
 
-##########################################################################################
 
 class MrggkkError(Exception):
     """Error class for Mrggkk."""
@@ -142,11 +145,27 @@ class Mrggkk(ExecWrapper):
 
     Error = MrggkkError
 
-    def merge(self, gswfk_file, dfpt_files, gkk_files, out_fname, binascii=0, cwd=None):
-        """Merge DDB file, return the absolute path of the new database."""
+    def merge(self, gswfk_file, dfpt_files, gkk_files, out_gkk, binascii=0, cwd=None):
+        """
+        Merge GGK files, return the absolute path of the new database.
+
+        Args:
+            gswfk_file: 
+                Ground-state WFK filename
+            dfpt_files:
+                List of 1WFK files to merge.
+            gkk_files:
+                List of GKK files to merge.
+            out_gkk:
+                Name of the output GKK file
+            binascii:
+                Integer flat. 0 --> binary output, 1 --> ascii formatted output
+            cwd:
+                Directory where the subprocess will be executed.
+        """
         raise NotImplementedError("This method should be tested")
 
-        out_fname = out_fname if cwd is None else os.path.join(os.path.abspath(cwd), out_fname)
+        out_gkk = out_gkk if cwd is None else os.path.join(os.path.abspath(cwd), out_gkk)
 
         # We work with absolute paths.
         gswfk_file = absath(gswfk_file)
@@ -155,31 +174,38 @@ class Mrggkk(ExecWrapper):
 
         if self.verbose:
             print("Will merge %d 1WF files, %d GKK file in output %s" %
-                  (len(dfpt_nfiles), (len_gkk_files), out_fname))
-            for (i, f) in enumerate(dfpt_files): print(" [%d] 1WF %s" % (i, f))
-            for (i, f) in enumerate(gkk_files):  print(" [%d] GKK %s" % (i, f))
+                  (len(dfpt_nfiles), (len_gkk_files), out_gkk))
+
+            for (i, f) in enumerate(dfpt_files): 
+                print(" [%d] 1WF %s" % (i, f))
+
+            for (i, f) in enumerate(gkk_files):  
+                print(" [%d] GKK %s" % (i, f))
 
         self.stdin_fname, self.stdout_fname, self.stderr_fname = (
             "mrggkk.stdin", "mrggkk.stdout", "mrggkk.stderr")
+
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
         inp = StringIO.StringIO()
 
-        inp.write(out_fname + "\n")        # Name of the output file
-        inp.write(str(binascii) + "\n")    # Integer flag: 0 --> binary output, 1 --> ascii formatted output
-        inp.write(gswfk_file + "\n")       # Name of the groud state wavefunction file WF
+        inp.write(out_gkk + "\n")        # Name of the output file
+        inp.write(str(binascii) + "\n")  # Integer flag: 0 --> binary output, 1 --> ascii formatted output
+        inp.write(gswfk_file + "\n")     # Name of the groud state wavefunction file WF
 
         #dims = len(dfpt_files, gkk_files, ?)
         dims = " ".join([str(d) for d in dims])
         inp.write(dims + "\n")             # Number of 1WF, of GKK files, and number of 1WF files in all the GKK files
 
         # Names of the 1WF files...
-        for fname in dfpt_files: inp.write(fname + "\n")
+        for fname in dfpt_files: 
+            inp.write(fname + "\n")
 
         # Names of the GKK files...
-        for fname in gkk_files: inp.write(fname + "\n")
+        for fname in gkk_files: 
+            inp.write(fname + "\n")
 
         inp.seek(0)
         self.stdin_data = [s for s in inp]
@@ -192,12 +218,12 @@ class Mrggkk(ExecWrapper):
         except self.Error:
             raise
 
-        return out_fname
+        return out_gkk
 
-##########################################################################################
 
 class MrgddbError(Exception):
     """Error class for Mrgddb."""
+
 
 class Mrgddb(ExecWrapper):
     _name = "mrgddb"
@@ -229,7 +255,7 @@ class Mrgddb(ExecWrapper):
 
         if cwd is not None:
             self.stdin_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.stdout_fname, self.stderr_fname])
 
         inp = StringIO.StringIO()
 
@@ -254,10 +280,10 @@ class Mrgddb(ExecWrapper):
 
         return out_ddb
 
-##########################################################################################
 
 class AnaddbError(Exception):
     """Error class for Anaddb."""
+
 
 class Anaddb(ExecWrapper):
     _name = "anaddb"
@@ -287,7 +313,7 @@ class Anaddb(ExecWrapper):
 
         if cwd is not None:
             self.stdin_fname, self.input_fname, self.stdout_fname, self.stderr_fname = \
-                map(pj, 3 * [cwd], [self.stdin_fname, self.inp_fname, self.stdout_fname, self.stderr_fname])
+                map(os.path.join, 3 * [cwd], [self.stdin_fname, self.inp_fname, self.stdout_fname, self.stderr_fname])
 
         # Files file
         inp = StringIO.StringIO()

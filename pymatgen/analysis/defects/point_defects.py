@@ -17,7 +17,7 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core import Specie
+from pymatgen.core.periodic_table import Specie, Element
 
 
 class ValenceIonicRadiusEvaluator:
@@ -64,9 +64,13 @@ class ValenceIonicRadiusEvaluator:
         rad_dict = {}
         for k, val in self._valences.items():
             el = re.sub('[1-9,+,\-]', '', k)
-            rad_dict[k] = Specie(el, val).ionic_radius
-            if not rad_dict[el]:  # get covalent radii later
-                raise LookupError()
+            if val:
+                #rad_dict[k] = Specie(el, val).ionic_radius
+                rad_dict[k] = float(Element(el).ionic_radii[val])
+                if not rad_dict[k]:  
+                    raise LookupError()
+            else:
+                rad_dict[k] = Element(el).atomic_radius
         return rad_dict
 
     def _get_valences(self):
@@ -74,14 +78,7 @@ class ValenceIonicRadiusEvaluator:
         Computes ionic valences of elements for all sites in the structure.
         """
         bv = BVAnalyzer()
-        try:
-            valences = bv.get_valences(self._structure)
-        except:
-            err_str = "BVAnalyzer failed. The defect effective charge, and"
-            err_str += " volume and surface area may not work"
-            print err_str
-            raise LookupError()
-
+        valences = bv.get_valences(self._structure)
         el = [site.species_string for site in self.structure.sites]
         valence_dict = dict(zip(el, valences))
         return valence_dict
@@ -308,6 +305,7 @@ class Vacancy(Defect):
         coordinated_site_valences.sort()
         return coordinated_site_valences[0], coordinated_site_valences[-1]
 
+    # deprecated
     def get_volume(self, n):
         """
         Volume of the nth vacancy
@@ -333,6 +331,7 @@ class Vacancy(Defect):
 
         return self._vol[n]
 
+    # deprecated
     def get_surface_area(self, n):
         """
         Surface area of the nth vacancy
@@ -468,7 +467,7 @@ class Interstitial(Defect):
         #the symmetry reduced voronoi nodes
         #are possible candidates for interstitial sites
         #try:
-        possible_interstitial_sites = _symmetry_reduced_voronoi_nodes(
+        possible_interstitial_sites = symmetry_reduced_voronoi_nodes(
             self._structure, self._rad_dict
         )
         #except:
@@ -506,14 +505,10 @@ class Interstitial(Defect):
         coord_sites = coord_finder.get_coordinated_sites(-1)
 
         # In some cases coordination sites to interstitials include 
-        # interstitials also. 
-        sites_to_be_deleted = []
-        for i in range(len(coord_sites)):
-            if coord_sites[i].species_string == 'X':
-                sites_to_be_deleted.append(i)
-        sites_to_be_deleted.reverse()  # So index won't change in between
-        for ind in sites_to_be_deleted:
-            del coord_sites[ind]
+        # interstitials also. Filtering them.
+        def no_inter(site):
+            return not site.species_string == 'X'
+        coord_sites = filter(no_inter, coord_sites)
 
         coord_chrg = 0
         for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
@@ -626,7 +621,7 @@ class Interstitial(Defect):
         Prune all the defect sites which can't acoomodate the input elment 
         with the input oxidation state.
         """
-        rad = Specie(el, oxi_state).ionic_radius - dlta
+        rad = float(Specie(el, oxi_state).ionic_radius) - dlta
         self.radius_prune_defectsites(rad)
 
     def prune_close_defectsites(self, dist=0.5):
@@ -821,7 +816,7 @@ class InterstitialAnalyzer:
         blk_struct = self._relax_struct[0]
         def_struct = self._relax_struct[n + 1:n + 2][0]
         def_struct.remove(-1)
-        print def_struct
+        #print def_struct
         rv = RelaxationAnalyzer(blk_struct, def_struct)
         return rv.get_percentage_bond_dist_changes()
 
@@ -1205,7 +1200,7 @@ class RelaxedInterstitial:
             self._coord_charge_no.append(coord_chrg)
 
 
-def _symmetry_reduced_voronoi_nodes(structure, rad_dict):
+def symmetry_reduced_voronoi_nodes(structure, rad_dict):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and 
     pymatgen.symmetry.finder.SymmetryFinder

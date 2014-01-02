@@ -12,8 +12,8 @@ from pymatgen.io.abinitio.abiobjects import (Smearing, KSampling, Screening,
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
-from pymatgen.io.abinitio.workflow import (PseudoIterativeConvergence, 
-    PseudoConvergence, BandStructure, GW_Workflow, BSEMDF_Workflow)
+from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence, 
+    PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -22,19 +22,17 @@ __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo at gmail.com"
 
 
-################################################################################
 
 class PPConvergenceFactory(object):
     """
     Factory object that constructs workflows for analyzing the converge of
     pseudopotentials.
     """
-    def work_for_pseudo(self, workdir, pseudo, ecut_range, 
-                        runmode="sequential", toldfe=1.e-8,
-                        atols_mev=(10, 1, 0.1), spin_mode="polarized",
+    def work_for_pseudo(self, workdir, manager, pseudo, ecut_range, 
+                        toldfe=1.e-8, atols_mev=(10, 1, 0.1), spin_mode="polarized",
                         acell=(8, 9, 10), smearing="fermi_dirac:0.1 eV",):
         """
-        Return a Work object given the pseudopotential pseudo.
+        Return a `Workflow` object given the pseudopotential pseudo.
 
         Args:
             workdir:
@@ -43,8 +41,8 @@ class PPConvergenceFactory(object):
                 Pseudo object.
             ecut_range:
                 range of cutoff energies in Ha units.
-            runmode:
-                Run mode.
+            manager:
+                `TaskManager` object.
             toldfe:
                 Tolerance on the total energy (Ha).
             atols_mev:
@@ -62,33 +60,27 @@ class PPConvergenceFactory(object):
 
         if isinstance(ecut_range, slice):
             workflow = PseudoIterativeConvergence(
-                workdir, pseudo, ecut_range, atols_mev, 
-                runmode=runmode, toldfe=toldfe, spin_mode=spin_mode, 
+                workdir, manager, pseudo, ecut_range, atols_mev, 
+                toldfe=toldfe, spin_mode=spin_mode, 
                 acell=acell, smearing=smearing)
 
         else:
             workflow = PseudoConvergence(
-                workdir, pseudo, ecut_range, atols_mev, 
-                runmode=runmode, toldfe=toldfe, spin_mode=spin_mode, 
+                workdir, manager, pseudo, ecut_range, atols_mev, 
+                toldfe=toldfe, spin_mode=spin_mode, 
                 acell=acell, smearing=smearing)
 
         return workflow
 
-################################################################################
 
-
-def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
+def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
                   ndivsm, accuracy="normal", spin_mode="polarized",
                   smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None,
-                  dos_kppa=None, **extra_abivars):
+                  dos_kppa=None, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that computes that bandstructure of the material.
 
     Args:
-        workdir:
-            Working directory.
-        runmode:
-            `RunMode` instance.
         structure:
             Pymatgen structure.
         pseudos:
@@ -113,7 +105,11 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
         dos_kppa:
             Defines the k-point sampling used for the computation of the DOS 
             (None if DOS is not wanted).
-        **extra_abivars:
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` instance.
+        extra_abivars:
             Dictionary with extra variables passed to ABINIT.
     """
     # SCF calculation.
@@ -138,12 +134,12 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
 
         dos_strategy = NscfStrategy(scf_strategy, dos_ksampling, nscf_nband, nscf_solver=None, **extra_abivars)
 
-    return BandStructure(workdir, runmode, scf_strategy, nscf_strategy, dos_strategy=dos_strategy)
+    return BandStructureWorkflow(scf_strategy, nscf_strategy, dos_inputs=dos_strategy, 
+                                 workdir=workdir, manager=manager)
 
-################################################################################
 
 
-#def relaxation(workdir, runmode, structure, pseudos, scf_kppa,
+#def relaxation(workdir, manager, structure, pseudos, scf_kppa,
 #               accuracy="normal", spin_mode="polarized",
 #               smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
 #    """
@@ -152,8 +148,8 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
 #    Args:
 #        workdir:
 #            Working directory.
-#        runmode:
-#            `RunMode` instance.
+#        manager:
+#            `TaskManager` object.
 #        structure:
 #            Pymatgen structure.
 #        pseudos:
@@ -179,23 +175,17 @@ def bandstructure(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
 #                                   accuracy=accuracy, spin_mode=spin_mode, smearing=smearing, 
 #                                   charge=charge, scf_algorithm=scf_algorithm)
 #
-#    #return Relaxation(workdir, runmode, relax_strategy)
+#    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
-################################################################################
 
-def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
-                      nscf_nband, ecuteps, ecutsigx, accuracy="normal",
-                      spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None,
-                      inclvkb=2, scr_nband=None, sigma_nband=None, **extra_abivars):
+def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, 
+                      accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
+                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
+                      sigma_nband=None, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
     Args:
-        workdir:
-            Working directory.
-        runmode:
-            `RunMode` instance.
         structure:
             Pymatgen structure.
         pseudos:
@@ -226,7 +216,11 @@ def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
             Number of bands used to compute the screening (default is nscf_nband)
         sigma_nband:
             Number of bands used to compute the self-energy (default is nscf_nband)
-        **extra_abivars
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` instance.
+        extra_abivars
             Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
@@ -262,25 +256,21 @@ def g0w0_with_ppmodel(workdir, runmode, structure, pseudos, scf_kppa,
     sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
                                         **extra_abivars)
 
-    return GW_Workflow(workdir, runmode, scf_strategy, nscf_strategy, scr_strategy, sigma_strategy)
+    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
+                         workdir=workdir, manager=manager)
 
-################################################################################
 
 
-def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband, 
-                 nscf_ngkpt, nscf_shiftk, ecuteps, bs_loband, soenergy, mdf_epsinf, 
-                 accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                 charge=0.0, scf_algorithm=None, **extra_abivars):
+def bse_with_mdf(structure, pseudos, scf_kppa, nscf_nband, nscf_ngkpt, nscf_shiftk, 
+                 ecuteps, bs_loband, soenergy, mdf_epsinf, accuracy="normal", spin_mode="polarized", 
+                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, workdir=None, manager=None, 
+                 **extra_abivars):
     """
     Returns a Work object that performs a GS + NSCF + Bethe-Salpeter calculation.
     The self-energy corrections are approximated with the scissors operator. The screening
     in modeled by the model dielectric function.
 
     Args:
-        workdir:
-            Working directory.
-        runmode:
-            `RunMode` instance.
         structure:
             Pymatgen structure.
         pseudos:
@@ -311,8 +301,12 @@ def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
         charge:
             Electronic charge added to the unit cell.
         scf_algorithm:
-            Algorithm used for solving of the SCF cycle.
-        **extra_abivars
+            Algorithm used for solving the SCF cycle.
+        workdir:
+            Working directory.
+        manager:
+            `TaskManger` instance.
+        extra_abivars:
             Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
@@ -342,8 +336,7 @@ def bse_with_mdf(workdir, runmode, structure, pseudos, scf_kppa, nscf_nband,
                              mdf_epsinf=mdf_epsinf, exc_type="TDA", algo="haydock", with_lf=True, 
                              zcut=None)
 
-
     bse_strategy = MDFBSE_Strategy(scf_strategy, nscf_strategy, exc_ham, **extra_abivars)
 
-    return BSEMDF_Workflow(workdir, runmode, scf_strategy, nscf_strategy, bse_strategy)
+    return BSEMDF_Workflow(scf_strategy, nscf_strategy, bse_strategy, workdir=workdir, manager=manager)
 

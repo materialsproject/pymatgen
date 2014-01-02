@@ -58,6 +58,7 @@ class ZeoCssr(Cssr):
         """
         CSSR.__str__ method is modified to padd 0's to the CSSR site data.
         The padding is to conform with the CSSR format supported Zeo++.
+        The oxidation state is stripped from site.specie 
         Also coordinate system is rotated from xyz to zxy
         """
         output = [
@@ -75,21 +76,19 @@ class ZeoCssr(Cssr):
             "0 {}".format(self.structure.formula)
         ]
         for i, site in enumerate(self.structure.sites):
-            if not hasattr(site, 'charge'):
-                output.append(
-                    "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(i + 1, site.specie, site.c, site.a, site.b, 0.0)
-                    #.format(i+1, site.specie, site.a, site.b, site.c, 0.0)
+            #if not hasattr(site, 'charge'):
+            #    charge = 0
+            #else:
+            #    charge = site.charge
+            charge = site.charge if hasattr(site, 'charge') else 0
+            specie = re.sub('[1-9,+,\-]', '', site.species_string)
+            output.append(
+                "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
+                .format(
+                    i+1, specie, site.c, site.a, site.b, charge
+                    #i+1, site.specie, site.a, site.b, site.c, site.charge
                 )
-            else:
-                output.append(
-                    "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
-                    .format(
-                        i + 1, site.specie, site.c, site.a, site.b,
-                        #i+1, site.specie, site.a, site.b, site.c,
-                        site.charge
-                    )
-                )
+            )
 
         return "\n".join(output)
 
@@ -249,18 +248,19 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
 
     temp_dir = tempfile.mkdtemp()
     current_dir = os.getcwd()
-    name = "temp_zeo"
+    name = "temp_zeo1"
     zeo_inp_filename = name + ".cssr"
     os.chdir(temp_dir)
     ZeoCssr(structure).write_file(zeo_inp_filename)
     rad_file = None
+
     if rad_dict:
         rad_file = name + ".rad"
         with open(rad_file, 'w+') as fp:
             for el in rad_dict.keys():
-                fp.write("{0} {1}".format(el, rad_dict[el]))
+                print >>fp, "{} {}".format(el, rad_dict[el])
 
-    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
+    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=True, rad_file=rad_file)
     vornet = atmnet.perform_voronoi_decomposition()
     vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name + '_voro.xyz'
@@ -287,7 +287,8 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     return voronoi_node_struct
 
 
-def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2,
+# Deprecated. Not needed anymore
+def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
                              probe_rad=0.1):
     """
     Computes the volume and surface area of isolated void using Zeo++.
@@ -317,13 +318,14 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2,
     rad_file = None
     if rad_dict:
         rad_file = name + ".rad"
-        with open(rad_file, 'w+') as fp:
+        with open(rad_file, 'w') as fp:
             for el in rad_dict.keys():
                 fp.write("{0}     {1}".format(el, rad_dict[el]))
 
     atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
-    vol_str = volume(atmnet, 0.3, probe_rad, 5000)
-    sa_str = surface_area(atmnet, 0.3, probe_rad, 5000)
+    vol_str = volume(atmnet, 0.3, probe_rad, 10000)
+    sa_str = surface_area(atmnet, 0.3, probe_rad, 10000)
+    print vol_str, sa_str
     vol = None
     sa = None
     for line in vol_str.split("\n"):
@@ -347,9 +349,9 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.2,
                 sa = -1.0
                 break
             sa = float(fields[3])
-    if not vol or not sa:
-        raise ValueError("Error in zeo++ output stream")
 
     os.chdir(current_dir)
     shutil.rmtree(temp_dir)
+    if not vol or not sa:
+        raise ValueError("Error in zeo++ output stream")
     return vol, sa

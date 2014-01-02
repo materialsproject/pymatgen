@@ -4,16 +4,15 @@ pseudopotentials used in Abinit, and a parser to instantiate pseudopotential obj
 """
 from __future__ import division, print_function
 
-import os
-import os.path
 import sys
+import os
 import abc
 import collections
 import json
-import cPickle as pickle
-import cStringIO as StringIO
+import warnings
 import numpy as np
 
+from pymatgen.core.design_patterns import FrozenDict, AttrDict
 from pymatgen.core.periodic_table import PeriodicTable
 from pymatgen.util.num_utils import iterator_from_slice
 from pymatgen.util.string_utils import list_strings, is_string
@@ -27,22 +26,12 @@ __author__ = "Matteo Giantomassi"
 __version__ = "0.1"
 __maintainer__ = "Matteo Giantomassi"
 
-##########################################################################################
 # Tools and helper functions.
+def straceback():
+    """Returns a string with the traceback."""
+    import traceback
+    return traceback.format_exc()
 
-class FrozenDict(dict):
-    """A dictionary that does not permit to redefine its keys."""
-    def __init__(self, *args, **kwargs):
-        self.update(*args, **kwargs)
-
-    def __setitem__(self, key, val):
-        if key in self:
-            raise KeyError("Cannot overwrite existent key: %s" % str(key))
-        dict.__setitem__(self, key, val)
-
-    def update(self, *args, **kwargs):
-        for (k, v) in dict(*args, **kwargs).iteritems():
-            self[k] = v
 
 def _read_nlines(filename, nlines):
     """
@@ -70,12 +59,20 @@ _l2str = {
     6: "i",
 }
 
+_str2l = {v: k for k, v in _l2str.items()}
+
 def l2str(l):
     """Convert the angular momentum l (int) to string."""
     try:
         return _l2str[l]
     except KeyError:
-        return "Unknown: received l = %s" % l
+        return "Unknown angular momentum, received l = %s" % l
+
+
+def str2l(s):
+    """Convert a string to the angular momentum l (int)"""
+    return _str2l[s]
+
 
 def read_dojo_report(filename):
     """Helper function to read the DOJO_REPORT from file."""
@@ -102,7 +99,6 @@ def read_dojo_report(filename):
 #
 #    #def to_file(self, path):
 
-##########################################################################################
 
 _PTABLE = PeriodicTable()
 
@@ -112,6 +108,10 @@ class Pseudo(object):
     implemented by the concrete pseudopotential classes.
     """
     __metaclass__ = abc.ABCMeta
+
+    #def __init__(self, filepath):
+    #    self.filepath = os.path.abspath(filepath)
+    #    self._dojo_report = {}
 
     @classmethod
     def aspseudo(cls, obj):
@@ -125,10 +125,10 @@ class Pseudo(object):
             return obj
         else:
             # Assumes path.
-            return cls.from_filename(obj)
+            return cls.from_file(obj)
 
     @staticmethod
-    def from_filename(filename):
+    def from_file(filename):
         """
         Return a pseudopotential object from filename.
         Note: the parser knows the concrete class that should be instanciated
@@ -146,10 +146,12 @@ class Pseudo(object):
         app("<%s: %s>" % (self.__class__.__name__, self.name))
         app("  summary: " + self.summary.strip())
         app("  number of valence electrons: %s" % self.Z_val)
-        app("  XC correlation (ixc): %s" % self._pspxc)  #FIXME
+        #FIXME: rewrite the treatment of xc, use XML specs as starting point
+        #app("  XC correlation (ixc): %s" % self._pspxc)  #FIXME
         app("  maximum angular momentum: %s" % l2str(self.l_max))
         app("  angular momentum for local part: %s" % l2str(self.l_local))
-        app("  radius for non-linear core correction: %s" % self.nlcc_radius)
+        if self.isnc:
+            app("  radius for non-linear core correction: %s" % self.nlcc_radius)
         app("")
 
         hint_normal = self.hint_for_accuracy()
@@ -162,9 +164,9 @@ class Pseudo(object):
     def summary(self):
         """String summarizing the most important properties."""
 
-    @abc.abstractproperty
+    @property
     def filepath(self):
-        """Absolute path of the pseudopotential file."""
+        return os.path.abspath(self.path)
 
     @property
     def name(self):
@@ -182,7 +184,14 @@ class Pseudo(object):
     @property
     def element(self):
         """Pymatgen `Element`."""
-        return _PTABLE[self.Z]
+        try:
+            return _PTABLE[self.Z]
+        except (KeyError, IndexError):
+            return _PTABLE[int(self.Z)]
+
+    @property
+    def type(self):
+        return self.__class__.__name__
 
     @property
     def symbol(self):
@@ -197,6 +206,16 @@ class Pseudo(object):
     def l_local(self):
         """Angular momentum used for the local part."""
 
+    @property
+    def isnc(self):
+        """True if norm-conserving pseudopotential."""
+        return isinstance(self, NcPseudo)
+
+    @property
+    def ispaw(self):
+        """True if PAW pseudopotential."""
+        return isinstance(self, PawPseudo)
+
     #@abc.abstractproperty
     #def xc_type(self):
     #    """XC family e.g LDA, GGA, MGGA."""
@@ -209,16 +228,6 @@ class Pseudo(object):
     #def xc_functional(self):
     #    """XC identifier e.g LDA-PW91, GGA-PBE, GGA-revPBE."""
     #    return "-".join([self.xc_type, self.xc_flavor])
-
-    @property
-    def isnc(self):
-        """True if norm-conserving pseudopotential."""
-        return isinstance(self, NcPseudo)
-
-    @property
-    def ispaw(self):
-        """True if PAW pseudopotential."""
-        return isinstance(self, PawPseudo)
 
     #@abc.abstractproperty
     #def has_soc(self):
@@ -336,7 +345,6 @@ class Pseudo(object):
     #        hasher.update(fh.read())
     #        return hasher.hexdigest()
 
-##########################################################################################
 
 class NcPseudo(object):
     """
@@ -357,7 +365,14 @@ class NcPseudo(object):
         """True if the pseudo is generated with non-linear core correction."""
         return self.nlcc_radius > 0.0
 
-##########################################################################################
+    @property
+    def rcore(self):
+        """Radius of the pseudization sphere in a.u."""
+        try:
+            return self._core
+        except AttributeError:
+            return None
+
 
 class PawPseudo(object):
     """
@@ -366,11 +381,28 @@ class PawPseudo(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    #def nlcc_radius(self):
+    #    """
+    #    Radius at which the core charge vanish (i.e. cut-off in a.u.).
+    #    Returns 0.0 if nlcc is not used.
+    #    """
+    #    return 0.0
+    #                                                                           
+
+    #@property
+    #def has_nlcc(self):
+    #    """True if the pseudo is generated with non-linear core correction."""
+    #    return True
+
     @abc.abstractproperty
     def paw_radius(self):
         """Radius of the PAW sphere in a.u."""
 
-##########################################################################################
+    @property
+    def rcore(self):
+        """Alias of paw_radius."""
+        return self.paw_radius
+
 
 class AbinitPseudo(Pseudo):
     """
@@ -386,7 +418,11 @@ class AbinitPseudo(Pseudo):
         """
         self.path = path
         self._summary = header.summary
-        self.dojo_report = header.dojo_report
+        if hasattr(self, "dojo_report"):
+            self.dojo_report = header.dojo_report
+        else:
+            self.dojo_report = {}
+
         #self.pspcod  = header.pspcod
 
         for (attr_name, desc) in header.items():
@@ -399,10 +435,6 @@ class AbinitPseudo(Pseudo):
     def summary(self):
         """Summary line reported in the ABINIT header."""
         return self._summary.strip()
-
-    @property
-    def filepath(self):
-        return os.path.abspath(self.path)
 
     @property
     def Z(self):
@@ -420,7 +452,6 @@ class AbinitPseudo(Pseudo):
     def l_local(self):
         return self._lloc
 
-##########################################################################################
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     """
@@ -429,10 +460,6 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     @property
     def summary(self):
         return self._summary.strip()
-
-    @property
-    def filepath(self):
-        return os.path.abspath(self.path)
 
     @property
     def Z(self):
@@ -455,7 +482,6 @@ class NcAbinitPseudo(NcPseudo, AbinitPseudo):
     def nlcc_radius(self):
         return self._rchrg
 
-##########################################################################################
 
 class PawAbinitPseudo(PawPseudo, AbinitPseudo):
     """Paw pseudopotential in the Abinit format."""
@@ -466,7 +492,6 @@ class PawAbinitPseudo(PawPseudo, AbinitPseudo):
 
     #def orbitals(self):
 
-##########################################################################################
 
 class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     """
@@ -480,7 +505,6 @@ class Hint(collections.namedtuple("Hint", "ecut aug_ratio")):
     def from_dict(cls, d):
         return cls(**{k: v for k,v in d.items() if not k.startswith("@")})
 
-##########################################################################################
 
 def _dict_from_lines(lines, key_nums, sep=None):
     """
@@ -492,7 +516,11 @@ def _dict_from_lines(lines, key_nums, sep=None):
     sep is a string denoting the character that separates the keys from the value (None if
     no separator is present).
 
-    Return dict{key1 : value1, key2 : value2, ...}
+    Returns:
+        dict{key1 : value1, key2 : value2, ...}
+
+    Raises:
+        ValueError if parsing fails.
     """
     if is_string(lines):
         lines = [lines]
@@ -511,24 +539,26 @@ def _dict_from_lines(lines, key_nums, sep=None):
         line = lines[i]
 
         tokens = [t.strip() for t in line.split()]
-        values, keys = tokens[:nk], "".join([t for t in tokens[nk:]])
+        values, keys = tokens[:nk], "".join(tokens[nk:])
+        # Sanitize keys: In some case we might string in for  foo[,bar]
+        keys.replace("[", "").replace("]", "")
         keys = keys.split(",")
 
         if sep is not None:
             check = keys[0][0]
             if check != sep:
-                raise RuntimeError("Expecting sep %s, got %s" % (sep, check))
+                raise ValueError("Expecting separator %s, got %s" % (sep, check))
             keys[0] = keys[0][1:]
 
         if len(values) != len(keys):
-            raise RuntimeError("%s: %s\n %s len(keys) != len(value) %s" %
-                (filename, line, keys, values))
+            msg = "line: %s\n len(keys) != len(value)\nkeys: %s\n values:  %s" % (line, keys, values)
+            warnings.warn(msg)
+            #raise ValueError(msg)
 
         kwargs.update(zip(keys, values))
 
     return kwargs
 
-##########################################################################################
 
 class AbinitHeader(dict):
     """Dictionary whose keys can be also accessed as attributes."""
@@ -543,7 +573,6 @@ class AbinitHeader(dict):
             except KeyError as exc:
                 raise AttributeError(str(exc))
 
-##########################################################################################
 
 def _int_from_str(string):
     """
@@ -558,6 +587,7 @@ def _int_from_str(string):
         return int_num
     else:
         raise TypeError("Cannot convert string %s to int" % string)
+
 
 class NcAbinitHeader(AbinitHeader):
     """
@@ -586,6 +616,10 @@ class NcAbinitHeader(AbinitHeader):
     def __init__(self, summary, **kwargs):
         super(NcAbinitHeader, self).__init__()
 
+        # APE uses llocal instead of lloc.
+        if "llocal" in kwargs:
+            kwargs["lloc"] = kwargs.pop("llocal")
+
         self.summary = summary.strip()
 
         for (key, desc) in NcAbinitHeader._VARS.items():
@@ -608,8 +642,8 @@ class NcAbinitHeader(AbinitHeader):
         # Add dojo_report
         self["dojo_report"] = kwargs.pop("dojo_report", {})
 
-        if kwargs:
-            raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
+        #if kwargs:
+        #    raise RuntimeError("kwargs should be empty but got %s" % str(kwargs))
 
     @staticmethod
     def fhi_header(filename, ppdesc):
@@ -621,11 +655,17 @@ class NcAbinitHeader(AbinitHeader):
         # 1.80626423934776     .22824404341771    1.17378968127746   rchrg,fchrg,qchrg
         lines = _read_nlines(filename, -1)
 
-        header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
+        try:
+            header = _dict_from_lines(lines[:4], [0, 3, 6, 3])
+        except ValueError:
+            # The last record with rchrg ... seems to be optional.
+            header = _dict_from_lines(lines[:3], [0, 3, 6])
+
         summary = lines[0]
 
         header["dojo_report"] = read_dojo_report(filename)
 
+        #print(header)
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
@@ -699,7 +739,6 @@ class NcAbinitHeader(AbinitHeader):
 
         return NcAbinitHeader(summary, **header)
 
-##########################################################################################
 
 class PawAbinitHeader(AbinitHeader):
     """
@@ -708,7 +747,7 @@ class PawAbinitHeader(AbinitHeader):
     _attr_desc = collections.namedtuple("att", "default astype")
 
     _VARS = {
-        "zatom"           : _attr_desc(None, float),
+        "zatom"           : _attr_desc(None, _int_from_str),
         "zion"            : _attr_desc(None, float),
         "pspdat"          : _attr_desc(None, float),
         "pspcod"          : _attr_desc(None, int),
@@ -734,7 +773,7 @@ class PawAbinitHeader(AbinitHeader):
 
         self.summary = summary.strip()
 
-        for (key, desc) in PawAbinitHeader._VARS.items():
+        for (key, desc) in self._VARS.items():
             default, astype = desc.default, desc.astype
 
             value = kwargs.pop(key, None)
@@ -747,7 +786,7 @@ class PawAbinitHeader(AbinitHeader):
                 try:
                     value = astype(value)
                 except:
-                    raise RuntimeError("Conversion Error for key, value %s" % (key, value))
+                    raise RuntimeError("Conversion Error for key %s, with value %s" % (key, value))
 
             self[key] = value
 
@@ -757,6 +796,19 @@ class PawAbinitHeader(AbinitHeader):
     @staticmethod
     def paw_header(filename, ppdesc):
         """Parse the PAW abinit header."""
+        #Paw atomic data for element Ni - Generated by AtomPAW (N. Holzwarth) + AtomPAW2Abinit v3.0.5
+        #  28.000  18.000 20061204               : zatom,zion,pspdat
+        #  7  7  2 0   350 0.                    : pspcod,pspxc,lmax,lloc,mmax,r2well
+        # paw3 1305                              : pspfmt,creatorID
+        #  5 13                                  : basis_size,lmn_size
+        # 0 0 1 1 2                              : orbitals
+        # 3                                      : number_of_meshes
+        # 1 3  350 1.1803778368E-05 3.5000000000E-02 : mesh 1, type,size,rad_step[,log_step]
+        # 2 1  921 2.500000000000E-03                : mesh 2, type,size,rad_step[,log_step]
+        # 3 3  391 1.1803778368E-05 3.5000000000E-02 : mesh 3, type,size,rad_step[,log_step]
+        #  2.3000000000                          : r_cut(SPH)
+        # 2 0.                
+
         # Example
         #C  (US d-loc) - PAW data extracted from US-psp (D.Vanderbilt) - generated by USpp2Abinit v2.3.0
         #   6.000   4.000 20090106               : zatom,zion,pspdat
@@ -773,8 +825,23 @@ class PawAbinitHeader(AbinitHeader):
         #  1.5550009124                          : r_cut(PAW)
         # 3 0.                                   : shape_type,rshape
 
-        if ppdesc.format != "paw4":
-            raise NotImplementedError("format != paw4 are not supported")
+        #Paw atomic data for element Si - Generated by atompaw v3.0.1.3 & AtomPAW2Abinit v3.3.1
+        #  14.000   4.000 20120814               : zatom,zion,pspdat
+        #  7      11  1 0   663 0.               : pspcod,pspxc,lmax,lloc,mmax,r2well
+        # paw5 1331                              : pspfmt,creatorID
+        #  4  8                                  : basis_size,lmn_size
+        # 0 0 1 1                                : orbitals
+        # 5                                      : number_of_meshes
+        # 1 2  663 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 1, type,size,rad_step[,log_step]
+        # 2 2  658 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 2, type,size,rad_step[,log_step]
+        # 3 2  740 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 3, type,size,rad_step[,log_step]
+        # 4 2  819 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 4, type,size,rad_step[,log_step]
+        # 5 2  870 8.2129718540404674E-04 1.1498160595656655E-02 : mesh 5, type,size,rad_step[,log_step]
+        #  1.5669671236                          : r_cut(PAW)
+        # 2 0.                                   : shape_type,rshape
+        supported_formats = ["paw3", "paw4", "paw5"]
+        if ppdesc.format not in supported_formats:
+            raise NotImplementedError("format %s not in %s" % (ppdesc.format, supported_formats))
 
         lines = _read_nlines(filename, -1)
 
@@ -799,14 +866,17 @@ class PawAbinitHeader(AbinitHeader):
         #print lines[1]
         header.update(_dict_from_lines(lines[1], [2], sep=":"))
 
-        header["dojo_report"] = read_dojo_report(filename)
+        report = read_dojo_report(filename)
+        if report:
+            header["dojo_report"] = report
 
+        #print("PAW header\n", header)
         return PawAbinitHeader(summary, **header)
 
-##########################################################################################
 
 class PseudoParserError(Exception):
     """Base Error class for the exceptions raised by `PseudoParser`"""
+
 
 class PseudoParser(object):
     """
@@ -863,14 +933,18 @@ class PseudoParser(object):
         paths = []
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
-            if ext in exclude_exts or fname in exclude_fnames or fname.startswith("."):
-                continue
-            paths.append(os.path.join(dirname, fname))
+            path = os.path.join(dirname, fname)
+            if (ext in exclude_exts or fname in exclude_fnames or 
+                fname.startswith(".") or not os.path.isfile(path)): continue
+            paths.append(path)
 
         pseudos = []
         for path in paths:
-            # parse the file and generate the pseudo.
-            pseudo = self.parse(path)
+            # Parse the file and generate the pseudo.
+            try:
+                pseudo = self.parse(path)
+            except:
+                pseudo = None
 
             if pseudo is not None:
                 pseudos.append(pseudo)
@@ -885,7 +959,7 @@ class PseudoParser(object):
         Read the pseudopotential descriptor from file filename.
 
         Returns:
-            Pseudopontential descriptor. None if filename is not a valid pseudopotential file.
+            Pseudopotential descriptor. None if filename is not a valid pseudopotential file.
 
         Raises:
             `PseudoParserError` if fileformat is not supported.
@@ -908,9 +982,10 @@ class PseudoParser(object):
                         sys.stderr.write(msg)
                         return None
 
-                    if tokens[-1].strip() != "pspcod,pspxc,lmax,lloc,mmax,r2well":
-                        raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                        return None
+                    #if tokens[-1].strip().replace(" ","") not in ["pspcod,pspxc,lmax,lloc,mmax,r2well",
+                    #                              "pspcod,pspxc,lmax,llocal,mmax,r2well"]:
+                    #    raise self.Error("%s: Invalid line\n %s"  % (filename, line))
+                    #    return None
 
                     if pspcod not in self._PSPCODES:
                         raise self.Error("%s: Don't know how to handle pspcod %s\n"  % (filename, pspcod))
@@ -921,9 +996,10 @@ class PseudoParser(object):
                         # PAW -> need to know the format pspfmt
                         tokens = lines[lineno+1].split()
                         pspfmt, creatorID = tokens[:2]
-                        if tokens[-1].strip() != "pspfmt,creatorID":
-                            raise self.Error("%s: Invalid line\n %s"  % (filename, line))
-                            return None
+                        #if tokens[-1].strip() != "pspfmt,creatorID":
+                        #    raise self.Error("%s: Invalid line\n %s" % (filename, line))
+                        #    return None
+
                         ppdesc = ppdesc._replace(format = pspfmt)
 
                     return ppdesc
@@ -932,12 +1008,16 @@ class PseudoParser(object):
 
     def parse(self, filename):
         """
-        Read and parse a pseudopotential file.
+        Read and parse a pseudopotential file. Main entry point for client code.
 
         Returns: 
             pseudopotential object or None if filename is not a valid pseudopotential file.
         """
         path = os.path.abspath(filename)
+
+        # Only PAW supports XML at present.
+        if filename.endswith(".xml"):
+            return PawXmlSetup(path)
 
         ppdesc = self.read_ppdesc(path)
 
@@ -947,28 +1027,28 @@ class PseudoParser(object):
         psp_type = ppdesc.psp_type
 
         parsers = {
-         "FHI"            : NcAbinitHeader.fhi_header,
-         "TM"             : NcAbinitHeader.tm_header,
-         "HGH"            : NcAbinitHeader.hgh_header,
-         "HGHK"           : NcAbinitHeader.hgh_header,
-         "PAW_abinit_text": PawAbinitHeader.paw_header,
+            "FHI"            : NcAbinitHeader.fhi_header,
+            "TM"             : NcAbinitHeader.tm_header,
+            "HGH"            : NcAbinitHeader.hgh_header,
+            "HGHK"           : NcAbinitHeader.hgh_header,
+            "PAW_abinit_text": PawAbinitHeader.paw_header,
         }
 
         try:
             header = parsers[ppdesc.name](path, ppdesc)
 
         except Exception as exc:
-            raise self.Error(filename + ": " + str(exc))
+            raise self.Error(path + ":\n" + straceback())
 
         root, ext = os.path.splitext(path)
 
         # Add the content of input file (if present).
         # The name of the input is name + ".ini"
-        input = None
-        input_path = root + ".ini"
-        if os.path.exists(input_path):
-            with open(input_path, 'r') as fh:
-                input = fh.read()
+        #input = None
+        #input_path = root + ".ini"
+        #if os.path.exists(input_path):
+        #    with open(input_path, 'r') as fh:
+        #        input = fh.read()
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
@@ -979,7 +1059,428 @@ class PseudoParser(object):
 
         return pseudo
 
-##########################################################################################
+
+#TODO use RadialFunction from pseudo_dojo.
+class RadialFunction(collections.namedtuple("RadialFunction", "mesh values")):
+    pass
+
+
+class PawXmlSetup(Pseudo, PawPseudo):
+    def __init__(self, filepath):
+        # FIXME
+        self.dojo_report = {}
+        self.path = os.path.abspath(filepath)
+
+        # Get the XML root (this trick is used to that the object is pickleable).
+        root = self.root
+
+        # Get the version of the XML format
+        self.paw_setup_version = root.get("version")
+
+        # Info on the atom.
+        atom_attrib = root.find("atom").attrib
+
+        #self._symbol = atom_attrib["symbol"]
+        self._zatom = int(float(atom_attrib["Z"]))
+        self.core, self.valence = map(float, [atom_attrib["core"], atom_attrib["valence"]])
+
+        #xc_info = root.find("atom").attrib
+        #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
+        #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
+
+        # Old XML files do not define this field!
+        # In this case we set the PAW radius to None.
+        #self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
+
+        pawr_element = root.find("PAW_radius")
+        self._paw_radius = None
+        if pawr_element is not None:
+            self._paw_radius = float(pawr_element.attrib["rpaw"])
+
+        #<valence_states>
+        #  <state n="2" l="0" f="2"  rc="1.10" e="-0.6766" id="N-2s"/>
+        #  <state n="2" l="1" f="3"  rc="1.10" e="-0.2660" id="N-2p"/>
+        #  <state       l="0"        rc="1.10" e=" 0.3234" id="N-s1"/>
+        #  <state       l="1"        rc="1.10" e=" 0.7340" id="N-p1"/>
+        #  <state       l="2"        rc="1.10" e=" 0.0000" id="N-d1"/>
+        #</valence_states>
+        #
+        # The valence_states element contains several state elements.
+        # For this setup, the first two lines describe bound eigenstates
+        # with occupation numbers and principal quantum numbers.
+        # Notice, that the three additional unbound states should have no f and n attributes.
+        # In this way, we know that only the first two bound states (with f and n attributes)
+        # should be used for constructing an initial guess for the wave functions.
+
+        self.valence_states = {}
+        for node in root.find("valence_states"):
+            attrib = AttrDict(node.attrib)
+            assert attrib.id not in self.valence_states
+            self.valence_states[attrib.id] = attrib
+        #print(self.valence_states)
+
+        # Parse the radial grids
+        self.rad_grids = {}
+        for node in root.findall("radial_grid"):
+            grid_params = node.attrib
+            id = grid_params["id"]
+            assert id not in self.rad_grids
+
+            self.rad_grids[id] = self._eval_grid(grid_params)
+
+    def __getstate__(self):
+        """
+        Return state is pickled as the contents for the instance.
+                                                                                      
+        In this case we just remove the XML root element process since Element object cannot be pickled.
+        """
+        return {k:v for k,v in self.__dict__.items() if k not in ["_root",]}
+
+    @property
+    def root(self):
+        try:
+            return self._root
+        except AttributeError:
+            from xml.etree import cElementTree  as ET
+            tree = ET.parse(self.filepath)
+            self._root = tree.getroot()
+            return self._root
+
+    @property
+    def Z(self):
+        return self._zatom
+
+    @property
+    def Z_val(self):
+        """Number of valence electrons."""
+        return self.valence
+
+    # FIXME
+    @property
+    def l_max(self):
+        """Maximum angular momentum."""
+        return None
+                                                        
+    @property
+    def l_local(self):
+        """Angular momentum used for the local part."""
+        return None
+
+    @property
+    def summary(self):
+        """String summarizing the most important properties."""
+        return ""
+
+    @property
+    def paw_radius(self):
+        return self._paw_radius
+
+    @staticmethod
+    def _eval_grid(grid_params):
+        """
+        This function receives a dictionary with the parameters defining the
+        radial mesh and returns a `ndarray` with the mesh
+        """
+        eq = grid_params.get("eq").replace(" " ,"")
+        istart, iend = int(grid_params.get("istart")), int(grid_params.get("iend"))
+        indices = range(istart, iend+1)
+
+        if eq == 'r=a*exp(d*i)':
+            a, d = float(grid_params['a']), float(grid_params['d'])
+            mesh = [a * np.exp(d * i) for i in indices]
+
+        elif eq == 'r=a*i/(n-i)':
+            a, n = float(grid_params['a']), float(grid_params['n'])
+            mesh = [a * i / (n - i) for i in indices]
+
+        elif eq == 'r=a*(exp(d*i)-1)':
+            a, d = float(grid_params['a']), float(grid_params['d'])
+            mesh = [a * (np.exp(d * i) - 1.0) for i in indices]
+
+        elif eq == 'r=d*i':
+            d = float(grid_params['d'])
+            mesh = [d * i for i in indices]
+
+        elif eq == 'r=(i/n+a)^5/a-a^4':
+            a, n = float(grid_params['a']), float(grid_params['n'])
+            mesh = [(i / n + a)**5 / a - a**4 for i in indices]
+
+        else:
+            raise ValueError('Unknown grid type: %s' % eq)
+
+        return np.array(mesh)
+
+    def _parse_radfunc(self, func_name):
+        """Parse the first occurence of func_name in the XML file."""
+        node = self.root.find(func_name)
+        grid = node.attrib["grid"]
+        values = np.array([float(s) for s in node.text.split()])
+
+        return self.rad_grids[grid], values, node.attrib
+
+    def _parse_all_radfuncs(self, func_name):
+        """Parse all the nodes with tag func_name in the XML file."""
+        for node in self.root.findall(func_name):
+            grid = node.attrib["grid"]
+            values = np.array([float(s) for s in node.text.split()])
+
+            yield self.rad_grids[grid], values, node.attrib
+
+    @property
+    def ae_core_density(self):
+        """The all-electron radial density."""
+        try:
+            return self._ae_core_density
+
+        except AttributeError:
+            mesh, values, attrib = self._parse_radfunc("ae_core_density")
+            self._ae_core_density = RadialFunction(mesh, values)
+            return self._ae_core_density
+
+    @property
+    def pseudo_core_density(self):
+        """The pseudized radial density."""
+        try:
+            return self._pseudo_core_density
+
+        except AttributeError:
+            mesh, values, attrib = self._parse_radfunc("pseudo_core_density")
+            self._pseudo_core_density = RadialFunction(mesh, values)
+            return self._pseudo_core_density
+
+    @property
+    def ae_partial_waves(self):
+        """Dictionary with the AE partial waves indexed by state."""
+        try:
+            return self._ae_partial_waves
+
+        except AttributeError:
+            self._ae_partial_waves = {}
+            for (mesh, values, attrib) in self._parse_all_radfuncs("ae_partial_wave"):
+                state = attrib["state"]
+                val_state = self.valence_states[state]
+                self._ae_partial_waves[state] = RadialFunction(mesh, values)
+                #print("val_state", val_state)
+
+            return self._ae_partial_waves
+
+    @property
+    def pseudo_partial_waves(self):
+        """Dictionary with the pseudo partial waves indexed by state."""
+        try:
+            return self._pseudo_partial_waves
+
+        except AttributeError:
+            self._pseudo_partial_waves = {}
+            for (mesh, values, attrib) in self._parse_all_radfuncs("pseudo_partial_wave"):
+                state = attrib["state"]
+                val_state = self.valence_states[state]
+                self._pseudo_partial_waves[state] = RadialFunction(mesh, values)
+
+            return self._pseudo_partial_waves
+
+    @property
+    def projector_functions(self):
+        """Dictionary with the PAW projectors indexed by state."""
+        try:
+            return self._projector_functions
+
+        except AttributeError:
+            self._projector_functions = {}
+            for (mesh, values, attrib) in self._parse_all_radfuncs("projector_function"):
+                state = attrib["state"]
+                val_state = self.valence_states[state]
+                self._projector_functions[state] = RadialFunction(mesh, values)
+
+            return self._projector_functions
+
+    def plot_densities(self, **kwargs):
+        """
+        Plot the PAW densities.
+
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        title             Title of the plot (Default: "Densities").
+        show              True to show the figure (Default).
+        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
+        ================  ==============================================================
+
+        Returns:
+            `matplotlib` figure
+        """
+        title = kwargs.pop("title", "Densities")
+        show = kwargs.pop("show", True)
+        savefig = kwargs.pop("savefig", None)
+
+        import matplotlib.pyplot as plt
+
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1,1,1)
+        ax.grid(True)
+        ax.set_xlabel('r [Bohr]')
+        #ax.set_ylabel('density')
+
+        for i, den_name in enumerate(["ae_core_density", "pseudo_core_density"]):
+            rden = getattr(self, den_name)
+            label = "$n_c$" if i == 1 else "$\\tilde{n}_c$"
+            ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)
+
+        plt.legend(loc="best")
+
+        if title is not None:
+            fig.suptitle(title)
+
+        if show:
+            plt.show()
+
+        if savefig:
+            fig.savefig(savefig)
+
+        return fig
+
+    def plot_waves(self, **kwargs):
+        """
+        Plot the AE and the pseudo partial waves.
+
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        title             Title of the plot (Default: "Partial Waves").
+        show              True to show the figure (Default).
+        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
+        ================  ==============================================================
+
+        Returns:
+            `matplotlib` figure
+        """
+        title = kwargs.pop("title", "Partial Waves")
+        show = kwargs.pop("show", True)
+        savefig = kwargs.pop("savefig", None)
+
+        import matplotlib.pyplot as plt
+
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1,1,1)
+        ax.grid(True)
+        ax.set_xlabel("r [Bohr]")
+        ax.set_ylabel("$r\phi,\\, r\\tilde\phi\, [Bohr]^{-\\frac{1}{2}}$")
+
+        ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
+        #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
+
+        for state, rfunc in self.pseudo_partial_waves.items():
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="PS-WAVE: " + state)
+
+        for state, rfunc in self.ae_partial_waves.items():
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label="AE-WAVE: " + state)
+
+        plt.legend(loc="best")
+
+        if title is not None:
+            fig.suptitle(title)
+
+        if show:
+            plt.show()
+
+        if savefig:
+            fig.savefig(savefig)
+
+        return fig
+
+    def plot_projectors(self, **kwargs):
+        """
+        Plot the PAW projectors.
+
+        ================  ==============================================================
+        kwargs            Meaning
+        ================  ==============================================================
+        title             Title of the plot (Default: "Projectors").
+        show              True to show the figure (Default).
+        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
+        ================  ==============================================================
+
+        Returns:
+            `matplotlib` figure
+        """
+        title = kwargs.pop("title", "Projectors")
+        show = kwargs.pop("show", True)
+        savefig = kwargs.pop("savefig", None)
+
+        import matplotlib.pyplot as plt
+
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1,1,1)
+        ax.grid(True)
+        ax.set_xlabel('r [Bohr]')
+        ax.set_ylabel("$r\\tilde p\, [Bohr]^{-\\frac{1}{2}}$")
+
+        ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
+        #ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
+
+        for state, rfunc in self.projector_functions.items():
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label="TPROJ: " + state)
+
+        plt.legend(loc="best")
+
+        if title is not None:
+            fig.suptitle(title)
+
+        if show:
+            plt.show()
+
+        if savefig:
+            fig.savefig(savefig)
+
+        return fig
+
+    #def plot_potentials(self, **kwargs):
+    #    """
+    #        ================  ==============================================================
+    #        kwargs            Meaning
+    #        ================  ==============================================================
+    #        title             Title of the plot (Default: None).
+    #        show              True to show the figure (Default).
+    #        savefig           'abc.png' or 'abc.eps' to save the figure to a file.
+    #        ================  ==============================================================
+
+    #    Returns:
+    #        `matplotlib` figure
+    #    """
+    #    title = kwargs.pop("title", "Potentials")
+    #    show = kwargs.pop("show", True)
+    #    savefig = kwargs.pop("savefig", None)
+
+    #    import matplotlib.pyplot as plt
+
+    #    fig = plt.figure()
+
+    #    ax = fig.add_subplot(1,1,1)
+    #    ax.grid(True)
+    #    ax.set_xlabel('r [Bohr]')
+    #    ax.set_ylabel('density')
+    #    ax.axvline(x=self.paw_radius, linewidth=2, color='k', linestyle="--")
+    #    ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
+
+    #    for state, rfunc in self.potentials.items():
+    #        ax.plot(rfunc.mesh, rfunc.values, label="TPROJ: " + state)
+
+    #    plt.legend(loc="best")
+
+    #    if title is not None:
+    #        fig.suptitle(title)
+
+    #    if show:
+    #        plt.show()
+
+    #    if savefig:
+    #        fig.savefig(savefig)
+
+    #    return fig
+
 
 class PseudoTable(collections.Sequence):
     """
@@ -1001,9 +1502,10 @@ class PseudoTable(collections.Sequence):
     """
     @classmethod
     def astable(cls, items):
-        """Return an instance of `PseudoTable from the iterable items.""" 
-        if isinstance(items, cls):
-            return items
+        """
+        Return an instance of `PseudoTable` from the iterable items.
+        """ 
+        if isinstance(items, cls): return items
         return cls(items)
 
     def __init__(self, pseudos):
@@ -1026,7 +1528,7 @@ class PseudoTable(collections.Sequence):
         for pseudo in pseudos:
             p = pseudo
             if not isinstance(pseudo, Pseudo):
-                p = Pseudo.from_filename(pseudo)
+                p = Pseudo.from_file(pseudo)
 
             self._pseudos_with_z[p.Z].append(p)
 
@@ -1036,6 +1538,7 @@ class PseudoTable(collections.Sequence):
             symbol = symbols[0]
             if any(symb != symbol for symb in symbols):
                 raise ValueError("All symbols must be equal while they are: %s" % str(symbols))
+
             setattr(self, symbol, pseudo_list)
 
     def __getitem__(self, Z):
@@ -1064,11 +1567,15 @@ class PseudoTable(collections.Sequence):
     def __repr__(self):
         return "<%s at %s>" % (self.__class__.__name__, id(self))
 
-    #def __str__(self):
-    #    strio = StringIO.StringIO()
-    #    self.print_table(stream=strio)
-    #    strio.seek(0)
-    #    return strio.read()
+    def __str__(self):
+        lines = []
+        app = lines.append
+        app("<%s, len=%d>" % (self.__class__.__name__, len(self)))
+
+        for pseudo in self:
+            app(str(pseudo))
+
+        return "\n".join(lines)
 
     @property
     def allnc(self):
@@ -1104,6 +1611,7 @@ class PseudoTable(collections.Sequence):
         try:
             return getattr(self, str(symbol))
         except AttributeError:
+            #raise
             return []
 
     def pseudo_from_name(self, name):
@@ -1157,25 +1665,25 @@ class PseudoTable(collections.Sequence):
                     print("format",format,"args",values)
                     raise
 
-    def print_table(self, stream=sys.stdout, filter_function=None):
-        """
-        A pretty ASCII printer for the periodic table, based on some filter_function.
+    #def print_table(self, stream=sys.stdout, filter_function=None):
+    #    """
+    #    A pretty ASCII printer for the periodic table, based on some filter_function.
 
-        Args:
-            filter_function:
-                A filtering function that take a Pseudo as input and returns a boolean.
-                For example, setting filter_function = lambda el: el.Z_val > 2 will print
-                a periodic table containing only pseudos with Z_val > 2.
-        """
-        for row in range(1, 10):
-            rowstr = []
-            for group in range(1, 19):
-                el = Element.from_row_and_group(row, group)
-                if el and ((not filter_function) or filter_function(el)):
-                    rowstr.append("{:3s}".format(el.symbol))
-                else:
-                    rowstr.append("   ")
-            print(" ".join(rowstr))
+    #    Args:
+    #        filter_function:
+    #            A filtering function that take a Pseudo as input and returns a boolean.
+    #            For example, setting filter_function = lambda el: el.Z_val > 2 will print
+    #            a periodic table containing only pseudos with Z_val > 2.
+    #    """
+    #    for row in range(1, 10):
+    #        rowstr = []
+    #        for group in range(1, 19):
+    #            el = Element.from_row_and_group(row, group)
+    #            if el and ((not filter_function) or filter_function(el)):
+    #                rowstr.append("{:3s}".format(el.symbol))
+    #            else:
+    #                rowstr.append("   ")
+    #        print(" ".join(rowstr))
 
     def sorted(self, attrname, reverse=False):
         """Sort the table according to the value of attribute attrname."""
@@ -1204,4 +1712,3 @@ class PseudoTable(collections.Sequence):
     def with_dojo_report(self):
         """Select pseudos containing the DOJO_REPORT section."""
         return self.select(condition=lambda p : p.has_dojo_report)
-
