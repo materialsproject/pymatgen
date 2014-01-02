@@ -345,7 +345,10 @@ class PDAnalyzer(object):
         el_energies = {el: pd.el_refs[el].energy_per_atom
                        for el in elements}
         chempot_ranges = collections.defaultdict(list)
-        for ufacet in ConvexHull(all_chempots).vertices:
+        vertices = [[i for i in range(len(self._pd.elements))]]
+        if len(all_chempots) > len(self._pd.elements):
+            vertices = ConvexHull(all_chempots).vertices
+        for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
                 data2 = facets[combi[1]]
