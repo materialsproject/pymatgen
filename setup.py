@@ -2,8 +2,7 @@ import glob
 import os
 import subprocess
 
-from distribute_setup import use_setuptools
-use_setuptools(version="0.6.34")
+from ez_setup import use_setuptools
 from setuptools import setup, find_packages, Extension
 
 try:
