@@ -250,7 +250,7 @@ class GWSpecs():
                 else:
                     self.data[key] = value
             elif key in ['help', 'h']:
-                print 'source: poscar, mp-vasp, mp-tco'
+                print 'source: poscar, mp-vasp, mp_from_file'
                 print 'mode: input, ceci, fw'
                 print 'functional: PBE, LDA'
                 print 'tasks: prep, G0W0, GW0, scGW0'
@@ -410,8 +410,8 @@ def create_single_job_script(structure, task, spec, option=None):
         job_file.write('cp ../WAVECAR ../WAVEDER . \n')
         job_file.write('mpirun vasp \n')
         job_file.write('rm W* \n')
-        job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
-        job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
+        #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
+        #job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
         job_file.close()
         os.chmod(path+'/job', stat.S_IRWXU)
         path = structure.composition.reduced_formula + option_prep_name
@@ -495,8 +495,10 @@ def main(spec):
 
     if spec['source'] == 'mp-vasp':
         items_list = mp_list_vasp
-    elif spec['source'] == 'mp-tco':
-        items_list = mp_list
+    elif spec['source'] == 'mp_from_file':
+        print 'mp_from_file not implemented yet'
+        print 'no structures defined'
+        exit()
     elif spec['source'] == 'poscar':
         files = os.listdir('.')
         items_list = files
@@ -509,7 +511,7 @@ def main(spec):
             structure = pmg.read_structure(item)
         elif item.startswith('mp-'):
             print item
-            with MPRester("mp_key") as mp_database:
+            with MPRester(mp_key) as mp_database:
                 structure = mp_database.get_structure_by_material_id(item, final=True)
         print structure.composition.reduced_formula
         if ('input' or 'ceci' in spec['mode']) and spec['code'] == 'VASP':
