@@ -111,6 +111,17 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         dens = int(self.kpoints_settings['grid_density'])
         return Kpoints.automatic_gamma_density(structure, dens)
 
+    def set_dens(self, spec):
+        """
+        sets the grid_density to the value specified in spec
+        """
+        print self.kpoints_settings
+        print self.kpoints_settings['grid_density']
+        self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
+        print self.kpoints_settings
+        print self.kpoints_settings['grid_density']
+
+
     def get_bands(self, structure):
         """
         Method for retrieving the standard number of bands
@@ -221,7 +232,7 @@ class GWSpecs():
     """
     def __init__(self):
         self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-            'functional': 'LDA'}
+            'functional': 'LDA', 'kp_grid_dens': 500}
         self.warnings = []
         self.errors = []
 
@@ -407,7 +418,7 @@ def create_single_job_script(structure, task, spec, option=None):
         job_file.write('#SBATCH --job-name='+structure.composition.reduced_formula+task+'\n')
         job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
         job_file.write('module load vasp \n')
-        job_file.write('cp ../WAVECAR ../WAVEDER . \n')
+        job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
         job_file.write('mpirun vasp \n')
         job_file.write('rm W* \n')
         #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
