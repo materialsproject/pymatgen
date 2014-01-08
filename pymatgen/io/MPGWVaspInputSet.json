@@ -4,7 +4,7 @@
         "EDIFF": 1e-10,
         "IBRION": -1,
         "ICHARG": 1,
-        "ISMEAR": 0,
+        "ISMEAR": -5,
         "ISPIN": 1,
         "LORBIT": 11,
         "LREAL": "AUTO",
