@@ -1247,18 +1247,14 @@ class Task(Node):
         """
         Cancel the job. Returns 1 if job was cancelled.
         """
-        queue_id = self.queue_id
-        if queue_id is None: return 0 
+        if self.queue_id is None: return 0 
         if self.status >= self.S_DONE: return 0 
 
-        exit_status = self.manager.qadapter.cancel(queue_id)
-
-        if exit_status != 0:
-            return 0
+        exit_status = self.manager.qadapter.cancel(self.queue_id)
+        if exit_status != 0: return 0
 
         # Remove output files and reset the status.
         self.reset()
-
         return 1
 
     def _on_done(self):
@@ -1390,8 +1386,7 @@ class Task(Node):
             0 on success, 1 if reset failed.
         """
         # Can only reset tasks that are done.
-        if self.status < self.S_DONE:
-            return 1
+        if self.status < self.S_DONE: return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
         self.set_queue_id(None)
@@ -2049,12 +2044,12 @@ class AbinitTask(Task):
         # Remove the variables added for the automatic parallelization
         self.strategy.remove_extra_abivars(autoparal_vars.keys())
 
-        # 2) Parse the autoparal configurations
+        # 2) Parse the autoparal configurations from the main output file.
         #print("parsing")
         parser = ParalHintsParser()
 
         try:
-            confs = parser.parse(self.log_file.path)
+            confs = parser.parse(self.output_file.path)
             #print("confs", confs)
             #self.all_autoparal_confs = confs 
 
