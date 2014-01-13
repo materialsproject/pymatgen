@@ -89,6 +89,8 @@ class VasprunTest(unittest.TestCase):
                          len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) + 1)
+        self.assertNotAlmostEqual(vasprun_skip.final_energy,
+                                  vasprun.final_energy)
 
         #Test with ionic_step_offset
         vasprun_offset = Vasprun(filepath, 3, 6)
