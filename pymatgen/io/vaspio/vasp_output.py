@@ -167,11 +167,11 @@ class Vasprun(object):
                 ionic steps will be read for structure and energies. This is
                 very useful if you are parsing very large vasprun.xml files and
                 you are not interested in every single ionic step. Note that
-                the initial and final structure of all runs will always be
-                read, regardless of the ionic_step_skip.
+                the final energies and structure may not be the actual final
+                energy in the vasprun.
             ionic_step_offset:
                 Used together with ionic_step_skip. If > 0, the first
-                structure read will be offset by the amount of
+                ionic step read will be offset by the amount of
                 ionic_step_offset. For example, if you want to start reading
                 every 10th structure but only from the 3rd structure onwards,
                 set ionic_step_skip to 10 and ionic_step_offset to 3. Main use
