@@ -86,6 +86,8 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) + 1)
         self.assertEqual(len(vasprun_skip.ionic_steps),
+                         len(vasprun_skip.structures))
+        self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) + 1)
 
         #Test with ionic_step_offset
