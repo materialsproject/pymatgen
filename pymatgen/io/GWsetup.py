@@ -40,7 +40,6 @@ For many settings the number of cores on which the calculations will be run is n
 number is assumed to be on the environment variable NPARGWCALC.
 """
 
-
 class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
@@ -115,12 +114,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         sets the grid_density to the value specified in spec
         """
-        print self.kpoints_settings
-        print self.kpoints_settings['grid_density']
         self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
-        print self.kpoints_settings
-        print self.kpoints_settings['grid_density']
-
 
     def get_bands(self, structure):
         """
@@ -148,7 +142,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     for static non self-consistend exact diagonalization step preparing for
     a GW calculation.
     """
-    TESTS = {'NBANDS': {'test_range': (10, 15, 20), 'method': 'set_nbands', 'control': "gap"}}
+    TESTS = {'NBANDS': {'test_range': (10, 20, 30), 'method': 'set_nbands', 'control': "gap"}}
 
     def __init__(self, structure, functional='PBE', **kwargs):
         """
@@ -162,7 +156,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         self.functional = functional
         npar = self.get_npar(self.structure)
         gw_bands = self.get_bands(self.structure)
-        gw_bands = npar * int((10 * gw_bands) / npar + 1)
+        gw_bands = npar * int((15 * gw_bands) / npar + 1)
         #single step exact diagonalization, output WAVEDER
         self.incar_settings.update({"ALGO": "Exact", "NELM": 1, "LOPTICS": "TRUE"})
         # for large systems exact diagonalization consumes too much memory
@@ -177,8 +171,8 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static G0W0 calculation
     """
-    TESTS = {'ENCUTGW': {'test_range': (150, 200, 250, 300), 'method': 'incar_settings', 'control': "gap"},
-            'NOMEGA': {'test_range': (60, 80, 100), 'method': 'set_nomega', 'control': "gap"}}
+    TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
+            'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
 
     def __init__(self, structure, functional='PBE', **kwargs):
         """
@@ -192,9 +186,9 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         self.functional = functional
         npar = self.get_npar(structure)
         gw_bands = self.get_bands(structure)
-        gw_bands = npar * int((10 * gw_bands) / npar + 1)
+        gw_bands = npar * int((15 * gw_bands) / npar + 1)
         # G0W0 calculation with reduced cutoff for the response function
-        self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 200, "LWAVE": "FALSE", "NELM": 1})
+        self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 250, "LWAVE": "FALSE", "NELM": 1})
         # set nomega to smallest integer times npar smaller 100
         nomega = npar * int(104 / npar)
         self.incar_settings.update({"NBANDS": gw_bands})
@@ -232,7 +226,7 @@ class GWSpecs():
     """
     def __init__(self):
         self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-            'functional': 'LDA', 'kp_grid_dens': 500}
+            'functional': 'LDA', 'kp_grid_dens': 500, 'prec': 'm'}
         self.warnings = []
         self.errors = []
 
@@ -266,6 +260,8 @@ class GWSpecs():
                 print 'functional: PBE, LDA'
                 print 'tasks: prep, G0W0, GW0, scGW0'
                 print 'code: VASP, ABINIT'
+                print 'kp_grid_dens: NOT IMPLEMENTED YET'
+                print 'prec: l, m, h NOT IMPLEMENTED YET'
             elif len(key) == 0:
                 print 'setup finished'
             else:
@@ -333,6 +329,7 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
     path = structure.composition.reduced_formula+option_prep_name
     if task == 'prep':
         inpset = MPGWscDFTPrepVaspInputSet(structure, functional=spec['functional'])
+        inpset.set_dens(spec)
         if spec['test']:
             if option[0].keys()[0] in MPGWscDFTPrepVaspInputSet(structure).tests.keys():
                 inpset.set_test(option[0])
@@ -343,12 +340,14 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
         inpset.get_incar(structure).write_file(os.path.join(path, 'INCAR.DIAG'))
     if task == 'G0W0':
         inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
+        inpset.set_dens(spec)
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, os.path.join(path, 'G0W0'+option_name))
     if task == 'GW0':
         inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
+        inpset.set_dens(spec)
         inpset.gw0_on()
         if spec['test']:
             inpset.set_test(option[0])
@@ -357,6 +356,7 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
     if task == 'scGW0':
         inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
         inpset.gw0_on(qpsc=True)
+        inpset.set_dens(spec)
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
@@ -451,13 +451,17 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
     #nscf_ngkpt = [4,4,4]
     #nscf_shiftk = [0.0, 0.0, 0.0]
 
-    nscf_nband = 100
+    # 100
+    nscf_nband = 50
     #scr_nband = 50 takes nscf_nbands if not specified
     #sigma_nband = 50 takes scr_nbands if not specified
 
-    ecuteps, ecutsigx = 6, 8
-
-    ecut = 8
+    # 6
+    ecuteps = 3
+    # 8
+    ecutsigx = 4
+    # 8
+    ecut = 4
 
     extra_abivars = dict(
         ecut=ecut,
@@ -555,6 +559,19 @@ def main(spec):
                                         create_single_job_script(structure, task, spec, option)
             else:
                 for task in spec['jobs']:
+                    #set precision of the full GW calc
+#                    if spec['prec'] not in {'m'}:
+#                        print 'value for prec not supported using m'
+#                    for test in self.get_defaults_tests():
+#                        if spec['prec'] == 'l':
+#                            n = 1
+#                            self.set_test()
+#                        elif spec['prec'] == 'h':
+#                            n = len(test['test_range'])
+#                        else:
+#                            n = int(len(test['test_range'])/2)
+#                        print 'setting value ', n, ' = ', test['test_range'][n], 'for', test
+
                     create_single_vasp_gw_task(structure=structure, task=task, spec=spec)
                     if 'ceci' in spec['mode']:
                         create_single_job_script(structure=structure, task=task, spec=spec)
