@@ -110,6 +110,11 @@ class Vasprun(object):
         real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
         imag_partxy, imag_partyz, imag_partxz]])
 
+    .. attribute:: nionic_steps
+        The total number of ionic steps. This number is always equal
+        to the total number of steps in the actual run even if
+        ionic_step_skip is used.
+
     **Vasp inputs**
 
     .. attribute:: incar
@@ -209,6 +214,7 @@ class Vasprun(object):
                 steps = run.split("<calculation>")
                 #The text before the first <calculation> is the preamble!
                 preamble = steps.pop(0)
+                self.nionic_steps = len(steps)
                 new_steps = steps[ionic_step_offset::int(ionic_step_skip)]
                 #add the tailing informat in the last step from the run
                 to_parse = "<calculation>".join(new_steps)
