@@ -81,7 +81,8 @@ class ZeoCssr(Cssr):
             #else:
             #    charge = site.charge
             charge = site.charge if hasattr(site, 'charge') else 0
-            specie = re.sub('[1-9,+,\-]', '', site.species_string)
+            #specie = re.sub('[1-9,+,\-]', '', site.species_string)
+            specie = site.specie.symbol
             output.append(
                 "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
                 .format(
