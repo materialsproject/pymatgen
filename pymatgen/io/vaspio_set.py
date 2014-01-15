@@ -291,7 +291,6 @@ class DictVaspInputSet(AbstractVaspInputSet):
     def get_potcar(self, structure):
         if self.sort_structure:
             structure = structure.get_sorted_structure()
-        print self.get_potcar_symbols(structure)
         return Potcar(self.get_potcar_symbols(structure))
 
     def get_potcar_symbols(self, structure):
@@ -454,7 +453,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                     'LORBIT': 0, 'LCHARG': False}
         if user_incar_settings:
             defaults.update(user_incar_settings)
-        
+
         with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(self, "MIT NEB", json.load(f),
                                       user_incar_settings=defaults,

@@ -196,9 +196,10 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
 
-    def plot_smoothed_msd(self):
+    def get_smoothed_msd_plot(self):
         """
-        Plot the smoothed msd vs time graph. Useful for checking convergence.
+        Get the plot of the smoothed msd vs time graph. Useful for
+        checking convergence. This can be written to an image file.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -210,7 +211,13 @@ class DiffusionAnalyzer(MSONable):
         plt.xlabel("Timestep")
         plt.ylabel("MSD")
         plt.tight_layout()
-        plt.show()
+        return plt
+
+    def plot_smoothed_msd(self):
+        """
+        Plot the smoothed msd vs time graph. Useful for checking convergence.
+        """
+        self.get_smoothed_msd_plot().show()
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
