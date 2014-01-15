@@ -30,7 +30,7 @@ Optional libraries that are required if you need certain features:
    usage of the adapters in pymatgen.io.babelio between pymatgen's Molecule
    and OpenBabel's OBMol. Opens up input and output support for the very large
    number of input and output formats supported by OpenBabel.
-6. nose - For complete unittesting.
+6. nose - For unittesting. Not optional for developers.
 
 Optional non-Python programs
 ----------------------------
@@ -40,18 +40,24 @@ the moment) required only for certain features:
 
 1. ffmpeg: For generation of movies in structure_vtk.py. The executable ffmpeg
    must be in the path. Get it at http://www.ffmpeg.org.
-2. enum: For the use of EnumerateStructureTransformation and the
-   pymatgen.command_line.enumlib_caller module. This library by Gus Hart
-   provides a robust way to enumerate derivative structures. It can be used to
-   completely enumerate all symmetrically distinct ordered structures of
-   disordered structures via the EnumerateStructureTransformation. The
-   multienum.x and makestr.x executables must be in the path. Get it at
-   http://enum.sourceforge.net and follow the instructions to compile
-   multienum.x and makestr.x.
-3. bader: For the use of the BaderAnalysis class in pymatgen.command_line.bader
-   module. This library by Henkelmann et al. provides a robust way to
-   calculate the Bader analysis from a CHGCAR. The bader executable must be
-   in the path. Get it at http://theory.cm.utexas.edu/bader.
+2. enum: For the use of
+   :class:`pymatgen.transformations.advanced_transformations.EnumerateStructureTransformation`
+   and :mod:`pymatgen.command_line.enumlib_caller` module. This library by Gus
+   Hart provides a robust way to enumerate derivative structures. It can be
+   used to completely enumerate all symmetrically distinct ordered structures
+   of disordered structures via EnumerateStructureTransformation. Many other
+   advanced transformations (e.g., MagOrderingTransformation) use
+   EnumerateStructureTransformation. The multienum.x and makestr.x
+   executables must be in the path. Get it at http://enum.sourceforge.net and
+   follow the instructions to compile multienum.x and makestr.x.
+3. bader: For use with :class:`pymatgen.command_line.bader.BaderAnalysis`.
+   This library by Henkelmann et al. provides a robust way to calculate the
+   Bader analysis from a CHGCAR. The bader executable must be in the path.
+   Get it at http://theory.cm.utexas.edu/bader.
+4. gulp: For use with :mod:`pymatgen.command_line.gulp_caller`,
+   which is in turn used extensively by :mod:`pymatgen.analysis.defects` to
+   compute empirical defect energies.
+5. aconvasp: For use with the :mod:`pymatgen.command_line.aconvasp_caller`.
 
 Detailed installation instructions
 ==================================
@@ -367,12 +373,16 @@ Here are the steps that I took to make it work:
         //Path to a library.
         PYTHON_LIBRARY:FILEPATH=/Library/Frameworks/Python.framework/Versions/2.7/lib/libpython2.7.dylib
 
-12. Run make and install as follows::
+12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include the following flag in your CMakeCache.txt::
+
+		CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
+		
+13. Run make and install as follows::
 
         make -j2
         sudo make install
 
-13. With any luck, you should have openbabel with python bindings installed.
+14. With any luck, you should have openbabel with python bindings installed.
     You can test your installation by trying to import openbabel from the
     python command line. Please note that despite best efforts,
     openbabel seems to install the python bindings into /usr/local/lib even

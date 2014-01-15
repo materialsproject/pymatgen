@@ -285,10 +285,9 @@ class Workflow(BaseWorkflow):
             if self._flow != flow:
                 raise ValueError("self._flow != flow")
 
-    def set_workdir(self, workdir):
-        """Set the working directory. Cannot be set more than once."""
-
-        if hasattr(self, "workdir") and self.workdir != workdir:
+    def set_workdir(self, workdir, chroot=False):
+        """Set the working directory. Cannot be set more than once unless chroot is True"""
+        if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
             raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
 
         self.workdir = os.path.abspath(workdir)
@@ -300,6 +299,13 @@ class Workflow(BaseWorkflow):
         self.indir = Directory(os.path.join(self.workdir, "indata"))
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
+
+    def chroot(self, new_workdir):
+        self.set_workdir(new_workdir, chroot=True)
+
+        for i, task in enumerate(self):
+            new_tdir = os.path.join(self.workdir, "task_" + str(i))
+            task.set_workdir(new_tdir, chroot=True)
 
     def __len__(self):
         return len(self._tasks)
@@ -1144,7 +1150,7 @@ class DeltaFactorWorkflow(Workflow):
     def __init__(self, structure_or_cif, pseudo, kppa,
                  spin_mode="polarized", toldfe=1.e-8, smearing="fermi_dirac:0.1 eV",
                  accuracy="normal", ecut=None, pawecutdg=None, ecutsm=0.05, chksymbreak=0,
-                 workdir=None, manager=None):
+                 workdir=None, manager=None, **kwargs):
                  # FIXME Hack in chksymbreak
         """
         Build a `Workflow` for the computation of the deltafactor.
@@ -1201,6 +1207,8 @@ class DeltaFactorWorkflow(Workflow):
                 prtwf=0,
                 paral_kgb=0,
             )
+
+            extra_abivars.update(**kwargs)
 
             if ecut is not None:
                 extra_abivars.update({"ecut": ecut})

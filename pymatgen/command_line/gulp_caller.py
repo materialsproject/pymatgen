@@ -197,30 +197,49 @@ class GulpIO:
         gulplib_set = lambda: 'GULP_LIB' in os.environ.keys()
         readable = lambda f: os.path.isfile(f) and os.access(f, os.R_OK)
 
+        #dirpath, fname = os.path.split(file_name)
+        #if dirpath:  # Full path specified
+        #    if readable(file_name):
+        #        gin = 'library ' + file_name
+        #    else:
+        #        raise GulpError('GULP Library not found')
+        #else:
+        #    fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
+        #    if readable(fpath):
+        #        gin = 'library ' + fpath
+        #    elif gulplib_set():
+        #        fpath = os.path.join(os.environ['GULP_LIB'], file_name)
+        #        if readable(fpath):
+        #            gin = 'library ' + file_name
+        #        else:
+        #            raise GulpError('GULP Library not found')
+        #    else:
+        #        raise GulpError('GULP Library not found')
+        #gin += "\n"
+        #return gin
+
+        gin = ""
         dirpath, fname = os.path.split(file_name)
-        if dirpath:  # Full path specified
-            if readable(file_name):
-                gin = 'library ' + file_name
-            else:
-                raise GulpError('GULP Library not found')
+        if dirpath and readable(file_name):  # Full path specified
+            gin = 'library ' + file_name
         else:
             fpath = os.path.join(os.getcwd(), file_name)  # Check current dir
             if readable(fpath):
                 gin = 'library ' + fpath
-            elif gulplib_set():
+            elif gulplib_set():         # Check the GULP_LIB path
                 fpath = os.path.join(os.environ['GULP_LIB'], file_name)
                 if readable(fpath):
                     gin = 'library ' + file_name
-                else:
-                    raise GulpError('GULP Library not found')
-        gin += "\n"
-        return gin
+        if gin:
+            return gin + "\n"
+        else:
+            raise GulpError('GULP Library not found')
 
     def buckingham_input(self, structure, keywords, library=None,
                          uc=True, valence_dict=None):
         """
         Gets a GULP input for an oxide structure and buckingham potential
-        from library.
+    from library.
 
         Args:
             structure:
@@ -266,8 +285,8 @@ class GulpIO:
             val_dict = dict(zip(el, valences))
 
         #Try bush library first
-        bpb = BuckinghamPotBush()
-        bpl = BuckinghamPotLewis()
+        bpb = BuckinghamPotential('bush')
+        bpl = BuckinghamPotential('lewis')
         gin = ""
         for key in val_dict.keys():
             use_bush = True
@@ -357,7 +376,7 @@ class GulpIO:
             qerfstring += key + " " + key + " 0.6000 10.0000 \n"
 
         gin += "# noelectrostatics \n Morse \n"
-        met_oxi_ters = Tersoff_pot().data
+        met_oxi_ters = TersoffPotential().data
         for key in el_val_dict.keys():
             if key != "O":
                 metal = key + "(" + str(int(el_val_dict[key])) + ")"
@@ -634,129 +653,97 @@ class GulpConvergenceError(Exception):
         return self.msg
 
 
-class BuckinghamPotLewis(object):
+class BuckinghamPotential(object):
     """
-    Generate the Buckingham Potential Table based on lewis.lib file
-
-    Ref:
-        G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
-        1149-1161 (1985)
-    """
-
-    def __init__(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fid = open(os.path.join(module_dir, 'lewis.lib'), 'rU')
-        # In lewis.lib there is no shell for cation
-        species_dict, pot_dict, spring_dict = {}, {}, {}
-        sp_flg, pot_flg, spring_flg = False, False, False
-        for row in fid:
-            if row[0] == "#":
-                continue
-            if row.split()[0] == "species":
-                sp_flg, pot_flg, spring_flg = True, False, False
-                continue
-            if row.split()[0] == "buckingham":
-                sp_flg, pot_flg, spring_flg = False, True, False
-                continue
-            if row.split()[0] == "spring":
-                sp_flg, pot_flg, spring_flg = False, False, True
-                continue
-
-            metaloxi = row.split()[0]
-            if sp_flg:
-                if metaloxi == "O":
-                    if row.split()[1] == "core":
-                        species_dict["O_core"] = row
-                        continue
-                    if row.split()[1] == "shel":
-                        species_dict["O_shel"] = row
-                        continue
-                metal = metaloxi.split('_')[0]
-                #oxi_state = metaloxi.split('_')[1][0]
-                species_dict[metaloxi] = metal + " core " + row.split()[
-                    2] + "\n"
-                continue
-
-            if pot_flg:
-                if metaloxi == "O":
-                    pot_dict["O"] = row
-                metal = metaloxi.split('_')[0]
-                #oxi_state = metaloxi.split('_')[1][0]
-                pot_dict[metaloxi] = metal + " " + " ".join(
-                    row.split()[1:]) + "\n"
-                continue
-
-            if spring_flg:
-                spring_dict["O"] = row
-                continue
-        self.species_dict = species_dict
-        self.pot_dict = pot_dict
-        self.spring_dict = spring_dict
-
-
-class BuckinghamPotBush(object):
-    """
-    Generate the Buckingham Potential Table from the bush.lib
-
-    Ref:
+        Generate the Buckingham Potential Table from the bush.lib and 
+        lewis.lib.
+        
+        Ref:
         T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
         4, 831-837 (1994).
+        G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
+        1149-1161 (1985)
+        """
+    
+    def __init__(self, bush_lewis_flag):
+        assert bush_lewis_flag in {'bush', 'lewis'}
+        pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
+        with open(os.path.join(os.environ["GULP_LIB"], pot_file), 'rU') as f:
+            # In lewis.lib there is no shell for cation
+            species_dict, pot_dict, spring_dict = {}, {}, {}
+            sp_flg, pot_flg, spring_flg = False, False, False
+            for row in f:
+                if row[0] == "#":
+                    continue
+                if row.split()[0] == "species":
+                    sp_flg, pot_flg, spring_flg = True, False, False
+                    continue
+                if row.split()[0] == "buckingham":
+                    sp_flg, pot_flg, spring_flg = False, True, False
+                    continue
+                if row.split()[0] == "spring":
+                    sp_flg, pot_flg, spring_flg = False, False, True
+                    continue
+                
+                elmnt = row.split()[0]
+                if sp_flg:
+                    if bush_lewis_flag == "bush":
+                        if elmnt not in species_dict.keys():
+                            species_dict[elmnt] = {'inp_str': '', 'oxi': 0}
+                        species_dict[elmnt]['inp_str'] += row
+                        species_dict[elmnt]['oxi'] += float(row.split()[2])
+                    elif bush_lewis_flag == "lewis":
+                        if elmnt == "O":
+                            if row.split()[1] == "core":
+                                species_dict["O_core"] = row
+                            if row.split()[1] == "shel":
+                                species_dict["O_shel"] = row
+                        else:
+                            metal = elmnt.split('_')[0]
+                            #oxi_state = metaloxi.split('_')[1][0]
+                            species_dict[elmnt] = metal + " core " + \
+                                row.split()[2] + "\n"
+                    continue
+                
+                if pot_flg:
+                    if bush_lewis_flag == "bush":
+                        pot_dict[elmnt] = row
+                    elif bush_lewis_flag == "lewis":
+                        if elmnt == "O":
+                            pot_dict["O"] = row
+                        else:
+                            metal = elmnt.split('_')[0]
+                            #oxi_state = metaloxi.split('_')[1][0]
+                            pot_dict[elmnt] = metal + " " + " ".join(
+                            row.split()[1:]) + "\n"
+                    continue
+                
+                if spring_flg:
+                    spring_dict[elmnt] = row
+            
+            if bush_lewis_flag == "bush":
+                #Fill the null keys in spring dict with empty strings
+                for key in pot_dict.keys():
+                    if key not in spring_dict.keys():
+                        spring_dict[key] = ""
+            
+            self.species_dict = species_dict
+            self.pot_dict = pot_dict
+            self.spring_dict = spring_dict
+
+
+class TersoffPotential(object):
+    """
+    Generate Tersoff Potential Table from "OxideTersoffPotentialentials" file
     """
 
     def __init__(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))
-        fid = open(os.path.join(module_dir, 'bush.lib'), 'rU')
-        # In lewis.lib there is no shell for cation
-        species_dict, pot_dict, spring_dict = {}, {}, {}
-        sp_flg, pot_flg, spring_flg = False, False, False
-        for row in fid:
-            if row[0] == "#":
-                continue
-            if row.split()[0] == "species":
-                sp_flg, pot_flg, spring_flg = True, False, False
-                continue
-            if row.split()[0] == "buckingham":
-                sp_flg, pot_flg, spring_flg = False, True, False
-                continue
-            if row.split()[0] == "spring":
-                sp_flg, pot_flg, spring_flg = False, False, True
-                continue
-
-            met = row.split()[0]
-            if sp_flg:
-                if met not in species_dict.keys():
-                    species_dict[met] = {'inp_str': '', 'oxi': 0}
-                species_dict[met]['inp_str'] += row
-                species_dict[met]['oxi'] += float(row.split()[2])
-
-            if pot_flg:
-                pot_dict[met] = row
-
-            if spring_flg:
-                spring_dict[met] = row
-
-        #Fill the null keys in spring dict with empty strings
-        for key in pot_dict.keys():
-            if key not in spring_dict.keys():
-                spring_dict[key] = ""
-
-        self.species_dict = species_dict
-        self.pot_dict = pot_dict
-        self.spring_dict = spring_dict
-
-
-class Tersoff_pot(object):
-    """
-    Generate Tersoff Potential Table from "OxideTersoffPotentials" file
-    """
-
-    def __init__(self):
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        fid = open(os.path.join(module_dir, "OxideTersoffPotentials"), "rU")
-        data = dict()
-        for row in fid:
-            metaloxi = row.split()[0]
-            line = row.split(")")
-            data[metaloxi] = line[1]
-        fid.close()
+        with open(os.path.join(module_dir, "OxideTersoffPotentials"),
+                  "rU") as f:
+            data = dict()
+            for row in f:
+                metaloxi = row.split()[0]
+                line = row.split(")")
+                data[metaloxi] = line[1]
         self.data = data

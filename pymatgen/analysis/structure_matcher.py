@@ -918,16 +918,12 @@ class StructureMatcher(MSONable):
             sp_mapping = dict(zip(sp1, perm))
             mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
             transformed_structure = Structure(latt1, mapped_sp, fcoords1)
-            rms = self.get_rms_dist(transformed_structure, struct2)
-            if rms is not None:
-
-                possible_mapping = {k: v for k, v in sp_mapping.items()}
-
-                if rms[1] < self.stol:
-                    #check if mapping already found
-                    for k, v in possible_mapping.iteritems():
-                        if {k: v} not in mappings:
-                            mappings.append({k: v})
+            possible_mapping = {k: v for k, v in sp_mapping.items()}
+            if self.fit(transformed_structure, struct2):
+                #check if mapping already found
+                for k, v in possible_mapping.iteritems():
+                    if {k: v} not in mappings:
+                        mappings.append({k: v})
         if not mappings:
             return None
         else:

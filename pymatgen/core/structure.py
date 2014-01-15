@@ -1746,16 +1746,17 @@ class Structure(IStructure):
 
     def apply_strain(self, strain):
         """
-        Apply an isotropic strain to the lattice.
+        Apply a strain to the lattice.
 
         Args:
             strain:
-                Amount of strain to apply. E.g., 0.01 means all lattice
-                vectors are increased by 1%. This is equivalent to
-                calling modify_lattice with a lattice with lattice parameters
-                that are 1% larger.
+                Amount of strain to apply. Can be an int, a sequence of 3
+                numbers. E.g., 0.01 means all lattice vectors are increased
+                by 1%. This is equivalent to calling modify_lattice with a
+                lattice with lattice parameters that are 1% larger.
         """
-        self.modify_lattice(Lattice(self._lattice.matrix * (1 + strain)))
+        s = (1 + np.array(strain)) * np.eye(3)
+        self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
 
     def translate_sites(self, indices, vector, frac_coords=True,
                         to_unit_cell=True):

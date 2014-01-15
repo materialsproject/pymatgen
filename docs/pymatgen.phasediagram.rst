@@ -1,43 +1,52 @@
-phasediagram Package
-====================
+pymatgen.phasediagram package
+=============================
 
-:mod:`phasediagram` Package
----------------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.phasediagram
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`entries` Module
----------------------
+
+Submodules
+----------
+
+pymatgen.phasediagram.entries module
+------------------------------------
 
 .. automodule:: pymatgen.phasediagram.entries
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`pdanalyzer` Module
-------------------------
+pymatgen.phasediagram.pdanalyzer module
+---------------------------------------
 
 .. automodule:: pymatgen.phasediagram.pdanalyzer
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`pdmaker` Module
----------------------
+pymatgen.phasediagram.pdmaker module
+------------------------------------
 
 .. automodule:: pymatgen.phasediagram.pdmaker
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`plotter` Module
----------------------
+pymatgen.phasediagram.plotter module
+------------------------------------
 
 .. automodule:: pymatgen.phasediagram.plotter
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.phasediagram
+    :members:
+    :undoc-members:
+    :show-inheritance:

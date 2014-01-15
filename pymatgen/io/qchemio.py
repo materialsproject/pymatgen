@@ -22,7 +22,7 @@ __email__ = "xhqu1981@gmail.com"
 __date__ = "11/4/13"
 
 
-class QcInput(MSONable):
+class QcTask(MSONable):
     """
         An object representing a QChem input file.
     """
@@ -36,7 +36,8 @@ class QcInput(MSONable):
                               "svpirf", "van_der_waals", "xc_functional",
                               "cdft", "efp_fragments", "efp_params"}
     alternative_keys = {"job_type": "jobtype",
-                        "symmetry_ignore": "sym_ignore"}
+                        "symmetry_ignore": "sym_ignore",
+                        "scf_max_cycles": "max_scf_cycles"}
     alternative_values = {"optimization": "opt",
                           "frequency": "freq"}
     zmat_patt = re.compile("^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
@@ -461,7 +462,7 @@ class QcInput(MSONable):
                 value. The default value is min(NDEG, NATOMS, 4) NDEG = number
                 of moleculardegrees of freedom.
         """
-        subspace_size = subspace_size if subspace_size else -1
+        subspace_size = subspace_size if subspace_size is not None else -1
         self.params["rem"]["geom_opt_max_diis"] = subspace_size
 
     def disable_symmetry(self):
@@ -480,6 +481,47 @@ class QcInput(MSONable):
         """
         self.params["rem"]["solvent_method"] = "cosmo"
         self.params["rem"]["solvent_dielectric"] = dielectric_constant
+
+    def use_pcm(self, pcm_params=None, solvent_params=None,
+                radii_force_field=None):
+        """
+        Set the solvent model to PCM. Default parameters are trying to comply to
+        gaussian default value
+
+        Args:
+            pcm_params:
+                The parameters of "$pcm" section.
+                Type: dict
+            solvent_params:
+                The parameters of "pcm_solvent" section
+                Type: dict
+            radii_force_field:
+                The force fied used to set the solute radii. Default to UFF.
+                Type: str
+        """
+        self.params["pcm"] = dict()
+        self.params["pcm_solvent"] = dict()
+        default_pcm_params = {"Theory": "SSVPE",
+                              "vdwScale": 1.1,
+                              "Radii": "UFF"}
+        if not solvent_params:
+            solvent_params = {"Dielectric": 78.3553}
+        if pcm_params:
+            for k, v in pcm_params.iteritems():
+                self.params["pcm"][k.lower()] = v.lower() \
+                    if isinstance(v, str) else v
+
+        for k, v in default_pcm_params.iteritems():
+            if k.lower() not in self.params["pcm"].keys():
+                self.params["pcm"][k.lower()] = v.lower() \
+                    if isinstance(v, str) else v
+        for k, v in solvent_params.iteritems():
+            self.params["pcm_solvent"][k.lower()] = v.lower() \
+                if isinstance(v, str) else copy.deepcopy(v)
+        self.params["rem"]["solvent_method"] = "pcm"
+        if radii_force_field:
+            self.params["pcm"]["radii"] = "bondi"
+            self.params["rem"]["force_fied"] = radii_force_field.lower()
 
     def __str__(self):
         sections = ["comments", "molecule", "rem"] + \
@@ -557,6 +599,46 @@ class QcInput(MSONable):
             lines.append(" ****")
         return lines
 
+    def _format_pcm(self):
+        pcm_format_template = Template("  {name:>$name_width}   "
+                                       "{value}")
+        name_width = 0
+        for name in self.params["pcm"].keys():
+            if len(name) > name_width:
+                name_width = len(name)
+        rem = pcm_format_template.substitute(name_width=name_width)
+        lines = []
+        for name in sorted(self.params["pcm"].keys()):
+            value = self.params["pcm"][name]
+            lines.append(rem.format(name=name, value=value))
+        return lines
+
+    def _format_pcm_solvent(self):
+        pp_format_template = Template("  {name:>$name_width}   "
+                                      "{value}")
+        name_width = 0
+        for name in self.params["pcm_solvent"].keys():
+            if len(name) > name_width:
+                name_width = len(name)
+        rem = pp_format_template.substitute(name_width=name_width)
+        lines = []
+        all_keys = set(self.params["pcm_solvent"].keys())
+        priority_keys = []
+        for k in ["dielectric", "nonels", "nsolventatoms", "solventatom"]:
+            if k in all_keys:
+                priority_keys.append(k)
+        additional_keys = all_keys - set(priority_keys)
+        ordered_keys = priority_keys + sorted(list(additional_keys))
+        for name in ordered_keys:
+            value = self.params["pcm_solvent"][name]
+            if name == "solventatom":
+                for v in copy.deepcopy(value):
+                    value = "{:<4d} {:<4d} {:<4d} {:4.2f}".format(*v)
+                    lines.append(rem.format(name=name, value=value))
+                continue
+            lines.append(rem.format(name=name, value=value))
+        return lines
+
     @property
     def to_dict(self):
         return {"@module": self.__class__.__module__,
@@ -583,7 +665,7 @@ class QcInput(MSONable):
             optional_params = dict()
             for k in op_keys:
                 optional_params[k] = d["params"][k]
-        return QcInput(molecule=mol, charge=d["charge"],
+        return QcTask(molecule=mol, charge=d["charge"],
                        spin_multiplicity=d["spin_multiplicity"],
                        jobtype=jobtype, title=title,
                        exchange=exchange, correlation=correlation,
@@ -594,6 +676,11 @@ class QcInput(MSONable):
     def write_file(self, filename):
         with zopen(filename, "w") as f:
             f.write(self.__str__())
+
+    @classmethod
+    def from_file(cls, filename):
+        with zopen(filename) as f:
+            return cls.from_string(f.read())
 
     @classmethod
     def from_string(cls, contents):
@@ -637,10 +724,10 @@ class QcInput(MSONable):
                                      "at line " + str(line_num))
             if parse_section and l == "$end":
                 func_name = "_parse_" + section_name
-                if func_name not in QcInput.__dict__:
+                if func_name not in QcTask.__dict__:
                     raise Exception(func_name + " is not implemented yet, "
                                     "please implement it")
-                parse_func = QcInput.__dict__[func_name].__get__(None, QcInput)
+                parse_func = QcTask.__dict__[func_name].__get__(None, QcTask)
                 if section_name == "molecule":
                     mol, charge, spin_multiplicity = parse_func(section_text)
                 else:
@@ -665,7 +752,7 @@ class QcInput(MSONable):
             optional_params = dict()
             for k in op_keys:
                 optional_params[k] = params[k]
-        return QcInput(molecule=mol, charge=charge,
+        return QcTask(molecule=mol, charge=charge,
                        spin_multiplicity=spin_multiplicity,
                        jobtype=jobtype, title=title,
                        exchange=exchange, correlation=correlation,
@@ -876,8 +963,75 @@ class QcInput(MSONable):
             d[element.strip().capitalize()] = ecp.strip().lower()
         return d
 
+    @classmethod
+    def _parse_pcm(cls, contents):
+        d = dict()
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
 
-class QcBatchInput(MSONable):
+        for line in contents:
+            tokens = line.strip().replace("=", ' ').split()
+            if len(tokens) < 2:
+                raise ValueError("Can't parse $pcm section, there should be "
+                                 "at least two field: key and value!")
+            k1, v = tokens[:2]
+            k2 = k1.lower()
+            if k2 in cls.alternative_keys:
+                k2 = cls.alternative_keys[k2]
+            if v in cls.alternative_values:
+                v = cls.alternative_values
+            if v == "True":
+                d[k2] = True
+            elif v == "False":
+                d[k2] = False
+            elif int_pattern.match(v):
+                d[k2] = int(v)
+            elif float_pattern.match(v):
+                d[k2] = float(v)
+            else:
+                d[k2] = v.lower()
+        return d
+
+    @classmethod
+    def _parse_pcm_solvent(cls, contents):
+        d = dict()
+        int_pattern = re.compile('^[-+]?\d+$')
+        float_pattern = re.compile('^[-+]?\d+\.\d+([eE][-+]?\d+)?$')
+
+        for line in contents:
+            tokens = line.strip().replace("=", ' ').split()
+            if len(tokens) < 2:
+                raise ValueError("Can't parse $pcm_solvent section, "
+                                 "there should be at least two field: "
+                                 "key and value!")
+            k1, v = tokens[:2]
+            k2 = k1.lower()
+            if k2 in cls.alternative_keys:
+                k2 = cls.alternative_keys[k2]
+            if v in cls.alternative_values:
+                v = cls.alternative_values
+            if k2 == "solventatom":
+                v = [int(i) for i in tokens[1:4]]
+                # noinspection PyTypeChecker
+                v.append(float(tokens[4]))
+                if k2 not in d:
+                    d[k2] = [v]
+                else:
+                    d[k2].append(v)
+            elif v == "True":
+                d[k2] = True
+            elif v == "False":
+                d[k2] = False
+            elif int_pattern.match(v):
+                d[k2] = int(v)
+            elif float_pattern.match(v):
+                d[k2] = float(v)
+            else:
+                d[k2] = v.lower()
+        return d
+
+
+class QcInput(MSONable):
     """
     An object representing a multiple step QChem input file.
     """
@@ -890,12 +1044,16 @@ class QcBatchInput(MSONable):
         """
         jobs = jobs if isinstance(jobs, list) else [jobs]
         for j in jobs:
-            if not isinstance(j, QcInput):
+            if not isinstance(j, QcTask):
                 raise ValueError("jobs must be a list QcInput object")
             self.jobs = jobs
 
     def __str__(self):
         return "\n@@@\n\n\n".join([str(j) for j in self.jobs])
+
+    def write_file(self, filename):
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
 
     @property
     def to_dict(self):
@@ -905,14 +1063,19 @@ class QcBatchInput(MSONable):
 
     @classmethod
     def from_dict(cls, d):
-        jobs = [QcInput.from_dict(j) for j in d["jobs"]]
-        return QcBatchInput(jobs)
+        jobs = [QcTask.from_dict(j) for j in d["jobs"]]
+        return QcInput(jobs)
 
     @classmethod
     def from_string(cls, contents):
         qc_contents = contents.split("@@@")
-        jobs = [QcInput.from_string(cont) for cont in qc_contents]
-        return QcBatchInput(jobs)
+        jobs = [QcTask.from_string(cont) for cont in qc_contents]
+        return QcInput(jobs)
+
+    @classmethod
+    def from_file(cls, filename):
+        with zopen(filename) as f:
+            return cls.from_string(f.read())
 
 
 class QcOutput(object):
@@ -927,18 +1090,18 @@ class QcOutput(object):
         self.data = map(self._parse_job, chunks)
 
     @classmethod
-    def _expected_successful_pattern(cls, qcinp):
+    def _expected_successful_pattern(cls, qctask):
         text = ["Convergence criterion met"]
-        if "correlation" in qcinp.params["rem"]:
-            if "ccsd" in qcinp.params["rem"]["correlation"]\
-                    or "qcisd" in qcinp.params["rem"]["correlation"]:
+        if "correlation" in qctask.params["rem"]:
+            if "ccsd" in qctask.params["rem"]["correlation"]\
+                    or "qcisd" in qctask.params["rem"]["correlation"]:
                 text.append('CC.*converged')
-        if qcinp.params["rem"]["jobtype"] == "opt"\
-                or qcinp.params["rem"]["jobtype"] == "ts":
+        if qctask.params["rem"]["jobtype"] == "opt"\
+                or qctask.params["rem"]["jobtype"] == "ts":
             text.append("OPTIMIZATION CONVERGED")
-        if qcinp.params["rem"]["jobtype"] == "freq":
+        if qctask.params["rem"]["jobtype"] == "freq":
             text.append("VIBRATIONAL ANALYSIS")
-        if qcinp.params["rem"]["jobtype"] == "gradient":
+        if qctask.params["rem"]["jobtype"] == "gradient":
             text.append("Gradient of SCF Energy")
         return text
 
@@ -993,8 +1156,8 @@ class QcOutput(object):
         parse_gradient = False
         parse_freq = False
         parse_modes = False
-        qcinp_lines = []
-        qcinp = None
+        qctask_lines = []
+        qctask = None
         jobtype = None
         charge = None
         spin_multiplicity = None
@@ -1006,14 +1169,14 @@ class QcOutput(object):
                     errors.append(message)
             if parse_input:
                 if "-" * 50 in line:
-                    if len(qcinp_lines) == 0:
+                    if len(qctask_lines) == 0:
                         continue
                     else:
-                        qcinp = QcInput.from_string('\n'.join(qcinp_lines))
-                        jobtype = qcinp.params["rem"]["jobtype"]
+                        qctask = QcTask.from_string('\n'.join(qctask_lines))
+                        jobtype = qctask.params["rem"]["jobtype"]
                         parse_input = False
                         continue
-                qcinp_lines.append(line)
+                qctask_lines.append(line)
             elif parse_coords:
                 if "-" * 50 in line:
                     if len(coords) == 0:
@@ -1069,8 +1232,8 @@ class QcOutput(object):
                     if "TransDip" in line:
                         parse_modes = False
                         for freq, mode in zip(vib_freqs, zip(*vib_modes)):
-                            freqs.append({"frequency:": freq,
-                                          "vib_mode:": mode})
+                            freqs.append({"frequency": freq,
+                                          "vib_mode": mode})
                         continue
                     dis_flat = [float(x) for x in line.strip().split()[1:]]
                     dis_atom = zip(*([iter(dis_flat)]*3))
@@ -1146,10 +1309,16 @@ class QcOutput(object):
                 v *= cls.kcal_per_mol_2_eV
             thermal_corr[k] = v
         if len(errors) == 0:
-            for text in cls._expected_successful_pattern(qcinp):
+            for text in cls._expected_successful_pattern(qctask):
                 success_pattern = re.compile(text)
                 if not success_pattern.search(output):
                     errors.append("Can't find text to indicate success")
+
+        if "solvent_method" in qctask.params["rem"]:
+            solvent_method = qctask.params["rem"]["solvent_method"]
+        else:
+            solvent_method = "NA"
+
         data = {
             "jobtype": jobtype,
             "energies": energies,
@@ -1159,8 +1328,9 @@ class QcOutput(object):
             "has_error": len(errors) > 0,
             "frequencies": freqs,
             "gradients": gradients,
-            "input": qcinp,
+            "input": qctask,
             "gracefully_terminated": properly_terminated,
-            "scf_iteration_energies": scf_iters
+            "scf_iteration_energies": scf_iters,
+            "solvent_method": solvent_method
         }
         return data

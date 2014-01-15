@@ -190,6 +190,10 @@ class Pseudo(object):
             return _PTABLE[int(self.Z)]
 
     @property
+    def type(self):
+        return self.__class__.__name__
+
+    @property
     def symbol(self):
         """Element symbol."""
         return self.element.symbol
@@ -361,6 +365,14 @@ class NcPseudo(object):
         """True if the pseudo is generated with non-linear core correction."""
         return self.nlcc_radius > 0.0
 
+    @property
+    def rcore(self):
+        """Radius of the pseudization sphere in a.u."""
+        try:
+            return self._core
+        except AttributeError:
+            return None
+
 
 class PawPseudo(object):
     """
@@ -369,9 +381,27 @@ class PawPseudo(object):
     """
     __metaclass__ = abc.ABCMeta
 
+    #def nlcc_radius(self):
+    #    """
+    #    Radius at which the core charge vanish (i.e. cut-off in a.u.).
+    #    Returns 0.0 if nlcc is not used.
+    #    """
+    #    return 0.0
+    #                                                                           
+
+    #@property
+    #def has_nlcc(self):
+    #    """True if the pseudo is generated with non-linear core correction."""
+    #    return True
+
     @abc.abstractproperty
     def paw_radius(self):
         """Radius of the PAW sphere in a.u."""
+
+    @property
+    def rcore(self):
+        """Alias of paw_radius."""
+        return self.paw_radius
 
 
 class AbinitPseudo(Pseudo):
@@ -557,6 +587,7 @@ def _int_from_str(string):
         return int_num
     else:
         raise TypeError("Cannot convert string %s to int" % string)
+
 
 class NcAbinitHeader(AbinitHeader):
     """
@@ -902,14 +933,18 @@ class PseudoParser(object):
         paths = []
         for fname in os.listdir(dirname):
             root, ext = os.path.splitext(fname)
-            if ext in exclude_exts or fname in exclude_fnames or fname.startswith("."):
-                continue
-            paths.append(os.path.join(dirname, fname))
+            path = os.path.join(dirname, fname)
+            if (ext in exclude_exts or fname in exclude_fnames or 
+                fname.startswith(".") or not os.path.isfile(path)): continue
+            paths.append(path)
 
         pseudos = []
         for path in paths:
-            # parse the file and generate the pseudo.
-            pseudo = self.parse(path)
+            # Parse the file and generate the pseudo.
+            try:
+                pseudo = self.parse(path)
+            except:
+                pseudo = None
 
             if pseudo is not None:
                 pseudos.append(pseudo)
@@ -1053,7 +1088,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
         #self.xc_type, self.xc_name  = xc_info["type"], xc_info["name"]
         #self.ae_energy = {k: float(v) for k,v in root.find("ae_energy").attrib.items()}
 
-        self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
+        # Old XML files do not define this field!
+        # In this case we set the PAW radius to None.
+        #self._paw_radius = float(root.find("PAW_radius").attrib["rpaw"])
+
+        pawr_element = root.find("PAW_radius")
+        self._paw_radius = None
+        if pawr_element is not None:
+            self._paw_radius = float(pawr_element.attrib["rpaw"])
 
         #<valence_states>
         #  <state n="2" l="0" f="2"  rc="1.10" e="-0.6766" id="N-2s"/>

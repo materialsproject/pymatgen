@@ -118,7 +118,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         valence_dict = dict(zip(el, valences))
         self.rad_dict = {}
         for k, v in valence_dict.items():
-            self.rad_dict[k] = Specie(k,v).ionic_radius
+            self.rad_dict[k] = float(Specie(k,v).ionic_radius)
 
         assert len(self.rad_dict) == len(self.structure.composition)
 
@@ -127,7 +127,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         self.assertIsInstance(vor_struct, Structure)
 
 
-@unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skip("The function is deprecated")
 class GetVoidVolumeSurfaceTest(unittest.TestCase):
     def setUp(self):
         filepath1 = os.path.join(test_dir, 'Li2O.cif')
@@ -139,7 +139,7 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
         self._radii = {}
         for k,v in val_dict.items():
             k1 = re.sub('[1-9,+,\-]', '', k)
-            self._radii[k] = Specie(k1, v).ionic_radius
+            self._radii[k1] = float(Specie(k1, v).ionic_radius)
         p.remove(0)
         self._vac_struct = p
     
