@@ -48,7 +48,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
     """
     TESTS = {}
 
-    def __init__(self, structure, functional='PBE', **kwargs):
+    def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
@@ -58,7 +58,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
         self.functional = functional
-        self.sym_prec = 0.01
+        self.sym_prec = sym_prec
     #  todo update the fromdict and todict ot include the new atributes
 
     @classmethod
@@ -71,7 +71,6 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         npar = int(self.get_bands(structure) ** 2 * structure.volume / 600)
         npar = min(max(npar, 1), 52)
-        print "npar based on nbands^2 * volume: ", npar
         return npar
 
     def set_test(self, _test_):
@@ -112,7 +111,6 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
 #            structure = structure.get_sorted_structure()
 #        dens = int(self.kpoints_settings['grid_density'])
 #        return Kpoints.automatic_gamma_density(structure, dens)
-
         num_kpoints = self.kpoints_settings["kpoints_density"] * structure.lattice.reciprocal_lattice.volume
         kpoints = Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
         mesh = kpoints.kpts[0]
@@ -122,14 +120,19 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         for k in ir_kpts:
             kpts.append(k[0])
             weights.append(int(k[1]))
-        return Kpoints(comment="uniform grid", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts, kpts_weights=weights)
-
+        # add the extrema
+        kpts.append(structure.cbm)
+        weights.append(int(0))
+        kpts.append(structure.vbm)
+        weights.append(int(0))
+        return Kpoints(comment="uniform grid with extrema", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts, kpts_weights=weights)
 
     def set_dens(self, spec):
         """
         sets the grid_density to the value specified in spec
         """
-        self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
+#        self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
+        self.kpoints_settings.update({'kpoints_density': spec['kp_dens']})
 
     def get_bands(self, structure):
         """
@@ -159,7 +162,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     """
     TESTS = {'NBANDS': {'test_range': (10, 20, 30), 'method': 'set_nbands', 'control': "gap"}}
 
-    def __init__(self, structure, functional='PBE', **kwargs):
+    def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
@@ -169,6 +172,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
         self.functional = functional
+        self.sym_prec = sym_prec
         npar = self.get_npar(self.structure)
         gw_bands = self.get_bands(self.structure)
         gw_bands = npar * int((15 * gw_bands) / npar + 1)
@@ -189,7 +193,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
             'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
 
-    def __init__(self, structure, functional='PBE', **kwargs):
+    def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
@@ -199,6 +203,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
         self.functional = functional
+        self.sym_prec = sym_prec
         npar = self.get_npar(structure)
         gw_bands = self.get_bands(structure)
         gw_bands = npar * int((15 * gw_bands) / npar + 1)
@@ -241,7 +246,7 @@ class GWSpecs():
     """
     def __init__(self):
         self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-            'functional': 'LDA', 'kp_grid_dens': 500, 'prec': 'm'}
+            'functional': 'LDA', 'kp_dens': 20, 'prec': 'm'}
         self.warnings = []
         self.errors = []
 
@@ -267,6 +272,8 @@ class GWSpecs():
                         self.data['test'] = False
                     else:
                         print 'undefined value, test should be True or False'
+                elif key in 'kp_dens':
+                    self.data[key] = int(value)
                 else:
                     self.data[key] = value
             elif key in ['help', 'h']:
@@ -543,6 +550,13 @@ def main(spec):
             print item
             with MPRester(mp_key) as mp_database:
                 structure = mp_database.get_structure_by_material_id(item, final=True)
+                bandstructure = mp_database.get_bandstructure_by_material_id(item)
+                #print bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label,\
+                #    bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
+                #print 'vbm: ', tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
+                #print 'cbm: ', tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
+                structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
+                structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
         else:
             next(item)
         print structure.composition.reduced_formula

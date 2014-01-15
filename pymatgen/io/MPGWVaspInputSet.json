@@ -27,7 +27,7 @@
         "SIGMA": 0.05
     },
     "KPOINTS": {
-        "grid_density": 500
+        "kpoints_density": 20
     },
     "POTCAR": {
         "Ac": "Ac",
