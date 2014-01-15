@@ -679,6 +679,11 @@ class SymmetryFinder(object):
                                       [0, b, 0],
                                       [0, c * cos(alpha), c * sin(alpha)]]
                 if new_matrix is None:
+                    #this if is to treat the case
+                    #where alpha==90 (but we still have a monoclinic sg
+                    new_matrix = [[sorted_lengths[0], 0, 0],
+                                  [0, sorted_lengths[1], 0],
+                                  [0, 0, sorted_lengths[2]]]
                     transf = np.zeros(shape=(3, 3))
                     for c in range(len(sorted_dic)):
                         transf[c][sorted_dic[c]['orig_index']] = 1
