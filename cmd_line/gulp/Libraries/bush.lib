@@ -1,0 +1,79 @@
+#
+#  BUSH -library of potentials for GULP
+#
+#  from T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle
+#  J. Mater Chem., 4, 831-837 (1994)
+#
+species
+Li core  1.000
+Na core  1.000
+K  core  1.000
+Mg core  1.580
+Mg shel  0.420
+Ca core  0.719
+Ca shel  1.281
+Sr core  0.169
+Sr shel  1.831
+Ba core  0.169
+Ba shel  1.831
+Fe core  1.971
+Fe shel  1.029
+Ti core  2.332
+Ti shel  1.668
+Al core  0.043
+Al shel  2.957
+Ga core  3.000
+Y  core  3.000
+La core  5.149
+La shel -2.149
+Pr core  1.678
+Pr shel  1.322
+Nd core  1.678
+Nd shel  1.322
+Gd core -0.973
+Gd shel  3.973
+Eu core -0.991
+Eu shel  3.991
+Tb core -0.972
+Tb shel  3.972
+Yb core -0.278
+Yb shel  3.278
+O  core  0.513
+O  shel -2.513
+buckingham
+Li core O shel   426.480 0.3000  0.00 0.0 10.0
+Na core O shel  1271.504 0.3000  0.00 0.0 10.0
+K  core O shel  3587.570 0.3000  0.00 0.0 10.0
+Mg shel O shel  2457.243 0.2610  0.00 0.0 10.0
+Ca shel O shel  2272.741 0.2986  0.00 0.0 10.0
+Sr shel O shel  1956.702 0.3252  0.00 0.0 10.0
+Ba shel O shel  4818.416 0.3067  0.00 0.0 10.0
+Fe shel O shel  3219.335 0.2641  0.00 0.0 10.0
+Ti shel O shel  2088.107 0.2888  0.00 0.0 10.0
+Al shel O shel  2409.505 0.2649  0.00 0.0 10.0
+Ga core O shel  2339.776 0.2742  0.00 0.0 10.0
+Y  core O shel  1519.279 0.3291  0.00 0.0 10.0
+La shel O shel  5436.827 0.2939  0.00 0.0 10.0
+Pr shel O shel 13431.118 0.2557  0.00 0.0 10.0
+Nd shel O shel 13084.217 0.2550  0.00 0.0 10.0
+Gd shel O shel   866.339 0.3770  0.00 0.0 10.0
+Eu shel O shel   847.868 0.3791  0.00 0.0 10.0
+Tb shel O shel   845.137 0.3750  0.00 0.0 10.0
+Yb shel O shel   991.029 0.3515  0.00 0.0 10.0
+O  shel O shel    25.410 0.6937 32.32 0.0 12.0
+spring
+Mg 349.95
+Ca  34.05
+Sr  21.53
+Ba  34.05
+Fe 179.58
+Ti 253.60
+Al 403.98
+La 173.90
+Pr 302.36
+Nd 302.35
+Gd 299.96
+Eu 304.92
+Tb 299.98
+Yb 308.91
+O   20.53

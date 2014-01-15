@@ -2,8 +2,8 @@ import glob
 import os
 import subprocess
 
-from distribute_setup import use_setuptools
-use_setuptools(version="0.6.34")
+from ez_setup import use_setuptools
+use_setuptools()
 from setuptools import setup, find_packages, Extension
 
 try:
@@ -44,7 +44,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.8.8",
+    version="2.8.10",
     install_requires=["numpy>=1.5", "pyhull>=1.4.3", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16", "pyyaml>=3.0"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
@@ -57,7 +57,8 @@ setup(
                   "pymatgen.io": ["*.cfg", "*.json"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.structure_prediction": ["data/*.json"],
-                  "pymatgen.vis": ["ElementColorSchemes.cfg"]},
+                  "pymatgen.vis": ["ElementColorSchemes.cfg"],
+                  "pymatgen.command_line": ["OxideTersoffPotentials"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",

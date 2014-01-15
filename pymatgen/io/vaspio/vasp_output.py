@@ -155,7 +155,8 @@ class Vasprun(object):
                             "ionic_steps", "dos_has_errors",
                             "projected_eigenvalues", "dielectric"]
 
-    def __init__(self, filename, ionic_step_skip=None, parse_dos=True,
+    def __init__(self, filename, ionic_step_skip=None,
+                 ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False):
         """
         Args:
@@ -166,8 +167,17 @@ class Vasprun(object):
                 ionic steps will be read for structure and energies. This is
                 very useful if you are parsing very large vasprun.xml files and
                 you are not interested in every single ionic step. Note that
-                the initial and final structure of all runs will always be
-                read, regardless of the ionic_step_skip.
+                the final energies and structure may not be the actual final
+                energy in the vasprun.
+            ionic_step_offset:
+                Used together with ionic_step_skip. If > 0, the first
+                ionic step read will be offset by the amount of
+                ionic_step_offset. For example, if you want to start reading
+                every 10th structure but only from the 3rd structure onwards,
+                set ionic_step_skip to 10 and ionic_step_offset to 3. Main use
+                case is when doing statistical structure analysis with
+                extremely long time scale multiple VASP calculations of
+                varying numbers of steps.
             parse_dos:
                 Whether to parse the dos. Defaults to True. Set
                 to False to shave off significant time from the parsing if you
@@ -197,14 +207,21 @@ class Vasprun(object):
                 #remove parts of the xml file and parse the string
                 run = f.read()
                 steps = run.split("<calculation>")
-                new_steps = steps[::int(ionic_step_skip)]
-                #add the last step from the run
+                #The text before the first <calculation> is the preamble!
+                preamble = steps.pop(0)
+                new_steps = steps[ionic_step_offset::int(ionic_step_skip)]
+                #add the tailing informat in the last step from the run
+                to_parse = "<calculation>".join(new_steps)
                 if steps[-1] != new_steps[-1]:
-                    new_steps.append(steps[-1])
-                xml.sax.parseString("<calculation>".join(new_steps),
-                                    handler)
+                    to_parse = "{}<calculation>{}{}".format(
+                        preamble, to_parse,
+                        steps[-1].split("</calculation>")[-1])
+                else:
+                    to_parse = "{}<calculation>{}".format(preamble, to_parse)
+                xml.sax.parseString(to_parse, handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(handler, k))
+            self.structures = self.structures[1:-1]
 
     @property
     def converged(self):

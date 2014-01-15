@@ -412,6 +412,7 @@ class PyFlowScheduler(object):
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
         self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
         self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
+        #self.MAX_ETIME_S = kwargs.pop("MAX_ETIME_S", )
 
         if kwargs:
             raise ValueError("Unknown arguments %s" % kwargs)
@@ -490,7 +491,7 @@ class PyFlowScheduler(object):
         Absolute path of the file with the pid. 
         The file is located in the workdir of the flow
         """
-        return self._pidfile
+        return self._pid_file
 
     @property
     def flow(self):
@@ -652,6 +653,9 @@ class PyFlowScheduler(object):
                 msg += "\nThe scheduler tried to send an e-mail to remind user but send_email returned %d. Aborting now" % retcode
                 err_msg += msg
 
+        #if delta_etime.total_seconds() > self.MAX_ETIME_S:
+        #    err_msg += "\nExceeded MAX_ETIME_S %s. Will shutdown the scheduler and exit" % self.MAX_ETIME_S
+
         # Too many exceptions. Shutdown the scheduler.
         if self.num_excs > self.MAX_NUM_PYEXCS:
             msg = "Number of exceptions %s > %s. Will shutdown the scheduler and exit" % (
@@ -713,15 +717,15 @@ class PyFlowScheduler(object):
             self.history.append("Elapsed time %s" % self.get_delta_etime())
 
             retcode = self.send_email(msg)
+            print("send_mail retcode", retcode)
 
-            # Write text file with the list of exceptions:
-            #if self.exceptions and retcode: 
+        finally:
+            # Write file with the list of exceptions:
             if self.exceptions:
-                dump_file = os.path.join(self.flow.workdir, "launcher.log")
+                dump_file = os.path.join(self.flow.workdir, "_exceptions")
                 with open(dump_file, "w") as fh:
                     fh.writelines(self.exceptions)
 
-        finally:
             # Shutdown the scheduler thus allowing the process to exit.
             self.sched.shutdown(wait=False)
 

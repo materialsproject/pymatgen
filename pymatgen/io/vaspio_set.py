@@ -11,7 +11,7 @@ runs.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Wei Chen, Will Richards"
+__author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -177,7 +177,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
 
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
-                 constrain_total_magmom=False, sort_structure=True):
+                 constrain_total_magmom=False, sort_structure=True,
+                 ediff_per_atom=True):
         """
         Args:
             name:
@@ -202,6 +203,11 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 Defaults to True, the behavior you would want most of the
                 time. This ensures that similar atomic species are grouped
                 together.
+            ediff_per_atom:
+                Whether the EDIFF is specified on a per atom basis. This is
+                generally desired, though for some calculations (e.g. NEB)
+                this should be turned off (and an appropriate EDIFF supplied
+                in user_incar_settings)
         """
         self.name = name
         self.potcar_settings = config_dict["POTCAR"]
@@ -209,6 +215,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
         self.incar_settings = config_dict['INCAR']
         self.set_nupdown = constrain_total_magmom
         self.sort_structure = sort_structure
+        self.ediff_per_atom = ediff_per_atom
         self.hubbard_off = hubbard_off
         if hubbard_off:
             for k in self.incar_settings.keys():
@@ -246,7 +253,10 @@ class DictVaspInputSet(AbstractVaspInputSet):
                 else:
                     incar[key] = [0] * len(poscar.site_symbols)
             elif key == "EDIFF":
-                incar[key] = float(setting) * structure.num_sites
+                if self.ediff_per_atom:
+                    incar[key] = float(setting) * structure.num_sites
+                else:
+                    incar[key] = float(setting)
             else:
                 incar[key] = setting
 
@@ -426,10 +436,11 @@ Supports the same kwargs as :class:`JSONVaspInputSet`.
 
 class MITNEBVaspInputSet(DictVaspInputSet):
     """
-    Class for writing NEB inputs.
+    Class for writing NEB inputs. Note that EDIFF is not on a per atom
+    basis for this input set
     """
 
-    def __init__(self, nimages=8, **kwargs):
+    def __init__(self, nimages=8, user_incar_settings=None, **kwargs):
         """
         Args:
             nimages:
@@ -437,13 +448,17 @@ class MITNEBVaspInputSet(DictVaspInputSet):
             **kwargs:
                 Other kwargs supported by :class:`JSONVaspInputSet`.
         """
+        #NEB specific defaults
+        defaults = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2, 'ISYM': 0,
+                    'LORBIT': 0, 'LCHARG': False}
+        if user_incar_settings:
+            defaults.update(user_incar_settings)
+
         with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
-            DictVaspInputSet.__init__(
-                self, "MIT NEB", json.load(f), **kwargs)
+            DictVaspInputSet.__init__(self, "MIT NEB", json.load(f),
+                                      user_incar_settings=defaults,
+                                      ediff_per_atom=False, **kwargs)
         self.nimages = nimages
-        # NEB settings
-        self.incar_settings.update(
-            {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2})
 
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
@@ -783,6 +798,28 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                     write_file(os.path.join(output_dir, "KPOINTS"))
         else:
             new_kpoints.write_file(os.path.join(output_dir, "KPOINTS"))
+
+class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
+    """
+    Using MP parameters to compute a static dielectric constant
+    with DFPT. This includes the electronic and ionic contributions
+    to the static dielectric constant
+    """
+
+    def __init__(self, user_incar_settings={}):
+        """
+        Args:
+            user_incar_settings:
+            A dict specifying additional incar settings
+        """
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject Static Dielectric DFPT", json.load(f))
+        self.user_incar_settings = user_incar_settings
+        self.incar_settings.update(
+            {"IBRION": 8, "LEPSILON": True})
+        if 'NPAR' in self.incar_settings:
+            del self.incar_settings['NPAR']
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):

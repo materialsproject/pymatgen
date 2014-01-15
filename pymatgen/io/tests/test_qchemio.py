@@ -4,7 +4,7 @@ import os
 from unittest import TestCase
 import unittest
 from pymatgen import Molecule
-from pymatgen.io.qchemio import QcInput, QcBatchInput, QcOutput
+from pymatgen.io.qchemio import QcTask, QcInput, QcOutput
 
 __author__ = 'xiaohuiqu'
 
@@ -26,24 +26,24 @@ coords2 = [[0.0, 0.0, -2.4],
 heavy_mol = Molecule(["Br", "Cd", "Br"], coords2)
 
 
-class TestQcInput(TestCase):
+class TestQcTask(TestCase):
 
-    def elementary_io_verify(self, text, qcinp):
-        self.to_and_from_dict_verify(qcinp)
-        self.from_string_verify(contents=text, ref_dict=qcinp.to_dict)
+    def elementary_io_verify(self, text, qctask):
+        self.to_and_from_dict_verify(qctask)
+        self.from_string_verify(contents=text, ref_dict=qctask.to_dict)
 
-    def to_and_from_dict_verify(self, qcinp):
+    def to_and_from_dict_verify(self, qctask):
         """
         Helper function. This function should be called in each specific test.
         """
-        d1 = qcinp.to_dict
-        qc2 = QcInput.from_dict(d1)
+        d1 = qctask.to_dict
+        qc2 = QcTask.from_dict(d1)
         d2 = qc2.to_dict
         self.assertEqual(d1, d2)
 
     def from_string_verify(self, contents, ref_dict):
-        qcinp = QcInput.from_string(contents)
-        d2 = qcinp.to_dict
+        qctask = QcTask.from_string(contents)
+        d2 = qctask.to_dict
         self.assertEqual(ref_dict, d2)
 
     def test_read_zmatrix(self):
@@ -69,7 +69,7 @@ $reM
 $end
 
 '''
-        qcinp = QcInput.from_string(contents)
+        qctask = QcTask.from_string(contents)
         ans = '''$molecule
  1  2
  S           0.00000000        0.00000000        0.00000000
@@ -94,7 +94,7 @@ $end
         ans_tokens = ans.split('\n')
         ans_text_part = ans_tokens[:2] + ans_tokens[11:]
         ans_coords_part = ans_tokens[2:11]
-        converted_tokens = str(qcinp).split('\n')
+        converted_tokens = str(qctask).split('\n')
         converted_text_part = converted_tokens[:2] + converted_tokens[11:]
         converted_coords_part = converted_tokens[2:11]
         self.assertEqual(ans_text_part, converted_text_part)
@@ -127,12 +127,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(molecule="READ", title="Test Methane",
+        qctask = QcTask(molecule="READ", title="Test Methane",
                         exchange="B3LYP", jobtype="SP", charge=-1,
                         spin_multiplicity=2,
                         basis_set="6-31+G*")
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_simple_basis_str(self):
         ans = '''$comments
@@ -157,11 +157,11 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_aux_basis_str(self):
         ans = '''$comments
@@ -213,15 +213,15 @@ $basis
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="xygjos",
+        qctask = QcTask(mol, title="Test Methane", exchange="xygjos",
                         jobtype="Freq",
                         basis_set={"C": "6-31G*", "h": "6-31g*",
                                    "CL": "6-31+g*"},
                         aux_basis_set={"c": "rimp2-cc-pvdz",
                                        "H": "rimp2-cc-pvdz",
                                        "Cl": "rimp2-aug-cc-pvdz"})
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_ecp_str(self):
         ans = '''$comments
@@ -265,12 +265,12 @@ $ecp
 $end
 
 '''
-        qcinp = QcInput(heavy_mol, title="Test ECP", exchange="B3LYP",
+        qctask = QcTask(heavy_mol, title="Test ECP", exchange="B3LYP",
                         jobtype="Opt",
                         basis_set={"Br": "srlc", "Cd": "srsc"},
                         ecp={"Br": "SrlC", "Cd": "srsc"})
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_memory(self):
         ans = '''$comments
@@ -297,12 +297,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_memory(total=18000, static=500)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_memory(total=18000, static=500)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_max_num_of_scratch_files(self):
         ans = '''$comments
@@ -328,12 +328,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_max_num_of_scratch_files(500)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_max_num_of_scratch_files(500)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_max_scf_iterations(self):
         ans = '''$comments
@@ -360,13 +360,13 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
+        qctask.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
                                                iterations=100)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_scf_convergence_threshold(self):
         ans = '''$comments
@@ -392,12 +392,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_scf_convergence_threshold(exponent=8)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_scf_convergence_threshold(exponent=8)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_integral_threshold(self):
         ans = '''$comments
@@ -423,12 +423,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_integral_threshold(thresh=14)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_integral_threshold(thresh=14)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_dft_grid(self):
         ans = '''$comments
@@ -454,12 +454,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_dft_grid(radical_points=110, angular_points=590)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_dft_grid(radical_points=110, angular_points=590)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_scf_initial_guess(self):
         ans = '''$comments
@@ -485,12 +485,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_scf_initial_guess("GWH")
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_scf_initial_guess("GWH")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_geom_opt_max_cycles(self):
         ans = '''$comments
@@ -516,12 +516,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP", charge=1, spin_multiplicity=2,
                         basis_set="6-31+G*")
-        qcinp.set_geom_max_iterations(100)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_geom_max_iterations(100)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_geom_opt_coords_type(self):
         ans = '''$comments
@@ -547,12 +547,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_geom_opt_coords_type("cartesian")
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_geom_opt_coords_type("cartesian")
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_scale_geom_opt_threshold(self):
         ans = '''$comments
@@ -580,13 +580,13 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.scale_geom_opt_threshold(gradient=0.1, displacement=0.1,
+        qctask.scale_geom_opt_threshold(gradient=0.1, displacement=0.1,
                                        energy=0.1)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_set_geom_opt_use_gdiis(self):
         ans = '''$comments
@@ -612,12 +612,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.set_geom_opt_use_gdiis()
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.set_geom_opt_use_gdiis()
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_disable_symmetry(self):
         ans = '''$comments
@@ -644,12 +644,12 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.disable_symmetry()
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.disable_symmetry()
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
 
     def test_use_cosmo(self):
         ans = '''$comments
@@ -676,15 +676,116 @@ $rem
 $end
 
 '''
-        qcinp = QcInput(mol, title="Test Methane", exchange="B3LYP",
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
                         jobtype="SP",
                         basis_set="6-31+G*")
-        qcinp.use_cosmo(dielectric_constant=35.0)
-        self.assertEqual(str(qcinp), ans)
-        self.elementary_io_verify(ans, qcinp)
+        qctask.use_cosmo(dielectric_constant=35.0)
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+
+    def test_use_pcm(self):
+        ans = '''$comments
+ Test Methane
+$end
 
 
-class TestQcBatchInput(TestCase):
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+  solvent_method = pcm
+$end
+
+
+$pcm
+     radii   uff
+    theory   ssvpe
+  vdwscale   1.1
+$end
+
+
+$pcm_solvent
+  dielectric   78.3553
+$end
+
+'''
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        qctask.use_pcm()
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+
+        qctask = QcTask(mol, title="Test Methane", exchange="B3LYP",
+                        jobtype="SP",
+                        basis_set="6-31+G*")
+        qctask.use_pcm(pcm_params={"Radii": "FF",
+                                  "Theory": "CPCM",
+                                  "SASrad": 1.5,
+                                  "HPoints": 1202},
+                      solvent_params={"Dielectric": 20.0,
+                                      "Temperature": 300.75,
+                                      "NSolventAtoms": 2,
+                                      "SolventAtom": [[8, 1, 186, 1.30],
+                                                      [1, 2, 187, 1.01]]},
+                      radii_force_field="OPLSAA")
+        ans = '''$comments
+ Test Methane
+$end
+
+
+$molecule
+ 0  1
+ C           0.00000000        0.00000000        0.00000000
+ H           0.00000000        0.00000000        1.08900000
+ H           1.02671900        0.00000000       -0.36300000
+ H          -0.51336000       -0.88916500       -0.36300000
+ Cl         -0.51336000        0.88916500       -0.36300000
+$end
+
+
+$rem
+         jobtype = sp
+        exchange = b3lyp
+           basis = 6-31+g*
+      force_fied = oplsaa
+  solvent_method = pcm
+$end
+
+
+$pcm
+   hpoints   1202
+     radii   bondi
+    sasrad   1.5
+    theory   cpcm
+  vdwscale   1.1
+$end
+
+
+$pcm_solvent
+     dielectric   20.0
+  nsolventatoms   2
+    solventatom   8    1    186  1.30
+    solventatom   1    2    187  1.01
+    temperature   300.75
+$end
+
+'''
+        self.assertEqual(str(qctask), ans)
+        self.elementary_io_verify(ans, qctask)
+
+
+class TestQcInput(TestCase):
     def test_str_and_from_string(self):
         ans = '''$comments
  Test Methane Opt
@@ -748,31 +849,31 @@ $rem
 $end
 
 '''
-        qcinp1 = QcInput(mol, title="Test Methane Opt", exchange="B3LYP",
+        qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
                          jobtype="Opt", basis_set="6-31+G*")
-        qcinp2 = QcInput(molecule="read", title="Test Methane Frequency",
+        qctask2 = QcTask(molecule="read", title="Test Methane Frequency",
                          exchange="B3LYP", jobtype="Freq", basis_set="6-31+G*")
-        qcinp3 = QcInput(title="Test Methane Single Point Energy",
+        qctask3 = QcTask(title="Test Methane Single Point Energy",
                          exchange="B3LYP", jobtype="SP",
                          basis_set="6-311+G(3df,2p)")
-        qcbat1 = QcBatchInput(jobs=[qcinp1, qcinp2, qcinp3])
-        self.assertEqual(str(qcbat1), ans)
-        qcbat2 = QcBatchInput.from_string(ans)
-        self.assertEqual(qcbat1.to_dict, qcbat2.to_dict)
+        qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
+        self.assertEqual(str(qcinp1), ans)
+        qcinp2 = QcInput.from_string(ans)
+        self.assertEqual(qcinp1.to_dict, qcinp2.to_dict)
 
     def test_to_and_from_dict(self):
-        qcinp1 = QcInput(mol, title="Test Methane Opt", exchange="B3LYP",
+        qctask1 = QcTask(mol, title="Test Methane Opt", exchange="B3LYP",
                          jobtype="Opt", basis_set="6-31+G*")
-        qcinp2 = QcInput(molecule="read", title="Test Methane Frequency",
+        qctask2 = QcTask(molecule="read", title="Test Methane Frequency",
                          exchange="B3LYP", jobtype="Freq",
                          basis_set="6-31+G*")
-        qcinp3 = QcInput(title="Test Methane Single Point Energy",
+        qctask3 = QcTask(title="Test Methane Single Point Energy",
                          exchange="B3LYP", jobtype="SP",
                          basis_set="6-311+G(3df,2p)")
-        qcbat1 = QcBatchInput(jobs=[qcinp1, qcinp2, qcinp3])
-        d1 = qcbat1.to_dict
-        qcbat2 = QcBatchInput.from_dict(d1)
-        d2 = qcbat2.to_dict
+        qcinp1 = QcInput(jobs=[qctask1, qctask2, qctask3])
+        d1 = qcinp1.to_dict
+        qcinp2 = QcInput.from_dict(d1)
+        d2 = qcinp2.to_dict
         self.assertEqual(d1, d2)
 
 
@@ -793,6 +894,9 @@ class TestQcOutput(TestCase):
         "MP2": -2726.685664155242,
         "SCF": -2721.5414360843106
     },
+    "hf_cosmo.qcout": {
+        "SCF": -2721.1752937496067
+    },
     "hf_hf.qcout": {
         "SCF": -2721.541435904716
     },
@@ -807,6 +911,9 @@ class TestQcOutput(TestCase):
     "hf_mp2.qcout": {
         "MP2": -2726.685661962005,
         "SCF": -2721.541435904716
+    },
+    "hf_pcm.qcout": {
+        "SCF": -2720.703940318968
     },
     "hf_qcisd(t).qcout": {
         "QCISD": -2726.7853751012344,
@@ -1136,8 +1243,8 @@ $rem
         exchange = b3lyp
            basis = gen
              ecp = gen
+  max_scf_cycles = 100
        scf_guess = gwh
-  scf_max_cycles = 100
 $end
 
 
@@ -1162,25 +1269,25 @@ $end
 
 '''
         self.assertEqual(str(qcout.data[1]['input']), ans_inp)
-        ans_freq = [{'vib_mode:': ((0.17, -0.475, 0.0),
+        ans_freq = [{'vib_mode': ((0.17, -0.475, 0.0),
                                    (-0.236, 0.659, 0.0),
                                    (0.17, -0.475, 0.0)),
-                     'frequency:': 61.36},
-                    {'vib_mode:': ((-0.475, -0.17, 0.0),
+                     'frequency': 61.36},
+                    {'vib_mode': ((-0.475, -0.17, 0.0),
                                    (0.659, 0.236, 0.0),
                                    (-0.475, -0.17, 0.0)),
-                     'frequency:': 61.36},
-                    {'vib_mode:': ((0.0, 0.0, 0.707),
+                     'frequency': 61.36},
+                    {'vib_mode': ((0.0, 0.0, 0.707),
                                    (0.0, 0.0, 0.0),
                                    (0.0, 0.0, -0.707)),
-                     'frequency:': 199.94},
-                    {'vib_mode:': ((0.17, -0.475, 0.0),
+                     'frequency': 199.94},
+                    {'vib_mode': ((0.17, -0.475, 0.0),
                                    (-0.236, 0.659, 0.0),
                                    (0.17, -0.475, 0.0),
                                    (0.0, 0.0, -0.505),
                                    (0.0, 0.0, 0.7),
                                    (0.0, 0.0, -0.505)),
-                     'frequency:': 311.74}]
+                     'frequency': 311.74}]
         self.assertEqual(qcout.data[1]['frequencies'], ans_freq)
         self.assertEqual(qcout.data[2]['energies'],
                          [('SCF', -5296.720321211475)])
@@ -1201,6 +1308,19 @@ $end
                              (-194.6508986262, 2.17e-06)]]
         self.assertEqual(qcout.data[2]['scf_iteration_energies'],
                          ans_scf_iter_ene)
+
+    def test_solvent_method(self):
+        filename = os.path.join(test_dir, "thiophene_wfs_5_carboxyl.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["solvent_method"], "NA")
+
+        filename = os.path.join(test_dir, "qchem_energies", "hf_cosmo.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["solvent_method"], "cosmo")
+
+        filename = os.path.join(test_dir, "qchem_energies", "hf_pcm.qcout")
+        qcout = QcOutput(filename)
+        self.assertEqual(qcout.data[0]["solvent_method"], "pcm")
 
     def test_failed_message(self):
         scf_file = os.path.join(test_dir, "hf.qcout")
