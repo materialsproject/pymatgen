@@ -29,6 +29,7 @@ from pymatgen.io.abinitio.abiobjects import asabistructure
 from pymatgen.io.abinitio.calculations import g0w0_with_ppmodel
 from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
+from pymatgen.symmetry.finder import SymmetryFinder
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,6 +58,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
         self.functional = functional
+        self.sym_prec = 0.01
     #  todo update the fromdict and todict ot include the new atributes
 
     @classmethod
@@ -67,8 +69,9 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         get 'optimally' useful number of parallelism
         """
-        npar = int(self.get_bands(structure)/2)
-        npar = min(max(npar, 2), 52)
+        npar = int(self.get_bands(structure) ** 2 * structure.volume / 600)
+        npar = min(max(npar, 1), 52)
+        print "npar based on nbands^2 * volume: ", npar
         return npar
 
     def set_test(self, _test_):
@@ -105,10 +108,22 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         Writes out a KPOINTS file using the automated gamma grid method.
         VASP crashes GW calculations on none gamma centered meshes.
         """
-        if self.sort_structure:
-            structure = structure.get_sorted_structure()
-        dens = int(self.kpoints_settings['grid_density'])
-        return Kpoints.automatic_gamma_density(structure, dens)
+#        if self.sort_structure:
+#            structure = structure.get_sorted_structure()
+#        dens = int(self.kpoints_settings['grid_density'])
+#        return Kpoints.automatic_gamma_density(structure, dens)
+
+        num_kpoints = self.kpoints_settings["kpoints_density"] * structure.lattice.reciprocal_lattice.volume
+        kpoints = Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
+        mesh = kpoints.kpts[0]
+        ir_kpts = SymmetryFinder(structure, symprec=self.sym_prec).get_ir_reciprocal_mesh(mesh)
+        kpts = []
+        weights = []
+        for k in ir_kpts:
+            kpts.append(k[0])
+            weights.append(int(k[1]))
+        return Kpoints(comment="uniform grid", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts, kpts_weights=weights)
+
 
     def set_dens(self, spec):
         """
@@ -528,6 +543,8 @@ def main(spec):
             print item
             with MPRester(mp_key) as mp_database:
                 structure = mp_database.get_structure_by_material_id(item, final=True)
+        else:
+            next(item)
         print structure.composition.reduced_formula
         if ('input' or 'ceci' in spec['mode']) and spec['code'] == 'VASP':
             # create all input files locally
