@@ -107,43 +107,33 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         Writes out a KPOINTS file using the automated gamma grid method.
         VASP crashes GW calculations on none gamma centered meshes.
         """
-#        if self.sort_structure:
-#            structure = structure.get_sorted_structure()
-#        dens = int(self.kpoints_settings['grid_density'])
-#        return Kpoints.automatic_gamma_density(structure, dens)
-        num_kpoints = self.kpoints_settings["kpoints_density"] * structure.lattice.reciprocal_lattice.volume
-        kpoints = Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
-        mesh = kpoints.kpts[0]
-        ir_kpts = SymmetryFinder(structure, symprec=self.sym_prec).get_ir_reciprocal_mesh(mesh)
-        kpts = []
-        weights = []
-        for k in ir_kpts:
-            kpts.append(k[0])
-            weights.append(int(k[1]))
-        # add the extrema
-        kpts.append(structure.cbm)
-        weights.append(int(0))
-        kpts.append(structure.vbm)
-        weights.append(int(0))
-        return Kpoints(comment="uniform grid with extrema", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts, kpts_weights=weights)
+        if self.sort_structure:
+            structure = structure.get_sorted_structure()
+        dens = int(self.kpoints_settings['grid_density'])
+        return Kpoints.automatic_gamma_density(structure, dens)
 
     def set_dens(self, spec):
         """
         sets the grid_density to the value specified in spec
         """
-#        self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
-        self.kpoints_settings.update({'kpoints_density': spec['kp_dens']})
+        self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
 
-    def get_bands(self, structure):
+    def get_electrons(self, structure):
         """
-        Method for retrieving the standard number of bands
+        Method for retrieving the number of valence electrons
         """
         valence_list = {}
         potcar = self.get_potcar(structure)
         for pot_single in potcar:
             valence_list.update({pot_single.element: pot_single.nelectrons})
         electrons = sum([valence_list[element.symbol] for element in structure.species])
-        bands = electrons / 2 + len(structure)
+        return int(electrons)
+
+    def get_bands(self, structure):
+        """
+        Method for retrieving the standard number of bands
+        """
+        bands = self.get_electrons(structure) / 2 + len(structure)
         return int(bands)
 
     def set_test_calc(self):
@@ -184,6 +174,33 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         self.incar_settings.update({"NBANDS": gw_bands})
         self.incar_settings.update({"NPAR": npar})
 
+    def get_kpoints(self, structure, regular=True):
+        """
+        Writes out a KPOINTS file using the automated gamma grid method.
+        VASP crashes GW calculations on none gamma centered meshes.
+        """
+        if regular:
+            if self.sort_structure:
+                structure = structure.get_sorted_structure()
+            dens = int(self.kpoints_settings['grid_density'])
+            return Kpoints.automatic_gamma_density(structure, dens)
+        else:
+            num_kpoints = self.kpoints_settings["kpoints_density"] * structure.lattice.reciprocal_lattice.volume
+            kpoints = Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
+            mesh = kpoints.kpts[0]
+            ir_kpts = SymmetryFinder(structure, symprec=0.0).get_ir_reciprocal_mesh(mesh)
+            kpts = []
+            weights = []
+            for k in ir_kpts:
+                kpts.append(k[0])
+                weights.append(int(k[1]))
+            # add the extrema
+            kpts.append(structure.cbm)
+            weights.append(int(0))
+            kpts.append(structure.vbm)
+            weights.append(int(0))
+            return Kpoints(comment="uniform grid with extrema", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts, kpts_weights=weights)
+
 
 class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     """
@@ -214,6 +231,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         self.incar_settings.update({"NBANDS": gw_bands})
         self.incar_settings.update({"NPAR": npar})
         self.incar_settings.update({"NOMEGA": nomega})
+        self.incar_settings.update({"LWANNIER90_RUN": ".TRUE."})
         self.tests = self.__class__.get_defaults_tests()
 
     def spectral_off(self):
@@ -246,7 +264,7 @@ class GWSpecs():
     """
     def __init__(self):
         self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-            'functional': 'LDA', 'kp_dens': 20, 'prec': 'm'}
+            'functional': 'LDA', 'kp_grid_dens': 500, 'prec': 'm'}
         self.warnings = []
         self.errors = []
 
@@ -272,7 +290,7 @@ class GWSpecs():
                         self.data['test'] = False
                     else:
                         print 'undefined value, test should be True or False'
-                elif key in 'kp_dens':
+                elif key in 'kp_grid_dens':
                     self.data[key] = int(value)
                 else:
                     self.data[key] = value
@@ -313,6 +331,55 @@ class GWSpecs():
         if len(self.warnings) > 0:
             print str(len(self.warnings)) + ' warning(s) found:'
             print self.warnings
+
+
+class Wannier90InputSet():
+    """
+    class containing the imput parameters for the wannier90.win file
+    """
+    def __init__(self, structure, path):
+        self.file_name = "wannier90.win"
+        self.settings = {"bands_plot": "true", "num_wann": 3, "num_bands": 3}
+        self.parameters = {"n_include_bands": 1}
+
+    def make_kpoint_path(self, structure, f):
+        f.write("\nbegin kpoint_path\n")
+        line = str(structure.vbm_l) + " " + str(structure.vbm[0]) + " " + str(structure.vbm[1]) + " " + str(structure.vbm[2])
+        line = line + " " + str(structure.cbm_l) + " " + str(structure.cbm[0]) + " " + str(structure.cbm[1]) + " " + str(structure.cbm[2])
+        f.write(line)
+        f.write("\nend kpoint_path\n\n")
+        pass
+
+    def make_exclude_bands(self, structure, f):
+        nocc = MPGWscDFTPrepVaspInputSet(structure).get_electrons(structure) / 2
+        n1 = str(int(1))
+        n2 = str(int(nocc - self.parameters["n_include_bands"]))
+        n3 = str(int(nocc + 1 + self.parameters["n_include_bands"]))
+        n4 = str(int(MPGWG0W0VaspInputSet(structure).incar_settings["NBANDS"]))
+        line = "exclude_bands : " + n1 + "-" + n2 + ", " + n3 + "-" + n4 + "\n"
+        f.write(line)
+        pass
+
+    def write_file(self, structure, path):
+        f = open(os.path.join(path,self.file_name), mode='w')
+        f.write("bands_plot = ")
+        f.write(self.settings["bands_plot"])
+        f.write("\n")
+        self.make_kpoint_path(structure, f)
+        f.write("num_wann  = ")
+        f.write(str(self.settings["num_wann"]))
+        f.write("\n")
+        f.write("num_bands = ")
+        f.write(str(self.settings["num_bands"]))
+        f.write("\n")
+        self.make_exclude_bands(structure, f)
+        f.close()
+
+    '''
+    begin projections
+    V:dxy;dxz;dyz
+    end projections
+    '''
 
 
 def folder_name(option):
@@ -367,6 +434,8 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, os.path.join(path, 'G0W0'+option_name))
+        w_inpset = Wannier90InputSet(structure, os.path.join(path, 'G0W0'+option_name))
+        w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
     if task == 'GW0':
         inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
         inpset.set_dens(spec)
@@ -551,10 +620,8 @@ def main(spec):
             with MPRester(mp_key) as mp_database:
                 structure = mp_database.get_structure_by_material_id(item, final=True)
                 bandstructure = mp_database.get_bandstructure_by_material_id(item)
-                #print bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label,\
-                #    bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
-                #print 'vbm: ', tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
-                #print 'cbm: ', tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
+                structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
+                structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
                 structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
                 structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
         else:

@@ -4,7 +4,7 @@
         "EDIFF": 1e-10,
         "IBRION": -1,
         "ICHARG": 1,
-        "ISMEAR": -5,
+        "ISMEAR": 0,
         "ISPIN": 1,
         "LORBIT": 11,
         "LREAL": "AUTO",
@@ -24,10 +24,10 @@
         "NELM": 100,
         "NPAR": 1,
         "PREC": "Medium",
-        "SIGMA": 0.05
+        "SIGMA": 0.01
     },
     "KPOINTS": {
-        "kpoints_density": 20
+        "grid_density": 500
     },
     "POTCAR": {
         "Ac": "Ac",
