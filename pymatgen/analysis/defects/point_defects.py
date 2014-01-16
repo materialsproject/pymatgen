@@ -60,6 +60,7 @@ class ValenceIonicRadiusEvaluator:
     def _get_ionic_radii(self):
         """
         Computes ionic radii of elements for all sites in the structure.
+        If valence is zero, atomic radius is used.
         """
         rad_dict = {}
         for k, val in self._valences.items():
@@ -468,8 +469,7 @@ class Interstitial(Defect):
         #are possible candidates for interstitial sites
         #try:
         possible_interstitial_sites = symmetry_reduced_voronoi_nodes(
-            self._structure, self._rad_dict
-        )
+                self._structure, self._rad_dict)
         #except:
         #    raise ValueError("Symmetry_reduced_voronoi_nodes failed")
 
@@ -520,7 +520,7 @@ class Interstitial(Defect):
     def enumerate_defectsites(self):
         """
         Enumerate all the symmetrically distinct interstitial sites.
-        The defect site has "Al" as occupied specie.
+        The defect site has "X" as occupied specie.
         """
         return self._defect_sites
 
@@ -1241,7 +1241,7 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
         add_closest_equiv_site(dist_sites, equiv_sites)
 
     #lat = structure.lattice
-    #sp = [site.specie for site in sites]   # "Al" because to Zeo++
+    #sp = [site.specie for site in sites]   # "X" because to Zeo++
     #coords = [site.coords for site in sites]
     #vor_node_radii = [site.properties['voronoi_radius'] for site in sites]
     #vor_node_struct = Structure(lat, sp, coords, 
