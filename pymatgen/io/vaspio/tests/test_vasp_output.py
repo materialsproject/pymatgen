@@ -36,7 +36,11 @@ class VasprunTest(unittest.TestCase):
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
-        self.assertEquals(len(vasprun.structures), len(vasprun.ionic_steps))
+        self.assertEquals(len(vasprun.structures),
+                          len(vasprun.ionic_steps) + 1)
+
+        for i, step in enumerate(vasprun.ionic_steps):
+            self.assertEqual(vasprun.structures[i], step["structure"])
 
         self.assertTrue(all([vasprun.structures[i] == vasprun.ionic_steps[i][
             "structure"] for i in xrange(len(vasprun.ionic_steps))]))
@@ -86,7 +90,7 @@ class VasprunTest(unittest.TestCase):
         self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) + 1)
-        self.assertEqual(len(vasprun_skip.ionic_steps),
+        self.assertEqual(len(vasprun_skip.ionic_steps) + 1,
                          len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) + 1)

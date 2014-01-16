@@ -227,7 +227,7 @@ class Vasprun(object):
                 xml.sax.parseString(to_parse, handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(handler, k))
-            self.structures = self.structures[1:-1]
+            self.structures = self.structures[1:]
 
     @property
     def converged(self):
