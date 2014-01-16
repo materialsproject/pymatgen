@@ -251,13 +251,13 @@ class DiffusionAnalyzer(MSONable):
         final_structure = vaspruns[0].initial_structure
         for vr in vaspruns:
             #check that the runs are continuous
-            fdist = pbc_diff(vr.initial_structure.frac_coords, 
+            fdist = pbc_diff(vr.initial_structure.frac_coords,
                              final_structure.frac_coords)
             if np.any(fdist > 0.001):
                 raise ValueError('initial and final structures do not '
                                  'match.')
             final_structure = vr.final_structure
-            
+
             assert (vr.ionic_step_skip or 1) == step_skip
             p.extend([np.array(s['structure'].frac_coords)[:, None]
                       for s in vr.ionic_steps])
@@ -326,10 +326,8 @@ class DiffusionAnalyzer(MSONable):
                 v = Vasprun(p, ionic_step_offset=offset,
                             ionic_step_skip=step_skip)
                 vaspruns.append(v)
-                # Recompute offset. The reason for the +1 factor is that the
-                # initial structure of the next vasprun is equal to the
-                # final_structure.
-                offset = step_skip - (v.nionic_steps - offset + 1) % step_skip
+                # Recompute offset.
+                offset = step_skip - (v.nionic_steps - offset) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs,
                                  weighted=weighted, specie=specie)
 
