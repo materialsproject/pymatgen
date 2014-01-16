@@ -208,6 +208,7 @@ class Vasprun(object):
             )
             if (not ionic_step_skip) and (not ionic_step_offset):
                 xml.sax.parse(f, handler)
+                self.nionic_steps = len(handler.ionic_steps)
             else:
                 #remove parts of the xml file and parse the string
                 run = f.read()
