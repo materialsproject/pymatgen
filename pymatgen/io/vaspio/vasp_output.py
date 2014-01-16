@@ -206,7 +206,7 @@ class Vasprun(object):
                 parse_eigen=parse_eigen,
                 parse_projected_eigen=parse_projected_eigen
             )
-            if ionic_step_skip is None:
+            if (not ionic_step_skip) and (not ionic_step_offset):
                 xml.sax.parse(f, handler)
             else:
                 #remove parts of the xml file and parse the string
@@ -227,7 +227,8 @@ class Vasprun(object):
                 xml.sax.parseString(to_parse, handler)
             for k in Vasprun.supported_properties:
                 setattr(self, k, getattr(handler, k))
-            self.structures = self.structures[1:]
+            self.initial_structure = self.structures.pop(0)
+            self.final_structure = self.structures[-1]
 
     @property
     def converged(self):
@@ -249,20 +250,6 @@ class Vasprun(object):
         Final energy from the vasp run.
         """
         return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
-
-    @property
-    def final_structure(self):
-        """
-        Final structure from vasprun.
-        """
-        return self.structures[-1]
-
-    @property
-    def initial_structure(self):
-        """
-        Initial structure from vasprun.
-        """
-        return self.structures[0]
 
     @property
     def complete_dos(self):
