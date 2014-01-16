@@ -310,14 +310,26 @@ class DiffusionAnalyzer(MSONable):
             ncores:
                 Numbers of cores to use for multiprocessing. Can speed up
                 vasprun parsing considerable. Defaults to None,
-                which means serial.
+                which means serial. It should be noted that if you want to
+                use multiprocessing, the NSW variable should be a multiple
+                of the ionic_step_skip. Otherwise, inconsistent results may
+                arise. Serial mode has no such restrictions.
         """
-        func = map
         if ncores is not None:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            func = p.map
-        vaspruns = func(_get_vasprun, [(p, step_skip) for p in filepaths])
+            vaspruns = p.map(_get_vasprun, [(p, step_skip) for p in filepaths])
+        else:
+            vaspruns = []
+            offset = 0
+            for p in filepaths:
+                v = Vasprun(p, ionic_step_offset=offset,
+                            ionic_step_skip=step_skip)
+                vaspruns.append(v)
+                # Recompute offset. The reason for the +1 factor is that the
+                # initial structure of the next vasprun is equal to the
+                # final_structure.
+                offset = step_skip - (v.nionic_steps - offset + 1) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs,
                                  weighted=weighted, specie=specie)
 
