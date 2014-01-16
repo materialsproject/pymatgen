@@ -150,7 +150,7 @@ class VacancyFormationEnergyTest(unittest.TestCase):
             self.assertIsInstance(vfe, float)
 
 
-@unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
+@unittest.skipIf(not zeo, "zeo not present.")
 class InterstitialTest(unittest.TestCase):
     def setUp(self):
         """

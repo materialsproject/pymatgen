@@ -22,6 +22,7 @@ import shutil
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
 from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.io_utils import zopen
 from pymatgen.util.decorators import requires
@@ -81,7 +82,7 @@ class ZeoCssr(Cssr):
             #else:
             #    charge = site.charge
             charge = site.charge if hasattr(site, 'charge') else 0
-            specie = re.sub('[1-9,+,\-]', '', site.species_string)
+            specie = re.sub('[0-9,+,\-]', '', site.species_string)
             output.append(
                 "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
                 .format(
@@ -218,7 +219,7 @@ class ZeoVoronoiXYZ(XYZ):
         )
         for site in self._mol:
             output.append(fmtstr.format(
-                site.specie, site.z, site.x, site.y,
+                site.specie.symbol, site.z, site.x, site.y,
                 #site.specie, site.x, site.y, site.z,
                 site.properties['voronoi_radius']
             ))
@@ -253,14 +254,16 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     os.chdir(temp_dir)
     ZeoCssr(structure).write_file(zeo_inp_filename)
     rad_file = None
+    rad_flag = False
 
     if rad_dict:
         rad_file = name + ".rad"
+        rad_flag = True
         with open(rad_file, 'w+') as fp:
             for el in rad_dict.keys():
                 print >>fp, "{} {}".format(el, rad_dict[el])
 
-    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=True, rad_file=rad_file)
+    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
     vornet = atmnet.perform_voronoi_decomposition()
     vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name + '_voro.xyz'
