@@ -4,6 +4,7 @@ import os
 from numbers import Number
 
 from pymatgen.core.composition import Composition
+from pymatgen.core.periodic_table import Element
 from pymatgen.phasediagram.pdmaker import PhaseDiagram
 from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.phasediagram.entries import PDEntryIO
@@ -69,6 +70,12 @@ class  PDAnalyzerTest(unittest.TestCase):
     def test_get_get_chempot_range_map(self):
         elements = [el for el in self.pd.elements if el.symbol != "Fe"]
         self.assertEqual(len(self.analyzer.get_chempot_range_map(elements)), 10)
+
+    def test_getmu_range_stability_phase(self):
+        results = self.analyzer.getmu_range_stability_phase(Composition.from_formula("LiFeO2"),Element("O"))
+        self.assertAlmostEqual(results[Element("O")][1], -4.4501812249999997)
+        self.assertAlmostEqual(results[Element("Fe")][0], -6.5961470999999996)
+        self.assertAlmostEqual(results[Element("Li")][0], -3.6250022625000007)
 
 if __name__ == '__main__':
     unittest.main()

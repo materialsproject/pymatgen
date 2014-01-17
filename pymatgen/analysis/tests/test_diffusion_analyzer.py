@@ -44,6 +44,7 @@ class DiffusionAnalyzerTest(unittest.TestCase):
         # unreliable for short runs.
         with open(os.path.join(test_dir, "DiffusionAnalyzer.json")) as f:
             d = DiffusionAnalyzer.from_dict(json.load(f))
+
             self.assertAlmostEqual(d.conductivity, 74.1362195972, 7)
             self.assertAlmostEqual(d.diffusivity,  1.16083658794e-06, 7)
             self.assertTrue(np.allclose(

@@ -36,6 +36,15 @@ class VasprunTest(unittest.TestCase):
         totalscsteps = sum([len(i['electronic_steps'])
                             for i in vasprun.ionic_steps])
         self.assertEquals(29, len(vasprun.ionic_steps))
+        self.assertEquals(len(vasprun.structures),
+                          len(vasprun.ionic_steps) + 1)
+
+        for i, step in enumerate(vasprun.ionic_steps):
+            self.assertEqual(vasprun.structures[i], step["structure"])
+
+        self.assertTrue(all([vasprun.structures[i] == vasprun.ionic_steps[i][
+            "structure"] for i in xrange(len(vasprun.ionic_steps))]))
+
         self.assertEquals(308, totalscsteps,
                           "Incorrect number of energies read from vasprun.xml")
         self.assertEquals([u'Li', u'Fe', u'Fe', u'Fe', u'Fe', u'P', u'P', u'P',
@@ -78,11 +87,26 @@ class VasprunTest(unittest.TestCase):
 
         #test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3)
-        self.assertEqual(vasprun_skip.final_energy, vasprun.final_energy)
+        self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
-                         int(len(vasprun.ionic_steps) / 3) + 1)
+                         int(vasprun.nionic_steps / 3) + 1)
+        self.assertEqual(len(vasprun_skip.ionic_steps) + 1,
+                         len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
-                         len(vasprun_skip.structures) - 2)
+                         int(vasprun.nionic_steps / 3) + 1)
+        #Check that nionic_steps is preserved no matter what.
+        self.assertEqual(vasprun_skip.nionic_steps,
+                         vasprun.nionic_steps)
+
+        self.assertNotAlmostEqual(vasprun_skip.final_energy,
+                                  vasprun.final_energy)
+
+        #Test with ionic_step_offset
+        vasprun_offset = Vasprun(filepath, 3, 6)
+        self.assertEqual(len(vasprun_offset.ionic_steps),
+                         int(len(vasprun.ionic_steps) / 3) - 1)
+        self.assertEqual(vasprun_offset.structures[0],
+                         vasprun_skip.structures[2])
 
         self.assertTrue(vasprun_ggau.is_hubbard)
         self.assertEqual(vasprun_ggau.hubbards["Fe"], 4.3)
