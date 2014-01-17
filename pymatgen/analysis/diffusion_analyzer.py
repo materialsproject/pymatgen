@@ -64,7 +64,7 @@ class DiffusionAnalyzer(MSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip=10, min_obs=30, weighted=True):
+                 time_step, step_skip, min_obs=30, weighted=True):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -220,6 +220,54 @@ class DiffusionAnalyzer(MSONable):
         self.get_smoothed_msd_plot().show()
 
     @classmethod
+    def from_structures(cls, structures, specie, temperature,
+                        time_step, step_skip, min_obs=30, weighted=True):
+        """
+        Convenient constructor that takes in a list of Structure objects to
+        perform diffusion analysis.
+
+        Args:
+            structures:
+                list of Structure objects (must be ordered in sequence of run).
+                E.g., you may have performed sequential VASP runs to obtain
+                sufficient statistics.
+            specie:
+                Specie to calculate diffusivity for as a String. E.g., "Li".
+            temperature:
+                Temperature of the diffusion run in Kelvin.
+            time_step:
+                Time step between measurements.
+            step_skip:
+                Sampling frequency of the displacements (time_step is
+                multiplied by this number to get the real time between
+                measurements)
+            min_obs:
+                Minimum number of observations to have before including in
+                the MSD vs dt calculation. E.g. If a structure has 10
+                diffusing atoms, and min_obs = 30, the MSD vs dt will be
+                calculated up to dt = total_run_time / 3, so that each
+                diffusing atom is measured at least 3 uncorrelated times.
+            weighted:
+                Uses a weighted least squares to fit the MSD vs dt. Weights are
+                proportional to 1/dt, since the number of observations are
+                also proportional to 1/dt (and hence the variance is
+                proportional to dt)
+            """
+        structure = structures[0]
+
+        p = [np.array(s.frac_coords)[:, None] for s in structures]
+        p = np.concatenate(p, axis=1)
+        dp = p[:, 1:] - p[:, :-1]
+        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
+        dp = dp - np.round(dp)
+        f_disp = np.cumsum(dp, axis=1)
+        disp = structure.lattice.get_cartesian_coords(f_disp)
+
+        return cls(structure, disp, specie, temperature,
+                   time_step, step_skip=step_skip, min_obs=min_obs,
+                   weighted=weighted)
+
+    @classmethod
     def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
         """
         Convenient constructor that takes in a list of Vasprun objects to
@@ -249,6 +297,7 @@ class DiffusionAnalyzer(MSONable):
 
         p = []
         final_structure = vaspruns[0].initial_structure
+        structures = []
         for vr in vaspruns:
             #check that the runs are continuous
             fdist = pbc_diff(vr.initial_structure.frac_coords,
@@ -259,19 +308,12 @@ class DiffusionAnalyzer(MSONable):
             final_structure = vr.final_structure
 
             assert (vr.ionic_step_skip or 1) == step_skip
-            p.extend([np.array(s['structure'].frac_coords)[:, None]
-                      for s in vr.ionic_steps])
-        p = np.concatenate(p, axis=1)
-        dp = p[:, 1:] - p[:, :-1]
-        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
-        dp = dp - np.round(dp)
-        f_disp = np.cumsum(dp, axis=1)
-        disp = structure.lattice.get_cartesian_coords(f_disp)
+            structures.extend([s['structure'] for s in vr.ionic_steps])
 
         temperature = vaspruns[0].parameters['TEEND']
         time_step = vaspruns[0].parameters['POTIM']
 
-        return cls(structure, disp, specie, temperature,
+        return cls.from_structures(structures, disp, specie, temperature,
                    time_step, step_skip=step_skip, min_obs=min_obs,
                    weighted=weighted)
 
@@ -309,11 +351,12 @@ class DiffusionAnalyzer(MSONable):
                 proportional to dt)
             ncores:
                 Numbers of cores to use for multiprocessing. Can speed up
-                vasprun parsing considerable. Defaults to None,
+                vasprun parsing considerably. Defaults to None,
                 which means serial. It should be noted that if you want to
-                use multiprocessing, the NSW variable should be a multiple
-                of the ionic_step_skip. Otherwise, inconsistent results may
-                arise. Serial mode has no such restrictions.
+                use multiprocessing, the number of ionic steps in all vasprun
+                .xml files should be a multiple of the ionic_step_skip.
+                Otherwise, inconsistent results may arise. Serial mode has no
+                such restrictions.
         """
         if ncores is not None:
             import multiprocessing
