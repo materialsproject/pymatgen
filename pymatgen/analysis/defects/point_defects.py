@@ -60,6 +60,7 @@ class ValenceIonicRadiusEvaluator:
     def _get_ionic_radii(self):
         """
         Computes ionic radii of elements for all sites in the structure.
+        If valence is zero, atomic radius is used.
         """
         rad_dict = {}
         for k, val in self._valences.items():
@@ -79,7 +80,7 @@ class ValenceIonicRadiusEvaluator:
         """
         bv = BVAnalyzer()
         valences = bv.get_valences(self._structure)
-        el = [site.species_string for site in self.structure.sites]
+        el = [site.specie.symbol for site in self.structure.sites]
         valence_dict = dict(zip(el, valences))
         return valence_dict
 
@@ -162,7 +163,7 @@ class Defect:
         """
         coordinated_species = []
         for site in self._defect_coord_sites[n]:
-            coordinated_species.append(site.species_string)
+            coordinated_species.append(site.specie.symbol)
         return list(set(coordinated_species))
 
     @abc.abstractmethod
@@ -272,12 +273,12 @@ class Vacancy(Defect):
         # effectively -ve charge and anion vacancy has +ve charge.) Inverse
         # the BVAnalyzer.get_valences result.
 
-        el = self.get_defectsite(n).species_string
+        el = self.get_defectsite(n).specie.symbol
         return -self._valence_dict[el]
         #if not self._vac_eff_charges:
         #    self._vac_eff_charges = []
         #    for site in self.enumerate_defectsites():
-        #        specie = site.species_string
+        #        specie = site.specie.symbol
         #        self._vac_eff_charges.append(-self._valence_dict[specie])
         #return self._vac_eff_charges[n]
 
@@ -324,7 +325,7 @@ class Vacancy(Defect):
             sc = self.make_supercells_with_defects(um)[1:]
             rad_dict = self.struct_radii
             for i in range(len(sc)):
-                site_radi = rad_dict[self._defect_sites[i].species_string]
+                site_radi = rad_dict[self._defect_sites[i].specie.symbol]
                 vol, sa = get_void_volume_surfarea(sc[i], rad_dict)
                 self._vol.append(vol)
                 self._sa.append(sa)
@@ -468,8 +469,7 @@ class Interstitial(Defect):
         #are possible candidates for interstitial sites
         #try:
         possible_interstitial_sites = symmetry_reduced_voronoi_nodes(
-            self._structure, self._rad_dict
-        )
+                self._structure, self._rad_dict)
         #except:
         #    raise ValueError("Symmetry_reduced_voronoi_nodes failed")
 
@@ -499,7 +499,7 @@ class Interstitial(Defect):
                 pymatgen.core.sites.Site
         """
         struct = self._structure.copy()
-        struct.append(site.species_string, site.frac_coords)
+        struct.append(site.specie.symbol, site.frac_coords)
         coord_finder = VoronoiCoordFinder(struct)
         coord_no = coord_finder.get_coordination_number(-1)
         coord_sites = coord_finder.get_coordinated_sites(-1)
@@ -507,20 +507,20 @@ class Interstitial(Defect):
         # In some cases coordination sites to interstitials include 
         # interstitials also. Filtering them.
         def no_inter(site):
-            return not site.species_string == 'X'
+            return not site.specie.symbol == 'X'
         coord_sites = filter(no_inter, coord_sites)
 
         coord_chrg = 0
         for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-            if not site.species_string == 'X':
-                coord_chrg += weight * self._valence_dict[site.species_string]
+            if not site.specie.symbol == 'X':
+                coord_chrg += weight * self._valence_dict[site.specie.symbol]
 
         return coord_no, coord_sites, coord_chrg
 
     def enumerate_defectsites(self):
         """
         Enumerate all the symmetrically distinct interstitial sites.
-        The defect site has "Al" as occupied specie.
+        The defect site has "X" as occupied specie.
         """
         return self._defect_sites
 
@@ -565,7 +565,7 @@ class Interstitial(Defect):
         coord_site_valences = []
 
         for site in self._defect_coord_sites[n]:
-            coord_site_valences.append(self._valence_dict[site.species_string])
+            coord_site_valences.append(self._valence_dict[site.specie.symbol])
         coord_site_valences.sort()
         return coord_site_valences[0], coord_site_valences[-1]
 
@@ -1196,7 +1196,7 @@ class RelaxedInterstitial:
             self._coord_sites.append(coord_finder.get_coordinated_sites(-1))
             coord_chrg = 0
             for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-                coord_chrg += weight * self._valence_dict[site.species_string]
+                coord_chrg += weight * self._valence_dict[site.specie.symbol]
             self._coord_charge_no.append(coord_chrg)
 
 
@@ -1241,7 +1241,7 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
         add_closest_equiv_site(dist_sites, equiv_sites)
 
     #lat = structure.lattice
-    #sp = [site.specie for site in sites]   # "Al" because to Zeo++
+    #sp = [site.specie for site in sites]   # "X" because to Zeo++
     #coords = [site.coords for site in sites]
     #vor_node_radii = [site.properties['voronoi_radius'] for site in sites]
     #vor_node_struct = Structure(lat, sp, coords, 
