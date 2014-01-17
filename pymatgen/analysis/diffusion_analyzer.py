@@ -327,7 +327,7 @@ class DiffusionAnalyzer(MSONable):
                             ionic_step_skip=step_skip)
                 vaspruns.append(v)
                 # Recompute offset.
-                offset = step_skip - (v.nionic_steps - offset) % step_skip
+                offset = (- (v.nionic_steps - offset)) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs,
                                  weighted=weighted, specie=specie)
 
