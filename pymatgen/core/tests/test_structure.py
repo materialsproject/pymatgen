@@ -370,13 +370,19 @@ class StructureTest(PymatgenTest):
              [2.217138, -0.000000, 3.135509]], 5)
 
     def test_apply_strain(self):
-        initial_coord = self.structure[1].coords
-        self.structure.apply_strain(0.01)
+        s = self.structure
+        initial_coord = s[1].coords
+        s.apply_strain(0.01)
         self.assertAlmostEqual(
-            self.structure.lattice.abc,
+            s.lattice.abc,
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
-        self.assertArrayAlmostEqual(self.structure[1].coords,
-            initial_coord * 1.01)
+        self.assertArrayAlmostEqual(s[1].coords, initial_coord * 1.01)
+        a1, b1, c1 = s.lattice.abc
+        s.apply_strain([0.1, 0.2, 0.3])
+        a2, b2, c2 = s.lattice.abc
+        self.assertAlmostEqual(a2 / a1, 1.1)
+        self.assertAlmostEqual(b2 / b1, 1.2)
+        self.assertAlmostEqual(c2 / c1, 1.3)
 
     def test_scale_lattice(self):
         initial_coord = self.structure[1].coords
@@ -519,7 +525,6 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(mol[0].magmom, 0.5)
         self.assertEqual(mol.formula, "H4 C1")
         self.assertEqual(mol.charge, 1)
-
 
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)

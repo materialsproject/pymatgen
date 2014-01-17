@@ -196,9 +196,10 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
 
-    def plot_smoothed_msd(self):
+    def get_smoothed_msd_plot(self):
         """
-        Plot the smoothed msd vs time graph. Useful for checking convergence.
+        Get the plot of the smoothed msd vs time graph. Useful for
+        checking convergence. This can be written to an image file.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -210,7 +211,13 @@ class DiffusionAnalyzer(MSONable):
         plt.xlabel("Timestep")
         plt.ylabel("MSD")
         plt.tight_layout()
-        plt.show()
+        return plt
+
+    def plot_smoothed_msd(self):
+        """
+        Plot the smoothed msd vs time graph. Useful for checking convergence.
+        """
+        self.get_smoothed_msd_plot().show()
 
     @classmethod
     def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
@@ -244,13 +251,13 @@ class DiffusionAnalyzer(MSONable):
         final_structure = vaspruns[0].initial_structure
         for vr in vaspruns:
             #check that the runs are continuous
-            fdist = pbc_diff(vr.initial_structure.frac_coords, 
+            fdist = pbc_diff(vr.initial_structure.frac_coords,
                              final_structure.frac_coords)
             if np.any(fdist > 0.001):
                 raise ValueError('initial and final structures do not '
                                  'match.')
             final_structure = vr.final_structure
-            
+
             assert (vr.ionic_step_skip or 1) == step_skip
             p.extend([np.array(s['structure'].frac_coords)[:, None]
                       for s in vr.ionic_steps])
@@ -303,14 +310,24 @@ class DiffusionAnalyzer(MSONable):
             ncores:
                 Numbers of cores to use for multiprocessing. Can speed up
                 vasprun parsing considerable. Defaults to None,
-                which means serial.
+                which means serial. It should be noted that if you want to
+                use multiprocessing, the NSW variable should be a multiple
+                of the ionic_step_skip. Otherwise, inconsistent results may
+                arise. Serial mode has no such restrictions.
         """
-        func = map
         if ncores is not None:
             import multiprocessing
             p = multiprocessing.Pool(ncores)
-            func = p.map
-        vaspruns = func(_get_vasprun, [(p, step_skip) for p in filepaths])
+            vaspruns = p.map(_get_vasprun, [(p, step_skip) for p in filepaths])
+        else:
+            vaspruns = []
+            offset = 0
+            for p in filepaths:
+                v = Vasprun(p, ionic_step_offset=offset,
+                            ionic_step_skip=step_skip)
+                vaspruns.append(v)
+                # Recompute offset.
+                offset = step_skip - (v.nionic_steps - offset) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs,
                                  weighted=weighted, specie=specie)
 

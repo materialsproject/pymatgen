@@ -352,7 +352,7 @@ class SubstitutionTransformation(AbstractTransformation):
                 v = [(str(k2), v2) for k2, v2 in v.iteritems()]
                 sp_map.append((str(k), v))
             else:
-                sp_map.append((str(k), v))
+                sp_map.append((str(k), str(v)))
         return {"name": self.__class__.__name__, "version": __version__,
                 "init_args": {"species_map": sp_map},
                 "@module": self.__class__.__module__,

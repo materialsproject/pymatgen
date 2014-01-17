@@ -11,7 +11,7 @@ runs.
 
 from __future__ import division
 
-__author__ = "Shyue Ping Ong, Wei Chen, Will Richards"
+__author__ = "Shyue Ping Ong, Wei Chen, Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
 __maintainer__ = "Shyue Ping Ong"
@@ -453,7 +453,7 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                     'LORBIT': 0, 'LCHARG': False}
         if user_incar_settings:
             defaults.update(user_incar_settings)
-        
+
         with open(os.path.join(MODULE_DIR, "MITVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(self, "MIT NEB", json.load(f),
                                       user_incar_settings=defaults,
@@ -798,6 +798,28 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                     write_file(os.path.join(output_dir, "KPOINTS"))
         else:
             new_kpoints.write_file(os.path.join(output_dir, "KPOINTS"))
+
+class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
+    """
+    Using MP parameters to compute a static dielectric constant
+    with DFPT. This includes the electronic and ionic contributions
+    to the static dielectric constant
+    """
+
+    def __init__(self, user_incar_settings={}):
+        """
+        Args:
+            user_incar_settings:
+            A dict specifying additional incar settings
+        """
+        with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject Static Dielectric DFPT", json.load(f))
+        self.user_incar_settings = user_incar_settings
+        self.incar_settings.update(
+            {"IBRION": 8, "LEPSILON": True})
+        if 'NPAR' in self.incar_settings:
+            del self.incar_settings['NPAR']
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
