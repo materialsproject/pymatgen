@@ -57,6 +57,9 @@ class Element(object):
     attributes, missing data (i.e., data for which is not available) is
     represented by a None unless otherwise stated.
 
+    Args:
+        symbol (str): Element symbol, e.g., "H", "Fe"
+
     .. attribute:: Z
 
         Atomic number
@@ -273,12 +276,6 @@ class Element(object):
     """
 
     def __init__(self, symbol):
-        """
-        Create immutable element from a symbol.
-
-        Args:
-            symbol (str): Element symbol, e.g., "H", "Fe"
-        """
         self._data = _pt_data[symbol]
 
         #Store key variables for quick access
@@ -661,6 +658,13 @@ class Specie(MSONable):
     calculated to have a magmom of +4.5. Calculated properties should be
     assigned to Site objects, and not Specie.
 
+    Args:
+        symbol (str): Element symbol, e.g., Fe
+        oxidation_state (float): Oxidation state of element, e.g., 2 or -2
+        properties: Properties associated with the Specie, e.g.,
+            {"spin": 5}. Defaults to None. Properties must be one of the
+            Specie supported_properties.
+
     .. attribute:: oxi_state
 
         Oxidation state associated with Specie
@@ -677,14 +681,6 @@ class Specie(MSONable):
     supported_properties = ("spin",)
 
     def __init__(self, symbol, oxidation_state, properties=None):
-        """
-        Args:
-            symbol (str): Element symbol, e.g., Fe
-            oxidation_state (float): Oxidation state of element, e.g., 2 or -2
-            properties: Properties associated with the Specie, e.g.,
-                {"spin": 5}. Defaults to None. Properties must be one of the
-                Specie supported_properties.
-        """
         self._el = Element(symbol)
         self._oxi_state = oxidation_state
         self._properties = properties if properties else {}
@@ -871,6 +867,16 @@ class DummySpecie(MSONable):
     example, representation of vacancies (charged or otherwise), or special
     sites, etc.
 
+    Args:
+        symbol (str): An assigned symbol for the dummy specie. Strict
+            rules are applied to the choice of the symbol. The dummy
+            symbol cannot have any part of first two letters that will
+            constitute an Element symbol. Otherwise, a composition may
+            be parsed wrongly. E.g., "X" is fine, but "Vac" is not
+            because Vac contains V, a valid Element.
+        oxidation_state (float): Oxidation state for dummy specie.
+            Defaults to zero.
+
     .. attribute:: symbol
 
         Symbol for the DummySpecie.
@@ -889,17 +895,6 @@ class DummySpecie(MSONable):
     """
 
     def __init__(self, symbol="X", oxidation_state=0, properties=None):
-        """
-        Args:
-            symbol (str): An assigned symbol for the dummy specie. Strict
-                rules are applied to the choice of the symbol. The dummy
-                symbol cannot have any part of first two letters that will
-                constitute an Element symbol. Otherwise, a composition may
-                be parsed wrongly. E.g., "X" is fine, but "Vac" is not
-                because Vac contains V, a valid Element.
-            oxidation_state (float): Oxidation state for dummy specie.
-                Defaults to zero.
-        """
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
                 raise ValueError("{} contains {}, which is a valid element "
