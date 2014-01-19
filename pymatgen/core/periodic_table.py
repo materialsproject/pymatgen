@@ -42,8 +42,7 @@ def symbol_from_Z(z):
     Return the symbol of the element from the atomic number.
 
     Args:
-        z:
-            Atomic number or slice object
+        z (int): Atomic number or slice object
     """
     return _z2symbol[z]
 
@@ -278,8 +277,7 @@ class Element(object):
         Create immutable element from a symbol.
 
         Args:
-            symbol:
-                Element symbol, e.g., "H", "Fe"
+            symbol (str): Element symbol, e.g., "H", "Fe"
         """
         self._data = _pt_data[symbol]
 
@@ -449,8 +447,7 @@ class Element(object):
         Get an element from an atomic number.
 
         Args:
-            z:
-                Atomic number
+            z (int): Atomic number
 
         Returns:
             Element with atomic number z.
@@ -480,8 +477,7 @@ class Element(object):
         Returns true if symbol is a valid element symbol.
 
         Args:
-            symbol:
-                Element symbol
+            symbol (str): Element symbol
 
         Returns:
             True if symbol is a valid element (e.g., "H"). False otherwise
@@ -683,13 +679,10 @@ class Specie(MSONable):
     def __init__(self, symbol, oxidation_state, properties=None):
         """
         Args:
-            symbol:
-                Element symbol, e.g., Fe
-            oxidation_state:
-                Oxidation state of element, e.g., 2 or -2
-            properties:
-                Properties associated with the Specie, e.g.,
-                {"spin":5}. Defaults to None. Properties must be one of the
+            symbol (str): Element symbol, e.g., Fe
+            oxidation_state (float): Oxidation state of element, e.g., 2 or -2
+            properties: Properties associated with the Specie, e.g.,
+                {"spin": 5}. Defaults to None. Properties must be one of the
                 Specie supported_properties.
         """
         self._el = Element(symbol)
@@ -774,9 +767,8 @@ class Specie(MSONable):
         Returns a Specie from a string representation.
 
         Args:
-            species_string:
-                A typical string representation of a species, e.g., "Mn2+",
-                "Fe3+", "O2-".
+            species_string (str): A typical string representation of a
+                species, e.g., "Mn2+", "Fe3+", "O2-".
 
         Returns:
             A Specie object.
@@ -808,10 +800,8 @@ class Specie(MSONable):
         configuration. Only works for transition metal species.
 
         Args:
-            coordination:
-                Only oct and tet are supported at the moment.
-            spin_config:
-                Supported keywords are "high" or "low".
+            coordination (str): Only oct and tet are supported at the moment.
+            spin_config (str): Supported keywords are "high" or "low".
 
         Returns:
             Crystal field spin in Bohr magneton.
@@ -901,15 +891,14 @@ class DummySpecie(MSONable):
     def __init__(self, symbol="X", oxidation_state=0, properties=None):
         """
         Args:
-            symbol:
-                An assigned symbol for the dummy specie. Strict rules are
-                applied to the choice of the symbol. The dummy symbol cannot
-                have any part of first two letters that will constitute an
-                Element symbol. Otherwise, a composition may be parsed wrongly.
-                E.g., "X" is fine, but "Vac" is not because Vac contains V, a
-                valid Element.
-            oxidation_state:
-                Oxidation state for dummy specie. Defaults to zero.
+            symbol (str): An assigned symbol for the dummy specie. Strict
+                rules are applied to the choice of the symbol. The dummy
+                symbol cannot have any part of first two letters that will
+                constitute an Element symbol. Otherwise, a composition may
+                be parsed wrongly. E.g., "X" is fine, but "Vac" is not
+                because Vac contains V, a valid Element.
+            oxidation_state (float): Oxidation state for dummy specie.
+                Defaults to zero.
         """
         for i in range(1, min(2, len(symbol)) + 1):
             if Element.is_valid_symbol(symbol[:i]):
@@ -998,8 +987,8 @@ class DummySpecie(MSONable):
         Returns a Dummy from a string representation.
 
         Args:
-            species_string:
-                A string representation of a dummy species, e.g., "X2+", "X3+"
+            species_string (str): A string representation of a dummy
+                species, e.g., "X2+", "X3+".
 
         Returns:
             A DummySpecie object.
@@ -1079,7 +1068,7 @@ class PeriodicTable(object):
     @property
     def all_elements(self):
         """
-        Returns the list of all known elements as Element objects.
+        List of all known elements as Element objects.
         """
         return self._all_elements.values()
 
@@ -1089,12 +1078,10 @@ class PeriodicTable(object):
         filter_function.
 
         Args:
-            filter_function:
-                A filtering function taking an Element as input and returning
-                a boolean. For example, setting
-                filter_function = lambda el: el.X > 2 will print
-                a periodic table containing only elements with
-                electronegativity > 2.
+            filter_function: A filtering function taking an Element as input
+                and returning a boolean. For example, setting
+                filter_function = lambda el: el.X > 2 will print a periodic
+                table containing only elements with electronegativity > 2.
         """
         for row in range(1, 10):
             rowstr = []
@@ -1118,10 +1105,9 @@ def smart_element_or_specie(obj):
     DummyElement parsing will be attempted.
 
     Args:
-        obj:
-            An arbitrary object.  Supported objects are actual Element/Specie
-            objects, integers (representing atomic numbers) or strings (element
-            symbols or species strings).
+        obj (Element/Specie/str/int): An arbitrary object.  Supported objects
+            are actual Element/Specie objects, integers (representing atomic
+            numbers) or strings (element symbols or species strings).
 
     Returns:
         Specie or Element, with a bias for the maximum number of properties
