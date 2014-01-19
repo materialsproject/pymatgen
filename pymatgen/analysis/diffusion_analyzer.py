@@ -313,7 +313,7 @@ class DiffusionAnalyzer(MSONable):
         temperature = vaspruns[0].parameters['TEEND']
         time_step = vaspruns[0].parameters['POTIM']
 
-        return cls.from_structures(structures, disp, specie, temperature,
+        return cls.from_structures(structures, specie, temperature,
                    time_step, step_skip=step_skip, min_obs=min_obs,
                    weighted=weighted)
 
