@@ -23,15 +23,20 @@ import abc
 
 class AbstractStructureFilter(MSONable):
     """
-    Abstract structure filter class.
+    AbstractStructureFilter that defines an API to perform testing of
+    Structures. Structures that return True to a test are retained during
+    transmutation while those that return False are removed.
     """
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def test(self, structure):
         """
-        Returns a boolean for any structure. Structures that return true are
-        kept in the Transmuter object during filtering.
+        Method to execute the test.
+
+        Returns:
+            (bool) Structures that return true are kept in the Transmuter
+            object during filtering.
         """
         return
 
@@ -47,24 +52,18 @@ class AbstractStructureFilter(MSONable):
 
 
 class ContainsSpecieFilter(AbstractStructureFilter):
-    """
-    Filter for structures containing certain elements or species.
-    By default compares by atomic number
-    """
 
     def __init__(self, species, strict_compare=False, AND=True, exclude=False):
         """
+        Filter for structures containing certain elements or species.
+        By default compares by atomic number
+
         Args:
-            species:
-                list of species to look for
-            AND:
-                whether all species must be present to pass (or fail)
-                filter.
-            strict_compare:
-                if true, compares objects by specie or element object
-                if false, compares atomic number
-            exclude:
-                if true, returns false for any structures with the specie
+            species ([Specie/Element]): list of species to look for
+            AND: whether all species must be present to pass (or fail) filter.
+            strict_compare: if true, compares objects by specie or element
+                object if false, compares atomic number
+            exclude: If true, returns false for any structures with the specie
                 (excludes them from the Transmuter)
         """
         self._species = map(smart_element_or_specie, species)
@@ -116,19 +115,18 @@ class SpecieProximityFilter(AbstractStructureFilter):
     """
     This filter removes structures that have certain species that are too close
     together.
+
+    Args:
+        specie_and_min_dist_dict: A species string to float mapping. For
+            example, {"Na+": 1} means that all Na+ ions must be at least 1
+            Angstrom away from each other. Multiple species criteria can be
+            applied. Note that the testing is done based on the actual object
+            . If you have a structure with Element, you must use {"Na":1}
+            instead to filter based on Element and not Specie.
+
     """
 
     def __init__(self, specie_and_min_dist_dict):
-        """
-        Args:
-            specie_and_min_dist_dict:
-                A species string to float mapping. For example, {"Na+": 1}
-                means that all Na+ ions must be at least 1 Angstrom away from
-                each other. Multiple species criteria can be applied. Note that
-                the testing is done based on the actual object. If you have a
-                structure with Element, you must use {"Na":1} instead to filter
-                based on Element and not Specie.
-        """
         self.specie_and_min_dist = {smart_element_or_specie(k): v
                                     for k, v
                                     in specie_and_min_dist_dict.items()}
@@ -170,13 +168,11 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         and symmetry (if symprec is given).
 
         Args:
-            structure_matcher:
-                Provides a structure matcher to be used for structure
-                comparison.
-            symprec:
-                The precision in the symmetry finder algorithm
-                if None (default value), no symmetry check is performed and
-                only the structure matcher is used. A recommended value is 1e-5
+            structure_matcher: Provides a structure matcher to be used for
+                structure comparison.
+            symprec: The precision in the symmetry finder algorithm if None (
+                default value), no symmetry check is performed and only the
+                structure matcher is used. A recommended value is 1e-5.
         """
         self._symprec = symprec
         self._structure_list = []
