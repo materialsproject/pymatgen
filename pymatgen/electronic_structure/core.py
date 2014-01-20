@@ -31,8 +31,7 @@ class Spin(object):
         Provides the spin from an int. +1 == Spin.up, -1 == Spin.down.
 
         Args:
-            i:
-                integer representing direction of spin.
+            i (1/-1): integer representing direction of spin.
         """
         if i == 1:
             return Spin.up
