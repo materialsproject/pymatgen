@@ -22,7 +22,7 @@ import os.path
 import pymatgen as pmg
 
 
-from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar
+from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar, Poscar
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.abinitio.abiobjects import asabistructure
@@ -226,12 +226,13 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         gw_bands = npar * int((15 * gw_bands) / npar + 1)
         # G0W0 calculation with reduced cutoff for the response function
         self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 250, "LWAVE": "FALSE", "NELM": 1})
-        # set nomega to smallest integer times npar smaller 100
-        nomega = npar * int(104 / npar)
+        self.nomega_max = 25 * self.get_kpoints(structure).kpts[0][0]
+        nomega = npar * int(self.nomega_max / npar)
         self.incar_settings.update({"NBANDS": gw_bands})
         self.incar_settings.update({"NPAR": npar})
         self.incar_settings.update({"NOMEGA": nomega})
         self.incar_settings.update({"LWANNIER90_RUN": ".TRUE."})
+        self.incar_settings.update({"LWRITE_MMN_AMN": ".TRUE."})
         self.tests = self.__class__.get_defaults_tests()
 
     def spectral_off(self):
@@ -295,13 +296,14 @@ class GWSpecs():
                 else:
                     self.data[key] = value
             elif key in ['help', 'h']:
-                print 'source: poscar, mp-vasp, mp_from_file'
-                print 'mode: input, ceci, fw'
-                print 'functional: PBE, LDA'
-                print 'tasks: prep, G0W0, GW0, scGW0'
-                print 'code: VASP, ABINIT'
-                print 'kp_grid_dens: NOT IMPLEMENTED YET'
-                print 'prec: l, m, h NOT IMPLEMENTED YET'
+                print "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from"
+                print "              poscar will read files starting with POSCAR_ in the working folder"
+                print 'mode:         input, ceci, fw'
+                print 'functional:   PBE, LDA'
+                print 'tasks:        prep, G0W0, GW0, scGW0'
+                print 'code:         VASP, ABINIT'
+                print 'kp_grid_dens: usually 500 - 1000'
+                print 'prec:         l, m, h NOT IMPLEMENTED YET'
             elif len(key) == 0:
                 print 'setup finished'
             else:
@@ -324,6 +326,9 @@ class GWSpecs():
                 self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
         else:
             self.errors.append('unknown code')
+        if self.data["source"] not in ['poscar', 'mp-vasp']:
+            if not os.path.isfile(self.data['source']):
+                self.errors.append('no structures defined')
         if len(self.errors) > 0:
             print str(len(self.errors)) + ' error(s) found:'
             print self.errors
@@ -337,9 +342,9 @@ class Wannier90InputSet():
     """
     class containing the imput parameters for the wannier90.win file
     """
-    def __init__(self, structure, path):
+    def __init__(self):
         self.file_name = "wannier90.win"
-        self.settings = {"bands_plot": "true", "num_wann": 3, "num_bands": 3}
+        self.settings = {"bands_plot": "true", "num_wann": 2, "num_bands": 2}
         self.parameters = {"n_include_bands": 1}
 
     def make_kpoint_path(self, structure, f):
@@ -361,7 +366,7 @@ class Wannier90InputSet():
         pass
 
     def write_file(self, structure, path):
-        f = open(os.path.join(path,self.file_name), mode='w')
+        f = open(os.path.join(path, self.file_name), mode='w')
         f.write("bands_plot = ")
         f.write(self.settings["bands_plot"])
         f.write("\n")
@@ -434,7 +439,7 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, os.path.join(path, 'G0W0'+option_name))
-        w_inpset = Wannier90InputSet(structure, os.path.join(path, 'G0W0'+option_name))
+        w_inpset = Wannier90InputSet()
         w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
     if task == 'GW0':
         inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
@@ -444,6 +449,8 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, os.path.join(path, 'GW0'+option_name))
+        w_inpset = Wannier90InputSet()
+        w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
     if task == 'scGW0':
         inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
         inpset.gw0_on(qpsc=True)
@@ -452,6 +459,8 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
             inpset.set_test(option[0])
             inpset.set_test(option[1])
         inpset.write_input(structure, os.path.join(path, 'scGW0'+option_name))
+        w_inpset = Wannier90InputSet()
+        w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
 
 
 def create_single_job_script(structure, task, spec, option=None):
@@ -609,12 +618,28 @@ def main(spec):
         files = os.listdir('.')
         items_list = files
     else:
-        print 'no structures defined'
-        exit()
+        with open(spec['source'], 'r') as f:
+            items_list = [line.strip() for line in open(spec['source'])]
+    #else
+    #    print 'no structures defined'
+    #    exit()
 
     for item in items_list:
         if item.startswith('POSCAR_'):
             structure = pmg.read_structure(item)
+            comment = Poscar.from_file(item).comment
+            print comment
+            if comment.startswith("gap"):
+                structure.vbm_l = comment.split(" ")[1]
+                structure.vbm = (comment.split(" ")[2], comment.split(" ")[3], comment.split(" ")[4])
+                structure.cbm_l = comment.split(" ")[5]
+                structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
+            else:
+                print "no bandstructure information available, adding GG as 'gap'"
+                structure.vbm_l = "G"
+                structure.cbm_l = "G"
+                structure.cbm = (0.0, 0.0, 0.0)
+                structure.vbm = (0.0, 0.0, 0.0)
         elif item.startswith('mp-'):
             print item
             with MPRester(mp_key) as mp_database:
