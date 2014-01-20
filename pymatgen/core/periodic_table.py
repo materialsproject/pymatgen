@@ -877,7 +877,7 @@ class DummySpecie(MSONable):
         oxidation_state (float): Oxidation state for dummy specie.
             Defaults to zero.
 
-    .. attribute:: symbol
+    .. attribute:: symbol:
 
         Symbol for the DummySpecie.
 
