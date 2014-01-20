@@ -32,6 +32,17 @@ class StandardTransmuter(object):
     An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
 
+    Args:
+        transformed_structures: Input transformed structures
+        transformations: New transformations to be applied to all
+            structures
+        extend_collection: Whether to use more than one output structure
+            from one-to-many transformations. extend_collection can be a
+            number, which determines the maximum branching for each
+            transformation.
+        ncores: Number of cores to use for applying transformations.
+            Uses multiprocessing.Pool
+
     .. attribute: transformed_structures
 
         List of all transformed structures.
@@ -39,18 +50,6 @@ class StandardTransmuter(object):
 
     def __init__(self, transformed_structures, transformations=None,
                  extend_collection=0, ncores=None):
-        """
-        Args:
-            transformed_structures: Input transformed structures
-            transformations: New transformations to be applied to all
-                structures
-            extend_collection: Whether to use more than one output structure
-                from one-to-many transformations. extend_collection can be a
-                number, which determines the maximum branching for each
-                transformation.
-            ncores: Number of cores to use for applying transformations.
-                Uses multiprocessing.Pool
-        """
         self.transformed_structures = transformed_structures
         self.ncores = ncores
         if transformations is not None:
@@ -326,18 +325,17 @@ class CifTransmuter(StandardTransmuter):
 class PoscarTransmuter(StandardTransmuter):
     """
     Generates a transmuter from a sequence of POSCARs.
+
+    Args:
+        poscar_string: List of POSCAR strings
+        transformations: New transformations to be applied to all
+            structures.
+        extend_collection: Whether to use more than one output structure
+            from one-to-many transformations.
     """
 
     def __init__(self, poscar_string, transformations=None,
                  extend_collection=False):
-        """
-        Args:
-            poscar_string: List of POSCAR strings
-            transformations: New transformations to be applied to all
-                structures.
-            extend_collection: Whether to use more than one output structure
-                from one-to-many transformations.
-        """
         tstruct = TransformedStructure.from_poscar_string(poscar_string, [])
         StandardTransmuter.__init__(self, [tstruct], transformations,
                                     extend_collection=extend_collection)
