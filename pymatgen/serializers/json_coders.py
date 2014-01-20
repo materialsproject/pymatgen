@@ -110,8 +110,7 @@ class PMGJSONEncoder(json.JSONEncoder):
         property, the default Python json encoder default method is called.
 
         Args:
-            o:
-                Python object.
+            o: Python object.
 
         Return:
             Python dict representation.
@@ -217,10 +216,9 @@ def pmg_load(filename, **kwargs):
     Loads a json file and deserialize it with PMGJSONDecoder.
 
     Args:
-        filename:
-            Filename of file to open. Can be gzipped or bzipped.
-        \*\*kwargs:
-            Any of the keyword arguments supported by the json.load method.
+        filename (str): Filename of file to open. Can be gzipped or bzipped.
+        \*\*kwargs: Any of the keyword arguments supported by the json.load
+            method.
 
     Returns:
         Deserialized pymatgen object. Note that these objects can be lists,
@@ -237,11 +235,9 @@ def pmg_dump(obj, filename, **kwargs):
     support the to_dict and from_dict MSONAble protocol.
 
     Args:
-        obj:
-            Object to dump.
-        filename:
-            Filename of file to open. Can be gzipped or bzipped.
-        \*\*kwargs:
-            Any of the keyword arguments supported by the json.load method.
+        obj (object): Object to dump.
+        filename (str): Filename of file to open. Can be gzipped or bzipped.
+        \*\*kwargs: Any of the keyword arguments supported by the json.load
+            method.
     """
     return json.dump(obj, zopen(filename, "w"), cls=PMGJSONEncoder, **kwargs)

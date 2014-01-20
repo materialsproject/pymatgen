@@ -50,18 +50,14 @@ class SymmetryFinder(object):
     """
     Takes a pymatgen.core.structure.Structure object and a symprec.
     Uses pyspglib to perform various symmetry finding operations.
+
+    Args:
+        structure (Structure/IStructure): Structure to find symmetry
+        symprec (float): Tolerance for symmetry finding.
+        angle_tolerance (float): Angle tolerance for symmetry finding.
     """
 
     def __init__(self, structure, symprec=1e-5, angle_tolerance=5):
-        """
-        Args:
-            structure:
-                Structure object
-            symprec:
-                Tolerance for symmetry finding
-            angle_tolerance:
-                Angle tolerance for symmetry finding.
-        """
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
@@ -84,15 +80,16 @@ class SymmetryFinder(object):
                 zs.extend([len(unique_species)] * len(tuple(g)))
         self._unique_species = unique_species
         self._numbers = np.array(zs)
-        self._spacegroup_data = spg.spacegroup(self._transposed_latt.copy(),
-                                               self._positions.copy(),
-                                               self._numbers, self._symprec,
-                                               self._angle_tol)
+        self._spacegroup_data = spg.spacegroup(
+            self._transposed_latt.copy(), self._positions.copy(),
+            self._numbers, self._symprec, self._angle_tol)
 
     def get_spacegroup(self):
         """
-        Return space group in international table symbol and number
-        as a string.
+        Get the Spacegroup for the Structure.
+
+        Returns:
+            Spacgroup object.
         """
         # Atomic positions have to be specified by scaled positions for spglib.
         return Spacegroup(self.get_spacegroup_symbol(),
@@ -104,7 +101,7 @@ class SymmetryFinder(object):
         Get the spacegroup symbol (e.g., Pnma) for structure.
 
         Returns:
-            Spacegroup symbol for structure.
+            (str): Spacegroup symbol for structure.
         """
         return self._spacegroup_data.split()[0]
 
@@ -113,7 +110,7 @@ class SymmetryFinder(object):
         Get the international spacegroup number (e.g., 62) for structure.
 
         Returns:
-            International spacegroup number for structure.
+            (int): International spacegroup number for structure.
         """
         sgnum = self._spacegroup_data.split()[-1]
         sgnum = int(re.sub("\D", "", sgnum))
@@ -122,6 +119,9 @@ class SymmetryFinder(object):
     def get_hall(self):
         """
         Returns Hall symbol for structure.
+
+        Returns:
+            (str): Hall symbol
         """
         ds = self.get_symmetry_dataset()
         return ds["hall"]
@@ -131,7 +131,7 @@ class SymmetryFinder(object):
         Get the point group associated with the structure.
 
         Returns:
-            Pointgroup for structure.
+            (Pointgroup): Point group for structure.
         """
         ds = self.get_symmetry_dataset()
         return get_point_group(ds["rotations"])[0].strip()
@@ -142,7 +142,7 @@ class SymmetryFinder(object):
         orthorhombic, cubic, etc.).
 
         Returns:
-            Crystal system for structure.
+            (str): Crystal system for structure.
         """
         n = self.get_spacegroup_number()
 
@@ -168,7 +168,7 @@ class SymmetryFinder(object):
         lattice
 
         Returns:
-            Crystal system for structure.
+            (str): Lattice type for structure.
         """
         n = self.get_spacegroup_number()
         system = self.get_crystal_system()
@@ -184,24 +184,25 @@ class SymmetryFinder(object):
         Returns the symmetry dataset as a dict.
 
         Returns:
-            number:
-                International space group number
-            international:
-                International symbol
-            hall:
-                Hall symbol
-            transformation_matrix:
-                Transformation matrix from lattice of input cell to Bravais
-                lattice
-                L^bravais = L^original * Tmat
-            origin shift:
-                Origin shift in the setting of "Bravais lattice"
-            rotations, translations:
-                Rotation matrices and translation vectors.
-                Space group operations are obtained by
-                [(r,t) for r, t in zip(rotations, translations)]
-            wyckoffs:
-                  Wyckoff letters
+            (dict): With the following properties:
+                number:
+                    International space group number
+                international:
+                    International symbol
+                hall:
+                    Hall symbol
+                transformation_matrix:
+                    Transformation matrix from lattice of
+                    input cell to Bravais lattice L^bravais = L^original *
+                    Tmat
+                origin shift:
+                    Origin shift in the setting of "Bravais lattice"
+                rotations, translations:
+                    Rotation matrices and translation
+                    vectors. Space group operations are obtained by
+                    [(r,t) for r, t in zip(rotations, translations)]
+                wyckoffs:
+                    Wyckoff letters
         """
         keys = ("number",
                 "international",
@@ -260,6 +261,9 @@ class SymmetryFinder(object):
         Return symmetry operations as a list of SymmOp objects.
         By default returns fractional coord symmops.
         But cartesian can be returned too.
+
+        Returns:
+            ([SymmOp]): List of symmetry operations.
         """
         (rotation, translation) = self._get_symmetry()
         symmops = []
@@ -278,6 +282,13 @@ class SymmetryFinder(object):
         Return symmetry operations as a list of SymmOp objects.
         By default returns fractional coord symmops.
         But cartesian can be returned too.
+
+        Args:
+            cartesian (bool): Whether to return SymmOps as cartesian or
+                direct coordinate operations.
+
+        Returns:
+            ([SymmOp]): List of point group symmetry operations.
         """
         (rotation, translation) = self._get_symmetry()
         symmops = []
@@ -296,7 +307,7 @@ class SymmetryFinder(object):
         sites have been grouped into symmetrically equivalent groups.
 
         Returns:
-            pymatgen.symmetry.structure.SymmetrizedStructure object.
+            :class:`pymatgen.symmetry.structure.SymmetrizedStructure` object.
         """
         ds = self.get_symmetry_dataset()
         sg = Spacegroup(self.get_spacegroup_symbol(),
@@ -326,7 +337,7 @@ class SymmetryFinder(object):
             lattice, pos, numbers, num_atom, self._symprec, self._angle_tol)
         zs = numbers[:num_atom_bravais]
         species = [self._unique_species[i - 1] for i in zs]
-        s = Structure(lattice.T.copy(), 
+        s = Structure(lattice.T.copy(),
                       species,
                       pos[:num_atom_bravais])
         return s.get_sorted_structure()
@@ -369,10 +380,9 @@ class SymmetryFinder(object):
         k-points.
 
         Args:
-            kpoints:
-                Input kpoints as a (Nx3) array.
-            is_time_reversal:
-                Set to True to impose time reversal symmetry.
+            kpoints (Nx3 array): Input kpoints.
+            is_time_reversal (bool): Set to True to impose time reversal
+                symmetry.
 
         Returns:
             Numbering of reducible kpoints. Equivalent kpoints will have the
@@ -393,10 +403,9 @@ class SymmetryFinder(object):
         Irreducible k-points are searched from the input kpoints.
 
         Args:
-            kpoints:
-                Input kpoints as a (Nx3) array.
-            is_time_reversal:
-                Set to True to impose time reversal symmetry.
+            kpoints (Nx3 array): Input kpoints.
+            is_time_reversal (bool): Set to True to impose time reversal
+                symmetry.
 
         Returns:
             A set of irreducible kpoints.
@@ -418,13 +427,12 @@ class SymmetryFinder(object):
         and their weights
 
         Args:
-            mesh:
-                The number of kpoint for the mesh needed in each direction
-            shift:
-                A shift of the kpoint grid. For instance, Monkhorst-Pack is
-                [0.5,0.5,0.5]
-            is_time_reversal:
-                Set to True to impose time reversal symmetry.
+            mesh (3x1 array): The number of kpoint for the mesh needed in
+                each direction
+            shift (3x1 array): A shift of the kpoint grid. For instance,
+                Monkhorst-Pack is [0.5,0.5,0.5]
+            is_time_reversal (bool): Set to True to impose time reversal
+                symmetry.
 
         Returns:
             A list of irreducible kpoints and their weights as a list of
@@ -774,9 +782,11 @@ class SymmetryFinder(object):
 
 def get_point_group(rotations):
     """
+    Get point group from a set of rotations.
+
     Returns:
         (pointgroup_symbol, pointgroup_number, transformation_matrix)
-    
+
     symbol and number are those used in international table.
     The symbols are mapped to the numbers as follows:
     1   "1    "
