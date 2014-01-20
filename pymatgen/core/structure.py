@@ -969,8 +969,8 @@ class IStructure(SiteCollection, MSONable):
             frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
-       Returns:
-           one-dimensional `numpy` array.
+        Returns:
+            one-dimensional `numpy` array.
         """
         lattice = {"r": self.lattice,
                    "g": self.reciprocal_lattice}[space.lower()]
@@ -983,7 +983,7 @@ class IStructure(SiteCollection, MSONable):
         Args:
             coords (3x1 array): Array-like object with the coordinates.
             space (str): "r" for real space, "g" for reciprocal space.
-            frac_coords (bool) Whether the vector corresponds to fractional or
+            frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
         Returns:

@@ -693,7 +693,7 @@ A float with a charge unit.
 
 Args:
     val (float): Value
-    unit (Unit). E.g., C, e (electron charge). Must be valid unit or UnitError
+    unit (Unit): E.g., C, e (electron charge). Must be valid unit or UnitError
         is raised.
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
