@@ -408,8 +408,7 @@ class IStructure(SiteCollection, MSONable):
         Returns the vectors of the unit cell in Angstrom.
 
         Args:
-            space:
-                "r" for real space vectors, "g" for reciprocal space basis
+            space: "r" for real space vectors, "g" for reciprocal space basis
                 vectors.
         """
         if space.lower() == "r":
@@ -469,13 +468,9 @@ class IStructure(SiteCollection, MSONable):
         atom and the specified jimage atom.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
-            jimage:
-                Number of lattice translations in each lattice direction.
-
+            i (int): Index of first site
+            j (int): Index of second site
+            jimage: Number of lattice translations in each lattice direction.
                 Default is None for nearest image.
 
         Returns:
@@ -501,12 +496,9 @@ class IStructure(SiteCollection, MSONable):
         2. keep points falling within r.
 
         Args:
-            pt:
-                cartesian coordinates of center of sphere.
-            r:
-                radius of sphere.
-            include_index:
-                boolean that determines whether the non-supercell site index
+            pt (3x1 array): cartesian coordinates of center of sphere.
+            r (float): Radius of sphere.
+            include_index (bool): Whether the non-supercell site index
                 is included in the returned data
 
         Returns:
@@ -969,8 +961,8 @@ class IStructure(SiteCollection, MSONable):
             frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
-       Returns:
-           one-dimensional `numpy` array.
+        Returns:
+            one-dimensional `numpy` array.
         """
         lattice = {"r": self.lattice,
                    "g": self.reciprocal_lattice}[space.lower()]
@@ -983,7 +975,7 @@ class IStructure(SiteCollection, MSONable):
         Args:
             coords (3x1 array): Array-like object with the coordinates.
             space (str): "r" for real space, "g" for reciprocal space.
-            frac_coords (bool) Whether the vector corresponds to fractional or
+            frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
         Returns:
