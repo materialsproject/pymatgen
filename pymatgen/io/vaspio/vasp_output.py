@@ -54,6 +54,33 @@ class Vasprun(object):
     differ depending on whether the read_electronic_structure option is set to
     True.
 
+    Args:
+        filename (str): Filename to parse
+        ionic_step_skip (int): If ionic_step_skip is a number > 1,
+            only every ionic_step_skip ionic steps will be read for
+            structure and energies. This is very useful if you are parsing
+            very large vasprun.xml files and you are not interested in every
+            single ionic step. Note that the final energies may not be the
+            actual final energy in the vasprun.
+        ionic_step_offset (int): Used together with ionic_step_skip. If set,
+            the first ionic step read will be offset by the amount of
+            ionic_step_offset. For example, if you want to start reading
+            every 10th structure but only from the 3rd structure onwards,
+            set ionic_step_skip to 10 and ionic_step_offset to 3. Main use
+            case is when doing statistical structure analysis with
+            extremely long time scale multiple VASP calculations of
+            varying numbers of steps.
+        parse_dos (bool): Whether to parse the dos. Defaults to True. Set
+            to False to shave off significant time from the parsing if you
+            are not interested in getting those data.
+        parse_eigen (bool): Whether to parse the eigenvalues. Defaults to
+            True. Set to False to shave off significant time from the
+            parsing if you are not interested in getting those data.
+        parse_projected_eigen (bool): Whether to parse the projected
+            eigenvalues. Defaults to False. Set to True to obtain projected
+            eigenvalues. **Note that this can take an extreme amount of time
+            and memory.** So use this wisely.
+
     **Vasp results**
 
     .. attribute:: ionic_steps
@@ -163,40 +190,6 @@ class Vasprun(object):
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
                  parse_eigen=True, parse_projected_eigen=False):
-        """
-        Args:
-            filename:
-                Filename to parse
-            ionic_step_skip:
-                If ionic_step_skip is a number > 1, only every ionic_step_skip
-                ionic steps will be read for structure and energies. This is
-                very useful if you are parsing very large vasprun.xml files and
-                you are not interested in every single ionic step. Note that
-                the final energies and structure may not be the actual final
-                energy in the vasprun.
-            ionic_step_offset:
-                Used together with ionic_step_skip. If > 0, the first
-                ionic step read will be offset by the amount of
-                ionic_step_offset. For example, if you want to start reading
-                every 10th structure but only from the 3rd structure onwards,
-                set ionic_step_skip to 10 and ionic_step_offset to 3. Main use
-                case is when doing statistical structure analysis with
-                extremely long time scale multiple VASP calculations of
-                varying numbers of steps.
-            parse_dos:
-                Whether to parse the dos. Defaults to True. Set
-                to False to shave off significant time from the parsing if you
-                are not interested in getting those data.
-            parse_eigen:
-                Whether to parse the eigenvalues. Defaults to True. Set
-                to False to shave off significant time from the parsing if you
-                are not interested in getting those data.
-            parse_projected_eigen:
-                Whether to parse the projected eigenvalues. Defaults to False.
-                Set to True to obtain projected eigenvalues. **Note that this
-                can take an extreme amount of time and memory.** So use this
-                wisely.
-        """
         self.filename = filename
         self.ionic_step_skip = ionic_step_skip
 
@@ -317,22 +310,17 @@ class Vasprun(object):
         Returns the band structure as a BandStructure object
 
         Args:
-            kpoints_filename:
-                Full path of the KPOINTS file from which the band structure is
-                generated.
+            kpoints_filename (str): Full path of the KPOINTS file from which
+                the band structure is generated.
                 If none is provided, the code will try to intelligently
                 determine the appropriate KPOINTS file by substituting the
                 filename of the vasprun.xml with KPOINTS.
                 The latter is the default behavior.
-
-            efermi:
-                If you want to specify manually the fermi energy this is where
-                you should do it. By default, the None value means the code
-                will get it from the vasprun.
-
-            line_mode:
-                force the band structure to be considered as a run along
-                symmetry lines
+            efermi (float): If you want to specify manually the fermi energy
+                this is where you should do it. By default, the None value
+                means the code will get it from the vasprun.
+            line_mode (bool): Force the band structure to be considered as
+                a run along symmetry lines.
 
         Returns:
             a BandStructure object (or more specifically a
@@ -1019,8 +1007,8 @@ def parse_parameters(val_type, val):
     Boolean, int and float types are converted.
 
     Args:
-        val_type : Value type parsed from vasprun.xml.
-        val : Actual string value parsed for vasprun.xml.
+        val_type: Value type parsed from vasprun.xml.
+        val: Actual string value parsed for vasprun.xml.
     """
     if val_type == "logical":
         return val == "T"
@@ -1038,16 +1026,13 @@ def parse_v_parameters(val_type, val, filename, param_name):
     type. Boolean, int and float types are converted.
 
     Args:
-        val_type:
-            Value type parsed from vasprun.xml.
-        val:
-            Actual string value parsed for vasprun.xml.
-        filename:
-            Fullpath of vasprun.xml. Used for robust error handling.  E.g.,
-            if vasprun.xml contains \*\*\* for some Incar parameters, the code
-            will try to read from an INCAR file present in the same directory.
-        param_name:
-            Name of parameter.
+        val_type: Value type parsed from vasprun.xml.
+        val: Actual string value parsed for vasprun.xml.
+        filename: Fullpath of vasprun.xml. Used for robust error handling.
+            E.g., if vasprun.xml contains \*\*\* for some Incar parameters,
+            the code will try to read from an INCAR file present in the same
+            directory.
+        param_name: Name of parameter.
 
     Returns:
         Parsed value.
@@ -1103,6 +1088,9 @@ class Outcar(object):
 
     Creating the OUTCAR class with a filename reads "regular parameters" that
     are always present.
+
+    Args:
+        filename (str): OUTCAR filename to parse.
 
     .. attribute:: magnetization
 
@@ -1511,14 +1499,11 @@ class VolumetricData(object):
         summation and other operations between VolumetricData objects.
 
         Args:
-            structure:
-                Structure associated with the volumetric data
-            data:
-                Actual volumetric data.
-            distance_matrix:
-                A pre-computed distance matrix if available. Useful so pass
-                distance_matrices between sums, shortcircuiting an otherwise
-                expensive operation.
+            structure: Structure associated with the volumetric data
+            data: Actual volumetric data.
+            distance_matrix: A pre-computed distance matrix if available.
+                Useful so pass distance_matrices between sums,
+                shortcircuiting an otherwise expensive operation.
         """
         self.structure = structure
         self.is_spin_polarized = len(data) == 2
@@ -1551,8 +1536,7 @@ class VolumetricData(object):
         Returns the grid for a particular axis.
 
         Args:
-            ind:
-                Axis index.
+            ind (int): Axis index.
         """
         ng = self.dim
         num_pts = ng[ind]
@@ -1572,10 +1556,8 @@ class VolumetricData(object):
         linear sum.
 
         Args:
-            other:
-                Another VolumetricData object
-            scale_factor:
-                Factor to scale the other data by.
+            other (VolumetricData): Another VolumetricData object
+            scale_factor (float): Factor to scale the other data by.
 
         Returns:
             VolumetricData corresponding to self + scale_factor * other.
@@ -1597,8 +1579,7 @@ class VolumetricData(object):
         like format. Used by subclasses for parsing file.
 
         Args:
-            filename:
-                Path of file to parse
+            filename (str): Path of file to parse
 
         Returns:
             (poscar, data)
@@ -1658,10 +1639,8 @@ class VolumetricData(object):
         Write the VolumetricData object to a vasp compatible file.
 
         Args:
-            file_name:
-                the path to a file
-            vasp4_compatible:
-                True if the format is vasp4 compatible
+            file_name (str): Path to a file
+            vasp4_compatible (bool): True if the format is vasp4 compatible
         """
 
         f = zopen(file_name, "w")
@@ -1698,14 +1677,11 @@ class VolumetricData(object):
         grid points are in the VolumetricData.
 
         Args:
-            ind:
-                Index of atom.
-            radius:
-                Radius of integration.
-            nbins:
-                Number of bins. Defaults to 1. This allows one to obtain the
-                charge integration up to a list of the cumulative charge
-                integration values for radii for [radius/nbins,
+            ind (int): Index of atom.
+            radius (float): Radius of integration.
+            nbins (int): Number of bins. Defaults to 1. This allows one to
+                obtain the charge integration up to a list of the cumulative
+                charge integration values for radii for [radius/nbins,
                 2 * radius/nbins, ....].
 
         Returns:
@@ -1758,7 +1734,7 @@ class VolumetricData(object):
         file.
 
         Args:
-            ind : Index of axis.
+            ind (int): Index of axis.
 
         Returns:
             Average total along axis
@@ -1777,16 +1753,13 @@ class VolumetricData(object):
 class Locpot(VolumetricData):
     """
     Simple object for reading a LOCPOT file.
+
+    Args:
+        poscar (Poscar): Poscar object containing structure.
+        data: Actual data.
     """
 
     def __init__(self, poscar, data):
-        """
-        Args:
-            poscar:
-                Poscar object containing structure.
-            data:
-                Actual data.
-        """
         VolumetricData.__init__(self, poscar.structure, data)
         self.name = poscar.comment
 
@@ -1799,16 +1772,13 @@ class Locpot(VolumetricData):
 class Chgcar(VolumetricData):
     """
     Simple object for reading a CHGCAR file.
+
+    Args:
+        poscar (Poscar): Poscar object containing structure.
+        data: Actual data.
     """
 
     def __init__(self, poscar, data):
-        """
-        Args:
-            poscar:
-                Poscar object containing structure.
-            data:
-                Actual data.
-        """
         VolumetricData.__init__(self, poscar.structure, data)
         self.poscar = poscar
         self.name = poscar.comment
@@ -1823,6 +1793,9 @@ class Chgcar(VolumetricData):
 class Procar(object):
     """
     Object for reading a PROCAR file.
+
+    Args:
+        filename: Name of file containing PROCAR.
 
     .. attribute:: data
 
@@ -1848,11 +1821,6 @@ class Procar(object):
             }
     """
     def __init__(self, filename):
-        """
-        Args:
-            filename:
-                Name of file containing PROCAR.
-        """
         data = defaultdict(dict)
         headers = None
         with zopen(filename, "r") as f:
@@ -1900,11 +1868,10 @@ class Procar(object):
         Returns the d occupation of a particular atom.
 
         Args:
-            atom_index:
-                Index of atom in PROCAR. It should be noted that VASP uses
-                1-based indexing for atoms, but this is converted to
-                zero-based indexing in this parser to be consistent with
-                representation of structures in pymatgen.
+            atom_index (int): Index of atom in PROCAR. It should be noted
+                that VASP uses 1-based indexing for atoms, but this is
+                converted to 0-based indexing in this parser to be
+                consistent with representation of structures in pymatgen.
 
         Returns:
             d-occupation of atom at atom_index.
@@ -1918,17 +1885,15 @@ class Procar(object):
         Returns the occupation for a particular orbital of a particular atom.
 
         Args:
-            atom_num:
-                Index of atom in the PROCAR. It should be noted that VASP uses
-                1-based indexing for atoms, but this is converted to
-                zero-based indexing in this parser to be consistent with
-                representation of structures in pymatgen.
-            orbital:
-                A string representing an orbital. If it is a single
-                character, e.g., s, p, d or f, the sum of all s-type,
-                p-type, d-type or f-type orbitals occupations are returned
-                respectively. If it is a specific orbital, e.g., px, dxy,
-                etc., only the occupation of that orbital is returned.
+            atom_num (int): Index of atom in the PROCAR. It should be noted
+                that VASP uses 1-based indexing for atoms, but this is
+                converted to 0-based indexing in this parser to be
+                consistent with representation of structures in pymatgen.
+            orbital (str): An orbital. If it is a single character, e.g., s,
+                p, d or f, the sum of all s-type, p-type, d-type or f-type
+                orbitals occupations are returned respectively. If it is a
+                specific orbital, e.g., px, dxy, etc., only the occupation
+                of that orbital is returned.
 
         Returns:
             Sum occupation of orbital of atom.
@@ -1954,6 +1919,9 @@ class Oszicar(object):
     recommend that you use the Vasprun parser instead, which gives far richer
     information about a run.
 
+    Args:
+        filename (str): Filename of file to parse
+
     .. attribute:: electronic_steps
 
             All electronic steps as a list of list of dict. e.g.,
@@ -1974,11 +1942,6 @@ class Oszicar(object):
     """
 
     def __init__(self, filename):
-        """
-        Args:
-            filename:
-                Filename of file to parse
-        """
         electronic_steps = []
         ionic_steps = []
         ionic_pattern = re.compile("(\d+)\s+F=\s*([\d\-\.E\+]+)\s+"
@@ -2059,7 +2022,7 @@ class VaspParserError(Exception):
 def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
                                                    projections=False):
     """
-    this method is used to get band structure info from a VASP directory. It
+    This method is used to get band structure info from a VASP directory. It
     takes into account that the run can be divided in several branches named
     "branch_x". If the run has not been divided in branches the method will
     turn to parsing vasprun.xml directly.
@@ -2067,13 +2030,10 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None,
     The method returns None is there"s a parsing error
 
     Args:
-        dir_name:
-            Directory containing all bandstructure runs.
-        efermi:
-            Efermi for bandstructure.
-        projections:
-            True if you want to get the data on site projections if any
-            Note that this is sometimes very large
+        dir_name: Directory containing all bandstructure runs.
+        efermi: Efermi for bandstructure.
+        projections: True if you want to get the data on site projections if
+            any. Note that this is sometimes very large
 
     Returns:
         A BandStructure Object
@@ -2127,12 +2087,9 @@ def get_adjusted_fermi_level(efermi, cbm, band_structure):
     level. This procedure has shown to detect correctly most insulators.
 
     Args:
-        cbm:
-            the cbm of the static run
-        efermi:
-            the fermi energy of the static run
-        run_bandstructure:
-            a band_structure object
+        efermi (float): Fermi energy of the static run
+        cbm (float): Conduction band minimum of the static run
+        run_bandstructure: a band_structure object
 
     Returns:
         a new adjusted fermi level
