@@ -213,12 +213,9 @@ class SymmetryFinder(object):
                 "translations",
                 "wyckoffs",
                 "equivalent_atoms")
-        dataset = {}
-        for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
-                                               self._positions, self._numbers,
-                                               self._symprec,
-                                               self._angle_tol)):
-            dataset[key] = data
+        dataset = dict(zip(keys, spg.dataset(
+            self._transposed_latt.copy(), self._positions, self._numbers,
+            self._symprec, self._angle_tol)))
         dataset["international"] = dataset["international"].strip()
         dataset["hall"] = dataset["hall"].strip()
         dataset["transformation_matrix"] = \
