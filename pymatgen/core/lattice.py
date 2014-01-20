@@ -503,8 +503,8 @@ class Lattice(MSONable):
         possible, with "good" defined by orthongonality of the lattice vectors.
 
         Args:
-            delta:
-                Reduction parameter. Default of 0.75 is usually fine.
+            delta (float): Reduction parameter. Default of 0.75 is usually
+                fine.
 
         Returns:
             Reduced lattice.
@@ -577,9 +577,8 @@ class Lattice(MSONable):
         60(1), 1-6. doi:10.1107/S010876730302186X
 
         Args:
-            tol:
-                The numerical tolerance. The default of 1e-5 should result in
-                stable behavior for most cases.
+            tol (float): The numerical tolerance. The default of 1e-5 should
+                result in stable behavior for most cases.
 
         Returns:
             Niggli-reduced lattice.
@@ -758,11 +757,9 @@ class Lattice(MSONable):
         Compute the scalar product of vector(s).
 
         Args:
-            coords_a, coords_b:
-                Array-like objects with the coordinates.
-            frac_coords:
-                Boolean stating whether the vector corresponds to fractional or
-                cartesian coordinates.
+            coords_a, coords_b: Array-like objects with the coordinates.
+            frac_coords (bool): Boolean stating whether the vector
+                corresponds to fractional or cartesian coordinates.
 
         Returns:
             one-dimensional `numpy` array.
