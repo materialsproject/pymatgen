@@ -583,13 +583,14 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     Supports the same kwargs as :class:`DictVaspInputSet`.
 
     Args:
-        kpoints_density: kpoints density for the reciprocal cell of
-            structure. Might need to increase the default value when
-            calculating metallic materials.
-        sym_prec (float): Tolerance for symmetry finding
+        kpoints_density (int):
+            kpoints density for the reciprocal cell of structure. Might need to
+            increase the default value when calculating metallic materials.
+        sym_prec (float):
+            Tolerance for symmetry finding
     """
 
-    def __init__(self, kpoints_density=90, sym_prec=0.01, *args, **kwargs):
+    def __init__(self, kpoints_density=90, sym_prec=0.01, **kwargs):
         with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static", json.load(f), **kwargs)
@@ -604,6 +605,10 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         """
         Get a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
+
+        Args:
+            structure (Structure/IStructure):
+                structure to get kpoints
         """
         self.kpoints_settings['grid_density'] = \
             self.kpoints_settings["kpoints_density"] * \
@@ -612,6 +617,14 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         return super(MPStaticVaspInputSet, self).get_kpoints(structure)
 
     def get_poscar(self, structure):
+        """
+        Get a POSCAR file with a primitive standardized cell of
+        the giving structure.
+
+        Args:
+            structure (Structure/IStructure):
+                structure to get POSCAR
+        """
         sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
         return Poscar(sym_finder.get_primitive_standard_structure())
 
@@ -626,14 +639,16 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 from previous run.
             outcar (Outcar): Outcar that contains the magnetization info from
                 previous run.
-            initial_structure (bool): Whether to return the structure from
-                previous run. Default is False.
-            additional_info (bool): Whether to return additional symmetry
-                info related to the structure. If True, return a list of the
-                refined structure (conventional cell), the conventional
-                standard structure, the symmetry dataset and symmetry
-                operations of the structure (see SymmetryFinder doc for
-                details).
+            initial_structure (bool):
+                Whether to return the structure from previous run.
+                Default is False.
+            additional_info (bool):
+                Whether to return additional symmetry info related to the structure.
+                If True, return a list of the refined structure (conventional cell),
+                the conventional standard structure, the symmetry dataset and symmetry
+                operations of the structure (see SymmetryFinder doc for details).
+            sym_prec (float):
+                Tolerance for symmetry finding
 
         Returns:
             Returns the magmom-decorated structure that can be passed to get
@@ -674,12 +689,20 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         directory of previous Vasp run.
 
         Args:
-            previous_vasp_dir (str): Directory containing the outputs(vasprun
-                .xml and OUTCAR) ofprevious vasp run.
-            output_dir (str): Directory to write the VASP input files for
-                the static calculations. Defaults to current directory.
-            make_dir_if_not_present (bool): Set to True if you want the
-            directory (and the whole path) to be created if it is not present.
+            previous_vasp_dir (str):
+                Directory containing the outputs(vasprun.xml and OUTCAR)
+                of previous vasp run.
+            output_dir (str):
+                Directory to write the VASP input files for the static calculations.
+                Defaults to current directory.
+            make_dir_if_not_present (bool):
+                Set to True if you want the directory (and the whole path)
+                to be created if it is not present.
+            kpoints_density (int):
+                kpoints density for the reciprocal cell of structure.
+                Might need to increase the default value when calculating metallic materials.
+            sym_prec (float):
+                Tolerance for symmetry finding
         """
         # Read input and output from previous run
         try:
@@ -793,6 +816,16 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             mode:
                 Line: Generate k-points along symmetry lines for bandstructure
                 Uniform: Generate uniform k-points grids for DOS
+            constrain_total_magmom (bool):
+                Whether to constrain the total magmom (NUPDOWN in INCAR) to be
+                the sum of the expected MAGMOM for all species. Defaults to False.
+            kpoints_density (int):
+                kpoints density for the reciprocal cell of structure.
+                Might need to increase the default value when calculating metallic materials.
+            sort_structure (bool):
+                Whether to sort structure. Defaults to False.
+            sym_prec (float):
+                Tolerance for symmetry finding
         """
         self.mode = mode
         self.sym_prec= sym_prec
@@ -825,11 +858,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         Gamma-centered mesh grid. Kpoints are written explicitly in both cases.
 
         Args:
-            kpoints_density:
-                kpoints density for the reciprocal cell of structure.
-                Suggest to use a large kpoints_density.
-                Might need to increase the default value when calculating
-                metallic materials.
+            structure (Structure/IStructure):
+                structure to get POSCAR
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
@@ -861,6 +891,13 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     def get_incar_settings(vasp_run, outcar=None):
         """
         Helper method to get necessary user_incar_settings from previous run.
+
+            Args:
+                vasp_run (Vasprun):
+                    Vasprun that contains the final structure from previous run.
+                outcar (Outcar):
+                    Outcar that contains the magnetization info from previous run.
+
         """
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
@@ -892,15 +929,22 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         directory of previous static Vasp run.
 
         Args:
-            previous_vasp_dir:
+            previous_vasp_dir (str):
                 The directory contains the outputs(vasprun.xml and OUTCAR) of
                 previous vasp run.
-            output_dir:
+            output_dir (str):
                 The directory to write the VASP input files for the NonSCF
                 calculations. Default to write in the current directory.
-            copy_chgcar:
+            mode (str):
+                Line: Generate k-points along symmetry lines for bandstructure
+                Uniform: Generate uniform k-points grids for DOS
+            user_incar_settings (dict):
+                A dict specify customized settings for INCAR.
+                Must contain a NBANDS value, suggest to use
+                1.2*(NBANDS from static run).
+            copy_chgcar (bool):
                 Default to copy CHGCAR from SC run
-            make_dir_if_not_present:
+            make_dir_if_not_present (bool):
                 Set to True if you want the directory (and the whole path) to
                 be created if it is not present.
         """
