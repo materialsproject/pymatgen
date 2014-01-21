@@ -592,6 +592,8 @@ class FeffTags(dict):
     @property
     def to_dict(self):
         """
+        Dict representation.
+
         Returns:
             Dictionary of parameters from fefftags object
         """
@@ -624,11 +626,9 @@ class FeffTags(dict):
         for pretty printing.
 
         Args:
-            sort_keys:
-                Set to True to sort the Feff parameters alphabetically.
+            sort_keys: Set to True to sort the Feff parameters alphabetically.
                 Defaults to False.
-            pretty:
-                Set to True for pretty aligned output, False for no.
+            pretty: Set to True for pretty aligned output, False for no.
 
         Returns:
             String representation of FeffTags.
@@ -656,8 +656,7 @@ class FeffTags(dict):
         Write FeffTags to a Feff parameter tag file.
 
         Args:
-            filename:
-                filename and path to write to.
+            filename: filename and path to write to.
         """
         with open(filename, "w") as f:
             f.write(self.__str__() + "\n")
@@ -995,15 +994,14 @@ class FeffPot(MSONable):
 class FeffLdos(MSONable):
     """
     Parser for ldos files ldos01, ldos02, .....
-    """
 
+    Args:
+        complete_dos: complete_dos dictionary as defined in pymatgen.dos
+            .CompleteDos
+        charge_transfer: computed charge transfer between atoms dictionary
+    """
     def __init__(self, complete_dos, charge_transfer):
-        """
-        Args:
-            complete_dos: complete_dos dictionary as defined in pymatgen.dos
-                .CompleteDos
-            charge_transfer: computed charge transfer between atoms dictionary
-        """
+
         self._complete_dos = complete_dos
         self._cht = charge_transfer
 

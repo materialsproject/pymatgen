@@ -175,14 +175,13 @@ class FeffInputSet(AbstractFeffInputSet):
     """
     Standard implementation of FeffInputSet, which can be extended by specific
     implementations.
+
+    Args:
+        name: The name of a grouping of input parameter sets such as
+            "MaterialsProject".
     """
 
     def __init__(self, name):
-        """
-        Args:
-            name: The name of a grouping of input parameter sets such as
-                "MaterialsProject".
-        """
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()

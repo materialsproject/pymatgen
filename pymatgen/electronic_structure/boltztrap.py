@@ -53,7 +53,19 @@ except ImportError:
 
 class BoltztrapRunner():
     """
-    This class is used to run Boltztrap on a band structure object
+    This class is used to run Boltztrap on a band structure object.
+
+    Args:
+        bs: A band structure object
+        nelec: The number of electrons
+        dos_type: Two options here for the band structure integration: "HISTO"
+            (histogram) or "TETRA" using the tetrahedon method. TETRA
+            gives typically better results especially for DOSes but takes
+            more time
+        energy_grid: The energy steps used for the integration. in eV
+        lpfac: The number of interpolation points in the real space. By
+            default 10 gives 10 time more points in the real space than
+            the number of kpoints given in reciprocal space
     """
 
     @requires(which('x_trans'),
@@ -65,24 +77,6 @@ class BoltztrapRunner():
 
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
                  lpfac=10):
-        """
-        Args:
-            bs:
-                A band structure object
-            nelec:
-                the number of electrons
-            dos_type:
-                two options here for the band structure integration: "HISTO"
-                (histogram) or "TETRA" using the tetrahedon method. TETRA
-                gives typically better results especially for DOSes but takes
-                more time
-            energy_grid:
-                the energy steps used for the integration. in eV
-            lpfac:
-                the number of interpolation points in the real space. By
-                default 10 gives 10 time more points in the real space than
-                the number of kpoints given in reciprocal space
-        """
         self.lpfac = lpfac
         self._bs = bs
         self._nelec = nelec
@@ -347,7 +341,7 @@ class BoltztrapError(Exception):
 
 class BoltztrapAnalyzer():
     """
-    class used to store all the data from a boltztrap run
+    Class used to store all the data from a boltztrap run
     """
 
     def __init__(self, gap, mu_steps, cond, seebeck, kappa, hall, doping,
@@ -359,62 +353,51 @@ class BoltztrapAnalyzer():
         from_dict methods.
 
         Args:
-            gap:
-                The gap after interpolation in eV
-            mu_steps:
-                The steps of electron chemical potential (or Fermi level) in
-                 eV.
-            cond:
-                The electronic conductivity tensor divided by a constant
+            gap: The gap after interpolation in eV
+            mu_steps: The steps of electron chemical potential (or Fermi
+                level) in eV.
+            cond: The electronic conductivity tensor divided by a constant
                 relaxation time (sigma/tau) at different temperature and
                 fermi levels.
                 The format is {temperature: [array of 3x3 tensors at each
                 fermi level in mu_steps]}. The units are 1/(Ohm*m*s).
-            seebeck:
-                The Seebeck tensor at different temperatures and fermi levels
-                The format is {temperature: [array of 3x3 tensors at each
-                fermi level in mu_steps]}. The units are V/K
-            kappa:
-                The electronic thermal conductivity tensor divided by a
+            seebeck: The Seebeck tensor at different temperatures and fermi
+                levels. The format is {temperature: [array of 3x3 tensors at
+                each fermi level in mu_steps]}. The units are V/K
+            kappa: The electronic thermal conductivity tensor divided by a
                 constant relaxation time (kappa/tau) at different temperature
                 and fermi levels. The format is {temperature: [array of 3x3
                 tensors at each fermi level in mu_steps]}
                 The units are W/(m*K*s)
-            hall:
-                The hall tensor at different temperature and fermi levels
+            hall: The hall tensor at different temperature and fermi levels
                 The format is {temperature: [array of 27 coefficients list at
                 each fermi level in mu_steps]}
                 The units are m^3/C
-            doping:
-                The different doping levels that have been given to Boltztrap
-                The format is {'p':[],'n':[]} with an array of doping levels
-                The units are cm^-3
-            mu_doping:
-                Gives the electron chemical potential (or Fermi level) for a
-                given set of doping.
+            doping: The different doping levels that have been given to
+                Boltztrap. The format is {'p':[],'n':[]} with an array of
+                doping levels. The units are cm^-3
+            mu_doping: Gives the electron chemical potential (or Fermi level)
+                for a given set of doping.
                 Format is {'p':{temperature: [fermi levels],'n':{temperature:
                 [fermi levels]}}
                 the fermi level array is ordered according to the doping
                 levels in doping units for doping are in cm^-3 and for Fermi
                 level in eV
-            seebeck_doping:
-                The Seebeck tensor at different temperatures and doping levels
-                The format is {'p': {temperature: [Seebeck tensors]},
-                'n':{temperature: [Seebeck tensors]}}
+            seebeck_doping: The Seebeck tensor at different temperatures and
+                doping levels. The format is {'p': {temperature: [Seebeck
+                tensors]}, 'n':{temperature: [Seebeck tensors]}}
                 The [Seebeck tensors] array is ordered according to the
                 doping levels in doping units for doping are in cm^-3 and for
                 Seebeck in V/K
-            cond_doping:
-                The electronic conductivity tensor divided by a constant
-                relaxation time (sigma/tau) at different temperatures and
-                doping levels
+            cond_doping: The electronic conductivity tensor divided by a
+                constant relaxation time (sigma/tau) at different
+                temperatures and doping levels
                 The format is {'p':{temperature: [conductivity tensors]},
                 'n':{temperature: [conductivity tensors]}}
                 The [conductivity tensors] array is ordered according to the
                 doping levels in doping units for doping are in cm^-3 and for
                 conductivity in 1/(Ohm*m*s)
-            kappa_doping:
-                The thermal conductivity tensor divided by a constant
+            kappa_doping: The thermal conductivity tensor divided by a constant
                 relaxation time (kappa/tau) at different temperatures and
                 doping levels.
                 The format is {'p':{temperature: [thermal conductivity
@@ -422,28 +405,22 @@ class BoltztrapAnalyzer():
                 The [thermal conductivity tensors] array is ordered according
                 to the doping levels in doping units for doping are in cm^-3
                 and for thermal conductivity in W/(m*K*s)
-            hall_doping:
-                The Hall tensor at different temperatures and doping levels
+            hall_doping: The Hall tensor at different temperatures and doping
+                levels.
                 The format is {'p':{temperature: [Hall tensors]},
                 'n':{temperature: [Hall tensors]}}
                 The [Hall tensors] array is ordered according to the doping
                 levels in doping and each Hall tensor is represented by a 27
                 coefficients list.
                 The units are m^3/C
-            carrier_conc:
-                the concentration of carriers:
-                in electron (or hole) per unit cell
-            dos:
-                The dos computed by Boltztrap
-                given as a pymatgen Dos object
-            dos_partial:
-                data for the partial DOS projected on sites and orbitals
-            vol:
-                the volume of the unit cell in angstrom cube (A^3)
-            warning:
-                True if Boltztrap spitted out a warning
+            carrier_conc: The concentration of carriers in electron (or hole)
+                per unit cell
+            dos: The dos computed by Boltztrap given as a pymatgen Dos object
+            dos_partial: Data for the partial DOS projected on sites and
+                orbitals
+            vol: Volume of the unit cell in angstrom cube (A^3)
+            warning: True if Boltztrap spitted out a warning
         """
-
         self.gap = gap
         self.mu_steps = mu_steps
         self.cond = cond
@@ -589,13 +566,11 @@ class BoltztrapAnalyzer():
         -multiple bands
 
         Args:
-            temperature:
-                the temperature in K
-            doping:
-                the doping in cm^-3
+            temperature: The temperature in K
+            doping: The doping in cm^-3
 
         Returns:
-            a dictionnary {'p':[[]],'n':[[]]}
+            a dictionary {'p':[[]],'n':[[]]}
             The arrays are 3x3 and represent the effective mass tensor
             The 'p' links to hole effective mass tensor and 'n' to electron
             effective mass tensor.
@@ -623,10 +598,8 @@ class BoltztrapAnalyzer():
         -multiple bands
 
         Args:
-            temperature:
-                the temperature in K
-            doping:
-                the doping in cm^-3
+            temperature: The temperature in K
+            doping: The doping in cm^-3
 
         Returns:
             a dictionnary {'p':[],'n':[]}
@@ -644,6 +617,7 @@ class BoltztrapAnalyzer():
     def get_seebeck_eig(self):
         """
         Gives the three eigenvalues of the seebeck tensor at different doping levels
+
         Returns:
             a dictionnary {'p':[],'n':[]}
             The list contains the sorted three eigenvalues of the symmetric
@@ -666,8 +640,7 @@ class BoltztrapAnalyzer():
         get a BoltztrapAnalyzer object from a set of files
 
         Args:
-            path_dir:
-                directory where the boltztrap files are
+            path_dir: directory where the boltztrap files are
 
         Returns:
             a BoltztrapAnalyzer object
@@ -845,15 +818,13 @@ class BoltztrapAnalyzer():
 
 class BoltztrapPlotter():
     """
-    class containing methods to plot the data from Boltztrap
+    class containing methods to plot the data from Boltztrap.
+
+    Args:
+        bz: a BoltztrapAnalyzer object
     """
 
     def __init__(self, bz):
-        """
-        Args:
-            bz:
-                a BoltztrapAnalyzer object
-        """
         self._bz = bz
 
     def _plot_doping(self, temp):
@@ -920,13 +891,12 @@ class BoltztrapPlotter():
         Plot the conductivity in function of Fermi level. Semi-log plot
 
         Args:
-            temp:
-                the temperature
-            xlim:
-                a list of min and max fermi energy by default (0, and band gap)
-            tau:
-                a relaxation time in s. By default none and the plot is by units
-                of relaxation time
+            temp: the temperature
+            xlim: a list of min and max fermi energy by default (0, and band
+                gap)
+            tau: A relaxation time in s. By default none and the plot is by
+               units of relaxation time
+
         Returns:
             a matplotlib object
         """
@@ -963,9 +933,10 @@ class BoltztrapPlotter():
     def plot_dos(self, sigma=0.05):
         """
         plot dos
+
         Args:
-            sigma:
-                a smearing
+            sigma: a smearing
+
         Returns:
             a matplotlib object
         """
@@ -976,9 +947,10 @@ class BoltztrapPlotter():
     def plot_carriers(self, temp=300):
         """
         Plot the carrier concentration in function of Fermi level
+
         Args:
-            temp:
-                the temperature
+            temp: the temperature
+
         Returns:
             a matplotlib object
         """
