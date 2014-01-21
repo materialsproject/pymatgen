@@ -1074,7 +1074,7 @@ class Kpoints(MSONable):
     @classmethod
     def from_dict(cls, d):
         comment = d.get("comment", "")
-        generation_style = d.get("generation_style")
+        generation_style = d.get()
         kpts = d.get("kpoints", [[1, 1, 1]])
         kpts_shift = d.get("usershift", [0, 0, 0])
         num_kpts = d.get("nkpoints", 0)

@@ -165,9 +165,9 @@ class Vasprun(object):
                 If ionic_step_skip is a number > 1, only every ionic_step_skip
                 ionic steps will be read for structure and energies. This is
                 very useful if you are parsing very large vasprun.xml files and
-                you are not interested in every single ionic step. Note that
+                you are not interested in every single ionic step. Note tha
                 the initial and final structure of all runs will always be
-                read, regardless of the ionic_step_skip.
+                read, regardless of the ionic_step_skip.t
             parse_dos:
                 Whether to parse the dos. Defaults to True. Set
                 to False to shave off significant time from the parsing if you

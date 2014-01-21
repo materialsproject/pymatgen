@@ -61,7 +61,7 @@ class Strain(object):
         #TODO: AJ asks can't you just do return self.deformation_matrix == other.deformation_matrix?
         for i, row in enumerate(df):
             for j, item in enumerate(row):
-                if df[i][j] != df2[i][j]:
+                if np.any(df[i][j] !=df2[i][j]):
                     return False
         return True
 
@@ -70,7 +70,7 @@ class Strain(object):
 
     def __hash__(self):
         #for now, just use a sum of elements * row * column^2
-        df = self.deformation_matrix
+        df = self.deformation_matrix.tolist()
         h_sum = 0.0
         for i, row in enumerate(df):
             for j, item in enumerate(row):
@@ -93,7 +93,7 @@ class IndependentStrain(Strain):
         F[matrixpos] = F[matrixpos] + amt
         return IndependentStrain(F)
 
-    def check_F(self, tol=0.00000001):
+    def check_F(self, tol=0.00001):
         df1 = self.deformation_matrix
         counter = 0
         checkmatrix = np.zeros((3,3))
