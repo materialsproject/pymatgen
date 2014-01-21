@@ -65,12 +65,8 @@ class QcTask(MSONable):
             Example: {"scf_algorithm": "diis_gdm", "scf_max_cycles": 100}
         optional_params (dict): The parameter for keywords other than $rem
             section. Dict of key/value pairs.
-            Example: {"basis":
-                      {"Li": "cc-PVTZ", "B": "aug-cc-PVTZ",
-                       "F": "aug-cc-PVTZ"}
-                      "ecp":
-                      {"Cd": "srsc", "Br": "srlc"}
-                     }
+            Example: {"basis": {"Li": "cc-PVTZ", "B": "aug-cc-PVTZ",
+            "F": "aug-cc-PVTZ"} "ecp": {"Cd": "srsc", "Br": "srlc"}}
     """
 
     optional_keywords_list = {"basis", "ecp", "empirical_dispersion",
@@ -299,9 +295,9 @@ class QcTask(MSONable):
         SCF is considered converged when the wavefunction error is less than
         10**(-exponent).
         In QChem, the default values are:
-            5	For single point energy calculations.
-            7	For geometry optimizations and vibrational analysis.
-            8	For SSG calculations
+        5	For single point energy calculations.
+        7	For geometry optimizations and vibrational analysis.
+        8	For SSG calculations
 
         Args:
             exponent: The exponent of the threshold. (Integer)
@@ -312,9 +308,9 @@ class QcTask(MSONable):
         """
         Cutoff for neglect of two electron integrals. 10−THRESH (THRESH ≤ 14).
         In QChem, the default values are:
-            8	For single point energies.
-            10	For optimizations and frequency calculations.
-            14	For coupled-cluster calculations.
+        8	For single point energies.
+        10	For optimizations and frequency calculations.
+        14	For coupled-cluster calculations.
 
         Args:
             thresh: The exponent of the threshold. (Integer)
@@ -384,10 +380,10 @@ class QcTask(MSONable):
         "cartesian"       --- always cartesian coordinates.
         "internal"        --- always internal coordinates.
         "internal-switch" --- try internal coordinates first, if fails, switch
-            to cartesian coordinates.
+        to cartesian coordinates.
         "z-matrix"        --- always z-matrix coordinates.
         "z-matrix-switch" --- try z-matrix first, if fails, switch to
-            cartesian coordinates.
+        cartesian coordinates.
 
         Args:
             coords_type: The type of the coordinates. (str)
