@@ -56,17 +56,23 @@ class BabelMolAdaptor(object):
             obmol = ob.OBMol()
 
             obmol = ob.OBMol()
+            obmol.BeginModify()
             for site in mol:
                 coords = [c for c in site.coords]
                 atomno = site.specie.Z
                 obatom = ob.OBAtom()
+                obatom.thisown = 0
                 obatom.SetAtomicNum(atomno)
                 obatom.SetVector(*coords)
                 obmol.AddAtom(obatom)
+                del obatom
             obmol.ConnectTheDots()
             obmol.PerceiveBondOrders()
             obmol.SetTotalSpinMultiplicity(mol.spin_multiplicity)
             obmol.SetTotalCharge(mol.charge)
+            obmol.Center()
+            obmol.Kekulize()
+            obmol.EndModify()
             self._obmol = obmol
         elif isinstance(mol, ob.OBMol):
 
