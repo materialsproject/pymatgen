@@ -482,9 +482,8 @@ class BandStructure(object):
             A dict {"energy","direct","transition"}:
             - "energy": band gap energy
             - "direct": A boolean telling if the gap is direct (True)
-            or not (False)
+              or not (False)
             - "transition": kpoint labels of the transition (e.g., "\Gamma-X")
-
         """
         if self.is_metal():
             return {"energy": 0.0, "direct": False, "transition": None}
