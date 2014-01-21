@@ -42,15 +42,25 @@ class TransformedStructure(MSONable):
     
     def __init__(self, structure, transformations=None, history=None,
                  other_parameters=None):
+        """
+        Initializes a transformed structure from a structure.
+
+        Args:
+            structure (Structure): Input structure
+            transformations ([Transformations]): List of transformations to
+                apply.
+            history (list): Previous history.
+            other_parameters (dict): Additional parameters to be added.
+        """
         self.final_structure = structure
         self.history = history or []
         self.other_parameters = other_parameters or {}
         self._undone = []
-        
+
         transformations = transformations or []
         for t in transformations:
             self.append_transformation(t)
-            
+
     def undo_last_change(self):
         """
         Undo the last change in the TransformedStructure.
