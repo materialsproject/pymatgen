@@ -23,28 +23,24 @@ class SymmetrizedStructure(Structure):
     where the spacegroup and symmetry operations are defined. This class is
     typically not called but instead is typically obtained by calling
     pymatgen.symmetry.SymmetryFinder.get_symmetrized_structure.
-    
+
+    Args:
+        structure (Structure): Original structure
+        spacegroup (Spacegroup): An input spacegroup from SymmetryFinder.
+        equivalent_positions: Equivalent positions from SymmetryFinder.
+
     .. attribute: equivalent_indices
-        
+
         indices of structure grouped by equivalency
     """
 
     def __init__(self, structure, spacegroup, equivalent_positions):
-        """
-        Args:
-            structure:
-                Original structure
-            spacegroup:
-                An input spacegroup from SymmetryFinder.
-            equivalent_positions:
-                Equivalent positions from SymmetryFinder.
-        """
         Structure.__init__(self, structure.lattice,
                            [site.species_and_occu
                             for site in structure],
                            structure.frac_coords,
                            site_properties=structure.site_properties)
-        
+
         self._spacegroup = spacegroup
         u, inv = np.unique(equivalent_positions, return_inverse = True)
         self.equivalent_indices = [[] for i in xrange(len(u))]
@@ -66,11 +62,10 @@ class SymmetrizedStructure(Structure):
         Finds all symmetrically equivalent sites for a particular site
 
         Args:
-            site:
-                A site in the structure
+            site (PeriodicSite): A site in the structure
 
         Returns:
-            A list of all symmetrically equivalent sites.
+            ([PeriodicSite]): List of all symmetrically equivalent sites.
         """
         for sites in self.equivalent_sites:
             if site in sites:

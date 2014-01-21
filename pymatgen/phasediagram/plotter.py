@@ -27,17 +27,14 @@ from pymatgen.util.coord_utils import in_coord_list
 class PDPlotter(object):
     """
     A plotter class for phase diagrams.
+
+    Args:
+        phasediagram: PhaseDiagram object.
+        show_unstable: Whether unstable phases will be plotted as well as
+            red crosses. Defaults to False.
     """
 
     def __init__(self, phasediagram, show_unstable=False):
-        """
-        Args:
-            phasediagram:
-                A PhaseDiagram object.
-            show_unstable:
-                Whether unstable phases will be plotted as well as red crosses.
-                Defaults to False.
-        """
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
         self.lines = uniquelines(self._pd.facets)
@@ -363,10 +360,9 @@ class PDPlotter(object):
         3-component PDs.
 
         Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges of
+                all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
         """
         self.get_chempot_range_map_plot(elements).show()
@@ -377,10 +373,9 @@ class PDPlotter(object):
         only for 3-component PDs.
 
         Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges of
+                all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
         Returns:
             A matplotlib plot object.
@@ -517,8 +512,7 @@ def uniquelines(q):
     used for converting convex hull facets into line pairs of coordinates.
 
     Args:
-        q:
-            A 2-dim sequence, where each row represents a facet. E.g.,
+        q: A 2-dim sequence, where each row represents a facet. E.g.,
             [[1,2,3],[3,6,7],...]
 
     Returns:
@@ -538,8 +532,7 @@ def triangular_coord(coord):
     prettier phase diagram.
 
     Args:
-        coordinate:
-            coordinate used in the convex hull computation.
+        coordinate: coordinate used in the convex hull computation.
 
     Returns:
         coordinates in a triangular-based coordinate system.
@@ -555,8 +548,7 @@ def tet_coord(coord):
     prettier phase diagram.
 
     Args:
-        coordinate:
-            coordinate used in the convex hull computation.
+        coordinate: coordinate used in the convex hull computation.
 
     Returns:
         coordinates in a tetrahedron-based coordinate system.
@@ -576,15 +568,13 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     corners of the triangle respectively.
 
     Args:
-        lines:
-            list of list of coordinates for lines in the PD.
-        stable_entries:
-            {coordinate : entry} for each stable node in the phase diagram.
-            (Each coordinate can only have one stable phase)
-        unstable_entries:
-            {entry: coordinates} for all unstable nodes in the phase diagram.
-        ordering:
-            Ordering of the phase diagram, given as a list ['Up','Left','Right']
+        lines: list of list of coordinates for lines in the PD.
+        stable_entries: {coordinate : entry} for each stable node in the
+            phase diagram. (Each coordinate can only have one stable phase)
+        unstable_entries: {entry: coordinates} for all unstable nodes in the
+            phase diagram.
+        ordering: Ordering of the phase diagram, given as a list ['Up',
+            'Left','Right']
 
     Returns:
         (newlines, newstable_entries, newunstable_entries):

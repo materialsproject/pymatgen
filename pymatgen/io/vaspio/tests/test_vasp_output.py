@@ -89,11 +89,15 @@ class VasprunTest(unittest.TestCase):
         vasprun_skip = Vasprun(filepath, 3)
         self.assertEqual(vasprun_skip.nionic_steps, 29)
         self.assertEqual(len(vasprun_skip.ionic_steps),
-                         int(len(vasprun.ionic_steps) / 3) + 1)
+                         int(vasprun.nionic_steps / 3) + 1)
         self.assertEqual(len(vasprun_skip.ionic_steps) + 1,
                          len(vasprun_skip.structures))
         self.assertEqual(len(vasprun_skip.ionic_steps),
-                         int(len(vasprun.ionic_steps) / 3) + 1)
+                         int(vasprun.nionic_steps / 3) + 1)
+        #Check that nionic_steps is preserved no matter what.
+        self.assertEqual(vasprun_skip.nionic_steps,
+                         vasprun.nionic_steps)
+
         self.assertNotAlmostEqual(vasprun_skip.final_energy,
                                   vasprun.final_energy)
 
@@ -101,7 +105,7 @@ class VasprunTest(unittest.TestCase):
         vasprun_offset = Vasprun(filepath, 3, 6)
         self.assertEqual(len(vasprun_offset.ionic_steps),
                          int(len(vasprun.ionic_steps) / 3) - 1)
-        self.assertEqual(vasprun_offset.initial_structure,
+        self.assertEqual(vasprun_offset.structures[0],
                          vasprun_skip.structures[2])
 
         self.assertTrue(vasprun_ggau.is_hubbard)
