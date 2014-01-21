@@ -1271,20 +1271,19 @@ class Potcar(list):
 class VaspInput(dict, MSONable):
     """
     Class to contain a set of vasp input objects corresponding to a run.
+
+    Args:
+        incar: Incar object.
+        kpoints: Kpoints object.
+        poscar: Poscar object.
+        potcar: Potcar object.
+        optional_files: Other input files supplied as a dict of {
+            filename: object}. The object should follow standard pymatgen
+            conventions in implementing a to_dict and from_dict method.
     """
 
     def __init__(self, incar, kpoints, poscar, potcar, optional_files=None,
                  **kwargs):
-        """
-        Args:
-            incar: Incar object.
-            kpoints: Kpoints object.
-            poscar: Poscar object.
-            potcar: Potcar object.
-            optional_files: Other input files supplied as a dict of {
-                filename: object}. The object should follow standard pymatgen
-                conventions in implementing a to_dict and from_dict method.
-        """
         super(VaspInput, self).__init__(**kwargs)
         self.update({'INCAR': incar,
                      'KPOINTS': kpoints,

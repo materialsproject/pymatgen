@@ -581,30 +581,28 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     the input set to inherit most of the functions.
 
     Args:
-        kpoints_density (int):
-            kpoints density for the reciprocal cell of structure. Might need to
-            increase the default value when calculating metallic materials.
-        sym_prec (float):
-            Tolerance for symmetry finding
+        kpoints_density (int): kpoints density for the reciprocal cell of
+            structure. Might need to increase the default value when
+            calculating metallic materials.
+        sym_prec (float): Tolerance for symmetry finding
+
     kwargs:
-        hubbard_off (bool):
-            Whether to turn off Hubbard U if it is specified in
+        hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
             config_dict ("MP Static"). Defaults to False, i.e., follow settings in
             config_dict.
-        user_incar_settings (dict):
-            User INCAR settings. This allows a user to override INCAR settings,
-            e.g., setting a different MAGMOM for various elements or species.
-        constrain_total_magmom (bool):
-            Whether to constrain the total magmom (NUPDOWN in INCAR) to be
-            the sum of the expected MAGMOM for all species. Defaults to False.
-        sort_structure (bool):
-            Whether to sort the structure (using the default sort order of
-            electronegativity) before generating input files. Defaults to True,
-            the behavior you would want most of the time. This ensures that
-            similar atomic species are grouped together.
-        ediff_per_atom (bool):
-            Whether the EDIFF is specified on a per atom basis.
-
+        user_incar_settings (dict): User INCAR settings. This allows a user
+            to override INCAR settings, e.g., setting a different MAGMOM for
+            various elements or species.
+        constrain_total_magmom (bool): Whether to constrain the total magmom
+            (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
+            species. Defaults to False.
+        sort_structure (bool): Whether to sort the structure (using the
+            default sort order of electronegativity) before generating input
+            files. Defaults to True, the behavior you would want most of the
+            time. This ensures that similar atomic species are grouped
+            together.
+        ediff_per_atom (bool): Whether the EDIFF is specified on a per atom
+            basis.
     """
 
     def __init__(self, kpoints_density=90, sym_prec=0.01, **kwargs):
@@ -624,8 +622,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
 
         Args:
-            structure (Structure/IStructure):
-                structure to get kpoints
+            structure (Structure/IStructure): structure to get kpoints
         """
         self.kpoints_settings['grid_density'] = \
             self.kpoints_settings["kpoints_density"] * \
@@ -639,8 +636,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         the giving structure.
 
         Args:
-            structure (Structure/IStructure):
-                structure to get POSCAR
+            structure (Structure/IStructure): structure to get POSCAR
         """
         sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
         return Poscar(sym_finder.get_primitive_standard_structure())
@@ -656,16 +652,15 @@ class MPStaticVaspInputSet(DictVaspInputSet):
                 from previous run.
             outcar (Outcar): Outcar that contains the magnetization info from
                 previous run.
-            initial_structure (bool):
-                Whether to return the structure from previous run.
-                Default is False.
+            initial_structure (bool): Whether to return the structure from
+                previous run. Default is False.
             additional_info (bool):
-                Whether to return additional symmetry info related to the structure.
-                If True, return a list of the refined structure (conventional cell),
-                the conventional standard structure, the symmetry dataset and symmetry
-                operations of the structure (see SymmetryFinder doc for details).
-            sym_prec (float):
-                Tolerance for symmetry finding
+                Whether to return additional symmetry info related to the
+                structure. If True, return a list of the refined structure (
+                conventional cell), the conventional standard structure,
+                the symmetry dataset and symmetry operations of the
+                structure (see SymmetryFinder doc for details).
+            sym_prec (float): Tolerance for symmetry finding
 
         Returns:
             Returns the magmom-decorated structure that can be passed to get
@@ -706,20 +701,17 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         directory of previous Vasp run.
 
         Args:
-            previous_vasp_dir (str):
-                Directory containing the outputs(vasprun.xml and OUTCAR)
-                of previous vasp run.
-            output_dir (str):
-                Directory to write the VASP input files for the static calculations.
-                Defaults to current directory.
-            make_dir_if_not_present (bool):
-                Set to True if you want the directory (and the whole path)
-                to be created if it is not present.
-            kpoints_density (int):
-                kpoints density for the reciprocal cell of structure.
-                Might need to increase the default value when calculating metallic materials.
-            sym_prec (float):
-                Tolerance for symmetry finding
+            previous_vasp_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            output_dir (str): Directory to write the VASP input files for
+                the static calculations. Defaults to current directory.
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            sym_prec (float): Tolerance for symmetry finding
         """
         # Read input and output from previous run
         try:
@@ -789,6 +781,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         else:
             new_kpoints.write_file(os.path.join(output_dir, "KPOINTS"))
 
+
 class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     """
     Using MP parameters to compute a static dielectric constant
@@ -826,23 +819,21 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                  kpoints_density=1000, sym_prec=0.01):
         """
         Args:
-            user_incar_settings:
-                A dict specify customized settings for INCAR.
-                Must contain a NBANDS value, suggest to use
+            user_incar_settings (dict): A dict specify customized settings
+                for INCAR. Must contain a NBANDS value, suggest to use
                 1.2*(NBANDS from static run).
-            mode:
-                Line: Generate k-points along symmetry lines for bandstructure
-                Uniform: Generate uniform k-points grids for DOS
-            constrain_total_magmom (bool):
-                Whether to constrain the total magmom (NUPDOWN in INCAR) to be
-                the sum of the expected MAGMOM for all species. Defaults to False.
-            kpoints_density (int):
-                kpoints density for the reciprocal cell of structure.
-                Might need to increase the default value when calculating metallic materials.
-            sort_structure (bool):
-                Whether to sort structure. Defaults to False.
-            sym_prec (float):
-                Tolerance for symmetry finding
+            mode: Line: Generate k-points along symmetry lines for
+                bandstructure. Uniform: Generate uniform k-points
+                grids for DOS.
+            constrain_total_magmom (bool): Whether to constrain the total
+                magmom (NUPDOWN in INCAR) to be the sum of the expected
+                MAGMOM for all species. Defaults to False.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            sort_structure (bool): Whether to sort structure. Defaults to
+                False.
+            sym_prec (float): Tolerance for symmetry finding
         """
         self.mode = mode
         self.sym_prec= sym_prec
@@ -875,8 +866,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         Gamma-centered mesh grid. Kpoints are written explicitly in both cases.
 
         Args:
-            structure (Structure/IStructure):
-                structure to get POSCAR
+            structure (Structure/IStructure): structure to get Kpoints
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
@@ -910,10 +900,10 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         Helper method to get necessary user_incar_settings from previous run.
 
             Args:
-                vasp_run (Vasprun):
-                    Vasprun that contains the final structure from previous run.
-                outcar (Outcar):
-                    Outcar that contains the magnetization info from previous run.
+                vasp_run (Vasprun): Vasprun that contains the final
+                    structure from previous run.
+                outcar (Outcar): Outcar that contains the magnetization info
+                    from previous run.
 
         """
         # Turn off spin when magmom for every site is smaller than 0.02.
@@ -946,24 +936,21 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         directory of previous static Vasp run.
 
         Args:
-            previous_vasp_dir (str):
-                The directory contains the outputs(vasprun.xml and OUTCAR) of
-                previous vasp run.
-            output_dir (str):
-                The directory to write the VASP input files for the NonSCF
-                calculations. Default to write in the current directory.
-            mode (str):
-                Line: Generate k-points along symmetry lines for bandstructure
-                Uniform: Generate uniform k-points grids for DOS
-            user_incar_settings (dict):
-                A dict specify customized settings for INCAR.
-                Must contain a NBANDS value, suggest to use
+            previous_vasp_dir (str): The directory contains the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            output_dir (str): The directory to write the VASP input files
+                for the NonSCF calculations. Default to write in the current
+                directory.
+            mode (str): Line: Generate k-points along symmetry lines for
+                bandstructure. Uniform: Generate uniform k-points
+                grids for DOS.
+            user_incar_settings (dict): A dict specify customized settings
+                for INCAR. Must contain a NBANDS value, suggest to use
                 1.2*(NBANDS from static run).
-            copy_chgcar (bool):
-                Default to copy CHGCAR from SC run
-            make_dir_if_not_present (bool):
-                Set to True if you want the directory (and the whole path) to
-                be created if it is not present.
+            copy_chgcar (bool): Default to copy CHGCAR from SC run
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
         """
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
