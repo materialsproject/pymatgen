@@ -43,10 +43,8 @@ class CovalentBond(object):
     def __init__(self, site1, site2):
         """
         Args:
-            site1:
-                First site.
-            site2:
-                Second site.
+            site1 (Site): First site.
+            site2 (Site): Second site.
         """
         self.site1 = site1
         self.site2 = site2
@@ -64,17 +62,14 @@ class CovalentBond(object):
         Test if two sites are bonded, up to a certain limit.
 
         Args:
-            site1:
-                First site
-            site2:
-                Second site
-            tol:
-                Relative tolerance to test. Basically, the code checks if the
-                distance between the sites is less than (1 + tol) * typical
-                bond distances. Defaults to 0.2, i.e., 20% longer.
-            bond_order:
-                Bond order to test. If None, the code simply checks against all
-                possible bond data. Defaults to None.
+            site1 (Site): First site
+            site2 (Site): Second site
+            tol (float): Relative tolerance to test. Basically, the code
+                checks if the distance between the sites is less than (1 +
+                tol) * typical bond distances. Defaults to 0.2, i.e.,
+                20% longer.
+            bond_order: Bond order to test. If None, the code simply checks
+                against all possible bond data. Defaults to None.
 
         Returns:
             Boolean indicating whether two sites are bonded.
@@ -106,12 +101,9 @@ def get_bond_length(sp1, sp2, bond_order=1):
     Get the bond length between two species.
 
     Args:
-        sp1:
-            First specie.
-        sp2:
-            Second specie.
-        bond_order:
-            For species with different possible bond orders,
+        sp1 (Specie): First specie.
+        sp2 (Specie): Second specie.
+        bond_order: For species with different possible bond orders,
             this allows one to obtain the bond length for a particular bond
             order. For example, to get the C=C bond length instead of the
             C-C bond length, this should be set to 2. Defaults to 1.

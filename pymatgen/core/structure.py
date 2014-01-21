@@ -240,12 +240,9 @@ class SiteCollection(collections.Sequence):
         Returns angle specified by three sites.
 
         Args:
-            i:
-                Index of first site.
-            j:
-                Index of second site.
-            k:
-                Index of third site.
+            i (int): Index of first site.
+            j (int): Index of second site.
+            k (int): Index of third site.
 
         Returns:
             Angle in degrees.
@@ -259,14 +256,10 @@ class SiteCollection(collections.Sequence):
         Returns dihedral angle specified by four sites.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
-            k:
-                Index of third site
-            l:
-                Index of fourth site
+            i (int): Index of first site
+            j (int): Index of second site
+            k (int): Index of third site
+            l (int): Index of fourth site
 
         Returns:
             Dihedral angle in degrees.
@@ -285,8 +278,7 @@ class SiteCollection(collections.Sequence):
         together.
 
         Args:
-            tol:
-                Distance tolerance. Default is 0.01A.
+            tol (float): Distance tolerance. Default is 0.01A.
         """
         for s1, s2 in itertools.combinations(self.sites, 2):
             if s1.distance(s2) < tol:
@@ -312,13 +304,11 @@ class IStructure(SiteCollection, MSONable):
         Create a periodic structure.
 
         Args:
-            lattice:
-                The lattice, either as a pymatgen.core.lattice.Lattice or
+            lattice: The lattice, either as a pymatgen.core.lattice.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species:
-                List of species on each site. Can take in flexible input,
+            species: List of species on each site. Can take in flexible input,
                 including:
 
                 i.  A sequence of element / specie specified either as string
@@ -328,19 +318,15 @@ class IStructure(SiteCollection, MSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords:
-                list of fractional coordinates of each species.
-            validate_proximity:
-                Whether to check if there are sites that are less than 0.01 Ang
-                apart. Defaults to False.
-            coords_are_cartesian:
-                Set to True if you are providing coordinates in cartesian
-                coordinates. Defaults to False.
-            site_properties:
-                Properties associated with the sites as a dict of sequences,
-                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
-                length as the atomic species and fractional_coords.
-                Defaults to None for no properties.
+            fractional_coords: list of fractional coordinates of each species.
+            validate_proximity (bool): Whether to check if there are sites
+                that are less than 0.01 Ang apart. Defaults to False.
+            coords_are_cartesian (bool): Set to True if you are providing
+                coordinates in cartesian coordinates. Defaults to False.
+            site_properties (dict): Properties associated with the sites as a
+                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                have to be the same length as the atomic species and
+                fractional_coords. Defaults to None for no properties.
         """
         if len(species) != len(coords):
             raise StructureError("The list of atomic species must be of the"
@@ -374,13 +360,12 @@ class IStructure(SiteCollection, MSONable):
         Convenience constructor to make a Structure from a list of sites.
 
         Args:
-            sites:
-                Sequence of PeriodicSites. Sites must have the same lattice.
-            validate_proximity:
-                Whether to check if there are sites that are less than 0.01 Ang
-                apart. Defaults to False.
-            to_unit_cell:
-                Whether to translate sites into the unit cell.
+            sites: Sequence of PeriodicSites. Sites must have the same
+                lattice.
+            validate_proximity (bool): Whether to check if there are sites
+                that are less than 0.01 Ang apart. Defaults to False.
+            to_unit_cell (bool): Whether to translate sites into the unit
+                cell.
         """
         props = collections.defaultdict(list)
         lattice = None
@@ -423,8 +408,7 @@ class IStructure(SiteCollection, MSONable):
         Returns the vectors of the unit cell in Angstrom.
 
         Args:
-            space:
-                "r" for real space vectors, "g" for reciprocal space basis
+            space: "r" for real space vectors, "g" for reciprocal space basis
                 vectors.
         """
         if space.lower() == "r":
@@ -484,13 +468,9 @@ class IStructure(SiteCollection, MSONable):
         atom and the specified jimage atom.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
-            jimage:
-                Number of lattice translations in each lattice direction.
-
+            i (int): Index of first site
+            j (int): Index of second site
+            jimage: Number of lattice translations in each lattice direction.
                 Default is None for nearest image.
 
         Returns:
@@ -516,12 +496,9 @@ class IStructure(SiteCollection, MSONable):
         2. keep points falling within r.
 
         Args:
-            pt:
-                cartesian coordinates of center of sphere.
-            r:
-                radius of sphere.
-            include_index:
-                boolean that determines whether the non-supercell site index
+            pt (3x1 array): cartesian coordinates of center of sphere.
+            r (float): Radius of sphere.
+            include_index (bool): Whether the non-supercell site index
                 is included in the returned data
 
         Returns:
@@ -575,11 +552,9 @@ class IStructure(SiteCollection, MSONable):
         subsequent processing requires the distance.
 
         Args:
-            r:
-                radius of sphere.
-            include_index:
-                boolean that determines whether the non-supercell site index
-                is included in the returned data
+            r (float): Radius of sphere.
+            include_index (bool): Whether to include the non-supercell site
+                in the returned data
 
         Returns:
             A list of a list of nearest neighbors for each site, i.e.,
@@ -640,12 +615,9 @@ class IStructure(SiteCollection, MSONable):
         r-dr and r+dr.
 
         Args:
-            origin:
-                cartesian coordinates of center of sphere.
-            r:
-                inner radius of shell.
-            dr:
-                width of shell.
+            origin (3x1 array): Cartesian coordinates of center of sphere.
+            r (float): Inner radius of shell.
+            dr (float): Width of shell.
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
@@ -668,9 +640,8 @@ class IStructure(SiteCollection, MSONable):
         Get a reduced structure.
 
         Args:
-            reduction_algo:
-                The lattice reduction algorithm to use. Currently supported
-                options are "niggli" or "LLL".
+            reduction_algo (str): The lattice reduction algorithm to use.
+                Currently supported options are "niggli" or "LLL".
         """
         if reduction_algo == "niggli":
             reduced_latt = self._lattice.get_niggli_reduced_lattice()
@@ -690,14 +661,13 @@ class IStructure(SiteCollection, MSONable):
         site properties.
 
         Args:
-            site_properties:
-                Properties to add or override. The properties are specified in
-                the same way as the constructor, i.e., as a dict of the form
-                {property: [values]}. The properties should be in the order of
-                the *original* structure if you are performing sanitization.
-            sanitize:
-                If True, this method will return a sanitized structure.
-                Sanitization performs a few things: (i) The sites are sorted
+            site_properties (dict): Properties to add or override. The
+                properties are specified in the same way as the constructor, i.e.,
+                as a dict of the form {property: [values]}. The properties
+                should be in the order of the *original* structure if you
+                are performing sanitization.
+            sanitize (bool): If True, this method will return a sanitized
+                structure. Sanitization performs a few things: (i) The sites are sorted
                 by electronegativity, (ii) a LLL lattice reduction is carried
                 out to obtain a relatively orthogonalized cell, (iii) all
                 fractional coords for sites are mapped into the unit cell.
@@ -736,17 +706,14 @@ class IStructure(SiteCollection, MSONable):
         construction of NEB inputs.
 
         Args:
-            end_structure:
-                structure to interpolate between this structure and end.
-            nimages:
-                number of interpolation images. Defaults to 10 images.
-            interpolate_lattices:
-                whether to interpolate the lattices. Interpolates the lengths
-                and angles (rather than the matrix) so orientation may be
+            end_structure (Structure): structure to interpolate between this
+                structure and end.
+            nimages (int): No. of interpolation images. Defaults to 10 images.
+            interpolate_lattices (bool): Whether to interpolate the lattices.
+                Interpolates the lengths and angles (rather than the matrix) so orientation may be
                 affected.
-            pbc:
-                whether to use periodic boundary conditions to find the
-                shortest path between endpoints.
+            pbc (bool): Whether to use periodic boundary conditions to find
+                the shortest path between endpoints.
 
         Returns:
             List of interpolated structures. The starting and ending
@@ -812,11 +779,10 @@ class IStructure(SiteCollection, MSONable):
         lattice.
 
         Args:
-            tolerance:
-                Tolerance for each coordinate of a particular site. For
-                example, [0.5, 0, 0.5] in cartesian coordinates will be
-                considered to be on the same coordinates as [0, 0, 0] for a
-                tolerance of 0.5. Defaults to 0.5.
+            tolerance (float): Tolerance for each coordinate of a particular
+                site. For example, [0.5, 0, 0.5] in cartesian coordinates
+                will be considered to be on the same coordinates as
+                [0, 0, 0] for a tolerance of 0.5. Defaults to 0.5.
 
         Returns:
             The most primitive structure found. The returned structure is
@@ -975,8 +941,7 @@ class IStructure(SiteCollection, MSONable):
         created using to_dict.
 
         Args:
-            d:
-                dict representation of structure.
+            d (dict): Dict representation of structure.
 
         Returns:
             Structure object
@@ -987,20 +952,17 @@ class IStructure(SiteCollection, MSONable):
 
     def dot(self, coords_a, coords_b, space="r", frac_coords=False):
         """
-        Compute the scalar producr of vector(s) either in real space or
+        Compute the scalar product of vector(s) either in real space or
         reciprocal space.
 
         Args:
-            coords:
-                Array-like object with the coordinates.
-            space:
-               "r" for real space, "g" for reciprocal space.
-            frac_coords:
-                Boolean stating whether the vector corresponds to fractional or
+            coords (3x1 array): Array-like object with the coordinates.
+            space (str): "r" for real space, "g" for reciprocal space.
+            frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
-       Returns:
-           one-dimensional `numpy` array.
+        Returns:
+            one-dimensional `numpy` array.
         """
         lattice = {"r": self.lattice,
                    "g": self.reciprocal_lattice}[space.lower()]
@@ -1011,12 +973,9 @@ class IStructure(SiteCollection, MSONable):
         Compute the norm of vector(s) either in real space or reciprocal space.
 
         Args:
-            coords:
-                Array-like object with the coordinates.
-            space:
-               "r" for real space, "g" for reciprocal space.
-            frac_coords:
-                Boolean stating whether the vector corresponds to fractional or
+            coords (3x1 array): Array-like object with the coordinates.
+            space (str): "r" for real space, "g" for reciprocal space.
+            frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
         Returns:
@@ -1045,28 +1004,22 @@ class IMolecule(SiteCollection, MSONable):
         Creates a Molecule.
 
         Args:
-            species:
-                list of atomic species. Possible kinds of input include a list
-                of dict of elements/species and occupancies, a List of
+            species: list of atomic species. Possible kinds of input include a
+                list of dict of elements/species and occupancies, a List of
                 elements/specie specified as actual Element/Specie, Strings
                 ("Fe", "Fe2+") or atomic numbers (1,56).
-            coords:
-                list of cartesian coordinates of each species.
-            charge:
-                Charge for the molecule. Defaults to 0.
-            spin_multiplicity:
-                Spin multiplicity for molecule. Defaults to None,
-                which means that the spin multiplicity is set to 1 if the
-                molecule has no unpaired electrons and to 2 if there are
-                unpaired electrons.
-            validate_proximity:
-                Whether to check if there are sites that are less than 1 Ang
-                apart. Defaults to False.
-            site_properties:
-                Properties associated with the sites as a dict of sequences,
-                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
-                length as the atomic species and fractional_coords.
-                Defaults to None for no properties.
+            coords (3x1 array): list of cartesian coordinates of each species.
+            charge (float): Charge for the molecule. Defaults to 0.
+            spin_multiplicity (int): Spin multiplicity for molecule.
+                Defaults to None, which means that the spin multiplicity is
+                set to 1 if the molecule has no unpaired electrons and to 2
+                if there are unpaired electrons.
+            validate_proximity (bool): Whether to check if there are sites
+                that are less than 1 Ang apart. Defaults to False.
+            site_properties (dict): Properties associated with the sites as
+                a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
+                sequences have to be the same length as the atomic species
+                and fractional_coords. Defaults to None for no properties.
         """
         if len(species) != len(coords):
             raise StructureError(("The list of atomic species must be of the",
@@ -1150,8 +1103,7 @@ class IMolecule(SiteCollection, MSONable):
         Convenience constructor to make a Molecule from a list of sites.
 
         Args:
-            sites:
-                Sequence of Sites.
+            sites: Sequence of Sites.
         """
         props = collections.defaultdict(list)
         for site in sites:
@@ -1169,14 +1121,12 @@ class IMolecule(SiteCollection, MSONable):
         ind1 and ind2.
 
         Args:
-            ind1:
-                Index of first site.
-            ind2:
-                Index of second site.
-            tol:
-                Relative tolerance to test. Basically, the code checks if the
-                distance between the sites is less than (1 + tol) * typical
-                bond distances. Defaults to 0.2, i.e., 20% longer.
+            ind1 (int): Index of first site.
+            ind2 (int): Index of second site.
+            tol (float): Relative tolerance to test. Basically, the code
+                checks if the distance between the sites is less than (1 +
+                tol) * typical bond distances. Defaults to 0.2, i.e.,
+                20% longer.
 
         Returns:
             Two Molecule objects representing the two clusters formed from
@@ -1217,8 +1167,7 @@ class IMolecule(SiteCollection, MSONable):
         Determines the covalent bonds in a molecule.
 
         Args:
-            tol:
-                The tol to determine bonds in a structure. See
+            tol (float): The tol to determine bonds in a structure. See
                 CovalentBond.is_bonded.
 
         Returns:
@@ -1294,8 +1243,7 @@ class IMolecule(SiteCollection, MSONable):
         to_dict.
 
         Args:
-            d:
-                dict representation of Molecule.
+            d (dict): dict representation of Molecule.
 
         Returns:
             Molecule object
@@ -1323,10 +1271,8 @@ class IMolecule(SiteCollection, MSONable):
         Get distance between site i and j.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
+            i (int): Index of first site
+            j (int): Index of second site
 
         Returns:
             Distance between the two sites.
@@ -1338,10 +1284,8 @@ class IMolecule(SiteCollection, MSONable):
         Find all sites within a sphere from a point.
 
         Args:
-            pt:
-                cartesian coordinates of center of sphere.
-            r:
-                radius of sphere.
+            pt (3x1 array): Cartesian coordinates of center of sphere.
+            r (float): Radius of sphere.
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
@@ -1360,10 +1304,8 @@ class IMolecule(SiteCollection, MSONable):
         site itself.
 
         Args:
-            site:
-                site, which is the center of the sphere.
-            r:
-                radius of sphere.
+            site (Site): Site at the center of the sphere.
+            r (float): Radius of sphere.
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
@@ -1378,12 +1320,9 @@ class IMolecule(SiteCollection, MSONable):
         r-dr and r+dr.
 
         Args:
-            origin:
-                cartesian coordinates of center of sphere.
-            r:
-                inner radius of shell.
-            dr:
-                width of shell.
+            origin (3x1 array): Cartesian coordinates of center of sphere.
+            r (float): Inner radius of shell.
+            dr (float): Width of shell.
 
         Returns:
             [(site, dist) ...] since most of the time, subsequent processing
@@ -1401,25 +1340,19 @@ class IMolecule(SiteCollection, MSONable):
         calculating molecules using periodic codes.
 
         Args:
-            a:
-                a-lattice parameter.
-            b:
-                b-lattice parameter.
-            c:
-                c-lattice parameter.
-            images:
-                No. of boxed images in each direction. Defaults to (1, 1, 1),
-                meaning single molecule with 1 lattice parameter in each
-                direction.
-            random_rotation:
-                Whether to apply a random rotation to each molecule. This
-                jumbles all the molecules so that they are not exact images
-                of each other.
-            min_dist:
-                The minimum distance that atoms should be from each other.
-                This is only used if random_rotation is True. The randomized
-                rotations are searched such that no two atoms are less than
-                min_dist from each other.
+            a (float): a-lattice parameter.
+            b (float): b-lattice parameter.
+            c (float): c-lattice parameter.
+            images: No. of boxed images in each direction. Defaults to
+                (1, 1, 1), meaning single molecule with 1 lattice parameter
+                in each direction.
+            random_rotation (bool): Whether to apply a random rotation to
+                each molecule. This jumbles all the molecules so that they
+                are not exact images of each other.
+            min_dist (float): The minimum distance that atoms should be from
+                each other. This is only used if random_rotation is True.
+                The randomized rotations are searched such that no two atoms
+                are less than min_dist from each other.
 
         Returns:
             Structure containing molecule in a box.
@@ -1492,13 +1425,11 @@ class Structure(IStructure):
         Create a periodic structure.
 
         Args:
-            lattice:
-                The lattice, either as a pymatgen.core.lattice.Lattice or
+            lattice: The lattice, either as a pymatgen.core.lattice.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species:
-                List of species on each site. Can take in flexible input,
+            species: List of species on each site. Can take in flexible input,
                 including:
 
                 i.  A sequence of element / specie specified either as string
@@ -1508,19 +1439,15 @@ class Structure(IStructure):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords:
-                list of fractional coordinates of each species.
-            validate_proximity:
-                Whether to check if there are sites that are less than 0.01 Ang
-                apart. Defaults to False.
-            coords_are_cartesian:
-                Set to True if you are providing coordinates in cartesian
-                coordinates. Defaults to False.
-            site_properties:
-                Properties associated with the sites as a dict of sequences,
-                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
-                length as the atomic species and fractional_coords.
-                Defaults to None for no properties.
+            fractional_coords: list of fractional coordinates of each species.
+            validate_proximity (bool): Whether to check if there are sites
+                that are less than 0.01 Ang apart. Defaults to False.
+            coords_are_cartesian (bool): Set to True if you are providing
+                coordinates in cartesian coordinates. Defaults to False.
+            site_properties (dict): Properties associated with the sites as a
+                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                have to be the same length as the atomic species and
+                fractional_coords. Defaults to None for no properties.
         """
         IStructure.__init__(
             self, lattice, species, coords,
@@ -1536,15 +1463,12 @@ class Structure(IStructure):
         Append a site to the structure.
 
         Args:
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            coords_are_cartesian:
-                Whether coordinates are cartesian. Defaults to False.
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to False.
+            species: Species of inserted site
+            coords (3x1 array): Coordinates of inserted site
+            coords_are_cartesian (bool): Whether coordinates are cartesian.
+                Defaults to False.
+            validate_proximity (bool): Whether to check if inserted site is
+                too close to an existing site. Defaults to False.
 
         Returns:
             New structure with inserted site.
@@ -1560,17 +1484,13 @@ class Structure(IStructure):
         Insert a site to the structure.
 
         Args:
-            i:
-                index to insert site
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            coords_are_cartesian:
-                Whether coordinates are cartesian. Defaults to False.
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to False.
+            i (int): Index to insert site
+            species (species-like): Species of inserted site
+            coords (3x1 array): Coordinates of inserted site
+            coords_are_cartesian (bool): Whether coordinates are cartesian.
+                Defaults to False.
+            validate_proximity (bool): Whether to check if inserted site is
+                too close to an existing site. Defaults to False.
 
         Returns:
             New structure with inserted site.
@@ -1596,8 +1516,7 @@ class Structure(IStructure):
         Remove site at index i.
 
         Args:
-            i:
-                index of site to remove.
+            i (int): Index of site to remove.
         """
         del(self._sites[i])
 
@@ -1606,10 +1525,9 @@ class Structure(IStructure):
         Adds a property to all sites.
 
         Args:
-            property_name:
-                The name of the property to add.
-            values:
-                A sequence of values. Must be same length as number of sites.
+            property_name (str): The name of the property to add.
+            values: A sequence of values. Must be same length as number of
+                sites.
         """
         if len(values) != len(self._sites):
             raise ValueError("Values must be same length as sites.")
@@ -1628,13 +1546,12 @@ class Structure(IStructure):
         Swap species in a structure.
 
         Args:
-            species_mapping:
-                dict of species to swap. Species can be elements too.
-                e.g., {Element("Li"): Element("Na")} performs a Li for Na
-                substitution. The second species can be a sp_and_occu dict.
-                For example, a site with 0.5 Si that is passed the mapping
-                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
-                have .375 Ge and .125 C.
+            species_mapping (dict): Dict of species to swap. Species can be
+                elements too. e.g., {Element("Li"): Element("Na")} performs
+                a Li for Na substitution. The second species can be a
+                sp_and_occu dict. For example, a site with 0.5 Si that is
+                passed the mapping {Element('Si): {Element('Ge'):0.75,
+                Element('C'):0.25} } will have .375 Ge and .125 C.
         """
         latt = self._lattice
         species_mapping = {smart_element_or_specie(k): v
@@ -1658,30 +1575,25 @@ class Structure(IStructure):
 
         self._sites = map(mod_site, self._sites)
 
-    def replace(self, index, species_n_occu):
+    def replace(self, i, species_n_occu):
         """
         Replace a single site. Takes either a species or a dict of species and
         occupations.
 
         Args:
-            index:
-                The index of the site in the _sites list.
-            species:
-                A species object.
+            i (int): Index of the site in the _sites list.
+            species_n_occu (species-like): Species object.
         """
-        self._sites[index] = PeriodicSite(species_n_occu,
-                                          self._sites[index].frac_coords,
-                                          self._lattice,
-                                          properties=self._sites[index].
-                                          properties)
+        self._sites[i] = PeriodicSite(
+            species_n_occu, self._sites[i].frac_coords, self._lattice,
+            properties=self._sites[i].properties)
 
     def remove_species(self, species):
         """
         Remove all occurrences of several species from a structure.
 
         Args:
-            species:
-                Sequence of species to remove, e.g., ["Li", "Na"].
+            species: Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
         species = map(smart_element_or_specie, species)
@@ -1700,8 +1612,7 @@ class Structure(IStructure):
         Delete sites with at indices.
 
         Args:
-            indices:
-                sequence of indices of sites to delete.
+            indices: Sequence of indices of sites to delete.
         """
         self._sites = [self._sites[i] for i in range(len(self._sites))
                        if i not in indices]
@@ -1713,8 +1624,7 @@ class Structure(IStructure):
         Coords are operated in full and then transformed to the new lattice.
 
         Args:
-            symmop:
-                Symmetry operation to apply.
+            symmop (SymmOp): Symmetry operation to apply.
         """
         self._lattice = Lattice([symmop.apply_rotation_only(row)
                                  for row in self._lattice.matrix])
@@ -1732,8 +1642,7 @@ class Structure(IStructure):
         basis.
 
         Args:
-            new_lattice:
-                New lattice
+            new_lattice (Lattice): New lattice
         """
         self._lattice = new_lattice
         new_sites = []
@@ -1749,11 +1658,11 @@ class Structure(IStructure):
         Apply a strain to the lattice.
 
         Args:
-            strain:
-                Amount of strain to apply. Can be an int, a sequence of 3
-                numbers. E.g., 0.01 means all lattice vectors are increased
-                by 1%. This is equivalent to calling modify_lattice with a
-                lattice with lattice parameters that are 1% larger.
+            strain (float): Amount of strain to apply. Can be an int,
+                a sequence of 3 numbers. E.g., 0.01 means all lattice
+                vectors are increased by 1%. This is equivalent to calling
+                modify_lattice with a lattice with lattice parameters that
+                are 1% larger.
         """
         s = (1 + np.array(strain)) * np.eye(3)
         self.modify_lattice(Lattice(np.dot(self._lattice.matrix.T, s).T))
@@ -1765,16 +1674,13 @@ class Structure(IStructure):
         unit cell.
 
         Args:
-            indices:
-                Integer or List of site indices on which to perform the
+            indices: Integer or List of site indices on which to perform the
                 translation.
-            vector:
-                Translation vector for sites.
-            frac_coords:
-                Boolean stating whether the vector corresponds to fractional or
+            vector: Translation vector for sites.
+            frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
-            to_unit_cell:
-                Boolean stating whether new sites are transformed to unit cell
+            to_unit_cell (bool): Whether new sites are transformed to unit
+                cell
         """
         if not isinstance(indices, collections.Iterable):
             indices = [indices]
@@ -1798,8 +1704,7 @@ class Structure(IStructure):
         symmetries.
 
         Args:
-            distance:
-                distance in angstroms by which to perturb each site.
+            distance (float): Distance in angstroms by which to perturb each site.
         """
         def get_rand_vec():
             #deals with zero vectors.
@@ -1815,10 +1720,7 @@ class Structure(IStructure):
         Add oxidation states to a structure.
 
         Args:
-            structure:
-                pymatgen.core.structure Structure object.
-            oxidation_states:
-                dict of oxidation states.
+            oxidation_states (dict): Dict of oxidation states.
                 E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
         """
         try:
@@ -1842,8 +1744,7 @@ class Structure(IStructure):
         Add oxidation states to a structure by site.
 
         Args:
-            oxidation_states:
-                List of oxidation states.
+            oxidation_states (list): List of oxidation states.
                 E.g., [1, 1, 1, 1, 2, 2, 2, 2, 5, 5, 5, 5, -2, -2, -2, -2]
         """
         try:
@@ -1882,9 +1783,8 @@ class Structure(IStructure):
         Create a supercell.
 
         Args:
-            scaling_matrix:
-                A scaling matrix for transforming the lattice vectors.
-                Has to be all integers. Several options are possible:
+            scaling_matrix: A scaling matrix for transforming the lattice
+                vectors. Has to be all integers. Several options are possible:
 
                 a. A full 3x3 scaling matrix defining the linear combination
                    the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
@@ -1947,8 +1847,7 @@ class Structure(IStructure):
         and angles are preserved.
 
         Args:
-            volume:
-                New volume of the unit cell in A^3.
+            volume (float): New volume of the unit cell in A^3.
         """
         self.modify_lattice(self._lattice.scale(volume))
 
@@ -1967,28 +1866,22 @@ class Molecule(IMolecule):
         Creates a MutableMolecule.
 
         Args:
-            species:
-                list of atomic species. Possible kinds of input include a list
-                of dict of elements/species and occupancies, a List of
+            species: list of atomic species. Possible kinds of input include a
+                list of dict of elements/species and occupancies, a List of
                 elements/specie specified as actual Element/Specie, Strings
                 ("Fe", "Fe2+") or atomic numbers (1,56).
-            coords:
-                list of cartesian coordinates of each species.
-            charge:
-                Charge for the molecule. Defaults to 0.
-            spin_multiplicity:
-                Spin multiplicity for molecule. Defaults to None,
-                which means that the spin multiplicity is set to 1 if the
-                molecule has no unpaired electrons and to 2 if there are
-                unpaired electrons.
-            validate_proximity:
-                Whether to check if there are sites that are less than 1 Ang
-                apart. Defaults to False.
-            site_properties:
-                Properties associated with the sites as a dict of sequences,
-                e.g., {"magmom":[5,5,5,5]}. The sequences have to be the same
-                length as the atomic species and fractional_coords.
-                Defaults to None for no properties.
+            coords (3x1 array): list of cartesian coordinates of each species.
+            charge (float): Charge for the molecule. Defaults to 0.
+            spin_multiplicity (int): Spin multiplicity for molecule.
+                Defaults to None, which means that the spin multiplicity is
+                set to 1 if the molecule has no unpaired electrons and to 2
+                if there are unpaired electrons.
+            validate_proximity (bool): Whether to check if there are sites
+                that are less than 1 Ang apart. Defaults to False.
+            site_properties (dict): Properties associated with the sites as
+                a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
+                sequences have to be the same length as the atomic species
+                and fractional_coords. Defaults to None for no properties.
         """
         IMolecule.__init__(
             self, species, coords, charge=charge,
@@ -2003,15 +1896,11 @@ class Molecule(IMolecule):
         Appends a site to the molecule.
 
         Args:
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to True.
-            properties:
-                A dict of properties for the Site.
+            species: Species of inserted site
+            coords: Coordinates of inserted site
+            validate_proximity (bool): Whether to check if inserted site is
+                too close to an existing site. Defaults to True.
+            properties (dict): A dict of properties for the Site.
 
         Returns:
             New molecule with inserted site.
@@ -2025,13 +1914,11 @@ class Molecule(IMolecule):
         Set the charge and spin multiplicity.
 
         Args:
-            charge:
-                Charge for the molecule. Defaults to 0.
-            spin_multiplicity:
-                Spin multiplicity for molecule. Defaults to None,
-                which means that the spin multiplicity is set to 1 if the
-                molecule has no unpaired electrons and to 2 if there are
-                unpaired electrons.
+            charge (int): Charge for the molecule. Defaults to 0.
+            spin_multiplicity (int): Spin multiplicity for molecule.
+                Defaults to None, which means that the spin multiplicity is
+                set to 1 if the molecule has no unpaired electrons and to 2
+                if there are unpaired electrons.
         """
         self._charge = charge
         nelectrons = 0
@@ -2056,17 +1943,12 @@ class Molecule(IMolecule):
         Insert a site to the molecule.
 
         Args:
-            i:
-                index to insert site
-            species:
-                species of inserted site
-            coords:
-                coordinates of inserted site
-            validate_proximity:
-                Whether to check if inserted site is too close to an existing
-                site. Defaults to True.
-            properties:
-                A dict of properties for the Site.
+            i (int): Index to insert site
+            species: species of inserted site
+            coords (3x1 array): coordinates of inserted site
+            validate_proximity (bool): Whether to check if inserted site is
+                too close to an existing site. Defaults to True.
+            properties (dict): Dict of properties for the Site.
 
         Returns:
             New molecule with inserted site.
@@ -2084,10 +1966,9 @@ class Molecule(IMolecule):
         Adds a property to a site.
 
         Args:
-            property_name:
-                The name of the property to add.
-            values:
-                A sequence of values. Must be same length as number of sites.
+            property_name (str): The name of the property to add.
+            values (list): A sequence of values. Must be same length as
+                number of sites.
         """
         if len(values) != len(self._sites):
             raise ValueError("Values must be same length as sites.")
@@ -2105,8 +1986,7 @@ class Molecule(IMolecule):
         Delete site at index i.
 
         Args:
-            i:
-                index of site to remove.
+            i (int): Index of site to remove.
 
         Returns:
             New structure with site removed.
@@ -2118,13 +1998,12 @@ class Molecule(IMolecule):
         Swap species in a molecule.
 
         Args:
-            species_mapping:
-                dict of species to swap. Species can be elements too.
-                e.g., {Element("Li"): Element("Na")} performs a Li for Na
-                substitution. The second species can be a sp_and_occu dict.
-                For example, a site with 0.5 Si that is passed the mapping
-                {Element('Si): {Element('Ge'):0.75, Element('C'):0.25} } will
-                have .375 Ge and .125 C.
+            species_mapping (dict): dict of species to swap. Species can be
+                elements too. E.g., {Element("Li"): Element("Na")} performs
+                a Li for Na substitution. The second species can be a
+                sp_and_occu dict. For example, a site with 0.5 Si that is
+                passed the mapping {Element('Si): {Element('Ge'):0.75,
+                Element('C'):0.25} } will have .375 Ge and .125 C.
         """
         species_mapping = {smart_element_or_specie(k): v
                            for k, v in species_mapping.items()}
@@ -2152,30 +2031,26 @@ class Molecule(IMolecule):
             return Site(new_atom_occu, site.coords, properties=site.properties)
         self._sites = map(mod_site, self._sites)
 
-    def replace(self, index, species_n_occu, coords=None):
+    def replace(self, i, species_n_occu, coords=None):
         """
         Replace a single site. Takes either a species or a dict of occus.
 
         Args:
-            index:
-                The index of the site in the _sites list
-            species:
-                A species object.
-            coords:
-                If supplied, the new coords are used. Otherwise,
-                the old coordinates are retained.
+            i (int): Index of the site in the _sites list
+            species (Specie-like): A species object.
+            coords (3x1 array): If supplied, the new coords are used.
+                Otherwise, the old coordinates are retained.
         """
-        coords = coords if coords is not None else self._sites[index].coords
-        self._sites[index] = Site(species_n_occu, coords,
-                                  properties=self._sites[index].properties)
+        coords = coords if coords is not None else self._sites[i].coords
+        self._sites[i] = Site(species_n_occu, coords,
+                              properties=self._sites[i].properties)
 
     def remove_species(self, species):
         """
         Remove all occurrences of a species from a molecule.
 
         Args:
-            species:
-                Species to remove.
+            species: Species to remove.
         """
         new_sites = []
         species = map(smart_element_or_specie, species)
@@ -2192,8 +2067,7 @@ class Molecule(IMolecule):
         Delete sites with at indices.
 
         Args:
-            indices:
-                sequence of indices of sites to delete.
+            indices: Sequence of indices of sites to delete.
         """
         self._sites = [self._sites[i] for i in range(len(self._sites))
                        if i not in indices]
@@ -2204,10 +2078,9 @@ class Molecule(IMolecule):
         unit cell.
 
         Args:
-            sites:
-                List of site indices on which to perform the translation.
-            vector:
-                Translation vector for sites.
+            sites (list): List of site indices on which to perform the
+                translation.
+            vector (3x1 array): Translation vector for sites.
         """
         for i in indices:
             site = self._sites[i]
@@ -2221,8 +2094,8 @@ class Molecule(IMolecule):
         symmetries.
 
         Args:
-            distance:
-                distance in angstroms by which to perturb each site.
+            distance (float): Distance in angstroms by which to perturb each
+                site.
         """
         def get_rand_vec():
             #deals with zero vectors.
@@ -2238,8 +2111,7 @@ class Molecule(IMolecule):
         Apply a symmetry operation to the molecule.
 
         Args:
-            symmop:
-                Symmetry operation to apply.
+            symmop (SymmOp): Symmetry operation to apply.
         """
         def operate_site(site):
             new_cart = symmop.operate(site.coords)
@@ -2261,10 +2133,8 @@ class Molecule(IMolecule):
         Substitute atom at index with a functional group.
 
         Args:
-            index:
-                Index of atom to substitute.
-            func_grp:
-                Substituent molecule. There are two options:
+            index (int): Index of atom to substitute.
+            func_grp: Substituent molecule. There are two options:
 
                 1. Providing an actual molecule as the input. The first atom
                    must be a DummySpecie X, indicating the position of
@@ -2277,10 +2147,9 @@ class Molecule(IMolecule):
                    directionality to connect the atoms.
                 2. A string name. The molecule will be obtained from the
                    relevant template in functional_groups.json.
-            bond_order:
-                A specified bond order to calculate the bond length between
-                the attached functional group and the nearest neighbor site.
-                Defaults to 1.
+            bond_order: A specified bond order to calculate the bond length
+                between the attached functional group and the nearest
+                neighbor site. Defaults to 1.
         """
 
         # Find the nearest neighbor that is not a terminal atom.

@@ -39,14 +39,12 @@ class Lattice(MSONable):
         lattice vector.
 
         Args:
-            matrix:
-                Sequence of numbers in any form. Examples of acceptable
+            matrix: Sequence of numbers in any form. Examples of acceptable
                 input.
                 i) An actual numpy array.
                 ii) [[1, 0, 0],[0, 1, 0], [0, 0, 1]]
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
-
                 Each row should correspond to a lattice vector.
                 E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a lattice with
                 lattice vectors [10,0,0], [20,10,0] and [0,0,30].
@@ -86,8 +84,7 @@ class Lattice(MSONable):
         Returns the cartesian coordinates given fractional coordinates.
 
         Args:
-            Fractional_coords:
-                Fractional coords.
+            fractional_coords (3x1 array): Fractional coords.
 
         Returns:
             Cartesian coordinates
@@ -99,8 +96,7 @@ class Lattice(MSONable):
         Returns the fractional coordinates given cartesian coordinates.
 
         Args:
-            cartesian_coords:
-                Cartesian coords.
+            cartesian_coords (3x1 array): Cartesian coords.
 
         Returns:
             Fractional coordinates.
@@ -113,8 +109,7 @@ class Lattice(MSONable):
         Convenience constructor for a cubic lattice.
 
         Args:
-            a:
-                The *a* lattice parameter of the cubic cell.
+            a (float): The *a* lattice parameter of the cubic cell.
 
         Returns:
             Cubic lattice of dimensions a x a x a.
@@ -127,10 +122,8 @@ class Lattice(MSONable):
         Convenience constructor for a tetragonal lattice.
 
         Args:
-            a:
-                The *a* lattice parameter of the tetragonal cell.
-            c:
-                The *c* lattice parameter of the tetragonal cell.
+            a (float): *a* lattice parameter of the tetragonal cell.
+            c (float): *c* lattice parameter of the tetragonal cell.
 
         Returns:
             Tetragonal lattice of dimensions a x a x c.
@@ -143,12 +136,9 @@ class Lattice(MSONable):
         Convenience constructor for an orthorhombic lattice.
 
         Args:
-            a:
-                The *a* lattice parameter of the orthorhombic cell.
-            b:
-                The *b* lattice parameter of the orthorhombic cell.
-            c:
-                The *c* lattice parameter of the orthorhombic cell.
+            a (float): *a* lattice parameter of the orthorhombic cell.
+            b (float): *b* lattice parameter of the orthorhombic cell.
+            c (float): *c* lattice parameter of the orthorhombic cell.
 
         Returns:
             Orthorhombic lattice of dimensions a x b x c.
@@ -161,14 +151,11 @@ class Lattice(MSONable):
         Convenience constructor for a monoclinic lattice.
 
         Args:
-            a:
-                The *a* lattice parameter of the monoclinc cell.
-            b:
-                The *b* lattice parameter of the monoclinc cell.
-            c:
-                The *c* lattice parameter of the monoclinc cell.
-            alpha:
-                The *alpha* angle between lattice vectors b and c.
+            a (float): *a* lattice parameter of the monoclinc cell.
+            b (float): *b* lattice parameter of the monoclinc cell.
+            c (float): *c* lattice parameter of the monoclinc cell.
+            alpha (float): *alpha* angle between lattice vectors b and c in
+                degrees.
 
         Returns:
             Monoclinic lattice of dimensions a x b x c with angle alpha between
@@ -182,10 +169,8 @@ class Lattice(MSONable):
         Convenience constructor for a hexagonal lattice.
 
         Args:
-            a:
-                The *a* lattice parameter of the hexagonal cell.
-            c:
-                The *c* lattice parameter of the hexagonal cell.
+            a (float): *a* lattice parameter of the hexagonal cell.
+            c (float): *c* lattice parameter of the hexagonal cell.
 
         Returns:
             Hexagonal lattice of dimensions a x a x c.
@@ -198,10 +183,8 @@ class Lattice(MSONable):
         Convenience constructor for a rhombohedral lattice.
 
         Args:
-            a:
-                The *a* lattice parameter of the rhombohedral cell.
-            alpha:
-                Angle for the rhombohedral lattice.
+            a (float): *a* lattice parameter of the rhombohedral cell.
+            alpha (float): Angle for the rhombohedral lattice in degrees.
 
         Returns:
             Rhombohedral lattice of dimensions a x a x a.
@@ -214,10 +197,8 @@ class Lattice(MSONable):
         Create a Lattice using unit cell lengths and angles (in degrees).
 
         Args:
-            abc:
-                lattice parameters, e.g. (4, 4, 5).
-            ang:
-                lattice angles in degrees, e.g., (90,90,120).
+            abc (3x1 array): Lattice parameters, e.g. (4, 4, 5).
+            ang (3x1 array): Lattice angles in degrees, e.g., (90,90,120).
 
         Returns:
             A Lattice with the specified lattice parameters.
@@ -231,21 +212,15 @@ class Lattice(MSONable):
         Create a Lattice using unit cell lengths and angles (in degrees).
 
         Args:
-            a:
-                The *a* lattice parameter of the monoclinc cell.
-            b:
-                The *b* lattice parameter of the monoclinc cell.
-            c:
-                The *c* lattice parameter of the monoclinc cell.
-            alpha:
-                The *alpha* angle.
-            beta:
-                The *beta* angle.
-            gamma:
-                The *gamma* angle.
+            a (float): *a* lattice parameter.
+            b (float): *b* lattice parameter.
+            c (float): *c* lattice parameter.
+            alpha (float): *alpha* angle in degrees.
+            beta (float): *beta* angle in degrees.
+            gamma (float): *gamma* angle in degrees.
 
         Returns:
-            A Lattice with the specified lattice parameters.
+            Lattice with the specified lattice parameters.
         """
 
         alpha_r = radians(alpha)
@@ -414,12 +389,10 @@ class Lattice(MSONable):
         other_lattice to this lattice.
 
         Args:
-            other_lattice:
-                Another lattice that is equivalent to this one.
-            ltol:
-                Tolerance for matching lengths. Defaults to 1e-5.
-            atol:
-                Tolerance for matching angles. Defaults to 1.
+            other_lattice (Lattice): Another lattice that is equivalent to
+                this one.
+            ltol (float): Tolerance for matching lengths. Defaults to 1e-5.
+            atol (float): Tolerance for matching angles. Defaults to 1.
 
         Returns:
             (aligned_lattice, rotation_matrix, scale_matrix) if a mapping is
@@ -530,8 +503,8 @@ class Lattice(MSONable):
         possible, with "good" defined by orthongonality of the lattice vectors.
 
         Args:
-            delta:
-                Reduction parameter. Default of 0.75 is usually fine.
+            delta (float): Reduction parameter. Default of 0.75 is usually
+                fine.
 
         Returns:
             Reduced lattice.
@@ -604,9 +577,8 @@ class Lattice(MSONable):
         60(1), 1-6. doi:10.1107/S010876730302186X
 
         Args:
-            tol:
-                The numerical tolerance. The default of 1e-5 should result in
-                stable behavior for most cases.
+            tol (float): The numerical tolerance. The default of 1e-5 should
+                result in stable behavior for most cases.
 
         Returns:
             Niggli-reduced lattice.
@@ -785,11 +757,9 @@ class Lattice(MSONable):
         Compute the scalar product of vector(s).
 
         Args:
-            coords_a, coords_b:
-                Array-like objects with the coordinates.
-            frac_coords:
-                Boolean stating whether the vector corresponds to fractional or
-                cartesian coordinates.
+            coords_a, coords_b: Array-like objects with the coordinates.
+            frac_coords (bool): Boolean stating whether the vector
+                corresponds to fractional or cartesian coordinates.
 
         Returns:
             one-dimensional `numpy` array.

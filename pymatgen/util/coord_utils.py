@@ -24,13 +24,10 @@ def find_in_coord_list(coord_list, coord, atol=1e-8):
     Find the indices of matches of a particular coord in a coord_list.
 
     Args:
-        coord_list:
-            List of coords to test
-        coord:
-            Specific coordinates
-        atol:
-            Absolute tolerance. Defaults to 1e-8.
-            Accepts both scalar and array
+        coord_list: List of coords to test
+        coord: Specific coordinates
+        atol: Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
+            array.
 
     Returns:
         Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
@@ -46,13 +43,10 @@ def in_coord_list(coord_list, coord, atol=1e-8):
     Tests if a particular coord is within a coord_list.
 
     Args:
-        coord_list:
-            List of coords to test
-        coord:
-            Specific coordinates
-        atol:
-            Absolute tolerance. Defaults to 1e-8.
-            Accepts both scalar and array
+        coord_list: List of coords to test
+        coord: Specific coordinates
+        atol: Absolute tolerance. Defaults to 1e-8. Accepts both scalar and
+            array.
 
     Returns:
         True if coord is in the coord list.
@@ -67,12 +61,9 @@ def get_linear_interpolated_value(x_values, y_values, x):
     threading servers.
 
     Args:
-        x_values:
-            Sequence of x values.
-        y_values:
-            Corresponding sequence of y values
-        x:
-            Get value at particular x
+        x_values: Sequence of x values.
+        y_values: Corresponding sequence of y values
+        x: Get value at particular x
 
     Returns:
         Value at x.
@@ -97,12 +88,10 @@ def pbc_diff(fcoords1, fcoords2):
     account periodic boundary conditions.
 
     Args:
-        fcoords1:
-            First set of fractional coordinates. e.g., [0.5, 0.6,
+        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6,
             0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
-        fcoords2:
-            Second set of fractional coordinates.
+        fcoords2: Second set of fractional coordinates.
 
     Returns:
         Fractional distance. Each coordinate must have the property that
@@ -123,14 +112,11 @@ def pbc_all_distances(lattice, fcoords1, fcoords2):
     different functionality from pbc_diff.
 
     Args:
-        lattice:
-            lattice to use
-        fcoords1:
-            First set of fractional coordinates. e.g., [0.5, 0.6,
+        lattice: lattice to use
+        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6,
             0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
-        fcoords2:
-            Second set of fractional coordinates.
+        fcoords2: Second set of fractional coordinates.
 
     Returns:
         2d array of cartesian distances. E.g the distance between
@@ -174,14 +160,11 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
     account periodic boundary conditions and the lattice.
 
     Args:
-        lattice:
-            lattice to use
-        fcoords1:
-            First set of fractional coordinates. e.g., [0.5, 0.6,
-            0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
+        lattice: lattice to use
+        fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
+            or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
-        fcoords2:
-            Second set of fractional coordinates.
+        fcoords2: Second set of fractional coordinates.
 
     Returns:
         array of displacement vectors from fcoords1 to fcoords2
@@ -224,12 +207,9 @@ def find_in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     periodic boundary conditions.
 
     Args:
-        fcoord_list:
-            List of fractional coords
-        fcoord:
-            A specific fractional coord to test.
-        atol:
-            Absolute tolerance. Defaults to 1e-8.
+        fcoord_list: List of fractional coords
+        fcoord: A specific fractional coord to test.
+        atol: Absolute tolerance. Defaults to 1e-8.
 
     Returns:
         Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
@@ -247,12 +227,9 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     Tests if a particular fractional coord is within a fractional coord_list.
 
     Args:
-        fcoord_list:
-            List of fractional coords to test
-        fcoord:
-            A specific fractional coord to test.
-        atol:
-            Absolute tolerance. Defaults to 1e-8.
+        fcoord_list: List of fractional coords to test
+        fcoord: A specific fractional coord to test.
+        atol: Absolute tolerance. Defaults to 1e-8.
 
     Returns:
         True if coord is in the coord list.
@@ -278,14 +255,10 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     2. keep points falling within r.
 
     Args:
-        lattice:
-            The lattice/basis for the periodic boundary conditions.
-        frac_points:
-            All points in the lattice in fractional coordinates.
-        center:
-            cartesian coordinates of center of sphere.
-        r:
-            radius of sphere.
+        lattice: The lattice/basis for the periodic boundary conditions.
+        frac_points: All points in the lattice in fractional coordinates.
+        center: Cartesian coordinates of center of sphere.
+        r: radius of sphere.
 
     Returns:
         [(fcoord, dist) ...] since most of the time, subsequent processing
@@ -333,10 +306,8 @@ def barycentric_coords(coords, simplex):
     simplex with d+1 points. Only works for d >= 2.
 
     Args:
-        coords:
-            list of n coords to transform, shape should be (n,d)
-        simplex:
-            list of coordinates that form the simplex, shape should be
+        coords: list of n coords to transform, shape should be (n,d)
+        simplex: list of coordinates that form the simplex, shape should be
             (d+1, d)
 
     Returns:
@@ -356,12 +327,9 @@ def get_angle(v1, v2, units="degrees"):
     Calculates the angle between two vectors.
 
     Args:
-        v1:
-            Vector 1
-        v2:
-            Vector 2
-        units:
-            "degrees" or "radians". Defaults to "degrees".
+        v1: Vector 1
+        v2: Vector 2
+        units: "degrees" or "radians". Defaults to "degrees".
 
     Returns:
         Angle between them in degrees.
