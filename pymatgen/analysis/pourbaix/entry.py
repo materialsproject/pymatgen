@@ -33,15 +33,15 @@ class PourbaixEntry(MSONable):
     Each bulk solid/ion has a free energy g of the form:
     g = g0_ref + 0.0591 log10(conc) - nO mu_H2O + (nH - 2nO) pH
     + phi (-nH + 2nO + q)
+
+    Args:
+        entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
+            entry object
+        energy: Energy of entry
     """
     def __init__(self, entry, correction=0.0, entry_id=None):
         """
-        Args:
-            entry:
-                An entry object
-                (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry)
-            energy:
-                Energy of entry
+
         """
         if isinstance(entry, IonEntry):
             self._entry = entry
@@ -146,8 +146,7 @@ class PourbaixEntry(MSONable):
         Add a correction term to g0.
 
         Args:
-            term:
-                Correction term to add to g0
+            term: Correction term to add to g0
         """
         self.correction += term
 
@@ -156,8 +155,7 @@ class PourbaixEntry(MSONable):
         Replace g0 by a different value.
 
         Args:
-            term: 
-                New value for g0
+            term: New value for g0
         """
         self.uncorrected_energy = term
         self.correction = 0.0
@@ -231,8 +229,7 @@ class PourbaixEntry(MSONable):
         Normalize all entries by normalization factor.
 
         Args:
-            factor:
-                Normalization factor
+            factor: Normalization factor
         """
         self._npH *= factor
         self._nPhi *= factor
@@ -288,8 +285,7 @@ class PourbaixEntry(MSONable):
         Set concentration manually.
 
         Args:
-            conc:
-                Input concentration
+            conc: Input concentration
         """
         self._conc = conc
 
@@ -310,10 +306,8 @@ class MultiEntry(PourbaixEntry):
     def __init__(self, entry_list, weights=None):
         """
         Args:
-            entry_list:
-                List of component PourbaixEntries
-            weights:
-                Weights associated with each entry. Default is None
+            entry_list: List of component PourbaixEntries
+            weights: Weights associated with each entry. Default is None
         """
         if weights is None:
             self._weights = [1.0] * len(entry_list)
@@ -391,6 +385,12 @@ class IonEntry(PDEntry):
     Object similar to PDEntry, but contains an Ion object instead of a
     Composition object.
 
+    Args:
+        comp: Ion object
+        energy: Energy for composition.
+        name: Optional parameter to name the entry. Defaults to the
+            chemical formula.
+
     .. attribute:: name
 
         A name for the entry. This is the string shown in the phase diagrams.
@@ -398,16 +398,6 @@ class IonEntry(PDEntry):
         set to some other string for display purposes.
     """
     def __init__(self, ion, energy, name=None):
-        """
-        Args:
-            comp:
-                Ion object
-            energy:
-                Energy for composition.
-            name:
-                Optional parameter to name the entry. Defaults to the
-                chemical formula.
-        """
         self._energy = energy
         self._composition = ion
         self.name = name if name else self._composition.reduced_formula
@@ -466,12 +456,10 @@ class PourbaixEntryIO(object):
         Exports Pourbaix entries to a csv
 
         Args:
-            filename:
-                Filename to write to.
-            entries:
-                Entries to export.
-            latexify_names:
-                Format entry names to be LaTex compatible, e.g., Li_{2}O
+            filename: Filename to write to.
+            entries: Entries to export.
+            latexify_names: Format entry names to be LaTex compatible, e.g.,
+                Li_{2}O
         """
         import csv
         elements = set()
@@ -506,7 +494,7 @@ class PourbaixEntryIO(object):
         Imports PourbaixEntries from a csv.
 
         Args:
-            filename - Filename to import from.
+            filename: Filename to import from.
 
         Returns:
             List of Entries

@@ -26,7 +26,7 @@ class EntryPostProcessor(object):
         Process a single entry.
 
         Args:
-            entry - An ComputedEntry object.
+            entry: An ComputedEntry object.
 
         Returns:
             An processed entry. None if entry is not compatible within the
@@ -40,7 +40,7 @@ class EntryPostProcessor(object):
         Process a sequence of entries.
 
         Args:
-            entries - A sequence of ComputedEntries.
+            entries: A sequence of ComputedEntries.
 
         Returns:
             An list of processed entries.  ComputedEntries in the original list
