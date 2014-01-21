@@ -580,14 +580,31 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     It is recommended to use the static from_previous_run method to construct
     the input set to inherit most of the functions.
 
-    Supports the same kwargs as :class:`DictVaspInputSet`.
-
     Args:
         kpoints_density (int):
             kpoints density for the reciprocal cell of structure. Might need to
             increase the default value when calculating metallic materials.
         sym_prec (float):
             Tolerance for symmetry finding
+    kwargs:
+        hubbard_off (bool):
+            Whether to turn off Hubbard U if it is specified in
+            config_dict ("MP Static"). Defaults to False, i.e., follow settings in
+            config_dict.
+        user_incar_settings (dict):
+            User INCAR settings. This allows a user to override INCAR settings,
+            e.g., setting a different MAGMOM for various elements or species.
+        constrain_total_magmom (bool):
+            Whether to constrain the total magmom (NUPDOWN in INCAR) to be
+            the sum of the expected MAGMOM for all species. Defaults to False.
+        sort_structure (bool):
+            Whether to sort the structure (using the default sort order of
+            electronegativity) before generating input files. Defaults to True,
+            the behavior you would want most of the time. This ensures that
+            similar atomic species are grouped together.
+        ediff_per_atom (bool):
+            Whether the EDIFF is specified on a per atom basis.
+
     """
 
     def __init__(self, kpoints_density=90, sym_prec=0.01, **kwargs):
