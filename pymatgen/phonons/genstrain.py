@@ -25,7 +25,7 @@ __email__ = "maartendft@gmail.com"
 __status__ = "Development"
 __date__ ="Jan 24, 2012"
 
-def DeformGeometry(rlxd_str, nd=0.01, ns=0.01, m=4, n=4):
+def DeformGeometry(rlxd_str, nd=0.01, ns=0.08, m=4, n=4):
         
     msteps = np.int(m)
     nsteps = np.int(n)

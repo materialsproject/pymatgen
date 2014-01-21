@@ -61,12 +61,12 @@ class CijTensor(object):
             for k in inds:
                 true_data = self._chain_stresses(stress, k[0], k[1])
                 p1 = np.polyfit(strain, true_data, 1)
-                p2 = np.polyfit(strain, true_data, 2)
-                p3 = np.polyfit(strain, true_data, 3)
+                #p2 = np.polyfit(strain, true_data, 2)
+                #p3 = np.polyfit(strain, true_data, 3)
 
                 f1 = np.polyval(p1, strain)
-                f2 = np.polyval(p2, strain)
-                f3 = np.polyval(p3, strain)
+                #f2 = np.polyval(p2, strain)
+                #f3 = np.polyval(p3, strain)
 
                 Cij[count1, n1] = -0.10*p1[0]
                 count1 += 1                
@@ -102,8 +102,6 @@ class CijTensor(object):
 
             for k in inds:
                 true_data = self._chain_stresses(stress, k[0], k[1])
-                true_data[2] = np.nan
-                true_data[0] = np.nan
                 straink = copy.copy(strain)
 
                 #print true_data, strain
@@ -121,7 +119,7 @@ class CijTensor(object):
                     true_data.pop(kk)
                     straink.pop(kk)
 
-
+                print straink, true_data
                 p1 = np.polyfit(straink, true_data, 1)
                 f1 = np.polyval(p1, straink)
 
