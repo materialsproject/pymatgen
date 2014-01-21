@@ -812,29 +812,28 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     a static run to calculate bandstructure, density of states(DOS) and etc.
     It is recommended to use the NonSCF from_previous_run method to construct
     the input set to inherit most of the functions.
+
+    Args:
+        user_incar_settings (dict): A dict specify customized settings
+            for INCAR. Must contain a NBANDS value, suggest to use
+            1.2*(NBANDS from static run).
+        mode: Line: Generate k-points along symmetry lines for
+            bandstructure. Uniform: Generate uniform k-points
+            grids for DOS.
+        constrain_total_magmom (bool): Whether to constrain the total
+            magmom (NUPDOWN in INCAR) to be the sum of the expected
+            MAGMOM for all species. Defaults to False.
+        kpoints_density (int): kpoints density for the reciprocal cell
+            of structure. Might need to increase the default value when
+            calculating metallic materials.
+        sort_structure (bool): Whether to sort structure. Defaults to
+            False.
+        sym_prec (float): Tolerance for symmetry finding
     """
 
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.01):
-        """
-        Args:
-            user_incar_settings (dict): A dict specify customized settings
-                for INCAR. Must contain a NBANDS value, suggest to use
-                1.2*(NBANDS from static run).
-            mode: Line: Generate k-points along symmetry lines for
-                bandstructure. Uniform: Generate uniform k-points
-                grids for DOS.
-            constrain_total_magmom (bool): Whether to constrain the total
-                magmom (NUPDOWN in INCAR) to be the sum of the expected
-                MAGMOM for all species. Defaults to False.
-            kpoints_density (int): kpoints density for the reciprocal cell
-                of structure. Might need to increase the default value when
-                calculating metallic materials.
-            sort_structure (bool): Whether to sort structure. Defaults to
-                False.
-            sym_prec (float): Tolerance for symmetry finding
-        """
         self.mode = mode
         self.sym_prec= sym_prec
         if mode not in ["Line", "Uniform"]:
