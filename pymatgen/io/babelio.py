@@ -41,8 +41,7 @@ class BabelMolAdaptor(object):
         Initializes with pymatgen Molecule or OpenBabel"s OBMol.
 
         Args:
-            mol:
-                pymatgen"s Molecule or OpenBabel OBMol
+            mol: pymatgen's Molecule or OpenBabel OBMol
         """
         if isinstance(mol, Molecule):
             if not mol.is_ordered:
@@ -102,11 +101,9 @@ class BabelMolAdaptor(object):
         A wrapper to pybel's localopt method to optimize a Molecule.
 
         Args:
-            forcefield:
-                Default is mmff94. Options are 'gaff', 'ghemical', 'mmff94',
-                'mmff94s', and 'uff'.
-            steps:
-                Default is 500.
+            forcefield: Default is mmff94. Options are 'gaff', 'ghemical',
+                'mmff94', 'mmff94s', and 'uff'.
+            steps: Default is 500.
         """
         pbmol = pb.Molecule(self._obmol)
         pbmol.localopt(forcefield=forcefield, steps=steps)
@@ -124,10 +121,8 @@ class BabelMolAdaptor(object):
         Uses OpenBabel to output all supported formats.
 
         Args:
-            filename:
-                Filename of file to output
-            file_format:
-                String specifying any OpenBabel supported formats.
+            filename: Filename of file to output
+            file_format: String specifying any OpenBabel supported formats.
         """
         mol = pb.Molecule(self._obmol)
         mol.write(file_format, filename, overwrite=True)
@@ -138,10 +133,8 @@ class BabelMolAdaptor(object):
         Uses OpenBabel to read a molecule from a file in all supported formats.
 
         Args:
-            filename:
-                Filename of input file
-            file_format:
-                String specifying any OpenBabel supported formats.
+            filename: Filename of input file
+            file_format: String specifying any OpenBabel supported formats.
 
         Returns:
             BabelMolAdaptor object
@@ -156,10 +149,8 @@ class BabelMolAdaptor(object):
         formats.
 
         Args:
-            string_data:
-                String containing molecule data.
-            file_format:
-                String specifying any OpenBabel supported formats.
+            string_data: String containing molecule data.
+            file_format: String specifying any OpenBabel supported formats.
 
         Returns:
             BabelMolAdaptor object
