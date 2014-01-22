@@ -17,7 +17,7 @@ import numpy as np
 from fractions import gcd, Fraction
 
 from pymatgen.core.structure import Specie, Composition
-from pymatgen.core.periodic_table import smart_element_or_specie
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation, OrderDisorderedStructureTransformation
@@ -48,7 +48,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         charge = structure.charge
-        specie = smart_element_or_specie(self._charge_balance_sp)
+        specie = get_el_sp(self._charge_balance_sp)
         num_to_remove = charge / specie.oxi_state
         num_in_structure = structure.composition[specie]
         removal_fraction = num_to_remove / num_in_structure
@@ -494,7 +494,7 @@ class MagOrderingTransformation(AbstractTransformation):
         #Make a mutable structure first
         mods = Structure.from_sites(structure)
         for sp, spin in self.mag_species_spin.items():
-            sp = smart_element_or_specie(sp)
+            sp = get_el_sp(sp)
             oxi_state = getattr(sp, "oxi_state", 0)
             up = Specie(sp.symbol, oxi_state, {"spin": abs(spin)})
             down = Specie(sp.symbol, oxi_state, {"spin": -abs(spin)})

@@ -29,7 +29,7 @@ import math
 
 import numpy as np
 
-from pymatgen.core import Structure, smart_element_or_specie
+from pymatgen.core import Structure, get_el_sp
 import pymatgen.core.physical_constants as phyc
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.vaspio.vasp_output import Vasprun
@@ -392,7 +392,7 @@ def get_conversion_factor(structure, species, temperature):
         Conversion factor.
         Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)
     """
-    df_sp = smart_element_or_specie(species)
+    df_sp = get_el_sp(species)
     if hasattr(df_sp, "oxi_state"):
         z = df_sp.oxi_state
     else:

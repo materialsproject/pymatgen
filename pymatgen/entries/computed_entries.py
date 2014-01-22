@@ -32,28 +32,34 @@ class ComputedEntry(PDEntry, MSONable):
     PDEntry is that it includes additional parameters like a correction and
     run_parameters.
 
-    Args:
-        composition: Composition of the entry. For flexibility, this can
-            take the form of all the typical input taken by a Composition,
-            including a {symbol: amt} dict, a string formula, and others.
-        energy: Energy of the entry. Usually the final calculated energy from
-            VASP or other electronic structure codes.
-        correction: A correction to be applied to the energy. This is used to
-            modify the energy for certain analyses. Defaults to 0.0.
-        parameters: An optional dict of parameters associated with the entry.
-            Defaults to None.
-        data: An optional dict of any additional data associated with the
-            entry. Defaults to None.
-        entry_id: An optional id to uniquely identify the entry.
-        attribute: Optional attribute of the entry. This can be used to
-            specify that the entry is a newly found compound, or to specify
-            a particular label for the entry, or else ... Used for further
-            analysis and plotting purposes. An attribute can be anything
-            but must be MSONable.
     """
 
     def __init__(self, composition, energy, correction=0.0, parameters=None,
                  data=None, entry_id=None, attribute=None):
+        """
+        Initializes a ComputedEntry.
+
+        Args:
+            composition (Composition): Composition of the entry. For
+                flexibility, this can take the form of all the typical input
+                taken by a Composition, including a {symbol: amt} dict,
+                a string formula, and others.
+            energy (float): Energy of the entry. Usually the final calculated
+                energy from VASP or other electronic structure codes.
+            correction (float): A correction to be applied to the energy.
+                This is used to modify the energy for certain analyses.
+                Defaults to 0.0.
+            parameters (dict): An optional dict of parameters associated with
+                the entry. Defaults to None.
+            data (dict): An optional dict of any additional data associated
+                with the entry. Defaults to None.
+            entry_id (obj): An optional id to uniquely identify the entry.
+            attribute: Optional attribute of the entry. This can be used to
+                specify that the entry is a newly found compound, or to specify
+                a particular label for the entry, or else ... Used for further
+                analysis and plotting purposes. An attribute can be anything
+                but must be MSONable.
+        """
         comp = Composition(composition)
         PDEntry.__init__(self, comp, energy, attribute=attribute)
         self.correction = correction
@@ -117,22 +123,26 @@ class ComputedStructureEntry(ComputedEntry):
     """
     A heavier version of ComputedEntry which contains a structure as well. The
     structure is needed for some analyses.
-
-    Args:
-        structure: The actual structure of an entry.
-        energy: Energy of the entry. Usually the final calculated energy from
-            VASP or other electronic structure codes.
-        correction: A correction to be applied to the energy. This is used to
-            modify the energy for certain analyses. Defaults to 0.0.
-        parameters: An optional dict of parameters associated with the entry.
-            Defaults to None.
-        data: An optional dict of any additional data associated with the
-            entry. Defaults to None.
-        entry_id: An optional id to uniquely identify the entry.
     """
 
     def __init__(self, structure, energy, correction=0.0, parameters=None,
                  data=None, entry_id=None):
+        """
+        Initializes a ComputedStructureEntry.
+
+        Args:
+            structure (Structure): The actual structure of an entry.
+            energy (float): Energy of the entry. Usually the final calculated
+                energy from VASP or other electronic structure codes.
+            correction (float): A correction to be applied to the energy.
+                This is used to modify the energy for certain analyses.
+                Defaults to 0.0.
+            parameters (dict): An optional dict of parameters associated with
+                the entry. Defaults to None.
+            data (dict): An optional dict of any additional data associated
+                with the entry. Defaults to None.
+            entry_id (obj): An optional id to uniquely identify the entry.
+        """
         ComputedEntry.__init__(self, structure.composition, energy,
                                correction=correction, parameters=parameters,
                                data=data, entry_id=entry_id)

@@ -23,7 +23,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.ewald import EwaldSummation, EwaldMinimizer
 from pymatgen.core.composition import Composition
 from pymatgen.core.operations import SymmOp
-from pymatgen.core.periodic_table import smart_element_or_specie
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.site_transformations import \
     PartialRemoveSitesTransformation
@@ -304,10 +304,10 @@ class SubstitutionTransformation(AbstractTransformation):
         species_map = {}
         for k, v in self._species_map.items():
             if isinstance(v, dict):
-                value = {smart_element_or_specie(x): y for x, y in v.items()}
+                value = {get_el_sp(x): y for x, y in v.items()}
             else:
-                value = smart_element_or_specie(v)
-            species_map[smart_element_or_specie(k)] = value
+                value = get_el_sp(v)
+            species_map[get_el_sp(k)] = value
         s = Structure.from_sites(structure.sites)
         s.replace_species(species_map)
         return s
@@ -358,7 +358,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
     def apply_transformation(self, structure):
         s = Structure.from_sites(structure.sites)
-        map(s.remove_species, [[smart_element_or_specie(sp)]
+        map(s.remove_species, [[get_el_sp(sp)]
                                for sp in self._species])
         return s
 
@@ -439,7 +439,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
             be stored in the transformation_parameters dictionary in the
             transmuted structure class.
         """
-        sp = smart_element_or_specie(self._specie)
+        sp = get_el_sp(self._specie)
         specie_indices = [i for i in xrange(len(structure))
                           if structure[i].species_and_occu ==
                           Composition({sp: 1})]

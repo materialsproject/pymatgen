@@ -124,10 +124,8 @@ class StructureEditor(StructureModifier):
         occupations.
 
         Args:
-            index:
-                The index of the site in the _sites list.
-            species:
-                A species object.
+            index: The index of the site in the _sites list.
+            species: A species object.
         """
         self._sites[index] = PeriodicSite(species_n_occu,
                                           self._sites[index].frac_coords,
@@ -428,7 +426,7 @@ class StructureEditor(StructureModifier):
         return Structure(self._lattice, species, coords, False,
                          site_properties=props)
 
-    
+
 
 @deprecated(replacement=Structure)
 class SupercellMaker(StructureModifier):
