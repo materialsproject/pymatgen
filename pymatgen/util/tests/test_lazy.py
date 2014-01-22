@@ -5,7 +5,7 @@ Taken from https://pypi.python.org/pypi/lazy v1.1
 import sys
 import unittest
 
-from lazy import lazy
+from pymatgen.util.lazy import lazy
 
 
 class TestCase(unittest.TestCase):
