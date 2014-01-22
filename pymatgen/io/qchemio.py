@@ -24,7 +24,49 @@ __date__ = "11/4/13"
 
 class QcTask(MSONable):
     """
-        An object representing a QChem input file.
+    An object representing a QChem input file.
+
+    Args:
+        molecule: The input molecule. If it is None of string "read",
+            QChem will read geometry from checkpoint file. If it is a
+            Molecule object, QcInput will convert it into Cartesian
+            coordinates. Valid values: pymatgen Molecule object, "read", None
+            Defaults to None.
+        charge (int): Charge of the molecule. If None, charge on molecule is
+            used. Defaults to None.
+        spin_multiplicity (int): Spin multiplicity of molecule. Defaults to
+            None, which means that the spin multiplicity is set to 1 if the
+            molecule has no unpaired electrons and to 2 if there are
+            unpaired electrons.
+        jobtype (str): The type the QChem job. "SP" for Single Point Energy,
+            "opt" for geometry optimization, "freq" for
+            vibrational frequency.
+        title (str): Comments for the job. Defaults to None. Which means the
+            $comment section will be discarded.
+        exchange (str): The exchange methods of the theory. Examples including:
+            "B" (in pure BLYP), "PW91", "PBE", "TPSS".
+            Defaults to "HF".
+            This parameter can also be common names of hybrid
+            functionals, such as B3LYP, TPSSh, XYGJOS. In such cases,
+            the correlation parameter should be left as None.
+        correlation (str): The correlation level of the theory. Example
+            including: "MP2", "RI-MP2", "CCSD(T)", "LYP", "PBE", "TPSS"
+            Defaults to None.
+        basis_set (str/dict): The basis set.
+            If it is a dict, each element can use different basis set.
+        aux_basis_set (str/dict): Auxiliary basis set. For methods,
+            like RI-MP2, XYG3, OXYJ-OS, auxiliary basis set is required.
+            If it is a dict, each element can use different auxiliary
+            basis set.
+        ecp: Effective core potential (ECP) to be used.
+            If it is a dict, each element can use different ECP.
+        rem_params (dict): The parameters supposed to write in the $rem
+            section. Dict of key/value pairs.
+            Example: {"scf_algorithm": "diis_gdm", "scf_max_cycles": 100}
+        optional_params (dict): The parameter for keywords other than $rem
+            section. Dict of key/value pairs.
+            Example: {"basis": {"Li": "cc-PVTZ", "B": "aug-cc-PVTZ",
+            "F": "aug-cc-PVTZ"} "ecp": {"Cd": "srsc", "Br": "srlc"}}
     """
 
     optional_keywords_list = {"basis", "ecp", "empirical_dispersion",
@@ -48,79 +90,6 @@ class QcTask(MSONable):
                  jobtype='SP', title=None, exchange="HF", correlation=None,
                  basis_set="6-31+G*", aux_basis_set=None, ecp=None,
                  rem_params=None, optional_params=None):
-        """
-        Args:
-            molecule:
-                The input molecule. If it is None of string "read", QChem will
-                read geometry from checkpoint file. If it is a Molecule object,
-                QcInput will convert it into Cartesian coordinates.
-                Valid values: pymatgen Molecule object, "read", None
-                Defaults to None.
-            charge:
-                Charge of the molecule. If None, charge on molecule is used.
-                Defaults to None.
-                Type: Integer
-            spin_multiplicity:
-                Spin multiplicity of molecule. Defaults to None,
-                which means that the spin multiplicity is set to 1 if the
-                molecule has no unpaired electrons and to 2 if there are
-                unpaired electrons.
-                Type: Integer
-            jobtype:
-                The type the QChem job. "SP" for Single Point Energy,
-                "opt" for geometry optimization, "freq" for
-                vibrational frequency.
-                Type: str
-            title:
-                Comments for the job. Defaults to None. Which means the
-                $comment section will be discarded
-                Type: str
-            exchange:
-                The exchange methods of the theory. Examples including:
-                "B" (in pure BLYP), "PW91", "PBE", "TPSS".
-                Defaults to "HF".
-                This parameter can also be common names of hybrid
-                functionals, such as B3LYP, TPSSh, XYGJOS. In such cases,
-                the correlation parameter should be left as None.
-                Type: str
-            correlation:
-                The correlation level of the theory. Example including:
-                "MP2", "RI-MP2", "CCSD(T)", "LYP", "PBE", "TPSS"
-                Defaults to None.
-                Type: str
-            basis_set:
-                The basis set.
-                If it is a dict, each element can use different basis set.
-                Type: str or dict
-            aux_basis_set:
-                Auxiliary basis set. For methods, like RI-MP2, XYG3, OXYJ-OS,
-                auxiliary basis set is required.
-                If it is a dict, each element can use different auxiliary
-                basis set.
-                Type: str or dict
-                Type: str
-            ecp:
-                Effective core potential (ECP) to be used.
-                If it is a dict, each element can use different ECP.
-                Type: str or dict
-            rem_params:
-                The parameters supposed to write in the $rem section. Dict of
-                key/value pairs.
-                Type: dict
-                Example: {"scf_algorithm": "diis_gdm", "scf_max_cycles": 100}
-            optional_params:
-                The parameter for keywords other than $rem section. Dict of
-                key/value pairs.
-                Type: dict
-                Example: {"basis":
-                          {"Li": "cc-PVTZ", "B": "aug-cc-PVTZ",
-                           "F": "aug-cc-PVTZ"}
-                          "ecp":
-                          {"Cd": "srsc", "Br": "srlc"}
-                         }
-
-        """
-
         self.mol = copy.deepcopy(molecule) if molecule else "read"
         if isinstance(self.mol, str):
             self.mol = self.mol.lower()
@@ -326,9 +295,9 @@ class QcTask(MSONable):
         SCF is considered converged when the wavefunction error is less than
         10**(-exponent).
         In QChem, the default values are:
-            5	For single point energy calculations.
-            7	For geometry optimizations and vibrational analysis.
-            8	For SSG calculations
+        5	For single point energy calculations.
+        7	For geometry optimizations and vibrational analysis.
+        8	For SSG calculations
 
         Args:
             exponent: The exponent of the threshold. (Integer)
@@ -339,12 +308,12 @@ class QcTask(MSONable):
         """
         Cutoff for neglect of two electron integrals. 10−THRESH (THRESH ≤ 14).
         In QChem, the default values are:
-            8	For single point energies.
-            10	For optimizations and frequency calculations.
-            14	For coupled-cluster calculations.
+        8	For single point energies.
+        10	For optimizations and frequency calculations.
+        14	For coupled-cluster calculations.
 
         Args:
-            thresh. The exponent of the threshold. (Integer)
+            thresh: The exponent of the threshold. (Integer)
         """
         self.params["rem"]["thresh"] = thresh
 
@@ -411,10 +380,10 @@ class QcTask(MSONable):
         "cartesian"       --- always cartesian coordinates.
         "internal"        --- always internal coordinates.
         "internal-switch" --- try internal coordinates first, if fails, switch
-            to cartesian coordinates.
+        to cartesian coordinates.
         "z-matrix"        --- always z-matrix coordinates.
         "z-matrix-switch" --- try z-matrix first, if fails, switch to
-            cartesian coordinates.
+        cartesian coordinates.
 
         Args:
             coords_type: The type of the coordinates. (str)
@@ -489,15 +458,10 @@ class QcTask(MSONable):
         gaussian default value
 
         Args:
-            pcm_params:
-                The parameters of "$pcm" section.
-                Type: dict
-            solvent_params:
-                The parameters of "pcm_solvent" section
-                Type: dict
-            radii_force_field:
-                The force fied used to set the solute radii. Default to UFF.
-                Type: str
+            pcm_params (dict): The parameters of "$pcm" section.
+            solvent_params (dict): The parameters of "pcm_solvent" section
+            radii_force_field (str): The force fied used to set the solute
+                radii. Default to UFF.
         """
         self.params["pcm"] = dict()
         self.params["pcm_solvent"] = dict()
@@ -688,8 +652,7 @@ class QcTask(MSONable):
         Creates QcInput from a string.
 
         Args:
-            contents:
-                String representing a QChem input file.
+            contents: String representing a QChem input file.
 
         Returns:
             QcInput object
@@ -1034,14 +997,12 @@ class QcTask(MSONable):
 class QcInput(MSONable):
     """
     An object representing a multiple step QChem input file.
+
+    Args:
+        jobs: The QChem jobs (List of QcInput object)
     """
 
     def __init__(self, jobs):
-        """
-        Args:
-            jobs: The QChem jobs
-                (List of QcInput object)
-        """
         jobs = jobs if isinstance(jobs, list) else [jobs]
         for j in jobs:
             if not isinstance(j, QcTask):

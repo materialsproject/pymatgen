@@ -19,7 +19,7 @@ import collections
 import string
 from fractions import gcd
 from itertools import chain
-from pymatgen.core.periodic_table import smart_element_or_specie, Element
+from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.units import unitized
@@ -109,14 +109,14 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                                        "negative!")
             elif v < 0:
                 del elmap[k]
-        self._elmap = {smart_element_or_specie(k): v for k, v in elmap.items()}
+        self._elmap = {get_el_sp(k): v for k, v in elmap.items()}
         self._natoms = sum(self._elmap.values())
 
     def __getitem__(self, el):
         """
         Get the amount for element.
         """
-        return self._elmap.get(smart_element_or_specie(el), 0)
+        return self._elmap.get(get_el_sp(el), 0)
 
     def __eq__(self, other):
         for el in chain(self.elements, other.elements):
@@ -134,7 +134,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = {el: self[el] for el in self}
         for k in other.keys():
-            el = smart_element_or_specie(k)
+            el = get_el_sp(k)
             if el in self:
                 new_el_map[el] += other[k]
             else:
@@ -152,7 +152,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = {el: self[el] for el in self}
         for k in other.keys():
-            el = smart_element_or_specie(k)
+            el = get_el_sp(k)
             if el in self and other[k] <= self[el]:
                 new_el_map[el] -= other[k]
             else:
@@ -213,12 +213,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns true if compositions are equal within a tolerance.
 
         Args:
-            other:
-                other composition to check
-            rtol:
-                relative tolerance
-            atol:
-                absolute tolerance
+            other (Composition): Other composition to check
+            rtol (float): Relative tolerance
+            atol (float): Absolute tolerance
         """
         sps = set(self.elements + other.elements)
         for sp in sps:
@@ -249,7 +246,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys(),
-                      key=lambda s: smart_element_or_specie(s).X)
+                      key=lambda s: get_el_sp(s).X)
         formula = []
         for s in syms:
             if sym_amt[s] != 0:
@@ -372,9 +369,10 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
     def get_atomic_fraction(self, el):
         """
+        Calculate atomic fraction of an Element or Specie.
+
         Args:
-            el:
-                Element or Specie
+            el (Element/Specie): Element or Specie to get fraction for.
 
         Returns:
             Atomic fraction for element el in Composition
@@ -383,20 +381,20 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
     def get_wt_fraction(self, el):
         """
+        Calculate weight fraction of an Element or Specie.
+
         Args:
-            el:
-                Element or Specie
+            el (Element/Specie): Element or Specie to get fraction for.
 
         Returns:
             Weight fraction for element el in Composition
         """
-        return smart_element_or_specie(el).atomic_mass * self[el] / self.weight
+        return get_el_sp(el).atomic_mass * self[el] / self.weight
 
     def _parse_formula(self, formula):
         """
         Args:
-            formula:
-                A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
+            formula (str): A string formula, e.g. Fe2O3, Li3Fe2(PO4)3
 
         Returns:
             Composition with that formula.
@@ -473,8 +471,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         for easier introspection.
 
         Args:
-            d:
-                {symbol: amount} dict.
+            d (dict): {symbol: amount} dict.
         """
         return cls(d)
 
@@ -534,16 +531,12 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Author: Anubhav Jain
 
         Args:
-            fuzzy_formula:
-                A formula string, such as "co2o3" or "MN", that may or may not
-
-                have multiple interpretations
-            lock_if_strict:
-                If true, a properly entered formula will only return the one
-
-                correct interpretation. For example, "Co1" will only return
-
-                "Co1" if true, but will return both "Co1" and "C1 O1" if false.
+            fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
+                that may or may not have multiple interpretations
+            lock_if_strict (bool): If true, a properly entered formula will
+                only return the one correct interpretation. For example,
+                "Co1" will only return "Co1" if true, but will return both
+                "Co1" and "C1 O1" if false.
 
         Returns:
             A ranked list of potential Composition matches
@@ -578,16 +571,14 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Author: Anubhav Jain
 
         Args:
-            fuzzy_formula:
-                A formula string, such as "co2o3" or "MN", that may or may not
-                have multiple interpretations.
-            m_dict:
-                A symbol:amt dictionary from the previously parsed formula.
-            m_points:
-                Number of points gained from the previously parsed formula.
-            factor:
-                Coefficient for this parse, e.g. (PO4)2 will feed in PO4 as the
-                fuzzy_formula with a coefficient of 2.
+            fuzzy_formula (str): A formula string, such as "co2o3" or "MN",
+                that may or may not have multiple interpretations.
+            m_dict (dict): A symbol:amt dictionary from the previously parsed
+                formula.
+            m_points: Number of points gained from the previously parsed
+                formula.
+            factor: Coefficient for this parse, e.g. (PO4)2 will feed in PO4
+                as the fuzzy_formula with a coefficient of 2.
 
         Returns:
             A list of tuples, with the first element being a Composition and
@@ -602,15 +593,13 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             Author: Anubhav Jain
 
             Args:
-                m:
-                    a regex match, with the first group being the element and
+                m: A regex match, with the first group being the element and
                     the second group being the amount
-                f:
-                    The formula part containing the match
-                m_dict:
-                    A symbol:amt dictionary from the previously parsed formula
-                m_points:
-                    Number of points gained from the previously parsed formula
+                f: The formula part containing the match
+                m_dict: A symbol:amt dictionary from the previously parsed
+                    formula
+                m_points: Number of points gained from the previously parsed
+                    formula
 
             Returns:
                 A tuple of (f, m_dict, points) where m_dict now contains data
@@ -732,22 +721,22 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
 def reduce_formula(sym_amt):
     """
-    Help method to reduce a sym_amt dict to a reduced formula and factor.
+    Helper method to reduce a sym_amt dict to a reduced formula and factor.
 
     Args:
-        Dict of the form {symbol: amount}.
+        sym_amt (dict): {symbol: amount}.
 
     Returns:
         (reduced_formula, factor).
     """
     syms = sorted(sym_amt.keys(),
-                  key=lambda s: smart_element_or_specie(s).X)
+                  key=lambda s: get_el_sp(s).X)
 
     syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance, syms)
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
-                          smart_element_or_specie(syms[num_el - 1]).X
-                          - smart_element_or_specie(syms[num_el - 2]).X < 1.65)
+                          get_el_sp(syms[num_el - 1]).X
+                          - get_el_sp(syms[num_el - 2]).X < 1.65)
 
     factor = reduce(gcd, sym_amt.values())
     reduced_form = []

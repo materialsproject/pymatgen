@@ -83,8 +83,7 @@ class GulpIO:
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
-            args:
-                1st line keywords
+            \*args: 1st line keywords
         """
         if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
             raise GulpError("Wrong keywords given")
@@ -99,24 +98,22 @@ class GulpIO:
         Generates GULP input string corresponding to pymatgen structure.
 
         Args:
-            structure:
-                pymatgen Structure object
-            cell_flg (default = True):
-                Option to use lattice parameters.
-            fractional_flg (default = True):
-                If True, fractional coordinates are used.
-                Else, cartesian coodinates in Angstroms are used.
+            structure: pymatgen Structure object
+            cell_flg (default = True): Option to use lattice parameters.
+            fractional_flg (default = True): If True, fractional coordinates
+                are used. Else, cartesian coodinates in Angstroms are used.
                 ******
                 GULP convention is to use fractional coordinates for periodic
                 structures and cartesian coordinates for non-periodic
                 structures.
                 ******
-            anion_shell_flg (default = True):
-                If True, anions are considered polarizable.
-            cation_shell_flg (default = False):
-                If True, cations are considered polarizable.
-            symm_flg (default = True):
-                If True, symmetry information is also written.
+            anion_shell_flg (default = True): If True, anions are considered
+                polarizable.
+            cation_shell_flg (default = False): If True, cations are
+                considered polarizable.
+            symm_flg (default = True): If True, symmetry information is also
+                written.
+
         Returns:
             string containing structure for GULP input
         """
@@ -157,21 +154,18 @@ class GulpIO:
         structure.
 
         Args:
-            structure:
-                pymatgen.core.structure.Structure object
-            potential:
-                String specifying the type of potential used
-            kwargs:
-                Additional parameters related to potential. For potential ==
-                 "buckingham",
+            structure: pymatgen.core.structure.Structure object
+            potential: String specifying the type of potential used
+            \*\*kwargs: Additional parameters related to potential. For
+                potential == "buckingham",
                 anion_shell_flg (default = False):
-                    If True, anions are considered polarizable.
-                    anion_core_chrg=float
-                    anion_shell_chrg=float
+                If True, anions are considered polarizable.
+                anion_core_chrg=float
+                anion_shell_chrg=float
                 cation_shell_flg (default = False):
-                    If True, cations are considered polarizable.
-                    cation_core_chrg=float
-                    cation_shell_chrg=float
+                If True, cations are considered polarizable.
+                cation_core_chrg=float
+                cation_shell_chrg=float
 
         Returns:
             string containing specie and potential specification for gulp
@@ -188,8 +182,7 @@ class GulpIO:
         structure are in the library file.
 
         Args:
-            file_name:
-                Name of GULP library file
+            file_name: Name of GULP library file
 
         Returns:
             GULP input string specifying library option
@@ -239,19 +232,14 @@ class GulpIO:
                          uc=True, valence_dict=None):
         """
         Gets a GULP input for an oxide structure and buckingham potential
-    from library.
+        from library.
 
         Args:
-            structure:
-                pymatgen.core.structure.Structure
-            keywords:
-                GULP first line keywords.
-            library (Default=None):
-                File containing the species and potential.
-            uc (Default=True):
-                Unit Cell Flag.
-            valence_dict:
-                {El: valence}
+            structure: pymatgen.core.structure.Structure
+            keywords: GULP first line keywords.
+            library (Default=None): File containing the species and potential.
+            uc (Default=True): Unit Cell Flag.
+            valence_dict: {El: valence}
         """
         gin = self.keyword_line(*keywords)
         gin += self.structure_lines(structure, symm_flg=not uc)
@@ -273,10 +261,9 @@ class GulpIO:
                J. Mater Chem., 4, 831-837 (1994)
 
         Args:
-            structure:
-                pymatgen.core.structure.Structure
-            val_dict (Needed if structure is not charge neutral)
-                El:valence dictionary, where El is element.
+            structure: pymatgen.core.structure.Structure
+            val_dict (Needed if structure is not charge neutral): {El:valence}
+                dict, where El is element.
         """
         if not val_dict:
             bv = BVAnalyzer()
@@ -332,16 +319,12 @@ class GulpIO:
         Gets a GULP input with Tersoff potential for an oxide structure
 
         Args:
-            structure:
-                pymatgen.core.structure.Structure
-            periodic (Default=False):
-                Flag denoting whether periodic boundary conditions are used
-            library (Default=None):
-                File containing the species and potential.
-            uc (Default=True):
-                Unit Cell Flag.
-            keywords:
-                GULP first line keywords.
+            structure: pymatgen.core.structure.Structure
+            periodic (Default=False): Flag denoting whether periodic
+                boundary conditions are used
+            library (Default=None): File containing the species and potential.
+            uc (Default=True): Unit Cell Flag.
+            keywords: GULP first line keywords.
         """
         #gin="static noelectrostatics \n "
         gin = self.keyword_line(*keywords)
@@ -357,8 +340,7 @@ class GulpIO:
         Generate the species, tersoff potential lines for an oxide structure
 
         Args:
-            structure:
-                pymatgen.core.structure.Structure
+            structure: pymatgen.core.structure.Structure
         """
         bv = BVAnalyzer()
         el = [site.species_string for site in structure.sites]
@@ -494,8 +476,10 @@ class GulpCaller:
     def __init__(self, cmd='gulp'):
         """
         Initialize with the executable if not in the standard path
-        """
 
+        Args:
+            cmd: Command. Defaults to gulp.
+        """
         def is_exe(f):
             return os.path.isfile(f) and os.access(f, os.X_OK)
 
@@ -518,12 +502,10 @@ class GulpCaller:
         Run GULP using the gin as input
 
         Args:
-            gin:
-                GULP input string
+            gin: GULP input string
 
         Returns:
-            gout:
-                GULP output string
+            gout: GULP output string
         """
         #command=["gulp"]
         p = subprocess.Popen(
@@ -562,10 +544,8 @@ def get_energy_tersoff(structure, gulp_cmd='gulp'):
     Compute the energy of a structure using Tersoff potential.
 
     Args:
-        structure:
-            pymatgen.core.structure.Structure
-        gulp_cmd:
-            GULP command if not in standard place
+        structure: pymatgen.core.structure.Structure
+        gulp_cmd: GULP command if not in standard place
     """
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
@@ -580,14 +560,11 @@ def get_energy_buckingham(structure, gulp_cmd='gulp',
     Compute the energy of a structure using Buckingham potential.
 
     Args:
-        structure:
-            pymatgen.core.structure.Structure
-        gulp_cmd:
-            GULP command if not in standard place
-        keywords:
-            GULP first line keywords
-        valence_dict:
-            {El: valence}. Needed if the structure is not charge neutral.
+        structure: pymatgen.core.structure.Structure
+        gulp_cmd: GULP command if not in standard place
+        keywords: GULP first line keywords
+        valence_dict: {El: valence}. Needed if the structure is not charge
+            neutral.
     """
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
@@ -606,14 +583,11 @@ def get_energy_relax_structure_buckingham(structure,
     Relax a structure and compute the energy using Buckingham potential.
 
     Args:
-        structure:
-            pymatgen.core.structure.Structure
-        gulp_cmd:
-            GULP command if not in standard place
-        keywords:
-            GULP first line keywords
-        valence_dict:
-            {El: valence}. Needed if the structure is not charge neutral.
+        structure: pymatgen.core.structure.Structure
+        gulp_cmd: GULP command if not in standard place
+        keywords: GULP first line keywords
+        valence_dict: {El: valence}. Needed if the structure is not charge
+            neutral.
     """
     gio = GulpIO()
     gc = GulpCaller(gulp_cmd)
@@ -655,16 +629,15 @@ class GulpConvergenceError(Exception):
 
 class BuckinghamPotential(object):
     """
-        Generate the Buckingham Potential Table from the bush.lib and 
-        lewis.lib.
-        
-        Ref:
-        T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
-        4, 831-837 (1994).
-        G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
-        1149-1161 (1985)
-        """
-    
+    Generate the Buckingham Potential Table from the bush.lib and lewis.lib.
+
+    Ref:
+    T.S.Bush, J.D.Gale, C.R.A.Catlow and P.D. Battle,  J. Mater Chem.,
+    4, 831-837 (1994).
+    G.V. Lewis and C.R.A. Catlow, J. Phys. C: Solid State Phys., 18,
+    1149-1161 (1985)
+    """
+
     def __init__(self, bush_lewis_flag):
         assert bush_lewis_flag in {'bush', 'lewis'}
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
@@ -684,7 +657,7 @@ class BuckinghamPotential(object):
                 if row.split()[0] == "spring":
                     sp_flg, pot_flg, spring_flg = False, False, True
                     continue
-                
+
                 elmnt = row.split()[0]
                 if sp_flg:
                     if bush_lewis_flag == "bush":
@@ -704,7 +677,7 @@ class BuckinghamPotential(object):
                             species_dict[elmnt] = metal + " core " + \
                                 row.split()[2] + "\n"
                     continue
-                
+
                 if pot_flg:
                     if bush_lewis_flag == "bush":
                         pot_dict[elmnt] = row
@@ -717,16 +690,16 @@ class BuckinghamPotential(object):
                             pot_dict[elmnt] = metal + " " + " ".join(
                             row.split()[1:]) + "\n"
                     continue
-                
+
                 if spring_flg:
                     spring_dict[elmnt] = row
-            
+
             if bush_lewis_flag == "bush":
                 #Fill the null keys in spring dict with empty strings
                 for key in pot_dict.keys():
                     if key not in spring_dict.keys():
                         spring_dict[key] = ""
-            
+
             self.species_dict = species_dict
             self.pot_dict = pot_dict
             self.spring_dict = spring_dict

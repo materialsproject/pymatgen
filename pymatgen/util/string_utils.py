@@ -110,12 +110,9 @@ def formula_double_format(afloat, ignore_ones=True, tol=1e-8):
     Instead of Li1.0 Fe1.0 P1.0 O4.0, you get LiFePO4.
 
     Args:
-        afloat:
-            a float
-        ignore_ones:
-            if true, floats of 1 are ignored.
-        tol:
-            Tolerance to round to nearest int. i.e. 2.0000000001 -> 2
+        afloat (float): a float
+        ignore_ones (bool): if true, floats of 1 are ignored.
+        tol (float): Tolerance to round to nearest int. i.e. 2.0000000001 -> 2
 
     Returns:
         A string representation of the float for formulas.
@@ -134,8 +131,7 @@ def latexify(formula):
     Fe$_{2}$O$_{3}$.
 
     Args:
-        formula:
-            Input formula.
+        formula (str): Input formula.
 
     Returns:
         Formula suitable for display as in LaTeX with proper subscripts.
@@ -149,8 +145,7 @@ def latexify_spacegroup(spacegroup_symbol):
     P2$_{1}$/c and P-1 is converted to P$\overline{1}$.
 
     Args:
-        spacegroup_symbol:
-            A spacegroup symbol
+        spacegroup_symbol (str): A spacegroup symbol
 
     Returns:
         A latex formatted spacegroup with proper subscripts and overlines.
@@ -165,12 +160,9 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
     Each row must have the same number of columns.
 
     Args:
-        table:
-            The table to print. A list of lists.
-        out:
-            Output stream (file-like object)
-        rstrip:
-            if True, trailing withespaces are removed from the entries.
+        table: The table to print. A list of lists.
+        out: Output stream (file-like object)
+        rstrip: if True, trailing withespaces are removed from the entries.
     """
     def max_width_col(table, col_idx):
         """
@@ -234,8 +226,7 @@ def remove_non_ascii(s):
     Remove non-ascii characters in a file.
 
     Args:
-        s:
-            Input string
+        s: Input string
 
     Returns:
         String with all non-ascii characters removed.
@@ -300,12 +291,12 @@ class WildCard(object):
     """
     def __init__(self, wildcard, sep="|"):
         """
+        Initializes a WildCard.
+
         Args:
-            wildcard:
-                String of tokens separated by sep.
-                Each token represents a pattern.
-            sep:
-                Separator for shell patterns.
+            wildcard (str): String of tokens separated by sep. Each token
+                represents a pattern.
+            sep (str): Separator for shell patterns.
         """
         self.pats = ["*"]
         if wildcard:
@@ -314,7 +305,7 @@ class WildCard(object):
     def __str__(self):
         return "<%s, patterns = %s>" % (self.__class__.__name__, self.pats)
 
-    def filter(self, names): 
+    def filter(self, names):
         """
         Returns a list with the names matching the pattern.
         """

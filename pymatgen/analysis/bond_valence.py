@@ -99,26 +99,23 @@ class BVAnalyzer(object):
     3) The oxidation states are then ranked in order of decreasing probability
     and the oxidation state combination that result in a charge neutral cell
     is selected.
+
+    Args:
+        symm_tol (float): Symmetry tolerance used to determine which sites are
+            symmetrically equivalent. Set to 0 to turn off symmetry.
+        max_radius (float): Maximum radius in Angstrom used to find nearest
+            neighbors.
+        max_permutations (int): The maximum number of permutations of
+            oxidation states to test.
+        distance_scale_factor:
+            A scale factor to be applied. This is useful for scaling
+            distances, esp in the case of calculation-relaxed structures
+            which may tend to under (GGA) or over bind (LDA). The default
+            of 1.015 works for GGA. For experimental structure, set this to 1.
     """
 
     def __init__(self, symm_tol=0.1, max_radius=4, max_permutations=100000,
                  distance_scale_factor=1.015):
-        """
-        Args:
-            symm_tol:
-                Symmetry tolerance used to determine which sites are
-                symmetrically equivalent. Set to 0 to turn off symmetry.
-            max_radius:
-                Maximum radius in Angstrom used to find nearest neighbors.
-            max_permutations:
-                The maximum number of permutations of oxidation states to test.
-            distance_scale_factor:
-                A scale factor to be applied. This is useful for scaling
-                distances, esp in the case of calculation-relaxed structures
-                which may tend to under (GGA) or over bind (LDA). The default
-                of 1.015 works for GGA. For experimental structure, set this to
-                1.
-        """
         self.symm_tol = symm_tol
         self.max_radius = max_radius
         self.max_permutations = max_permutations
@@ -148,8 +145,7 @@ class BVAnalyzer(object):
         for ordered structures only.
 
         Args:
-            structure:
-                Structure to analyze
+            structure: Structure to analyze
 
         Returns:
             A list of valences for each site in the structure,
@@ -257,21 +253,20 @@ class BVAnalyzer(object):
             return [int(assigned[site]) for site in structure]
         else:
             raise ValueError("Valences cannot be assigned!")
-            
+
     def get_oxi_state_decorated_structure(self, structure):
         """
         Get an oxidation state decorated structure. This currently works only
         for ordered structures only.
 
         Args:
-            structure:
-                Structure to analyze
+            structure: Structure to analyze
 
         Returns:
             A modified structure that is oxidation state decorated.
 
         Raises:
-            A ValueError is the valences cannot be determined.
+            ValueError if the valences cannot be determined.
         """
         valences = self.get_valences(structure)
         s = Structure.from_sites(structure.sites)
