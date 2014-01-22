@@ -19,7 +19,7 @@ except ImportError:
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import pprint_table, is_string
 from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask 
-from pymatgen.io.abinitio.utils import Directory
+from pymatgen.io.abinitio.utils import Directory, Editor
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
 from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow
 
@@ -99,7 +99,9 @@ class AbinitFlow(Node):
         #    slots[task] = {s: [] for s in work.S_ALL}
 
     def set_workdir(self, workdir, chroot=False):
-        """Set the working directory. Cannot be set more than once unless chroot is True"""
+        """
+        Set the working directory. Cannot be set more than once unless chroot is True
+        """
         if not chroot and hasattr(self, "workdir") and self.workdir != workdir:
             raise ValueError("self.workdir != workdir: %s, %s" % (self.workdir,  workdir))
 
@@ -136,9 +138,9 @@ class AbinitFlow(Node):
                 err_msg = "Cannot find %s inside directory %s" % (cls.PICKLE_FNAME, filepath)
                 raise ValueError(err_msg)
 
-        with FileLock(filepath) as lock:
-            with open(filepath, "rb") as fh:
-                flow = pickle.load(fh)
+        #with FileLock(filepath) as lock:
+        with open(filepath, "rb") as fh:
+            flow = pickle.load(fh)
 
         # Check if versions match.
         if flow.VERSION != cls.VERSION:
@@ -184,26 +186,28 @@ class AbinitFlow(Node):
 
     @property
     def errored_tasks(self):
-        return self.iflat_tasks(status=self.S_ERROR)
+        """List of errored tasks."""
+        return list(self.iflat_tasks(status=self.S_ERROR))
 
     @property
     def num_errored_tasks(self):
         """The number of tasks whose status is `S_ERROR`."""
-        return len(list(self.errored_tasks))
+        return len(self.errored_tasks)
 
     @property
     def unconverged_tasks(self):
-        return self.iflat_tasks(status=self.S_UNCONVERGED)
+        """List of unconverged tasks."""
+        return list(self.iflat_tasks(status=self.S_UNCONVERGED))
 
     @property
     def num_unconverged_tasks(self):
         """The number of tasks whose status is `S_UNCONVERGED`."""
-        return len(list(self.unconverged_tasks))
+        return len(self.unconverged_tasks)
 
     @property
     def status_counter(self):
         """
-        Returns a `Counter` object that counts the number of task with 
+        Returns a `Counter` object that counts the number of tasks with 
         given status (use the string representation of the status as key).
         """
         # Count the number of tasks with given status in each workflow.
@@ -217,7 +221,7 @@ class AbinitFlow(Node):
     def ncpus_reserved(self):
         """
         Returns the number of CPUs reserved in this moment.
-        A CPUS is reserved if it's still not running but 
+        A CPUS is reserved if the task is not running but 
         we have submitted the task to the queue manager.
         """
         return sum(work.ncpus_reverved for work in self)
@@ -244,6 +248,7 @@ class AbinitFlow(Node):
         """
         Returns a string that evaluates to True if we have changed 
         the workdir for visualization purposes e.g. we are using sshfs.
+        to mount the remote directory where the `Flow` is located.
         The string gives the previous workdir of the flow.
         """
         try:
@@ -253,6 +258,14 @@ class AbinitFlow(Node):
             return ""
 
     def chroot(self, new_workdir):
+        """
+        Change the workir of the `Flow`. Mainly used for
+        allowing the user to open the GUI on the local host
+        and access the flow from remote via sshfs.
+
+        .. note:
+            Calling this method will make the flow go in read-only mode.
+        """
         self._chrooted_from = self.workdir
         self.set_workdir(new_workdir, chroot=True)
 
@@ -274,7 +287,7 @@ class AbinitFlow(Node):
         # Sort keys according to their status.
         return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
 
-    def iflat_tasks_wti(self, status=None, op="="):
+    def iflat_tasks_wti(self, status=None, op="=="):
         """
         Generator to iterate over all the tasks of the `Flow`.
         Yields
@@ -288,7 +301,7 @@ class AbinitFlow(Node):
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
 
-    def iflat_tasks(self, status=None, op="="):
+    def iflat_tasks(self, status=None, op="=="):
         """
         Generator to iterate over all the tasks of the `Flow`.
 
@@ -299,7 +312,7 @@ class AbinitFlow(Node):
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
 
-    def _iflat_tasks_wti(self, status=None, op="=", with_wti=True):
+    def _iflat_tasks_wti(self, status=None, op="==", with_wti=True):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
@@ -319,7 +332,7 @@ class AbinitFlow(Node):
             # Get the operator from the string.
             import operator
             op = {
-                "=": operator.eq,
+                "==": operator.eq,
                 "!=": operator.ne,
                 ">": operator.gt,
                 ">=": operator.ge,
@@ -407,13 +420,79 @@ class AbinitFlow(Node):
 
             pprint_table(table, out=stream)
 
+    def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
+        """
+        Open the files of the flow inside an editor (command line interface).
+
+        Args:
+            what:
+                string with the list of characters selecting the file type
+                Possible choices:
+                    i ==> input_file,
+                    o ==> output_file,
+                    f ==> files_file,
+                    j ==> job_file,
+                    l ==> log_file,
+                    e ==> stderr_file,
+                    q ==> qerr_file,
+            wti
+                tuple with the (work, task_index) to select
+                or string in the form w_start:w_stop,task_start:task_stop
+            status
+                if not None, only the tasks with this status are select
+            op:
+                status operator. Requires status. A task is selected 
+                if task.status op status evaluates to true.
+            editor:
+                Select the editor. None to use the default editor ($EDITOR shell env var)
+        """
+        #TODO: Add support for wti
+        if wti is not None:
+            raise NotImplementedError("wti option is not avaiable!")
+
+        def get_files(task, wi, ti):
+            """Helper function used to select the files of a task."""
+            choices = {
+                "i": task.input_file,
+                "o": task.output_file,
+                "f": task.files_file,
+                "j": task.job_file,
+                "l": task.log_file,
+                "e": task.stderr_file,
+                "q": task.qerr_file,
+                #"q": task.qout_file,
+            }
+
+            selected = []
+            for c in what:
+                try:
+                    selected.append(getattr(choices[c], "path"))
+                except KeyError:
+                    import warnings
+                    warnings.warn("Wrong keywork %s" % c)
+            return selected
+
+        # Build list of files to analyze.
+        files = []
+        for (task, wi, ti) in self.iflat_tasks_wti(status=status, op=op):
+            lst = get_files(task, wi, ti)
+            if lst: files.extend(lst)
+
+        #print(files)
+        return Editor(editor=editor).edit_files(files)
+
     def cancel(self):
         """
         Cancel all the tasks that are in the queue.
 
         Returns:
-            Number of jobs cancelles.
+            Number of jobs cancelled, negative value if error
         """
+        if self.has_chrooted:
+            # TODO: Use paramiko to kill the job?
+            warnings.warn("Cannot cancel the flow via sshfs!")
+            return -1
+
         # If we are running with the scheduler, we must send a SIGKILL signal.
         pid_file = os.path.join(self.workdir, "_PyFlowScheduler.pid")
         if os.path.exists(pid_file):
@@ -422,7 +501,10 @@ class AbinitFlow(Node):
                 
             retcode = os.system("kill -9 %d" % pid)
             print("Sent SIGKILL to the scheduler, retcode = %s" % retcode)
-            #os.remove(pid_file)
+            try:
+                os.remove(pid_file)
+            except IOError:
+                pass
 
         num_cancelled = 0
         for task in self.iflat_tasks():
@@ -457,7 +539,7 @@ class AbinitFlow(Node):
             0 if success
         """
         if self.has_chrooted:
-            print("cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
+            warnings.warn("Cannot pickle_dump since we have chrooted from %s" % self.has_chrooted)
             return -1
 
         protocol = self.pickle_protocol
@@ -610,7 +692,6 @@ class AbinitFlow(Node):
             task.set_flow(self)
 
         self.check_dependencies()
-
         return self
 
     def show_dependencies(self):
@@ -832,7 +913,6 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
     # Build a temporary workflow with a shell manager just to run 
     # ABINIT to get the list of irreducible pertubations for this q-point.
     shell_manager = manager.to_shell_manager(mpi_ncpus=1)
-    #print(shell_manager)
 
     if not isinstance(ph_inputs, (list, tuple)):
         ph_inputs = [ph_inputs]
@@ -844,11 +924,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
         tmp_dir = os.path.join(workdir, "__ph_run" + str(i) + "__")
         w = Workflow(workdir=tmp_dir, manager=shell_manager)
         fake_task = w.register(fake_input)
-        #print(w)
-        #print("manager",w.manager)
 
-        # Use the magic value paral_rf = -1 
-        # to get the list of irreducible perturbations for this q-point.
+        # Use the magic value paral_rf = -1 to get the list of irreducible perturbations for this q-point.
         vars = dict(paral_rf=-1,
                     rfatpol=[1, natom],  # Set of atoms to displace.
                     rfdir=[1, 1, 1],     # Along this set of reduced coordinate axis.
@@ -860,9 +937,8 @@ def phonon_flow(workdir, manager, scf_input, ph_inputs):
 
         # Parse the file to get the perturbations.
         irred_perts = yaml_read_irred_perts(fake_task.log_file.path)
-        #import sys
-        #sys.exit(1)
         print(irred_perts)
+
         w.rmtree()
 
         # Now we can build the final list of workflows:

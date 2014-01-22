@@ -18,6 +18,9 @@ import warnings
 
 from functools import wraps
 
+# Decorator to create lazy properties.
+from pymatgen.util.lazy import lazy_property
+
 
 def singleton(cls):
     """
@@ -215,3 +218,6 @@ def enable_logging(main):
         return retcode
 
     return wrapper
+
+
+
