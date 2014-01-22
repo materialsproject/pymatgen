@@ -19,7 +19,7 @@ import os
 import json
 import collections
 
-from pymatgen.core.periodic_table import smart_element_or_specie
+from pymatgen.core.periodic_table import get_el_sp
 
 
 def _load_bond_length_data():
@@ -42,6 +42,8 @@ class CovalentBond(object):
 
     def __init__(self, site1, site2):
         """
+        Initializes a covalent bond between two sites.
+
         Args:
             site1 (Site): First site.
             site2 (Site): Second site.
@@ -112,8 +114,8 @@ def get_bond_length(sp1, sp2, bond_order=1):
         Bond length in Angstrom. None if no data is available.
     """
 
-    syms = tuple(sorted([smart_element_or_specie(sp1).symbol,
-                         smart_element_or_specie(sp2).symbol]))
+    syms = tuple(sorted([get_el_sp(sp1).symbol,
+                         get_el_sp(sp2).symbol]))
     if syms in bond_lengths:
         all_lengths = bond_lengths[syms]
         if bond_order:

@@ -30,7 +30,7 @@ from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
-    smart_element_or_specie
+    get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -1554,7 +1554,7 @@ class Structure(IStructure):
                 Element('C'):0.25} } will have .375 Ge and .125 C.
         """
         latt = self._lattice
-        species_mapping = {smart_element_or_specie(k): v
+        species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
 
         def mod_site(site):
@@ -1563,10 +1563,10 @@ class Structure(IStructure):
                 if sp in species_mapping:
                     if isinstance(species_mapping[sp], collections.Mapping):
                         for new_sp, new_amt in species_mapping[sp].items():
-                            new_atom_occu[smart_element_or_specie(new_sp)] \
+                            new_atom_occu[get_el_sp(new_sp)] \
                                 += amt * new_amt
                     else:
-                        new_atom_occu[smart_element_or_specie(
+                        new_atom_occu[get_el_sp(
                             species_mapping[sp])] += amt
                 else:
                     new_atom_occu[sp] += amt
@@ -1596,7 +1596,7 @@ class Structure(IStructure):
             species: Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
-        species = map(smart_element_or_specie, species)
+        species = map(get_el_sp, species)
 
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
@@ -2005,7 +2005,7 @@ class Molecule(IMolecule):
                 passed the mapping {Element('Si): {Element('Ge'):0.75,
                 Element('C'):0.25} } will have .375 Ge and .125 C.
         """
-        species_mapping = {smart_element_or_specie(k): v
+        species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
 
         def mod_site(site):
@@ -2053,7 +2053,7 @@ class Molecule(IMolecule):
             species: Species to remove.
         """
         new_sites = []
-        species = map(smart_element_or_specie, species)
+        species = map(get_el_sp, species)
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
                            if sp not in species}
