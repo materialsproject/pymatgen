@@ -143,6 +143,9 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         self.incar_settings.update({"PREC": "low", "ENCUT": 250})
         self.kpoints_settings['grid_density'] = 1
 
+    def set_prec_high(self):
+        self.incar_settings.update({"PREC": "Accurate", "ENCUT": 400})
+
 
 class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     """
@@ -164,14 +167,10 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         self.functional = functional
         self.sym_prec = sym_prec
         npar = self.get_npar(self.structure)
-        gw_bands = self.get_bands(self.structure)
-        gw_bands = npar * int((15 * gw_bands) / npar + 1)
         #single step exact diagonalization, output WAVEDER
         self.incar_settings.update({"ALGO": "Exact", "NELM": 1, "LOPTICS": "TRUE"})
         # for large systems exact diagonalization consumes too much memory
-        if gw_bands > 800:
-            self.incar_settings.update({"ALGO": 'fast'})
-        self.incar_settings.update({"NBANDS": gw_bands})
+        self.set_gw_bands(15)
         self.incar_settings.update({"NPAR": npar})
 
     def get_kpoints(self, structure, regular=True):
@@ -201,6 +200,20 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
             weights.append(int(0))
             return Kpoints(comment="uniform grid with extrema", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts, kpts_weights=weights)
 
+    def set_gw_bands(self, factor=15):
+        """
+        method to set the number of bands for GW
+        """
+        gw_bands = self.get_bands(self.structure)
+        gw_bands = self.get_npar(self.structure) * int((factor * gw_bands) / self.get_npar(self.structure) + 1)
+        self.incar_settings.update({"NBANDS": gw_bands})
+        if gw_bands > 800:
+            self.incar_settings.update({"ALGO": 'fast'})
+
+    def set_prec_high(self):
+        super(MPGWDFTDiagVaspInputSet, self).set_prec_high()
+        self.set_gw_bands(30)
+
 
 class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     """
@@ -222,13 +235,11 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         self.functional = functional
         self.sym_prec = sym_prec
         npar = self.get_npar(structure)
-        gw_bands = self.get_bands(structure)
-        gw_bands = npar * int((15 * gw_bands) / npar + 1)
         # G0W0 calculation with reduced cutoff for the response function
         self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 250, "LWAVE": "FALSE", "NELM": 1})
         self.nomega_max = 25 * self.get_kpoints(structure).kpts[0][0]
         nomega = npar * int(self.nomega_max / npar)
-        self.incar_settings.update({"NBANDS": gw_bands})
+        self.set_gw_bands(15)
         self.incar_settings.update({"NPAR": npar})
         self.incar_settings.update({"NOMEGA": nomega})
         self.incar_settings.update({"LWANNIER90_RUN": ".TRUE."})
@@ -257,6 +268,11 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         if qpsc:
             self.incar_settings.update({"ALGO": "scGW0"})
         # todo update tests ....
+
+    def set_prec_high(self):
+        super(MPGWG0W0VaspInputSet, self).set_prec_high()
+        self.incar_settings.update({"ENCUTGW": 400, "NOMEGA": int(self.incar_settings["NOMEGA"]*1.5)})
+        self.incar_settings.update({"PRECFOCK": "accurate"})
 
 
 class GWSpecs():
@@ -314,7 +330,7 @@ class GWSpecs():
         return self.data['code']
 
     def test(self):
-        if self.data['mode'].lower() not in ['input', 'ceci']:
+        if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
             self.errors.append('unspecified mode')
         if self.data['code'] == 'VASP':
             if self.data['functional'] not in ['PBE', 'LDA']:
@@ -427,8 +443,12 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
         if spec['test']:
             if option[0].keys()[0] in MPGWscDFTPrepVaspInputSet(structure).tests.keys():
                 inpset.set_test(option[0])
+        if spec["prec"] == "h":
+            inpset.set_prec_high()
         inpset.write_input(structure, path)
         inpset = MPGWDFTDiagVaspInputSet(structure, functional=spec['functional'])
+        if spec["prec"] == "h":
+            inpset.set_prec_high()
         if spec['test']:
             inpset.set_test(option[0])
         inpset.get_incar(structure).write_file(os.path.join(path, 'INCAR.DIAG'))
@@ -438,6 +458,8 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
+        if spec["prec"] == "h":
+            inpset.set_prec_high()
         inpset.write_input(structure, os.path.join(path, 'G0W0'+option_name))
         w_inpset = Wannier90InputSet()
         w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
@@ -448,6 +470,8 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
+        if spec["prec"] == "h":
+            inpset.set_prec_high()
         inpset.write_input(structure, os.path.join(path, 'GW0'+option_name))
         w_inpset = Wannier90InputSet()
         w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
@@ -458,6 +482,8 @@ def create_single_vasp_gw_task(structure, task, spec, option=None):
         if spec['test']:
             inpset.set_test(option[0])
             inpset.set_test(option[1])
+        if spec["prec"] == "h":
+            inpset.set_prec_high()
         inpset.write_input(structure, os.path.join(path, 'scGW0'+option_name))
         w_inpset = Wannier90InputSet()
         w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
@@ -517,7 +543,7 @@ def create_single_job_script(structure, task, spec, option=None):
         job_file.write(header)
         job_file.write('#SBATCH --job-name='+structure.composition.reduced_formula+task+'\n')
         job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
-        job_file.write('module load vasp \n')
+        job_file.write('module load vasp/5.2_par_wannier90 \n')
         job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
         job_file.write('mpirun vasp \n')
         job_file.write('rm W* \n')
@@ -593,7 +619,6 @@ def main(spec):
     code: VASP, ABINIT
     """
 
-
     mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
                     'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
     abi_pseudo = '.GGA_PBE-JTH-paw.xml'
@@ -620,9 +645,6 @@ def main(spec):
     else:
         with open(spec['source'], 'r') as f:
             items_list = [line.strip() for line in open(spec['source'])]
-    #else
-    #    print 'no structures defined'
-    #    exit()
 
     for item in items_list:
         if item.startswith('POSCAR_'):
@@ -652,8 +674,7 @@ def main(spec):
         else:
             next(item)
         print structure.composition.reduced_formula
-        if ('input' or 'ceci' in spec['mode']) and spec['code'] == 'VASP':
-            # create all input files locally
+        if spec['code'] == 'VASP':
             if spec['test']:
                 tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
                 tests_prep.update(MPGWDFTDiagVaspInputSet(structure).tests)
@@ -682,32 +703,13 @@ def main(spec):
                                         create_single_job_script(structure, task, spec, option)
             else:
                 for task in spec['jobs']:
-                    #set precision of the full GW calc
-#                    if spec['prec'] not in {'m'}:
-#                        print 'value for prec not supported using m'
-#                    for test in self.get_defaults_tests():
-#                        if spec['prec'] == 'l':
-#                            n = 1
-#                            self.set_test()
-#                        elif spec['prec'] == 'h':
-#                            n = len(test['test_range'])
-#                        else:
-#                            n = int(len(test['test_range'])/2)
-#                        print 'setting value ', n, ' = ', test['test_range'][n], 'for', test
-
-                    create_single_vasp_gw_task(structure=structure, task=task, spec=spec)
+                    if 'input' in spec['mode'] or 'ceci' in spec['mode']:
+                        create_single_vasp_gw_task(structure=structure, task=task, spec=spec)
                     if 'ceci' in spec['mode']:
                         create_single_job_script(structure=structure, task=task, spec=spec)
-        if 'ceci' in spec['mode']:
-            # create the tar
-            pass
-        if 'fw' in spec['mode']:
-            if spec['test']:
-                pass
-            else:
-                for task in spec['jobs']:
-                    pass
-                    # submit job to FireWorks database
+                    if 'fw' in spec['mode']:
+                        fire_works_job = {'structure': structure, 'task': task, 'spec': spec}
+                        print fire_works_job.keys()
         if spec['code'] == 'ABINIT':
             # todo based on spec['mode'] set the manager
             manager = 'slurm' if 'ceci' in spec['mode'] else 'shell'
@@ -722,7 +724,6 @@ def main(spec):
             flow.build_and_pickle_dump()
             job_file = open("job_collection", mode='a')
             job_file.write('nohup abirun.py ' + work_dir + ' scheduler > ' + work_dir + '.log & \n')
-
     if 'ceci' in spec['mode']:
         os.chmod("job_collection", stat.S_IRWXU)
 
