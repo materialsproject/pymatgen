@@ -19,7 +19,7 @@ except ImportError:
 from pymatgen.util.io_utils import FileLock
 from pymatgen.util.string_utils import pprint_table, is_string
 from pymatgen.io.abinitio.tasks import Dependency, Node, Task, ScfTask, PhononTask 
-from pymatgen.io.abinitio.utils import Directory
+from pymatgen.io.abinitio.utils import Directory, Editor
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
 from pymatgen.io.abinitio.workflows import Workflow, BandStructureWorkflow, PhononWorkflow, G0W0_Workflow
 
@@ -287,7 +287,7 @@ class AbinitFlow(Node):
         # Sort keys according to their status.
         return collections.OrderedDict([(k, d[k]) for k in sorted(list(d.keys()))])
 
-    def iflat_tasks_wti(self, status=None, op="="):
+    def iflat_tasks_wti(self, status=None, op="=="):
         """
         Generator to iterate over all the tasks of the `Flow`.
         Yields
@@ -301,7 +301,7 @@ class AbinitFlow(Node):
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=True)
 
-    def iflat_tasks(self, status=None, op="="):
+    def iflat_tasks(self, status=None, op="=="):
         """
         Generator to iterate over all the tasks of the `Flow`.
 
@@ -312,7 +312,7 @@ class AbinitFlow(Node):
         """
         return self._iflat_tasks_wti(status=status, op=op, with_wti=False)
 
-    def _iflat_tasks_wti(self, status=None, op="=", with_wti=True):
+    def _iflat_tasks_wti(self, status=None, op="==", with_wti=True):
         """
         Generators that produces a flat sequence of task.
         if status is not None, only the tasks with the specified status are selected.
@@ -332,7 +332,7 @@ class AbinitFlow(Node):
             # Get the operator from the string.
             import operator
             op = {
-                "=": operator.eq,
+                "==": operator.eq,
                 "!=": operator.ne,
                 ">": operator.gt,
                 ">=": operator.ge,
@@ -419,6 +419,67 @@ class AbinitFlow(Node):
                     )
 
             pprint_table(table, out=stream)
+
+    def open_files(self, what="o", wti=None, status=None, op="==", editor=None):
+        """
+        Open the files of the flow inside an editor (command line interface).
+
+        Args:
+            what:
+                string with the list of characters selecting the file type
+                Possible choices:
+                    i ==> input_file,
+                    o ==> output_file,
+                    f ==> files_file,
+                    j ==> job_file,
+                    l ==> log_file,
+                    e ==> stderr_file,
+                    q ==> qerr_file,
+            wti
+                tuple with the (work, task_index) to select
+                or string in the form w_start:w_stop,task_start:task_stop
+            status
+                if not None, only the tasks with this status are select
+            op:
+                status operator. Requires status. A task is selected 
+                if task.status op status evaluates to true.
+            editor:
+                Select the editor. None to use the default editor ($EDITOR shell env var)
+        """
+        #TODO: Add support for wti
+        if wti is not None:
+            raise NotImplementedError("wti option is not avaiable!")
+
+        def get_files(task, wi, ti):
+            """Helper function used to select the files of a task."""
+            choices = {
+                "i": task.input_file,
+                "o": task.output_file,
+                "f": task.files_file,
+                "j": task.job_file,
+                "l": task.log_file,
+                "e": task.stderr_file,
+                "q": task.qerr_file,
+                #"q": task.qout_file,
+            }
+
+            selected = []
+            for c in what:
+                try:
+                    selected.append(getattr(choices[c], "path"))
+                except KeyError:
+                    import warnings
+                    warnings.warn("Wrong keywork %s" % c)
+            return selected
+
+        # Build list of files to analyze.
+        files = []
+        for (task, wi, ti) in self.iflat_tasks_wti(status=status, op=op):
+            lst = get_files(task, wi, ti)
+            if lst: files.extend(lst)
+
+        #print(files)
+        return Editor(editor=editor).edit_files(files)
 
     def cancel(self):
         """

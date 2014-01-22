@@ -1,7 +1,7 @@
 """Tools and helper functions for abinit calculations"""
 from __future__ import print_function, division
 
-import os.path
+import os
 import collections
 import shutil
 import operator
@@ -545,3 +545,44 @@ class Condition(object):
         except:
             logger.warning("Condition.apply() raise Exception")
             return False
+
+
+class Editor(object):
+    """
+    Wrapper class that calls the editor specified by the user 
+    or the one specified in the $EDITOR env variable.
+    """
+    def __init__(self, editor=None):
+        """If editor is None, $EDITOR is used."""
+        if editor is None:
+            self.editor = os.getenv("EDITOR", "vi")
+        else:
+            self.editor = str(editor)
+
+    def edit_files(self, fnames, ask_for_exit=True):
+        exit_status = 0
+        for idx, fname in enumerate(fnames):
+            exit_status = self.edit_file(fname)
+            if ask_for_exit and idx != len(fnames)-1 and self.user_wants_to_exit():
+                break
+        return exit_status
+
+    def edit_file(self, fname):
+        from subprocess import call
+        retcode = call([self.editor, fname])
+
+        if retcode != 0:
+            import warnings
+            warnings.warn("Error while trying to edit file: %s" % fname)
+
+        return retcode 
+
+    @staticmethod
+    def user_wants_to_exit():
+        try:
+            answer = raw_input("Do you want to continue [Y/n]")
+
+        except EOFError:
+            return True
+
+        return answer.lower().strip() in ["n", "no"]
