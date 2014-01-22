@@ -61,8 +61,8 @@ class AbstractVaspInputSet(MSONable):
         Returns Kpoints from a structure.
 
         Args:
-            structure:
-                Structure object
+            structure (Structure/IStructure): Structure to generate kpoints
+                for.
 
         Returns:
             Kpoints object
@@ -75,8 +75,7 @@ class AbstractVaspInputSet(MSONable):
         Returns Incar from a structure.
 
         Args:
-            structure:
-                Structure object
+            structure (Structure/IStructure): Structure to generate Incar for.
 
         Returns:
             Incar object
@@ -89,8 +88,8 @@ class AbstractVaspInputSet(MSONable):
         Returns Potcar from a structure.
 
         Args:
-            structure:
-                Structure object
+            structure (Structure/IStructure): Structure to generate potcar
+                for.
 
         Returns:
             Potcar object
@@ -103,8 +102,8 @@ class AbstractVaspInputSet(MSONable):
         Returns list of POTCAR symbols from a structure.
 
         Args:
-            structure:
-                Structure object
+            structure (Structure/IStructure): Structure to generate potcar
+                symbols for.
 
         Returns:
             List of POTCAR symbols
@@ -116,12 +115,11 @@ class AbstractVaspInputSet(MSONable):
         Returns all input files as a dict of {filename: vaspio object}
 
         Args:
-            structure:
-                Structure object
-            generate_potcar:
-                Set to False to generate a POTCAR.spec file instead of a
-                POTCAR, which contains the POTCAR labels but not the actual
-                POTCAR. Defaults to True.
+            structure (Structure/IStructure): Structure to generate vasp
+                input for.
+            generate_potcar (bool): Set to False to generate a POTCAR.spec
+                file instead of a POTCAR, which contains the POTCAR labels
+                but not the actual POTCAR. Defaults to True.
 
         Returns:
             dict of {filename: file_as_string}, e.g., {'INCAR':'EDIFF=1e-4...'}
@@ -140,13 +138,12 @@ class AbstractVaspInputSet(MSONable):
         Writes a set of VASP input to a directory.
 
         Args:
-            structure:
-                Structure object
-            output_dir:
-                Directory to output the VASP input files
-            make_dir_if_not_present:
-                Set to True if you want the directory (and the whole path) to
-                be created if it is not present.
+            structure (Structure/IStructure): Structure to write VASP input
+                files for.
+            output_dir (str): Directory to output the VASP input files
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
         """
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -173,42 +170,34 @@ class DictVaspInputSet(AbstractVaspInputSet):
        is used, e.g., Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, VASP's default of 0.6 is used.
+
+    Args:
+        name (str): A name fo the input set.
+        config_dict (dict): The config dictionary to use.
+        hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
+            config_dict. Defaults to False, i.e., follow settings in
+            config_dict.
+        user_incar_settings (dict): User INCAR settings. This allows a user
+            to override INCAR settings, e.g., setting a different MAGMOM for various elements
+            or species.
+        constrain_total_magmom (bool): Whether to constrain the total magmom
+            (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
+            species. Defaults to False.
+        sort_structure (bool): Whether to sort the structure (using the
+            default sort order of electronegativity) before generating input
+            files. Defaults to True, the behavior you would want most of the
+            time. This ensures that similar atomic species are grouped
+            together.
+        ediff_per_atom (bool): Whether the EDIFF is specified on a per atom
+            basis. This is generally desired, though for some calculations (
+            e.g. NEB) this should be turned off (and an appropriate EDIFF
+            supplied in user_incar_settings)
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
                  user_incar_settings=None,
                  constrain_total_magmom=False, sort_structure=True,
                  ediff_per_atom=True):
-        """
-        Args:
-            name:
-                A name fo the input set.
-            config_dict:
-                The config dictionary to use.
-            hubbard_off:
-                Whether to turn off Hubbard U if it is specified in
-                config_dict. Defaults to False, i.e., follow settings in
-                config_dict.
-            user_incar_settings:
-                User INCAR settings. This allows a user to override INCAR
-                settings, e.g., setting a different MAGMOM for various elements
-                or species.
-            constrain_total_magmom:
-                Whether to constrain the total magmom (NUPDOWN in INCAR) to be
-                the sum of the expected MAGMOM for all species. Defaults to
-                False.
-            sort_structure:
-                Whether to sort the structure (using the default sort
-                order of electronegativity) before generating input files.
-                Defaults to True, the behavior you would want most of the
-                time. This ensures that similar atomic species are grouped
-                together.
-            ediff_per_atom:
-                Whether the EDIFF is specified on a per atom basis. This is
-                generally desired, though for some calculations (e.g. NEB)
-                this should be turned off (and an appropriate EDIFF supplied
-                in user_incar_settings)
-        """
         self.name = name
         self.potcar_settings = config_dict["POTCAR"]
         self.kpoints_settings = config_dict['KPOINTS']
@@ -360,43 +349,21 @@ class DictVaspInputSet(AbstractVaspInputSet):
                    sort_structure=d.get("sort_structure", True))
 
     @staticmethod
-    def from_json_file(name, json_file, hubbard_off=False,
-                       user_incar_settings=None, constrain_total_magmom=False,
-                       sort_structure=True):
+    def from_json_file(name, json_file, **kwargs):
         """
         Creates a DictVaspInputSet from a json file.
 
         Args:
-            name:
-                A name for the input set.
-            json_file:
-                An actual file containing the settings.
-            hubbard_off:
-                Whether to turn off Hubbard U if it is specified in
-                config_dict. Defaults to False, i.e., follow settings in
-                config_dict.
-            user_incar_settings:
-                User INCAR settings. This allows a user to override INCAR
-                settings, e.g., setting a different MAGMOM for various elements
-                or species.
-            constrain_total_magmom:
-                Whether to constrain the total magmom (NUPDOWN in INCAR) to be
-                the sum of the expected MAGMOM for all species. Defaults to
-                False.
-            sort_structure:
-                Whether to sort the structure (using the default sort
-                order of electronegativity) before generating input files.
-                Defaults to True, the behavior you would want most of the
-                time. This ensures that similar atomic species are grouped
-                together.
+            name (str): A name for the input set.
+            json_file (str): Path to a json file containing the settings.
+            \*\*kwargs: Same kwargs as in the constructor.
+
+        Returns:
+            DictVaspInputSet
         """
         with open(json_file) as f:
             return DictVaspInputSet(
-                name, json.load(f),
-                hubbard_off=hubbard_off,
-                constrain_total_magmom=constrain_total_magmom,
-                user_incar_settings=user_incar_settings,
-                sort_structure=sort_structure)
+                name, json.load(f), **kwargs)
 
 
 MITVaspInputSet = partial(DictVaspInputSet.from_json_file, "MIT",
@@ -437,17 +404,15 @@ Supports the same kwargs as :class:`JSONVaspInputSet`.
 class MITNEBVaspInputSet(DictVaspInputSet):
     """
     Class for writing NEB inputs. Note that EDIFF is not on a per atom
-    basis for this input set
+    basis for this input set.
+
+    Args:
+        nimages (int): Number of NEB images (excluding start and ending
+            structures).
+        \*\*kwargs: Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
     def __init__(self, nimages=8, user_incar_settings=None, **kwargs):
-        """
-        Args:
-            nimages:
-                Number of NEB images (excluding start and ending structures).
-            **kwargs:
-                Other kwargs supported by :class:`JSONVaspInputSet`.
-        """
         #NEB specific defaults
         defaults = {'IMAGES': nimages, 'IBRION': 1, 'NFREE': 2, 'ISYM': 0,
                     'LORBIT': 0, 'LCHARG': False}
@@ -467,16 +432,13 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         01, 02, ....
 
         Args:
-            structures:
-                list of Structure objects. There should be nimages + 2
-                structures (including start and end structures).
-            output_dir:
-                Directory to output the VASP input files
-            make_dir_if_not_present:
-                Set to True if you want the directory (and the whole path) to
-                be created if it is not present.
-            write_cif:
-                If true, writes a cif along with each POSCAR
+            structures ([Structure]): nimages + 2 structures (including
+                start and end structures).
+            output_dir (str): Directory to output the VASP input files
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            write_cif (bool): If true, writes a cif along with each POSCAR.
         """
         if len(structures) != self.incar_settings['IMAGES'] + 2:
             raise ValueError('incorrect number of structures')
@@ -513,34 +475,28 @@ class MITMDVaspInputSet(DictVaspInputSet):
     """
     Class for writing a vasp md run. This DOES NOT do multiple stage
     runs.
+
+    Args:
+        start_temp (int): Starting temperature.
+        end_temp (int): Final temperature.
+        nsteps (int): Number of time steps for simulations. The NSW parameter.
+        time_step (int): The time step for the simulation. The POTIM
+            parameter. Defaults to 2fs.
+        hubbard_off (bool): Whether to turn off Hubbard U. Defaults to
+            *True* (different behavior from standard input sets) for MD runs.
+        spin_polarized (bool): Whether to do spin polarized calculations.
+            The ISPIN parameter. Defaults to False.
+        sort_structure (bool): Whether to sort structure. Defaults to False
+            (different behavior from standard input sets).
+        **kwargs:
+            Other kwargs supported by :class:`DictVaspInputSet`.
     """
 
     def __init__(self, start_temp, end_temp, nsteps, time_step=2,
                  hubbard_off=True, spin_polarized=False,
                  sort_structure=False, user_incar_settings=None,
                  **kwargs):
-        """
-        Args:
-            start_temp:
-                Starting temperature.
-            end_temp:
-                Final temperature.
-            nsteps:
-                Number of time steps for simulations. The NSW parameter.
-            time_step:
-                The time step for the simulation. The POTIM parameter.
-                Defaults to 2fs.
-            hubbard_off:
-                Whether to turn off Hubbard U. Defaults to *True* (different
-                behavior from standard input sets) for MD runs.
-            sort_structure:
-                Whether to sort structure. Defaults to False (different
-                behavior from standard input sets).
-            user_incar_settings:
-                Settings to override the default incar settings (as a dict)
-            **kwargs:
-                Other kwargs supported by :class:`DictVaspInputSet`.
-        """
+
         #MD default settings
         defaults = {'TEBEG': start_temp, 'TEEND': end_temp, 'NSW': nsteps,
                     'EDIFF': 0.000001, 'LSCALU': False, 'LCHARG': False,
@@ -623,19 +579,33 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     for static calculations that typically follow relaxation runs.
     It is recommended to use the static from_previous_run method to construct
     the input set to inherit most of the functions.
+
+    Args:
+        kpoints_density (int): kpoints density for the reciprocal cell of
+            structure. Might need to increase the default value when
+            calculating metallic materials.
+        sym_prec (float): Tolerance for symmetry finding
+
+    kwargs:
+        hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
+            config_dict ("MP Static"). Defaults to False, i.e., follow settings in
+            config_dict.
+        user_incar_settings (dict): User INCAR settings. This allows a user
+            to override INCAR settings, e.g., setting a different MAGMOM for
+            various elements or species.
+        constrain_total_magmom (bool): Whether to constrain the total magmom
+            (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
+            species. Defaults to False.
+        sort_structure (bool): Whether to sort the structure (using the
+            default sort order of electronegativity) before generating input
+            files. Defaults to True, the behavior you would want most of the
+            time. This ensures that similar atomic species are grouped
+            together.
+        ediff_per_atom (bool): Whether the EDIFF is specified on a per atom
+            basis.
     """
 
-    def __init__(self, kpoints_density=90, sym_prec=0.01, *args, **kwargs):
-        """
-        Supports the same kwargs as :class:`JSONVaspInputSet`.
-        Args:
-            kpoints_density:
-                kpoints density for the reciprocal cell of structure.
-                Might need to increase the default value when calculating
-                metallic materials.
-            sym_prec:
-                Tolerance for symmetry finding
-        """
+    def __init__(self, kpoints_density=90, sym_prec=0.01, **kwargs):
         with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static", json.load(f), **kwargs)
@@ -650,13 +620,24 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         """
         Get a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
+
+        Args:
+            structure (Structure/IStructure): structure to get kpoints
         """
         self.kpoints_settings['grid_density'] = \
-            self.kpoints_settings["kpoints_density"] * structure.lattice.reciprocal_lattice.volume * \
+            self.kpoints_settings["kpoints_density"] * \
+            structure.lattice.reciprocal_lattice.volume * \
             structure.num_sites
         return super(MPStaticVaspInputSet, self).get_kpoints(structure)
 
     def get_poscar(self, structure):
+        """
+        Get a POSCAR file with a primitive standardized cell of
+        the giving structure.
+
+        Args:
+            structure (Structure/IStructure): structure to get POSCAR
+        """
         sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
         return Poscar(sym_finder.get_primitive_standard_structure())
 
@@ -667,21 +648,19 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         Process structure for static calculations from previous run.
 
         Args:
-            vasp_run:
-                Vasprun object that contains the final structure from previous
-                run.
-            outcar:
-                Outcar object that contains the magnetization info from
+            vasp_run (Vasprun): Vasprun that contains the final structure
+                from previous run.
+            outcar (Outcar): Outcar that contains the magnetization info from
                 previous run.
-            initial_structure:
-                Whether to return the structure from previous run. Default is
-                False.
-            additional_info:
+            initial_structure (bool): Whether to return the structure from
+                previous run. Default is False.
+            additional_info (bool):
                 Whether to return additional symmetry info related to the
                 structure. If True, return a list of the refined structure (
                 conventional cell), the conventional standard structure,
-                the symmetry dataset and symmetry operations of the structure
-                (see SymmetryFinder doc for details)
+                the symmetry dataset and symmetry operations of the
+                structure (see SymmetryFinder doc for details).
+            sym_prec (float): Tolerance for symmetry finding
 
         Returns:
             Returns the magmom-decorated structure that can be passed to get
@@ -722,15 +701,17 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         directory of previous Vasp run.
 
         Args:
-            previous_vasp_dir:
-                The directory contains the outputs(vasprun.xml and OUTCAR) of
-                previous vasp run.
-            output_dir:
-                The directory to write the VASP input files for the static
-                calculations. Default to write in the current directory.
-            make_dir_if_not_present:
-                Set to True if you want the directory (and the whole path) to
-                be created if it is not present.
+            previous_vasp_dir (str): Directory containing the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            output_dir (str): Directory to write the VASP input files for
+                the static calculations. Defaults to current directory.
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            kpoints_density (int): kpoints density for the reciprocal cell
+                of structure. Might need to increase the default value when
+                calculating metallic materials.
+            sym_prec (float): Tolerance for symmetry finding
         """
         # Read input and output from previous run
         try:
@@ -744,7 +725,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
 
-        mpsvip = MPStaticVaspInputSet(kpoints_density=kpoints_density, sym_prec=sym_prec)
+        mpsvip = MPStaticVaspInputSet(kpoints_density=kpoints_density,
+                                      sym_prec=sym_prec)
         structure = mpsvip.get_structure(vasp_run, outcar)
 
         mpsvip.write_input(structure, output_dir, make_dir_if_not_present)
@@ -799,23 +781,24 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         else:
             new_kpoints.write_file(os.path.join(output_dir, "KPOINTS"))
 
+
 class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     """
     Using MP parameters to compute a static dielectric constant
     with DFPT. This includes the electronic and ionic contributions
-    to the static dielectric constant
+    to the static dielectric constant.
+
+    Args:
+        user_incar_settings (dict): A dict specifying additional incar
+            settings
     """
 
-    def __init__(self, user_incar_settings={}):
-        """
-        Args:
-            user_incar_settings:
-            A dict specifying additional incar settings
-        """
+    def __init__(self, user_incar_settings=None):
         with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MaterialsProject Static Dielectric DFPT", json.load(f))
-        self.user_incar_settings = user_incar_settings
+        self.user_incar_settings = user_incar_settings if \
+            user_incar_settings is not None else {}
         self.incar_settings.update(
             {"IBRION": 8, "LEPSILON": True})
         if 'NPAR' in self.incar_settings:
@@ -829,21 +812,28 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     a static run to calculate bandstructure, density of states(DOS) and etc.
     It is recommended to use the NonSCF from_previous_run method to construct
     the input set to inherit most of the functions.
+
+    Args:
+        user_incar_settings (dict): A dict specify customized settings
+            for INCAR. Must contain a NBANDS value, suggest to use
+            1.2*(NBANDS from static run).
+        mode: Line: Generate k-points along symmetry lines for
+            bandstructure. Uniform: Generate uniform k-points
+            grids for DOS.
+        constrain_total_magmom (bool): Whether to constrain the total
+            magmom (NUPDOWN in INCAR) to be the sum of the expected
+            MAGMOM for all species. Defaults to False.
+        kpoints_density (int): kpoints density for the reciprocal cell
+            of structure. Might need to increase the default value when
+            calculating metallic materials.
+        sort_structure (bool): Whether to sort structure. Defaults to
+            False.
+        sym_prec (float): Tolerance for symmetry finding
     """
 
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.01):
-        """
-        Args:
-            user_incar_settings:
-                A dict specify customized settings for INCAR.
-                Must contain a NBANDS value, suggest to use
-                1.2*(NBANDS from static run).
-            mode:
-                Line: Generate k-points along symmetry lines for bandstructure
-                Uniform: Generate uniform k-points grids for DOS
-        """
         self.mode = mode
         self.sym_prec= sym_prec
         if mode not in ["Line", "Uniform"]:
@@ -875,11 +865,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         Gamma-centered mesh grid. Kpoints are written explicitly in both cases.
 
         Args:
-            kpoints_density:
-                kpoints density for the reciprocal cell of structure.
-                Suggest to use a large kpoints_density.
-                Might need to increase the default value when calculating
-                metallic materials.
+            structure (Structure/IStructure): structure to get Kpoints
         """
         if self.mode == "Line":
             kpath = HighSymmKpath(structure)
@@ -911,6 +897,13 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     def get_incar_settings(vasp_run, outcar=None):
         """
         Helper method to get necessary user_incar_settings from previous run.
+
+            Args:
+                vasp_run (Vasprun): Vasprun that contains the final
+                    structure from previous run.
+                outcar (Outcar): Outcar that contains the magnetization info
+                    from previous run.
+
         """
         # Turn off spin when magmom for every site is smaller than 0.02.
         if outcar and outcar.magnetization:
@@ -942,17 +935,21 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         directory of previous static Vasp run.
 
         Args:
-            previous_vasp_dir:
-                The directory contains the outputs(vasprun.xml and OUTCAR) of
-                previous vasp run.
-            output_dir:
-                The directory to write the VASP input files for the NonSCF
-                calculations. Default to write in the current directory.
-            copy_chgcar:
-                Default to copy CHGCAR from SC run
-            make_dir_if_not_present:
-                Set to True if you want the directory (and the whole path) to
-                be created if it is not present.
+            previous_vasp_dir (str): The directory contains the outputs(
+                vasprun.xml and OUTCAR) of previous vasp run.
+            output_dir (str): The directory to write the VASP input files
+                for the NonSCF calculations. Default to write in the current
+                directory.
+            mode (str): Line: Generate k-points along symmetry lines for
+                bandstructure. Uniform: Generate uniform k-points
+                grids for DOS.
+            user_incar_settings (dict): A dict specify customized settings
+                for INCAR. Must contain a NBANDS value, suggest to use
+                1.2*(NBANDS from static run).
+            copy_chgcar (bool): Default to copy CHGCAR from SC run
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
         """
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
@@ -986,24 +983,19 @@ def batch_write_vasp_input(structures, vasp_input_set, output_dir,
     output_dir, following the format output_dir/{group}/{formula}_{number}.
 
     Args:
-        structures:
-            Sequence of Structures.
-        vasp_input_set:
-            pymatgen.io.vaspio_set.VaspInputSet like object that creates
+        structures ([Structure]): Sequence of Structures.
+        vasp_input_set (VaspInputSet): VaspInputSet that creates
             vasp input files from structures
-        output_dir:
-            Directory to output files
-        make_dir_if_not_present:
-            Create the directory if not present. Defaults to True.
-        subfolder:
-            function to create subdirectory name from structure.
-            Defaults to simply "formula_count".
-        sanitize:
-            Boolean indicating whether to sanitize the structure before
-            writing the VASP input files. Sanitized output are generally easier
-            for viewing and certain forms of analysis. Defaults to False.
-        include_cif:
-            Boolean indication whether to output a CIF as well. CIF files are
+        output_dir (str): Directory to output files
+        make_dir_if_not_present (bool): Create the directory if not present.
+            Defaults to True.
+        subfolder (callable): Function to create subdirectory name from
+            structure. Defaults to simply "formula_count".
+        sanitize (bool): Boolean indicating whether to sanitize the
+            structure before writing the VASP input files. Sanitized output
+            are generally easier for viewing and certain forms of analysis.
+            Defaults to False.
+        include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.
     """
     for i, s in enumerate(structures):

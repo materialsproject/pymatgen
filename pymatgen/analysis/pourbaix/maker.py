@@ -37,15 +37,12 @@ MU_H2O = -2.4583
 class PourbaixDiagram(object):
     """
     Class to create a Pourbaix diagram from entries
+
+    Args:
+        entries: Entries list containing both Solids and Ions
+        comp_dict: Dictionary of compositions
     """
     def __init__(self, entries, comp_dict=None):
-        """
-        Args:
-            entries:
-                Entries list containing both Solids and Ions
-            comp_dict:
-                Dictionary of compositions
-        """
         self._solid_entries = list()
         self._ion_entries = list()
         for entry in entries:
@@ -131,8 +128,11 @@ class PourbaixDiagram(object):
         self._entry_components_dict = {}
         count = 0
         for entry_list in list_of_entries:
-            # Check if all elements in composition list are present in entry_list
-            if not (set([Element(el) for el in el_list]).issubset(set(list(chain.from_iterable([entries[i].composition.keys() for i in entry_list]))))):
+            # Check if all elements in composition list are present in
+            # entry_list
+            if not (set([Element(el) for el in el_list]).issubset(
+                    set(list(chain.from_iterable([entries[i].composition.keys()
+                                                  for i in entry_list]))))):
                 continue
             count += 1
             A = [[0.0] * (len(el_list) - 1) for _ in range(len(entry_list) - 1)]

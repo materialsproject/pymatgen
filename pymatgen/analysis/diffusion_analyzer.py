@@ -29,7 +29,7 @@ import math
 
 import numpy as np
 
-from pymatgen.core import Structure, smart_element_or_specie
+from pymatgen.core import Structure, get_el_sp
 import pymatgen.core.physical_constants as phyc
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.vaspio.vasp_output import Vasprun
@@ -64,7 +64,7 @@ class DiffusionAnalyzer(MSONable):
     """
 
     def __init__(self, structure, displacements, specie, temperature,
-                 time_step, step_skip=10, min_obs=30, weighted=True):
+                 time_step, step_skip, min_obs=30, weighted=True):
         """
         This constructor is meant to be used with pre-processed data.
         Other convenient constructors are provided as class methods (see
@@ -80,31 +80,25 @@ class DiffusionAnalyzer(MSONable):
         time to obtain the slope, which is then related to the diffusivity.
 
         Args:
-            structure:
-                Initial structure.
-            displacements:
-                Numpy array of with shape [site, time step, axis]
-            specie:
-                Specie to calculate diffusivity for as a String. E.g., "Li".
-            temperature:
-                Temperature of the diffusion run in Kelvin.
-            time_step:
-                Time step between measurements.
-            step_skip:
-                Sampling frequency of the displacements (time_step is
-                multiplied by this number to get the real time between
-                measurements)
-            min_obs:
-                Minimum number of observations to have before including in
-                the MSD vs dt calculation. E.g. If a structure has 10
-                diffusing atoms, and min_obs = 30, the MSD vs dt will be
+            structure (Structure): Initial structure.
+            displacements (array): Numpy array of with shape [site,
+                time step, axis]
+            specie (Element/Specie): Specie to calculate diffusivity for as a
+                String. E.g., "Li".
+            temperature (float): Temperature of the diffusion run in Kelvin.
+            time_step (int): Time step between measurements.
+            step_skip (int): Sampling frequency of the displacements (
+                time_step is multiplied by this number to get the real time
+                between measurements)
+            min_obs (int): Minimum number of observations to have before
+                including in the MSD vs dt calculation. E.g. If a structure
+                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-            weighted:
-                Uses a weighted least squares to fit the MSD vs dt. Weights are
-                proportional to 1/dt, since the number of observations are
-                also proportional to 1/dt (and hence the variance is
-                proportional to dt)
+            weighted (bool): Uses a weighted least squares to fit the
+                MSD vs dt. Weights are proportional to 1/dt, since the
+                number of observations are also proportional to 1/dt (and
+                hence the variance is proportional to dt)
         """
         self.s = structure
         self.disp = displacements
@@ -220,35 +214,73 @@ class DiffusionAnalyzer(MSONable):
         self.get_smoothed_msd_plot().show()
 
     @classmethod
+    def from_structures(cls, structures, specie, temperature,
+                        time_step, step_skip, min_obs=30, weighted=True):
+        """
+        Convenient constructor that takes in a list of Structure objects to
+        perform diffusion analysis.
+
+        Args:
+            structures [Structure]: list of Structure objects (must be
+                ordered in sequence of run). E.g., you may have performed
+                sequential VASP runs to obtain sufficient statistics.
+            specie (Element/Specie): Specie to calculate diffusivity for as a
+                String. E.g., "Li".
+            temperature (float): Temperature of the diffusion run in Kelvin.
+            time_step (int): Time step between measurements.
+            step_skip (int): Sampling frequency of the displacements (
+                time_step is multiplied by this number to get the real time
+                between measurements)
+            min_obs (int): Minimum number of observations to have before
+                including in the MSD vs dt calculation. E.g. If a structure
+                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
+                calculated up to dt = total_run_time / 3, so that each
+                diffusing atom is measured at least 3 uncorrelated times.
+            weighted (bool): Uses a weighted least squares to fit the
+                MSD vs dt. Weights are proportional to 1/dt, since the
+                number of observations are also proportional to 1/dt (and
+                hence the variance is proportional to dt)
+            """
+        structure = structures[0]
+
+        p = [np.array(s.frac_coords)[:, None] for s in structures]
+        p = np.concatenate(p, axis=1)
+        dp = p[:, 1:] - p[:, :-1]
+        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
+        dp = dp - np.round(dp)
+        f_disp = np.cumsum(dp, axis=1)
+        disp = structure.lattice.get_cartesian_coords(f_disp)
+
+        return cls(structure, disp, specie, temperature,
+                   time_step, step_skip=step_skip, min_obs=min_obs,
+                   weighted=weighted)
+
+    @classmethod
     def from_vaspruns(cls, vaspruns, specie, min_obs=30, weighted=True):
         """
         Convenient constructor that takes in a list of Vasprun objects to
         perform diffusion analysis.
 
         Args:
-            vaspruns:
-                list of Vasprun objects (must be ordered in sequence of run).
-                 E.g., you may have performed sequential VASP runs to obtain
-                 sufficient statistics.
-            specie:
-                Specie to calculate diffusivity for as a String. E.g., "Li".
-            min_obs:
-                Minimum number of observations to have before including in
-                the MSD vs dt calculation. E.g. If a structure has 10
-                diffusing atoms, and min_obs = 30, the MSD vs dt will be
+            vaspruns ([Vasprun]): List of Vaspruns (must be ordered  in
+                sequence of MD simulation). E.g., you may have performed
+                sequential VASP runs to obtain sufficient statistics.
+            specie (Element/Specie): Specie to calculate diffusivity for as a
+                String. E.g., "Li".
+            min_obs (int): Minimum number of observations to have before
+                including in the MSD vs dt calculation. E.g. If a structure
+                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-            weighted:
-                Uses a weighted least squares to fit the MSD vs dt. Weights are
-                proportional to 1/dt, since the number of observations are
-                also proportional to 1/dt (and hence the variance is
-                proportional to dt)
+            weighted (bool): Uses a weighted least squares to fit the
+                MSD vs dt. Weights are proportional to 1/dt, since the
+                number of observations are also proportional to 1/dt (and
+                hence the variance is proportional to dt)
         """
-        structure = vaspruns[0].initial_structure
         step_skip = vaspruns[0].ionic_step_skip or 1
 
-        p = []
         final_structure = vaspruns[0].initial_structure
+        structures = []
         for vr in vaspruns:
             #check that the runs are continuous
             fdist = pbc_diff(vr.initial_structure.frac_coords,
@@ -259,19 +291,12 @@ class DiffusionAnalyzer(MSONable):
             final_structure = vr.final_structure
 
             assert (vr.ionic_step_skip or 1) == step_skip
-            p.extend([np.array(s['structure'].frac_coords)[:, None]
-                      for s in vr.ionic_steps])
-        p = np.concatenate(p, axis=1)
-        dp = p[:, 1:] - p[:, :-1]
-        dp = np.concatenate([np.zeros_like(dp[:, (0,)]), dp], axis=1)
-        dp = dp - np.round(dp)
-        f_disp = np.cumsum(dp, axis=1)
-        disp = structure.lattice.get_cartesian_coords(f_disp)
+            structures.extend([s['structure'] for s in vr.ionic_steps])
 
         temperature = vaspruns[0].parameters['TEEND']
         time_step = vaspruns[0].parameters['POTIM']
 
-        return cls(structure, disp, specie, temperature,
+        return cls.from_structures(structures, specie, temperature,
                    time_step, step_skip=step_skip, min_obs=min_obs,
                    weighted=weighted)
 
@@ -283,37 +308,32 @@ class DiffusionAnalyzer(MSONable):
         perform diffusion analysis.
 
         Args:
-            filepaths:
-                List of paths to vasprun.xml files of runs. (must be
-                ordered in sequence of run). For example,
+            filepaths ([str]): List of paths to vasprun.xml files of runs. (
+                must be ordered in sequence of MD simulation). For example,
                 you may have done sequential VASP runs and they are in run1,
                 run2, run3, etc. You should then pass in
                 ["run1/vasprun.xml", "run2/vasprun.xml", ...].
-            specie:
-                Specie to calculate diffusivity for as a String. E.g., "Li".
-            step_skip:
-                Sampling frequency of the displacements (time_step is
-                multiplied by this number to get the real time between
-                measurements). E.g., you may not want to sample every single
-                time step.
-            min_obs:
-                Minimum number of observations to have before including in
-                the MSD vs dt calculation. E.g. If a structure has 10
-                diffusing atoms, and min_obs = 30, the MSD vs dt will be
+            specie (Element/Specie): Specie to calculate diffusivity for as a
+                String. E.g., "Li".
+            step_skip (int): Sampling frequency of the displacements (
+                time_step is multiplied by this number to get the real time
+                between measurements)
+            min_obs (int): Minimum number of observations to have before
+                including in the MSD vs dt calculation. E.g. If a structure
+                has 10 diffusing atoms, and min_obs = 30, the MSD vs dt will be
                 calculated up to dt = total_run_time / 3, so that each
                 diffusing atom is measured at least 3 uncorrelated times.
-            weighted:
-                Uses a weighted least squares to fit the MSD vs dt. Weights are
-                proportional to 1/dt, since the number of observations are
-                also proportional to 1/dt (and hence the variance is
-                proportional to dt)
-            ncores:
-                Numbers of cores to use for multiprocessing. Can speed up
-                vasprun parsing considerable. Defaults to None,
+            weighted (bool): Uses a weighted least squares to fit the
+                MSD vs dt. Weights are proportional to 1/dt, since the
+                number of observations are also proportional to 1/dt (and
+                hence the variance is proportional to dt)
+            ncores (int): Numbers of cores to use for multiprocessing. Can
+                speed up vasprun parsing considerably. Defaults to None,
                 which means serial. It should be noted that if you want to
-                use multiprocessing, the NSW variable should be a multiple
-                of the ionic_step_skip. Otherwise, inconsistent results may
-                arise. Serial mode has no such restrictions.
+                use multiprocessing, the number of ionic steps in all vasprun
+                .xml files should be a multiple of the ionic_step_skip.
+                Otherwise, inconsistent results may arise. Serial mode has no
+                such restrictions.
         """
         if ncores is not None:
             import multiprocessing
@@ -327,7 +347,7 @@ class DiffusionAnalyzer(MSONable):
                             ionic_step_skip=step_skip)
                 vaspruns.append(v)
                 # Recompute offset.
-                offset = step_skip - (v.nionic_steps - offset) % step_skip
+                offset = (- (v.nionic_steps - offset)) % step_skip
         return cls.from_vaspruns(vaspruns, min_obs=min_obs,
                                  weighted=weighted, specie=specie)
 
@@ -364,18 +384,15 @@ def get_conversion_factor(structure, species, temperature):
     (usually a good guess, esp for main group ions).
 
     Args:
-        structure:
-            Input structure.
-        species:
-            Diffusing species.
-        temperature:
-            Temperature of the diffusion run in Kelvin.
+        structure (Structure): Input structure.
+        species (Element/Specie): Diffusing species.
+        temperature (float): Temperature of the diffusion run in Kelvin.
 
     Returns:
         Conversion factor.
         Conductivity (in mS/cm) = Conversion Factor * Diffusivity (in cm^2/s)
     """
-    df_sp = smart_element_or_specie(species)
+    df_sp = get_el_sp(species)
     if hasattr(df_sp, "oxi_state"):
         z = df_sp.oxi_state
     else:
@@ -400,11 +417,9 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
     Returns an Arrhenius plot.
 
     Args:
-        temps:
-            A sequence of temperatures.
-        diffusivities:
-            A sequence of diffusivities (e.g., from DiffusionAnalyzer
-            .diffusivity).
+        temps ([float]): A sequence of temperatures.
+        diffusivities ([float]): A sequence of diffusivities (e.g.,
+            from DiffusionAnalyzer.diffusivity).
         \*\*kwargs:
             Any keyword args supported by matplotlib.pyplot.plot.
 

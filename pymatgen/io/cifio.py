@@ -39,17 +39,14 @@ class CifParser(object):
     """
     A wrapper class around PyCifRW to read Cif and convert into a pymatgen
     Structure object.
+
+    Args:
+        filename (str): Cif filename. bzipped or gzipped cifs are fine too.
+        occupancy_tolerance (float): If total occupancy of a site is between 1
+            and occupancy_tolerance, the occupancies will be scaled down to 1.
     """
 
     def __init__(self, filename, occupancy_tolerance=1.):
-        """
-        Args:
-            filename:
-                Cif filename. bzipped or gzipped cifs are fine too.
-            occupancy_tolerance:
-                If total occupancy of a site is between 1 and
-                occupancy_tolerance, the occupancies will be scaled down to 1.
-        """
         self._occupancy_tolerance = occupancy_tolerance
         if isinstance(filename, basestring):
             with zopen(filename, "r") as f:
@@ -65,11 +62,10 @@ class CifParser(object):
         Creates a CifParser from a string.
 
         Args:
-            cif_string:
-                String representation of a CIF.
-            occupancy_tolerance:
-                If total occupancy of a site is between 1 and
-                occupancy_tolerance, the occupancies will be scaled down to 1.
+            cif_string (str): String representation of a CIF.
+            occupancy_tolerance (float): If total occupancy of a site is
+                between 1 and occupancy_tolerance, the occupancies will be
+                scaled down to 1.
 
         Returns:
             CifParser
@@ -172,9 +168,8 @@ class CifParser(object):
         conventional cell structure or primitive cell structure is returned.
 
         Args:
-            primitive:
-                Set to False to return conventional unit cells. Defaults to
-                True.
+            primitive (bool): Set to False to return conventional unit cells.
+                Defaults to True.
 
         Returns:
             List of Structures.
@@ -200,14 +195,14 @@ class CifParser(object):
 class CifWriter:
     """
     A wrapper around PyCifRW to write CIF files from pymatgen structures.
+
+    Args:
+        struct (Structure): A pymatgen.core.structure.Structure object.
+        find_spacegroup (bool): Whether to find spacegroup.
+            If so, spacegroup information is written.
     """
 
     def __init__(self, struct, find_spacegroup=False):
-        """
-        Args:
-            struct:
-                A pymatgen.core.structure.Structure object.
-        """
         block = CifFile.CifBlock()
         latt = struct.lattice
         comp = struct.composition
@@ -347,11 +342,10 @@ def str2float(text):
 
 def parse_symmetry_operations(symmops_str_list):
     """
-    Help method to parse the symmetry operations.
+    Helper method to parse the symmetry operations.
 
     Args:
-        symmops_str_list:
-            List of symmops strings of the form
+        symmops_str_list ([str]): List of symmops strings of the form
             ['x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', ...]
 
     Returns:

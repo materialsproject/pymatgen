@@ -196,10 +196,10 @@ class AbstractElectrode(Sequence, MSONable):
         Average voltage for path satisfying between a min and max voltage.
 
         Args:
-            min_voltage:
-                the minimum allowable voltage for a given step
-            max_voltage:
-                the maximum allowable voltage allowable for a given step
+            min_voltage (float): The minimum allowable voltage for a given
+                step.
+            max_voltage (float): The maximum allowable voltage allowable for a
+                given step.
 
         Returns:
             Average voltage in V across the insertion path (a subset of the
@@ -219,15 +219,14 @@ class AbstractElectrode(Sequence, MSONable):
         Get the gravimetric capacity of the electrode.
 
         Args:
-            min_voltage:
-                The minimum allowable voltage for a given step.
-            max_voltage:
-                The maximum allowable voltage allowable for a given step.
-            use_overall_normalization:
-                If False, normalize by the discharged state of only the voltage
-                pairs matching the voltage criteria. if True, use default
-                normalization of the full electrode path.
-
+            min_voltage (float): The minimum allowable voltage for a given
+                step.
+            max_voltage (float): The maximum allowable voltage allowable for a
+                given step.
+            use_overall_normalization (booL): If False, normalize by the
+                discharged state of only the voltage pairs matching the voltage
+                criteria. if True, use default normalization of the full
+                electrode path.
 
         Returns:
             Gravimetric capacity in mAh/g across the insertion path (a subset
@@ -246,14 +245,14 @@ class AbstractElectrode(Sequence, MSONable):
         Get the volumetric capacity of the electrode.
 
         Args:
-            min_voltage:
-                the minimum allowable voltage for a given step
-            max_voltage:
-                the maximum allowable voltage allowable for a given step
-            use_overall_normalization:
-                If False, normalize by the discharged state of only the voltage
-                pairs matching the voltage criteria. If True, use default
-                normalization of the full electrode path.
+            min_voltage (float): The minimum allowable voltage for a given
+                step.
+            max_voltage (float): The maximum allowable voltage allowable for a
+                given step.
+            use_overall_normalization (booL): If False, normalize by the
+                discharged state of only the voltage pairs matching the voltage
+                criteria. if True, use default normalization of the full
+                electrode path.
 
         Returns:
             Volumetric capacity in mAh/cc across the insertion path (a subset
@@ -273,14 +272,14 @@ class AbstractElectrode(Sequence, MSONable):
         Returns the specific energy of the battery in mAh/g.
 
         Args:
-            min_voltage:
-                the minimum allowable voltage for a given step
-            max_voltage:
-                the maximum allowable voltage allowable for a given step
-            use_overall_normalization:
-                if False, normalize by the discharged state of only the
-                voltage pairs matching the voltage criteria. if True, use
-                default normalization of the full electrode path.
+            min_voltage (float): The minimum allowable voltage for a given
+                step.
+            max_voltage (float): The maximum allowable voltage allowable for a
+                given step.
+            use_overall_normalization (booL): If False, normalize by the
+                discharged state of only the voltage pairs matching the voltage
+                criteria. if True, use default normalization of the full
+                electrode path.
 
         Returns:
             Specific energy in Wh/kg across the insertion path (a subset of
@@ -294,14 +293,14 @@ class AbstractElectrode(Sequence, MSONable):
                            use_overall_normalization=True):
         """
         Args:
-            min_voltage:
-                The minimum allowable voltage for a given step
-            max_voltage:
-                The maximum allowable voltage allowable for a given step
-            use_overall_normalization:
-                If False, normalize by the discharged state of only the voltage
-                pairs matching the voltage criteria. If True, use default
-                normalization of the full electrode path.
+            min_voltage (float): The minimum allowable voltage for a given
+                step.
+            max_voltage (float): The maximum allowable voltage allowable for a
+                given step.
+            use_overall_normalization (booL): If False, normalize by the
+                discharged state of only the voltage pairs matching the voltage
+                criteria. if True, use default normalization of the full
+                electrode path.
 
         Returns:
             Energy density in Wh/L across the insertion path (a subset of the
@@ -316,10 +315,10 @@ class AbstractElectrode(Sequence, MSONable):
         Selects VoltagePairs within a certain voltage range.
 
         Args:
-            min_voltage:
-                the minimum allowable voltage for a given step
-            max_voltage:
-                the maximum allowable voltage allowable for a given step
+            min_voltage (float): The minimum allowable voltage for a given
+                step.
+            max_voltage (float): The maximum allowable voltage allowable for a
+                given step.
 
         Returns:
             A list of VoltagePair objects

@@ -32,17 +32,14 @@ from pymatgen.util.coord_utils import in_coord_list
 class PourbaixPlotter(object):
     """
     A plotter class for phase diagrams.
+
+    Args:
+        phasediagram: A PhaseDiagram object.
+        show_unstable: Whether unstable phases will be plotted as well as
+            red crosses. Defaults to False.
     """
 
     def __init__(self, pourbaixdiagram, show_unstable=False):
-        """
-        Args:
-            phasediagram:
-                A PhaseDiagram object.
-            show_unstable:
-                Whether unstable phases will be plotted as well as red crosses.
-                Defaults to False.
-        """
         self._pd = pourbaixdiagram
         self.lines = uniquelines(self._pd.facets)
         self.show_unstable = show_unstable
@@ -53,13 +50,13 @@ class PourbaixPlotter(object):
         Pourbaix diagram convex hull data.
 
         Returns:
-            (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD.
-                - stable_entries is a {coordinate : entry} for each stable node
-                  in the phase diagram. (Each coordinate can only have one
-                  stable phase)
-                - unstable_entries is a {entry: coordinates} for all unstable
-                  nodes in the phase diagram.
+            (lines, stable_entries, unstable_entries)
+            - lines is a list of list of coordinates for lines in the PD.
+            - stable_entries is a {coordinate : entry} for each stable node
+            in the phase diagram. (Each coordinate can only have one
+            stable phase)
+            - unstable_entries is a {entry: coordinates} for all unstable
+            nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -99,7 +96,8 @@ class PourbaixPlotter(object):
         """
         Draws the convex hull diagram using Matplotlib and show it.
         """
-        plt = self._get_plot(label_stable=label_stable, label_unstable=label_unstable)
+        plt = self._get_plot(label_stable=label_stable,
+                             label_unstable=label_unstable)
         if filename == "":
             plt.show()
         else:
@@ -198,8 +196,7 @@ class PourbaixPlotter(object):
         Get data required to plot Pourbaix diagram.
 
         Args:
-            limits:
-                2D list containing limits of the Pourbaix diagram
+            limits: 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
 
         Returns:
@@ -269,8 +266,7 @@ class PourbaixPlotter(object):
         Plot Pourbaix diagram.
 
         Args:
-            limits:
-                2D list containing limits of the Pourbaix diagram
+            limits: 2D list containing limits of the Pourbaix diagram
                 of the form [[xlo, xhi], [ylo, yhi]]
 
         Returns:
@@ -405,8 +401,7 @@ class PourbaixPlotter(object):
         Returns the vertices of the Pourbaix domain.
 
         Args:
-            entry:
-                Entry for which domain vertices are desired
+            entry: Entry for which domain vertices are desired
 
         Returns:
             list of vertices
@@ -518,14 +513,17 @@ class PourbaixPlotter(object):
         from itertools import chain
 
         plt = get_publication_quality_plot(16)
-        optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF', '#FF8080', '#808080', '#800000', '#FF8000']
+        optim_colors = ['#0000FF', '#FF0000', '#00FF00', '#FFFF00', '#FF00FF',
+                        '#FF8080', '#808080', '#800000', '#FF8000']
         (stable, unstable) = self.pourbaix_plot_data(limits)
         mark_passive = {key: 0 for key in stable.keys()}
 
         def list_elts(entry):
             elts_list = set()
             if isinstance(entry, MultiEntry):
-                for el in chain.from_iterable([[el for el in e.composition.elements] for e in entry.entrylist]):
+                for el in chain.from_iterable(
+                        [[el for el in e.composition.elements]
+                         for e in entry.entrylist]):
                     elts_list.add(el)
             else:
                 elts_list = entry.composition.elements
@@ -537,7 +535,8 @@ class PourbaixPlotter(object):
             if "(s)" not in entry.name:
                 is_corrosive = True
                 continue
-            if len(set([Element("O"), Element("H")]).intersection(set(list_elts(entry)))) > 0:
+            if len(set([Element("O"), Element("H")]).intersection(
+                    set(list_elts(entry)))) > 0:
                 is_passive = True
             if is_passive:
                 mark_passive[entry] = 1
@@ -573,7 +572,8 @@ class PourbaixPlotter(object):
             else:
                 color = "w"
                 colorfill = False
-            patch = Polygon(xy, facecolor=color, closed=True, lw=3.0, fill=colorfill)
+            patch = Polygon(xy, facecolor=color, closed=True, lw=3.0,
+                            fill=colorfill)
             ax.add_patch(patch)
             if label_domains:
                 plt.annotate(self.print_name(e), c, color="b", fontsize=20)

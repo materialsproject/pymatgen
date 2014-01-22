@@ -24,6 +24,9 @@ class XYZ(object):
     Basic class for importing and exporting Molecules or Structures in XYZ
     format.
 
+    Args:
+        mol: Input molecule
+
     .. note::
         Exporting periodic structures in the XYZ format will lose information
         about the periodicity. Essentially, only cartesian coordinates are
@@ -31,11 +34,6 @@ class XYZ(object):
         lattice.
     """
     def __init__(self, mol, coord_precision=6):
-        """
-        Args:
-            mol:
-                Input molecule
-        """
         self._mol = mol
         self.precision = coord_precision
 
@@ -52,8 +50,7 @@ class XYZ(object):
         Creates XYZ object from a string.
 
         Args:
-            contents:
-                String representing an XYZ file.
+            contents: String representing an XYZ file.
 
         Returns:
             XYZ object
@@ -78,8 +75,7 @@ class XYZ(object):
         Creates XYZ object from a file.
 
         Args:
-            filename:
-                XYZ filename
+            filename: XYZ filename
 
         Returns:
             XYZ object
@@ -99,8 +95,7 @@ class XYZ(object):
         Writes XYZ to file.
 
         Args:
-            filename:
-                File name of output file.
+            filename: File name of output file.
         """
         with zopen(filename, "w") as f:
             f.write(self.__str__())
