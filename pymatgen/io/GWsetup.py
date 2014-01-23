@@ -482,6 +482,77 @@ class SingleVaspGWWork():
             job_file.close()
 
 
+class SingleAbinitGWWorkFlow():
+    """
+    interface the
+    """
+    def __init__(self, structure, spec):
+        self.structure = structure
+        self.spec = spec
+        self.work_dir = self.structure.composition.reduced_formula
+
+    def create(self):
+        """
+        create single abinit G0W0 flow
+        """
+        manager = 'slurm' if 'ceci' in self.spec['mode'] else 'shell'
+        print manager
+
+        abi_pseudo = '.GGA_PBE-JTH-paw.xml'
+        abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
+        pseudos = []
+        for element in self.structure.composition.element_composition:
+            pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
+            print pseudo
+            pseudos.append(pseudo)
+
+        abi_structure = asabistructure(self.structure)
+        manager = TaskManager.from_user_config()
+        # Initialize the flow.
+        # FIXME
+        # Don't know why protocol=-1 does not work here.
+        flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
+
+        # kpoint grid defined over density 40 > ~ 3 3 3
+        scf_kppa = self.spec.data['kp_grid_dens']
+        gamma = True
+        # alternatively:
+        #nscf_ngkpt = [4,4,4]
+        #nscf_shiftk = [0.0, 0.0, 0.0]
+
+        # 100
+        nscf_nband = 50
+        #scr_nband = 50 takes nscf_nbands if not specified
+        #sigma_nband = 50 takes scr_nbands if not specified
+
+        # 6
+        ecuteps = 8
+        # 8
+        ecutsigx = 8
+        # 8
+        ecut = 12
+
+        extra_abivars = dict(
+            ecut=ecut,
+            istwfk="*1",
+            timopt=-1,
+            pawecutdg=ecut*2
+        )
+
+        work = g0w0_with_ppmodel_extended(abi_structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
+                                          accuracy="normal", spin_mode="unpolarized", smearing=None, ppmodel="godby",
+                                          charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
+                                          **extra_abivars)
+
+        flow.register_work(work)
+        return flow.allocate()
+
+    def create_job_file(self):
+        job_file = open("job_collection", mode='a')
+        job_file.write('nohup abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log & \n')
+        job_file.close()
+
+
 class GWSpecs(MSONable):
     """
     main program
@@ -489,7 +560,7 @@ class GWSpecs(MSONable):
     """
     def __init__(self):
         self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-                     'functional': 'LDA', 'kp_grid_dens': 500, 'prec': 'm'}
+                     'functional': 'PBE', 'kp_grid_dens': 500, 'prec': 'm'}
         self.warnings = []
         self.errors = []
 
@@ -502,6 +573,15 @@ class GWSpecs(MSONable):
     def from_dict(self, data):
         self.data = data
         self.test()
+
+    def reset_job_collection(self):
+        if 'ceci' in self.data['mode']:
+            if os.path.isfile('job_collection'):
+                os.remove('job_collection')
+            if 'ABINIT' in self.data['code']:
+                job_file = open('job_collection', mode='w')
+                job_file.write('module load abinit \n')
+                job_file.close()
 
     def update_interactive(self):
         """
@@ -570,38 +650,53 @@ class GWSpecs(MSONable):
         if len(self.warnings) > 0:
             print str(len(self.warnings)) + ' warning(s) found:'
             print self.warnings
+        self.reset_job_collection()
 
     def excecute_flow(self, structure):
         """
-        excecute spec prepare input/jobfiles or submit to fw
+        excecute spec prepare input/jobfiles or submit to fw for a given structure
+        for vasp the different jobs are created into a flow
+        for abinit a flow is created using abinitio
         """
-        if self.data['test']:
-            tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
-            tests_prep.update(MPGWDFTDiagVaspInputSet(structure).tests)
-            for test_prep in tests_prep:
-                print 'setting up test for: ' + test_prep
-                for value_prep in tests_prep[test_prep]['test_range']:
-                    print "**" + str(value_prep) + "**"
-                    option = [{test_prep: value_prep}, {}]
-                    self.excecute_job(structure, 'prep', option)
-                    for job in self.data['jobs'][1:]:
-                        if job == 'G0W0':
-                            tests = MPGWG0W0VaspInputSet(structure).tests
-                        if job in ['GW0', 'scGW0']:
-                            input_set = MPGWG0W0VaspInputSet(structure)
-                            input_set.gw0_on()
-                            tests = input_set.tests
-                        for test in tests:
-                            print '    setting up test for: ' + test
-                            for value in tests[test]['test_range']:
-                                print "    **" + str(value) + "**"
-                                option = [{test_prep: value_prep}, {test: value}]
-                                self.excecute_job(structure, job, option)
+        if self.get_code() == 'VASP':
+            if self.data['test']:
+                tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
+                tests_prep.update(MPGWDFTDiagVaspInputSet(structure).tests)
+                for test_prep in tests_prep:
+                    print 'setting up test for: ' + test_prep
+                    for value_prep in tests_prep[test_prep]['test_range']:
+                        print "**" + str(value_prep) + "**"
+                        option = [{test_prep: value_prep}, {}]
+                        self.create_job(structure, 'prep', option)
+                        for job in self.data['jobs'][1:]:
+                            if job == 'G0W0':
+                                tests = MPGWG0W0VaspInputSet(structure).tests
+                            if job in ['GW0', 'scGW0']:
+                                input_set = MPGWG0W0VaspInputSet(structure)
+                                input_set.gw0_on()
+                                tests = input_set.tests
+                            for test in tests:
+                                print '    setting up test for: ' + test
+                                for value in tests[test]['test_range']:
+                                    print "    **" + str(value) + "**"
+                                    option = [{test_prep: value_prep}, {test: value}]
+                                    self.create_job(structure, job, option)
+            else:
+                for job in self['jobs']:
+                    self.create_job(structure, job)
+        elif self.get_code() == 'ABINIT':
+            if self.data['test']:
+                pass
+            else:
+                work_flow = SingleAbinitGWWorkFlow(structure, self)
+                flow = work_flow.create()
+                flow.build_and_pickle_dump()
+                work_flow.create_job_file()
         else:
-            for job in self['jobs']:
-                self.excecute_job(structure, job)
+            print 'unspecified code, actually this should have been catched earlier .. '
+            exit()
 
-    def excecute_job(self, structure, job, option=None):
+    def create_job(self, structure, job, option=None):
         if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
             work = SingleVaspGWWork(structure, job, self, option)
             work.create_input()
@@ -636,74 +731,10 @@ def folder_name(option):
     return [option_prep_name, option_name]
 
 
-def create_single_abinit_gw_flow(structure, spec, pseudos, work_dir):
-    """
-    create single abinit G0W0 flow
-    """
-    abi_structure = asabistructure(structure)
-    manager = TaskManager.from_user_config()
-    # Initialize the flow.
-    # FIXME
-    # Don't know why protocol=-1 does not work here.
-    flow = AbinitFlow(work_dir, manager, pickle_protocol=0)
-
-    # kpoint grid defined over density 40 > ~ 3 3 3
-    scf_kppa = spec.data['kp_grid_dens']
-    gamma = True
-    # alternatively:
-    #nscf_ngkpt = [4,4,4]
-    #nscf_shiftk = [0.0, 0.0, 0.0]
-
-    # 100
-    nscf_nband = 50
-    #scr_nband = 50 takes nscf_nbands if not specified
-    #sigma_nband = 50 takes scr_nbands if not specified
-
-    # 6
-    ecuteps = 8
-    # 8
-    ecutsigx = 8
-    # 8
-    ecut = 12
-
-    extra_abivars = dict(
-        ecut=ecut,
-        istwfk="*1",
-        timopt=-1,
-        pawecutdg=ecut*2
-    )
-
-    work = g0w0_with_ppmodel_extended(abi_structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal",
-                                      spin_mode="unpolarized", smearing=None, ppmodel="godby", charge=0.0, inclvkb=2,
-                                      sigma_nband=None, scr_nband=None, gamma=gamma, **extra_abivars)
-
-    flow.register_work(work)
-    return flow.allocate()
-
-
 def main(spec):
     """
-    section for testing. The classes Should eventually be moved to vaspio_set.py
-    source: where the structures come from
-        poscar: Loop over all files of that match POSCAR_* in the current folder.
-        mp: or use structures from hte mp database
-    mode:
-        input: create all input files locally
-        ceci: create tar with input and job submission script
-        fw: sumit jobs to fw database
-    jobs: prep, G0W0, GW0, scGW0
-    code: VASP, ABINIT
+    reading the structures specified in spec, add special points, and excecute the specs
     """
-
-    if 'ceci' in spec['mode']:
-        if os.path.isfile('job_collection'):
-            os.remove('job_collection')
-        if 'ABINIT' in spec['code']:
-            job_file = open('job_collection', mode='w')
-            job_file.write('module load abinit \n')
-            job_file.close()
-            abi_pseudo = '.GGA_PBE-JTH-paw.xml'
-            abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
 
     mp_key = os.environ['MP_KEY']
 
@@ -746,22 +777,7 @@ def main(spec):
         else:
             next(item)
         print structure.composition.reduced_formula
-        if spec['code'] == 'VASP':
-                spec.excecute_flow(structure)
-        if spec['code'] == 'ABINIT':
-            # todo based on spec['mode'] set the manager
-            manager = 'slurm' if 'ceci' in spec['mode'] else 'shell'
-            print manager
-            pseudos = []
-            for element in structure.composition.element_composition:
-                pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
-                print pseudo
-                pseudos.append(pseudo)
-            work_dir = structure.composition.reduced_formula
-            flow = create_single_abinit_gw_flow(structure=structure, pseudos=pseudos, work_dir=work_dir)
-            flow.build_and_pickle_dump()
-            job_file = open("job_collection", mode='a')
-            job_file.write('nohup abirun.py ' + work_dir + ' scheduler > ' + work_dir + '.log & \n')
+        spec.excecute_flow(structure)
     if 'ceci' in spec['mode']:
         os.chmod("job_collection", stat.S_IRWXU)
 
