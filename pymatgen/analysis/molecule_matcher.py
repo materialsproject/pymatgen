@@ -3,6 +3,9 @@
 """
 This module provides classes to perform fitting of molecule with arbitrary
 atom orders.
+This module is supposed to perform exact comparisons without the atom order
+correspondence prerequisite, while molecule_structure_comparator is supposed
+to do rough comparisons with the atom order correspondence prerequisite.
 """
 
 __author__ = "Xiaohui Qu"
