@@ -763,6 +763,64 @@ class KSampling(AbivarAble):
                    comment           = comment,
                   )
 
+    @classmethod
+    def automatic_gamma_density(cls, structure, kppa, chksymbreak=None, use_symmetries=True, use_time_reversal=True):
+        """
+        Returns an automatic Kpoint object based on a structure and a kpoint
+        density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
+
+        Algorithm:
+            Uses a simple approach scaling the number of divisions along each
+            reciprocal lattice vector proportional to its length.
+
+        Args:
+            structure:
+                Input structure
+            kppa:
+                Grid density
+        """
+        lattice = structure.lattice
+        lengths = lattice.abc
+        ngrid = kppa / structure.num_sites
+
+        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3.)
+
+        num_div = [int(round(1.0 / lengths[i] * mult)) for i in range(3)]
+        # ensure that num_div[i] > 0
+        num_div = [i if i > 0 else 1 for i in num_div]
+
+        angles = lattice.angles
+        hex_angle_tol = 5      # in degrees
+        hex_length_tol = 0.01  # in angstroms
+
+        right_angles = [i for i in xrange(3) if abs(angles[i] - 90) < hex_angle_tol]
+
+        hex_angles = [i for i in xrange(3)
+                      if abs(angles[i] - 60) < hex_angle_tol or
+                      abs(angles[i] - 120) < hex_angle_tol]
+
+        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
+                        and abs(lengths[right_angles[0]] -
+                                lengths[right_angles[1]]) < hex_length_tol)
+
+        #style = Kpoints.modes.gamma
+        #if not is_hexagonal:
+        #    num_div = [i + i % 2 for i in num_div]
+        #    style = Kpoints.modes.monkhorst
+
+        comment = "pymatgen generated KPOINTS with grid density = " + "{} / atom".format(kppa)
+
+        return cls(mode              = "monkhorst",
+                   num_kpts          = 0,
+                   kpts              = [num_div],
+                   kpt_shifts        = [0.0, 0.0, 0.0],
+                   chksymbreak       = chksymbreak,
+                   use_symmetries    = use_symmetries   ,
+                   use_time_reversal = use_time_reversal,
+                   comment           = comment,
+                  )
+
+
     def to_abivars(self):
         return self.abivars
 
