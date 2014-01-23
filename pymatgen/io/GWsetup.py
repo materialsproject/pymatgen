@@ -330,7 +330,7 @@ class Wannier90InputSet():
     '''
 
 
-class SingleVaspGW():
+class SingleVaspGWWork():
     """
     Should go to uclworks
     Create VASP input for a single standard G0W0 and GW0 calculations
@@ -571,7 +571,7 @@ class GWSpecs(MSONable):
             print str(len(self.warnings)) + ' warning(s) found:'
             print self.warnings
 
-    def excecute(self, structure):
+    def excecute_flow(self, structure):
         """
         excecute spec prepare input/jobfiles or submit to fw
         """
@@ -603,7 +603,7 @@ class GWSpecs(MSONable):
 
     def excecute_job(self, structure, job, option=None):
         if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
-            work = SingleVaspGW(structure, job, self, option)
+            work = SingleVaspGWWork(structure, job, self, option)
             work.create_input()
             if 'ceci' in self.data['mode']:
                 work.create_job_script()
@@ -695,26 +695,23 @@ def main(spec):
     code: VASP, ABINIT
     """
 
-    mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
-                    'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
-    abi_pseudo = '.GGA_PBE-JTH-paw.xml'
-    abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
-    mp_key = os.environ['MP_KEY']
-
     if 'ceci' in spec['mode']:
         if os.path.isfile('job_collection'):
             os.remove('job_collection')
         if 'ABINIT' in spec['code']:
             job_file = open('job_collection', mode='w')
-            job_file.write('source ~gmatteo/.bashrc \n')
+            job_file.write('module load abinit \n')
             job_file.close()
+            abi_pseudo = '.GGA_PBE-JTH-paw.xml'
+            abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
+
+    mp_key = os.environ['MP_KEY']
+
+    mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
+                    'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
 
     if spec['source'] == 'mp-vasp':
         items_list = mp_list_vasp
-    elif spec['source'] == 'mp_from_file':
-        print 'mp_from_file not implemented yet'
-        print 'no structures defined'
-        exit()
     elif spec['source'] == 'poscar':
         files = os.listdir('.')
         items_list = files
@@ -750,7 +747,7 @@ def main(spec):
             next(item)
         print structure.composition.reduced_formula
         if spec['code'] == 'VASP':
-                spec.excecute(structure)
+                spec.excecute_flow(structure)
         if spec['code'] == 'ABINIT':
             # todo based on spec['mode'] set the manager
             manager = 'slurm' if 'ceci' in spec['mode'] else 'shell'

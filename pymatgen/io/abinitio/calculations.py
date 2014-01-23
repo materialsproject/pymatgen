@@ -311,15 +311,15 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
 
     if gamma:
         scf_ksampling = KSampling.automatic_gamma_density(structure, scf_kppa, chksymbreak=0)
+        nscf_ksampling = KSampling.automatic_gamma_density(structure, scf_kppa, chksymbreak=0)
     else:
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
                                scf_algorithm=None, **extra_abivars)
-
-    nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
     nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
 
