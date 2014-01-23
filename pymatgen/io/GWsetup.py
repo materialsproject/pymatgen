@@ -636,7 +636,7 @@ def folder_name(option):
     return [option_prep_name, option_name]
 
 
-def create_single_abinit_gw_flow(structure, pseudos, work_dir):
+def create_single_abinit_gw_flow(structure, spec, pseudos, work_dir):
     """
     create single abinit G0W0 flow
     """
@@ -647,8 +647,8 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir):
     # Don't know why protocol=-1 does not work here.
     flow = AbinitFlow(work_dir, manager, pickle_protocol=0)
 
-    # kpoint grid defined over density
-    scf_kppa = 40
+    # kpoint grid defined over density 40 > ~ 3 3 3
+    scf_kppa = spec.data['kp_grid_dens']
     gamma = True
     # alternatively:
     #nscf_ngkpt = [4,4,4]
