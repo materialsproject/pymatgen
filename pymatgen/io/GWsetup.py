@@ -25,7 +25,7 @@ from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar, Poscar
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.abinitio.abiobjects import asabistructure
-from pymatgen.io.abinitio.calculations import g0w0_with_ppmodel
+from pymatgen.io.abinitio.calculations import g0w0_with_ppmodel_extended
 from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -649,6 +649,7 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir):
 
     # kpoint grid defined over density
     scf_kppa = 40
+    gamma = True
     # alternatively:
     #nscf_ngkpt = [4,4,4]
     #nscf_shiftk = [0.0, 0.0, 0.0]
@@ -672,10 +673,9 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir):
         pawecutdg=ecut*2
     )
 
-    work = g0w0_with_ppmodel(abi_structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
-                             accuracy="normal", spin_mode="unpolarized", smearing=None,
-                             ppmodel="godby", charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None,
-                             **extra_abivars)
+    work = g0w0_with_ppmodel_extended(abi_structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal",
+                                      spin_mode="unpolarized", smearing=None, ppmodel="godby", charge=0.0, inclvkb=2,
+                                      sigma_nband=None, scr_nband=None, gamma=gamma, **extra_abivars)
 
     flow.register_work(work)
     return flow.allocate()
