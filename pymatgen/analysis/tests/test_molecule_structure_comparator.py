@@ -10,9 +10,15 @@ __author__ = 'xiaohuiqu'
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         "test_files", "molecules", "structural_change")
 
+
 class TestMoleculeStructureComparator(TestCase):
     def test_are_equal(self):
-        pass
+        msc = MoleculeStructureComparator()
+        mol1 = read_mol(os.path.join(test_dir, "t1.xyz"))
+        mol2 = read_mol(os.path.join(test_dir, "t2.xyz"))
+        mol3 = read_mol(os.path.join(test_dir, "t3.xyz"))
+        self.assertFalse(msc.are_equal(mol1, mol2))
+        self.assertTrue(msc.are_equal(mol2, mol3))
 
     def test_get_bonds(self):
         mol = read_mol(os.path.join(test_dir, "t1.xyz"))

@@ -20,6 +20,7 @@ __email__ = "xhqu1981@gmail.com"
 __status__ = "Experimental"
 __date__ = "Jan 22, 2014"
 
+
 class CovalentRadius():
     """
     Covalent Radius of the elements.
@@ -32,7 +33,7 @@ class CovalentRadius():
 
     radius = {'H': 0.31, 'He': 0.28, 'Li': 1.28, 'Be': 0.96,
               'B': 0.84, 'C': 0.73, 'N': 0.71, 'O': 0.66,
-              'F': 0.57, 'Ne': 0.58,'Na': 1.66, 'Mg': 1.41,
+              'F': 0.57, 'Ne': 0.58, 'Na': 1.66, 'Mg': 1.41,
               'Al': 1.21, 'Si': 1.11, 'P': 1.07, 'S': 1.05,
               'Cl': 1.02, 'Ar': 1.06, 'K': 2.03, 'Ca': 1.76,
               'Sc': 1.70, 'Ti': 1.60, 'V': 1.53, 'Cr': 1.39,
@@ -83,7 +84,9 @@ class MoleculeStructureComparator(MSONable):
             mol1: first molecule. pymatgen Molecule object.
             mol2: second moleculs. pymatgen Molecule objec.
         """
-        pass
+        b1 = set(self._get_bonds(mol1))
+        b2 = set(self._get_bonds(mol2))
+        return b1 == b2
 
     def _get_bonds(self, mol):
         """
@@ -127,4 +130,3 @@ class MoleculeStructureComparator(MSONable):
         return MoleculeStructureComparator(
             bond_length_cap=d["bond_length_cap"],
             covalent_radius=d["covalent_radius"])
-
