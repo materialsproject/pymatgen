@@ -21,7 +21,6 @@ import json
 import os.path
 import pymatgen as pmg
 
-
 from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar, Poscar
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
@@ -30,6 +29,7 @@ from pymatgen.io.abinitio.calculations import g0w0_with_ppmodel
 from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.serializers.json_coders import MSONable
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,8 +41,10 @@ For many settings the number of cores on which the calculations will be run is n
 number is assumed to be on the environment variable NPARGWCALC.
 """
 
+
 class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
     """
+    Should go to Pymatgen vaspinputsets
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static calculations preparing for a GW calculation.
     """
@@ -149,6 +151,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
 
 class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     """
+    Should go to Pymatgen vaspinputsets
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static non self-consistend exact diagonalization step preparing for
     a GW calculation.
@@ -198,7 +201,8 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
             weights.append(int(0))
             kpts.append(structure.vbm)
             weights.append(int(0))
-            return Kpoints(comment="uniform grid with extrema", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts, kpts_weights=weights)
+            return Kpoints(comment="uniform grid with extrema", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts,
+                           kpts_weights=weights)
 
     def set_gw_bands(self, factor=15):
         """
@@ -217,11 +221,12 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
 
 class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     """
+    Should go to Pymatgen vaspinputsets
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static G0W0 calculation
     """
     TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
-            'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
+             'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
 
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
@@ -275,87 +280,9 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         self.incar_settings.update({"PRECFOCK": "accurate"})
 
 
-class GWSpecs():
-    """
-    Class for GW specifications
-    """
-    def __init__(self):
-        self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-            'functional': 'LDA', 'kp_grid_dens': 500, 'prec': 'm'}
-        self.warnings = []
-        self.errors = []
-
-    def update_interactive(self):
-        """
-        method to make changes to the GW input setting interactively
-        """
-        key = 'tmp'
-        while len(key) != 0:
-            print self.data
-            key = raw_input('enter key to change: ')
-            if key in self.data.keys():
-                value = raw_input('enter new value: ')
-                if key == 'jobs':
-                    if len(value) == 0:
-                        print 'removed', self.data['jobs'].pop(-1)
-                    else:
-                        self.data['jobs'].append(value)
-                elif key == 'test':
-                    if value.lower() in ['true', 't']:
-                        self.data['test'] = True
-                    elif value.lower() in ['false', 'f']:
-                        self.data['test'] = False
-                    else:
-                        print 'undefined value, test should be True or False'
-                elif key in 'kp_grid_dens':
-                    self.data[key] = int(value)
-                else:
-                    self.data[key] = value
-            elif key in ['help', 'h']:
-                print "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from"
-                print "              poscar will read files starting with POSCAR_ in the working folder"
-                print 'mode:         input, ceci, fw'
-                print 'functional:   PBE, LDA'
-                print 'tasks:        prep, G0W0, GW0, scGW0'
-                print 'code:         VASP, ABINIT'
-                print 'kp_grid_dens: usually 500 - 1000'
-                print 'prec:         l, m, h NOT IMPLEMENTED YET'
-            elif len(key) == 0:
-                print 'setup finished'
-            else:
-                print 'undefined key'
-        self.data['functional'] = self.data['functional'].upper()
-
-    def get_code(self):
-        return self.data['code']
-
-    def test(self):
-        if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
-            self.errors.append('unspecified mode')
-        if self.data['code'] == 'VASP':
-            if self.data['functional'] not in ['PBE', 'LDA']:
-                self.errors.append(str(self.data['functional'] + 'not defined for VASP yet'))
-        elif self.data['code'] == 'ABINIT':
-            if self.data['test'] and self.data['code'] == 'ABINIT':
-                self.warnings.append('no tests defined for ABINIT calculations')
-            if self.data['functional'] not in ['PBE']:
-                self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
-        else:
-            self.errors.append('unknown code')
-        if self.data["source"] not in ['poscar', 'mp-vasp']:
-            if not os.path.isfile(self.data['source']):
-                self.errors.append('no structures defined')
-        if len(self.errors) > 0:
-            print str(len(self.errors)) + ' error(s) found:'
-            print self.errors
-            exit()
-        if len(self.warnings) > 0:
-            print str(len(self.warnings)) + ' warning(s) found:'
-            print self.warnings
-
-
 class Wannier90InputSet():
     """
+    Should go to Pymatgen vaspinputsets
     class containing the imput parameters for the wannier90.win file
     """
     def __init__(self):
@@ -403,6 +330,296 @@ class Wannier90InputSet():
     '''
 
 
+class SingleVaspGW():
+    """
+    Should go to uclworks
+    Create VASP input for a single standard G0W0 and GW0 calculations
+    """
+    def __init__(self, structure, job, spec, option=None):
+        """
+
+        """
+        self.structure = structure
+        self.job = job
+        self.spec = spec
+        self.option = option
+
+    def create_input(self):
+        """
+        create vasp input
+        """
+        if self.option is not None:
+            option_prep_name = str(self.option[0])
+            option_name = str(self.option[1])
+            for char in ["'", ":", " ", ",", "{", "}"]:
+                option_prep_name = option_prep_name.replace(char, "")
+                option_name = option_name.replace(char, "")
+            if len(option_prep_name) > 0:
+                option_prep_name = "." + option_prep_name
+            if len(option_name) > 0:
+                option_name = "." + option_name
+        else:
+            option_name = option_prep_name = ''
+        path = self.structure.composition.reduced_formula+option_prep_name
+        if self.job == 'prep':
+            inpset = MPGWscDFTPrepVaspInputSet(self.structure, functional=self.spec['functional'])
+            inpset.set_dens(self.spec)
+            if self.spec['test']:
+                if self.option[0].keys()[0] in MPGWscDFTPrepVaspInputSet(self.structure).tests.keys():
+                    inpset.set_test(self.option[0])
+            if self.spec["prec"] == "h":
+                inpset.set_prec_high()
+            inpset.write_input(self.structure, path)
+            inpset = MPGWDFTDiagVaspInputSet(self.structure, functional=self.spec['functional'])
+            if self.spec["prec"] == "h":
+                inpset.set_prec_high()
+            if self.spec['test']:
+                inpset.set_test(self.option[0])
+            inpset.get_incar(self.structure).write_file(os.path.join(path, 'INCAR.DIAG'))
+        if self.job == 'G0W0':
+            inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
+            inpset.set_dens(self.spec)
+            if self.spec['test']:
+                inpset.set_test(self.option[0])
+                inpset.set_test(self.option[1])
+            if self.spec["prec"] == "h":
+                inpset.set_prec_high()
+            inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
+            w_inpset = Wannier90InputSet()
+            w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
+        if self.job == 'GW0':
+            inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
+            inpset.set_dens(self.spec)
+            inpset.gw0_on()
+            if self.spec['test']:
+                inpset.set_test(self.option[0])
+                inpset.set_test(self.option[1])
+            if self.spec["prec"] == "h":
+                inpset.set_prec_high()
+            inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
+            w_inpset = Wannier90InputSet()
+            w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
+        if self.job == 'scGW0':
+            inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
+            inpset.gw0_on(qpsc=True)
+            inpset.set_dens(self.spec)
+            if self.spec['test']:
+                inpset.set_test(self.option[0])
+                inpset.set_test(self.option[1])
+            if self.spec["prec"] == "h":
+                inpset.set_prec_high()
+            inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
+            w_inpset = Wannier90InputSet()
+            w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
+
+    def create_job_script(self):
+        """
+        Create job script for ceci.
+        """
+        npar = MPGWscDFTPrepVaspInputSet(self.structure, functional=self.spec['functional']).get_npar(self.structure)
+        if self.option is not None:
+            option_prep_name = str(self.option[0])
+            option_name = str(self.option[1])
+            for char in ["'", ":", " ", ",", "{", "}"]:
+                option_prep_name = option_prep_name.replace(char, "")
+                option_name = option_name.replace(char, "")
+            if len(option_prep_name) > 0:
+                option_prep_name = "." + option_prep_name
+            if len(option_name) > 0:
+                option_name = "." + option_name
+        else:
+            option_prep_name = option_name = ''
+        # npar = int(os.environ['NPARGWCALC'])
+        header = ("#!/bin/bash \n"
+                  "## standard header for Ceci clusters ## \n"
+                  "#SBATCH --mail-user=michiel.vansetten@uclouvain.be \n"
+                  "#SBATCH --mail-type=ALL\n"
+                  "#SBATCH --time=2-24:0:0 \n"
+                  "#SBATCH --cpus-per-task=1 \n"
+                  "#SBATCH --mem-per-cpu=4000 \n")
+        if self.job == 'prep':
+            path = self.structure.composition.reduced_formula + option_prep_name
+            # create this job
+            job_file = open(name=path+'/job', mode='w')
+            job_file.write(header)
+            job_file.write('#SBATCH --job-name='+self.structure.composition.reduced_formula+self.job+'\n')
+            job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
+            job_file.write('module load vasp \n')
+            job_file.write('mpirun vasp \n')
+            job_file.write('cp OUTCAR OUTCAR.sc \n')
+            job_file.write('cp INCAR.DIAG INCAR \n')
+            job_file.write('mpirun vasp \n')
+            job_file.write('cp OUTCAR OUTCAR.diag \n')
+            job_file.close()
+            os.chmod(path+'/job', stat.S_IRWXU)
+            job_file = open("job_collection", mode='a')
+            job_file.write('cd ' + path + ' \n')
+            job_file.write('sbatch job \n')
+            job_file.write('cd .. \n')
+            job_file.close()
+            os.chmod("job_collection", stat.S_IRWXU)
+        if self.job in ['G0W0', 'GW0', 'scGW0']:
+            path = self.structure.composition.reduced_formula + option_prep_name + '/' + self.job + option_name
+            # create this job
+            job_file = open(name=path+'/job', mode='w')
+            job_file.write(header)
+            job_file.write('#SBATCH --job-name='+self.structure.composition.reduced_formula+self.job+'\n')
+            job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
+            job_file.write('module load vasp/5.2_par_wannier90 \n')
+            job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
+            job_file.write('mpirun vasp \n')
+            job_file.write('rm W* \n')
+            #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
+            #job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
+            job_file.close()
+            os.chmod(path+'/job', stat.S_IRWXU)
+            path = self.structure.composition.reduced_formula + option_prep_name
+            # 'append submission of this job script to that of prep for this structure'
+            job_file = open(name=path+'/job', mode='a')
+            job_file.write('cd ' + self.job + option_name + ' \n')
+            job_file.write('sbatch job \n')
+            job_file.write('cd .. \n')
+            job_file.close()
+
+
+class GWSpecs(MSONable):
+    """
+    main program
+    Class for GW specifications
+    """
+    def __init__(self):
+        self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
+                     'functional': 'LDA', 'kp_grid_dens': 500, 'prec': 'm'}
+        self.warnings = []
+        self.errors = []
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def to_dict(self):
+        return self.data
+
+    def from_dict(self, data):
+        self.data = data
+        self.test()
+
+    def update_interactive(self):
+        """
+        method to make changes to the GW input setting interactively
+        """
+        key = 'tmp'
+        while len(key) != 0:
+            print self.data
+            key = raw_input('enter key to change: ')
+            if key in self.data.keys():
+                value = raw_input('enter new value: ')
+                if key == 'jobs':
+                    if len(value) == 0:
+                        print 'removed', self.data['jobs'].pop(-1)
+                    else:
+                        self.data['jobs'].append(value)
+                elif key == 'test':
+                    if value.lower() in ['true', 't']:
+                        self.data['test'] = True
+                    elif value.lower() in ['false', 'f']:
+                        self.data['test'] = False
+                    else:
+                        print 'undefined value, test should be True or False'
+                elif key in 'kp_grid_dens':
+                    self.data[key] = int(value)
+                else:
+                    self.data[key] = value
+            elif key in ['help', 'h']:
+                print "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from"
+                print "              poscar will read files starting with POSCAR_ in the working folder"
+                print 'mode:         input, ceci, fw'
+                print 'functional:   PBE, LDA'
+                print 'jobs:         prep, G0W0, GW0, scGW0'
+                print 'code:         VASP, ABINIT'
+                print 'kp_grid_dens: usually 500 - 1000'
+                print 'prec:         l, m, h NOT IMPLEMENTED YET'
+            elif len(key) == 0:
+                print 'setup finished'
+            else:
+                print 'undefined key'
+        self.data['functional'] = self.data['functional'].upper()
+
+    def get_code(self):
+        return self['code']
+
+    def test(self):
+        if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
+            self.errors.append('unspecified mode')
+        if self.data['code'] == 'VASP':
+            if self.data['functional'] not in ['PBE', 'LDA']:
+                self.errors.append(str(self.data['functional'] + 'not defined for VASP yet'))
+        elif self.data['code'] == 'ABINIT':
+            if self.data['test'] and self.data['code'] == 'ABINIT':
+                self.warnings.append('no tests defined for ABINIT calculations')
+            if self.data['functional'] not in ['PBE']:
+                self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
+        else:
+            self.errors.append('unknown code')
+        if self.data["source"] not in ['poscar', 'mp-vasp']:
+            if not os.path.isfile(self.data['source']):
+                self.errors.append('no structures defined')
+        if len(self.errors) > 0:
+            print str(len(self.errors)) + ' error(s) found:'
+            print self.errors
+            exit()
+        if len(self.warnings) > 0:
+            print str(len(self.warnings)) + ' warning(s) found:'
+            print self.warnings
+
+    def excecute(self, structure):
+        """
+        excecute spec prepare input/jobfiles or submit to fw
+        """
+        if self.data['test']:
+            tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
+            tests_prep.update(MPGWDFTDiagVaspInputSet(structure).tests)
+            for test_prep in tests_prep:
+                print 'setting up test for: ' + test_prep
+                for value_prep in tests_prep[test_prep]['test_range']:
+                    print "**" + str(value_prep) + "**"
+                    option = [{test_prep: value_prep}, {}]
+                    self.excecute_job(structure, 'prep', option)
+                    for job in self.data['jobs'][1:]:
+                        if job == 'G0W0':
+                            tests = MPGWG0W0VaspInputSet(structure).tests
+                        if job in ['GW0', 'scGW0']:
+                            input_set = MPGWG0W0VaspInputSet(structure)
+                            input_set.gw0_on()
+                            tests = input_set.tests
+                        for test in tests:
+                            print '    setting up test for: ' + test
+                            for value in tests[test]['test_range']:
+                                print "    **" + str(value) + "**"
+                                option = [{test_prep: value_prep}, {test: value}]
+                                self.excecute_job(structure, job, option)
+        else:
+            for job in self['jobs']:
+                self.excecute_job(structure, job)
+
+    def excecute_job(self, structure, job, option=None):
+        if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
+            work = SingleVaspGW(structure, job, self, option)
+            work.create_input()
+            if 'ceci' in self.data['mode']:
+                work.create_job_script()
+        if 'fw' in self.data['mode']:
+            structure_dict = structure
+            band_structure_dict = {'vbm_l': structure.vbm_l, 'cbm_l': structure.cbm_l, 'vbm_a': structure.vbm[0],
+                                   'vbm_b': structure.vbm[1], 'vbm_c': structure.vbm[2], 'cbm_a': structure.cbm[0],
+                                   'cbm_b': structure.cbm[1], 'cbm_c': structure.cbm[2]}
+            fire_works_spec = {'structure': structure_dict, 'band_structure': band_structure_dict, 'job': job,
+                               'spec': self.to_dict()}
+            for test in fire_works_spec.keys():
+                print test
+                if isinstance(fire_works_spec[test], dict):
+                    print fire_works_spec[test].keys()
+
+
 def folder_name(option):
     """
     method to return the sub folder name
@@ -419,148 +636,7 @@ def folder_name(option):
     return [option_prep_name, option_name]
 
 
-def create_single_vasp_gw_task(structure, task, spec, option=None):
-    """
-    Create VASP input for a single standard G0W0 and GW0 calculations
-    """
-    # create vasp input
-    if option is not None:
-        option_prep_name = str(option[0])
-        option_name = str(option[1])
-        for char in ["'", ":", " ", ",", "{", "}"]:
-            option_prep_name = option_prep_name.replace(char, "")
-            option_name = option_name.replace(char, "")
-        if len(option_prep_name) > 0:
-            option_prep_name = "." + option_prep_name
-        if len(option_name) > 0:
-            option_name = "." + option_name
-    else:
-        option_name = option_prep_name = ''
-    path = structure.composition.reduced_formula+option_prep_name
-    if task == 'prep':
-        inpset = MPGWscDFTPrepVaspInputSet(structure, functional=spec['functional'])
-        inpset.set_dens(spec)
-        if spec['test']:
-            if option[0].keys()[0] in MPGWscDFTPrepVaspInputSet(structure).tests.keys():
-                inpset.set_test(option[0])
-        if spec["prec"] == "h":
-            inpset.set_prec_high()
-        inpset.write_input(structure, path)
-        inpset = MPGWDFTDiagVaspInputSet(structure, functional=spec['functional'])
-        if spec["prec"] == "h":
-            inpset.set_prec_high()
-        if spec['test']:
-            inpset.set_test(option[0])
-        inpset.get_incar(structure).write_file(os.path.join(path, 'INCAR.DIAG'))
-    if task == 'G0W0':
-        inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
-        inpset.set_dens(spec)
-        if spec['test']:
-            inpset.set_test(option[0])
-            inpset.set_test(option[1])
-        if spec["prec"] == "h":
-            inpset.set_prec_high()
-        inpset.write_input(structure, os.path.join(path, 'G0W0'+option_name))
-        w_inpset = Wannier90InputSet()
-        w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
-    if task == 'GW0':
-        inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
-        inpset.set_dens(spec)
-        inpset.gw0_on()
-        if spec['test']:
-            inpset.set_test(option[0])
-            inpset.set_test(option[1])
-        if spec["prec"] == "h":
-            inpset.set_prec_high()
-        inpset.write_input(structure, os.path.join(path, 'GW0'+option_name))
-        w_inpset = Wannier90InputSet()
-        w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
-    if task == 'scGW0':
-        inpset = MPGWG0W0VaspInputSet(structure, functional=spec['functional'])
-        inpset.gw0_on(qpsc=True)
-        inpset.set_dens(spec)
-        if spec['test']:
-            inpset.set_test(option[0])
-            inpset.set_test(option[1])
-        if spec["prec"] == "h":
-            inpset.set_prec_high()
-        inpset.write_input(structure, os.path.join(path, 'scGW0'+option_name))
-        w_inpset = Wannier90InputSet()
-        w_inpset.write_file(structure, os.path.join(path, 'G0W0'+option_name))
-
-
-def create_single_job_script(structure, task, spec, option=None):
-    """
-    Create job script for ceci.
-    """
-    npar = MPGWscDFTPrepVaspInputSet(structure, functional=spec['functional']).get_npar(structure)
-    if option is not None:
-        option_prep_name = str(option[0])
-        option_name = str(option[1])
-        for char in ["'", ":", " ", ",", "{", "}"]:
-            option_prep_name = option_prep_name.replace(char, "")
-            option_name = option_name.replace(char, "")
-        if len(option_prep_name) > 0:
-            option_prep_name = "." + option_prep_name
-        if len(option_name) > 0:
-            option_name = "." + option_name
-    else:
-        option_prep_name = option_name = ''
-    # npar = int(os.environ['NPARGWCALC'])
-    header = ("#!/bin/bash \n"
-              "## standard header for Ceci clusters ## \n"
-              "#SBATCH --mail-user=michiel.vansetten@uclouvain.be \n"
-              "#SBATCH --mail-type=ALL\n"
-              "#SBATCH --time=2-24:0:0 \n"
-              "#SBATCH --cpus-per-task=1 \n"
-              "#SBATCH --mem-per-cpu=4000 \n")
-    if task == 'prep':
-        path = structure.composition.reduced_formula + option_prep_name
-        # create this job
-        job_file = open(name=path+'/job', mode='w')
-        job_file.write(header)
-        job_file.write('#SBATCH --job-name='+structure.composition.reduced_formula+task+'\n')
-        job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
-        job_file.write('module load vasp \n')
-        job_file.write('mpirun vasp \n')
-        job_file.write('cp OUTCAR OUTCAR.sc \n')
-        job_file.write('cp INCAR.DIAG INCAR \n')
-        job_file.write('mpirun vasp \n')
-        job_file.write('cp OUTCAR OUTCAR.diag \n')
-        job_file.close()
-        os.chmod(path+'/job', stat.S_IRWXU)
-        print 'add this job to the set of jobs'
-        job_file = open("job_collection", mode='a')
-        job_file.write('cd ' + path + ' \n')
-        job_file.write('sbatch job \n')
-        job_file.write('cd .. \n')
-        job_file.close()
-        os.chmod("job_collection", stat.S_IRWXU)
-    if task in ['G0W0', 'GW0', 'scGW0']:
-        path = structure.composition.reduced_formula + option_prep_name + '/' + task + option_name
-        # create this job
-        job_file = open(name=path+'/job', mode='w')
-        job_file.write(header)
-        job_file.write('#SBATCH --job-name='+structure.composition.reduced_formula+task+'\n')
-        job_file.write('#SBATCH --ntasks='+str(npar)+'\n')
-        job_file.write('module load vasp/5.2_par_wannier90 \n')
-        job_file.write('cp ../CHGCAR ../WAVECAR ../WAVEDER . \n')
-        job_file.write('mpirun vasp \n')
-        job_file.write('rm W* \n')
-        #job_file.write('workon pymatgen-GW; get_gap > gap; deactivate')
-        #job_file.write('echo '+path+'`get_gap` >> ../../gaps.dat')
-        job_file.close()
-        os.chmod(path+'/job', stat.S_IRWXU)
-        path = structure.composition.reduced_formula + option_prep_name
-        # 'append submission of this job script to that of prep for this structure'
-        job_file = open(name=path+'/job', mode='a')
-        job_file.write('cd ' + task + option_name + ' \n')
-        job_file.write('sbatch job \n')
-        job_file.write('cd .. \n')
-        job_file.close()
-
-
-def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
+def create_single_abinit_gw_flow(structure, pseudos, work_dir):
     """
     create single abinit G0W0 flow
     """
@@ -573,7 +649,7 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
 
     # kpoint grid defined over density
     scf_kppa = 40
-        # alternatively:
+    # alternatively:
     #nscf_ngkpt = [4,4,4]
     #nscf_shiftk = [0.0, 0.0, 0.0]
 
@@ -583,11 +659,11 @@ def create_single_abinit_gw_flow(structure, pseudos, work_dir, **kwargs):
     #sigma_nband = 50 takes scr_nbands if not specified
 
     # 6
-    ecuteps = 3
+    ecuteps = 8
     # 8
-    ecutsigx = 4
+    ecutsigx = 8
     # 8
-    ecut = 4
+    ecut = 12
 
     extra_abivars = dict(
         ecut=ecut,
@@ -615,7 +691,7 @@ def main(spec):
         input: create all input files locally
         ceci: create tar with input and job submission script
         fw: sumit jobs to fw database
-    tasks: prep, G0W0, GW0, scGW0
+    jobs: prep, G0W0, GW0, scGW0
     code: VASP, ABINIT
     """
 
@@ -643,8 +719,7 @@ def main(spec):
         files = os.listdir('.')
         items_list = files
     else:
-        with open(spec['source'], 'r') as f:
-            items_list = [line.strip() for line in open(spec['source'])]
+        items_list = [line.strip() for line in open(spec['source'])]
 
     for item in items_list:
         if item.startswith('POSCAR_'):
@@ -675,41 +750,7 @@ def main(spec):
             next(item)
         print structure.composition.reduced_formula
         if spec['code'] == 'VASP':
-            if spec['test']:
-                tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
-                tests_prep.update(MPGWDFTDiagVaspInputSet(structure).tests)
-                for test_prep in tests_prep:
-                    print 'setting up test for: ' + test_prep
-                    for value_prep in tests_prep[test_prep]['test_range']:
-                        print "**" + str(value_prep) + "**"
-                        option = [{test_prep: value_prep}, {}]
-                        create_single_vasp_gw_task(structure=structure, task='prep', spec=spec, option=option)
-                        if 'ceci' in spec['mode']:
-                            create_single_job_script(structure=structure, task='prep', spec=spec, option=option)
-                        for task in spec['jobs'][1:]:
-                            if task == 'G0W0':
-                                tests = MPGWG0W0VaspInputSet(structure).tests
-                            if task in ['GW0', 'scGW0']:
-                                input_set = MPGWG0W0VaspInputSet(structure)
-                                input_set.gw0_on()
-                                tests = input_set.tests
-                            for test in tests:
-                                print '    setting up test for: ' + test
-                                for value in tests[test]['test_range']:
-                                    print "    **" + str(value) + "**"
-                                    option = [{test_prep: value_prep}, {test: value}]
-                                    create_single_vasp_gw_task(structure, task, spec, option)
-                                    if 'ceci' in spec['mode']:
-                                        create_single_job_script(structure, task, spec, option)
-            else:
-                for task in spec['jobs']:
-                    if 'input' in spec['mode'] or 'ceci' in spec['mode']:
-                        create_single_vasp_gw_task(structure=structure, task=task, spec=spec)
-                    if 'ceci' in spec['mode']:
-                        create_single_job_script(structure=structure, task=task, spec=spec)
-                    if 'fw' in spec['mode']:
-                        fire_works_job = {'structure': structure, 'task': task, 'spec': spec}
-                        print fire_works_job.keys()
+                spec.excecute(structure)
         if spec['code'] == 'ABINIT':
             # todo based on spec['mode'] set the manager
             manager = 'slurm' if 'ceci' in spec['mode'] else 'shell'
@@ -732,4 +773,4 @@ if __name__ == "__main__":
     spec_in = GWSpecs()
     spec_in.update_interactive()
     spec_in.test()
-    main(spec=spec_in.data)
+    main(spec=spec_in)
