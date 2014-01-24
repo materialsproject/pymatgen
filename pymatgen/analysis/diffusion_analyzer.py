@@ -190,13 +190,17 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
 
-    def get_smoothed_msd_plot(self):
+    def get_smoothed_msd_plot(self, plt=None):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
         checking convergence. This can be written to an image file.
+
+        Args:
+            plt: A plot object. Defaults to None, which means one will be
+                generated.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
-        plt = get_publication_quality_plot(12, 8)
+        plt = get_publication_quality_plot(12, 8, plt=plt)
         plt.plot(self.dt, self.s_msd, 'k')
         plt.plot(self.dt, self.s_msd_components[:, 0], 'r')
         plt.plot(self.dt, self.s_msd_components[:, 1], 'g')
