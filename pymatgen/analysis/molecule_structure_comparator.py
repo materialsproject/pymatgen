@@ -72,7 +72,9 @@ class MoleculeStructureComparator(MSONable):
             dict (element symbol -> radius)
         priority_bonds: The bonds that are known to be existed in the initial
             molecule. Such bonds will be acknowledged in a loose criteria.
-        priority_cap:
+            The index should start from 0.
+        priority_cap: The ratio of the elongation of the bond to be
+            acknowledged for the priority bonds.
     """
     def __init__(self, bond_length_cap=0.3,
                  covalent_radius=CovalentRadius.radius,
