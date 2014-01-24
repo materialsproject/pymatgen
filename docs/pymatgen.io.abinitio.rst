@@ -74,6 +74,14 @@ pymatgen.io.abinitio.launcher module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.io.abinitio.myaml module
+---------------------------------
+
+.. automodule:: pymatgen.io.abinitio.myaml
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.io.abinitio.netcdf module
 ----------------------------------
 

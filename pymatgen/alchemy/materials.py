@@ -330,7 +330,7 @@ class TransformedStructure(MSONable):
         Creates a TransformedStructure from a dict.
         """
         s = Structure.from_dict(d)
-        return cls(s, history=d["history"], 
+        return cls(s, history=d["history"],
                    other_parameters=d.get("other_parameters", None))
         
     def to_snl(self, authors, projects=None, references='', remarks=None,

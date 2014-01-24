@@ -52,6 +52,14 @@ pymatgen.analysis.molecule_matcher module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.analysis.molecule_structure_comparator module
+------------------------------------------------------
+
+.. automodule:: pymatgen.analysis.molecule_structure_comparator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.analysis.reaction_calculator module
 --------------------------------------------
 
