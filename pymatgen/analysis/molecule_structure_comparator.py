@@ -70,11 +70,18 @@ class MoleculeStructureComparator(MSONable):
             between the two atoms will be acknowledged.
         covalent_radius: The covalent radius of the atoms.
             dict (element symbol -> radius)
+        priority_bonds: The bonds that are known to be existed in the initial
+            molecule. Such bonds will be acknowledged in a loose criteria.
+        priority_cap:
     """
     def __init__(self, bond_length_cap=0.3,
-                 covalent_radius=CovalentRadius.radius):
+                 covalent_radius=CovalentRadius.radius,
+                 priority_bonds=(),
+                 priority_cap=0.8):
         self.bond_length_cap = bond_length_cap
         self.covalent_radius = covalent_radius
+        self.priority_bonds = [tuple(sorted(b)) for b in priority_bonds]
+        self.priority_cap = priority_cap
 
     def are_equal(self, mol1, mol2):
         """
@@ -111,7 +118,9 @@ class MoleculeStructureComparator(MSONable):
                              "available".format(unavailable_elements))
         max_length = [(self.covalent_radius[mol.sites[p[0]].specie.symbol] +
                        self.covalent_radius[mol.sites[p[1]].specie.symbol]) *
-                      (1 + self.bond_length_cap)
+                      (1 + (self.priority_cap
+                            if p in self.priority_bonds
+                            else self.bond_length_cap))
                       for p in all_pairs]
         bonds = [bond
                  for bond, dist, cap in zip(all_pairs, pair_dists, max_length)
@@ -123,10 +132,14 @@ class MoleculeStructureComparator(MSONable):
         return {"version": __version__, "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
                 "bond_length_cap": self.bond_length_cap,
-                "covalent_radius": self.covalent_radius}
+                "covalent_radius": self.covalent_radius,
+                "priority_bonds": self.priority_bonds,
+                "priority_cap": self.priority_cap}
 
     @classmethod
     def from_dict(cls, d):
         return MoleculeStructureComparator(
             bond_length_cap=d["bond_length_cap"],
-            covalent_radius=d["covalent_radius"])
+            covalent_radius=d["covalent_radius"],
+            priority_bonds=d["priority_bonds"],
+            priority_cap=d["priority_cap"])

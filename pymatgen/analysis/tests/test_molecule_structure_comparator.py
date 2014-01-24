@@ -13,12 +13,18 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
 
 class TestMoleculeStructureComparator(TestCase):
     def test_are_equal(self):
-        msc = MoleculeStructureComparator()
+        msc1 = MoleculeStructureComparator()
         mol1 = read_mol(os.path.join(test_dir, "t1.xyz"))
         mol2 = read_mol(os.path.join(test_dir, "t2.xyz"))
         mol3 = read_mol(os.path.join(test_dir, "t3.xyz"))
-        self.assertFalse(msc.are_equal(mol1, mol2))
-        self.assertTrue(msc.are_equal(mol2, mol3))
+        self.assertFalse(msc1.are_equal(mol1, mol2))
+        self.assertTrue(msc1.are_equal(mol2, mol3))
+        thio1 = read_mol(os.path.join(test_dir, "thiophene1.xyz"))
+        thio2 = read_mol(os.path.join(test_dir, "thiophene2.xyz"))
+        # noinspection PyProtectedMember
+        msc2 = MoleculeStructureComparator(
+            priority_bonds=msc1._get_bonds(thio1))
+        self.assertTrue(msc2.are_equal(thio1, thio2))
 
     def test_get_bonds(self):
         mol = read_mol(os.path.join(test_dir, "t1.xyz"))
@@ -31,3 +37,18 @@ class TestMoleculeStructureComparator(TestCase):
                      (15, 18), (18, 19), (18, 20), (18, 21), (21, 22),
                      (21, 23), (23, 24), (23, 25)]
         self.assertEqual(bonds, bonds_ref)
+
+    def test_to_and_from_dict(self):
+        msc1 = MoleculeStructureComparator()
+        d1 = msc1.to_dict
+        d2 = MoleculeStructureComparator.from_dict(d1).to_dict
+        self.assertEqual(d1, d2)
+        thio1 = read_mol(os.path.join(test_dir, "thiophene1.xyz"))
+        # noinspection PyProtectedMember
+        msc2 = MoleculeStructureComparator(
+            bond_length_cap=0.2,
+            priority_bonds=msc1._get_bonds(thio1),
+            priority_cap=0.5)
+        d1 = msc2.to_dict
+        d2 = MoleculeStructureComparator.from_dict(d1).to_dict
+        self.assertEqual(d1, d2)
