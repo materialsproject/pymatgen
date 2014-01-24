@@ -32,17 +32,6 @@ class StandardTransmuter(object):
     An example of a Transmuter object, which performs a sequence of
     transformations on many structures to generate TransformedStructures.
 
-    Args:
-        transformed_structures: Input transformed structures
-        transformations: New transformations to be applied to all
-            structures
-        extend_collection: Whether to use more than one output structure
-            from one-to-many transformations. extend_collection can be a
-            number, which determines the maximum branching for each
-            transformation.
-        ncores: Number of cores to use for applying transformations.
-            Uses multiprocessing.Pool
-
     .. attribute: transformed_structures
 
         List of all transformed structures.
@@ -50,6 +39,24 @@ class StandardTransmuter(object):
 
     def __init__(self, transformed_structures, transformations=None,
                  extend_collection=0, ncores=None):
+        """
+        Initializes a transmuter from an initial list of
+        :class:`pymatgen.alchemy.materials.TransformedStructure`.
+
+        Args:
+            transformed_structures ([TransformedStructure]): Input transformed
+                structures
+            transformations ([Transformations]): New transformations to be
+                applied to all structures.
+            extend_collection (int): Whether to use more than one output
+                structure from one-to-many transformations. extend_collection
+                can be an int, which determines the maximum branching for each
+                transformation.
+            ncores (int): Number of cores to use for applying transformations.
+                Uses multiprocessing.Pool. Default is None, which implies
+                serial.
+        """
+
         self.transformed_structures = transformed_structures
         self.ncores = ncores
         if transformations is not None:
