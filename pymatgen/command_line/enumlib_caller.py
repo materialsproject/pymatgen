@@ -47,8 +47,8 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.periodic_table import DummySpecie
-from pymatgen.util.io_utils import which
-from pymatgen.util.decorators import requires
+from monty.os.path import which
+from monty.dev import requires
 
 logger = logging.getLogger(__name__)
 

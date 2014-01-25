@@ -21,7 +21,7 @@ import collections
 
 import numpy as np
 
-from pymatgen.util.decorators import deprecated
+from monty.dev import deprecated
 from pymatgen.core.periodic_table import Specie, Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site

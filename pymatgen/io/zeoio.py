@@ -24,7 +24,7 @@ from pymatgen.io.xyzio import XYZ
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.io_utils import zopen
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 
 try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
@@ -36,9 +36,9 @@ except ImportError:
 
 class ZeoCssr(Cssr):
     """
-    ZeoCssr adds extra fields to CSSR sites to conform with Zeo++ 
-    input CSSR format. The coordinate system is rorated from xyz to zyx. 
-    This change aligns the pivot axis of pymatgen (z-axis) to pivot axis 
+    ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
+    input CSSR format. The coordinate system is rorated from xyz to zyx.
+    This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
 
     Args:
@@ -55,7 +55,7 @@ class ZeoCssr(Cssr):
         """
         CSSR.__str__ method is modified to padd 0's to the CSSR site data.
         The padding is to conform with the CSSR format supported Zeo++.
-        The oxidation state is stripped from site.specie 
+        The oxidation state is stripped from site.specie
         Also coordinate system is rotated from xyz to zxy
         """
         output = [
@@ -91,7 +91,7 @@ class ZeoCssr(Cssr):
 
     @staticmethod
     def from_string(string):
-        """ 
+        """
         Reads a string representation to a ZeoCssr object.
 
         Args:
@@ -131,10 +131,10 @@ class ZeoCssr(Cssr):
     def from_file(filename):
         """
         Reads a CSSR file to a ZeoCssr object.
-        
+
         Args:
             filename: Filename to read from.
-        
+
         Returns:
             ZeoCssr object.
         """
@@ -231,8 +231,8 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the 
-        unit cell defined by the lattice of input structure 
+        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
     """
 
     temp_dir = tempfile.mkdtemp()

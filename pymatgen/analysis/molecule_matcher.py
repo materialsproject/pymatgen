@@ -23,7 +23,7 @@ import itertools
 import copy
 
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 from pymatgen.io.babelio import BabelMolAdaptor
 try:
     import openbabel as ob
