@@ -4,7 +4,7 @@ import os
 import cStringIO as StringIO
 
 from subprocess import Popen, PIPE
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 from pymatgen.util.string_utils import list_strings
 
 import logging
@@ -36,7 +36,7 @@ class ExecWrapper(object):
             verbose:
                 Verbosity level.
         """
-        if executable is None: 
+        if executable is None:
             executable = self.name
 
         self.executable = which(executable)
@@ -59,7 +59,7 @@ class ExecWrapper(object):
     @property
     def mpi_runner(self):
         try:
-            return self._mpi_runner 
+            return self._mpi_runner
 
         except AttributeError:
             return ""
@@ -176,7 +176,7 @@ class Mrggkk(ExecWrapper):
         Merge GGK files, return the absolute path of the new database.
 
         Args:
-            gswfk_file: 
+            gswfk_file:
                 Ground-state WFK filename
             dfpt_files:
                 List of 1WFK files to merge.
@@ -202,10 +202,10 @@ class Mrggkk(ExecWrapper):
             print("Will merge %d 1WF files, %d GKK file in output %s" %
                   (len(dfpt_nfiles), (len_gkk_files), out_gkk))
 
-            for (i, f) in enumerate(dfpt_files): 
+            for (i, f) in enumerate(dfpt_files):
                 print(" [%d] 1WF %s" % (i, f))
 
-            for (i, f) in enumerate(gkk_files):  
+            for (i, f) in enumerate(gkk_files):
                 print(" [%d] GKK %s" % (i, f))
 
         self.stdin_fname, self.stdout_fname, self.stderr_fname = (
@@ -226,11 +226,11 @@ class Mrggkk(ExecWrapper):
         inp.write(dims + "\n")             # Number of 1WF, of GKK files, and number of 1WF files in all the GKK files
 
         # Names of the 1WF files...
-        for fname in dfpt_files: 
+        for fname in dfpt_files:
             inp.write(fname + "\n")
 
         # Names of the GKK files...
-        for fname in gkk_files: 
+        for fname in gkk_files:
             inp.write(fname + "\n")
 
         inp.seek(0)
