@@ -12,6 +12,5 @@ from .core import *
 from .serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder, \
     pmg_dump, pmg_load
 from .electronic_structure.core import Spin, Orbital
-from .util.io_utils import zopen
 from .io.smartio import read_structure, write_structure, read_mol, write_mol
 from .matproj.rest import MPRester
