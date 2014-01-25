@@ -37,7 +37,7 @@ from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
     pbc_all_distances
-from pymatgen.util.decorators import singleton
+from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 
 

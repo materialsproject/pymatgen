@@ -18,7 +18,7 @@ from collections import defaultdict
 from operator import mul
 from pymatgen import get_el_sp
 from pymatgen.core.periodic_table import Specie
-from pymatgen.util.decorators import cached_class
+from monty.design_patterns import cached_class
 
 import itertools
 import json

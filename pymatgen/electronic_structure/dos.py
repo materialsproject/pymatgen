@@ -19,7 +19,7 @@ from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord_utils import get_linear_interpolated_value
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 
 try:
     import scipy

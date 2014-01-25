@@ -39,8 +39,8 @@ from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.electronic_structure.dos import Dos, Spin, CompleteDos
 from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.plotter import DosPlotter
-from pymatgen.util.io_utils import which
-from pymatgen.util.decorators import requires
+from monty.os.path import which
+from monty.dev import requires
 from pymatgen.core.units import Energy, Length
 from pymatgen.core.physical_constants import e, ELECTRON_MASS
 import subprocess

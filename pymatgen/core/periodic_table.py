@@ -18,7 +18,8 @@ import re
 import json
 
 from pymatgen.core.units import Mass, Length, unitized
-from pymatgen.util.decorators import singleton, cached_class, deprecated
+from monty.design_patterns import singleton, cached_class
+from monty.dev import deprecated
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from functools import total_ordering

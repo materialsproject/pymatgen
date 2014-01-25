@@ -17,7 +17,7 @@ import unittest
 import os
 
 from pymatgen.command_line.bader_caller import BaderAnalysis
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 
 
 @unittest.skipIf(not which('bader'), "bader executable not present.")

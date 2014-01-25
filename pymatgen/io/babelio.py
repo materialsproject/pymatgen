@@ -17,7 +17,7 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Apr 28, 2012"
 
 from pymatgen.core.structure import Molecule
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 
 try:
     import openbabel as ob

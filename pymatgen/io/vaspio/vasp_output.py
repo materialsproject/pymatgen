@@ -29,9 +29,11 @@ from collections import defaultdict
 
 import numpy as np
 
+from monty.io import zopen, reverse_readline
+
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc
-from pymatgen.util.io_utils import zopen, clean_lines, micro_pyawk, \
-    clean_json, reverse_readline
+from pymatgen.util.io_utils import clean_lines, micro_pyawk, \
+    clean_json
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import unitized
 from pymatgen.core.composition import Composition

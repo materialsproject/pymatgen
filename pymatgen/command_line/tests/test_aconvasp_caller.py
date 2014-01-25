@@ -5,7 +5,7 @@ from pymatgen.command_line.aconvasp_caller import get_num_division_kpoints, \
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 
 
 aconvasp_present = which('aconvasp')
