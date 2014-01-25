@@ -72,23 +72,15 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.8.10
--------
-1. Refactoring of qchemio module (by Xiaohui Qu).
-
-v2.8.9
+v2.9.0
 ------
-1. qchemio module (by Xiaohui Qu).
-
-v2.8.8
-------
-1. Minor bug fix release for Structure species substitution methods.
-
-v2.8.7
-------
-1. Massive update to pymatgen.io.abinitio package (by Matteo Giantomassi).
-2. Bug fixes for StructureMatcher's group_structure.
-3. Misc bug fixes and cleanup.
+1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
+2. Vastly improved docs.
+3. Refactoring to move commonly used Python utility functions to `Monty
+   package <https://pypi.python.org/pypi/monty>`_, which is now a depedency
+   for pymatgen.
+4. Minor fixes and improvements to DiffusionAnalyzer.
+5. Many bug fixes and improvements.
 
 :doc:`Older versions </changelog>`
 
