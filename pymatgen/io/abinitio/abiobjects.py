@@ -11,7 +11,7 @@ import numpy as np
 import pymatgen.core.units as units
 
 from pprint import pformat
-from pymatgen.util.decorators import singleton
+from monty.design_patterns import singleton
 from pymatgen.util.string_utils import is_string
 from pymatgen.core.design_patterns import Enum, AttrDict
 from pymatgen.core.units import ArrayWithUnit
@@ -126,7 +126,7 @@ class Smearing(AbivarAble, MSONable):
         return s
 
     def __eq__(self, other):
-        return (self.occopt == other.occopt and 
+        return (self.occopt == other.occopt and
                 np.allclose(self.tsmear, other.tsmear))
 
     def __ne__(self, other):
@@ -590,7 +590,7 @@ class KSampling(AbivarAble):
                    )
 
     @classmethod
-    def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True, 
+    def monkhorst(cls, ngkpt, shiftk=(0.5, 0.5, 0.5), chksymbreak=None, use_symmetries=True,
                   use_time_reversal=True, comment=None):
         """
         Convenient static constructor for a Monkhorst-Pack mesh.
@@ -972,7 +972,7 @@ class PPModel(AbivarAble, MSONable):
 class HilbertTransform(AbivarAble):
     """
     Parameters for the Hilbert-transform method (Screening code)
-    i.e. the parameters defining the frequency mesh used for the spectral function 
+    i.e. the parameters defining the frequency mesh used for the spectral function
     and the frequency mesh used for the polarizability
     """
     def __init__(self, nomegasf, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None, freqremin=None):
@@ -1034,7 +1034,7 @@ class ModelDielectricFunction(AbivarAble):
 
 class Screening(AbivarAble):
     """
-    This object defines the parameters used for the 
+    This object defines the parameters used for the
     computation of the screening function.
     """
     # Approximations used for W
@@ -1125,7 +1125,7 @@ class Screening(AbivarAble):
 
 class SelfEnergy(AbivarAble):
     """
-    This object defines the parameters used for the 
+    This object defines the parameters used for the
     computation of the self-energy.
     """
     _SIGMA_TYPES = {
@@ -1159,7 +1159,7 @@ class SelfEnergy(AbivarAble):
                 `Screening` instance.
             gw_qprange:
                 Option for the automatic selection of k-points and bands for GW corrections.
-                See Abinit docs for more detail. The default value makes the code computie the 
+                See Abinit docs for more detail. The default value makes the code computie the
                 QP energies for all the point in the IBZ and one band above and one band below the Fermi level.
             ppmodel:
                 `PPModel` instance with the parameters used for the plasmon-pole technique.
@@ -1261,7 +1261,7 @@ class ExcHamiltonian(AbivarAble):
         "coupling": 1,     # Calculation with coupling.
     }
 
-    # Algorithms used to compute the macroscopic dielectric function 
+    # Algorithms used to compute the macroscopic dielectric function
     # and/or the exciton wavefunctions.
     _ALGO2VAR = {
         "direct_diago": 1,
@@ -1276,22 +1276,22 @@ class ExcHamiltonian(AbivarAble):
         "model_df"
         ]
 
-    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None, 
+    def __init__(self, bs_loband, nband, soenergy, coulomb_mode, ecuteps, spin_mode="polarized", mdf_epsinf=None,
                 exc_type="TDA", algo="haydock", with_lf=True, bs_freq_mesh=None, zcut=None, **kwargs):
         """
         Args:
-            bs_loband: 
+            bs_loband:
                 Lowest band index used in the e-h  basis set. Can be scalar or array of shape (nsppol,)
-            nband: 
+            nband:
                 Max band index used in the e-h  basis set.
-            soenergy: 
+            soenergy:
                 Scissors energy in Hartree.
-            coulomb_mode: 
+            coulomb_mode:
                 Treatment of the Coulomb term.
-            ecuteps: 
+            ecuteps:
                 Cutoff energy for W in Hartree.
-            mdf_epsinf: 
-                Macroscopic dielectric function :math:`\epsilon_\inf` used in 
+            mdf_epsinf:
+                Macroscopic dielectric function :math:`\epsilon_\inf` used in
                 the model dielectric function.
             exc_type:
                 Approximation used for the BSE Hamiltonian
@@ -1398,10 +1398,10 @@ class ExcHamiltonian(AbivarAble):
 
 #class Perturbation(AbivarAble):
 #    """
-#    Base class for perturbations: a base perturbation is essentially defined 
+#    Base class for perturbations: a base perturbation is essentially defined
 #    by a q-point in reduced coordinates.
 #
-#    Subclasses should extend the base method `to_abivars` and provide the method `suggested_kptopt` 
+#    Subclasses should extend the base method `to_abivars` and provide the method `suggested_kptopt`
 #    that returns the value of kptopt that can be used to sample the Brillouin zone.
 #    """
 #    def __init__(self, qpt):
@@ -1474,7 +1474,7 @@ class ExcHamiltonian(AbivarAble):
 #
 #        return d
 #
-#    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1, 
+#    def fourier_interpol(self, qpath=None, qmesh=None, symdynmat=1, asr=1, chneut=1, dipdip=1,
 #                         executable=None, verbose=0):
 #        """
 #        Fourier interpolation of the IFCs.
