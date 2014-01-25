@@ -8,7 +8,8 @@ import copy
 import re
 import numpy as np
 from string import Template
-from pymatgen import zopen, SymmOp
+from monty.io import zopen
+from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.core.units import Energy
 from pymatgen.serializers.json_coders import MSONable
