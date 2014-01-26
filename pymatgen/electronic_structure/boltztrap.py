@@ -64,7 +64,7 @@ class BoltztrapRunner():
               "Bolztrap accordingly. Then add x_trans to your path")
 
     def __init__(self, bs, nelec, dos_type="HISTO", energy_grid=0.005,
-                 lpfac=10):
+                 lpfac=10, type="BOLTZ", band_nb=None):
         """
         Args:
             bs:
@@ -82,6 +82,10 @@ class BoltztrapRunner():
                 the number of interpolation points in the real space. By
                 default 10 gives 10 time more points in the real space than
                 the number of kpoints given in reciprocal space
+            type:
+                type of boltztrap usage by default BOLTZ to compute transport coefficients
+                but you can have also "FERMI" to compute fermi surface or more correctly to
+                get certain bands interpolated
         """
         self.lpfac = lpfac
         self._bs = bs
@@ -89,6 +93,8 @@ class BoltztrapRunner():
         self.dos_type = dos_type
         self.energy_grid = energy_grid
         self.error = []
+        self.type = type
+        self.band_nb = band_nb
 
     def _make_energy_file(self, file_name):
         with open(file_name, 'w') as f:
@@ -227,7 +233,7 @@ class BoltztrapRunner():
                 fout.write("CALC                    # CALC (calculate expansion coeff), NOCALC read from file\n")
                 fout.write("%d                        # lpfac, number of latt-points per k-point\n" % self.lpfac)
                 fout.write("FERMI                     # run mode (only BOLTZ is supported)\n")
-                fout.write(str(band_nb))
+                fout.write(str(band_nb+1))
 
     def _make_all_files(self, path):
         if self._bs.is_spin_polarized:
@@ -235,12 +241,14 @@ class BoltztrapRunner():
         else:
             self._make_energy_file(os.path.join(path, "boltztrap.energy"))
         self._make_struc_file(os.path.join(path, "boltztrap.struct"))
-        self._make_intrans_file(os.path.join(path, "boltztrap.intrans"))
+        self._make_intrans_file(os.path.join(path, "boltztrap.intrans"), type=self.type, band_nb=self.band_nb)
         self._make_def_file("BoltzTraP.def")
         if len(self._bs._projections) != 0:
             self._make_proj_files(os.path.join(path,"boltztrap.proj"), os.path.join(path, "BoltzTraP.def"))
 
     def run(self, prev_sigma=None, path_dir=None, convergence=True):
+        if self.type == "FERMI":
+            convergence=False
         dir_bz_name = "boltztrap"
         path_dir_orig = path_dir
         if path_dir is None:
