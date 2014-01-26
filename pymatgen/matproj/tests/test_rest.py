@@ -62,6 +62,7 @@ class MPResterTest(unittest.TestCase):
                 val = self.rester.get_data("mp-540081", prop=prop)[0][prop]
                 self.assertAlmostEqual(expected_vals[i], val)
             elif prop in ["elements", "icsd_id"]:
+                print prop
                 self.assertEqual(set(expected_vals[i]),
                                  set(self.rester.get_data("mp-540081",
                                                           prop=prop)[0][prop]))

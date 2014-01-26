@@ -158,8 +158,7 @@ class Unit(collections.Mapping):
         Constructs a unit.
 
         Args:
-            unit_def:
-                A definition for the unit. Either a mapping of unit to
+            unit_def: A definition for the unit. Either a mapping of unit to
                 powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",
                 or simply as a string "kg m^2 s^-1". Note that the supported
                 format uses "^" as the power operator and all units must be
@@ -268,8 +267,7 @@ class Unit(collections.Mapping):
         unit type.
 
         Args:
-            new_unit:
-                The new unit.
+            new_unit: The new unit.
         """
         uo_base, ofactor = self.as_base_units
         un_base, nfactor = Unit(new_unit).as_base_units
@@ -314,6 +312,14 @@ class FloatWithUnit(float):
         return float.__new__(cls, val)
 
     def __init__(self, val, unit, unit_type=None):
+        """
+        Initializes a float with unit.
+
+        Args:
+            val (float): Value
+            unit (Unit): A unit. E.g., "C".
+            unit_type (str): A type of unit. E.g., "charge"
+        """
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(
                 "{} is not a supported unit for {}".format(unit, unit_type))
@@ -397,7 +403,7 @@ class FloatWithUnit(float):
         #print(self.__dict__)
         # FIXME
         # There's a problem with _unit_type if we try to unpickle objects from file.
-        # since self._unit_type might not be defined. I think this is due to 
+        # since self._unit_type might not be defined. I think this is due to
         # the use of decorators (property and unitized). In particular I have problems with "amu"
         # likely due to weight in core.composition
         if hasattr(self, "_unit_type"):
@@ -431,8 +437,7 @@ class FloatWithUnit(float):
         units of each type.
 
         Args:
-            new_unit:
-                New unit type.
+            new_unit: New unit type.
 
         Returns:
             A FloatWithUnit object in the new units.
@@ -642,10 +647,8 @@ Energy = partial(FloatWithUnit, unit_type="energy")
 A float with an energy unit.
 
 Args:
-    val:
-        Value
-    unit:
-        Units. E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
+    val (float): Value
+    unit (Unit): E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
 """
 EnergyArray = partial(ArrayWithUnit, unit_type="energy")
 
@@ -654,10 +657,8 @@ Length = partial(FloatWithUnit, unit_type="length")
 A float with a length unit.
 
 Args:
-    val:
-        Value
-    unit:
-        Units. E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
+    val (float): Value
+    unit (Unit): E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
         raised.
 """
 LengthArray = partial(ArrayWithUnit, unit_type="length")
@@ -667,10 +668,8 @@ Mass = partial(FloatWithUnit, unit_type="mass")
 A float with a mass unit.
 
 Args:
-    val:
-        Value
-    unit:
-        Units. E.g., amu, kg, etc. Must be valid unit or UnitError is
+    val (float): Value
+    unit (Unit): E.g., amu, kg, etc. Must be valid unit or UnitError is
         raised.
 """
 MassArray = partial(ArrayWithUnit, unit_type="mass")
@@ -680,10 +679,8 @@ Temp = partial(FloatWithUnit, unit_type="temperature")
 A float with a temperature unit.
 
 Args:
-    val:
-        Value
-    unit:
-        Units. E.g., K. Only K (kelvin) is supported.
+    val (float): Value
+    unit (Unit): E.g., K. Only K (kelvin) is supported.
 """
 TempArray = partial(ArrayWithUnit, unit_type="temperature")
 
@@ -692,10 +689,8 @@ Time = partial(FloatWithUnit, unit_type="time")
 A float with a time unit.
 
 Args:
-    val:
-        Value
-    unit:
-        Units. E.g., s, min, h. Must be valid unit or UnitError is
+    val (float): Value
+    unit (Unit): E.g., s, min, h. Must be valid unit or UnitError is
         raised.
 """
 TimeArray = partial(ArrayWithUnit, unit_type="time")
@@ -705,10 +700,8 @@ Charge = partial(FloatWithUnit, unit_type="charge")
 A float with a charge unit.
 
 Args:
-    val:
-        Value
-    unit:
-        Units. E.g., C, e (electron charge). Must be valid unit or UnitError
+    val (float): Value
+    unit (Unit): E.g., C, e (electron charge). Must be valid unit or UnitError
         is raised.
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
@@ -721,8 +714,7 @@ def obj_with_unit(obj, unit):
     `ArrayWithFloatWithUnit`.
 
     Args:
-        unit:
-            Specific units (eV, Ha, m, ang, etc.).
+        unit: Specific units (eV, Ha, m, ang, etc.).
     """
     unit_type = _UNAME2UTYPE[unit]
 
@@ -742,8 +734,7 @@ def unitized(unit):
     unit information. For mapping types, the values are assigned units.
 
     Args:
-        unit:
-            Specific unit (eV, Ha, m, ang, etc.).
+        unit: Specific unit (eV, Ha, m, ang, etc.).
 
     Example usage::
 

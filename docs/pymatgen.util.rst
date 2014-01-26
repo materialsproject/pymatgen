@@ -34,6 +34,14 @@ pymatgen.util.io_utils module
     :undoc-members:
     :show-inheritance:
 
+pymatgen.util.lazy module
+-------------------------
+
+.. automodule:: pymatgen.util.lazy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pymatgen.util.num_utils module
 ------------------------------
 

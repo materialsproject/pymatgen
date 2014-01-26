@@ -3,6 +3,9 @@
 """
 This module provides classes to perform fitting of molecule with arbitrary
 atom orders.
+This module is supposed to perform exact comparisons without the atom order
+correspondence prerequisite, while molecule_structure_comparator is supposed
+to do rough comparisons with the atom order correspondence prerequisite.
 """
 
 __author__ = "Xiaohui Qu"
@@ -20,7 +23,7 @@ import itertools
 import copy
 
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 from pymatgen.io.babelio import BabelMolAdaptor
 try:
     import openbabel as ob
@@ -42,10 +45,8 @@ class AbstractMolAtomMapper(MSONable):
         Pair the geometrically equivalent atoms of the molecules.
 
         Args:
-            mol1:
-                First molecule. OpenBabel OBMol or pymatgen Molecule object.
-            mol2:
-                Second molecule. OpenBabel OBMol or pymatgen Molecule object.
+            mol1: First molecule. OpenBabel OBMol or pymatgen Molecule object.
+            mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object.
 
         Returns:
             (list1, list2) if uniform atom order is found. list1 and list2
@@ -65,8 +66,7 @@ class AbstractMolAtomMapper(MSONable):
         efficiently for comparison.
 
         Args:
-            mol:
-                The molecule. OpenBabel OBMol or pymatgen Molecule object
+            mol: The molecule. OpenBabel OBMol or pymatgen Molecule object
 
         Returns:
             A hashable object. Examples can be string formulas, etc.
@@ -96,10 +96,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         with the least RMSD
 
         Args:
-            mol1:
-                First molecule. OpenBabel OBMol or pymatgen Molecule object.
-            mol2:
-                Second molecule. OpenBabel OBMol or pymatgen Molecule object.
+            mol1: First molecule. OpenBabel OBMol or pymatgen Molecule object.
+            mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object.
 
         Returns:
             (list1, list2) if uniform atom order is found. list1 and list2
@@ -169,14 +167,12 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
 class InchiMolAtomMapper(AbstractMolAtomMapper):
     """
     Pair atoms by inchi labels.
+
+    Args:
+        angle_tolerance: Angle threshold to assume linear molecule. In degrees.
     """
 
     def __init__(self, angle_tolerance=10.0):
-        """
-        Args:
-            angle_tolerance:
-                The angle threshold to assume linear molecule. In degrees.
-        """
         self._angle_tolerance = angle_tolerance
         self._assistant_mapper = IsomorphismMolAtomMapper()
 
@@ -195,8 +191,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Get the inchi canonical labels of the heavy atoms in the molecule
 
         Args:
-            mol:
-            The molecule. OpenBabel OBMol object
+            mol: The molecule. OpenBabel OBMol object
 
         Returns:
             The label mappings. List of tuple of canonical label,
@@ -225,10 +220,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Calculate the centroids of a group atoms indexed by the labels of inchi
 
         Args:
-            mol:
-                The molecule. OpenBabel OBMol object
-            ilabel:
-                inchi label map
+            mol: The molecule. OpenBabel OBMol object
+            ilabel: inchi label map
 
         Returns:
             Centroid. Tuple (x, y, z)
@@ -252,16 +245,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         equivalent atoms
 
         Args:
-            mol:
-                The molecule. OpenBabel OBMol object
-            ilables:
-                inchi label map
-            eq_atoms:
-                equivalent atom labels
-            farthest_group_idx:
-                The equivalent atom group index in which there is the
-                farthest atom
-                to the centroid
+            mol: The molecule. OpenBabel OBMol object
+            ilables: inchi label map
+            eq_atoms: equivalent atom labels
+            farthest_group_idx: The equivalent atom group index in which
+                there is the farthest atom to the centroid
 
         Return:
             The virtual molecule
@@ -305,22 +293,15 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         towards first molecule
 
         Args:
-            mol1:
-                First molecule. OpenBabel OBMol object
-            mol2:
-                Second molecule. OpenBabel OBMol object
-            vmol1:
-                First virtual molecule constructed by centroids. OpenBabel
+            mol1: First molecule. OpenBabel OBMol object
+            mol2: Second molecule. OpenBabel OBMol object
+            vmol1: First virtual molecule constructed by centroids. OpenBabel
                 OBMol object
-            vmol2:
-                First virtual molecule constructed by centroids. OpenBabel
+            vmol2: First virtual molecule constructed by centroids. OpenBabel
                 OBMol object
-            ilabel1:
-                inchi label map of the first molecule
-            ilabel2:
-                inchi label map of the second molecule
-            eq_atoms:
-                equivalent atom lables
+            ilabel1: inchi label map of the first molecule
+            ilabel2: inchi label map of the second molecule
+            eq_atoms: equivalent atom lables
 
         Return:
             corrected inchi labels of heavy atoms of the second molecule
@@ -395,14 +376,10 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         towards first molecule
 
         Args:
-            mol1:
-                First molecule. OpenBabel OBMol object
-            mol2:
-                Second molecule. OpenBabel OBMol object
-            heavy_indices1:
-                inchi label map of the first molecule
-            heavy_indices2:
-                label map of the second molecule
+            mol1: First molecule. OpenBabel OBMol object
+            mol2: Second molecule. OpenBabel OBMol object
+            heavy_indices1: inchi label map of the first molecule
+            heavy_indices2: label map of the second molecule
 
         Return:
             corrected label map of all atoms of the second molecule
@@ -465,10 +442,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         The the elements of the atoms in the specified order
 
         Args:
-            mol:
-                The molecule. OpenBabel OBMol object.
-            label:
-                The atom indices. List of integers.
+            mol: The molecule. OpenBabel OBMol object.
+            label: The atom indices. List of integers.
 
         Returns:
             Elements. List of integers.
@@ -481,8 +456,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Is the molecule a linear one
 
         Args:
-            mol:
-                The molecule. OpenBabel OBMol object.
+            mol: The molecule. OpenBabel OBMol object.
 
         Returns:
             Boolean value.
@@ -549,20 +523,17 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 class MoleculeMatcher(MSONable):
     """
     Class to match molecules and identify whether molecules are the same.
+
+    Args:
+        tolerance: RMSD difference threshold whether two molecules are
+            different
+        mapper: MolAtomMapper object that is able to map the atoms of two
+            molecule to uniform order
     """
     @requires(ob,
               "BabelMolAdaptor requires openbabel to be installed with "
               "Python bindings. Please get it at http://openbabel.org.")
     def __init__(self, tolerance=0.01, mapper=InchiMolAtomMapper()):
-        """
-        Args:
-            tolerance:
-                RMSD difference threshold whether two molecules are different
-            mapper:
-                MolAtomMapper object that is able to map the atoms of two
-                molecule to
-                uniform order
-        """
         self._tolerance = tolerance
         self._mapper = mapper
 
@@ -571,10 +542,8 @@ class MoleculeMatcher(MSONable):
         Fit two molecules.
 
         Args:
-            mol1:
-                First molecule. OpenBabel OBMol or pymatgen Molecule object
-            mol2:
-                Second molecule. OpenBabel OBMol or pymatgen Molecule object
+            mol1: First molecule. OpenBabel OBMol or pymatgen Molecule object
+            mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object
 
         Returns:
             A boolean value indicates whether two molecules are the same.
@@ -599,16 +568,13 @@ class MoleculeMatcher(MSONable):
         Calculate the RMSD.
 
         Args:
-            mol1:
-                The first molecule. OpenBabel OBMol or pymatgen Molecule object
-            mol2:
-                The second molecule. OpenBabel OBMol or pymatgen Molecule
+            mol1: The first molecule. OpenBabel OBMol or pymatgen Molecule
                 object
-            clabel1:
-                The atom indices that can reorder the first molecule to
+            mol2: The second molecule. OpenBabel OBMol or pymatgen Molecule
+                object
+            clabel1: The atom indices that can reorder the first molecule to
                 uniform atom order
-            clabel1:
-                The atom indices that can reorder the second molecule to
+            clabel1: The atom indices that can reorder the second molecule to
                 uniform atom order
 
         Returns:
@@ -641,8 +607,7 @@ class MoleculeMatcher(MSONable):
         Group molecules by structural equality.
 
         Args:
-            mol_list:
-                List of OpenBabel OBMol or pymatgen objects
+            mol_list: List of OpenBabel OBMol or pymatgen objects
 
         Returns:
             A list of lists of matched molecules

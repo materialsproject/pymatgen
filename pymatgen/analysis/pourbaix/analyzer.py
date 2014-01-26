@@ -23,15 +23,13 @@ from pyhull.convex_hull import ConvexHull
 class PourbaixAnalyzer(object):
     """
     Class for performing analysis on Pourbaix Diagrams
+
+    Args:
+        pd: Pourbaix Diagram to analyze.
     """
     numerical_tol = 1e-8
 
     def __init__(self, pd):
-        """
-        Args:
-            pd:
-                Pourbaix Diagram to analyze.
-        """
         self._pd = pd
         self._keys = ['H+', 'V', '1']
         self.chempot_limits = None
@@ -41,8 +39,7 @@ class PourbaixAnalyzer(object):
         Calculates the chemical potentials for each element within a facet.
 
         Args:
-            facet:
-                Facet of the phase diagram.
+            facet: Facet of the phase diagram.
 
         Returns:
             { element: chempot } for all elements in the phase diagram.
@@ -66,10 +63,9 @@ class PourbaixAnalyzer(object):
         Returns a chemical potential range map for each stable entry.
 
         Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges of
+                all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
 
         Returns:
@@ -168,10 +164,8 @@ class PourbaixAnalyzer(object):
         Checks if a Pourbaix Entry is in a facet.
 
         Args:
-            facet:
-                facet to test.
-            entry:
-                Pourbaix Entry to test.
+            facet: facet to test.
+            entry: Pourbaix Entry to test.
         """
         dim = len(self._keys)
         if dim > 1:
@@ -226,8 +220,7 @@ class PourbaixAnalyzer(object):
         Provides the decomposition at a particular composition
 
         Args:
-            comp:
-                A composition
+            comp: A composition
 
         Returns:
             Decomposition as a dict of {PourbaixEntry: amount}
@@ -249,8 +242,7 @@ class PourbaixAnalyzer(object):
         Provides the decomposition and energy above convex hull for an entry
 
         Args:
-            entry:
-                A PourbaixEntry
+            entry: A PourbaixEntry
 
         Returns:
             (decomp, energy above convex hull)  Stable entries should have
@@ -267,7 +259,7 @@ class PourbaixAnalyzer(object):
         Provides the energy above convex hull for an entry
 
         Args:
-            entry - A PourbaixEntry object
+            entry: A PourbaixEntry object
 
         Returns:
             Energy above convex hull of entry. Stable entries should have

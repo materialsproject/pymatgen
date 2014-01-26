@@ -25,18 +25,14 @@ class HighSymmKpath(object):
     49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010
     The symmetry is determined by spglib through the
     SymmetryFinder class
+
+    Args:
+        structure (Structure): Structure object
+        symprec (float): Tolerance for symmetry finding
+        angle_tolerance (float): Angle tolerance for symmetry finding.
     """
 
     def __init__(self, structure, symprec=0.01, angle_tolerance=5):
-        """
-        Args:
-            structure:
-                Structure object
-            symprec:
-                Tolerance for symmetry finding
-            angle_tolerance:
-                Angle tolerance for symmetry finding.
-        """
         self._structure = structure
         self._sym = SymmetryFinder(structure, symprec=symprec,
                                    angle_tolerance=angle_tolerance)
@@ -46,7 +42,7 @@ class HighSymmKpath(object):
         self._prim_rec = self._prim.lattice.reciprocal_lattice
         self._kpath = None
 
-        lattice_type = self._sym.get_lattice_type() 
+        lattice_type = self._sym.get_lattice_type()
         spg_symbol = self._sym.get_spacegroup_symbol()
 
         if lattice_type == "cubic":
@@ -166,9 +162,9 @@ class HighSymmKpath(object):
 
     def get_kpoints(self, line_density=20):
         """
-            Returns:
-                the kpoints along the paths in cartesian coordinates
-                together with the labels for symmetry points -Wei
+        Returns:
+            the kpoints along the paths in cartesian coordinates
+            together with the labels for symmetry points -Wei
         """
         list_k_points = []
         sym_point_labels = []
@@ -196,7 +192,7 @@ class HighSymmKpath(object):
 
         Returns:
             `matplotlib` figure.
-                                                                                         
+
         ================  ==============================================================
         kwargs            Meaning
         ================  ==============================================================

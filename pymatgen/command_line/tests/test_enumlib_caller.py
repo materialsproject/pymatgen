@@ -21,7 +21,7 @@ from pymatgen import Element, Structure
 from pymatgen.io.cifio import CifParser
 from pymatgen.transformations.standard_transformations import \
     SubstitutionTransformation
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 from pymatgen.transformations.site_transformations import \
     RemoveSitesTransformation
 

@@ -173,6 +173,9 @@ class BaseWorkflow(Node):
         Returns a list with all the tasks that can be submitted.
         Empty list if not task has been found.
         """
+        #if all(task.is_completed for task in self):
+        #    return []
+
         return [task for task in self if task.can_run]
 
     @abc.abstractmethod
@@ -396,7 +399,7 @@ class Workflow(BaseWorkflow):
                 if task.workdir != task_workdir:
                     raise ValueError("task.workdir != task_workdir: %s, %s" % (task.workdir, task_workdir))
 
-    def register(self, obj, deps=None, manager=None, task_class=None):
+    def register(self, obj, deps=None, required_files=None, manager=None, task_class=None):
         """
         Registers a new `Task` and add it to the internal list, taking into account possible dependencies.
 
@@ -407,6 +410,8 @@ class Workflow(BaseWorkflow):
             deps:
                 Dictionary specifying the dependency of this node.
                 None means that this obj has no dependency.
+            required_files:
+                List of strings with the path of the files used by the task.
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
                 the `TaskManager` specified during the creation of the `Workflow`.
@@ -441,6 +446,10 @@ class Workflow(BaseWorkflow):
         if deps is not None:
             deps = [Dependency(node, exts) for (node, exts) in deps.items()]
             task.add_deps(deps)
+
+        # Handle possible dependencies.
+        if required_files is not None:
+            task.add_required_files(required_files)
 
         return task
 
@@ -1475,6 +1484,7 @@ class PhononWorkflow(Workflow):
         desc = "DDB file merged by %s on %s" % (self.__class__.__name__, time.asctime())
 
         mrgddb = wrappers.Mrgddb(verbose=1)
+        mrgddb.set_mpi_runner("mpirun")
         mrgddb.merge(ddb_files, out_ddb=out_ddb, description=desc, cwd=self.outdir.path)
 
     def merge_gkk_files(self):
@@ -1495,6 +1505,7 @@ class PhononWorkflow(Workflow):
         out_ggk = self.outdir.path_in("out_GKK")
 
         mrggkk = wrappers.Mrggkk(verbose=1)
+        mrggkk.set_mpi_runner("mpirun")
         raise NotImplementedError("Have to check mrggkk")
         #mrggkk.merge(gswfk_file, dfpt_files, gkk_files, out_fname, binascii=0, cwd=self.outdir.path)
 
@@ -1510,12 +1521,9 @@ class PhononWorkflow(Workflow):
         # Merge GKK files.
         #self.merge_gkk_files()
 
-        results = dict(
-            returncode=0,
-            message="DDB merge done",
-        )
-
-        return results
+        return dict(returncode=0,
+                    message="DDB merge done"
+                    )
 
 
 class WorkflowResults(dict, MSONable):

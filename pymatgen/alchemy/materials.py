@@ -42,21 +42,31 @@ class TransformedStructure(MSONable):
     
     def __init__(self, structure, transformations=None, history=None,
                  other_parameters=None):
+        """
+        Initializes a transformed structure from a structure.
+
+        Args:
+            structure (Structure): Input structure
+            transformations ([Transformations]): List of transformations to
+                apply.
+            history (list): Previous history.
+            other_parameters (dict): Additional parameters to be added.
+        """
         self.final_structure = structure
         self.history = history or []
         self.other_parameters = other_parameters or {}
         self._undone = []
-        
+
         transformations = transformations or []
         for t in transformations:
             self.append_transformation(t)
-            
+
     def undo_last_change(self):
         """
         Undo the last change in the TransformedStructure.
 
         Raises:
-            IndexError if already at the oldest change.
+            IndexError: If already at the oldest change.
         """
         if len(self.history) == 0:
             raise IndexError("Can't undo. Already at oldest change.")
@@ -75,7 +85,7 @@ class TransformedStructure(MSONable):
         Redo the last undone change in the TransformedStructure.
 
         Raises:
-            IndexError if already at the latest change.
+            IndexError: If already at the latest change.
         """
         if len(self._undone) == 0:
             raise IndexError("Can't redo. Already at latest change.")
@@ -96,19 +106,16 @@ class TransformedStructure(MSONable):
         Appends a transformation to the TransformedStructure.
 
         Args:
-            transformation:
-                Transformation to append
-            return_alternatives:
-                Whether to return alternative TransformedStructures for
-                one-to-many transformations. return_alternatives can be a
-                number, which stipulates the total number of structures to
-                return.
-            clear_redo:
-                Boolean indicating whether to clear the redo list. By default,
-                this is True, meaning any appends clears the history of
-                undoing. However, when using append_transformation to do a
-                redo, the redo list should not be cleared to allow multiple
-                redos.
+            transformation: Transformation to append
+            return_alternatives: Whether to return alternative
+                TransformedStructures for one-to-many transformations.
+                return_alternatives can be a number, which stipulates the
+                total number of structures to return.
+            clear_redo: Boolean indicating whether to clear the redo list.
+                By default, this is True, meaning any appends clears the
+                history of undoing. However, when using append_transformation
+                to do a redo, the redo list should not be cleared to allow
+                multiple redos.
         """
         if clear_redo:
             self._undone = []
@@ -150,7 +157,12 @@ class TransformedStructure(MSONable):
             
     def append_filter(self, structure_filter):
         """
-        Adds a transformation parameter to the last transformation.
+        Adds a filter.
+
+        Args:
+            structure_filter (StructureFilter): A filter implementating the
+                AbstractStructureFilter API. Tells transmuter waht structures
+                to retain.
         """
         hdict = structure_filter.to_dict
         hdict["input_structure"] = self.final_structure.to_dict
@@ -161,8 +173,7 @@ class TransformedStructure(MSONable):
         Extends a sequence of transformations to the TransformedStructure.
 
         Args:
-            transformations:
-                Sequence of Transformations
+            transformations: Sequence of Transformations
         """
         for t in transformations:
             self.append_transformation(t)
@@ -172,13 +183,11 @@ class TransformedStructure(MSONable):
         Returns VASP input as a dict of vaspio objects.
 
         Args:
-            vasp_input_set:
-                pymatgen.io.vaspio_set.VaspInputSet like object that creates
-                vasp input files from structures
-            generate_potcar:
-                Set to False to generate a POTCAR.spec file instead of a
-                POTCAR, which contains the POTCAR labels but not the actual
-                POTCAR. Defaults to True.
+            vasp_input_set (pymatgen.io.vaspio_set.VaspInputSet): input set
+                to create vasp input files from structures
+            generate_potcar (bool): Set to False to generate a POTCAR.spec
+                file instead of a POTCAR, which contains the POTCAR labels
+                but not the actual POTCAR. Defaults to True.
         """
         d = vasp_input_set.get_all_vasp_input(self.final_structure,
                                               generate_potcar)
@@ -233,7 +242,7 @@ class TransformedStructure(MSONable):
     @property
     def structures(self):
         """
-        Returns a copy of all structures in the TransformedStructure. A
+        Copy of all structures in the TransformedStructure. A
         structure is stored after every single transformation.
         """
         hstructs = [Structure.from_dict(s['input_structure'])
@@ -247,21 +256,22 @@ class TransformedStructure(MSONable):
         Generates TransformedStructure from a cif string.
 
         Args:
-            cif_string:
-                Input cif string. Should contain only one structure. For cifs
-                containing multiple structures, please use CifTransmuter.
-            transformations:
-                Sequence of transformations to be applied to the input
-                structure.
-            primitive:
-                Option to set if the primitive cell should be extracted.
-                Defaults to True. However, there are certain instances where
-                you might want to use a non-primitive cell, e.g., if you are
-                trying to generate all possible orderings of partial removals
+            cif_string (str): Input cif string. Should contain only one
+                structure. For cifs containing multiple structures, please use
+                CifTransmuter.
+            transformations ([Transformations]): Sequence of transformations
+                to be applied to the input structure.
+            primitive (bool): Option to set if the primitive cell should be
+                extracted. Defaults to True. However, there are certain
+                instances where you might want to use a non-primitive cell,
+                e.g., if you are trying to generate all possible orderings of partial removals
                 or order a disordered structure.
-            occupancy_tolerance:
-                If total occupancy of a site is between 1 and
-                occupancy_tolerance, the occupancies will be scaled down to 1.
+            occupancy_tolerance (float): If total occupancy of a site is
+                between 1 and occupancy_tolerance, the occupancies will be
+                scaled down to 1.
+
+        Returns:
+            TransformedStructure
         """
         parser = CifParser.from_string(cif_string, occupancy_tolerance)
         raw_string = re.sub("'", "\"", cif_string)
@@ -285,11 +295,9 @@ class TransformedStructure(MSONable):
         Generates TransformedStructure from a poscar string.
 
         Args:
-            poscar_string:
-                Input POSCAR string.
-            transformations:
-                Sequence of transformations to be applied to the input
-                structure.
+            poscar_string (str): Input POSCAR string.
+            transformations ([Transformations]): Sequence of transformations
+                to be applied to the input structure.
         """
         p = Poscar.from_string(poscar_string)
         if not p.true_names:
@@ -305,7 +313,7 @@ class TransformedStructure(MSONable):
     @property
     def to_dict(self):
         """
-        Returns a dict representation of the TransformedStructure.
+        Dict representation of the TransformedStructure.
         """
         d = self.final_structure.to_dict
         d["@module"] = self.__class__.__module__
@@ -322,7 +330,7 @@ class TransformedStructure(MSONable):
         Creates a TransformedStructure from a dict.
         """
         s = Structure.from_dict(d)
-        return cls(s, history=d["history"], 
+        return cls(s, history=d["history"],
                    other_parameters=d.get("other_parameters", None))
         
     def to_snl(self, authors, projects=None, references='', remarks=None,
@@ -346,18 +354,10 @@ class TransformedStructure(MSONable):
         Create TransformedStructure from SNL.
 
         Args:
-            snl:
-                Starting snl
-            copy_metadata:
-                update the authors, projects, references, and remarks
-                in the last history node with the metadata at the
-                root of the SNL object
-            copy_data:
-                copy the contents of snl.data into the last history
-                node
+            snl (StructureNL): Starting snl
 
         Returns:
-            TransformedStructure.
+            TransformedStructure
         """
         hist = []
         for h in snl.history:
