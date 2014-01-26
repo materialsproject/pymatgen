@@ -411,3 +411,50 @@ class PDAnalyzer(object):
         res[open_elt] = (min_open, max_open)
         return res
 
+    def getmu_range_stability_phase(self, target_comp, open_elt):
+        """
+        returns a set of chemical potentials correspoding to the max and min chemical potential
+        of the open element for a given composition. It is quite common to have for instance a ternary oxide
+        (e.g., ABO3) for which you want to know what are the A and B chemical potential leading to the
+        highest and lowest oxygen chemical potential (reducing and oxidizing conditions). This is useful
+        for defect computations.
+        Args:
+            target_comp:
+                A Composition object
+            open_elt:
+                the element that you want to constrain to be max or min
+        Returns:
+            a dictionary {Element:(mu_min,mu_max)}. The chemical potential are given in "absolute" values
+            (i.e., not referenced to 0)
+        """
+        muref = np.array([self._pd.el_refs[e].energy_per_atom for e in self._pd.elements if e != open_elt])
+        chempot_ranges = self.get_chempot_range_map([e for e in self._pd.elements if e != open_elt])
+        for e in self._pd.elements:
+            if not e in target_comp._elmap.keys():
+                target_comp = target_comp+Composition({e: 0.0})
+        coeff = [-target_comp._elmap[e] for e in self._pd.elements if e != open_elt]
+        max_open = -100000000
+        min_open = 1000000000
+        max_mus = None
+        min_mus = None
+        for e in chempot_ranges.keys():
+            if e.composition.reduced_composition == target_comp.reduced_composition:
+                multiplicator = e.composition._elmap[open_elt]/target_comp._elmap[open_elt]
+                Ef = e.energy/multiplicator
+                all_coords=[]
+                for s in chempot_ranges[e]:
+                    for v in s._coords:
+                        all_coords.append(v)
+                        if (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt] > max_open:
+                            max_open = (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt]
+                            max_mus=v
+                        if (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt] < min_open:
+                            min_open=(np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt]
+                            min_mus=v
+        elts = [e for e in target_comp.elements if e != open_elt]
+        res = {}
+        for i in range(len(elts)):
+            res[elts[i]] = (min_mus[i]+muref[i], max_mus[i]+muref[i])
+        res[open_elt] = (min_open, max_open)
+        return res
+
