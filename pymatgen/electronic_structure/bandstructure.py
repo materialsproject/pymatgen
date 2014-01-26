@@ -638,8 +638,9 @@ class BandStructure(object):
         labels_dict = d['labels_dict']
         projections = {}
         structure = None
-        if 'projections' in d and len(d['projections']) != 0:
+        if 'structure' in d:
             structure = Structure.from_dict(d['structure'])
+        if 'projections' in d and len(d['projections']) != 0:
             projections = {
                 Spin.from_int(int(spin)): [
                     [{Orbital.from_string(orb): [
