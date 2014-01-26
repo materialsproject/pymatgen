@@ -16,9 +16,9 @@ __date__ = "Aug 31, 2012"
 
 from collections import defaultdict
 from operator import mul
-from pymatgen import smart_element_or_specie
+from pymatgen import get_el_sp
 from pymatgen.core.periodic_table import Specie
-from pymatgen.util.decorators import cached_class
+from monty.design_patterns import cached_class
 
 import itertools
 import json
@@ -78,12 +78,12 @@ class SubstitutionProbability(object):
             self.Z += value
 
     def get_lambda(self, s1, s2):
-        k = frozenset([smart_element_or_specie(s1),
-                       smart_element_or_specie(s2)])
+        k = frozenset([get_el_sp(s1),
+                       get_el_sp(s2)])
         return self._l.get(k, self.alpha)
 
     def get_px(self, sp):
-        return self._px[smart_element_or_specie(sp)]
+        return self._px[get_el_sp(sp)]
 
     def prob(self, s1, s2):
         """
@@ -179,7 +179,7 @@ class SubstitutionPredictor(object):
             from that list.
         """
         for sp in species:
-            if smart_element_or_specie(sp) not in self.p.species:
+            if get_el_sp(sp) not in self.p.species:
                 raise ValueError("the species {} is not allowed for the"
                                  "probability model you are using".format(sp))
         max_probabilities = []

@@ -41,8 +41,7 @@ class Correction(object):
         Returns correction for a single entry.
 
         Args:
-            entry:
-                A ComputedEntry object.
+            entry: A ComputedEntry object.
 
         Returns:
             The energy correction ot be applied. None if the entry is
@@ -55,8 +54,7 @@ class Correction(object):
         Corrects a single entry.
 
         Args:
-            entry:
-                A ComputedEntry object.
+            entry: A ComputedEntry object.
 
         Returns:
             An processed entry. None if entry is not compatible within the
@@ -75,24 +73,21 @@ class PotcarCorrection(Correction):
     ensures that calculations performed using different InputSets are not
     compared against each other.
 
-
     Entry.parameters must contain a "potcar_symbols" key that is a list of
     all POTCARs used in the run. Again, using the example of an Fe2O3 run
     using Materials Project parameters, this would look like
     entry.parameters["potcar_symbols"] = ['PAW_PBE Fe_pv 06Sep2000',
     'PAW_PBE O 08Apr2002'].
+
+    Args:
+        name: Name of settings to use. Current valid settings are MP or
+            MIT, which is the relevant settings based on the MP or MIT
+            VaspInputSets.
+
+    Raises:
+        ValueError if entry do not contain "potcar_symbols" key.
     """
     def __init__(self, name):
-        """
-        Args:
-            name:
-                Name of settings to use. Current valid settings are MP or
-                MIT, which is the relevant settings based on the MP or MIT
-                VaspInputSets.
-
-        Raises:
-            ValueError if entry do not contain "potcar_symbols" key.
-        """
         if name == "MP":
             input_set = MPVaspInputSet()
         elif name == "MIT":
@@ -124,15 +119,13 @@ class GasCorrection(Correction):
     """
     Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
+
+    Args:
+        name: Name of settings to use. Current valid settings are MP or
+            MIT, which is the relevant settings based on the MP or MIT
+            VaspInputSets.
     """
     def __init__(self, name):
-        """
-        Args:
-            name:
-                Name of settings to use. Current valid settings are MP or
-                MIT, which is the relevant settings based on the MP or MIT
-                VaspInputSets.
-        """
         module_dir = os.path.dirname(os.path.abspath(__file__))
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
@@ -196,14 +189,11 @@ class AqueousCorrection(Correction):
     """
     This class implements aqueous phase compound corrections for elements
     and H2O.
+
+    Args:
+        name: The name of the input set to use. Can be either MP or MIT.
     """
     def __init__(self, name):
-        """
-        Args:
-            name:
-                The name of the input set to use. Can be either MP or MIT.
-        """
-
         module_dir = os.path.dirname(os.path.abspath(__file__))
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
@@ -246,6 +236,18 @@ class UCorrection(Correction):
     pymatgen.apps.borg package and obtained via the MaterialsProject REST
     interface using the pymatgen.matproj.rest package will automatically have
     these fields populated.
+
+    Args:
+        name: Name of settings to use. Current valid settings are MP or
+            MIT, which is the relevant settings based on the MP or MIT
+            VaspInputSets.
+        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+            entries are excluded.  Advanced means mixing scheme is
+            implemented to make entries compatible with each other,
+            but entries which are supposed to be done in GGA+U will have the
+            equivalent GGA entries excluded. For example, Fe oxides should
+            have a U value under the Advanced scheme. A GGA Fe oxide run
+            will therefore be excluded under the scheme.
     """
     common_peroxides = ["Li2O2", "Na2O2", "K2O2", "Cs2O2", "Rb2O2", "BeO2",
                         "MgO2", "CaO2", "SrO2", "BaO2"]
@@ -253,21 +255,6 @@ class UCorrection(Correction):
     ozonides = ["LiO3", "NaO3", "KO3", "NaO5"]
 
     def __init__(self, name, compat_type):
-        """
-        Args:
-            name:
-                Name of settings to use. Current valid settings are MP or
-                MIT, which is the relevant settings based on the MP or MIT
-                VaspInputSets.
-            compat_type:
-                Two options, GGA or Advanced.  GGA means all GGA+U entries are
-                excluded.  Advanced means mixing scheme is implemented to make
-                entries compatible with each other, but entries which are
-                supposed to be done in GGA+U will have the equivalent GGA
-                entries excluded. For example, Fe oxides should have a U value
-                under the Advanced scheme. A GGA Fe oxide run will therefore be
-                excluded under the scheme.
-        """
         module_dir = os.path.dirname(os.path.abspath(__file__))
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
@@ -335,13 +322,11 @@ class Compatibility(object):
     with PotcarCorrection("MP") (similarly with "MIT"). Typically,
     you should use the specific MaterialsProjectCompatibility and
     MITCompatibility subclasses instead.
+
+    Args:
+        corrections: List of corrections to apply.
     """
     def __init__(self, corrections):
-        """
-        Args:
-            corrections:
-                List of corrections to apply.
-        """
         self.corrections = corrections
 
     def process_entry(self, entry):
@@ -349,8 +334,7 @@ class Compatibility(object):
         Process a single entry with the chosen Corrections.
 
         Args:
-            entry:
-                A ComputedEntry object.
+            entry: A ComputedEntry object.
 
         Returns:
             An adjusted entry if entry is compatible, otherwise None is
@@ -363,6 +347,15 @@ class Compatibility(object):
         return entry
 
     def get_corrections_dict(self, entry):
+        """
+        Returns the corrections applied to a particular entry.
+
+        Args:
+            entry: A ComputedEntry object.
+
+        Returns:
+            ({correction_name: value})
+        """
         corrections = {}
         for c in self.corrections:
             val = c.get_correction(entry)
@@ -377,7 +370,7 @@ class Compatibility(object):
         Process a sequence of entries with the chosen Compatibility scheme.
 
         Args:
-            entries - A sequence of entries.
+            entries: A sequence of entries.
 
         Returns:
             An list of adjusted entries.  Entries in the original list which
@@ -393,20 +386,18 @@ class MaterialsProjectCompatibility(Compatibility):
     MaterialsProject parameters (see pymatgen.io.vaspio_set.MPVaspInputSet).
     Using this compatibility scheme on runs with different parameters is not
     valid.
+
+    Args:
+        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+            entries are excluded.  Advanced means mixing scheme is
+            implemented to make entries compatible with each other,
+            but entries which are supposed to be done in GGA+U will have the
+            equivalent GGA entries excluded. For example, Fe oxides should
+            have a U value under the Advanced scheme. A GGA Fe oxide run
+            will therefore be excluded under the scheme.
     """
 
     def __init__(self, compat_type="Advanced"):
-        """
-        Args:
-            compat_type:
-                Two options, GGA or Advanced.  GGA means all GGA+U entries are
-                excluded.  Advanced means mixing scheme is implemented to make
-                entries compatible with each other, but entries which are
-                supposed to be done in GGA+U will have the equivalent GGA
-                entries excluded. For example, Fe oxides should have a U value
-                under the Advanced scheme. A GGA Fe oxide run will therefore be
-                excluded under the scheme.
-        """
         name = "MP"
         Compatibility.__init__(
             self, [PotcarCorrection(name), GasCorrection(name),
@@ -419,20 +410,18 @@ class MITCompatibility(Compatibility):
     entries. Note that this should only be used for VASP calculations using the
     MIT parameters (see pymatgen.io.vaspio_set MITVaspInputSet). Using
     this compatibility scheme on runs with different parameters is not valid.
+
+    Args:
+        compat_type: Two options, GGA or Advanced.  GGA means all GGA+U
+            entries are excluded.  Advanced means mixing scheme is
+            implemented to make entries compatible with each other,
+            but entries which are supposed to be done in GGA+U will have the
+            equivalent GGA entries excluded. For example, Fe oxides should
+            have a U value under the Advanced scheme. A GGA Fe oxide run
+            will therefore be excluded under the scheme.
     """
 
     def __init__(self, compat_type="Advanced"):
-        """
-        Args:
-            compat_type:
-                Two options, GGA or Advanced.  GGA means all GGA+U entries are
-                excluded.  Advanced means mixing scheme is implemented to make
-                entries compatible with each other, but entries which are
-                supposed to be done in GGA+U will have the equivalent GGA
-                entries excluded. For example, Fe oxides should have a U value
-                under the Advanced scheme. A GGA Fe oxide run will therefore be
-                excluded under the scheme.
-        """
         name = "MIT"
         Compatibility.__init__(
             self, [PotcarCorrection(name), GasCorrection(name),

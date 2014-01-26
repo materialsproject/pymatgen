@@ -45,11 +45,9 @@ class AbstractComparator(MSONable):
         and all oxidation state information are ignored.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -68,8 +66,7 @@ class AbstractComparator(MSONable):
         should be relatively fast to compute relative to the actual matching.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             A hashable object. Examples can be string formulas, etc.
@@ -103,11 +100,9 @@ class SpeciesComparator(AbstractComparator):
         True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -120,8 +115,7 @@ class SpeciesComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             Reduced formula for the structure is used as a hash for the
@@ -144,11 +138,9 @@ class SpinComparator(AbstractComparator):
         and vice versa.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -174,8 +166,7 @@ class SpinComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             Reduced formula for the structure is used as a hash for the
@@ -198,11 +189,9 @@ class ElementComparator(AbstractComparator):
         oxidation state is not considered.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -218,8 +207,7 @@ class ElementComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             Reduced formula for the structure is used as a hash for the
@@ -238,11 +226,9 @@ class FrameworkComparator(AbstractComparator):
         True if there are atoms on both sites.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -255,8 +241,7 @@ class FrameworkComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             Number of atoms is a good hash for simple framework matching.
@@ -275,11 +260,9 @@ class OrderDisorderElementComparator(AbstractComparator):
         True if there is some overlap in composition between the species
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -296,8 +279,7 @@ class OrderDisorderElementComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             TODO No good hash yet
@@ -349,56 +331,46 @@ class StructureMatcher(MSONable):
                     lattices for the smallest average rms displacement
                     between the two structures)
 
+    Args:
+        ltol (float): Fractional length tolerance. Default is 0.2.
+        stol (float): Site tolerance. Defined as the fraction of the
+            average free length per atom := ( V / Nsites ) ** (1/3)
+            Default is 0.3.
+        angle_tol (float): Angle tolerance in degrees. Default is 5 degrees.
+        primitive_cell (bool): If true: input structures will be reduced to
+            primitive cells prior to matching. Default to True.
+        scale (bool): Input structures are scaled to equivalent volume if
+           true; For exact matching, set to False.
+        attempt_supercell (bool): If set to True and number of sites in
+            cells differ after a primitive cell reduction (divisible by an
+            integer) attempts to generate a supercell transformation of the
+            smaller cell which is equivalent to the larger structure.
+        allow_subset (bool): Allow one structure to match to the subset of
+            another structure. Eg. Matching of an ordered structure onto a
+            disordered one, or matching a delithiated to a lithiated
+            structure. This option cannot be combined with
+            attempt_supercell, or with structure grouping.
+        comparator (Comparator): A comparator object implementing an equals
+            method that declares declaring equivalency of sites. Default is
+            SpeciesComparator, which implies rigid species
+            mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
+
+            Other comparators are provided, e.g., ElementComparator which
+            matches only the elements and not the species.
+
+            The reason why a comparator object is used instead of
+            supplying a comparison function is that it is not possible to
+            pickle a function, which makes it otherwise difficult to use
+            StructureMatcher with Python's multiprocessing.
+        supercell_size: Method to use for determining the size of a
+            supercell (if applicable). Possible values are num_sites,
+            num_atoms or volume.
     """
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
                  scale=True, attempt_supercell=False, allow_subset=False,
                  comparator=SpeciesComparator(), supercell_size='num_sites'):
-        """
-        Args:
-            ltol:
-                Fractional length tolerance. Default is 0.2.
-            stol:
-                Site tolerance. Defined as the fraction of the
-                average free length per atom := ( V / Nsites ) ** (1/3)
-                Default is 0.3.
-            angle_tol:
-                Angle tolerance in degrees. Default is 5 degrees.
-            primitive_cell:
-                If true: input structures will be reduced to primitive
-                cells prior to matching. Default to True.
-            scale:
-                Input structures are scaled to equivalent volume if true;
-                For exact matching, set to False.
-            attempt_supercell:
-                If set to True and number of sites in cells differ
-                after a primitive cell reduction (divisible by an integer)
-                attempts to generate a supercell transformation of the
-                smaller cell which is equivalent to the larger structure.
-            allow_subset:
-                Allow one structure to match to the subset of another
-                structure. Eg. Matching of an ordered structure onto a
-                disordered one, or matching a delithiated to a lithiated
-                structure. This option cannot be combined with
-                attempt_supercell, or with structure grouping.
-            comparator:
-                A comparator object implementing an equals method that declares
-                declaring equivalency of sites. Default is
-                SpeciesComparator, which implies rigid species
-                mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
 
-                Other comparators are provided, e.g., ElementComparator which
-                matches only the elements and not the species.
-
-                The reason why a comparator object is used instead of
-                supplying a comparison function is that it is not possible to
-                pickle a function, which makes it otherwise difficult to use
-                StructureMatcher with Python's multiprocessing.
-            supercell_size:
-                Method to use for determining the size of a supercell (if
-                applicable). Possible values are num_sites, num_atoms or
-                volume.
-        """
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
@@ -565,10 +537,8 @@ class StructureMatcher(MSONable):
         Fit two structures.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             True or False.
@@ -586,10 +556,8 @@ class StructureMatcher(MSONable):
         Calculate RMS displacement between two structures
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             rms displacement normalized by (Vol / nsites) ** (1/3)
@@ -611,18 +579,13 @@ class StructureMatcher(MSONable):
         on the average lattice
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
-            break_on_match:
-                If true, breaks once the max distance is below
-                the stol (RMS distance if use_rms is true)
-            use_rms:
-                If True, finds the match that minimizes
-                RMS instead of minimax
-            niggli:
-                whether to compute the niggli cells of the input
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
+            break_on_match (bool): If true, breaks once the max distance is
+                below the stol (RMS distance if use_rms is true)
+            use_rms (bool): If True, finds the match that minimizes
+                RMS instead of minimax.
+            niggli (bool): Whether to compute the niggli cells of the input
                 structures
 
         Returns:
@@ -742,8 +705,7 @@ class StructureMatcher(MSONable):
         them by structural equality.
 
         Args:
-            s_list:
-                List of structures to be grouped
+            s_list ([Structure]): List of structures to be grouped
 
         Returns:
             A list of lists of matched structures
@@ -798,10 +760,8 @@ class StructureMatcher(MSONable):
         structures are similar.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             (minimax_rms, min_mapping)
@@ -844,10 +804,8 @@ class StructureMatcher(MSONable):
         electronegativity between the matches species.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             min_mapping
@@ -895,10 +853,8 @@ class StructureMatcher(MSONable):
         substitutions that are within tolerance
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             (mappings)
@@ -936,10 +892,8 @@ class StructureMatcher(MSONable):
         structures are similar.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             A minimal species mapping that would map struct1 to struct2 in

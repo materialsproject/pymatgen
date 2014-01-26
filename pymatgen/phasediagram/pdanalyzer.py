@@ -47,9 +47,10 @@ class PDAnalyzer(object):
 
     def __init__(self, pd):
         """
+        Initializes analyzer with a PhaseDiagram.
+
         Args:
-            pd:
-                Phase Diagram to analyze.
+            pd: Phase Diagram to analyze.
         """
         self._pd = pd
 
@@ -66,10 +67,8 @@ class PDAnalyzer(object):
         Checks if a composition is in a facet.
 
         Args:
-            facet:
-                facet to test.
-            comp:
-                Composition to test.
+            facet: facet to test.
+            comp: Composition to test.
         """
         els = self._pd.elements
         dim = len(els)
@@ -102,8 +101,7 @@ class PDAnalyzer(object):
         Provides the decomposition at a particular composition
 
         Args:
-            comp:
-                A composition
+            comp: A composition
 
         Returns:
             Decomposition as a dict of {Entry: amount}
@@ -122,11 +120,9 @@ class PDAnalyzer(object):
         Provides the decomposition and energy above convex hull for an entry
 
         Args:
-            entry:
-                A PDEntry like object
-            allow_negative:
-                Whether to allow negative e_above_hulls. Used to calculate
-                equilibrium reaction energies. Default False.
+            entry: A PDEntry like object
+            allow_negative: Whether to allow negative e_above_hulls. Used to
+                calculate equilibrium reaction energies. Defaults to False.
 
         Returns:
             (decomp, energy above convex hull)  Stable entries should have
@@ -158,7 +154,7 @@ class PDAnalyzer(object):
         Provides the energy above convex hull for an entry
 
         Args:
-            entry - A PDEntry like object
+            entry: A PDEntry like object
 
         Returns:
             Energy above convex hull of entry. Stable entries should have
@@ -173,8 +169,7 @@ class PDAnalyzer(object):
         hull).
 
         Args:
-            entry:
-                A PDEntry like object
+            entry: A PDEntry like object
 
         Returns:
             Equilibrium reaction energy of entry. Stable entries should have
@@ -196,8 +191,7 @@ class PDAnalyzer(object):
         Calculates the chemical potentials for each element within a facet.
 
         Args:
-            facet:
-                Facet of the phase diagram.
+            facet: Facet of the phase diagram.
 
         Returns:
             { element: chempot } for all elements in the phase diagram.
@@ -225,8 +219,7 @@ class PDAnalyzer(object):
         Diagram.
 
         Args:
-            element:
-                An element. Has to be in the PD in the first place.
+            element: An element. Has to be in the PD in the first place.
 
         Returns:
             A sorted sequence of critical chemical potentials, from less
@@ -259,14 +252,11 @@ class PDAnalyzer(object):
         evolution by varying uO2.
 
         Args:
-            element:
-                An element. Must be in the phase diagram.
-            comp:
-                A Composition
-            comp_tol:
-                The tolerance to use when calculating decompositions. Phases
-                with amounts less than this tolerance are excluded. Defaults to
-                1e-5.
+            element: An element. Must be in the phase diagram.
+            comp: A Composition
+            comp_tol: The tolerance to use when calculating decompositions.
+                Phases with amounts less than this tolerance are excluded.
+                Defaults to 1e-5.
 
         Returns:
             Evolution data as a list of dictionaries of the following format:
@@ -322,10 +312,9 @@ class PDAnalyzer(object):
         Returns a chemical potential range map for each stable entry.
 
         Args:
-            elements:
-                Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges of all Li-Co-O
-                phases wrt to uLi and uO, you will supply
+            elements: Sequence of elements to be considered as independent
+                variables. E.g., if you want to show the stability ranges
+                of all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
 
         Returns:
@@ -371,14 +360,14 @@ class PDAnalyzer(object):
         (e.g., ABO3) for which you want to know what are the A and B chemical potential leading to the
         highest and lowest oxygen chemical potential (reducing and oxidizing conditions). This is useful
         for defect computations.
+
         Args:
-            target_comp:
-                A Composition object
-            open_elt:
-                the element that you want to constrain to be max or min
+            target_comp: A Composition object
+            open_elt: Element that you want to constrain to be max or min
+
         Returns:
-            a dictionary {Element:(mu_min,mu_max)}. The chemical potential are given in "absolute" values
-            (i.e., not referenced to 0)
+             {Element:(mu_min,mu_max)}: Chemical potentials are given in
+             "absolute" values (i.e., not referenced to 0)
         """
         muref = np.array([self._pd.el_refs[e].energy_per_atom for e in self._pd.elements if e != open_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self._pd.elements if e != open_elt])
@@ -410,51 +399,3 @@ class PDAnalyzer(object):
             res[elts[i]] = (min_mus[i]+muref[i], max_mus[i]+muref[i])
         res[open_elt] = (min_open, max_open)
         return res
-
-    def getmu_range_stability_phase(self, target_comp, open_elt):
-        """
-        returns a set of chemical potentials correspoding to the max and min chemical potential
-        of the open element for a given composition. It is quite common to have for instance a ternary oxide
-        (e.g., ABO3) for which you want to know what are the A and B chemical potential leading to the
-        highest and lowest oxygen chemical potential (reducing and oxidizing conditions). This is useful
-        for defect computations.
-        Args:
-            target_comp:
-                A Composition object
-            open_elt:
-                the element that you want to constrain to be max or min
-        Returns:
-            a dictionary {Element:(mu_min,mu_max)}. The chemical potential are given in "absolute" values
-            (i.e., not referenced to 0)
-        """
-        muref = np.array([self._pd.el_refs[e].energy_per_atom for e in self._pd.elements if e != open_elt])
-        chempot_ranges = self.get_chempot_range_map([e for e in self._pd.elements if e != open_elt])
-        for e in self._pd.elements:
-            if not e in target_comp._elmap.keys():
-                target_comp = target_comp+Composition({e: 0.0})
-        coeff = [-target_comp._elmap[e] for e in self._pd.elements if e != open_elt]
-        max_open = -100000000
-        min_open = 1000000000
-        max_mus = None
-        min_mus = None
-        for e in chempot_ranges.keys():
-            if e.composition.reduced_composition == target_comp.reduced_composition:
-                multiplicator = e.composition._elmap[open_elt]/target_comp._elmap[open_elt]
-                Ef = e.energy/multiplicator
-                all_coords=[]
-                for s in chempot_ranges[e]:
-                    for v in s._coords:
-                        all_coords.append(v)
-                        if (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt] > max_open:
-                            max_open = (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt]
-                            max_mus=v
-                        if (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt] < min_open:
-                            min_open=(np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt]
-                            min_mus=v
-        elts = [e for e in target_comp.elements if e != open_elt]
-        res = {}
-        for i in range(len(elts)):
-            res[elts[i]] = (min_mus[i]+muref[i], max_mus[i]+muref[i])
-        res[open_elt] = (min_open, max_open)
-        return res
-
