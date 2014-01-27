@@ -334,7 +334,7 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
                           inclvkb=inclvkb)
 
     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
-                             ppmodel=ppmodel)
+                             ppmodel=ppmodel, gw_qprange=1)
 
     scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
 
