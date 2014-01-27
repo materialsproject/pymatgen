@@ -86,8 +86,8 @@ class GulpIO:
             args:
                 1st line keywords
         """
-        if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
-            raise GulpError("Wrong keywords given")
+        #if len(list(filter(lambda x: x in _gulp_kw, args))) != len(args):
+        #    raise GulpError("Wrong keywords given")
         gin = " ".join(args)
         gin += "\n"
         return gin
