@@ -18,7 +18,7 @@ import numpy as np
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
-    smart_element_or_specie
+    get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.coord_utils import pbc_diff
 from pymatgen.core.composition import Composition
@@ -53,7 +53,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
                 {"magmom": 5}. Defaults to None.
         """
         if issubclass(atoms_n_occu.__class__, collections.Mapping):
-            self._species = Composition({smart_element_or_specie(k): v
+            self._species = Composition({get_el_sp(k): v
                                          for k, v in atoms_n_occu.items()})
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
@@ -61,7 +61,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             self._is_ordered = (totaloccu == 1 and len(self._species) == 1)
         else:
             self._species = Composition(
-                {smart_element_or_specie(atoms_n_occu): 1})
+                {get_el_sp(atoms_n_occu): 1})
             self._is_ordered = True
 
         self._coords = coords

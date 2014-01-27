@@ -5,9 +5,7 @@ import os.path
 
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
-from pymatgen.electronic_structure.core import Spin
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 
 
 __author__ = "Matteo Giantomassi"

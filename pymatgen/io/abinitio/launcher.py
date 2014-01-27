@@ -6,6 +6,8 @@ import time
 import collections
 import yaml
 import cStringIO as StringIO
+from monty.os.path import which
+from pymatgen.io.abinitio import myaml
 
 from datetime import timedelta
 from pymatgen.core.design_patterns import AttrDict
@@ -134,12 +136,12 @@ class OmpEnv(dict):
     ]
 
     def __init__(self, *args, **kwargs):
-        """ 
+        """
         Constructor method inherited from dictionary:
-                                                   
+
         >>> OmpEnv(OMP_NUM_THREADS=1)
         {'OMP_NUM_THREADS': '1'}
-                                                   
+
         To create an instance from an INI file, use:
            OmpEnv.from_file(filename)
         """
@@ -165,7 +167,7 @@ class OmpEnv(dict):
 
             obj = OmpEnv()
 
-            # Consistency check. Note that we only check if the option name is correct, 
+            # Consistency check. Note that we only check if the option name is correct,
             # we do not check whether the value is correct or not.
             if "openmp" not in parser.sections():
                 if not allow_empty:
@@ -221,7 +223,7 @@ class PyLauncher(object):
     def single_shot(self):
         """
         Run the first `Task` than is ready for execution.
-        
+
         Returns:
             Number of jobs launched.
         """
@@ -236,7 +238,7 @@ class PyLauncher(object):
                 if task is not None:
                     tasks.append(task)
                 else:
-                    # No task found, this usually happens when we have dependencies. 
+                    # No task found, this usually happens when we have dependencies.
                     # Beware of possible deadlocks here!
                     logger.debug("No task to run! Possible deadlock")
 
@@ -252,7 +254,7 @@ class PyLauncher(object):
 
         return num_launched
 
-    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None): # nlaunches=0, 
+    def rapidfire(self, max_nlaunch=-1, max_loops=1, sleep_time=None): # nlaunches=0,
         """
         Keeps submitting `Tasks` until we are out of jobs or no job is ready to run.
 
@@ -260,13 +262,13 @@ class PyLauncher(object):
             max_nlaunch:
                 Maximum number of launches. default: no limit.
 
-        nlaunches: 
+        nlaunches:
             0 means 'until completion', -1 or "infinite" means to loop forever
-        max_loops: 
+        max_loops:
             maximum number of loops
-        sleep_time: 
+        sleep_time:
             secs to sleep between rapidfire loop iterations
-        
+
         Returns:
             The number of tasks launched.
         """
@@ -322,19 +324,20 @@ class PyLauncher(object):
         tasks_to_run = []
 
         for work in self.flow:
-            try:
-                task = work.fetch_task_to_run()
+            tasks_to_run.extend(work.fetch_alltasks_to_run())
+            #try:
+            #    task = work.fetch_task_to_run()
 
-                if task is not None:
-                    tasks_to_run.append(task)
-                else:
-                    # No task found, this usually happens when we have dependencies. 
-                    # Beware of possible deadlocks here!
-                    logger.debug("fetch_task_to_run returned None.")
+            #    if task is not None:
+            #        tasks_to_run.append(task)
+            #    else:
+            #        # No task found, this usually happens when we have dependencies.
+            #        # Beware of possible deadlocks here!
+            #        logger.debug("fetch_task_to_run returned None.")
 
-            except StopIteration:
-                # All the tasks in work are done.
-                logger.debug("Out of tasks in work %s" % work)
+            #except StopIteration:
+            #    # All the tasks in work are done.
+            #    logger.debug("Out of tasks in work %s" % work)
 
         return tasks_to_run
 
@@ -352,17 +355,17 @@ def boxed(msg, ch="=", pad=5):
 class PyFlowScheduler(object):
     """
     This object schedules the submission of the tasks in an `AbinitFlow`.
-    There are two types of errors that might occur during the execution of the jobs: 
-    
-        #. Python exceptions 
+    There are two types of errors that might occur during the execution of the jobs:
+
+        #. Python exceptions
         #. Abinit Errors.
-    
+
     Python exceptions are easy to detect and are usually due to a bug in abinitio or random errors such as IOError.
     The set of Abinit Errors is much much broader. It includes wrong input data, segmentation
     faults, problems with the resource manager, etc. Abinitio tries to handle the most common cases
-    but there's still a lot of room for improvement. 
-    Note, in particular, that `PyFlowScheduler` will shutdown automatically if 
-    
+    but there's still a lot of room for improvement.
+    Note, in particular, that `PyFlowScheduler` will shutdown automatically if
+
         #. The number of python exceptions is > MAX_NUM_PYEXC
 
         #. The number of Abinit Errors (i.e. the number of tasks whose status is S_ERROR) is > MAX_NUM_ERRORS
@@ -370,7 +373,7 @@ class PyFlowScheduler(object):
         #. The number of jobs launched becomes greater than (SAFETY_RATIO * total_number_of_tasks).
 
         #. The scheduler will send an email to the user (specified by mailto) every REMINDME_S seconds.
-           If the mail cannot be sent, it will shutdown automatically. 
+           If the mail cannot be sent, it will shutdown automatically.
            This check prevents the scheduler from being trapped in an infinite loop.
     """
     # Configuration file.
@@ -427,14 +430,14 @@ class PyFlowScheduler(object):
         # Used to keep track of the exceptions raised while the scheduler is running
         self.exceptions = collections.deque(maxlen=self.MAX_NUM_PYEXCS + 10)
 
-        # Used to push additional info during the execution. 
+        # Used to push additional info during the execution.
         self.history = collections.deque(maxlen=100)
 
     @classmethod
     def from_file(cls, filepath):
         """Read the configuration parameters from a Yaml file."""
         with open(filepath, "r") as fh:
-            d = yaml.load(fh)
+            d = myaml.load(fh)
             return cls(**d)
 
     @classmethod
@@ -488,7 +491,7 @@ class PyFlowScheduler(object):
     @property
     def pid_file(self):
         """
-        Absolute path of the file with the pid. 
+        Absolute path of the file with the pid.
         The file is located in the workdir of the flow
         """
         return self._pid_file
@@ -548,7 +551,7 @@ class PyFlowScheduler(object):
 
         self.sched.add_interval_job(self.callback, **self.sched_options)
 
-        # Try to run the job immediately. If something goes wrong 
+        # Try to run the job immediately. If something goes wrong
         # return without initializing the scheduler.
         retcode = self._runem_all()
 
@@ -570,6 +573,10 @@ class PyFlowScheduler(object):
         # Try to restart the unconverged tasks
         for task in self.flow.unconverged_tasks:
             try:
+                msg = "AbinitFlow will try restart task %s" % task
+                print(msg)
+                logger.info(msg)
+
                 fired = task.restart()
                 if fired: self.nlaunch += 1
 
@@ -577,21 +584,6 @@ class PyFlowScheduler(object):
                 excs.append(straceback())
 
         flow.pickle_dump()
-
-        # Test whether some task should be restarted.
-        #if self.auto_restart:
-        #    num_restarts = 0
-        #    for task, wt in self.iflat_tasks(status=Task.S_UNCONVERGED):
-        #        msg = "AbinitFlow will try restart task %s" % task
-        #        print(msg)
-        #        logger.info(msg)
-        #        retcode = task.restart_if_needed()
-        #        if retcode == 0: 
-        #            num_restarts += 1
-        #                                                                 
-        #    if num_restarts:
-        #        print("num_restarts done successfully: ", num_restarts)
-        #        self.pickle_dump()
 
         #if self.num_restarts == self.max_num_restarts:
         #    info_msg = "Reached maximum number of restarts. Cannot restart anymore Returning"
@@ -662,8 +654,8 @@ class PyFlowScheduler(object):
             self.num_excs, self.MAX_NUM_PYEXCS)
             err_msg += boxed(msg)
 
-        # Paranoid check: disable the scheduler if we have submitted 
-        # too many jobs (it might be due to some bug or other external reasons such as race conditions betwee difference callbacks.!) 
+        # Paranoid check: disable the scheduler if we have submitted
+        # too many jobs (it might be due to some bug or other external reasons such as race conditions betwee difference callbacks.!)
         if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
             self.nlaunch, self.flow.num_tasks)
@@ -678,14 +670,14 @@ class PyFlowScheduler(object):
         # Count the number of tasks with status == S_UNCONVERGED.
         #if self.flow.num_unconverged_tasks:
         #    # TODO: this is needed to avoid deadlocks, automatic restarting is not available yet
-        #    msg = ("Found %d unconverged tasks." 
-        #           "Automatic restarting is not available yet. Will shutdown the scheduler and exit" 
+        #    msg = ("Found %d unconverged tasks."
+        #           "Automatic restarting is not available yet. Will shutdown the scheduler and exit"
         #           % self.flow.num_unconverged_tasks)
         #    err_msg += boxed(msg)
 
         #deadlocks = self.detect_deadlocks()
         #if deadlocks:
-        #    msg = ("Detected deadlocks in flow. Will shutdown the scheduler and exit" 
+        #    msg = ("Detected deadlocks in flow. Will shutdown the scheduler and exit"
         #           % self.flow.num_unconverged_tasks)
         #    err_msg += boxed(msg)
 
@@ -774,7 +766,7 @@ class PyFlowScheduler(object):
 
 def sendmail(subject, text, mailto, sender=None):
     """
-    Sends an e-mail either with unix sendmail. 
+    Sends an e-mail either with unix sendmail.
 
     Args:
         subject:
@@ -786,6 +778,9 @@ def sendmail(subject, text, mailto, sender=None):
         sender:
             string with the sender address.
             If sender is None, username@hostname is used.
+
+    Returns:
+        exit status
     """
     def user_at_host():
         from socket import gethostname
@@ -808,8 +803,9 @@ def sendmail(subject, text, mailto, sender=None):
     # Note that sendmail is available only on Unix-like OS.
     from subprocess import Popen, PIPE
 
-    SENDMAIL = "/usr/sbin/sendmail"
-    p = Popen([SENDMAIL, "-t"], stdin=PIPE, stderr=PIPE)
+    sendmail = which("sendmail")
+    if sendmail is None: return -1
+    p = Popen([sendmail, "-t"], stdin=PIPE, stderr=PIPE)
 
     outdata, errdata = p.communicate(msg)
     return len(errdata)

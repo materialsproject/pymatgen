@@ -6,8 +6,7 @@ import sys
 from pymatgen.analysis.defects.point_defects import *
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
-from pymatgen.io.cssrio import Cssr
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 
 try:
     import zeo
@@ -66,7 +65,7 @@ class VacancyTest(unittest.TestCase):
 
     def test_enumerate_defectsites(self):
         """
-        The vacancy sites should be the lattice sites. 
+        The vacancy sites should be the lattice sites.
         And there should be only two unique vacancy sites for MgO.
         """
         uniq_sites = []

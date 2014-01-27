@@ -22,10 +22,9 @@ import shutil
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
 from pymatgen.core.structure import Structure, Molecule
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.io_utils import zopen
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 
 try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
@@ -35,31 +34,28 @@ except ImportError:
     zeo_found = False
 
 
-
 class ZeoCssr(Cssr):
     """
-    ZeoCssr adds extra fields to CSSR sites to conform with Zeo++ 
-    input CSSR format. The coordinate system is rorated from xyz to zyx. 
-    This change aligns the pivot axis of pymatgen (z-axis) to pivot axis 
+    ZeoCssr adds extra fields to CSSR sites to conform with Zeo++
+    input CSSR format. The coordinate system is rorated from xyz to zyx.
+    This change aligns the pivot axis of pymatgen (z-axis) to pivot axis
     of Zeo++ (x-axis) for structurural modifications.
+
+    Args:
+        structure: A structure to create ZeoCssr object
     """
 
     @requires(zeo_found,
               "ZeoCssr requires Zeo++ cython extension to be installed. Please "
               "contact developers of Zeo++ to obtain it.")
     def __init__(self, structure):
-        """
-        Args:
-            structure:
-                A structure to create ZeoCssr object
-        """
         super(ZeoCssr, self).__init__(structure)
 
     def __str__(self):
         """
         CSSR.__str__ method is modified to padd 0's to the CSSR site data.
         The padding is to conform with the CSSR format supported Zeo++.
-        The oxidation state is stripped from site.specie 
+        The oxidation state is stripped from site.specie
         Also coordinate system is rotated from xyz to zxy
         """
         output = [
@@ -95,12 +91,11 @@ class ZeoCssr(Cssr):
 
     @staticmethod
     def from_string(string):
-        """ 
+        """
         Reads a string representation to a ZeoCssr object.
 
         Args:
-            string:
-                A string representation of a ZeoCSSR.
+            string: A string representation of a ZeoCSSR.
 
         Returns:
             ZeoCssr object.
@@ -136,11 +131,10 @@ class ZeoCssr(Cssr):
     def from_file(filename):
         """
         Reads a CSSR file to a ZeoCssr object.
-        
+
         Args:
-            filename:
-                Filename to read from.
-        
+            filename: Filename to read from.
+
         Returns:
             ZeoCssr object.
         """
@@ -153,14 +147,12 @@ class ZeoVoronoiXYZ(XYZ):
     Class to read Voronoi Nodes from XYZ file written by Zeo++.
     The sites have an additional column representing the voronoi node radius.
     The voronoi node radius is represented by the site property voronoi_radius.
+
+    Args:
+        mol: Input molecule holding the voronoi node information
     """
 
     def __init__(self, mol):
-        """
-        Args:
-            mol:
-                Input molecule holding the voronoi node information
-        """
         super(ZeoVoronoiXYZ, self).__init__(mol)
 
     @staticmethod
@@ -170,8 +162,7 @@ class ZeoVoronoiXYZ(XYZ):
         from_string method of XYZ class is being redefined.
 
         Args:
-            contents:
-                String representing Zeo++ Voronoi XYZ file.
+            contents: String representing Zeo++ Voronoi XYZ file.
 
         Returns:
             ZeoVoronoiXYZ object
@@ -203,8 +194,7 @@ class ZeoVoronoiXYZ(XYZ):
         Creates XYZ object from a file.
 
         Args:
-            filename:
-                XYZ filename
+            filename: XYZ filename
 
         Returns:
             XYZ object
@@ -232,19 +222,17 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     Calls Zeo++ for Voronoi decomposition
 
     Args:
-        structure:
-            pymatgen.core.structure.Structure
-        rad_dict (optional):
-            Dictionary of radii of elements in structure. 
+        structure: pymatgen.core.structure.Structure
+        rad_dict (optional): Dictionary of radii of elements in structure.
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
             For ionic structures, pass rad_dict with ionic radii
-        probe_rad (optional):
-            Sampling probe radius in Angstroms. Default is 0.1 A
+        probe_rad (optional): Sampling probe radius in Angstroms. Default is
+            0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Strucutre within the 
-        unit cell defined by the lattice of input structure 
+        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
     """
 
     temp_dir = tempfile.mkdtemp()
@@ -298,18 +286,14 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
     Useful to compute the volume and surface area of vacant site.
 
     Args:
-        structure:
-            pymatgen Structure containing vacancy
-        rad_dict(optional):
-            Dictionary with short name of elements and their radii.
-        chan_rad(optional):
-            Minimum channel Radius. 
-        probe_rad(optional)
-            Probe radius for Monte Carlo sampling.
+        structure: pymatgen Structure containing vacancy
+        rad_dict(optional): Dictionary with short name of elements and their
+            radii.
+        chan_rad(optional): Minimum channel Radius.
+        probe_rad(optional): Probe radius for Monte Carlo sampling.
 
     Returns:
-        volume:
-            floating number representing the volume of void
+        volume: floating number representing the volume of void
     """
     temp_dir = tempfile.mkdtemp()
     current_dir = os.getcwd()

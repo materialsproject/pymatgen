@@ -30,14 +30,14 @@ from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import Element, Specie, \
-    smart_element_or_specie
+    get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
     pbc_all_distances
-from pymatgen.util.decorators import singleton
+from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 
 
@@ -408,8 +408,7 @@ class IStructure(SiteCollection, MSONable):
         Returns the vectors of the unit cell in Angstrom.
 
         Args:
-            space:
-                "r" for real space vectors, "g" for reciprocal space basis
+            space: "r" for real space vectors, "g" for reciprocal space basis
                 vectors.
         """
         if space.lower() == "r":
@@ -469,13 +468,9 @@ class IStructure(SiteCollection, MSONable):
         atom and the specified jimage atom.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
-            jimage:
-                Number of lattice translations in each lattice direction.
-
+            i (int): Index of first site
+            j (int): Index of second site
+            jimage: Number of lattice translations in each lattice direction.
                 Default is None for nearest image.
 
         Returns:
@@ -501,12 +496,9 @@ class IStructure(SiteCollection, MSONable):
         2. keep points falling within r.
 
         Args:
-            pt:
-                cartesian coordinates of center of sphere.
-            r:
-                radius of sphere.
-            include_index:
-                boolean that determines whether the non-supercell site index
+            pt (3x1 array): cartesian coordinates of center of sphere.
+            r (float): Radius of sphere.
+            include_index (bool): Whether the non-supercell site index
                 is included in the returned data
 
         Returns:
@@ -969,8 +961,8 @@ class IStructure(SiteCollection, MSONable):
             frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
-       Returns:
-           one-dimensional `numpy` array.
+        Returns:
+            one-dimensional `numpy` array.
         """
         lattice = {"r": self.lattice,
                    "g": self.reciprocal_lattice}[space.lower()]
@@ -983,7 +975,7 @@ class IStructure(SiteCollection, MSONable):
         Args:
             coords (3x1 array): Array-like object with the coordinates.
             space (str): "r" for real space, "g" for reciprocal space.
-            frac_coords (bool) Whether the vector corresponds to fractional or
+            frac_coords (bool): Whether the vector corresponds to fractional or
                 cartesian coordinates.
 
         Returns:
@@ -1562,7 +1554,7 @@ class Structure(IStructure):
                 Element('C'):0.25} } will have .375 Ge and .125 C.
         """
         latt = self._lattice
-        species_mapping = {smart_element_or_specie(k): v
+        species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
 
         def mod_site(site):
@@ -1571,10 +1563,10 @@ class Structure(IStructure):
                 if sp in species_mapping:
                     if isinstance(species_mapping[sp], collections.Mapping):
                         for new_sp, new_amt in species_mapping[sp].items():
-                            new_atom_occu[smart_element_or_specie(new_sp)] \
+                            new_atom_occu[get_el_sp(new_sp)] \
                                 += amt * new_amt
                     else:
-                        new_atom_occu[smart_element_or_specie(
+                        new_atom_occu[get_el_sp(
                             species_mapping[sp])] += amt
                 else:
                     new_atom_occu[sp] += amt
@@ -1604,7 +1596,7 @@ class Structure(IStructure):
             species: Sequence of species to remove, e.g., ["Li", "Na"].
         """
         new_sites = []
-        species = map(smart_element_or_specie, species)
+        species = map(get_el_sp, species)
 
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
@@ -2013,7 +2005,7 @@ class Molecule(IMolecule):
                 passed the mapping {Element('Si): {Element('Ge'):0.75,
                 Element('C'):0.25} } will have .375 Ge and .125 C.
         """
-        species_mapping = {smart_element_or_specie(k): v
+        species_mapping = {get_el_sp(k): v
                            for k, v in species_mapping.items()}
 
         def mod_site(site):
@@ -2061,7 +2053,7 @@ class Molecule(IMolecule):
             species: Species to remove.
         """
         new_sites = []
-        species = map(smart_element_or_specie, species)
+        species = map(get_el_sp, species)
         for site in self._sites:
             new_sp_occu = {sp: amt for sp, amt in site.species_and_occu.items()
                            if sp not in species}

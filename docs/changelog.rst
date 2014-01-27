@@ -1,6 +1,24 @@
 Change log
 ==========
 
+v2.8.10
+-------
+1. Refactoring of qchemio module (by Xiaohui Qu).
+
+v2.8.9
+------
+1. qchemio module (by Xiaohui Qu).
+
+v2.8.8
+------
+1. Minor bug fix release for Structure species substitution methods.
+
+v2.8.7
+------
+1. Massive update to pymatgen.io.abinitio package (by Matteo Giantomassi).
+2. Bug fixes for StructureMatcher's group_structure.
+3. Misc bug fixes and cleanup.
+
 v2.8.6
 ------
 1. Bug fix for VASP io set introduced by the default to sorting of structure

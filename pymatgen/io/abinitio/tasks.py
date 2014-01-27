@@ -12,6 +12,7 @@ import warnings
 import copy
 import yaml
 import numpy as np
+from pymatgen.io.abinitio import myaml
 
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
@@ -206,7 +207,7 @@ class ParalHintsParser(object):
             #    fh.write(doc.text)
 
             try:
-                d = yaml.load(doc.text_notag)
+                d = myaml.load(doc.text_notag)
                 return ParalHints(info=d["info"], confs=d["configurations"])
 
             except:
@@ -426,7 +427,7 @@ class TaskManager(object):
     def from_file(cls, filename):
         """Read the configuration parameters from a Yaml file."""
         with open(filename, "r") as fh:
-            return cls.from_dict(yaml.load(fh))
+            return cls.from_dict(myaml.load(fh))
 
     @classmethod
     def from_user_config(cls):
@@ -445,8 +446,7 @@ class TaskManager(object):
             return cls.from_file(path)
 
         # Try in the configuration directory.
-        home = os.getenv("HOME")
-        dirpath = os.path.join(home, ".abinit", "abipy")
+        dirpath = os.path.join(os.getenv("HOME"), ".abinit", "abipy")
         path = os.path.join(dirpath, cls.YAML_FILE)
 
         if os.path.exists(path):
@@ -671,6 +671,19 @@ class Product(object):
         self.ext = ext
         self.file = File(path)
 
+    @classmethod
+    def from_file(cls, filepath):
+        """Build a `Product` instance from a filepath."""
+        # Find the abinit extension.
+        for i in range(len(filepath)):
+            if filepath[i:] in abi_extensions():
+                ext = filepath[i:]
+                break
+        else:
+            raise ValueError("Cannot detect abinit extension in %s" % filepath)
+        
+        return cls(ext, filepath)
+
     def __str__(self):
         return "File=%s, Extension=%s, " % (self.file.path, self.ext)
 
@@ -726,6 +739,10 @@ class Dependency(object):
 
     def __str__(self):
         return "Node %s will produce: %s " % (str(self.node), str(self.exts))
+
+    @property
+    def info(self):
+        return str(self.node)
 
     @property
     def node(self):
@@ -788,7 +805,17 @@ class Status(int):
         return "<%s: %s, at %s>" % (self.__class__.__name__, str(self), id(self))
 
     def __str__(self):
+        """String representation."""
         return STATUS2STR[self]
+
+    @classmethod
+    def from_string(cls, s):
+        """Return a `Status` instance from its string representation."""
+        for num, text in STATUS2STR.items():
+            if text == s:
+                return cls(num)
+        else:
+            raise ValueError("Wrong string %s" % s)
 
 
 class Node(object):
@@ -812,12 +839,27 @@ class Node(object):
     S_UNCONVERGED = Status(8)
     S_OK = Status(9)
 
+    ALL_STATUS = [
+        S_INIT,
+        S_LOCKED,
+        S_READY,
+        S_SUB,
+        S_RUN,
+        S_DONE,
+        S_ERROR,
+        S_UNCONVERGED,
+        S_OK,
+    ]
+
     def __init__(self):
         # Node identifier.
         self._node_id = get_newnode_id()
 
         # List of dependencies
         self._deps = []
+
+        # List of files (products) needed by this node.
+        self._required_files = []
 
         # Used to push additional info during the execution. 
         self.history = collections.deque(maxlen=100)
@@ -885,7 +927,7 @@ class Node(object):
         return self._finalized
 
     @finalized.setter
-    def finalize(self, boolean):
+    def finalized(self, boolean):
         self._finalized = boolean
         self.history.append("Finalized on %s" % time.asctime())
 
@@ -975,9 +1017,33 @@ class Node(object):
 
         app("Dependencies of node %s:" % str(self))
         for i, dep in enumerate(self.deps):
-            app("%d) %s, status=%s" % (i, str(dep.node), str(dep.status)))
+            app("%d) %s, status=%s" % (i, dep.info, str(dep.status)))
 
         return "\n".join(lines)
+
+    @property
+    def required_files(self):
+        """
+        List of `Product` objects with info on the files needed by the `Node`.
+        """
+        return self._required_files
+
+    def add_required_files(self, files):
+        """
+        Add a list of path to the list of files required by the `Node`.
+
+        Args:
+            files:
+                string or list of strings with the path of the files
+        """
+        # We want a list of absolute paths.
+        files = map(os.path.abspath, list_strings(files))
+
+        # Convert to list of products.
+        files = [Product.from_file(path) for path in files]
+
+        # Add the dependencies to the node.
+        self._required_files.extend(files)
 
     #@abc.abstractmethod
     #def set_status(self, status):
@@ -994,48 +1060,6 @@ class Node(object):
     #@abc.abstractmethod
     #def connect_signals():
     #    """Connect the signals."""
-
-
-class FakeDirectory(Directory):
-
-    def __init__(self, dirname, filepath):
-        Directory.__init__(self, dirname)
-        self.filepath = filepath
-
-    def has_abiext(self, ext):
-        """Redefine has_abiext so that we only check self.filepath."""
-        if self.filepath.endswith(ext) or self.filepath.endswith(ext + ".nc"):
-            return self.filepath
-        return ""
-
-
-class FileNode(Node):
-    """
-    A node of the calculation consisting of an already existing file
-    """
-    def __init__(self, filepath):
-        super(FileNode, self).__init__()
-
-        self.filepath = os.path.abspath(filepath)
-        if not os.path.exists(self.filepath):
-            err_msg = "File %s \n must exist when the FileNode is initialized" % self.filepath
-            raise ValueError(err_msg)
-
-        self.workdir = os.path.dirname(self.filepath)
-        self.set_node_id(self.filepath)
-        self._finalized = True
-        self.status = self.S_OK
-
-        # FIXME: Find a better aproach for this
-        self.outdir = FakeDirectory(self.workdir, self.filepath)
-
-    def opath_from_ext(self, ext):
-        """
-        Returns the path of the output file with extension ext.
-        Use it when the file does not exist yet.
-        """
-        return self.filepath
-        #return os.path.join(self.workdir, self.prefix.odata + "_" + ext)
 
 
 class TaskError(Exception):
@@ -1063,7 +1087,7 @@ class Task(Node):
     prefix = Prefix(pj("indata", "in"), pj("outdata", "out"), pj("tmpdata", "tmp"))
     del Prefix, pj
 
-    def __init__(self, strategy, workdir=None, manager=None, deps=None):
+    def __init__(self, strategy, workdir=None, manager=None, deps=None, required_files=None):
         """
         Args:
             strategy: 
@@ -1075,6 +1099,8 @@ class Task(Node):
             deps:
                 Dictionary specifying the dependency of this node.
                 None means that this obj has no dependency.
+            required_files:
+                List of strings with the path of the files used by the task.
         """
         # Init the node
         super(Task, self).__init__()
@@ -1088,15 +1114,15 @@ class Task(Node):
             self.set_workdir(workdir)
                                                                
         if manager is not None:
-            print("setting manager")
             self.set_manager(manager)
-        #else:
-        #    self.set_manager(TaskManager.sequential())
 
         # Handle possible dependencies.
         if deps:
             deps = [Dependency(node, exts) for (node, exts) in deps.items()]
             self.add_deps(deps)
+
+        if required_files:
+            self.add_required_files(required_files)
 
         # Set the initial status.
         self.set_status(self.S_INIT)
@@ -1221,18 +1247,14 @@ class Task(Node):
         """
         Cancel the job. Returns 1 if job was cancelled.
         """
-        queue_id = self.queue_id
-        if queue_id is None: return 0 
+        if self.queue_id is None: return 0 
         if self.status >= self.S_DONE: return 0 
 
-        exit_status = self.manager.qadapter.cancel(queue_id)
-
-        if exit_status != 0:
-            return 0
+        exit_status = self.manager.qadapter.cancel(self.queue_id)
+        if exit_status != 0: return 0
 
         # Remove output files and reset the status.
         self.reset()
-
         return 1
 
     def _on_done(self):
@@ -1364,8 +1386,7 @@ class Task(Node):
             0 on success, 1 if reset failed.
         """
         # Can only reset tasks that are done.
-        if self.status < self.S_DONE:
-            return 1
+        if self.status < self.S_DONE: return 1
 
         self.set_status(self.S_INIT, info_msg="Reset on %s" % time.asctime())
         self.set_queue_id(None)
@@ -1421,6 +1442,13 @@ class Task(Node):
 
     def set_status(self, status, info_msg=None):
         """Set the status of the task."""
+        # Accepts strings as well.
+        if not isinstance(status, Status):
+            try:
+                status = getattr(Node, status)
+            except AttributeError:
+                status = Status.from_string(status)
+
         assert status in STATUS2STR
 
         changed = True
@@ -1597,18 +1625,15 @@ class Task(Node):
         """
         for dep in self.deps:
             filepaths, exts = dep.get_filepaths_and_exts()
-            #print(filepaths, exts)
 
             for (path, ext) in zip(filepaths, exts):
-                logger.info("need path %s with ext %s" % (path, ext))
+                logger.info("Need path %s with ext %s" % (path, ext))
                 dest = self.ipath_from_ext(ext)
 
                 if not os.path.exists(path): 
-                    # Try netcdf file.
-                    # TODO: this case should be treated in a cleaner way.
+                    # Try netcdf file. TODO: this case should be treated in a cleaner way.
                     path += "-etsf.nc"
-                    if os.path.exists(path):
-                        dest += "-etsf.nc"
+                    if os.path.exists(path): dest += "-etsf.nc"
 
                 if not os.path.exists(path):
                     err_msg = "%s: %s is needed by this task but it does not exist" % (self, path)
@@ -1624,6 +1649,20 @@ class Task(Node):
                 else:
                     if os.path.realpath(dest) != path:
                         raise self.Error("dest %s does not point to path %s" % (dest, path))
+
+        for f in self.required_files:
+            path, dest = f.filepath, self.ipath_from_ext(f.ext)
+      
+            # Link path to dest if dest link does not exist.
+            # else check that it points to the expected file.
+            print("Linking path %s --> %s" % (path, dest))
+                                                                                         
+            if not os.path.exists(dest):
+                os.symlink(path, dest)
+            else:
+                if os.path.realpath(dest) != path:
+                    raise self.Error("dest %s does not point to path %s" % (dest, path))
+
 
     @abc.abstractmethod
     def setup(self):
@@ -1832,6 +1871,13 @@ class Task(Node):
             logger.debug("Adding connecting vars %s " % vars)
             self.strategy.add_extra_abivars(vars)
 
+        # Add the variables needed to read the required files
+        for f in self.required_files:
+            #raise NotImplementedError("")
+            vars = irdvars_for_ext("DEN")
+            print("Adding connecting vars %s " % vars)
+            self.strategy.add_extra_abivars(vars)
+
         # Automatic parallelization
         if hasattr(self, "autoparal_fake_run"):
             try:
@@ -1998,12 +2044,12 @@ class AbinitTask(Task):
         # Remove the variables added for the automatic parallelization
         self.strategy.remove_extra_abivars(autoparal_vars.keys())
 
-        # 2) Parse the autoparal configurations
+        # 2) Parse the autoparal configurations from the main output file.
         #print("parsing")
         parser = ParalHintsParser()
 
         try:
-            confs = parser.parse(self.log_file.path)
+            confs = parser.parse(self.output_file.path)
             #print("confs", confs)
             #self.all_autoparal_confs = confs 
 
@@ -2333,7 +2379,7 @@ class HaydockBseTask(BseTask):
                     count += 1
 
             if not count:
-                raise TaskRestartError("Cannot find BSR|BSC files in %s" % sekf.indir)
+                raise TaskRestartError("Cannot find BSR|BSC files in %s" % self.indir)
 
         # Rename HAYDR_SAVE files
         count = 0
@@ -2568,5 +2614,3 @@ class AnaddbTask(Task):
         Anaddb allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
-
-

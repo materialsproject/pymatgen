@@ -30,8 +30,8 @@ import shutil
 
 from pymatgen.io.vaspio.vasp_output import Chgcar
 from pymatgen.io.vaspio.vasp_input import Potcar
-from pymatgen.util.io_utils import which
-from pymatgen.util.decorators import requires
+from monty.os.path import which
+from monty.dev import requires
 
 
 @requires(which("bader"),
