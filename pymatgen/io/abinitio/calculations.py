@@ -310,8 +310,8 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
         extra_abivars["istwfk"] = "*1"
 
     if gamma:
-        scf_ksampling = KSampling.automatic_gamma_density(structure, scf_kppa, chksymbreak=0)
-        nscf_ksampling = KSampling.automatic_gamma_density(structure, scf_kppa, chksymbreak=0)
+        scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
     else:
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)

@@ -31,6 +31,7 @@ from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.serializers.json_coders import MSONable
+from pymatgen.io.abinitio.pseudos import PseudoTable
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -499,6 +500,14 @@ class SingleAbinitGWWorkFlow():
         self.structure = structure
         self.spec = spec
         self.work_dir = self.structure.composition.reduced_formula
+        abi_pseudo = '.GGA_PBE-JTH-paw.xml'
+        abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
+        pseudos = []
+        for element in self.structure.composition.element_composition:
+            pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
+            print pseudo, element
+            pseudos.append(pseudo)
+        self.pseudo_table = PseudoTable(pseudos)
 
     @classmethod
     def get_defaults_tests(cls):
@@ -508,13 +517,15 @@ class SingleAbinitGWWorkFlow():
         """
         Method for retrieving the number of valence electrons
         """
+        electrons = 0
+
+        for element in structure.species:
+            entries = self.pseudo_table.pseudos_with_symbol(element.symbol)
+            assert len(entries) == 1
+            pseudo = entries[0]
+            electrons += pseudo.Z_val
+        return electrons
         # todo still copy from vasp
-        valence_list = {}
-        potcar = self.get_potcar(structure)
-        for pot_single in potcar:
-            valence_list.update({pot_single.element: pot_single.nelectrons})
-        electrons = sum([valence_list[element.symbol] for element in structure.species])
-        return int(electrons)
 
     def get_bands(self, structure):
         """
@@ -529,14 +540,6 @@ class SingleAbinitGWWorkFlow():
         """
         manager = 'slurm' if 'ceci' in self.spec['mode'] else 'shell'
         print manager
-
-        abi_pseudo = '.GGA_PBE-JTH-paw.xml'
-        abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
-        pseudos = []
-        for element in self.structure.composition.element_composition:
-            pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
-            print pseudo
-            pseudos.append(pseudo)
 
         abi_structure = asabistructure(self.structure)
         manager = TaskManager.from_user_config()
@@ -568,10 +571,12 @@ class SingleAbinitGWWorkFlow():
             ecut=ecut,
             istwfk="*1",
             timopt=-1,
-            pawecutdg=ecut*2
+            pawecutdg=ecut*2,
+            paral_kgb=0,
+            nbdbuf=8
         )
 
-        work = g0w0_with_ppmodel_extended(abi_structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
+        work = g0w0_with_ppmodel_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                                           accuracy="normal", spin_mode="unpolarized", smearing=None, ppmodel="godby",
                                           charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
                                           **extra_abivars)
