@@ -29,27 +29,21 @@ class Kpoint(MSONable):
     Class to store kpoint objects. A kpoint is defined with a lattice and frac
     or cartesian coordinates syntax similar than the site object in
     pymatgen.core.structure.
+
+    Args:
+        coords: coordinate of the kpoint as a numpy array
+        lattice: A pymatgen.core.lattice.Lattice lattice object representing
+            the reciprocal lattice of the kpoint
+        to_unit_cell: Translates fractional coordinate to the basic unit
+            cell, i.e., all fractional coordinates satisfy 0 <= a < 1.
+            Defaults to False.
+        coords_are_cartesian: Boolean indicating if the coordinates given are
+            in cartesian or fractional coordinates (by default fractional)
+        label: the label of the kpoint if any (None by default)
     """
 
     def __init__(self, coords, lattice, to_unit_cell=False,
                  coords_are_cartesian=False, label=None):
-        """
-        Args:
-            coords:
-                coordinate of the kpoint as a numpy array
-            lattice:
-                a pymatgen.core.lattice.Lattice lattice object representing the
-                reciprocal lattice of the kpoint
-            to_unit_cell:
-                translates fractional coordinate to the basic unit cell, i.e.
-                all fractional coordinates satisfy 0 <= a < 1.
-                Defaults to False.
-            coords_are_cartesian:
-                Boolean indicating if the coordinates given are in cartesian or
-                fractional coordinates (by default fractional)
-            label:
-                the label of the kpoint if any (None by default)
-        """
         self._lattice = lattice
         self._fcoords = lattice.get_fractional_coords(coords) \
             if coords_are_cartesian else coords
@@ -134,54 +128,42 @@ class BandStructure(object):
     """
     This is the most generic band structure data possible
     it's defined by a list of kpoints + energies for each of them
+
+    Args:
+        kpoints: list of kpoint as numpy arrays, in frac_coords of the
+            given lattice by default
+        eigenvals: dict of energies for spin up and spin down
+            {Spin.up:[][],Spin.down:[][]}, the first index of the array
+            [][] refers to the band and the second to the index of the
+            kpoint. The kpoints are ordered according to the order of the
+            kpoints array. If the band structure is not spin polarized, we
+            only store one data set under Spin.up
+        lattice: The reciprocal lattice as a pymatgen Lattice object.
+        label_dict: (dict) of {} this link a kpoint (in frac coords or
+            cartesian coordinates depending on the coords).
+        coords_are_cartesian: Whether coordinates are cartesian.
+        efermi: fermi energy
+        labels_dict: (dict) of {} this links a kpoint (in frac coords or
+            cartesian coordinates depending on the coords) to a label.
+        coords_are_cartesian: Whether coordinates are cartesian.
+        structure: The crystal structure (as a pymatgen Structure object)
+            associated with the band structure. This is needed if we
+            provide projections to the band structure
+        projections: dict of orbital projections for spin up and spin down
+            {Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
+            format follows the one from eigenvals: The first index of the
+            array refers to the band and the second to the index of the
+            kpoint. The kpoints are ordered according to the order of the
+            kpoints array. For each band and kpoint, we associate a
+            dictionary indicating projections on orbitals and on different
+            sites the keys of the dictionary are Orbital objects and the
+            values are the projections on each site ordered as in the
+            structure object. If the band structure is not spin polarized,
+            we only store one data set under Spin.up.
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict=None,
                  coords_are_cartesian=False, structure=None, projections=None):
-        """
-        Args:
-            kpoints:
-                list of kpoint as numpy arrays, in frac_coords of the
-                given lattice by default
-            eigenvals:
-                dict of energies for spin up and spin down
-                {Spin.up:[][],Spin.down:[][]}, the first index of the array
-                [][] refers to the band and the second to the index of the
-                kpoint. The kpoints are ordered according to the order of the
-                kpoints array. If the band structure is not spin polarized, we
-                only store one data set under Spin.up
-            lattice:
-                The reciprocal lattice as a pymatgen Lattice object.
-            label_dict:
-                (dict) of {} this link a kpoint (in frac coords or cartesian
-                coordinates depending on the coords).
-            coords_are_cartesian:
-                Whether coordinates are cartesian.
-            efermi:
-                fermi energy
-            labels_dict:
-                (dict) of {} this links a kpoint (in frac coords or cartesian
-                coordinates depending on the coords) to a label.
-            coords_are_cartesian:
-                Whether coordinates are cartesian.
-            structure:
-                the crystal structure (as a pymatgen Structure object)
-                associated with the band structure. This is needed if we
-                provide projections to the band structure
-            projections:
-                dict of orbital projections for spin up and spin down
-                {Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
-                format follows the one from eigenvals: The first index of the
-                array refers to the band and the second to the index of the
-                kpoint. The kpoints are ordered according to the order of the
-                kpoints array. For each band and kpoint, we associate a
-                dictionary indicating projections on orbitals and on different
-                sites the keys of the dictionary are Orbital objects and the
-                values are the projections on each site ordered as in the
-                structure object. If the band structure is not spin polarized,
-                we only store one data set under Spin.up.
-        """
-
         self._efermi = efermi
         self._lattice_rec = lattice
         self._kpoints = []
@@ -296,9 +278,8 @@ class BandStructure(object):
         orbitals
 
         Args:
-            dictio:
-                A dictionary of Elements and Orbitals for which we want to have
-                projections on. It is given as: {Element:[orbitals]},
+            dictio: A dictionary of Elements and Orbitals for which we want
+                to have projections on. It is given as: {Element:[orbitals]},
                 e.g., {'Cu':['d','s']}
 
         Returns:
@@ -368,27 +349,22 @@ class BandStructure(object):
 
         Returns:
             dict as {"band_index","kpoint_index","kpoint","energy"}
-                "band_index":
-                    A dict with spin keys pointing to a list of the indices of
-                    the band containing the VBM (please note that you can have
-                    several bands sharing the VBM) {Spin.up:[],Spin.down:[]}
-                "kpoint_index":
-                    The list of indices in self._kpoints for the kpoint vbm.
-                    Please note that there can be several kpoint_indices
-                    relating to the same kpoint (e.g., Gamma can occur at
-                    different spots in the band structure line plot)
-                "kpoint":
-                    The kpoint (as a kpoint object)
-                "energy":
-                    The energy of the VBM
-                "projections":
-                    The projections along sites and orbitals of the VBM
-                    if any projection data is available (else it is an empty
-                    dictionnary)
-                    the format is similar to the projections field in
-                    BandStructure: {spin:{'Orbital': [proj]}} where the array
-                    [proj] is ordered according to the sites in structure
-        """
+            - "band_index": A dict with spin keys pointing to a list of the
+            indices of the band containing the VBM (please note that you
+            can have several bands sharing the VBM) {Spin.up:[],
+            Spin.down:[]}
+            - "kpoint_index": The list of indices in self._kpoints for the
+            kpoint vbm. Please note that there can be several
+            kpoint_indices relating to the same kpoint (e.g., Gamma can
+            occur at different spots in the band structure line plot)
+            - "kpoint": The kpoint (as a kpoint object)
+            - "energy": The energy of the VBM
+            - "projections": The projections along sites and orbitals of the
+            VBM if any projection data is available (else it is an empty
+            dictionnary). The format is similar to the projections field in
+            BandStructure: {spin:{'Orbital': [proj]}} where the array
+            [proj] is ordered according to the sites in structure
+    """
         if self.is_metal():
             return {"band_index": [], "kpoint_index": [],
                     "kpoint": [], "energy": None, "projections": {}}
@@ -438,26 +414,21 @@ class BandStructure(object):
 
         Returns:
             {"band_index","kpoint_index","kpoint","energy"}
-                "band_index":
-                    A dict with spin keys pointing to a list of the indices of
-                    the band containing the CBM (please note that you can have
-                    several bands sharing the CBM) {Spin.up:[],Spin.down:[]}
-                "kpoint_index":
-                    The list of indices in self._kpoints for the kpoint vbm.
-                    Please note that there can be several kpoint_indices
-                    relating to the same kpoint (e.g., Gamma can occur at
-                    different spots in the band structure line plot)
-                "kpoint":
-                    The kpoint (as a kpoint object)
-                "energy":
-                    The energy of the CBM
-                "projections":
-                    The projections along sites and orbitals of the CBM
-                    if any projection data is available (else it is an empty
-                    dictionnary)
-                    the format is similar to the projections field in
-                    BandStructure: {spin: {'Orbital': [proj]}} where the array
-                    [proj] is ordered according to the sites in structure
+            - "band_index": A dict with spin keys pointing to a list of the
+            indices of the band containing the VBM (please note that you
+            can have several bands sharing the VBM) {Spin.up:[],
+            Spin.down:[]}
+            - "kpoint_index": The list of indices in self._kpoints for the
+            kpoint vbm. Please note that there can be several
+            kpoint_indices relating to the same kpoint (e.g., Gamma can
+            occur at different spots in the band structure line plot)
+            - "kpoint": The kpoint (as a kpoint object)
+            - "energy": The energy of the VBM
+            - "projections": The projections along sites and orbitals of the
+            VBM if any projection data is available (else it is an empty
+            dictionnary). The format is similar to the projections field in
+            BandStructure: {spin:{'Orbital': [proj]}} where the array
+            [proj] is ordered according to the sites in structure
         """
         if self.is_metal():
             return {"band_index": [], "kpoint_index": [],
@@ -508,14 +479,11 @@ class BandStructure(object):
         Returns band gap data.
 
         Returns:
-             a dict {"energy","direct","transition"}:
-                "energy":
-                    the band gap energy
-                "direct":
-                    A boolean telling if the gap is direct (True)
-                    or not (False)
-                "transition":
-                    The kpoint labels of the transition (e.g., "\Gamma-X")
+            A dict {"energy","direct","transition"}:
+            - "energy": band gap energy
+            - "direct": A boolean telling if the gap is direct (True)
+              or not (False)
+            - "transition": kpoint labels of the transition (e.g., "\Gamma-X")
         """
         if self.is_metal():
             return {"energy": 0.0, "direct": False, "transition": None}
@@ -629,6 +597,8 @@ class BandStructure(object):
     @classmethod
     def from_dict(cls, d):
         """
+        Create from dict.
+
         Args:
             A dict with all data for a band structure symm line object.
 
@@ -638,8 +608,9 @@ class BandStructure(object):
         labels_dict = d['labels_dict']
         projections = {}
         structure = None
-        if 'projections' in d and len(d['projections']) != 0:
+        if 'structure' in d:
             structure = Structure.from_dict(d['structure'])
+        if 'projections' in d and len(d['projections']) != 0:
             projections = {
                 Spin.from_int(int(spin)): [
                     [{Orbital.from_string(orb): [
@@ -662,49 +633,40 @@ class BandStructureSymmLine(BandStructure, MSONable):
     This object stores band structures along selected (symmetry) lines in the
     Brillouin zone. We call the different symmetry lines (ex: \Gamma to Z)
     "branches".
+
+    Args:
+        kpoints: list of kpoint as numpy arrays, in frac_coords of the
+            given lattice by default
+        eigenvals: dict of energies for spin up and spin down
+            {Spin.up:[][],Spin.down:[][]}, the first index of the array
+            [][] refers to the band and the second to the index of the
+            kpoint. The kpoints are ordered according to the order of the
+            kpoints array. If the band structure is not spin polarized, we
+            only store one data set under Spin.up.
+        lattice: The reciprocal lattice.
+        efermi: fermi energy
+        label_dict: (dict) of {} this link a kpoint (in frac coords or
+            cartesian coordinates depending on the coords).
+        coords_are_cartesian: Whether coordinates are cartesian.
+        structure: The crystal structure (as a pymatgen Structure object)
+            associated with the band structure. This is needed if we
+            provide projections to the band structure.
+        projections: dict of orbital projections for spin up and spin down
+            {Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
+            format follows the one from eigenvals: the first index of the
+            array refers to the band and the second to the index of the
+            kpoint. The kpoints are ordered according to the order of the
+            kpoints array. For each band and kpoint, we associate a
+            dictionary indicating projections on orbitals and on different
+            sites the keys of the dictionary are Orbital objects and the
+            values are the projections on each site ordered as in the
+            structure object. If the band structure is not spin polarized,
+            we only store one data set under Spin.up.
     """
 
     def __init__(self, kpoints, eigenvals, lattice, efermi, labels_dict,
                  coords_are_cartesian=False, structure=None,
                  projections=None):
-        """
-        Args:
-            kpoints:
-                list of kpoint as numpy arrays, in frac_coords of the
-                given lattice by default
-            eigenvals:
-                dict of energies for spin up and spin down
-                {Spin.up:[][],Spin.down:[][]}, the first index of the array
-                [][] refers to the band and the second to the index of the
-                kpoint. The kpoints are ordered according to the order of the
-                kpoints array. If the band structure is not spin polarized, we
-                only store one data set under Spin.up.
-            lattice:
-                The reciprocal lattice.
-            efermi:
-                fermi energy
-            label_dict:
-                (dict) of {} this link a kpoint (in frac coords or cartesian
-                coordinates depending on the coords).
-            coords_are_cartesian:
-                Whether coordinates are cartesian.
-            structure:
-                the crystal structure (as a pymatgen Structure object)
-                associated with the band structure. This is needed if we
-                provide projections to the band structure.
-            projections:
-                dict of orbital projections for spin up and spin down
-                {Spin.up:[][{Orbital:[]}],Spin.down:[][{Orbital:[]}]. The
-                format follows the one from eigenvals: the first index of the
-                array refers to the band and the second to the index of the
-                kpoint. The kpoints are ordered according to the order of the
-                kpoints array. For each band and kpoint, we associate a
-                dictionary indicating projections on orbitals and on different
-                sites the keys of the dictionary are Orbital objects and the
-                values are the projections on each site ordered as in the
-                structure object. If the band structure is not spin polarized,
-                we only store one data set under Spin.up.
-        """
         BandStructure.__init__(self, kpoints, eigenvals, lattice, efermi,
                                labels_dict, coords_are_cartesian, structure,
                                projections)
@@ -753,8 +715,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         same frac coords) to the given one.
 
         Args:
-            index:
-                the kpoint index
+            index: the kpoint index
 
         Returns:
             a list of equivalent indices
@@ -781,8 +742,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         branches.
 
         Args:
-            index:
-                the kpoint index
+            index: the kpoint index
 
         Returns:
             A list of dictionaries [{"name","start_index","end_index","index"}]
@@ -807,8 +767,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         and shift this one up. This will not work all the time for metals!
 
         Args:
-            new_band_gap:
-                the band gap the scissor band structure need to have.
+            new_band_gap: the band gap the scissor band structure need to have.
 
         Returns:
             a BandStructureSymmLine object with the applied scissor shift
@@ -960,12 +919,10 @@ def get_reconstructed_band_structure(list_bs, efermi=None):
         the results
 
         Args:
-            list_bs:
-                A list of BandStructure
-            efermi:
-                The fermi energy of the reconstructed band structure. If none
-                is assigned an average of all the fermi energy in each object
-                in the list_bs is used.
+            list_bs: A list of BandStructure
+            efermi: The fermi energy of the reconstructed band structure. If
+                None is assigned an average of all the fermi energy in each
+                object in the list_bs is used.
 
         Returns:
             A BandStructure or BandStructureSymmLine object (depending on

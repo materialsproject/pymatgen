@@ -19,7 +19,7 @@ import collections
 import string
 from fractions import gcd
 from itertools import chain
-from pymatgen.core.periodic_table import smart_element_or_specie, Element
+from pymatgen.core.periodic_table import get_el_sp, Element
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.units import unitized
@@ -109,14 +109,14 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                                        "negative!")
             elif v < 0:
                 del elmap[k]
-        self._elmap = {smart_element_or_specie(k): v for k, v in elmap.items()}
+        self._elmap = {get_el_sp(k): v for k, v in elmap.items()}
         self._natoms = sum(self._elmap.values())
 
     def __getitem__(self, el):
         """
         Get the amount for element.
         """
-        return self._elmap.get(smart_element_or_specie(el), 0)
+        return self._elmap.get(get_el_sp(el), 0)
 
     def __eq__(self, other):
         for el in chain(self.elements, other.elements):
@@ -134,7 +134,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = {el: self[el] for el in self}
         for k in other.keys():
-            el = smart_element_or_specie(k)
+            el = get_el_sp(k)
             if el in self:
                 new_el_map[el] += other[k]
             else:
@@ -152,7 +152,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         new_el_map = {el: self[el] for el in self}
         for k in other.keys():
-            el = smart_element_or_specie(k)
+            el = get_el_sp(k)
             if el in self and other[k] <= self[el]:
                 new_el_map[el] -= other[k]
             else:
@@ -246,7 +246,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys(),
-                      key=lambda s: smart_element_or_specie(s).X)
+                      key=lambda s: get_el_sp(s).X)
         formula = []
         for s in syms:
             if sym_amt[s] != 0:
@@ -389,7 +389,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Returns:
             Weight fraction for element el in Composition
         """
-        return smart_element_or_specie(el).atomic_mass * self[el] / self.weight
+        return get_el_sp(el).atomic_mass * self[el] / self.weight
 
     def _parse_formula(self, formula):
         """
@@ -730,13 +730,13 @@ def reduce_formula(sym_amt):
         (reduced_formula, factor).
     """
     syms = sorted(sym_amt.keys(),
-                  key=lambda s: smart_element_or_specie(s).X)
+                  key=lambda s: get_el_sp(s).X)
 
     syms = filter(lambda s: sym_amt[s] > Composition.amount_tolerance, syms)
     num_el = len(syms)
     contains_polyanion = (num_el >= 3 and
-                          smart_element_or_specie(syms[num_el - 1]).X
-                          - smart_element_or_specie(syms[num_el - 2]).X < 1.65)
+                          get_el_sp(syms[num_el - 1]).X
+                          - get_el_sp(syms[num_el - 2]).X < 1.65)
 
     factor = reduce(gcd, sym_amt.values())
     reduced_form = []

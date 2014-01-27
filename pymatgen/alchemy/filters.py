@@ -13,7 +13,7 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
-from pymatgen.core.periodic_table import smart_element_or_specie
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
@@ -66,7 +66,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             exclude: If true, returns false for any structures with the specie
                 (excludes them from the Transmuter)
         """
-        self._species = map(smart_element_or_specie, species)
+        self._species = map(get_el_sp, species)
         self._strict = strict_compare
         self._AND = AND
         self._exclude = exclude
@@ -127,7 +127,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
     """
 
     def __init__(self, specie_and_min_dist_dict):
-        self.specie_and_min_dist = {smart_element_or_specie(k): v
+        self.specie_and_min_dist = {get_el_sp(k): v
                                     for k, v
                                     in specie_and_min_dist_dict.items()}
 

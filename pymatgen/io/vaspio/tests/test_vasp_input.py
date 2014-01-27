@@ -20,7 +20,8 @@ import numpy as np
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Kpoints, Potcar, \
     PotcarSingle, VaspInput
-from pymatgen import Composition, Structure, zopen
+from pymatgen import Composition, Structure
+from monty.io import zopen
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",

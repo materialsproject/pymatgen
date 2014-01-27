@@ -24,7 +24,7 @@ from pymatgen.transformations.advanced_transformations import \
     SuperTransformation, EnumerateStructureTransformation, \
     MultipleSubstitutionTransformation, ChargeBalanceTransformation, \
     SubstitutionPredictorTransformation, MagOrderingTransformation
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.analysis.energy_models import IsingModel

@@ -34,8 +34,7 @@ class AseAtomsAdaptor(object):
         Returns ASE Atoms object from pymatgen structure.
 
         Args:
-            structure:
-                pymatgen.core.structure.Structure
+            structure: pymatgen.core.structure.Structure
 
         Returns:
             ASE Atoms object
@@ -53,8 +52,7 @@ class AseAtomsAdaptor(object):
         Returns pymatgen structure from ASE Atoms.
 
         Args:
-            atoms:
-                ASE Atoms object
+            atoms: ASE Atoms object
 
         Returns:
             Equivalent pymatgen.core.structure.Structure

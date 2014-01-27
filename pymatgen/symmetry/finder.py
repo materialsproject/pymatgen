@@ -185,24 +185,16 @@ class SymmetryFinder(object):
 
         Returns:
             (dict): With the following properties:
-                number:
-                    International space group number
-                international:
-                    International symbol
-                hall:
-                    Hall symbol
-                transformation_matrix:
-                    Transformation matrix from lattice of
-                    input cell to Bravais lattice L^bravais = L^original *
-                    Tmat
-                origin shift:
-                    Origin shift in the setting of "Bravais lattice"
-                rotations, translations:
-                    Rotation matrices and translation
-                    vectors. Space group operations are obtained by
-                    [(r,t) for r, t in zip(rotations, translations)]
-                wyckoffs:
-                    Wyckoff letters
+            number: International space group number
+            international: International symbol
+            hall: Hall symbol
+            transformation_matrix: Transformation matrix from lattice of
+            input cell to Bravais lattice L^bravais = L^original * Tmat
+            origin shift: Origin shift in the setting of "Bravais lattice"
+            rotations, translations: Rotation matrices and translation
+            vectors. Space group operations are obtained by
+            [(r,t) for r, t in zip(rotations, translations)]
+            wyckoffs: Wyckoff letters
         """
         keys = ("number",
                 "international",
@@ -213,12 +205,9 @@ class SymmetryFinder(object):
                 "translations",
                 "wyckoffs",
                 "equivalent_atoms")
-        dataset = {}
-        for key, data in zip(keys, spg.dataset(self._transposed_latt.copy(),
-                                               self._positions, self._numbers,
-                                               self._symprec,
-                                               self._angle_tol)):
-            dataset[key] = data
+        dataset = dict(zip(keys, spg.dataset(
+            self._transposed_latt.copy(), self._positions, self._numbers,
+            self._symprec, self._angle_tol)))
         dataset["international"] = dataset["international"].strip()
         dataset["hall"] = dataset["hall"].strip()
         dataset["transformation_matrix"] = \

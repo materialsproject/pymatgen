@@ -18,7 +18,8 @@ import re
 import json
 
 from pymatgen.core.units import Mass, Length, unitized
-from pymatgen.util.decorators import singleton, cached_class
+from monty.design_patterns import singleton, cached_class
+from monty.dev import deprecated
 from pymatgen.util.string_utils import formula_double_format
 from pymatgen.serializers.json_coders import MSONable
 from functools import total_ordering
@@ -877,7 +878,7 @@ class DummySpecie(MSONable):
         oxidation_state (float): Oxidation state for dummy specie.
             Defaults to zero.
 
-    .. attribute:: symbol:
+    .. attribute:: symbol
 
         Symbol for the DummySpecie.
 
@@ -1089,7 +1090,7 @@ class PeriodicTable(object):
             print(" ".join(rowstr))
 
 
-def smart_element_or_specie(obj):
+def get_el_sp(obj):
     """
     Utility method to get an Element or Specie from an input obj.
     If obj is in itself an element or a specie, it is returned automatically.
@@ -1136,3 +1137,14 @@ def smart_element_or_specie(obj):
             except:
                 raise ValueError("Can't parse Element or String from " +
                                  str(obj))
+
+
+
+@deprecated(replacement=get_el_sp)
+def smart_element_or_specie(obj):
+    """
+    .. deprecated:: v2.8.11
+
+        Use get_el_sp instead.
+    """
+    return get_el_sp(obj)

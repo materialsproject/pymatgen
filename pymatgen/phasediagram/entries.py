@@ -31,25 +31,20 @@ class PDEntry(MSONable):
         A name for the entry. This is the string shown in the phase diagrams.
         By default, this is the reduced formula for the composition, but can be
         set to some other string for display purposes.
+
+    Args:
+        comp: Composition as a pymatgen.core.structure.Composition
+        energy: Energy for composition.
+        name: Optional parameter to name the entry. Defaults to the reduced
+            chemical formula.
+        attribute: Optional attribute of the entry. This can be used to
+            specify that the entry is a newly found compound, or to specify a
+            particular label for the entry, or else ... Used for further
+            analysis and plotting purposes. An attribute can be anything
+            but must be MSONable.
     """
 
     def __init__(self, composition, energy, name=None, attribute=None):
-        """
-        Args:
-            comp:
-                Composition as a pymatgen.core.structure.Composition
-            energy:
-                Energy for composition.
-            name:
-                Optional parameter to name the entry. Defaults to the reduced
-                chemical formula.
-            attribute:
-                Optional attribute of the entry. This can be used to specify
-                that the entry is a newly found compound, or to specify a
-                particular label for the entry, or else ... Used for further
-                analysis and plotting purposes. An attribute can be anything
-                but must be MSONable.
-        """
         self._energy = energy
         self._composition = Composition(composition)
         self.name = name if name else self._composition.reduced_formula
@@ -123,18 +118,14 @@ class GrandPotPDEntry(PDEntry):
     A grand potential pd entry object encompassing all relevant data for phase
     diagrams.  Chemical potentials are given as a element-chemical potential
     dict.
+
+    Args:
+        entry: A PDEntry-like object.
+        chempots: Chemical potential specification as {Element: float}.
+        name: Optional parameter to name the entry. Defaults to the reduced
+            chemical formula of the original entry.
     """
     def __init__(self, entry, chempots, name=None):
-        """
-        Args:
-            entry:
-                A PDEntry-like object.
-            chempots:
-                Chemical potential specification as {Element: float}.
-            name:
-                Optional parameter to name the entry. Defaults to the reduced
-                chemical formula of the original entry.
-        """
         comp = entry.composition
         self._original_entry = entry
         self._original_comp = comp
@@ -207,12 +198,10 @@ class PDEntryIO(object):
         Exports PDEntries to a csv
 
         Args:
-            filename:
-                Filename to write to.
-            entries:
-                PDEntries to export.
-            latexify_names:
-                Format entry names to be LaTex compatible, e.g., Li_{2}O
+            filename: Filename to write to.
+            entries: PDEntries to export.
+            latexify_names: Format entry names to be LaTex compatible,
+                e.g., Li_{2}O
         """
         import csv
         elements = set()
@@ -231,10 +220,10 @@ class PDEntryIO(object):
     @staticmethod
     def from_csv(filename):
         """
-        Imports PDEntries from a csv
+        Imports PDEntries from a csv.
 
         Args:
-            filename - Filename to import from.
+            filename: Filename to import from.
 
         Returns:
             List of Elements, List of PDEntries
@@ -266,18 +255,14 @@ class TransformedPDEntry(PDEntry):
     transformed to a different composition coordinate space. It is used in the
     construction of phase diagrams that do not have elements as the terminal
     compositions.
+
+    Args:
+        comp: Transformed composition as a Composition.
+        energy: Energy for composition.
+        original_entry: Original entry that this entry arose from.
     """
 
     def __init__(self, comp, original_entry):
-        """
-        Args:
-            comp:
-                Transformed composition as a Composition.
-            energy:
-                Energy for composition.
-            original_entry:
-                Original entry that this entry arose from.
-        """
         PDEntry.__init__(self, comp, original_entry.energy)
         self._original_entry = original_entry
         self.name = original_entry.name

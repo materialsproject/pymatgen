@@ -24,14 +24,12 @@ class ValenceIonicRadiusEvaluator:
     """
     Computes site valences and ionic radii for a structure using bond valence
     analyzer
+
+    Args:
+        structure: pymatgen.core.structure.Structure
     """
 
     def __init__(self, structure):
-        """
-        Args:
-            structure:
-            pymatgen.core.structure.Structure
-        """
         self._structure = structure
         self._valences = self._get_valences()
         self._ionic_radii = self._get_ionic_radii()
@@ -138,8 +136,7 @@ class Defect:
         Coordination number of interstitial site.
 
         Args:
-            n
-                Index of interstitial list
+            n: Index of interstitial list
         """
         return self._defectsite_coord_no[n]
 
@@ -148,8 +145,7 @@ class Defect:
         The sites in structure surrounding the defect site.
 
         Args:
-            n
-                Index of defects list
+            n: Index of defects list
         """
         return self._defect_coord_sites[n]
 
@@ -158,8 +154,7 @@ class Defect:
         Elements of sites in structure surrounding the defect site.
 
         Args:
-            n
-                Index of defect list
+            n: Index of defect list
         """
         coordinated_species = []
         for site in self._defect_coord_sites[n]:
@@ -179,20 +174,15 @@ class Defect:
 
 class Vacancy(Defect):
     """
-    Subclass of Defect to generate vacancies and their analysis
+    Subclass of Defect to generate vacancies and their analysis.
+
+    Args:
+        structure: pymatgen.core.structure.Structure
+        valences: valences of elements as a dictionary
+        radii: Radii of elements as a dictionary
     """
 
     def __init__(self, structure, valences, radii):
-        """
-        Args:
-            structure:
-                pymatgen.core.structure.Structure
-            valences:
-                valences of elements as a dictionary 
-            radii:
-                Radii of elements as a dictionary
-        """
-
         self._structure = structure
         self._valence_dict = valences
         self._rad_dict = radii
@@ -263,8 +253,7 @@ class Vacancy(Defect):
         effectively -ve charge and anion vacancy has +ve charge.) 
 
         Args:
-            n:
-                Index of vacancy list
+            n: Index of vacancy list
 
         Returns:
             Effective charnge of defect site
@@ -287,8 +276,7 @@ class Vacancy(Defect):
         Minimum and maximum charge of sites surrounding the vacancy site.
 
         Args:
-            n:
-                Index of vacancy list
+            n: Index of vacancy list
         """
         bv = BVAnalyzer()
         struct_valences = bv.get_valences(self._structure)
@@ -312,8 +300,7 @@ class Vacancy(Defect):
         Volume of the nth vacancy
 
         Args:
-            n:
-                Index of symmetrically distinct vacancies list
+            n: Index of symmetrically distinct vacancies list
 
         Returns:
             floating number representing volume of vacancy
@@ -338,8 +325,7 @@ class Vacancy(Defect):
         Surface area of the nth vacancy
 
         Args:
-            n:
-                Index of symmetrically distinct vacancies list
+            n: Index of symmetrically distinct vacancies list
 
         Returns:
             floating number representing volume of vacancy
@@ -377,8 +363,7 @@ class Vacancy(Defect):
         format, with each supercell containing one vacancy.
 
         Args:
-            scaling_matrix:
-                super cell scale parameters in matrix forms
+            scaling_matrix: super cell scale parameters in matrix forms
 
         Returns:
             Supercells with vacancies. First supercell has no defects.
@@ -452,12 +437,10 @@ class Interstitial(Defect):
         Given a structure, generate symmetrically distinct interstitial sites.
         
         Args:
-            structure:
-                pymatgen.core.structure.Structure
-            valences:
-                Dictionary of oxidation states of elements in {El:valence} form
-            radii:
-                Radii of elemnts in the structure
+            structure: pymatgen.core.structure.Structure
+            valences: Dictionary of oxidation states of elements in {
+                El:valence} form
+            radii: Radii of elemnts in the structure
         """
 
         self._structure = structure
@@ -529,8 +512,7 @@ class Interstitial(Defect):
         Append a site to list of possible interstitials
 
         Args:
-            site:
-                pymatgen.core.sites.Site
+            site: pymatgen.core.sites.Site
         """
         raise NotImplementedError()
 
@@ -539,8 +521,7 @@ class Interstitial(Defect):
         Remove a symmetrically distinct interstitial site
 
         Args:
-            n:
-                Index of interstitial site
+            n: Index of interstitial site
         """
         del self._defect_sites[n]
 
@@ -549,8 +530,7 @@ class Interstitial(Defect):
         Total charge of the interstitial coordinated sites.
 
         Args:
-            n
-                Index of interstitial list
+            n: Index of interstitial list
         """
         return self._defect_coord_charge[n]
 
@@ -559,8 +539,7 @@ class Interstitial(Defect):
         Minimum and maximum charge of sites surrounding the interstitial site.
 
         Args:
-            n:
-                Index of symmetrical distinct interstitial site
+            n: Index of symmetrical distinct interstitial site
         """
         coord_site_valences = []
 
@@ -574,8 +553,7 @@ class Interstitial(Defect):
         Volume of the nth interstitial
 
         Args:
-            n:
-            Index of symmetrically distinct vacancies list
+            n: Index of symmetrically distinct vacancies list
 
         Returns:
             floating number representing radius of interstitial sphere
@@ -680,21 +658,15 @@ class Interstitial(Defect):
 class InterstitialAnalyzer:
     """
     Use GULP to compute the interstitial formation energy, relaxed structures.
-    Works only for metal oxides due to the use of Buckingham Potentials
-    """
+    Works only for metal oxides due to the use of Buckingham Potentials.
 
+    Args:
+        inter: pymatgen.defects.point_defects.Interstitial
+        el: Element name in short hand notation ("El")
+        oxi_state: Oxidtation state
+        scd: Super cell dimension as number. The scaling is equal along xyz.
+    """
     def __init__(self, inter, el, oxi_state, scd=2):
-        """
-        Args:
-            inter:
-                pymatgen.defects.point_defects.Interstitial
-            el:
-                Element name in short hand notation ("El")
-            oxi_state:
-                Oxidtation state
-            scd:
-                Super cell dimension as number. The scaling is equal along xyz.
-        """
         self._inter = inter
         self._el = el
         self._oxi_state = oxi_state
@@ -759,11 +731,12 @@ class InterstitialAnalyzer:
         Optimized interstitial structure 
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
-            Note:
-                To get relaxed bulk structure pass -1.
-                -ve index will not work as expected.
+            n: Symmetrically distinct interstitial index
+
+        .. note::
+
+            To get relaxed bulk structure pass -1.
+            -ve index will not work as expected.
         """
         if not self._relax_struct:
             self._relax_analysis()
@@ -774,8 +747,7 @@ class InterstitialAnalyzer:
         Volume change after the introduction of interstitial
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_struct:
             self._relax_analysis()
@@ -792,8 +764,7 @@ class InterstitialAnalyzer:
         Lattice parameter change after the introduction of interstitial
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_struct:
             self._relax_analysis()
@@ -808,8 +779,7 @@ class InterstitialAnalyzer:
         Bond distance change after the introduction of interstitial
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_struct:
             self._relax_analysis()
@@ -825,13 +795,13 @@ class InterstitialAnalyzer:
         Check if the relaxed structures of two interstitials match 
 
         Args:
-            i:
-                Symmetrically distinct interstitial index
-            j:
-                Symmetrically distinct interstitial index
-            Note:
-                To use relaxed bulk structure pass -1.
-                -ve index will not work as expected
+            i: Symmetrically distinct interstitial index
+            j: Symmetrically distinct interstitial index
+
+        .. note::
+
+            To use relaxed bulk structure pass -1.
+            -ve index will not work as expected
         """
         if not self._relax_struct:
             self._relax_analysis()
@@ -857,21 +827,16 @@ class StructureRelaxer:
 
 class InterstitialStructureRelaxer:
     """
-    Performs structural relaxation for each interstitial supercell
+    Performs structural relaxation for each interstitial supercell.
+
+    Args:
+        interstitial: Unrelaxed interstitial
+        el: Species string in short notation
+        oxi_state: Oxidation state of the element
+        supercell_dim: Dimensions of super cell
     """
 
     def __init__(self, interstitial, el, oxi_state, supercell_dim=2):
-        """
-        Args:
-            interstitial:
-                Unrelaxed interstitial
-            el:
-                Species string in short notation
-            oxi_state:
-                Oxidation state of the element
-            supercell_dim:
-                Dimnetions of super cell
-        """
         self._inter = interstitial
         self._scd = supercell_dim
         self._el = el
@@ -919,12 +884,12 @@ class InterstitialStructureRelaxer:
         Check if the relaxed structures of two interstitials match 
 
         Args:
-            i:
-                Symmetrically distinct interstitial index
-            j:
-                Symmetrically distinct interstitial index
-            Note:
-                Index 0 corresponds to bulk. 
+            i: Symmetrically distinct interstitial index
+            j: Symmetrically distinct interstitial index
+
+        .. note::
+
+            Index 0 corresponds to bulk.
         """
         if not self._relax_structs:
             self.relax()
@@ -938,11 +903,12 @@ class InterstitialStructureRelaxer:
         Check if the relaxed energies of two interstitials match 
 
         Args:
-            i:
-                Symmetrically distinct interstitial index
-            j:
-                Symmetrically distinct interstitial index
-                Note: Index 0 corresponds to bulk. 
+            i: Symmetrically distinct interstitial index
+            j: Symmetrically distinct interstitial index
+
+        .. note::
+
+            Index 0 corresponds to bulk.
         """
         if not self._relax_energies:
             self.relax()
@@ -955,9 +921,11 @@ class InterstitialStructureRelaxer:
         Get the relaxed structure of nth symmetrically distinct interstitial.
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
-                Note: 0 corresponds to relaxed bulk structure
+            n: Symmetrically distinct interstitial index
+
+        .. note::
+
+            0 corresponds to relaxed bulk structure
         """
         if not self._relax_structs:
             self.relax()
@@ -968,9 +936,11 @@ class InterstitialStructureRelaxer:
         Get the relaxed structure of nth symmetrically distinct interstitial.
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
-                Note: 0 corresponds to relaxed bulk structure
+            n: Symmetrically distinct interstitial index
+
+        .. note::
+
+            0 corresponds to relaxed bulk structure
         """
         if not self._relax_energies:
             self.relax()
@@ -981,8 +951,7 @@ class InterstitialStructureRelaxer:
         Get the relaxed structure of nth symmetrically distinct interstitial.
 
         Args:
-            n:
-                Symmetrically distinct interstitial index
+            n: Symmetrically distinct interstitial index
         """
         if not self._relax_energies:
             self.relax()
@@ -1006,23 +975,19 @@ class RelaxedInterstitial:
     """
     Stores the relaxed supercell structures for each interstitial
     Used to compute formation energies, displacement of atoms near the
-    the interstitial
+    the interstitial.
+
+    Args:
+        struct_list: List of structures(supercells). The first structure should
+            represent relaxed bulk structure and the subsequent ones
+            interstitial structures (with the extra interstitial site
+            appended at the end).
+        energy_list: List of energies for relaxed interstitial structures.
+            The first energy should correspond to bulk structure
+        valence_dict: Valences of elements in dictionary form
     """
 
     def __init__(self, struct_list, energy_list, valence_dict):
-        """
-        Args:
-            struct_list:
-                List of structures(supercells). The first structure should 
-                represent relaxed bulk structure and the subsequent ones 
-                interstitial structures (with the extra interstitial site 
-                appended at the end).
-            energy_list:
-                List of energies for relaxed interstitial structures. 
-                The first energy should correspond to bulk structure
-            valence_dict:
-                Valences of elements in dictionary form
-        """
         self._blk_struct = struct_list[0]
         struct_list.pop(0)
         self._structs = struct_list
@@ -1040,10 +1005,8 @@ class RelaxedInterstitial:
         Compute the interstitial formation energy
 
         Args:
-            n:
-                Index of interstitials
-            chem_pot:
-                Chemical potential of interstitial site element.
+            n: Index of interstitials
+            chem_pot: Chemical potential of interstitial site element.
                 If not given, assumed as zero. The user is strongly
                 urged to supply the chemical potential value 
         """
@@ -1054,8 +1017,7 @@ class RelaxedInterstitial:
         Volume change after the introduction of interstitial
 
         Args:
-            n:
-                index of interstitials
+            n: index of interstitials
         """
         def_struct = self._structs[n:n + 1][0]
         def_struct.remove(-1)
@@ -1067,8 +1029,7 @@ class RelaxedInterstitial:
         Lattice parameter change after the introduction of interstitial
 
         Args:
-            n:
-                index of interstitials
+            n: index of interstitials
         """
         def_struct = self._structs[n:n + 1][0]  # copy
         def_struct.remove(-1)
@@ -1080,8 +1041,7 @@ class RelaxedInterstitial:
         Bond distance change after the introduction of interstitial.
 
         Args:
-            n:
-                index of interstitials
+            n: index of interstitials
         """
         def_struct = self._structs[n:n + 1][0]  # copy
         def_struct.remove(-1)
@@ -1111,8 +1071,7 @@ class RelaxedInterstitial:
         Returns the defect site of nth interstitial.
 
         Args:
-            n:
-                Index of interstitial
+            n: Index of interstitial
         """
         return self._structs[n][-1]
 
@@ -1121,8 +1080,7 @@ class RelaxedInterstitial:
         Coordination number for nth interstitial.
 
         Args:
-            n:
-                Index of interstitials
+            n: Index of interstitials
         """
         if not self._coord_no:
             self._coord_find()
@@ -1133,8 +1091,7 @@ class RelaxedInterstitial:
         Charge coordination number for nth interstitial.
 
         Args:
-            n:
-                Index of interstitials
+            n: Index of interstitials
         """
         if not self._coord_charge_no:
             self._coord_find()
@@ -1145,8 +1102,7 @@ class RelaxedInterstitial:
         Coordinated sites for nth interstitial.
 
         Args:
-            n:
-                Index of interstitials
+            n: Index of interstitials
         """
         if not self._coord_sites:
             self._coord_find()
@@ -1157,8 +1113,7 @@ class RelaxedInterstitial:
         Bulk sites corresponding to the coordinated sites for nth interstitial.
 
         Args:
-            n
-                Index of interstitials 
+            n: Index of interstitials
         """
         blk_sites = []
         for site in self.get_coordinated_sites(n):
@@ -1172,8 +1127,7 @@ class RelaxedInterstitial:
         interstitial sites during the relaxation
 
         Args:
-            n:
-                Index  of defect site
+            n: Index  of defect site
         """
         coord_sites = self.get_coordinated_sites(n)
         coord_blk_sites = self.get_coordinated_bulk_sites(n)
@@ -1206,8 +1160,7 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
     pymatgen.symmetry.finder.SymmetryFinder
 
     Args:
-        strucutre:
-            pymatgen Structure object
+        strucutre: pymatgen Structure object
 
     Returns:
         Symmetrically distinct voronoi nodes as pymatgen Strucutre

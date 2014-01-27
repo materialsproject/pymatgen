@@ -53,20 +53,17 @@ class EwaldElectrostaticModel(EnergyModel):
         :class:`pymatgen.analysis.ewald.EwaldSummation`.
 
         Args:
-            real_space_cut:
-                Real space cutoff radius dictating how many terms are used in
-                the real space sum. Defaults to None, which means determine
-                automagically using the formula given in gulp 3.1
-                documentation.
-            recip_space_cut:
-                Reciprocal space cutoff radius. Defaults to None, which means
-                determine automagically using the formula given in gulp 3.1
-                documentation.
-            eta:
-                The screening parameter. Defaults to None, which means
+            real_space_cut (float): Real space cutoff radius dictating how
+                many terms are used in the real space sum. Defaults to None,
+                which means determine automagically using the formula given
+                in gulp 3.1 documentation.
+            recip_space_cut (float): Reciprocal space cutoff radius.
+                Defaults to None, which means determine automagically using
+                the formula given in gulp 3.1 documentation.
+            eta (float): Screening parameter. Defaults to None, which means
                 determine automatically.
-            acc_factor:
-                No. of significant figures each sum is converged to.
+            acc_factor (float): No. of significant figures each sum is
+                converged to.
         """
         self.real_space_cut = real_space_cut
         self.recip_space_cut = recip_space_cut
@@ -94,20 +91,17 @@ class EwaldElectrostaticModel(EnergyModel):
 class SymmetryModel(EnergyModel):
     """
     Sets the energy to the -ve of the spacegroup number. Higher symmetry =>
-    lower "energy"
+    lower "energy".
+
+    Args have same meaning as in
+    :class:`pymatgen.symmetry.finder.SymmetryFinder`.
+
+    Args:
+        symprec (float): Symmetry tolerance. Defaults to 0.1.
+        angle_tolerance (float): Tolerance for angles. Defaults to 5 degrees.
     """
 
     def __init__(self, symprec=0.1, angle_tolerance=5):
-        """
-        Args have same meaning as in
-        :class:`pymatgen.symmetry.finder.SymmetryFinder`.
-
-        Args:
-            symprec:
-                Symmetry tolerance. Defaults to 0.1/
-            angle_tolerance:
-                Tolerance for angles. Defaults to 5 degrees.
-        """
         self.symprec = symprec
         self.angle_tolerance = angle_tolerance
 
@@ -128,16 +122,13 @@ class SymmetryModel(EnergyModel):
 class IsingModel(EnergyModel):
     """
     A very simple Ising model, with r^2 decay.
+
+    Args:
+        j (float): The interaction parameter. E = J * spin1 * spin2.
+        radius (float): max_radius for the interaction.
     """
 
     def __init__(self, j, max_radius):
-        """
-        Args:
-            j:
-                The interaction parameter. E = J * spin1 * spin2.
-            radius:
-                The max_radius for the interaction.
-        """
         self.j = j
         self.max_radius = max_radius
 
@@ -165,9 +156,6 @@ class NsitesModel(EnergyModel):
     Used to rank structures from smallest number of sites to largest number
     of sites after enumeration.
     """
-
-    def __init__(self):
-        pass
 
     def get_energy(self, structure):
         return len(structure)

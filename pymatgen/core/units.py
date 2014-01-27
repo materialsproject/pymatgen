@@ -312,6 +312,14 @@ class FloatWithUnit(float):
         return float.__new__(cls, val)
 
     def __init__(self, val, unit, unit_type=None):
+        """
+        Initializes a float with unit.
+
+        Args:
+            val (float): Value
+            unit (Unit): A unit. E.g., "C".
+            unit_type (str): A type of unit. E.g., "charge"
+        """
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(
                 "{} is not a supported unit for {}".format(unit, unit_type))
@@ -693,7 +701,7 @@ A float with a charge unit.
 
 Args:
     val (float): Value
-    unit (Unit). E.g., C, e (electron charge). Must be valid unit or UnitError
+    unit (Unit): E.g., C, e (electron charge). Must be valid unit or UnitError
         is raised.
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")

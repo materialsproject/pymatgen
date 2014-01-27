@@ -25,7 +25,7 @@ except ImportError:
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 
 logger = logging.getLogger(__name__)
 
