@@ -647,7 +647,19 @@ class Interstitial(Defect):
         sc.make_supercell(scaling_matrix)
         oldf_coords = defect_site.frac_coords
         coords = defect_site.lattice.get_cartesian_coords(oldf_coords)
+        #print coords
         newf_coords = sc.lattice.get_fractional_coords(coords)
+        for i in range(3):
+            coord = newf_coords[i]
+            if coord < 0:
+                while (coord < 0):
+                    coord = coord+1
+                newf_coords[i] = coord
+            elif coord > 1:
+                while (coord > 1):
+                    coord = coord-1
+                newf_coords[i] = coord
+        #print newf_coords
         #sc_defect_site = PeriodicSite(element, newf_coords,
         #                              sc.lattice)
         try:
@@ -691,7 +703,7 @@ class InterstitialAnalyzer:
             el:
                 Element name in short hand notation ("El")
             oxi_state:
-                Oxidtation state
+                Oxidtation state of interstitial element
             scd:
                 Super cell dimension as number. The scaling is equal along xyz.
         """
