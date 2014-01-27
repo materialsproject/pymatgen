@@ -21,6 +21,7 @@ import json
 import os.path
 import pymatgen as pmg
 
+from pymatgen.core.structure import Structure
 from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar, Poscar
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
@@ -228,6 +229,10 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
              'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
 
+    @classmethod
+    def get_defaults_tests(cls):
+        return cls.TESTS.copy()
+
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
@@ -323,11 +328,10 @@ class Wannier90InputSet():
         self.make_exclude_bands(structure, f)
         f.close()
 
-    '''
-    begin projections
-    V:dxy;dxz;dyz
-    end projections
-    '''
+
+    #begin projections
+    #V:dxy;dxz;dyz
+    #end projections
 
 
 class SingleVaspGWWork():
@@ -412,7 +416,7 @@ class SingleVaspGWWork():
             w_inpset = Wannier90InputSet()
             w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
 
-    def create_job_script(self):
+    def create_job_script(self, add_to_collection=True):
         """
         Create job script for ceci.
         """
@@ -452,12 +456,13 @@ class SingleVaspGWWork():
             job_file.write('cp OUTCAR OUTCAR.diag \n')
             job_file.close()
             os.chmod(path+'/job', stat.S_IRWXU)
-            job_file = open("job_collection", mode='a')
-            job_file.write('cd ' + path + ' \n')
-            job_file.write('sbatch job \n')
-            job_file.write('cd .. \n')
-            job_file.close()
-            os.chmod("job_collection", stat.S_IRWXU)
+            if add_to_collection:
+                job_file = open("job_collection", mode='a')
+                job_file.write('cd ' + path + ' \n')
+                job_file.write('sbatch job \n')
+                job_file.write('cd .. \n')
+                job_file.close()
+                os.chmod("job_collection", stat.S_IRWXU)
         if self.job in ['G0W0', 'GW0', 'scGW0']:
             path = self.structure.composition.reduced_formula + option_prep_name + '/' + self.job + option_name
             # create this job
@@ -475,21 +480,48 @@ class SingleVaspGWWork():
             os.chmod(path+'/job', stat.S_IRWXU)
             path = self.structure.composition.reduced_formula + option_prep_name
             # 'append submission of this job script to that of prep for this structure'
-            job_file = open(name=path+'/job', mode='a')
-            job_file.write('cd ' + self.job + option_name + ' \n')
-            job_file.write('sbatch job \n')
-            job_file.write('cd .. \n')
-            job_file.close()
+            if add_to_collection:
+                job_file = open(name=path+'/job', mode='a')
+                job_file.write('cd ' + self.job + option_name + ' \n')
+                job_file.write('sbatch job \n')
+                job_file.write('cd .. \n')
+                job_file.close()
 
 
 class SingleAbinitGWWorkFlow():
     """
     interface the
     """
+    TESTS = {'ecuteps': {'test_range': (8, 12, 16), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+             'nscf_nbands': {'test_range': (10, 20, 30), 'method': 'direct', 'control': "gap", 'level': "nscf"}}
+
     def __init__(self, structure, spec):
         self.structure = structure
         self.spec = spec
         self.work_dir = self.structure.composition.reduced_formula
+
+    @classmethod
+    def get_defaults_tests(cls):
+        return cls.TESTS.copy()
+
+    def get_electrons(self, structure):
+        """
+        Method for retrieving the number of valence electrons
+        """
+        # todo still copy from vasp
+        valence_list = {}
+        potcar = self.get_potcar(structure)
+        for pot_single in potcar:
+            valence_list.update({pot_single.element: pot_single.nelectrons})
+        electrons = sum([valence_list[element.symbol] for element in structure.species])
+        return int(electrons)
+
+    def get_bands(self, structure):
+        """
+        Method for retrieving the standard number of bands
+        """
+        bands = self.get_electrons(structure) / 2 + len(structure)
+        return int(bands)
 
     def create(self):
         """
@@ -521,7 +553,7 @@ class SingleAbinitGWWorkFlow():
         #nscf_shiftk = [0.0, 0.0, 0.0]
 
         # 100
-        nscf_nband = 50
+        nscf_nband = 100
         #scr_nband = 50 takes nscf_nbands if not specified
         #sigma_nband = 50 takes scr_nbands if not specified
 
@@ -697,13 +729,13 @@ class GWSpecs(MSONable):
             exit()
 
     def create_job(self, structure, job, option=None):
+        work = SingleVaspGWWork(structure, job, self, option)
         if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
-            work = SingleVaspGWWork(structure, job, self, option)
             work.create_input()
             if 'ceci' in self.data['mode']:
                 work.create_job_script()
         if 'fw' in self.data['mode']:
-            structure_dict = structure
+            structure_dict = structure.to_dict
             band_structure_dict = {'vbm_l': structure.vbm_l, 'cbm_l': structure.cbm_l, 'vbm_a': structure.vbm[0],
                                    'vbm_b': structure.vbm[1], 'vbm_c': structure.vbm[2], 'cbm_a': structure.cbm[0],
                                    'cbm_b': structure.cbm[1], 'cbm_c': structure.cbm[2]}
