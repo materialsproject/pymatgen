@@ -14,8 +14,7 @@ install: "pip install -q -r requirements.txt --use-mirrors"
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:
-  - python setup.py --quiet install
-  - mv pymatgen pmg
+  - python setup.py develop
 # command to run tests, e.g. python setup.py test
 script: nosetests
 branches:
