@@ -1,6 +1,7 @@
 language: python
 python:
   - "2.7"
+  - "3.3"
 git:
   depth: 1
 env:
@@ -16,7 +17,7 @@ before_script:
   - python setup.py --quiet install
   - mv pymatgen pmg
 # command to run tests, e.g. python setup.py test
-script: nosetests pmg/matproj/tests
+script: nosetests
 branches:
   only:
     - master
