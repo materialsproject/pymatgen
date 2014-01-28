@@ -16,7 +16,7 @@ __date__ = "Apr 17, 2012"
 import re
 
 from pymatgen.core.structure import Molecule
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 
 
 class XYZ(object):
