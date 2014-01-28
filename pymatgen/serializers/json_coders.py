@@ -42,7 +42,7 @@ import json
 from abc import ABCMeta, abstractproperty
 import datetime
 
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 
 
 class MSONable(object):
