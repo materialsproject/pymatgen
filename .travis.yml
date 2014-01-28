@@ -21,6 +21,7 @@ branches:
   only:
     - master
     - stable
+    - py3k
 notifications:
   email:
     recipients:
