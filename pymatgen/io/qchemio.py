@@ -682,7 +682,7 @@ class QcTask(MSONable):
                     sorted(list(cls.optional_keywords_list))
                 if section_name not in available_sections:
                     raise ValueError("Unrecognized keyword " + line.strip() +
-                                     "at line " + str(line_num))
+                                     " at line " + str(line_num))
                 if section_name in params:
                     raise ValueError("duplicated keyword " + line.strip() +
                                      "at line " + str(line_num))
@@ -1098,7 +1098,8 @@ class QcOutput(object):
             (re.compile("\s+[Nn][Aa][Nn]\s+"), "NAN values"),
             (re.compile("energy\s+=\s*(\*)+"), "Numerical disaster"),
             (re.compile("NewFileMan::OpenFile():\s+nopenfiles=\d+\s+"
-                        "maxopenfiles=\d+s+errno=\d+"), "Open file error")
+                        "maxopenfiles=\d+s+errno=\d+"), "Open file error"),
+            (re.compile("Application \d+ exit codes: 134"), "Exit Code 134")
         )
 
         energies = []
@@ -1276,7 +1277,7 @@ class QcOutput(object):
             if "solvent_method" in qctask.params["rem"]:
                 solvent_method = qctask.params["rem"]["solvent_method"]
         else:
-            errors.append("no input text")
+            errors.append("No input text")
 
         if len(errors) == 0:
             for text in cls._expected_successful_pattern(qctask):

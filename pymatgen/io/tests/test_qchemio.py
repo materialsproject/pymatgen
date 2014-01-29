@@ -1340,7 +1340,15 @@ $end
         no_reading_qcout = QcOutput(no_reading_file)
         self.assertTrue(no_reading_qcout.data[0]['has_error'])
         self.assertEqual(no_reading_qcout.data[0]['errors'],
-                         ['Molecular charge is not found', 'no input text'])
+                         ['Exit Code 134',
+                          'Molecular charge is not found',
+                          'No input text'])
+        exit_code_134_file = os.path.join(test_dir, "exit_code_134.qcout")
+        ec134_qcout = QcOutput(exit_code_134_file)
+        self.assertTrue(ec134_qcout.data[0]['has_error'])
+        self.assertEqual(ec134_qcout.data[0]['errors'],
+                         ['Exit Code 134',
+                          'Molecular charge is not found'])
 
 
 if __name__ == "__main__":
