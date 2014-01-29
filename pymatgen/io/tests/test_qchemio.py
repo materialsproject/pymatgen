@@ -364,7 +364,7 @@ $end
                         jobtype="SP",
                         basis_set="6-31+G*")
         qctask.set_scf_algorithm_and_iterations(algorithm="diis_gdm",
-                                               iterations=100)
+                                                iterations=100)
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
@@ -584,7 +584,7 @@ $end
                         jobtype="SP",
                         basis_set="6-31+G*")
         qctask.scale_geom_opt_threshold(gradient=0.1, displacement=0.1,
-                                       energy=0.1)
+                                        energy=0.1)
         self.assertEqual(str(qctask), ans)
         self.elementary_io_verify(ans, qctask)
 
@@ -730,15 +730,15 @@ $end
                         jobtype="SP",
                         basis_set="6-31+G*")
         qctask.use_pcm(pcm_params={"Radii": "FF",
-                                  "Theory": "CPCM",
-                                  "SASrad": 1.5,
-                                  "HPoints": 1202},
-                      solvent_params={"Dielectric": 20.0,
-                                      "Temperature": 300.75,
-                                      "NSolventAtoms": 2,
-                                      "SolventAtom": [[8, 1, 186, 1.30],
-                                                      [1, 2, 187, 1.01]]},
-                      radii_force_field="OPLSAA")
+                                   "Theory": "CPCM",
+                                   "SASrad": 1.5,
+                                   "HPoints": 1202},
+                       solvent_params={"Dielectric": 20.0,
+                                       "Temperature": 300.75,
+                                       "NSolventAtoms": 2,
+                                       "SolventAtom": [[8, 1, 186, 1.30],
+                                                       [1, 2, 187, 1.01]]},
+                       radii_force_field="OPLSAA")
         ans = '''$comments
  Test Methane
 $end
@@ -1270,23 +1270,23 @@ $end
 '''
         self.assertEqual(str(qcout.data[1]['input']), ans_inp)
         ans_freq = [{'vib_mode': ((0.17, -0.475, 0.0),
-                                   (-0.236, 0.659, 0.0),
-                                   (0.17, -0.475, 0.0)),
+                                  (-0.236, 0.659, 0.0),
+                                  (0.17, -0.475, 0.0)),
                      'frequency': 61.36},
                     {'vib_mode': ((-0.475, -0.17, 0.0),
-                                   (0.659, 0.236, 0.0),
-                                   (-0.475, -0.17, 0.0)),
+                                  (0.659, 0.236, 0.0),
+                                  (-0.475, -0.17, 0.0)),
                      'frequency': 61.36},
                     {'vib_mode': ((0.0, 0.0, 0.707),
-                                   (0.0, 0.0, 0.0),
-                                   (0.0, 0.0, -0.707)),
+                                  (0.0, 0.0, 0.0),
+                                  (0.0, 0.0, -0.707)),
                      'frequency': 199.94},
                     {'vib_mode': ((0.17, -0.475, 0.0),
-                                   (-0.236, 0.659, 0.0),
-                                   (0.17, -0.475, 0.0),
-                                   (0.0, 0.0, -0.505),
-                                   (0.0, 0.0, 0.7),
-                                   (0.0, 0.0, -0.505)),
+                                  (-0.236, 0.659, 0.0),
+                                  (0.17, -0.475, 0.0),
+                                  (0.0, 0.0, -0.505),
+                                  (0.0, 0.0, 0.7),
+                                  (0.0, 0.0, -0.505)),
                      'frequency': 311.74}]
         self.assertEqual(qcout.data[1]['frequencies'], ans_freq)
         self.assertEqual(qcout.data[2]['energies'],
@@ -1334,6 +1334,13 @@ $end
         self.assertTrue(geom_qcout.data[0]['has_error'])
         self.assertEqual(geom_qcout.data[0]['errors'],
                          ['Geometry optimization failed'])
+
+    def test_abnormal_exit(self):
+        no_reading_file = os.path.join(test_dir, "no_reading.qcout")
+        no_reading_qcout = QcOutput(no_reading_file)
+        self.assertTrue(no_reading_qcout.data[0]['has_error'])
+        self.assertEqual(no_reading_qcout.data[0]['errors'],
+                         ['Molecular charge is not found', 'no input text'])
 
 
 if __name__ == "__main__":

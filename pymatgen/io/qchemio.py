@@ -631,12 +631,12 @@ class QcTask(MSONable):
             for k in op_keys:
                 optional_params[k] = d["params"][k]
         return QcTask(molecule=mol, charge=d["charge"],
-                       spin_multiplicity=d["spin_multiplicity"],
-                       jobtype=jobtype, title=title,
-                       exchange=exchange, correlation=correlation,
-                       basis_set=basis_set, aux_basis_set=aux_basis_set,
-                       ecp=ecp, rem_params=d["params"]["rem"],
-                       optional_params=optional_params)
+                      spin_multiplicity=d["spin_multiplicity"],
+                      jobtype=jobtype, title=title,
+                      exchange=exchange, correlation=correlation,
+                      basis_set=basis_set, aux_basis_set=aux_basis_set,
+                      ecp=ecp, rem_params=d["params"]["rem"],
+                      optional_params=optional_params)
 
     def write_file(self, filename):
         with zopen(filename, "w") as f:
@@ -717,12 +717,12 @@ class QcTask(MSONable):
             for k in op_keys:
                 optional_params[k] = params[k]
         return QcTask(molecule=mol, charge=charge,
-                       spin_multiplicity=spin_multiplicity,
-                       jobtype=jobtype, title=title,
-                       exchange=exchange, correlation=correlation,
-                       basis_set=basis_set, aux_basis_set=aux_basis_set,
-                       ecp=ecp, rem_params=params["rem"],
-                       optional_params=optional_params)
+                      spin_multiplicity=spin_multiplicity,
+                      jobtype=jobtype, title=title,
+                      exchange=exchange, correlation=correlation,
+                      basis_set=basis_set, aux_basis_set=aux_basis_set,
+                      ecp=ecp, rem_params=params["rem"],
+                      optional_params=optional_params)
 
     @classmethod
     def _parse_comments(cls, contents):
@@ -1270,16 +1270,19 @@ class QcOutput(object):
             else:
                 v *= cls.kcal_per_mol_2_eV
             thermal_corr[k] = v
+
+        solvent_method = "NA"
+        if qctask:
+            if "solvent_method" in qctask.params["rem"]:
+                solvent_method = qctask.params["rem"]["solvent_method"]
+        else:
+            errors.append("no input text")
+
         if len(errors) == 0:
             for text in cls._expected_successful_pattern(qctask):
                 success_pattern = re.compile(text)
                 if not success_pattern.search(output):
                     errors.append("Can't find text to indicate success")
-
-        if "solvent_method" in qctask.params["rem"]:
-            solvent_method = qctask.params["rem"]["solvent_method"]
-        else:
-            solvent_method = "NA"
 
         data = {
             "jobtype": jobtype,
