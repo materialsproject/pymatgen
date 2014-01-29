@@ -1658,8 +1658,8 @@ class Structure(IStructure):
         Apply a strain to the lattice.
 
         Args:
-            strain (float or list): Amount of strain to apply. Can be an int,
-                a sequence of 3 numbers. E.g., 0.01 means all lattice
+            strain (float or list): Amount of strain to apply. Can be a float,
+                or a sequence of 3 numbers. E.g., 0.01 means all lattice
                 vectors are increased by 1%. This is equivalent to calling
                 modify_lattice with a lattice with lattice parameters that
                 are 1% larger.
