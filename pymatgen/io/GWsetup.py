@@ -624,7 +624,7 @@ class GWSpecs(MSONable):
     """
     def __init__(self):
         self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-                     'functional': 'PBE', 'kp_grid_dens': 500, 'prec': 'm'}
+                     'functional': 'PBE', 'kp_grid_dens': 500, 'prec': 'm', 'converge': False}
         self.warnings = []
         self.errors = []
 
