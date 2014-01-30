@@ -169,8 +169,8 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     for static non self-consistend exact diagonalization step preparing for
     a GW calculation.
     """
-    TESTS = {'NBANDS': {'test_range': (10, 20, 30), 'method': 'set_nbands', 'control': "gap"}}
-
+    #TESTS = {'NBANDS': {'test_range': (10, 20, 30), 'method': 'set_nbands', 'control': "gap"}}
+    TESTS = {'NBANDS': {'test_range': (10, 20, 30, 40), 'method': 'set_nbands', 'control': "gap"}}
     CONVS = {'NBANDS': {'test_range': (10, 20, 30, 40), 'method': 'set_nbands', 'control': "gap"}}
 
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
@@ -248,8 +248,10 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static G0W0 calculation
     """
-    TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
-             'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
+    #TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
+   #          'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
+
+    TESTS = {'ENCUTGW': {'test_range': (200, 300, 400, 500), 'method': 'incar_settings', 'control': "gap"}}
 
     CONVS = {'ENCUTGW': {'test_range': (200, 300, 400, 500), 'method': 'incar_settings', 'control': "gap"}}
 
