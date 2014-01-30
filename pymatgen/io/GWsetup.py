@@ -51,6 +51,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
     for static calculations preparing for a GW calculation.
     """
     TESTS = {}
+    CONVS = {}
 
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
@@ -61,6 +62,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
                 self, "MP Static Self consistent run for GW", json.load(f), **kwargs)
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
+        self.convs = self.__class__.get_defaults_convs()
         self.functional = functional
         self.sym_prec = sym_prec
     #  todo update the fromdict and todict ot include the new atributes
@@ -68,6 +70,10 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
     @classmethod
     def get_defaults_tests(cls):
         return cls.TESTS.copy()
+
+    @classmethod
+    def get_defaults_convs(cls):
+        return cls.CONVS.copy()
 
     def get_npar(self, structure):
         """
@@ -114,12 +120,17 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         if self.sort_structure:
             structure = structure.get_sorted_structure()
         dens = int(self.kpoints_settings['grid_density'])
-        return Kpoints.automatic_gamma_density(structure, dens)
+        if dens == 1:
+            return Kpoints.gamma_automatic()
+        else:
+            return Kpoints.automatic_gamma_density(structure, dens)
 
     def set_dens(self, spec):
         """
         sets the grid_density to the value specified in spec
         """
+        if spec['kp_grid_dens'] < 10:
+            self.incar_settings.update({'ISMEAR': 0})
         self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
 
     def get_electrons(self, structure):
@@ -158,7 +169,9 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     for static non self-consistend exact diagonalization step preparing for
     a GW calculation.
     """
-    TESTS = {'NBANDS': {'test_range': (10, 20, 30, 40), 'method': 'set_nbands', 'control': "gap"}}
+    TESTS = {'NBANDS': {'test_range': (10, 20, 30), 'method': 'set_nbands', 'control': "gap"}}
+
+    CONVS = {'NBANDS': {'test_range': (10, 20, 30, 40), 'method': 'set_nbands', 'control': "gap"}}
 
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
@@ -177,6 +190,14 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         # for large systems exact diagonalization consumes too much memory
         self.set_gw_bands(15)
         self.incar_settings.update({"NPAR": npar})
+
+    @classmethod
+    def get_defaults_tests(cls):
+        return cls.TESTS.copy()
+
+    @classmethod
+    def get_defaults_convs(cls):
+        return cls.CONVS.copy()
 
     def get_kpoints(self, structure, regular=True):
         """
@@ -227,12 +248,18 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static G0W0 calculation
     """
-    TESTS = {'ENCUTGW': {'test_range': (200, 300, 400, 500), 'method': 'incar_settings', 'control': "gap"}}
-             #'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
+    TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
+             'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
+
+    CONVS = {'ENCUTGW': {'test_range': (200, 300, 400, 500), 'method': 'incar_settings', 'control': "gap"}}
 
     @classmethod
     def get_defaults_tests(cls):
         return cls.TESTS.copy()
+
+    @classmethod
+    def get_defaults_convs(cls):
+        return cls.CONVS.copy()
 
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
@@ -696,6 +723,10 @@ class GWSpecs(MSONable):
         for abinit a flow is created using abinitio
         """
         if self.get_code() == 'VASP':
+            if self.data['converge']:
+                convs_prep = MPGWscDFTPrepVaspInputSet(structure).convs
+                convs_prep.update(MPGWDFTDiagVaspInputSet(structure).convs)
+                pass
             if self.data['test']:
                 tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
                 tests_prep.update(MPGWDFTDiagVaspInputSet(structure).tests)
