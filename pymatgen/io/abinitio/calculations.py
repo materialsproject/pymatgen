@@ -329,9 +329,7 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
     if sigma_nband is None:
         sigma_nband = nscf_nband
 
-    screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot",
-                          freq_mesh=None, hilbert_transform=None, ecutwfn=None,
-                          inclvkb=inclvkb)
+    screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
 
     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
                              ppmodel=ppmodel, gw_qprange=1)
