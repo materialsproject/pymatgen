@@ -17,7 +17,6 @@ import numpy
 import os
 import time
 import errno
-from monty.io import zopen
 
 
 def zpath(filename):

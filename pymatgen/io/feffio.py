@@ -31,7 +31,8 @@ from pymatgen.symmetry.finder import SymmetryFinder
 from operator import itemgetter
 from pymatgen.io.cifio import CifParser
 from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.util.io_utils import zopen, clean_lines
+from monty.io import zopen
+from pymatgen.util.io_utils import clean_lines
 from pymatgen.electronic_structure.core import Spin, Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
 from pymatgen.core.lattice import Lattice

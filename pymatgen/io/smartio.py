@@ -25,7 +25,7 @@ from pymatgen.io.cifio import CifParser, CifWriter
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
 from pymatgen.io.gaussianio import GaussianInput, GaussianOutput
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pymatgen.io.babelio import BabelMolAdaptor
 

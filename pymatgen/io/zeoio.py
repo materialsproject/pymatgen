@@ -23,7 +23,7 @@ from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from monty.dev import requires
 
 try:
