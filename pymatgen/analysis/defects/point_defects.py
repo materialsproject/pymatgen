@@ -77,7 +77,14 @@ class ValenceIonicRadiusEvaluator:
         Computes ionic valences of elements for all sites in the structure.
         """
         bv = BVAnalyzer()
-        valences = bv.get_valences(self._structure)
+        try:
+            valences = bv.get_valences(self._structure)
+        except:
+            try:
+                valences = bv.get_valences(self._structure, symm_tol=0.0)
+            except:
+                raise 
+
         el = [site.specie.symbol for site in self.structure.sites]
         valence_dict = dict(zip(el, valences))
         return valence_dict
