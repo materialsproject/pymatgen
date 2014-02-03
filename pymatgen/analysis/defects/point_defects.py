@@ -60,17 +60,34 @@ class ValenceIonicRadiusEvaluator:
         Computes ionic radii of elements for all sites in the structure.
         If valence is zero, atomic radius is used.
         """
-        rad_dict = {}
-        for k, val in self._valences.items():
-            el = re.sub('[1-9,+,\-]', '', k)
+        rad = []
+        coord_finder = VoronoiCoordFinder(self._structure)
+        coord_nos = []
+        for i in range(len(self._structure.sites)):
+            coord_no = coord_finder.get_coordination_number(i)
+            coord_nos.append(int(round(coord_no)))
+        with open('ionic_radii.json') as fp:
+            ionic_radii = json.load(fp)
+
+        for i in range(len(self._structure.sites)):
+            #print dir(self._structure.sites[i])
+            el = self._structure.sites[i].specie.symbol
+
+            val = self._valences[i]
+            #for el, val in zip(self._valences.items():
+            # Update with alternative routine in the future
             if val:
-                #rad_dict[k] = Specie(el, val).ionic_radius
-                rad_dict[k] = float(Element(el).ionic_radii[val])
-                if not rad_dict[k]:  
-                    raise LookupError()
+                try:
+                    radius = Specie(el,val).ionic_radius
+                except:
+                    try:
+                        radius = read_radius_from_dict(el, val, coord_no[i])
+
+                    rad_dict[k] = Element(el).atomic_radius #Stop gap
+                rad.append(Specie(el,val).ionic_radius)
             else:
                 rad_dict[k] = Element(el).atomic_radius
-        return rad_dict
+        return rad
 
     def _get_valences(self):
         """
@@ -86,8 +103,8 @@ class ValenceIonicRadiusEvaluator:
                 raise 
 
         el = [site.specie.symbol for site in self.structure.sites]
-        valence_dict = dict(zip(el, valences))
-        return valence_dict
+        species = [site.species_string for site in self.structure.sites]
+        return valences
 
 
 class Defect:

@@ -4,6 +4,7 @@ import unittest
 import sys
 
 from pymatgen.analysis.defects.point_defects import *
+from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from monty.os.path import which
@@ -32,13 +33,37 @@ class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
         #self._ci_valrad_evaluator = ValenceIonicRadiusEvaluator(self._si)
 
     def test_valences_ionic_structure(self):
-        valence_dict = self._mgo_valrad_evaluator.valences
-        for val in valence_dict.values():
+        valences = self._mgo_valrad_evaluator.valences
+        for val in valences:
             self.assertTrue(val in {2, -2})
 
     def test_radii_ionic_structure(self):
-        rad_dict = self._mgo_valrad_evaluator.radii
-        for rad in rad_dict.values():
+        radii = self._mgo_valrad_evaluator.radii
+        for rad in radii:
+            self.assertTrue(rad in {0.86, 1.26})
+
+
+class ValenceIonicRadiusEvaluatorMultiOxiTest(unittest.TestCase):
+    def setUp(self):
+        """
+        Setup Fe3O4  structure for testing multiple oxidation states
+        """
+        mp = MPRester()
+        self._struct = mp.get_structure_by_material_id('mp-18731')
+        self._valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
+        self._length = len(self._struct.sites)
+
+    def test_valences_ionic_structure(self):
+        valences = set(self._valrad_evaluator.valences)
+        print valences
+        self.assertEqual(valences, {2,3,-2})
+
+    def test_radii_ionic_structure(self):
+        radii = self._valrad_evaluator.radii
+        print self._valrad_evaluator.valences
+        print radii
+        for rad in radii:
+            continue
             self.assertTrue(rad in {0.86, 1.26})
 
 
