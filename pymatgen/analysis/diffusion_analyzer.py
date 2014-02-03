@@ -190,6 +190,21 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
 
+    def get_summary_dict(self, include_msd_t=False):
+        d = {
+            "D": self.diffusivity,
+            "S": self.conductivity,
+            "D_components": self.diffusivity_components.tolist(),
+            "S_components": self.conductivity_components.tolist(),
+            "specie": str(self.sp),
+            "temperature": self.temperature
+        }
+        if include_msd_t:
+            d["msd"] = self.s_msd.tolist()
+            d["msd_components"] = self.s_msd_components.tolist()
+            d["dt"] = self.dt.tolist()
+        return d
+
     def get_smoothed_msd_plot(self, plt=None):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
