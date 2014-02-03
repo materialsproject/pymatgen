@@ -105,8 +105,9 @@ class ValenceIonicRadiusEvaluator:
             except:
                 raise 
 
-        el = [site.specie.symbol for site in self._structure.sites]
-        species = [site.species_string for site in self._structure.sites]
+        #el = [site.specie.symbol for site in self._structure.sites]
+        el = [site.species_string for site in self._structure.sites]
+        valence_dict = dict(zip(el, valences))
         return valences
 
 
