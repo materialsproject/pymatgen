@@ -4,8 +4,10 @@
 This module defines classes for point defects
 """
 from __future__ import division
+import os
 import abc
 import re
+import json
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -46,7 +48,9 @@ class ValenceIonicRadiusEvaluator:
         """
         List of oxidation states of elements in the order of sites.
         """
-        return self._valences
+        el = [site.species_string for site in self._structure.sites]
+        valence_dict = dict(zip(el, self._valences))
+        return valenec_dict
 
     @property
     def structure(self):
@@ -60,14 +64,22 @@ class ValenceIonicRadiusEvaluator:
         Computes ionic radii of elements for all sites in the structure.
         If valence is zero, atomic radius is used.
         """
+        file_dir = os.path.dirname(__file__)
+        rad_file = os.path.join(file_dir, '../../core/ionic_radii.json')
+        print rad_file
+        with open(rad_file, 'r') as fp:
+            ionic_radii = json.load(fp)
+        print dir(Specie)
         rad = []
         coord_finder = VoronoiCoordFinder(self._structure)
         coord_nos = []
         for i in range(len(self._structure.sites)):
+            site = self._structure.sites[i]
             coord_no = coord_finder.get_coordination_number(i)
             coord_nos.append(int(round(coord_no)))
-        with open('ionic_radii.json') as fp:
-            ionic_radii = json.load(fp)
+            radius = 1
+            rad.append(site.specie)
+        print coord_nos
 
         for i in range(len(self._structure.sites)):
             #print dir(self._structure.sites[i])
@@ -106,8 +118,10 @@ class ValenceIonicRadiusEvaluator:
                 raise 
 
         #el = [site.specie.symbol for site in self._structure.sites]
-        el = [site.species_string for site in self._structure.sites]
-        valence_dict = dict(zip(el, valences))
+        #el = [site.species_string for site in self._structure.sites]
+        #el = [site.specie for site in self._structure.sites]
+        #valence_dict = dict(zip(el, valences))
+        #print valence_dict
         return valences
 
 
