@@ -82,8 +82,10 @@ class ValenceIonicRadiusEvaluator:
                 except:
                     try:
                         radius = read_radius_from_dict(el, val, coord_no[i])
+                    except:
+                        raise
 
-                    rad_dict[k] = Element(el).atomic_radius #Stop gap
+                    #rad_dict[k] = Element(el).atomic_radius #Stop gap
                 rad.append(Specie(el,val).ionic_radius)
             else:
                 rad_dict[k] = Element(el).atomic_radius
@@ -94,6 +96,7 @@ class ValenceIonicRadiusEvaluator:
         Computes ionic valences of elements for all sites in the structure.
         """
         bv = BVAnalyzer()
+        self._structure = bv.get_oxi_state_decorated_structure(self._structure)
         try:
             valences = bv.get_valences(self._structure)
         except:
@@ -102,8 +105,8 @@ class ValenceIonicRadiusEvaluator:
             except:
                 raise 
 
-        el = [site.specie.symbol for site in self.structure.sites]
-        species = [site.species_string for site in self.structure.sites]
+        el = [site.specie.symbol for site in self._structure.sites]
+        species = [site.species_string for site in self._structure.sites]
         return valences
 
 
