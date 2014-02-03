@@ -197,6 +197,8 @@ class DiffusionAnalyzer(MSONable):
             "D_components": self.diffusivity_components.tolist(),
             "S_components": self.conductivity_components.tolist(),
             "specie": str(self.sp),
+            "step_skip": self.step_skip,
+            "time_step": self.time_step,
             "temperature": self.temperature
         }
         if include_msd_t:
