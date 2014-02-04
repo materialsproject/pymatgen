@@ -433,7 +433,42 @@ def _get_vasprun(args):
     return Vasprun(args[0], ionic_step_skip=args[1])
 
 
-def get_arrhenius_plot(temps, diffusivites, **kwargs):
+def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
+    """
+    Returns (Arrhenius) extrapolated diffusivity at new_temp
+    
+    Args:
+        temps ([float]): A sequence of temperatures. units: K
+        diffusivities ([float]): A sequence of diffusivities (e.g.,
+            from DiffusionAnalyzer.diffusivity). units: cm^2/s
+        new_temp (float): desired temperature. units: K
+    """
+    t_1 = 1000 / np.array(temps)
+    logd = np.log10(diffusivities)
+    #Do a least squares regression of log(D) vs 1000/T
+    A = np.array([t_1, np.ones(len(temps))]).T
+    w = np.array(np.linalg.lstsq(A, logd)[0])
+    return 10 ** (w[0] * 1000 / new_temp + w[1])
+
+
+def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, species):
+    """
+    Returns extrapolated mS/cm conductivity.
+    
+    Args:
+        temps ([float]): A sequence of temperatures. units: K
+        diffusivities ([float]): A sequence of diffusivities (e.g.,
+            from DiffusionAnalyzer.diffusivity). units: cm^2/s
+        new_temp (float): desired temperature. units: K
+        structure (structure): structure used for the diffusivity calculation 
+        species (string/Specie): conducting species
+        
+    """
+    return get_extrapolated_diffusivity(temps, diffusivities, new_temp) \
+            * get_conversion_factor(structure, species, new_temp)
+
+
+def get_arrhenius_plot(temps, diffusivities, **kwargs):
     """
     Returns an Arrhenius plot.
 
@@ -448,7 +483,7 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
     t_1 = 1000 / np.array(temps)
-    logd = np.log10(diffusivites)
+    logd = np.log10(diffusivities)
     #Do a least squares regression of log(D) vs 1000/T
     A = np.array([t_1, np.ones(len(temps))]).T
     w = np.array(np.linalg.lstsq(A, logd)[0])
