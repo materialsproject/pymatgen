@@ -33,13 +33,13 @@ class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
         #self._ci_valrad_evaluator = ValenceIonicRadiusEvaluator(self._si)
 
     def test_valences_ionic_structure(self):
-        valences = self._mgo_valrad_evaluator.valences
-        for val in valences:
+        valence_dict = self._mgo_valrad_evaluator.valences
+        for val in valence_dict.values():
             self.assertTrue(val in {2, -2})
 
     def test_radii_ionic_structure(self):
-        radii = self._mgo_valrad_evaluator.radii
-        for rad in radii:
+        radii_dict = self._mgo_valrad_evaluator.radii
+        for rad in radii_dict.values():
             self.assertTrue(rad in {0.86, 1.26})
 
 
@@ -54,17 +54,12 @@ class ValenceIonicRadiusEvaluatorMultiOxiTest(unittest.TestCase):
         self._length = len(self._struct.sites)
 
     def test_valences_ionic_structure(self):
-        valences = set(self._valrad_evaluator.valences)
-        print valences
-        self.assertEqual(valences, {2,3,-2})
+        valence_set = set(self._valrad_evaluator.valences.values())
+        self.assertEqual(valence_set, {2,3,-2})
 
     def test_radii_ionic_structure(self):
-        radii = self._valrad_evaluator.radii
-        print self._valrad_evaluator.valences
-        print radii
-        for rad in radii:
-            continue
-            self.assertTrue(rad in {0.86, 1.26})
+        radii_set = set(self._valrad_evaluator.radii.values())
+        self.assertEqual(radii_set, {0.72,0.75,1.26})
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
