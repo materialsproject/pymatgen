@@ -21,6 +21,10 @@ from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie, Element
 
+file_dir = os.path.dirname(__file__)
+rad_file = os.path.join(file_dir, '../../core/ionic_radii.json')
+with open(rad_file, 'r') as fp:
+    _ion_radii = json.load(fp)
 
 class ValenceIonicRadiusEvaluator:
     """
@@ -41,7 +45,9 @@ class ValenceIonicRadiusEvaluator:
         """
         List of ionic radii of elements in the order of sites.
         """
-        return self._ionic_radii
+        el = [site.species_string for site in self._structure.sites]
+        radii_dict = dict(zip(el, self._ionic_radii))
+        return radii_dict
 
     @property
     def valences(self):
@@ -50,7 +56,7 @@ class ValenceIonicRadiusEvaluator:
         """
         el = [site.species_string for site in self._structure.sites]
         valence_dict = dict(zip(el, self._valences))
-        return valenec_dict
+        return valence_dict
 
     @property
     def structure(self):
@@ -64,44 +70,52 @@ class ValenceIonicRadiusEvaluator:
         Computes ionic radii of elements for all sites in the structure.
         If valence is zero, atomic radius is used.
         """
-        file_dir = os.path.dirname(__file__)
-        rad_file = os.path.join(file_dir, '../../core/ionic_radii.json')
-        print rad_file
-        with open(rad_file, 'r') as fp:
-            ionic_radii = json.load(fp)
-        print dir(Specie)
-        rad = []
+        radii = []
         coord_finder = VoronoiCoordFinder(self._structure)
-        coord_nos = []
+        #print self._structure
         for i in range(len(self._structure.sites)):
             site = self._structure.sites[i]
-            coord_no = coord_finder.get_coordination_number(i)
-            coord_nos.append(int(round(coord_no)))
-            radius = 1
-            rad.append(site.specie)
-        print coord_nos
-
-        for i in range(len(self._structure.sites)):
-            #print dir(self._structure.sites[i])
-            el = self._structure.sites[i].specie.symbol
-
-            val = self._valences[i]
-            #for el, val in zip(self._valences.items():
-            # Update with alternative routine in the future
-            if val:
+            el = site.specie.symbol
+            oxi_state = int(round(site.specie.oxi_state))
+            coord_no = int(round(coord_finder.get_coordination_number(i)))
+            #print el, oxi_state, coord_no, _ion_radii[el][str(oxi_state)]
+            #print coord_finder.get_coordination_number(i)
+            try:
+                radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
+            except KeyError:
+                print "KeyError"
+                if coord_finder.get_coordination_number(i)-coord_no > 0:
+                    new_coord_no = coord_no + 1
+                else:
+                    new_coord_no = coord_no - 1
                 try:
-                    radius = Specie(el,val).ionic_radius
+                    radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
+                    coord_no = new_coord_no
                 except:
-                    try:
-                        radius = read_radius_from_dict(el, val, coord_no[i])
-                    except:
-                        raise
-
-                    #rad_dict[k] = Element(el).atomic_radius #Stop gap
-                rad.append(Specie(el,val).ionic_radius)
-            else:
-                rad_dict[k] = Element(el).atomic_radius
-        return rad
+                    tab_coords = map(int, _ion_radii[el][str(oxi_state)].keys())
+                    tab_coords = sorted(tab_coords)
+                    i = 0
+                    for val in tab_coords:
+                        if  val > coord_no:
+                            break
+                        i = i + 1
+                    if i == len(tab_coords):
+                        key = str(tab_coords[-1])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    elif i == 0:
+                        key = str(tab_coords[0])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    else:
+                        key = str(tab_coords[i-1])
+                        radius1 = _ion_radii[el][str(oxi_state)][key]
+                        key = str(tab_coords[i])
+                        radius2 = _ion_radii[el][str(oxi_state)][key]
+                        radius = (radius1+radius2)/2
+                    
+            #implement complex checks later
+            #print el, oxi_state, coord_no, radius#, site.specie.ionic_radius
+            radii.append(radius)
+        return radii
 
     def _get_valences(self):
         """
@@ -117,6 +131,7 @@ class ValenceIonicRadiusEvaluator:
             except:
                 raise 
 
+        #print valences
         #el = [site.specie.symbol for site in self._structure.sites]
         #el = [site.species_string for site in self._structure.sites]
         #el = [site.specie for site in self._structure.sites]
@@ -485,7 +500,9 @@ class Interstitial(Defect):
             radii: Radii of elemnts in the structure
         """
 
-        self._structure = structure
+        bv = BVAnalyzer()
+        self._structure = bv.get_oxi_state_decorated_structure(structure)
+        #self._structure = structure
         self._valence_dict = valences
         self._rad_dict = radii
 
@@ -538,7 +555,7 @@ class Interstitial(Defect):
         coord_chrg = 0
         for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
             if not site.specie.symbol == 'X':
-                coord_chrg += weight * self._valence_dict[site.specie.symbol]
+                coord_chrg += weight * self._valence_dict[site.species_string]
 
         return coord_no, coord_sites, coord_chrg
 
@@ -1215,7 +1232,7 @@ class RelaxedInterstitial:
             self._coord_sites.append(coord_finder.get_coordinated_sites(-1))
             coord_chrg = 0
             for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-                coord_chrg += weight * self._valence_dict[site.specie.symbol]
+                coord_chrg += weight * self._valence_dict[site.species_string]
             self._coord_charge_no.append(coord_chrg)
 
 
