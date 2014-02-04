@@ -497,9 +497,8 @@ def get_arrhenius_plot(temps, diffusivities, **kwargs):
     # out in base 10 for easier reading of the diffusivity scale,
     # but the Arrhenius relationship is in base e).
     actv_energy = - w[0] * phyc.k_b / phyc.e * 1e6 * math.log(10)
-    plt.annotate("E$_a$ = {:.0f} meV".format(actv_energy),
-                 (t_1[-1], w[0] * t_1[-1] + w[1]), xytext=(100, 0),
-                 xycoords='data', textcoords='offset points', fontsize=30)
+    plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(actv_energy), 
+             fontsize=30, transform=plt.axes().transAxes)
     plt.ylabel("log(D (cm$^2$/s))")
     plt.xlabel("1000/T (K$^{-1}$)")
     plt.tight_layout()
