@@ -451,7 +451,8 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
     return 10 ** (w[0] * 1000 / new_temp + w[1])
 
 
-def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, species):
+def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
+                                  species):
     """
     Returns extrapolated mS/cm conductivity.
     
@@ -465,7 +466,7 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure, spe
         
     """
     return get_extrapolated_diffusivity(temps, diffusivities, new_temp) \
-            * get_conversion_factor(structure, species, new_temp)
+        * get_conversion_factor(structure, species, new_temp)
 
 
 def get_arrhenius_plot(temps, diffusivities, **kwargs):
