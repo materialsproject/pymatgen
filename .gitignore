@@ -16,8 +16,7 @@ build
 .settings
 .externalToolBuilders
 .idea
-distribute*.egg
-distribute*.tar.gz
+setuptools*
 .ipynb_checkpoints
 
 gulptmp_4_1
