@@ -191,6 +191,16 @@ class DiffusionAnalyzer(MSONable):
                 conv_factor
 
     def get_summary_dict(self, include_msd_t=False):
+        """
+        Provides a summary of diffusion information.
+
+        Args:
+            include_msd_t (bool): Whether to include mean square displace and
+                time data with the data.
+
+        Returns:
+            (dict) of diffusion and conductivity data.
+        """
         d = {
             "D": self.diffusivity,
             "S": self.conductivity,
@@ -442,6 +452,9 @@ def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
         diffusivities ([float]): A sequence of diffusivities (e.g.,
             from DiffusionAnalyzer.diffusivity). units: cm^2/s
         new_temp (float): desired temperature. units: K
+
+    Returns:
+        (float) Diffusivity at extrapolated temp in mS/cm.
     """
     t_1 = 1000 / np.array(temps)
     logd = np.log10(diffusivities)
@@ -463,7 +476,9 @@ def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
         new_temp (float): desired temperature. units: K
         structure (structure): structure used for the diffusivity calculation 
         species (string/Specie): conducting species
-        
+
+    Returns:
+        (float) Conductivity at extrapolated temp in mS/cm.
     """
     return get_extrapolated_diffusivity(temps, diffusivities, new_temp) \
         * get_conversion_factor(structure, species, new_temp)
