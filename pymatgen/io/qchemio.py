@@ -510,7 +510,7 @@ class QcTask(MSONable):
         if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
                          .charge, multi=self.spin_multiplicity))
-        if self.mol == "read":
+        if isinstance(self.mol, str) and self.mol == "read":
             lines.append(" read")
         else:
             for site in self.mol.sites:
