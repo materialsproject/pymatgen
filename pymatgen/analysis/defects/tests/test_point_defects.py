@@ -59,6 +59,7 @@ class ValenceIonicRadiusEvaluatorMultiOxiTest(unittest.TestCase):
 
     def test_radii_ionic_structure(self):
         radii_set = set(self._valrad_evaluator.radii.values())
+        self.assertEqual(len(radii_set), 3)
         self.assertEqual(radii_set, {0.72,0.75,1.26})
 
 
@@ -231,6 +232,64 @@ class InterstitialTest(unittest.TestCase):
             print >> sys.stderr, rad
             self.assertTrue(rad, float)
 
+@unittest.skipIf(not zeo, "zeo not present.")
+class InterstitialMultiOxiTest(unittest.TestCase):
+    def setUp(self):
+        """
+        Setup Fe3O4 structure for testing Interstitial
+        """
+        mp = MPRester()
+        self._struct = mp.get_structure_by_material_id('mp-18731')
+        valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
+        self._length = len(self._struct.sites)
+        self._val = valrad_evaluator.valences
+        self._rad = valrad_evaluator.radii
+        self._interstitial = Interstitial(self._struct, self._val, self._rad)
+
+    def test_enumerate_defectsites(self):
+        """
+        The interstitial sites should be within the lattice
+        """
+        uniq_def_sites = self._interstitial.enumerate_defectsites()
+        print uniq_def_sites
+        #self.assertTrue(len(uniq_def_sites) == 2, "Interstitial init failed")
+        #mgo_spg = Spacegroup(int_number=225)
+        #self.assertTrue(mgo_spg.are_symmetrically_equivalent(uniq_sites,
+        #                uniq_def_sites),  "Vacancy init failed")
+
+    def test_defectsite_count(self):
+        print self._interstitial.defectsite_count()
+        #self.assertTrue(self._interstitial.defectsite_count() == 2,
+        #                "Vacancy count wrong")
+
+    def test_get_defectsite_coordination_number(self):
+        for i in range(self._interstitial.defectsite_count()):
+            print >> sys.stderr, self._interstitial.get_defectsite_coordination_number(
+                i)
+
+    def test_get_coordinated_sites(self):
+        for i in range(self._interstitial.defectsite_count()):
+            print >> sys.stderr, self._interstitial.get_coordinated_sites(
+                i)
+
+    def test_get_coordsites_charge_sum(self):
+        for i in range(self._interstitial.defectsite_count()):
+            print >> sys.stderr, self._interstitial.get_coordsites_charge_sum(
+                i)
+
+    def test_get_defectsite_coordinated_elements(self):
+        struct_el = self._struct.composition.elements
+        for i in range(self._interstitial.defectsite_count()):
+            for el in self._interstitial.get_coordinated_elements(i):
+                self.assertTrue(
+                    Element(el) in struct_el, "Coordinated elements are wrong"
+                )
+
+    def test_get_radius(self):
+        for i in range(self._interstitial.defectsite_count()):
+            rad = self._interstitial.get_radius(i)
+            print >> sys.stderr, rad
+            self.assertTrue(rad, float)
 
 @unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialAnalyzerTest(unittest.TestCase):
