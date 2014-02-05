@@ -83,7 +83,6 @@ class ValenceIonicRadiusEvaluator:
             try:
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                print "KeyError"
                 if coord_finder.get_coordination_number(i)-coord_no > 0:
                     new_coord_no = coord_no + 1
                 else:
@@ -319,7 +318,7 @@ class Vacancy(Defect):
         # effectively -ve charge and anion vacancy has +ve charge.) Inverse
         # the BVAnalyzer.get_valences result.
 
-        el = self.get_defectsite(n).specie.symbol
+        el = self.get_defectsite(n).species_string
         return -self._valence_dict[el]
         #if not self._vac_eff_charges:
         #    self._vac_eff_charges = []

@@ -7,6 +7,7 @@ from pymatgen.analysis.defects.point_defects import *
 from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from monty.os.path import which
 
 try:
@@ -75,6 +76,9 @@ class VacancyTest(unittest.TestCase):
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
         self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
                                  True)
+
+        bv = BVAnalyzer()
+        self._mgo_uc = bv.get_oxi_state_decorated_structure(self._mgo_uc)
         self._mgo_val_rad_eval = ValenceIonicRadiusEvaluator(self._mgo_uc)
         self._mgo_val = self._mgo_val_rad_eval.valences
         self._mgo_rad = self._mgo_val_rad_eval.radii
@@ -124,9 +128,9 @@ class VacancyTest(unittest.TestCase):
             site_index = self._mgo_vac.get_defectsite_structure_index(i)
             site_el = self._mgo_uc[site_index].species_and_occu
             eff_charge = self._mgo_vac.get_defectsite_effective_charge(i)
-            if site_el["Mg"] == 1:
+            if site_el["Mg2+"] == 1:
                 self.assertEqual(eff_charge, -2)
-            if site_el["O"] == 1:
+            if site_el["O2-"] == 1:
                 self.assertEqual(eff_charge, 2)
 
     def test_get_coordinatedsites_min_max_charge(self):
@@ -232,64 +236,6 @@ class InterstitialTest(unittest.TestCase):
             print >> sys.stderr, rad
             self.assertTrue(rad, float)
 
-@unittest.skipIf(not zeo, "zeo not present.")
-class InterstitialMultiOxiTest(unittest.TestCase):
-    def setUp(self):
-        """
-        Setup Fe3O4 structure for testing Interstitial
-        """
-        mp = MPRester()
-        self._struct = mp.get_structure_by_material_id('mp-18731')
-        valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
-        self._length = len(self._struct.sites)
-        self._val = valrad_evaluator.valences
-        self._rad = valrad_evaluator.radii
-        self._interstitial = Interstitial(self._struct, self._val, self._rad)
-
-    def test_enumerate_defectsites(self):
-        """
-        The interstitial sites should be within the lattice
-        """
-        uniq_def_sites = self._interstitial.enumerate_defectsites()
-        print uniq_def_sites
-        #self.assertTrue(len(uniq_def_sites) == 2, "Interstitial init failed")
-        #mgo_spg = Spacegroup(int_number=225)
-        #self.assertTrue(mgo_spg.are_symmetrically_equivalent(uniq_sites,
-        #                uniq_def_sites),  "Vacancy init failed")
-
-    def test_defectsite_count(self):
-        print self._interstitial.defectsite_count()
-        #self.assertTrue(self._interstitial.defectsite_count() == 2,
-        #                "Vacancy count wrong")
-
-    def test_get_defectsite_coordination_number(self):
-        for i in range(self._interstitial.defectsite_count()):
-            print >> sys.stderr, self._interstitial.get_defectsite_coordination_number(
-                i)
-
-    def test_get_coordinated_sites(self):
-        for i in range(self._interstitial.defectsite_count()):
-            print >> sys.stderr, self._interstitial.get_coordinated_sites(
-                i)
-
-    def test_get_coordsites_charge_sum(self):
-        for i in range(self._interstitial.defectsite_count()):
-            print >> sys.stderr, self._interstitial.get_coordsites_charge_sum(
-                i)
-
-    def test_get_defectsite_coordinated_elements(self):
-        struct_el = self._struct.composition.elements
-        for i in range(self._interstitial.defectsite_count()):
-            for el in self._interstitial.get_coordinated_elements(i):
-                self.assertTrue(
-                    Element(el) in struct_el, "Coordinated elements are wrong"
-                )
-
-    def test_get_radius(self):
-        for i in range(self._interstitial.defectsite_count()):
-            rad = self._interstitial.get_radius(i)
-            print >> sys.stderr, rad
-            self.assertTrue(rad, float)
 
 @unittest.skipIf(not (gulp_present and zeo), "gulp or zeo not present.")
 class InterstitialAnalyzerTest(unittest.TestCase):
