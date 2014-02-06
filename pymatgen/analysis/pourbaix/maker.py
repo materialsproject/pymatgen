@@ -22,7 +22,7 @@ import itertools
 import re
 from itertools import chain
 from pyhull.convex_hull import ConvexHull
-from pymatgen.analysis.pourbaix.entry import MultiEntry
+from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
 from pymatgen.core.periodic_table import Element
 from pymatgen.core import Composition
 from pymatgen.core.ion import Ion
@@ -57,18 +57,20 @@ class PourbaixDiagram(object):
         self._elt_comp = comp_dict
         if comp_dict:
             self._multielement = True
-            self.pourbaix_elements = [key for key in comp_dict]
+            pbx_elements = set()
+            for comp in comp_dict.keys():
+                for el in [el for el in
+                           ion_or_solid_comp_object(comp).elements
+                           if el not in ["H", "O"]]:
+                    pbx_elements.add(el.symbol)
+            self.pourbaix_elements = pbx_elements
             w = [comp_dict[key] for key in comp_dict]
             A = []
             for comp in comp_dict:
-                m = re.search(r"\[([^\[\]]+)\]|\(aq\)", comp)
-                if m:
-                    comp_obj = Ion.from_formula(comp)
-                else:
-                    comp_obj = Composition.from_formula(comp)
+                comp_obj = ion_or_solid_comp_object(comp)
                 Ai = []
                 for elt in self.pourbaix_elements:
-                    Ai.append(comp_obj[Element(elt)])
+                    Ai.append(comp_obj[elt])
                 A.append(Ai)
             A = np.array(A).T.astype(float)
             w = np.array(w)
@@ -81,6 +83,7 @@ class PourbaixDiagram(object):
             self.pourbaix_elements = [el.symbol
                                       for el in entries[0].composition.elements
                                       if el.symbol not in ["H", "O"]]
+            self._elt_comp = {self.pourbaix_elements[0]: 1.0}
         self._make_pourbaixdiagram()
 
     def _create_conv_hull_data(self):

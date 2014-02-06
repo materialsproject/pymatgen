@@ -431,6 +431,8 @@ class OxideType(object):
             str_oxide = "peroxide"
         else:
             str_oxide = "oxide"
+        if str_oxide == "oxide":
+            nbonds = comp["O"]
         return str_oxide, nbonds
 
 
