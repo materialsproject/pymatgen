@@ -13,8 +13,6 @@ __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
 import unittest
-import os
-import re
 
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.zeoio import *
@@ -121,7 +119,7 @@ class ZeoCssrOxiTest(unittest.TestCase):
         self.assertIsInstance(zeocssr.structure, Structure)
 
 
-
+@unittest.skipIf(not zeo, "zeo not present.")
 class ZeoVoronoiXYZTest(unittest.TestCase):
     def setUp(self):
         coords = [
