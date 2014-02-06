@@ -96,7 +96,7 @@ class QcTask(MSONable):
             self.mol = self.mol.lower()
         self.charge = charge
         self.spin_multiplicity = spin_multiplicity
-        if self.mol != "read":
+        if not (isinstance(self.mol, str) and self.mol == "read"):
             if not isinstance(self.mol, Molecule):
                 raise ValueError("The molecule must be a pymatgen Molecule "
                                  "object or read/None")
@@ -510,7 +510,7 @@ class QcTask(MSONable):
         if self.charge is not None:
             lines.append(" {charge:d}  {multi:d}".format(charge=self
                          .charge, multi=self.spin_multiplicity))
-        if self.mol == "read":
+        if isinstance(self.mol, str) and self.mol == "read":
             lines.append(" read")
         else:
             for site in self.mol.sites:
@@ -608,7 +608,8 @@ class QcTask(MSONable):
     def to_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "molecule": "read" if self.mol == "read" else self.mol.to_dict,
+                "molecule": self.mol if isinstance(self.mol, str)
+                else self.mol.to_dict,
                 "charge": self.charge,
                 "spin_multiplicity": self.spin_multiplicity,
                 "params": self.params}

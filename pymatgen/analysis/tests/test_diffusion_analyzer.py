@@ -57,5 +57,9 @@ class DiffusionAnalyzerTest(unittest.TestCase):
             d = DiffusionAnalyzer.from_dict(d.to_dict)
             self.assertIsInstance(d, DiffusionAnalyzer)
 
+            #Ensure summary dict is json serializable.
+            json.dumps(d.get_summary_dict(include_msd_t=True))
+
+
 if __name__ == '__main__':
     unittest.main()
