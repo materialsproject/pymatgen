@@ -32,7 +32,7 @@ test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-#@unittest.skipIf(not zeo, "zeo not present.")
+@unittest.skipIf(not zeo, "zeo not present.")
 class ZeoCssrTest(unittest.TestCase):
     def setUp(self):
         filepath = os.path.join(test_dir, 'POSCAR')
