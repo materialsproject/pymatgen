@@ -22,7 +22,11 @@ import os
 import abc
 import json
 import re
+import traceback
+import shutil
 from functools import partial
+
+import numpy as np
 
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
@@ -31,9 +35,6 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen import write_structure
-import traceback
-import numpy as np
-import shutil
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
