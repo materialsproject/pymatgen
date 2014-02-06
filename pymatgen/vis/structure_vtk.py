@@ -36,30 +36,27 @@ class StructureVis(object):
                  show_bonds=False, show_polyhedron=True,
                  poly_radii_tol_factor=0.5, excluded_bonding_elements=None):
         """
+        Constructs a Structure Visualization.
+
         Args:
-            element_color_mapping:
-                Optional color mapping for the elements, as a dict of
-                {symbol: rgb tuple}. For example, {"Fe": (255,123,0), ....}
-                If None is specified, a default based on Jmol"s color scheme
-                is used.
-            show_unit_cell:
-                Set to False to not show the unit cell boundaries. Defaults to
-                True.
-            show_bonds:
-                Set to True to show bonds. Defaults to True.
-            show_polyhedron:
-                Set to True to show polyhedrons. Defaults to False.
-            poly_radii_tol_factor:
-                The polyhedron and bonding code uses the ionic radii of the
-                elements or species to determine if two atoms are bonded. This
-                specifies a tolerance scaling factor such that atoms which are
-                (1 + poly_radii_tol_factor) * sum of ionic radii apart are
-                still considered as bonded.
-            excluded_bonding_elements:
-                List of atom types to exclude from bonding determination.
-                Defaults to an empty list. Useful when trying to visualize a
-                certain atom type in the framework (e.g., Li in a Li-ion
-                battery cathode material).
+            element_color_mapping: Optional color mapping for the elements,
+                as a dict of {symbol: rgb tuple}. For example, {"Fe": (255,
+                123,0), ....} If None is specified, a default based on
+                Jmol"s color scheme is used.
+            show_unit_cell: Set to False to not show the unit cell
+                boundaries. Defaults to True.
+            show_bonds: Set to True to show bonds. Defaults to True.
+            show_polyhedron: Set to True to show polyhedrons. Defaults to
+                False.
+            poly_radii_tol_factor: The polyhedron and bonding code uses the
+                ionic radii of the elements or species to determine if two
+                atoms are bonded. This specifies a tolerance scaling factor
+                such that atoms which are (1 + poly_radii_tol_factor) * sum
+                of ionic radii apart are still considered as bonded.
+            excluded_bonding_elements: List of atom types to exclude from
+                bonding determination. Defaults to an empty list. Useful
+                when trying to visualize a certain atom type in the
+                framework (e.g., Li in a Li-ion battery cathode material).
 
         Useful keyboard shortcuts implemented.
             h : Show help
@@ -119,10 +116,8 @@ class StructureVis(object):
         Rotate the camera view.
 
         Args:
-            axis_ind:
-                Index of axis to rotate. Defaults to 0, i.e., a-axis.
-            angle:
-                Angle to rotate by. Defaults to 0.
+            axis_ind: Index of axis to rotate. Defaults to 0, i.e., a-axis.
+            angle: Angle to rotate by. Defaults to 0.
         """
         camera = self.ren.GetActiveCamera()
         if axis_ind == 0:
@@ -167,9 +162,8 @@ class StructureVis(object):
         Redraw the render window.
 
         Args:
-            reset_camera:
-                Set to True to reset the camera to a pre-determined default for
-                each structure.  Defaults to False.
+            reset_camera: Set to True to reset the camera to a
+                pre-determined default for each structure.  Defaults to False.
         """
         self.ren.RemoveAllViewProps()
         self.picker = None
@@ -214,11 +208,9 @@ class StructureVis(object):
         Add a structure to the visualizer.
 
         Args:
-            structure:
-                structure to visualize
-            reset_camera:
-                Set to True to reset the camera to a default determined based
-                on the structure.
+            structure: structure to visualize
+            reset_camera: Set to True to reset the camera to a default
+                determined based on the structure.
         """
         self.ren.RemoveAllViewProps()
 
@@ -348,8 +340,7 @@ class StructureVis(object):
         still shows the partial occupancy.
 
         Args:
-            site:
-                Site to add.
+            site: Site to add.
         """
         start_angle = 0
         radius = 0
@@ -397,12 +388,9 @@ class StructureVis(object):
         Add text at a coordinate.
 
         Args:
-            coords:
-                Coordinates to add text at.
-            text:
-                Text to place.
-            color:
-                Color for text as RGB. Defaults to black.
+            coords: Coordinates to add text at.
+            text: Text to place.
+            color: Color for text as RGB. Defaults to black.
         """
         source = vtk.vtkVectorText()
         source.SetText(text)
@@ -421,14 +409,10 @@ class StructureVis(object):
         Adds a line.
 
         Args:
-            start:
-                Starting coordinates for line.
-            end:
-                Ending coordinates for line.
-            color:
-                Color for text as RGB. Defaults to grey.
-            width:
-                Width of line. Defaults to 1.
+            start: Starting coordinates for line.
+            end: Ending coordinates for line.
+            color: Color for text as RGB. Defaults to grey.
+            width: Width of line. Defaults to 1.
         """
         source = vtk.vtkLineSource()
         source.SetPoint1(start)
@@ -457,20 +441,13 @@ class StructureVis(object):
         Adds a polyhedron.
 
         Args:
-            neighbors:
-                Neighbors of the polyhedron (the vertices).
-            center:
-                The atom in the center of the polyhedron.
-            color:
-                Color for text as RGB.
-            opacity:
-                Opacity of the polyhedron
-            draw_edges:
-                If set to True, the a line will be drawn at each edge
-            edges_color:
-                Color of the line for the edges
-            edges_linewidth:
-                Width of the line drawn for the edges
+            neighbors: Neighbors of the polyhedron (the vertices).
+            center: The atom in the center of the polyhedron.
+            color: Color for text as RGB.
+            opacity: Opacity of the polyhedron
+            draw_edges: If set to True, the a line will be drawn at each edge
+            edges_color: Color of the line for the edges
+            edges_linewidth: Width of the line drawn for the edges
         """
         points = vtk.vtkPoints()
         conv = vtk.vtkConvexPointSet()
@@ -520,20 +497,13 @@ class StructureVis(object):
         Adds a triangular surface between three atoms.
 
         Args:
-            atoms:
-                Atoms between which a triangle will be drawn.
-            color:
-                Color for triangle as RGB.
-            center:
-                The "central atom" of the triangle
-            opacity:
-                opacity of the triangle
-            draw_edges:
-                If set to True, the a line will be drawn at each edge
-            edges_color:
-                Color of the line for the edges
-            edges_linewidth:
-                Width of the line drawn for the edges
+            atoms: Atoms between which a triangle will be drawn.
+            color: Color for triangle as RGB.
+            center: The "central atom" of the triangle
+            opacity: opacity of the triangle
+            draw_edges: If set to True, the a line will be  drawn at each edge
+            edges_color: Color of the line for the edges
+            edges_linewidth: Width of the line drawn for the edges
         """
         points = vtk.vtkPoints()
         triangle = vtk.vtkTriangle()
@@ -680,16 +650,11 @@ class StructureVis(object):
         Adds bonds for a site.
 
         Args:
-            neighbors:
-                Neighbors of the site.
-            center:
-                The site in the center for all bonds.
-            color:
-                Color of the tubes representing the bonds
-            opacity:
-                Opacity of the tubes representing the bonds
-            radius:
-                radius of tube s representing the bonds
+            neighbors: Neighbors of the site.
+            center: The site in the center for all bonds.
+            color: Color of the tubes representing the bonds
+            opacity: Opacity of the tubes representing the bonds
+            radius: Radius of tube s representing the bonds
         """
         points = vtk.vtkPoints()
         points.InsertPoint(0, center.x, center.y, center.z)
@@ -877,19 +842,12 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20,
     Generate a movie from a sequence of structures using vtk and ffmpeg.
 
     Args:
-        structures:
-            sequence of structures
-        output_filename:
-            filename for structure output. defaults to movie.mp4
-        zoom:
-            A zoom to be applied to the visulizer. Defaults to 1.0
-        fps:
-            Frames per second for the movie. Defaults to 20.
-        bitrate:
-            Video bitate.  Defaults to 10000 (fairly high quality).
-        quality:
-            A quality scale. Defaults to 5.
-
+        structures: sequence of structures
+        output_filename: filename for structure output. defaults to movie.mp4
+        zoom: A zoom to be applied to the visulizer. Defaults to 1.0
+        fps: Frames per second for the movie. Defaults to 20.
+        bitrate: Video bitate.  Defaults to 10000 (fairly high quality).
+        quality: A quality scale. Defaults to 5.
     """
     vis = StructureVis()
     vis.show_help = False
