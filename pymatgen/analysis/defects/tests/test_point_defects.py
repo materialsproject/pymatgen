@@ -4,7 +4,6 @@ import unittest
 import sys
 
 from pymatgen.analysis.defects.point_defects import *
-from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.bond_valence import BVAnalyzer
