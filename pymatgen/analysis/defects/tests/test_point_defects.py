@@ -17,6 +17,8 @@ except ImportError:
 
 gulp_present = which('gulp')
 
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
     def setUp(self):
@@ -49,7 +51,7 @@ class ValenceIonicRadiusEvaluatorMultiOxiTest(unittest.TestCase):
         """
         Setup Fe3O4  structure for testing multiple oxidation states
         """
-        cif_ob = CifParser("../../../test_files/Fe3O4.cif")
+        cif_ob = CifParser(os.path.join(test_dir, "Fe3O4.cif"))
         self._struct = cif_ob.get_structures()[0]
         self._valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
         self._length = len(self._struct.sites)
