@@ -64,11 +64,6 @@ class GulpIOTest(unittest.TestCase):
         for word in kw:
             self.assertIn(word, inp_str)
 
-    def test_keyword_line_with_wrong_keywords(self):
-        kw = ('defect', 'field')
-        with self.assertRaises(GulpError):
-            inp_str = self.gio.keyword_line(*kw)
-
     def test_structure_lines_default_options(self):
         inp_str = self.gio.structure_lines(self.structure)
         self.assertIn('cell', inp_str)
