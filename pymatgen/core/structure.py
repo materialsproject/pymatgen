@@ -1606,6 +1606,7 @@ class Structure(IStructure, collections.MutableSequence):
 
         self._sites = map(mod_site, self._sites)
 
+    @deprecated(__setitem__)
     def replace(self, i, species_n_occu):
         """
         Replace a single site. Takes either a species or a dict of species and
@@ -2087,6 +2088,7 @@ class Molecule(IMolecule, collections.MutableSequence):
             return Site(new_atom_occu, site.coords, properties=site.properties)
         self._sites = map(mod_site, self._sites)
 
+    @deprecated(__setitem__)
     def replace(self, i, species_n_occu, coords=None):
         """
         Replace a single site. Takes either a species or a dict of occus.
