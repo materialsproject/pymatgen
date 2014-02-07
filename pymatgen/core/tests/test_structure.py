@@ -197,7 +197,7 @@ class IStructureTest(PymatgenTest):
         coords2.append([0.5, 0.5, 0.5])
         struct2 = IStructure(self.struct.lattice, ["Si", "Fe"], coords2)
         self.assertRaises(ValueError, struct.interpolate, struct2)
-    
+
     def test_interpolate_lattice(self):
         coords = list()
         coords.append([0, 0, 0])
@@ -209,19 +209,19 @@ class IStructureTest(PymatgenTest):
         l2 = Lattice.from_lengths_and_angles([3,4,4], [100,100,70])
         struct2 = IStructure(l2, ["Si"] * 2, coords2)
         int_s = struct.interpolate(struct2, 2, interpolate_lattices=True)
-        self.assertArrayAlmostEqual(struct.lattice.abc, 
+        self.assertArrayAlmostEqual(struct.lattice.abc,
                                     int_s[0].lattice.abc)
-        self.assertArrayAlmostEqual(struct.lattice.angles, 
+        self.assertArrayAlmostEqual(struct.lattice.angles,
                                     int_s[0].lattice.angles)
-        self.assertArrayAlmostEqual(struct2.lattice.abc, 
+        self.assertArrayAlmostEqual(struct2.lattice.abc,
                                     int_s[2].lattice.abc)
-        self.assertArrayAlmostEqual(struct2.lattice.angles, 
+        self.assertArrayAlmostEqual(struct2.lattice.angles,
                                     int_s[2].lattice.angles)
         int_angles = [(a + struct2.lattice.angles[i]) / 2
                       for i, a in enumerate(struct.lattice.angles)]
         self.assertArrayAlmostEqual(int_angles,
                                     int_s[1].lattice.angles)
-    
+
     def test_get_primitive_structure(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0], [0, 0.5, 0.5], [0.5, 0, 0.5]]
         fcc_ag = IStructure(Lattice.cubic(4.09), ["Ag"] * 4, coords)
@@ -262,6 +262,19 @@ class StructureTest(PymatgenTest):
                            [1.9200989668, 3.3257101909, 0.00],
                            [0.00, -2.2171384943, 3.1355090603]])
         self.structure = Structure(lattice, ["Si", "Si"], coords)
+
+    def test_mutable_sequence_methods(self):
+        s = self.structure
+        s[0] = ("Fe", [0.5, 0.5, 0.5])
+        self.assertEqual(s.formula, "Fe1 Si1")
+        self.assertArrayAlmostEqual(s[0].frac_coords, [0.5, 0.5, 0.5])
+        s.reverse()
+        self.assertEqual(s[0].specie, Element("Si"))
+        self.assertArrayAlmostEqual(s[0].frac_coords, [0.75, 0.5, 0.75])
+        s[0] = {"Mn": 0.5}
+        self.assertEqual(s.formula, "Mn0.5 Fe1")
+        del s[1]
+        self.assertEqual(s.formula, "Mn0.5")
 
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])
@@ -392,7 +405,7 @@ class StructureTest(PymatgenTest):
             (3.8785999130369997, 3.878600984287687, 3.8785999130549516))
         self.assertArrayAlmostEqual(self.structure[1].coords,
             initial_coord * 1.01)
-    
+
     def test_translate_sites(self):
         self.structure.translate_sites([0, 1], [0.5, 0.5, 0.5],
                                        frac_coords=True)
@@ -610,6 +623,18 @@ class MoleculeTest(PymatgenTest):
                   [-0.513360, -0.889165, -0.363000],
                   [-0.513360, 0.889165, -0.363000]]
         self.mol = Molecule(["C", "H", "H", "H", "H"], coords)
+
+    def test_mutable_sequence_methods(self):
+        s = self.mol
+        s[1] = ("F", [0.5, 0.5, 0.5])
+        self.assertEqual(s.formula, "H3 C1 F1")
+        self.assertArrayAlmostEqual(s[1].coords, [0.5, 0.5, 0.5])
+        s.reverse()
+        self.assertEqual(s[0].specie, Element("H"))
+        self.assertArrayAlmostEqual(s[0].coords,
+                                    [-0.513360, 0.889165, -0.363000])
+        del s[1]
+        self.assertEqual(s.formula, "H2 C1 F1")
 
     def test_insert_remove_append(self):
         mol = self.mol
