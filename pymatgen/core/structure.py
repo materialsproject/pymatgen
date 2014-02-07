@@ -1460,14 +1460,15 @@ class Structure(IStructure, collections.MutableSequence):
 
     def __setitem__(self, i, site):
         """
-        Adds a Site to a structure.
+        Modify a site in the structure.
 
         Args:
             i (int): Index
-            site (PeriodicSite/Sequence): Two options exist. You can provide a
-                PeriodicSite directly, or for convenience, you can provide a
-                (Specie, coords) sequence. For example, ("Fe", [0.5, 0.5,
-                0.5).
+            site (PeriodicSite/Specie/Sequence): Three options exist. You can
+                provide a PeriodicSite directly (lattice will be checked),
+                or for convenience, you can provide simply a Specie-like
+                string/object, or finally a (Specie, coords) sequence. For
+                example, ("Fe", [0.5, 0.5, 0.5).
         """
         if isinstance(site, PeriodicSite):
             if site.lattice != self._lattice:
@@ -1922,14 +1923,14 @@ class Molecule(IMolecule, collections.MutableSequence):
 
     def __setitem__(self, i, site):
         """
-        Adds a Site to a structure.
+        Modify a site in the molecule.
 
         Args:
             i (int): Index
-            site (PeriodicSite/Sequence): Two options exist. You can provide a
-                PeriodicSite directly, or for convenience, you can provide a
-                (Specie, coords) sequence. For example, ("Fe", [0.5, 0.5,
-                0.5).
+            site (PeriodicSite/Sequence): Three options exist. You can
+                provide a Site directly, or for convenience, you can provide
+                simply a Specie-like string/object, or finally a (Specie,
+                coords) sequence. For example, ("Fe", [0.5, 0.5, 0.5).
         """
         if isinstance(site, Site):
             self._sites[i] = site
