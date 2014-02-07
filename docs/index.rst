@@ -242,6 +242,28 @@ some quick examples of the core capabilities and objects:
     >>> # formats via the optional openbabel dependency (if installed).
     >>> methane = mg.read_mol("methane.xyz")
     >>> mg.write_mol(mol, "methane.gjf")
+    >>>
+    >>> # Pythonic API for editing Structures and Molecules
+    >>> structure[1] = "F"
+    >>> print structure
+    Structure Summary (Cs1 F1)
+    Reduced Formula: CsF
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 F     0.500000     0.500000     0.500000
+    >>> #Changes species and coordinates (fractional assumed for structures)
+    >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
+    >>> print structure
+    Structure Summary (Cs1 Cl1)
+    Reduced Formula: CsCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 Cl     0.510000     0.510000     0.510000
+
 
 The above illustrates only the most basic capabilities of pymatgen.
 
