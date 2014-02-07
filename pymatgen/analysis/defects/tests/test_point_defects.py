@@ -4,11 +4,11 @@ import unittest
 import sys
 
 from pymatgen.analysis.defects.point_defects import *
-from pymatgen.matproj.rest import MPRester
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from monty.os.path import which
+from pymatgen.io.cifio import CifParser
 
 try:
     import zeo
@@ -49,8 +49,8 @@ class ValenceIonicRadiusEvaluatorMultiOxiTest(unittest.TestCase):
         """
         Setup Fe3O4  structure for testing multiple oxidation states
         """
-        mp = MPRester()
-        self._struct = mp.get_structure_by_material_id('mp-18731')
+        cif_ob = CifParser("../../../../test_files/Fe3O4.cif")
+        self._struct = cif_ob.get_structures()[0]
         self._valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
         self._length = len(self._struct.sites)
 
