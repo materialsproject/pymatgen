@@ -22,7 +22,7 @@ from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie, Element
 
 file_dir = os.path.dirname(__file__)
-rad_file = os.path.join(file_dir, '../../core/ionic_radii.json')
+rad_file = os.path.join(file_dir, 'ionic_radii.json')
 with open(rad_file, 'r') as fp:
     _ion_radii = json.load(fp)
 
