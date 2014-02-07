@@ -110,7 +110,7 @@ class ValenceIonicRadiusEvaluator:
                         key = str(tab_coords[i])
                         radius2 = _ion_radii[el][str(oxi_state)][key]
                         radius = (radius1+radius2)/2
-                    
+
             #implement complex checks later
             #print el, oxi_state, coord_no, radius#, site.specie.ionic_radius
             radii.append(radius)
@@ -128,7 +128,7 @@ class ValenceIonicRadiusEvaluator:
             try:
                 valences = bv.get_valences(self._structure, symm_tol=0.0)
             except:
-                raise 
+                raise
 
         #print valences
         #el = [site.specie.symbol for site in self._structure.sites]
@@ -305,8 +305,8 @@ class Vacancy(Defect):
 
     def get_defectsite_effective_charge(self, n):
         """
-        Effective charge (In Kroger-Vink notation, cation vacancy has 
-        effectively -ve charge and anion vacancy has +ve charge.) 
+        Effective charge (In Kroger-Vink notation, cation vacancy has
+        effectively -ve charge and anion vacancy has +ve charge.)
 
         Args:
             n: Index of vacancy list
@@ -314,7 +314,7 @@ class Vacancy(Defect):
         Returns:
             Effective charnge of defect site
         """
-        # Effective charge (In Kroger-Vink notation, cation vacancy has 
+        # Effective charge (In Kroger-Vink notation, cation vacancy has
         # effectively -ve charge and anion vacancy has +ve charge.) Inverse
         # the BVAnalyzer.get_valences result.
 
@@ -491,7 +491,7 @@ class Interstitial(Defect):
     def __init__(self, structure, valences, radii):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
-        
+
         Args:
             structure: pymatgen.core.structure.Structure
             valences: Dictionary of oxidation states of elements in {
@@ -505,7 +505,7 @@ class Interstitial(Defect):
         self._valence_dict = valences
         self._rad_dict = radii
 
-        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
+        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and
         #the symmetry reduced voronoi nodes
         #are possible candidates for interstitial sites
         #try:
@@ -514,7 +514,7 @@ class Interstitial(Defect):
         #except:
         #    raise ValueError("Symmetry_reduced_voronoi_nodes failed")
 
-        #Do futher processing on possibleInterstitialSites to obtain 
+        #Do futher processing on possibleInterstitialSites to obtain
         #interstitial sites
         self._defect_sites = possible_interstitial_sites
         self._defectsite_coord_no = []
@@ -545,7 +545,7 @@ class Interstitial(Defect):
         coord_no = coord_finder.get_coordination_number(-1)
         coord_sites = coord_finder.get_coordinated_sites(-1)
 
-        # In some cases coordination sites to interstitials include 
+        # In some cases coordination sites to interstitials include
         # interstitials also. Filtering them.
         def no_inter(site):
             return not site.specie.symbol == 'X'
@@ -654,7 +654,7 @@ class Interstitial(Defect):
 
     def prune_defectsites(self, el="C", oxi_state=4, dlta=0.1):
         """
-        Prune all the defect sites which can't acoomodate the input elment 
+        Prune all the defect sites which can't acoomodate the input elment
         with the input oxidation state.
         """
         rad = float(Specie(el, oxi_state).ionic_radius) - dlta
@@ -737,17 +737,6 @@ class InterstitialAnalyzer:
         scd: Super cell dimension as number. The scaling is equal along xyz.
     """
     def __init__(self, inter, el, oxi_state, scd=2):
-        """
-        Args:
-            inter:
-                pymatgen.defects.point_defects.Interstitial
-            el:
-                Element name in short hand notation ("El")
-            oxi_state:
-                Oxidtation state of interstitial element
-            scd:
-                Super cell dimension as number. The scaling is equal along xyz.
-        """
         self._inter = inter
         self._el = el
         self._oxi_state = oxi_state
@@ -787,7 +776,7 @@ class InterstitialAnalyzer:
 
     def _relax_analysis(self):
         """
-        Optimize interstitial structures 
+        Optimize interstitial structures
         """
 
         no_inter = self._inter.defectsite_count()
@@ -809,7 +798,7 @@ class InterstitialAnalyzer:
 
     def get_relaxed_structure(self, n):
         """
-        Optimized interstitial structure 
+        Optimized interstitial structure
 
         Args:
             n: Symmetrically distinct interstitial index
@@ -873,7 +862,7 @@ class InterstitialAnalyzer:
 
     def relaxed_structure_match(self, i, j):
         """
-        Check if the relaxed structures of two interstitials match 
+        Check if the relaxed structures of two interstitials match
 
         Args:
             i: Symmetrically distinct interstitial index
@@ -927,7 +916,7 @@ class InterstitialStructureRelaxer:
 
     def relax(self):
         """
-        Optimize interstitial structures 
+        Optimize interstitial structures
         """
 
         no_inter = self._inter.defectsite_count()
@@ -962,7 +951,7 @@ class InterstitialStructureRelaxer:
 
     def relaxed_structure_match(self, i, j):
         """
-        Check if the relaxed structures of two interstitials match 
+        Check if the relaxed structures of two interstitials match
 
         Args:
             i: Symmetrically distinct interstitial index
@@ -981,7 +970,7 @@ class InterstitialStructureRelaxer:
 
     def relaxed_energy_match(self, i, j):
         """
-        Check if the relaxed energies of two interstitials match 
+        Check if the relaxed energies of two interstitials match
 
         Args:
             i: Symmetrically distinct interstitial index
@@ -1089,7 +1078,7 @@ class RelaxedInterstitial:
             n: Index of interstitials
             chem_pot: Chemical potential of interstitial site element.
                 If not given, assumed as zero. The user is strongly
-                urged to supply the chemical potential value 
+                urged to supply the chemical potential value
         """
         return self._energies[n] - self._blk_energy - chem_pot
 
@@ -1237,7 +1226,7 @@ class RelaxedInterstitial:
 
 def symmetry_reduced_voronoi_nodes(structure, rad_dict):
     """
-    Obtain symmetry reduced voronoi nodes using Zeo++ and 
+    Obtain symmetry reduced voronoi nodes using Zeo++ and
     pymatgen.symmetry.finder.SymmetryFinder
 
     Args:
@@ -1278,8 +1267,8 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
     #sp = [site.specie for site in sites]   # "X" because to Zeo++
     #coords = [site.coords for site in sites]
     #vor_node_radii = [site.properties['voronoi_radius'] for site in sites]
-    #vor_node_struct = Structure(lat, sp, coords, 
-    #        coords_are_cartesian=True, 
+    #vor_node_struct = Structure(lat, sp, coords,
+    #        coords_are_cartesian=True,
     #        site_properties={'voronoi_radius':vor_node_radii}
     #        )
     return dist_sites

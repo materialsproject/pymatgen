@@ -63,7 +63,7 @@ class BabelMolAdaptorTest(unittest.TestCase):
         self.assertEqual(mol.formula, "H4 C1")
 
     def test_localopt(self):
-        self.mol.replace(1, "H", [0, 0, 1.05])
+        self.mol[1] = "H", [0, 0, 1.05]
         adaptor = BabelMolAdaptor(self.mol)
         adaptor.localopt()
         optmol = adaptor.pymatgen_mol

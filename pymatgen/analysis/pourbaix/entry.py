@@ -40,9 +40,6 @@ class PourbaixEntry(MSONable):
         energy: Energy of entry
     """
     def __init__(self, entry, correction=0.0, entry_id=None):
-        """
-
-        """
         if isinstance(entry, IonEntry):
             self._entry = entry
             self._conc = 1.0e-6
@@ -305,6 +302,8 @@ class MultiEntry(PourbaixEntry):
     """
     def __init__(self, entry_list, weights=None):
         """
+        Initializes a MultiEntry.
+
         Args:
             entry_list: List of component PourbaixEntries
             weights: Weights associated with each entry. Default is None
@@ -534,9 +533,11 @@ def ion_or_solid_comp_object(formula):
     """
     Returns either an ion object or composition object given
     a formula.
+
     Args:
         formula: String formula. Eg. of ion: NaOH(aq), Na[+];
-        Eg. of solid: Fe2O3(s), Fe(s), Na2O
+            Eg. of solid: Fe2O3(s), Fe(s), Na2O
+
     Returns:
         Composition/Ion object
     """

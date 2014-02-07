@@ -265,7 +265,9 @@ class StructureTest(PymatgenTest):
 
     def test_mutable_sequence_methods(self):
         s = self.structure
-        s[0] = ("Fe", [0.5, 0.5, 0.5])
+        s[0] = "Fe"
+        self.assertEqual(s.formula, "Fe1 Si1")
+        s[0] = "Fe", [0.5, 0.5, 0.5]
         self.assertEqual(s.formula, "Fe1 Si1")
         self.assertArrayAlmostEqual(s[0].frac_coords, [0.5, 0.5, 0.5])
         s.reverse()
@@ -275,6 +277,9 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Mn0.5 Fe1")
         del s[1]
         self.assertEqual(s.formula, "Mn0.5")
+        s[0] = "Fe", [0.9, 0.9, 0.9], {"spin": 5}
+        self.assertEqual(s.formula, "Fe1")
+        self.assertEqual(s[0].spin, 5)
 
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])
@@ -635,6 +640,9 @@ class MoleculeTest(PymatgenTest):
                                     [-0.513360, 0.889165, -0.363000])
         del s[1]
         self.assertEqual(s.formula, "H2 C1 F1")
+        s[3] = "N", [0,0,0], {"charge": 4}
+        self.assertEqual(s.formula, "H2 N1 F1")
+        self.assertEqual(s[3].charge, 4)
 
     def test_insert_remove_append(self):
         mol = self.mol
