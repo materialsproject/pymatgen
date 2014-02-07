@@ -39,6 +39,7 @@ from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
     pbc_all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
+from monty.dev import deprecated
 
 
 class SiteCollection(collections.Sequence):
@@ -1411,7 +1412,7 @@ class IMolecule(SiteCollection, MSONable):
                               site_properties=self.site_properties)
 
 
-class Structure(IStructure):
+class Structure(IStructure, collections.MutableSequence):
     """
     Mutable version of structure. Much easier to use for editing,
     but cannot be used as a key in a dict.
@@ -1456,6 +1457,34 @@ class Structure(IStructure):
             site_properties=site_properties)
 
         self._sites = list(self._sites)
+
+    def __setitem__(self, i, site):
+        """
+        Adds a Site to a structure.
+
+        Args:
+            i (int): Index
+            site (PeriodicSite/Sequence): Two options exist. You can provide a
+                PeriodicSite directly, or for convenience, you can provide a
+                (Specie, coords) sequence. For example, ("Fe", [0.5, 0.5,
+                0.5).
+        """
+        if isinstance(site, PeriodicSite):
+            if site.lattice != self._lattice:
+                raise ValueError("PeriodicSite added must have same lattice "
+                                 "as Structure!")
+            self._sites[i] = site
+        elif isinstance(site, (basestring, Element, Specie, dict)):
+            self._sites[i] = PeriodicSite(site, self._sites[i].frac_coords,
+                                          self._lattice)
+        else:
+            self._sites[i] = PeriodicSite(site[0], site[1], self._lattice)
+
+    def __delitem__(self, i):
+        """
+        Deletes a site from the Structure.
+        """
+        self._sites.__delitem__(i)
 
     def append(self, species, coords, coords_are_cartesian=False,
                validate_proximity=False, properties=None):
@@ -1511,6 +1540,7 @@ class Structure(IStructure):
 
         self._sites.insert(i, new_site)
 
+    @deprecated(__delitem__)
     def remove(self, i):
         """
         Remove site at index i.
@@ -1852,7 +1882,7 @@ class Structure(IStructure):
         self.modify_lattice(self._lattice.scale(volume))
 
 
-class Molecule(IMolecule):
+class Molecule(IMolecule, collections.MutableSequence):
     """
     Mutable Molecule. It has all the methods in IMolecule, but in addition,
     it allows a user to perform edits on the molecule.
@@ -1889,6 +1919,30 @@ class Molecule(IMolecule):
             validate_proximity=validate_proximity,
             site_properties=site_properties)
         self._sites = list(self._sites)
+
+    def __setitem__(self, i, site):
+        """
+        Adds a Site to a structure.
+
+        Args:
+            i (int): Index
+            site (PeriodicSite/Sequence): Two options exist. You can provide a
+                PeriodicSite directly, or for convenience, you can provide a
+                (Specie, coords) sequence. For example, ("Fe", [0.5, 0.5,
+                0.5).
+        """
+        if isinstance(site, Site):
+            self._sites[i] = site
+        elif isinstance(site, (basestring, Element, Specie, dict)):
+            self._sites[i] = Site(site, self._sites[i].coords)
+        else:
+            self._sites[i] = Site(site[0], site[1])
+
+    def __delitem__(self, i):
+        """
+        Deletes a site from the Structure.
+        """
+        self._sites.__delitem__(i)
 
     def append(self, species, coords, validate_proximity=True,
                properties=None):
@@ -1981,6 +2035,7 @@ class Molecule(IMolecule):
             self._sites[i] = Site(site.species_and_occu, site.coords,
                                   properties=props)
 
+    @deprecated(__delitem__)
     def remove(self, i):
         """
         Delete site at index i.
