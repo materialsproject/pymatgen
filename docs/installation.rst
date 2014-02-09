@@ -22,7 +22,8 @@ Optional dependencies
 
 Optional libraries that are required if you need certain features:
 
-1. scipy 0.10+ (highly recommended): For use in Gaussian smearing.
+1. scipy 0.10+ (highly recommended): For use in Gaussian smearing and faster
+   Phase Diagrams.
 2. matplotlib 1.1+ (highly recommended): For plotting (e.g., Phase Diagrams).
 3. VTK with Python bindings 5.8+ (http://www.vtk.org/): For visualization of
    crystal structures using the pymatgen.vis package.
@@ -379,7 +380,7 @@ Here are the steps that I took to make it work:
 12. If you are using Mavericks (OSX 10.9) and encounter errors relating to <tr1/memory>, you might also need to include the following flag in your CMakeCache.txt::
 
 		CMAKE_CXX_FLAGS:STRING=-stdlib=libstdc++
-		
+
 13. Run make and install as follows::
 
         make -j2
