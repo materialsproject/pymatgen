@@ -72,6 +72,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.1
+------
+1. Structure/Molecule now supports Pythonic list-like API for replacing and
+   removing sites. See :ref:`quick_start` for examples.
+
 v2.9.0
 ------
 1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
@@ -189,6 +194,8 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
+.. _quick_start:
+
 Quick start
 -----------
 
@@ -243,7 +250,8 @@ some quick examples of the core capabilities and objects:
     >>> methane = mg.read_mol("methane.xyz")
     >>> mg.write_mol(mol, "methane.gjf")
     >>>
-    >>> # Pythonic API for editing Structures and Molecules
+    >>> # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)
+    >>> # Changing the specie of a site.
     >>> structure[1] = "F"
     >>> print structure
     Structure Summary (Cs1 F1)
@@ -265,7 +273,8 @@ some quick examples of the core capabilities and objects:
     1 Cs     0.000000     0.000000     0.000000
     2 Cl     0.510000     0.510000     0.510000
     >>>
-    >>> #Because structure is like a list, it supports most list-like methods.
+    >>> # Because structure is like a list, it supports most list-like methods
+    >>> # such as sort, reverse, etc.
     >>> structure.reverse()
     >>> print structure
     Structure Summary (Cs1 Cl1)
@@ -276,11 +285,10 @@ some quick examples of the core capabilities and objects:
     1 Cl     0.510000     0.510000     0.510000
     2 Cs     0.000000     0.000000     0.000000
     >>>
-    >>> #Molecules function similarly, but with Site and cartesian coords.
-    >>> #The following changes the C in CH4 to an N and displaces it by 0.01A
-    >>> #in the x-direction.
+    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
+    >>> # in the x-direction.
     >>> methane[0] = "N", [0.01, 0, 0]
-
 
 The above illustrates only the most basic capabilities of pymatgen.
 
