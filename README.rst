@@ -212,7 +212,7 @@ License
 =======
 
 Pymatgen is released under the MIT License. The terms of the license are as
-follows::
+follows:
 
     .. include:: LICENSE
 
