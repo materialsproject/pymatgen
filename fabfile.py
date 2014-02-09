@@ -79,6 +79,12 @@ def update_doc():
         local("git commit -a -m \"Update dev docs\"")
         local("git push origin gh-pages")
 
+def merge_stable():
+    local("git checkout stable")
+    local("git pull")
+    local("git merge master")
+    local("git push")
+    local("git checkout master")
 
 def log_ver():
     filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
@@ -94,3 +100,4 @@ def release(skip_test=False):
     publish()
     log_ver()
     update_doc()
+    merge_stable()
