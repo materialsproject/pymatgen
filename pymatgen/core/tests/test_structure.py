@@ -279,7 +279,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Mn0.5")
         s[0] = "Fe", [0.9, 0.9, 0.9], {"magmom": 5}
         self.assertEqual(s.formula, "Fe1")
-        self.assertEqual(s[0].spin, 5)
+        self.assertEqual(s[0].magmom, 5)
 
     def test_non_hash(self):
         self.assertRaises(TypeError, dict, [(self.structure, 1)])
