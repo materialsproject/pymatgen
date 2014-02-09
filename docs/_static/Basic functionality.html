@@ -1745,7 +1745,7 @@ In&nbsp;[2]:
 <pre>
 Atomic mass of Si is 28.0855 amu
 Si has a melting point of 1687 K
-Ionic radii for Si: {4: 0.54 pm}
+Ionic radii for Si: {4: 0.54}
 
 </pre>
 </div>
@@ -1777,7 +1777,7 @@ In&nbsp;[3]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-Atomic mass of Si in kg: 4.66370658657455e-26 kg
+Atomic mass of Si in kg: 4.66370658657e-26 kg
 
 </pre>
 </div>
@@ -1812,7 +1812,7 @@ In&nbsp;[4]:
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
 55.845 amu
-0.92 pm
+0.92 ang
 
 </pre>
 </div>
@@ -1851,7 +1851,7 @@ In&nbsp;[5]:
 Weight of Fe2O3 is 159.6882 amu
 Amount of Fe in Fe2O3 is 2.0
 Atomic fraction of Fe is 0.4
-Weight fraction of Fe is 0.699425505453753 
+Weight fraction of Fe is 0.699425505454 
 
 </pre>
 </div>
@@ -1935,7 +1935,7 @@ First site of the structure is [ 0.  0.  0.] Cs
 
 </div>
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The Structure object contains many useful manipulation functions. Some examples are given below. Please note that there is an immutable version of Structure known as IStructure, for the use case where you really need to enforce that the structure does not change. Conversion between these forms of Structure can be performed using from_sites().</p>
+<p>The Structure object contains many useful manipulation functions. Since Structure is essentially a list, it contains a simple pythonic API for manipulation its sites. Some examples are given below. Please note that there is an immutable version of Structure known as IStructure, for the use case where you really need to enforce that the structure does not change. Conversion between these forms of Structure can be performed using from_sites().</p>
 </div>
 <div class="cell border-box-sizing code_cell vbox">
 <div class="input hbox">
@@ -1944,8 +1944,10 @@ In&nbsp;[8]:
 </div>
 <div class="input_area box-flex1">
 <div class="highlight"><pre><span class="n">structure</span><span class="o">.</span><span class="n">make_supercell</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="c">#Make a 3 x 2 x 1 supercell of the structure</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c">#Remove the first site</span>
+<span class="k">del</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c">#Remove the first site</span>
 <span class="n">structure</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Na&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="c">#Append a Na atom.</span>
+<span class="n">structure</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;Li&quot;</span> <span class="c">#Change the last added atom to Li.</span>
+<span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;Cs&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c">#Shift the first atom by 0.01 in fractional coordinates in the x-direction.</span>
 <span class="n">immutable_structure</span> <span class="o">=</span> <span class="n">mg</span><span class="o">.</span><span class="n">IStructure</span><span class="o">.</span><span class="n">from_sites</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span> <span class="c">#Create an immutable structure (cannot be modified).</span>
 <span class="k">print</span> <span class="n">immutable_structure</span>
 </pre></div>
@@ -1960,19 +1962,19 @@ In&nbsp;[8]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-Structure Summary (Cs3 Na1 Cl4)
-Reduced Formula: Cs3NaCl4
+Structure Summary (Cs3 Li1 Cl4)
+Reduced Formula: Cs3LiCl4
 abc   :   8.400000   8.400000   4.200000
 angles:  90.000000  90.000000  90.000000
 Sites (8)
-1 Cs     0.000000     0.500000     0.000000
+1 Cs     0.010000     0.500000     0.000000
 2 Cs     0.500000     0.000000     0.000000
 3 Cs     0.500000     0.500000     0.000000
 4 Cl     0.250000     0.250000     0.500000
 5 Cl     0.250000     0.750000     0.500000
 6 Cl     0.750000     0.250000     0.500000
 7 Cl     0.750000     0.750000     0.500000
-8 Na     0.000000     0.000000     0.000000
+8 Li     0.000000     0.000000     0.000000
 
 </pre>
 </div>
@@ -2011,7 +2013,7 @@ In&nbsp;[9]:
 <div class="hbox output_area"><div class="prompt"></div>
 <div class="box-flex1 output_subarea output_stream output_stdout">
 <pre>
-The spacegroup is P4/mmm
+The spacegroup is P2mm
 
 </pre>
 </div>
