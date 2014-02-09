@@ -13,6 +13,9 @@ be available on `PyPI <http://pypi.python.org>`_.
 4. PyCifRW 3.3+: For reading and writing Crystallographic Information Format
    (CIF) files.
 5. requests 1.0+: For the high-level interface to the Materials API.
+6. monty 0.1.1+: For some common complementary functions,
+   design patterns (e.g., singleton) and decorators to the Python
+   standard library.
 
 Optional dependencies
 ---------------------
