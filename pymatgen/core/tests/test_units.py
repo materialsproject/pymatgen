@@ -1,9 +1,6 @@
 #!/usr/bin/python
 from __future__ import division
 
-import numpy as np
-import tempfile
-import cPickle as pickle
 import collections
 
 from pymatgen.util.testing import PymatgenTest
@@ -27,6 +24,7 @@ class UnitTest(PymatgenTest):
         acc = u1 / Unit("s")
         newton = Unit("kg") * acc
         self.assertEqual(str(newton * Unit("m")), "N m")
+
 
 class FloatWithUnitTest(PymatgenTest):
 
@@ -89,7 +87,8 @@ class FloatWithUnitTest(PymatgenTest):
         e = Mass(1, "kg") * g * Length(1, "m")
         self.assertEqual(str(e), "10.0 N m")
         form_e = FloatWithUnit(10, unit="kJ mol^-1")
-        self.assertEqual(str(form_e.to("eV atom^-1")), "0.103642691905 eV atom^-1")
+        self.assertEqual(str(form_e.to("eV atom^-1")),
+                         "0.103642691905 eV atom^-1")
         self.assertRaises(UnitError, form_e.to, "m s^-1")
         a = FloatWithUnit(1.0, "Ha^3")
         self.assertEqual(str(a.to("J^3")), "8.28672661615e-53 J^3")
@@ -129,7 +128,8 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
-        # here there's a minor difference because we have a ndarray with dtype=np.int.
+        # here there's a minor difference because we have a ndarray with
+        # dtype=np.int.
         a = TimeArray(20, "h")
         self.assertAlmostEqual(a.to("s"), 3600 * 20)
         #Test left and right multiplication.
@@ -184,7 +184,8 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
 
         objects_without_unit = [
             # Here we could return a FloatWithUnit object but I prefer this
-            # a bare scalar since FloatWithUnit extends float while we could have an int.
+            # a bare scalar since FloatWithUnit extends float while we could
+            # have an int.
             ene_ha[0],
         ]
 
@@ -199,7 +200,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         self.assertTrue(str(e) == "[ 1.          0.03674933] Ha")
         l = LengthArray([1.0], "ang").to("bohr")
         self.assertTrue(str(l) == "[ 1.88972613] bohr")
-        v = ArrayWithUnit([1,2,3], "bohr^3").to("ang^3")
+        v = ArrayWithUnit([1, 2, 3], "bohr^3").to("ang^3")
         self.assertTrue(str(v) == '[ 0.14818471  0.29636942  0.44455413] '
                                   'ang^3')
 
