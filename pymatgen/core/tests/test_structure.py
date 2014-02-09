@@ -277,7 +277,7 @@ class StructureTest(PymatgenTest):
         self.assertEqual(s.formula, "Mn0.5 Fe1")
         del s[1]
         self.assertEqual(s.formula, "Mn0.5")
-        s[0] = "Fe", [0.9, 0.9, 0.9], {"spin": 5}
+        s[0] = "Fe", [0.9, 0.9, 0.9], {"magmom": 5}
         self.assertEqual(s.formula, "Fe1")
         self.assertEqual(s[0].spin, 5)
 
