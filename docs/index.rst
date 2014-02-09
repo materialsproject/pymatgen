@@ -122,10 +122,18 @@ to be installed for matplotlib.
 Stable version
 --------------
 
-.. note:: Install numpy first.
+.. note:: Preparation
 
-    You may need to install numpy before installing pymatgen as numpy's
-    distutils is needed to compile the spglib and pyhull dependencies.
+    Before installing pymatgen, you may need to first install a few critical
+    dependencies manually.
+
+    1. Numpy's distutils is needed to compile the spglib and pyhull
+       dependencies. This should be the first thing you install.
+    2. Pyhull and PyCifRW. The recent versions of pip does not allow the
+       installation of externally hosted files. Furthermore,
+       there are some issues with easy_install for these extensions. Install
+       both these dependencies manually using "pip install <package>
+       --allow-external <package> --allow-unverified <package>".
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
