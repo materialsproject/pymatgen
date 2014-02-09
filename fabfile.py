@@ -87,9 +87,10 @@ def log_ver():
         f.write("Release")
 
 
-def release():
+def release(skip_test=False):
     setver()
-    test()
+    if not skip_test:
+        test()
     publish()
     log_ver()
     update_doc()
