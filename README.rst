@@ -1,4 +1,7 @@
-.. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/master.png?circle-token=:circle-token
+Build status:
+
+Stable: .. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/stable.png?circle-token=:circle-token
+Master: .. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/master.png?circle-token=:circle-token
 
 **Official docs:** http://www.pymatgen.org
 
