@@ -22,7 +22,11 @@ import os
 import abc
 import json
 import re
+import traceback
+import shutil
 from functools import partial
+
+import numpy as np
 
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
@@ -31,9 +35,6 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen import write_structure
-import traceback
-import numpy as np
-import shutil
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -178,8 +179,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
             config_dict. Defaults to False, i.e., follow settings in
             config_dict.
         user_incar_settings (dict): User INCAR settings. This allows a user
-            to override INCAR settings, e.g., setting a different MAGMOM for various elements
-            or species.
+            to override INCAR settings, e.g., setting a different MAGMOM for
+            various elements or species.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -219,7 +220,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             structure = structure.get_sorted_structure()
         comp = structure.composition
         elements = sorted([el for el in comp.elements if comp[el] > 0],
-                          key=lambda el: el.X)
+                          key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
@@ -267,7 +268,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
                     del incar[key]
 
         if self.set_nupdown:
-            nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar['MAGMOM']])
+            nupdown = sum([mag if abs(mag) > 0.6 else 0
+                           for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
 
         return incar
@@ -588,8 +590,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
     kwargs:
         hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
-            config_dict ("MP Static"). Defaults to False, i.e., follow settings in
-            config_dict.
+            config_dict ("MP Static"). Defaults to False, i.e., follow settings
+            in config_dict.
         user_incar_settings (dict): User INCAR settings. This allows a user
             to override INCAR settings, e.g., setting a different MAGMOM for
             various elements or species.
@@ -614,7 +616,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "EDIFF": 0.000001})
         self.kpoints_settings.update({"kpoints_density": kpoints_density})
-        self.sym_prec= sym_prec
+        self.sym_prec = sym_prec
 
     def get_kpoints(self, structure):
         """
@@ -763,9 +765,6 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Prefer to use k-point scheme from previous run
-        previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
-            previous_final_structure.lattice.reciprocal_lattice.volume
-        new_kpoints_density = max(previous_kpoints_density, kpoints_density)
         new_kpoints = mpsvip.get_kpoints(structure)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
             if previous_kpoints.style[0] == "M" and \
@@ -835,7 +834,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.01):
         self.mode = mode
-        self.sym_prec= sym_prec
+        self.sym_prec = sym_prec
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
@@ -918,7 +917,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:
             if vasp_run.incar.get(grid):
-                incar_settings.update({grid:vasp_run.incar.get(grid)})
+                incar_settings.update({grid: vasp_run.incar.get(grid)})
         return incar_settings
 
     def get_incar(self, structure):

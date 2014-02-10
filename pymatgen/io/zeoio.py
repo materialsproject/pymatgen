@@ -45,9 +45,9 @@ class ZeoCssr(Cssr):
         structure: A structure to create ZeoCssr object
     """
 
-    @requires(zeo_found,
-              "ZeoCssr requires Zeo++ cython extension to be installed. Please "
-              "contact developers of Zeo++ to obtain it.")
+    #@requires(zeo_found,
+    #          "ZeoCssr requires Zeo++ cython extension to be installed. Please "
+    #          "contact developers of Zeo++ to obtain it.")
     def __init__(self, structure):
         super(ZeoCssr, self).__init__(structure)
 
@@ -78,7 +78,8 @@ class ZeoCssr(Cssr):
             #else:
             #    charge = site.charge
             charge = site.charge if hasattr(site, 'charge') else 0
-            specie = site.specie.symbol
+            #specie = site.specie.symbol
+            specie = site.species_string
             output.append(
                 "{} {} {:.4f} {:.4f} {:.4f} 0 0 0 0 0 0 0 0 {:.4f}"
                 .format(
@@ -249,7 +250,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         rad_flag = True
         with open(rad_file, 'w+') as fp:
             for el in rad_dict.keys():
-                print >>fp, "{} {}".format(el, rad_dict[el])
+                print >>fp, "{} {}".format(el, rad_dict[el].real)
 
     atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
     vornet = atmnet.perform_voronoi_decomposition()

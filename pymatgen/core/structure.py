@@ -29,7 +29,7 @@ import numpy as np
 from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, \
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
     get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
@@ -39,6 +39,7 @@ from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
     pbc_all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
+from monty.dev import deprecated
 
 
 class SiteCollection(collections.Sequence):
@@ -1411,7 +1412,7 @@ class IMolecule(SiteCollection, MSONable):
                               site_properties=self.site_properties)
 
 
-class Structure(IStructure):
+class Structure(IStructure, collections.MutableSequence):
     """
     Mutable version of structure. Much easier to use for editing,
     but cannot be used as a key in a dict.
@@ -1456,6 +1457,52 @@ class Structure(IStructure):
             site_properties=site_properties)
 
         self._sites = list(self._sites)
+
+    def __setitem__(self, i, site):
+        """
+        Modify a site in the structure.
+
+        Args:
+            i (int): Index
+            site (PeriodicSite/Specie/Sequence): Three options exist. You
+                can provide a PeriodicSite directly (lattice will be
+                checked). Or more conveniently, you can provide a
+                specie-like object or a tuple of up to length 3. Examples:
+                s[0] = "Fe"
+                s[0] = Element("Fe")
+                both replaces the species only.
+                s[0] = "Fe", [0.5, 0.5, 0.5]
+                Replaces site and *fractional* coordinates. Any properties
+                are inherited from current site.
+                s[0] = "Fe", [0.5, 0.5, 0.5], {"spin": 2}
+                Replaces site and *fractional* coordinates and properties.
+        """
+        if isinstance(site, PeriodicSite):
+            if site.lattice != self._lattice:
+                raise ValueError("PeriodicSite added must have same lattice "
+                                 "as Structure!")
+            self._sites[i] = site
+        else:
+            if isinstance(site, basestring) or (not isinstance(site, \
+                    collections.Sequence)):
+                sp = site
+                frac_coords = self._sites[i].frac_coords
+                properties = self._sites[i].properties
+            else:
+                sp = site[0]
+                frac_coords = site[1] if len(site) > 1 else self._sites[i]\
+                    .frac_coords
+                properties = site[2] if len(site) > 2 else self._sites[i]\
+                    .properties
+
+            self._sites[i] = PeriodicSite(sp, frac_coords, self._lattice,
+                                          properties=properties)
+
+    def __delitem__(self, i):
+        """
+        Deletes a site from the Structure.
+        """
+        self._sites.__delitem__(i)
 
     def append(self, species, coords, coords_are_cartesian=False,
                validate_proximity=False, properties=None):
@@ -1511,6 +1558,7 @@ class Structure(IStructure):
 
         self._sites.insert(i, new_site)
 
+    @deprecated(__delitem__)
     def remove(self, i):
         """
         Remove site at index i.
@@ -1575,18 +1623,32 @@ class Structure(IStructure):
 
         self._sites = map(mod_site, self._sites)
 
-    def replace(self, i, species_n_occu):
+    def replace(self, i, species, coords=None, coords_are_cartesian=False,
+                properties=None):
         """
         Replace a single site. Takes either a species or a dict of species and
         occupations.
 
         Args:
             i (int): Index of the site in the _sites list.
-            species_n_occu (species-like): Species object.
+            species (species-like): Species of replacement site
+            coords (3x1 array): Coordinates of replacement site. If None,
+                the current coordinates are assumed.
+            coords_are_cartesian (bool): Whether coordinates are cartesian.
+                Defaults to False.
+            validate_proximity (bool): Whether to check if inserted site is
+                too close to an existing site. Defaults to False.
         """
-        self._sites[i] = PeriodicSite(
-            species_n_occu, self._sites[i].frac_coords, self._lattice,
-            properties=self._sites[i].properties)
+        if coords is None:
+            frac_coords = self[i].frac_coords
+        elif coords_are_cartesian:
+            frac_coords = self._lattice.get_fractional_coords(coords)
+        else:
+            frac_coords = coords
+
+        new_site = PeriodicSite(species, frac_coords, self._lattice,
+                                properties=properties)
+        self._sites[i] = new_site
 
     def remove_species(self, species):
         """
@@ -1852,7 +1914,7 @@ class Structure(IStructure):
         self.modify_lattice(self._lattice.scale(volume))
 
 
-class Molecule(IMolecule):
+class Molecule(IMolecule, collections.MutableSequence):
     """
     Mutable Molecule. It has all the methods in IMolecule, but in addition,
     it allows a user to perform edits on the molecule.
@@ -1889,6 +1951,39 @@ class Molecule(IMolecule):
             validate_proximity=validate_proximity,
             site_properties=site_properties)
         self._sites = list(self._sites)
+
+    def __setitem__(self, i, site):
+        """
+        Modify a site in the molecule.
+
+        Args:
+            i (int): Index
+            site (PeriodicSite/Specie/Sequence): Three options exist. You can
+                provide a Site directly, or for convenience, you can provide
+                simply a Specie-like string/object, or finally a (Specie,
+                coords) sequence, e.g., ("Fe", [0.5, 0.5, 0.5]).
+        """
+        if isinstance(site, Site):
+            self._sites[i] = site
+        else:
+            if isinstance(site, basestring) or (not isinstance(site, \
+                    collections.Sequence)):
+                sp = site
+                coords = self._sites[i].coords
+                properties = self._sites[i].properties
+            else:
+                sp = site[0]
+                coords = site[1] if len(site) > 1 else self._sites[i].coords
+                properties = site[2] if len(site) > 2 else self._sites[i]\
+                    .properties
+
+            self._sites[i] = Site(sp, coords, properties=properties)
+
+    def __delitem__(self, i):
+        """
+        Deletes a site from the Structure.
+        """
+        self._sites.__delitem__(i)
 
     def append(self, species, coords, validate_proximity=True,
                properties=None):
@@ -1981,6 +2076,7 @@ class Molecule(IMolecule):
             self._sites[i] = Site(site.species_and_occu, site.coords,
                                   properties=props)
 
+    @deprecated(__delitem__)
     def remove(self, i):
         """
         Delete site at index i.
@@ -2031,6 +2127,7 @@ class Molecule(IMolecule):
             return Site(new_atom_occu, site.coords, properties=site.properties)
         self._sites = map(mod_site, self._sites)
 
+    @deprecated(__setitem__)
     def replace(self, i, species_n_occu, coords=None):
         """
         Replace a single site. Takes either a species or a dict of occus.
@@ -2193,8 +2290,8 @@ class Molecule(IMolecule):
         if bl is not None:
             func_grp = func_grp.copy()
             vec = func_grp[0].coords - func_grp[1].coords
-            func_grp.replace(0, "X", func_grp[1].coords
-                             + bl / np.linalg.norm(vec) * vec)
+            func_grp[0] = "X", func_grp[1].coords + bl / np.linalg.norm(vec)\
+                               * vec
 
         # Align X to the origin.
         x = func_grp[0]
@@ -2216,12 +2313,12 @@ class Molecule(IMolecule):
             # We have a 180 degree angle. Simply do an inversion about the
             # origin
             for i in range(len(func_grp)):
-                func_grp.replace(i, func_grp[i].species_and_occu,
-                                 origin - (func_grp[i].coords - origin))
+                func_grp[i] = (func_grp[i].species_and_occu,
+                               origin - (func_grp[i].coords - origin))
 
         # Remove the atom to be replaced, and add the rest of the functional
         # group.
-        self.remove(index)
+        del self[index]
         for site in func_grp[1:]:
             self._sites.append(site)
 
