@@ -203,14 +203,17 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         obConv.AddOption("a", ob.OBConversion.OUTOPTIONS)
         obConv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = obConv.WriteString(mol)
-        match = re.search("InChI=(?P<inchi>.+)\nAuxInfo=.+/N:(?P<labels>[0-9,]+)/(E:(?P<eq_atoms>[0-9,\(\)]*)/)?", inchi_text)
+        match = re.search("InChI=(?P<inchi>.+)\nAuxInfo=.+/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,"
+                          ";\(\)]*)/)?", inchi_text)
         inchi = match.group("inchi")
         label_text = match.group("labels")
         eq_atom_text = match.group("eq_atoms")
-        heavy_atom_labels = tuple([int(i) for i in label_text.split(',')])
+        heavy_atom_labels = tuple([int(i) for i in label_text.replace(
+            ';', ',').split(',')])
         eq_atoms = []
         if eq_atom_text is not None:
-            eq_tokens = re.findall('\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text)
+            eq_tokens = re.findall('\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text
+                                   .replace(';', ','))
             eq_atoms = tuple([tuple([int(i) for i in t.split(',')])
                               for t in eq_tokens])
         return heavy_atom_labels, eq_atoms, inchi
