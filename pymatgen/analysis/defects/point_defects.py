@@ -509,8 +509,15 @@ class Interstitial(Defect):
             radii: Radii of elemnts in the structure
         """
 
-        bv = BVAnalyzer()
-        self._structure = bv.get_oxi_state_decorated_structure(structure)
+        try:
+            bv = BVAnalyzer()
+            self._structure = bv.get_oxi_state_decorated_structure(structure)
+        except:
+            try:
+                bv = BVAnalyzer(symm_tol=0.0)
+                self._structure = bv.get_oxi_state_decorated_structure(structure)
+            except:
+                raise 
         #self._structure = structure
         self._valence_dict = valences
         self._rad_dict = radii
