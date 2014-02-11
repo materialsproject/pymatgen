@@ -8,6 +8,7 @@ import os
 import abc
 import re
 import json
+from bisect import bisect_left
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -72,15 +73,22 @@ class ValenceIonicRadiusEvaluator:
         """
         radii = []
         coord_finder = VoronoiCoordFinder(self._structure)
-        #print self._structure
+
+        def nearest_key(sorted_vals, key):
+            i = bisect_left(sorted_vals, key)
+            if i == len(sorted_vals):
+                i = -1
+            return sorted_vals[i]
+
         for i in range(len(self._structure.sites)):
             site = self._structure.sites[i]
             el = site.specie.symbol
             oxi_state = int(round(site.specie.oxi_state))
             coord_no = int(round(coord_finder.get_coordination_number(i)))
-            #print el, oxi_state, coord_no, _ion_radii[el][str(oxi_state)]
-            #print coord_finder.get_coordination_number(i)
             try:
+                tab_oxi_states = map(int, _ion_radii[el].keys())
+                tab_oxi_states.sort() 
+                oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
                 if coord_finder.get_coordination_number(i)-coord_no > 0:
@@ -92,7 +100,8 @@ class ValenceIonicRadiusEvaluator:
                     coord_no = new_coord_no
                 except:
                     tab_coords = map(int, _ion_radii[el][str(oxi_state)].keys())
-                    tab_coords = sorted(tab_coords)
+                    tab_coords.sort()
+                    new_coord_no = nearest_key(tab_coords, coord_no)
                     i = 0
                     for val in tab_coords:
                         if  val > coord_no:
@@ -112,7 +121,6 @@ class ValenceIonicRadiusEvaluator:
                         radius = (radius1+radius2)/2
 
             #implement complex checks later
-            #print el, oxi_state, coord_no, radius#, site.specie.ionic_radius
             radii.append(radius)
         return radii
 
@@ -120,13 +128,15 @@ class ValenceIonicRadiusEvaluator:
         """
         Computes ionic valences of elements for all sites in the structure.
         """
-        bv = BVAnalyzer()
-        self._structure = bv.get_oxi_state_decorated_structure(self._structure)
         try:
+            bv = BVAnalyzer()
+            self._structure = bv.get_oxi_state_decorated_structure(self._structure)
             valences = bv.get_valences(self._structure)
         except:
             try:
-                valences = bv.get_valences(self._structure, symm_tol=0.0)
+                bv = BVAnalyzer(symm_tol=0.0)
+                self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+                valences = bv.get_valences(self._structure)
             except:
                 raise
 
