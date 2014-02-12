@@ -23,7 +23,7 @@ TITLE comment: From cif file
 TITLE Source:  CoO19128.cif
 TITLE Structure Summary:  Co2 O2
 TITLE Reduced formula:  CoO
-TITLE space group: (Ccm2_1), space number:  (36)
+TITLE space group: (P6_3mc), space number:  (186)
 TITLE abc:  3.297078   3.297078   5.254213
 TITLE angles: 90.000000  90.000000 120.000000
 TITLE sites: 4
