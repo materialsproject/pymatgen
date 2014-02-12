@@ -116,7 +116,7 @@ class QcTask(MSONable):
             self.mol.set_charge_and_spin(self.charge, self.spin_multiplicity)
         self.params = dict()
         if title is not None:
-            self.params["comments"] = title
+            self.params["comment"] = title
         if "rem" not in self.params:
             self.params["rem"] = dict()
         self.params["rem"]["exchange"] = exchange.lower()
@@ -489,7 +489,7 @@ class QcTask(MSONable):
             self.params["rem"]["force_fied"] = radii_force_field.lower()
 
     def __str__(self):
-        sections = ["comments", "molecule", "rem"] + \
+        sections = ["comment", "molecule", "rem"] + \
             sorted(list(self.optional_keywords_list))
         lines = []
         for sec in sections:
@@ -501,8 +501,8 @@ class QcTask(MSONable):
                 lines.append('\n')
         return '\n'.join(lines)
 
-    def _format_comments(self):
-        lines = [' ' + self.params["comments"].strip()]
+    def _format_comment(self):
+        lines = [' ' + self.params["comment"].strip()]
         return lines
 
     def _format_molecule(self):
@@ -619,14 +619,14 @@ class QcTask(MSONable):
         mol = "read" if d["molecule"] == "read" \
             else Molecule.from_dict(d["molecule"])
         jobtype = d["params"]["rem"]["jobtype"]
-        title = d["params"].get("comments", None)
+        title = d["params"].get("comment", None)
         exchange = d["params"]["rem"]["exchange"]
         correlation = d["params"]["rem"].get("correlation", None)
         basis_set = d["params"]["rem"]["basis"]
         aux_basis_set = d["params"]["rem"].get("aux_basis", None)
         ecp = d["params"]["rem"].get("ecp", None)
         optional_params = None
-        op_keys = set(d["params"].keys()) - {"comments", "rem"}
+        op_keys = set(d["params"].keys()) - {"comment", "rem"}
         if len(op_keys) > 0:
             optional_params = dict()
             for k in op_keys:
@@ -679,7 +679,7 @@ class QcTask(MSONable):
             if l.startswith("$") and not parse_section:
                 parse_section = True
                 section_name = l[1:]
-                available_sections = ["comments", "molecule", "rem"] + \
+                available_sections = ["comment", "molecule", "rem"] + \
                     sorted(list(cls.optional_keywords_list))
                 if section_name not in available_sections:
                     raise ValueError("Unrecognized keyword " + line.strip() +
@@ -705,14 +705,14 @@ class QcTask(MSONable):
             raise ValueError("Format error. " + section_name + " is not "
                              "terminated")
         jobtype = params["rem"]["jobtype"]
-        title = params.get("comments", None)
+        title = params.get("comment", None)
         exchange = params["rem"].get("exchange", "hf")
         correlation = params["rem"].get("correlation", None)
         basis_set = params["rem"]["basis"]
         aux_basis_set = params["rem"].get("aux_basis", None)
         ecp = params["rem"].get("ecp", None)
         optional_params = None
-        op_keys = set(params.keys()) - {"comments", "rem"}
+        op_keys = set(params.keys()) - {"comment", "rem"}
         if len(op_keys) > 0:
             optional_params = dict()
             for k in op_keys:
@@ -726,7 +726,7 @@ class QcTask(MSONable):
                       optional_params=optional_params)
 
     @classmethod
-    def _parse_comments(cls, contents):
+    def _parse_comment(cls, contents):
         return '\n'.join(contents).strip()
 
     @classmethod
@@ -1081,8 +1081,8 @@ class QcOutput(object):
                                    "(?P<z>\-?\d+\.\d+)")
         num_ele_pattern = re.compile("There are\s+(?P<alpha>\d+)\s+alpha "
                                      "and\s+(?P<beta>\d+)\s+beta electrons")
-        charge_pattern = re.compile("Sum of atomic charges ="
-                                    "\s+(?P<charge>\-?\d+\.\d+)")
+        total_charge_pattern = re.compile("Sum of atomic charges ="
+                                          "\s+(?P<charge>\-?\d+\.\d+)")
         scf_iter_pattern = re.compile("\d+\s+(?P<energy>\-\d+\.\d+)\s+"
                                       "(?P<diis_error>\d+\.\d+E[-+]\d+)")
         zpe_pattern = re.compile("Zero point vibrational energy:"
@@ -1090,6 +1090,9 @@ class QcOutput(object):
         thermal_corr_pattern = re.compile("(?P<name>\S.*\S):\s+"
                                           "(?P<correction>\d+\.\d+)\s+"
                                           "k?cal/mol")
+        detailed_charge_pattern = re.compile("Ground-State (?P<method>\w+) Net"
+                                             " Atomic Charges")
+
         error_defs = (
             (re.compile("Convergence failure"), "Bad SCF convergence"),
             (re.compile("Coordinates do not transform within specified "
@@ -1098,7 +1101,7 @@ class QcOutput(object):
                 "Geometry optimization failed"),
             (re.compile("\s+[Nn][Aa][Nn]\s+"), "NAN values"),
             (re.compile("energy\s+=\s*(\*)+"), "Numerical disaster"),
-            (re.compile("NewFileMan::OpenFile():\s+nopenfiles=\d+\s+"
+            (re.compile("NewFileMan::OpenFile\(\):\s+nopenfiles=\d+\s+"
                         "maxopenfiles=\d+s+errno=\d+"), "Open file error"),
             (re.compile("Application \d+ exit codes: 134"), "Exit Code 134")
         )
@@ -1127,6 +1130,9 @@ class QcOutput(object):
         spin_multiplicity = None
         thermal_corr = dict()
         properly_terminated = False
+        pop_method = None
+        parse_charge = False
+        charges = dict()
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1151,7 +1157,7 @@ class QcOutput(object):
                         species = []
                         parse_coords = False
                         continue
-                if "I     Atom         X            Y            Z" in line:
+                if "Atom" in line:
                     continue
                 m = coord_pattern.match(line)
                 coords.append([float(m.group("x")), float(m.group("y")),
@@ -1212,7 +1218,19 @@ class QcOutput(object):
                 elif "X      Y      Z" in line:
                     parse_modes = True
                     continue
-
+            elif parse_charge:
+                if '-'*20 in line:
+                    if len(charges[pop_method]) == 0:
+                        continue
+                    else:
+                        pop_method = None
+                        parse_charge = False
+                else:
+                    if len(line.strip()) == 0 or\
+                            'Atom' in line:
+                        continue
+                    else:
+                        charges[pop_method].append(float(line.split()[2]))
             else:
                 if spin_multiplicity is None:
                     m = num_ele_pattern.search(line)
@@ -1220,7 +1238,7 @@ class QcOutput(object):
                         spin_multiplicity = int(m.group("alpha")) - \
                             int(m.group("beta")) + 1
                 if charge is None:
-                    m = charge_pattern.search(line)
+                    m = total_charge_pattern.search(line)
                     if m:
                         charge = int(float(m.group("charge")))
                 if jobtype and jobtype == "freq":
@@ -1242,6 +1260,11 @@ class QcOutput(object):
                 if m and m.group("name") != "SCF":
                     name = m.group("name")
                     energy = Energy(m.group("energy"), "Ha").to("eV")
+                m = detailed_charge_pattern.search(line)
+                if m:
+                    pop_method = m.group("method").lower()
+                    parse_charge = True
+                    charges[pop_method] = []
                 if name and energy:
                     energies.append(tuple([name, energy]))
                 if "User input:" in line:
@@ -1289,6 +1312,7 @@ class QcOutput(object):
         data = {
             "jobtype": jobtype,
             "energies": energies,
+            'charges': charges,
             "corrections": thermal_corr,
             "molecules": molecules,
             "errors": errors,
