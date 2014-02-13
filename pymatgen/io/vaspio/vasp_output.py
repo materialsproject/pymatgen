@@ -1717,7 +1717,7 @@ class VolumetricData(object):
         inds = data[:, 1] <= radius
         dists = data[inds, 1]
         data_inds = np.rint(np.mod(list(data[inds, 0]), 1) *
-                            np.tile(a, (len(dists), 1)))
+                            np.tile(a, (len(dists), 1))).astype(int)
         vals = [self.data["diff"][x, y, z] for x, y, z in data_inds]
 
         hist, edges = np.histogram(dists, bins=nbins,
