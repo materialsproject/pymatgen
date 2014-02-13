@@ -1343,13 +1343,15 @@ $end
         self.assertEqual(no_reading_qcout.data[0]['errors'],
                          ['Exit Code 134',
                           'Molecular charge is not found',
-                          'No input text'])
+                          'No input text',
+                          'Bad SCF convergence'])
         exit_code_134_file = os.path.join(test_dir, "exit_code_134.qcout")
         ec134_qcout = QcOutput(exit_code_134_file)
         self.assertTrue(ec134_qcout.data[0]['has_error'])
         self.assertEqual(ec134_qcout.data[0]['errors'],
                          ['Exit Code 134',
-                          'Molecular charge is not found'])
+                          'Molecular charge is not found',
+                          'Bad SCF convergence'])
 
     def test_chelp_and_mulliken_charges(self):
         filename = os.path.join(test_dir, 'chelpg_charges.qcout')
