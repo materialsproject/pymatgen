@@ -1,0 +1,212 @@
+
+Running Job 1 of 1 mol.qcinp
+qchem mol.qcinp_11629.0 /scratch2/scratchdirs/xhqu/qc_scratch/qchem11629/ 14
+aprun -n 14 /global/project/projectdirs/jcesr/qchem/qc41/exe/qcprog.exe mol.qcinp_11629.0 /scratch2/scratchdirs/xhqu/qc_scratch/qchem11629/
+
+Process 0 of 14 is on nid06224 - thread support 0
+Process 1 of 14 is on nid06224 - thread support 0
+Process 2 of 14 is on nid06224 - thread support 0
+Process 4 of 14 is on nid06224 - thread support 0
+Process 5 of 14 is on nid06224 - thread support 0
+Process 3 of 14 is on nid06224 - thread support 0
+Process 6 of 14 is on nid06224 - thread support 0
+Process 13 of 14 is on nid06224 - thread support 0
+initial socket setup ...start 0 nproc 14 
+initial socket setup ...done 0 nproc 14 
+now start server 0 ... 
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ A. I. Krylov, P. M. W. Gill, M. Head-Gordon
+
+ Additional authors for Version 3.1: 
+ Z. Gan, Y. Zhao, N. E. SchultzD. Truhlar, E. Epifanovsky, M. Oana
+
+ Additional authors for Version 3.2: 
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
+
+ Additional authors for Version 4.0: 
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
+
+ Additional authors for Version 4.1: 
+ X. Feng, M. W. D. Hanson-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
+
+
+ Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
+
+ Intel X86 Linux Version 4.1.1
+
+ Q-chem begins on Thu Feb  6 00:33:16 2014  
+
+ Host: nid03841
+
+ Scratch files written to /scratch2/scratchdirs/xhqu/qc_scratch/qchem11629.0//
+ Nov1913 .. -1
+ Parallel job on  14  processors
+
+Processing $rem in /global/project/projectdirs/jcesr/qchem/qc41/config/preferences.
+ MEM_TOTAL  4000 
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$comment
+dioxane doublet anion B3LYP 6-31+G* geometry optimization
+$end
+
+
+$molecule
+-1  2
+O          -0.00007100       -1.38464600        0.29129400
+O           0.00007100        1.38464600       -0.29129400
+C          -1.17640100       -0.73734100       -0.19311300
+C           1.17632300       -0.73745500       -0.19311500
+C          -1.17632300        0.73745500        0.19311500
+C           1.17640100        0.73734100        0.19311300
+H          -2.02614100       -1.26265100        0.25450300
+H          -1.23094000       -0.83765700       -1.28959300
+H           1.23084600       -0.83778100       -1.28959400
+H           2.02600400       -1.26285700        0.25450300
+H          -2.02600400        1.26285700       -0.25450300
+H          -1.23084600        0.83778100        1.28959400
+H           1.23094000        0.83765700        1.28959300
+H           2.02614100        1.26265100       -0.25450300
+$end
+
+
+$rem
+jobtype = opt
+exchange = b3lyp
+basis = 6-31+g*
+mem_total = 1100
+thresh = 12
+$end
+
+--------------------------------------------------------------
+ ----------------------------------------------------
+       Standard Nuclear Orientation (Angstroms)
+    I     Atom         X            Y            Z
+ ----------------------------------------------------
+    1      O      -0.000080    -1.384646     0.291294
+    2      O       0.000080     1.384646    -0.291294
+    3      C      -1.176406    -0.737334    -0.193113
+    4      C       1.176318    -0.737462    -0.193115
+    5      C      -1.176318     0.737462     0.193115
+    6      C       1.176406     0.737334     0.193113
+    7      H      -2.026149    -1.262638     0.254502
+    8      H      -1.230945    -0.837649    -1.289593
+    9      H       1.230841    -0.837788    -1.289594
+   10      H       2.025996    -1.262870     0.254503
+   11      H      -2.025996     1.262870    -0.254503
+   12      H      -1.230841     0.837788     1.289594
+   13      H       1.230945     0.837649     1.289593
+   14      H       2.026149     1.262638    -0.254502
+ ----------------------------------------------------
+ Molecular Point Group                 Ci    NOp =  2
+ Largest Abelian Subgroup              Ci    NOp =  2
+ Nuclear Repulsion Energy =   263.3583858390 hartrees
+ There are       25 alpha and       24 beta electrons
+ Requested basis set is 6-31+G(d)
+ There are 46 shells and 130 basis functions
+
+Total QAlloc Memory Limit   1100 MB
+Mega-Array Size        61 MB
+MEM_STATIC part        62 MB
+ A cutoff of  1.0D-12 yielded   1066 shell pairs
+ There are      8698 function pairs
+ Smallest overlap matrix eigenvalue = 4.85E-05
+
+  Scale SEOQF with 1.000000e-01/1.000000e-01/1.000000e-01
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =     0.0000000048 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ An unrestricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-08
+ Inaccurate integrated density:
+   Number of electrons =    49
+   Numerical integral  =    48.000991965702
+   Relative error      =    -2.0387919067 %
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -308.6718462720      6.13E-02
+    2    -307.4261929633      7.81E-03
+    3    -307.2006178510      1.45E-02
+    4    -307.6108481177      1.63E-03
+    5    -307.6166272164      1.14E-03
+    6    -307.6192602237      2.27E-04
+    7    -307.6197267026      5.32E-05
+    8    -307.6200052248      2.51E-05
+    9    -307.6200462078      7.97E-06
+   10    -307.6200101161      1.45E-06
+   11    -307.6199377099      1.38E-06
+   12    -307.6199268500      1.43E-06
+   13    -307.6200886794      1.02E-06
+   14    -307.6201300897      1.03E-06
+   15    -307.6201273767      9.56E-07
+   16    -307.6201266635      9.87E-07
+   17    -307.6201953018      1.02E-06
+   18    -307.6200943045      5.56E-07
+   19    -307.6201026823      1.88E-07
+   20    -307.6201186518      1.58E-07
+   21    -307.6201225313      9.86E-08
+   22    -307.6201230297      1.12E-07
+   23    -307.6201239769      1.07E-07
+   24    -307.6201488133      2.12E-07
+   25    -307.6201399664      8.97E-08
+   26    -307.6201298071      8.99E-08
+   27    -307.6201324706      7.22E-08
+   28    -307.6201423129      5.72E-08
+   29    -307.6201369932      1.76E-08
+   30    -307.6201291404      1.39E-07
+   31    -307.6201306955      1.29E-07
+   32    -307.6201308981      1.26E-07
+   33    -307.6201239493      1.36E-07
+   34    -307.6201278387      1.04E-07
+   35    -307.6201476556      8.96E-08
+   36    -307.6201376868      5.02E-08
+   37    -307.6201401698      1.38E-08
+   38    -307.6201359943      6.37E-08
+   39    -307.6201362024      7.07E-08
+   40    -307.6201334242      1.08E-07
+   41    -307.6201503465      1.54E-07
+   42    -307.6201502530      4.95E-08
+   43    -307.6201497290      3.77E-08
+   44    -307.6201505297      3.11E-08
+   45    -307.6201522808      5.18E-08
+   46    -307.6201519187      4.84E-08
+   47    -307.6201488120      3.09E-08
+   48    -307.6201423213      8.29E-08
+   49    -307.6201416284      7.21E-08
+Application 25339808 exit codes: 134
+Application 25339808 resources: utime ~30s, stime ~2s, Rss ~61308, inblocks ~1966076, outblocks ~723636

@@ -1328,7 +1328,8 @@ $end
         self.assertTrue(scf_qcout.data[0]['has_error'])
         self.assertEqual(scf_qcout.data[0]['errors'],
                          ['Bad SCF convergence',
-                          'Molecular charge is not found'])
+                          'Molecular charge is not found',
+                          'Geometry optimization failed'])
         geom_file = os.path.join(test_dir, "hf_opt_failed.qcout")
         geom_qcout = QcOutput(geom_file)
         self.assertTrue(geom_qcout.data[0]['has_error'])
@@ -1370,6 +1371,26 @@ $end
                           0.140267, 0.139084, 0.139995, 0.698011, -0.487911,
                           0.341061]
         self.assertEqual(qcout.data[0]['charges']['chelpg'], chelpg_charges)
+
+    def test_no_message_scf_opt_fail(self):
+        so_failfile = os.path.join(test_dir, 'scf_opt_no_message_fail.qcout')
+        so_failqcout = QcOutput(so_failfile)
+        self.assertTrue(so_failqcout.data[0]['has_error'])
+        self.assertEqual(so_failqcout.data[0]['errors'],
+                         ['Exit Code 134',
+                          'Molecular charge is not found',
+                          'Bad SCF convergence',
+                          'Geometry optimization failed'])
+        o_failfile = os.path.join(test_dir, 'opt_fail_no_message.qcout')
+        o_failqcout = QcOutput(o_failfile)
+        self.assertEqual(o_failqcout.data[0]['errors'],
+                         ['Geometry optimization failed'])
+        s_failfile = os.path.join(test_dir, 'scf_no_message_fail.qcout')
+        s_failqcout = QcOutput(s_failfile)
+        self.assertEqual(s_failqcout.data[0]['errors'],
+                         ['Exit Code 134',
+                          'Molecular charge is not found',
+                          'Bad SCF convergence'])
 
 
 if __name__ == "__main__":
