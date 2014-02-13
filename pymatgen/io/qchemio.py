@@ -1310,11 +1310,9 @@ class QcOutput(object):
         else:
             errors.append("No input text")
 
-        if len(scf_iters) > 0:
-            if len(scf_iters[0]) > 0:
-                if not scf_successful:
-                    if 'Bad SCF convergence' not in errors:
-                        errors.append('Bad SCF convergence')
+        if not scf_successful:
+            if 'Bad SCF convergence' not in errors:
+                errors.append('Bad SCF convergence')
 
         if jobtype == 'opt':
             if not opt_successful:
