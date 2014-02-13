@@ -53,11 +53,17 @@ class SymmetryFinder(object):
 
     Args:
         structure (Structure/IStructure): Structure to find symmetry
-        symprec (float): Tolerance for symmetry finding.
+        symprec (float): Tolerance for symmetry finding. Defaults to 1e-3,
+            which is fairly strict and works well for properly refined
+            structures with atoms in the proper symmetry coordinates. For
+            structures with slight deviations from their proper atomic
+            positions (e.g., structures relaxed with electronic structure
+            codes), a looser tolerance of 0.1 (the value used in Materials
+            Project) is often needed.
         angle_tolerance (float): Angle tolerance for symmetry finding.
     """
 
-    def __init__(self, structure, symprec=1e-5, angle_tolerance=5):
+    def __init__(self, structure, symprec=1e-3, angle_tolerance=5):
         self._symprec = symprec
         self._angle_tol = angle_tolerance
         self._structure = structure
