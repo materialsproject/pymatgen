@@ -6,7 +6,9 @@ import sys
 from pymatgen.analysis.defects.point_defects import *
 from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from monty.os.path import which
+from pymatgen.io.cifio import CifParser
 
 try:
     import zeo
@@ -15,6 +17,8 @@ except ImportError:
 
 gulp_present = which('gulp')
 
+test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
+                        'test_files')
 
 class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
     def setUp(self):
@@ -37,9 +41,29 @@ class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
             self.assertTrue(val in {2, -2})
 
     def test_radii_ionic_structure(self):
-        rad_dict = self._mgo_valrad_evaluator.radii
-        for rad in rad_dict.values():
+        radii_dict = self._mgo_valrad_evaluator.radii
+        for rad in radii_dict.values():
             self.assertTrue(rad in {0.86, 1.26})
+
+
+class ValenceIonicRadiusEvaluatorMultiOxiTest(unittest.TestCase):
+    def setUp(self):
+        """
+        Setup Fe3O4  structure for testing multiple oxidation states
+        """
+        cif_ob = CifParser(os.path.join(test_dir, "Fe3O4.cif"))
+        self._struct = cif_ob.get_structures()[0]
+        self._valrad_evaluator = ValenceIonicRadiusEvaluator(self._struct)
+        self._length = len(self._struct.sites)
+
+    def test_valences_ionic_structure(self):
+        valence_set = set(self._valrad_evaluator.valences.values())
+        self.assertEqual(valence_set, {2,3,-2})
+
+    def test_radii_ionic_structure(self):
+        radii_set = set(self._valrad_evaluator.radii.values())
+        self.assertEqual(len(radii_set), 3)
+        self.assertEqual(radii_set, {0.72,0.75,1.26})
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -54,6 +78,9 @@ class VacancyTest(unittest.TestCase):
                          [0.5, 0, 0], [0, 0.5, 0], [0, 0, 0.5], [0.5, 0.5, 0.5]]
         self._mgo_uc = Structure(mgo_latt, mgo_specie, mgo_frac_cord, True,
                                  True)
+
+        bv = BVAnalyzer()
+        self._mgo_uc = bv.get_oxi_state_decorated_structure(self._mgo_uc)
         self._mgo_val_rad_eval = ValenceIonicRadiusEvaluator(self._mgo_uc)
         self._mgo_val = self._mgo_val_rad_eval.valences
         self._mgo_rad = self._mgo_val_rad_eval.radii
@@ -103,9 +130,9 @@ class VacancyTest(unittest.TestCase):
             site_index = self._mgo_vac.get_defectsite_structure_index(i)
             site_el = self._mgo_uc[site_index].species_and_occu
             eff_charge = self._mgo_vac.get_defectsite_effective_charge(i)
-            if site_el["Mg"] == 1:
+            if site_el["Mg2+"] == 1:
                 self.assertEqual(eff_charge, -2)
-            if site_el["O"] == 1:
+            if site_el["O2-"] == 1:
                 self.assertEqual(eff_charge, 2)
 
     def test_get_coordinatedsites_min_max_charge(self):
