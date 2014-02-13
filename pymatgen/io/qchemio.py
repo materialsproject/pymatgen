@@ -1133,6 +1133,8 @@ class QcOutput(object):
         pop_method = None
         parse_charge = False
         charges = dict()
+        scf_successful = False
+        opt_successful = False
         for line in output.split("\n"):
             for ep, message in error_defs:
                 if ep.search(line):
@@ -1167,6 +1169,8 @@ class QcOutput(object):
                 if "SCF time:  CPU" in line:
                     parse_scf_iter = False
                     continue
+                if 'Convergence criterion met' in line:
+                    scf_successful = True
                 m = scf_iter_pattern.search(line)
                 if m:
                     scf_iters[-1].append((float(m.group("energy")),
@@ -1274,6 +1278,7 @@ class QcOutput(object):
                 elif "Cycle       Energy         DIIS Error" in line:
                     parse_scf_iter = True
                     scf_iters.append([])
+                    scf_successful = False
                 elif "Gradient of SCF Energy" in line:
                     parse_gradient = True
                     gradients.append({"gradients": []})
@@ -1281,6 +1286,8 @@ class QcOutput(object):
                     parse_freq = True
                 elif "Thank you very much for using Q-Chem." in line:
                     properly_terminated = True
+                elif "OPTIMIZATION CONVERGED" in line:
+                    opt_successful = True
         if charge is None:
             errors.append("Molecular charge is not found")
         elif spin_multiplicity is None:
@@ -1302,6 +1309,17 @@ class QcOutput(object):
                 solvent_method = qctask.params["rem"]["solvent_method"]
         else:
             errors.append("No input text")
+
+        if len(scf_iters) > 0:
+            if len(scf_iters[0]) > 0:
+                if not scf_successful:
+                    if 'Bad SCF convergence' not in errors:
+                        errors.append('Bad SCF convergence')
+
+        if jobtype == 'opt':
+            if not opt_successful:
+                if 'Geometry optimization failed' not in errors:
+                    errors.append('Geometry optimization failed')
 
         if len(errors) == 0:
             for text in cls._expected_successful_pattern(qctask):
