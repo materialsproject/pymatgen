@@ -272,7 +272,7 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
             Pymatgen structure.
         pseudos:
             List of `Pseudo` objects.
-        scf_kppa:
+        scf_
             Defines the sampling used for the SCF run.
         nscf_nband:
             Number of bands included in the NSCF run.
@@ -331,13 +331,11 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
 
     screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
 
-    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening,
-                             ppmodel=ppmodel, gw_qprange=1)
+    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
 
     scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
 
-    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy,
-                                        **extra_abivars)
+    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars)
 
     return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy,
                          workdir=workdir, manager=manager)
