@@ -20,6 +20,7 @@ import os
 from pymatgen.core.structure import Molecule
 from pymatgen.symmetry.pointgroup import PointGroupAnalyzer, cluster_sites
 from pymatgen.io.xyzio import XYZ
+from pymatgen.io.smartio import read_mol
 
 try:
     import scipy
@@ -130,6 +131,9 @@ class PointGroupAnalyzerTest(unittest.TestCase):
         a = PointGroupAnalyzer(NH3)
         self.assertEqual(a.sch_symbol, "C3v")
         self.assertEqual(len(a.get_pointgroup()), 6)
+        cs2 = read_mol(os.path.join(test_dir, "Carbon_Disulfide.xyz"))
+        a = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
+        self.assertEqual(a.sch_symbol, "C2v")
 
     def test_dihedral(self):
         a = PointGroupAnalyzer(C2H4)
@@ -141,7 +145,6 @@ class PointGroupAnalyzerTest(unittest.TestCase):
         xyz = XYZ.from_file(os.path.join(test_dir, "b12h12.xyz"))
         a = PointGroupAnalyzer(xyz.molecule)
         self.assertEqual(a.sch_symbol, "D5d")
-
 
 @unittest.skipIf(scipy is None, "Scipy not present.")
 class FuncTest(unittest.TestCase):
