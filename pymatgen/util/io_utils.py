@@ -25,8 +25,7 @@ def zpath(filename):
     version. If no path exists, returns the filename unmodified
 
     Args:
-        filename:
-            filename without zip extension
+        filename: filename without zip extension
 
     Returns:
         filename with a zip extension (unless an unzipped version
@@ -44,10 +43,9 @@ def clean_lines(string_list, remove_empty_lines=True):
     Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
-        string_list:
-            List of strings
-        remove_empty_lines:
-            Set to True to skip lines which are empty after stripping.
+        string_list: List of strings
+        remove_empty_lines: Set to True to skip lines which are empty after
+            stripping.
 
     Returns:
         List of clean strings with no whitespaces.
@@ -120,10 +118,8 @@ def clean_json(input_json, strict=False):
     int and float) to strings.
 
     Args:
-        input_dict:
-            input dictionary.
-        strict:
-            This parameters sets the behavior when clean_json encounters an
+        input_dict: input dictionary.
+        strict: This parameters sets the behavior when clean_json encounters an
             object it does not understand. If strict is True, clean_json will
             try to get the to_dict attribute of the object. If no such
             attribute is found, an attribute error will be thrown. If strict is
@@ -172,12 +168,9 @@ class FileLock(object):
         the maximum timeout and the delay between each attempt to lock.
 
         Args:
-            file_name:
-                Name of file to lock.
-            timeout:
-                Maximum timeout for locking. Defaults to 10.
-            delay:
-                Delay between each attempt to lock. Defaults to 0.05.
+            file_name: Name of file to lock.
+            timeout: Maximum timeout for locking. Defaults to 10.
+            delay: Delay between each attempt to lock. Defaults to 0.05.
         """
         self.file_name = os.path.abspath(file_name)
         self.lockfile = os.path.abspath(file_name) + ".lock"

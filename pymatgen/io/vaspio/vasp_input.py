@@ -1351,8 +1351,8 @@ class VaspInput(dict, MSONable):
         sub_d = {}
         for fname, ftype in [("INCAR", Incar), ("KPOINTS", Kpoints),
                              ("POSCAR", Poscar), ("POTCAR", Potcar)]:
-            sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir,
-                                                                fname))
+            fullzpath = zpath(os.path.join(input_dir, fname))
+            sub_d[fname.lower()] = ftype.from_file(fullzpath)
         sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():
