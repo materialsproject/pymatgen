@@ -29,8 +29,7 @@ import numpy as np
 from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
-    get_el_sp
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
@@ -291,7 +290,7 @@ class IStructure(SiteCollection, MSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
-    immutable so that they can function as keys in a dict. To make
+    (somewhat) immutable so that they can function as keys in a dict. To make
     modifications, use the standard Structure object instead. Structure
     extends Sequence and Hashable, which means that in many cases,
     it can be used like any Python sequence. Iterating through a
