@@ -316,12 +316,19 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
+    if extra_abivars['ecut'] < max(ecuteps):
+        extra_abivars['ecut'] = max(ecuteps)
+    if ecutsigx < max(ecuteps):
+        ecutsigx = max(ecuteps)
+
     scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
                                accuracy=accuracy, spin_mode=spin_mode,
                                smearing=smearing, charge=charge,
                                scf_algorithm=None, **extra_abivars)
 
-    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, nscf_nband, **extra_abivars)
+    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, max(nscf_nband), **extra_abivars)
+
+    sigma_strategy = []
 
     if scr_nband is None:
         scr_nband = nscf_nband
@@ -329,13 +336,14 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
     if sigma_nband is None:
         sigma_nband = nscf_nband
 
-    screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
-
-    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
-
-    scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
-
-    sigma_strategy = SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars)
+    for ecuteps_v in ecuteps:
+        for nscf_nband_v in nscf_nband:
+            scr_nband = nscf_nband_v
+            sigma_nband = nscf_nband_v
+            screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
+            self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
+            scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
+            sigma_strategy.append(SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars))
 
     return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy,
                          workdir=workdir, manager=manager)

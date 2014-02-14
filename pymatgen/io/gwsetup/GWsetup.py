@@ -735,11 +735,13 @@ class SingleAbinitGWWorkFlow():
     interface the
     """
     TESTS = {'ecuteps': {'test_range': (8, 12, 16), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (10, 20, 30), 'method': 'direct', 'control': "gap", 'level': "nscf"}}
+             'nscf_nbands': {'test_range': (10, 20, 30), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
-    def __init__(self, structure, spec):
+    def __init__(self, structure, spec, option=None):
         self.structure = structure
         self.spec = spec
+        self.option = option
+        self.tests = self.__class__.get_defaults_tests()
         self.work_dir = self.structure.composition.reduced_formula
         abi_pseudo = '.GGA_PBE-JTH-paw.xml'
         abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
@@ -774,6 +776,13 @@ class SingleAbinitGWWorkFlow():
         bands = self.get_electrons(structure) / 2 + len(structure)
         return int(bands)
 
+    def get_work_dir(self):
+            name = self.structure.composition.reduced_formula
+            if self.option is not None:
+                return str(name)+'_'+str(self.option['test'])+'_'+str(self.option['value'])
+            else:
+                return str(name)
+
     def create(self):
         """
         create single abinit G0W0 flow
@@ -796,16 +805,23 @@ class SingleAbinitGWWorkFlow():
         #nscf_shiftk = [0.0, 0.0, 0.0]
 
         # 100
-        nscf_nband = 100
-        #scr_nband = 50 takes nscf_nbands if not specified
-        #sigma_nband = 50 takes scr_nbands if not specified
-
-        # 6
+        nscf_nband = 10 * self.get_bands(self.structure)
         ecuteps = 8
-        # 8
         ecutsigx = 8
-        # 8
-        ecut = 12
+        ecut = 16
+
+        if self.spec['test']:
+            tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
+            ecuteps = []
+            nscf_nband = []
+            for test in tests:
+                for value in tests[test]['test_range']:
+                    if test == 'nscf_nbands':
+                        nscf_nband.append(value * self.get_bands(self.structure))
+                        #scr_nband takes nscf_nbands if not specified
+                        #sigma_nband takes scr_nbands if not specified
+                    if test == 'ecuteps':
+                        ecuteps.append(value)
 
         extra_abivars = dict(
             ecut=ecut,
@@ -917,7 +933,7 @@ class GWSpecs(MSONable):
                 self.errors.append(str(self.data['functional'] + 'not defined for VASP yet'))
         elif self.data['code'] == 'ABINIT':
             if self.data['test'] and self.data['code'] == 'ABINIT':
-                self.warnings.append('no tests defined for ABINIT calculations')
+                self.warnings.append('testing tests for ABINIT calculations')
             if self.data['functional'] not in ['PBE']:
                 self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
         else:
@@ -988,13 +1004,10 @@ class GWSpecs(MSONable):
                 fw_work_flow.create()
                 fw_work_flow.add_to_db()
         elif self.get_code() == 'ABINIT':
-            if self.data['test']:
-                pass
-            else:
-                work_flow = SingleAbinitGWWorkFlow(structure, self)
-                flow = work_flow.create()
-                flow.build_and_pickle_dump()
-                work_flow.create_job_file()
+            work_flow = SingleAbinitGWWorkFlow(structure, self)
+            flow = work_flow.create()
+            flow.build_and_pickle_dump()
+            work_flow.create_job_file()
         else:
             print 'unspecified code, actually this should have been catched earlier .. '
             exit()
