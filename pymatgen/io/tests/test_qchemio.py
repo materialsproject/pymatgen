@@ -1393,6 +1393,11 @@ $end
                          ['Exit Code 134',
                           'Molecular charge is not found',
                           'Bad SCF convergence'])
+        so_successfile = os.path.join(test_dir,
+                                     'thiophene_wfs_5_carboxyl.qcout')
+        so_successqcout = QcOutput(so_successfile)
+        so_successqcout.data[0]['errors']
+        self.assertFalse(so_successqcout.data[0]['has_error'])
 
 
 if __name__ == "__main__":
