@@ -735,7 +735,7 @@ class SingleAbinitGWWorkFlow():
     interface the
     """
     TESTS = {'ecuteps': {'test_range': (8, 12, 16), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (10, 20, 30), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
+             'nscf_nbands': {'test_range': (10, 20, 30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
         self.structure = structure
