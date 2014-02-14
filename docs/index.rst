@@ -8,6 +8,8 @@
    :alt: pymatgen
    :align: center
 
+.. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/stable.png?circle-token=:circle-token
+
 Introduction
 ============
 

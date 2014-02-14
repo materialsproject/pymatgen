@@ -29,7 +29,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
     """
     Represents a Composition, which is essentially a {element:amount} mapping
     type. Composition is written to be immutable and hashable,
-    unless a standard Python dict.
+    unlike a standard Python dict.
 
     Note that the key can be either an Element or a Specie. Elements and Specie
     are treated differently. i.e., a Fe2+ is not the same as a Fe3+ Specie and
@@ -160,7 +160,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                     "All elements in subtracted composition must exist in "
                     "original composition in equal or lesser amount!")
 
-            new_el_map = {sp: amt for sp, amt in new_el_map.iteritems() if amt != 0}
+            new_el_map = {sp: amt for sp, amt in new_el_map.iteritems()
+                          if amt != 0}
         return Composition(new_el_map)
 
     def __mul__(self, other):
