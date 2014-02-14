@@ -117,14 +117,14 @@ def clean_json(input_json, strict=False):
                 for k, v in input_json.items()}
     elif isinstance(input_json, (int, float)):
         return input_json
+    elif input_json is None:
+        return None
     else:
         if not strict:
             return str(input_json)
         else:
             if isinstance(input_json, basestring):
                 return str(input_json)
-            elif input_json is None:
-                return 'None'
             else:
                 return clean_json(input_json.to_dict, strict=strict)
 
