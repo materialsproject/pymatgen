@@ -26,6 +26,9 @@ import logging
 import numpy as np
 from numpy.linalg import det
 
+from monty.io import zopen
+from monty.os.path import zpath
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
@@ -33,10 +36,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.util.io_utils import clean_lines, zpath
+from pymatgen.util.io_utils import clean_lines
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 import pymatgen
-from monty.io import zopen
 
 
 logger = logging.getLogger(__name__)
