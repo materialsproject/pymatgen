@@ -19,25 +19,6 @@ import time
 import errno
 
 
-def zpath(filename):
-    """
-    Returns an existing (zipped or unzipped) file path given the unzipped
-    version. If no path exists, returns the filename unmodified
-
-    Args:
-        filename: filename without zip extension
-
-    Returns:
-        filename with a zip extension (unless an unzipped version
-        exists)
-    """
-    for ext in ["", '.gz', '.GZ', '.bz2', '.BZ2', '.z', '.Z']:
-        zfilename = "{}{}".format(filename, ext)
-        if os.path.exists(zfilename):
-            return zfilename
-    return filename
-
-
 def clean_lines(string_list, remove_empty_lines=True):
     """
     Strips whitespace, carriage returns and empty lines from a list of strings.
