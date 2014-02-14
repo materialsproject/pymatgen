@@ -60,13 +60,14 @@ class ComputedEntry(PDEntry, MSONable):
                 analysis and plotting purposes. An attribute can be anything
                 but must be MSONable.
         """
-        comp = Composition(composition)
-        PDEntry.__init__(self, comp, energy, attribute=attribute)
+        self.uncorrected_energy = energy
+        self.composition = Composition(composition)
         self.correction = correction
         self.parameters = parameters if parameters else {}
         self.data = data if data else {}
         self.entry_id = entry_id
-        self._attribute = attribute
+        self.name = self.composition.reduced_formula
+        self.attribute = attribute
 
     @property
     def energy(self):
@@ -74,13 +75,6 @@ class ComputedEntry(PDEntry, MSONable):
         Returns the *corrected* energy of the entry.
         """
         return self.uncorrected_energy + self.correction
-
-    @property
-    def uncorrected_energy(self):
-        """
-        Returns the *uncorrected* energy of the entry.
-        """
-        return super(ComputedEntry, self).energy
 
     def __repr__(self):
         output = ["ComputedEntry {}".format(self.composition.formula),
@@ -116,7 +110,7 @@ class ComputedEntry(PDEntry, MSONable):
                                                     cls=PMGJSONEncoder)),
                 "data": json.loads(json.dumps(self.data, cls=PMGJSONEncoder)),
                 "entry_id": self.entry_id,
-                "attribute": self._attribute}
+                "attribute": self.attribute}
 
 
 class ComputedStructureEntry(ComputedEntry):
