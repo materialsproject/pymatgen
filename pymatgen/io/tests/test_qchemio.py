@@ -109,7 +109,7 @@ $end
                 self.assertTrue(abs(float(t1)-float(t2)) < 0.0001)
 
     def test_no_mol(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -135,7 +135,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_simple_basis_str(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -164,7 +164,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_aux_basis_str(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -224,7 +224,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_ecp_str(self):
-        ans = '''$comments
+        ans = '''$comment
  Test ECP
 $end
 
@@ -273,7 +273,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_memory(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -305,7 +305,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_max_num_of_scratch_files(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -336,7 +336,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_max_scf_iterations(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -369,7 +369,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_scf_convergence_threshold(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -400,7 +400,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_integral_threshold(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -431,7 +431,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_dft_grid(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -462,7 +462,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_scf_initial_guess(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -493,7 +493,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_geom_opt_max_cycles(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -524,7 +524,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_geom_opt_coords_type(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -555,7 +555,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_scale_geom_opt_threshold(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -589,7 +589,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_set_geom_opt_use_gdiis(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -620,7 +620,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_disable_symmetry(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -652,7 +652,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_use_cosmo(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -684,7 +684,7 @@ $end
         self.elementary_io_verify(ans, qctask)
 
     def test_use_pcm(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -739,7 +739,7 @@ $end
                                        "SolventAtom": [[8, 1, 186, 1.30],
                                                        [1, 2, 187, 1.01]]},
                        radii_force_field="OPLSAA")
-        ans = '''$comments
+        ans = '''$comment
  Test Methane
 $end
 
@@ -787,7 +787,7 @@ $end
 
 class TestQcInput(TestCase):
     def test_str_and_from_string(self):
-        ans = '''$comments
+        ans = '''$comment
  Test Methane Opt
 $end
 
@@ -812,7 +812,7 @@ $end
 @@@
 
 
-$comments
+$comment
  Test Methane Frequency
 $end
 
@@ -832,7 +832,7 @@ $end
 @@@
 
 
-$comments
+$comment
  Test Methane Single Point Energy
 $end
 
@@ -1328,7 +1328,8 @@ $end
         self.assertTrue(scf_qcout.data[0]['has_error'])
         self.assertEqual(scf_qcout.data[0]['errors'],
                          ['Bad SCF convergence',
-                          'Molecular charge is not found'])
+                          'Molecular charge is not found',
+                          'Geometry optimization failed'])
         geom_file = os.path.join(test_dir, "hf_opt_failed.qcout")
         geom_qcout = QcOutput(geom_file)
         self.assertTrue(geom_qcout.data[0]['has_error'])
@@ -1342,13 +1343,61 @@ $end
         self.assertEqual(no_reading_qcout.data[0]['errors'],
                          ['Exit Code 134',
                           'Molecular charge is not found',
-                          'No input text'])
+                          'No input text',
+                          'Bad SCF convergence'])
         exit_code_134_file = os.path.join(test_dir, "exit_code_134.qcout")
         ec134_qcout = QcOutput(exit_code_134_file)
         self.assertTrue(ec134_qcout.data[0]['has_error'])
         self.assertEqual(ec134_qcout.data[0]['errors'],
                          ['Exit Code 134',
-                          'Molecular charge is not found'])
+                          'Molecular charge is not found',
+                          'Bad SCF convergence'])
+
+    def test_chelp_and_mulliken_charges(self):
+        filename = os.path.join(test_dir, 'chelpg_charges.qcout')
+        qcout = QcOutput(filename)
+        mulliken_charges = [0.393961, -0.281545, 0.066432, 0.019364, -0.186041,
+                            -0.16007, 0.315659, 0.30631, 0.064257, 0.056438,
+                            -0.17695, 0.16976, -0.13326, -0.131853, -0.178711,
+                            0.163697, 0.170148, 0.143329, 0.152702, 0.152929,
+                            0.170475, -0.451542, -0.441554, -0.709834,
+                            -0.592718, 0.20506, 0.211043, 0.204389, 0.546173,
+                            -0.414558, 0.346511]
+        self.assertEqual(qcout.data[0]['charges']['mulliken'],
+                         mulliken_charges)
+        chelpg_charges = [0.399404, -0.277179, -0.057502, -0.110085, -0.07107,
+                          -0.274987, 0.475781, 0.423117, -0.054079, -0.101424,
+                          -0.05793, 0.115179, -0.116069, -0.10949, -0.06664,
+                          0.161442, 0.135438, 0.158081, 0.125881, 0.125324,
+                          0.115863, -0.425251, -0.42309, -0.602375, -0.458844,
+                          0.140267, 0.139084, 0.139995, 0.698011, -0.487911,
+                          0.341061]
+        self.assertEqual(qcout.data[0]['charges']['chelpg'], chelpg_charges)
+
+    def test_no_message_scf_opt_fail(self):
+        so_failfile = os.path.join(test_dir, 'scf_opt_no_message_fail.qcout')
+        so_failqcout = QcOutput(so_failfile)
+        self.assertTrue(so_failqcout.data[0]['has_error'])
+        self.assertEqual(so_failqcout.data[0]['errors'],
+                         ['Exit Code 134',
+                          'Molecular charge is not found',
+                          'Bad SCF convergence',
+                          'Geometry optimization failed'])
+        o_failfile = os.path.join(test_dir, 'opt_fail_no_message.qcout')
+        o_failqcout = QcOutput(o_failfile)
+        self.assertEqual(o_failqcout.data[0]['errors'],
+                         ['Geometry optimization failed'])
+        s_failfile = os.path.join(test_dir, 'scf_no_message_fail.qcout')
+        s_failqcout = QcOutput(s_failfile)
+        self.assertEqual(s_failqcout.data[0]['errors'],
+                         ['Exit Code 134',
+                          'Molecular charge is not found',
+                          'Bad SCF convergence'])
+        so_successfile = os.path.join(test_dir,
+                                     'thiophene_wfs_5_carboxyl.qcout')
+        so_successqcout = QcOutput(so_successfile)
+        so_successqcout.data[0]['errors']
+        self.assertFalse(so_successqcout.data[0]['has_error'])
 
 
 if __name__ == "__main__":

@@ -5,17 +5,24 @@ This single module should provide all the common functionality for pymatgen
 tests in a single location, so that test scripts can just import it and work
 right away.
 """
-import os
 import unittest
 import tempfile
 import numpy.testing.utils as nptu
-
+from pymatgen.core.structure import Structure
 
 class PymatgenTest(unittest.TestCase):
     """
     Extends unittest.TestCase with functions (taken from numpy.testing.utils)
     that support the comparison of arrays.
     """
+    def get_test_structure(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        lattice = [[3.8401979337, 0.00, 0.00],
+                   [1.9200989668, 3.3257101909, 0.00],
+                   [0.00, -2.2171384943, 3.1355090603]]
+        return Structure(lattice, ["Si", "Si"], coords)
 
     @staticmethod
     def assert_almost_equal(actual, desired, decimal=7, err_msg='',
@@ -63,15 +70,15 @@ class PymatgenTest(unittest.TestCase):
 
         Args:
             objects:
-                Object or list of objects. 
+                Object or list of objects.
             protocols:
                 List of pickle protocols to test.
 
         Returns:
             Nested list with the objects deserialized with the specified protocols.
         """
-        # Use the python version so that we get the traceback in case of errors 
-        import pickle as pickle  
+        # Use the python version so that we get the traceback in case of errors
+        import pickle as pickle
         #import cPickle as pickle
 
         # Build a list even when we receive a single object.
