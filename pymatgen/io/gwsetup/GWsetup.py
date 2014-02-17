@@ -278,9 +278,11 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         self.set_gw_bands(15)
         self.incar_settings.update({"NPAR": npar})
         self.incar_settings.update({"NOMEGA": nomega})
+        self.tests = self.__class__.get_defaults_tests()
+
+    def wannier_on(self):
         self.incar_settings.update({"LWANNIER90_RUN": ".TRUE."})
         self.incar_settings.update({"LWRITE_MMN_AMN": ".TRUE."})
-        self.tests = self.__class__.get_defaults_tests()
 
     def spectral_off(self):
         """
@@ -317,7 +319,7 @@ class Wannier90InputSet():
     """
     def __init__(self):
         self.file_name = "wannier90.win"
-        self.settings = {"bands_plot": "true", "num_wann": 2, "num_bands": 2}
+        self.settings = {"bands_plot": "true", "num_wann": 2, "num_bands": 4}
         self.parameters = {"n_include_bands": 1}
 
     def make_kpoint_path(self, structure, f):
@@ -403,9 +405,11 @@ class SingleVaspGWWork():
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+            if self.spec['kp_grid_dens'] > 10:
+                inpset.wannier_on()
+                w_inpset = Wannier90InputSet()
+                w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
             inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
-            w_inpset = Wannier90InputSet()
-            w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
         if self.job == 'GW0':
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.set_dens(self.spec)
@@ -415,9 +419,11 @@ class SingleVaspGWWork():
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+            if self.spec['kp_grid_dens'] > 10:
+                inpset.wannier_on()
+                w_inpset = Wannier90InputSet()
+                w_inpset.write_file(self.structure, os.path.join(path, 'GW0'+option_name))
             inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
-            w_inpset = Wannier90InputSet()
-            w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
         if self.job == 'scGW0':
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.gw0_on(qpsc=True)
@@ -427,9 +433,11 @@ class SingleVaspGWWork():
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+            if self.spec['kp_grid_dens'] > 10:
+                inpset.wannier_on()
+                w_inpset = Wannier90InputSet()
+                w_inpset.write_file(self.structure, os.path.join(path, 'scGW0'+option_name))
             inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
-            w_inpset = Wannier90InputSet()
-            w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
 
     def create_job_script(self, add_to_collection=True):
         """
