@@ -509,6 +509,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         elements1 = self._get_elements(obmol1, clabel1)
         elements2 = self._get_elements(obmol2, clabel2)
 
+        print elements1
+        print elements2
+
         if elements1 != elements2:
             raise Exception("Design Error! Atomic elements are inconsistent")
 
