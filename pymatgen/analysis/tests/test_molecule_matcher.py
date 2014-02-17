@@ -134,6 +134,12 @@ class MoleculeMatcherTest(unittest.TestCase):
         mol2 = read_mol(os.path.join(test_dir, "k2.sdf"))
         self.assertTrue(mm.fit(mol1, mol2))
 
+    def test_thiane(self):
+        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol1 = read_mol(os.path.join(test_dir, "thiane1.sdf"))
+        mol2 = read_mol(os.path.join(test_dir, "thiane2.sdf"))
+        self.assertFalse(mm.fit(mol1, mol2))
+
 
 if __name__ == '__main__':
     unittest.main()
