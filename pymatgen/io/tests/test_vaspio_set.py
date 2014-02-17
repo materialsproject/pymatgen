@@ -197,7 +197,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpstaticparamset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[4, 6, 6]])
+        self.assertEquals(kpoints.kpts, [[6, 6, 4]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpnscfparamsetl.get_kpoints(self.struct)
