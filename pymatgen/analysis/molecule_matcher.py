@@ -510,12 +510,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2,
                                                           ilabel1,
                                                           heavy_atom_indices2)
+        if clabel1 and clabel2:
+            elements1 = self._get_elements(obmol1, clabel1)
+            elements2 = self._get_elements(obmol2, clabel2)
 
-        elements1 = self._get_elements(obmol1, clabel1)
-        elements2 = self._get_elements(obmol2, clabel2)
-
-        if elements1 != elements2:
-            raise Exception("Design Error! Atomic elements are inconsistent")
+            if elements1 != elements2:
+                raise Exception("Design Error! Atomic elements are inconsistent")
 
         return clabel1, clabel2
 
