@@ -32,7 +32,7 @@ from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar, Poscar
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.abinitio.abiobjects import asabistructure
-from pymatgen.io.abinitio.calculations import g0w0_with_ppmodel_extended
+from pymatgen.io.abinitio.calculations import g0w0_extended
 from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.symmetry.finder import SymmetryFinder
@@ -186,7 +186,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     a GW calculation.
     """
     TESTS = {'NBANDS': {'test_range': (10, 20, 30), 'method': 'set_nbands', 'control': "gap"}}
-    CONVS = {'NBANDS': {'test_range': (10, 15, 20, 25, 30, 35), 'method': 'set_nbands', 'control': "gap"}}
+    CONVS = {'NBANDS': {'test_range': (10, 20, 30, 40, 50, 60, 70), 'method': 'set_nbands', 'control': "gap"}}
 
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
@@ -197,6 +197,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
                 self, "MP Static exact diagonalization", json.load(f), **kwargs)
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
+        self.convs = self.__class__.get_defaults_convs()
         self.functional = functional
         self.sym_prec = sym_prec
         npar = self.get_npar(self.structure)
@@ -257,7 +258,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
     """
     TESTS = {'ENCUTGW': {'test_range': (200, 300, 400), 'method': 'incar_settings', 'control': "gap"},
              'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
-    CONVS = {'ENCUTGW': {'test_range': (200, 300, 400, 500), 'method': 'incar_settings', 'control': "gap"}}
+    CONVS = {'ENCUTGW': {'test_range': (200, 400, 600, 800), 'method': 'incar_settings', 'control': "gap"}}
 
     def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
         """
@@ -268,6 +269,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
                 self, "MP Static G0W0", json.load(f), **kwargs)
         self.structure = structure
         self.tests = self.__class__.get_defaults_tests()
+        self.convs = self.__class__.get_defaults_convs()
         self.functional = functional
         self.sym_prec = sym_prec
         npar = self.get_npar(structure)
@@ -385,6 +387,8 @@ class SingleVaspGWWork():
         if self.job == 'prep':
             inpset = MPGWscDFTPrepVaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.set_dens(self.spec)
+            if self.spec['converge']:
+                inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test']:
                 if self.option['test_prep'] in MPGWscDFTPrepVaspInputSet(self.structure).tests.keys():
                     inpset.set_test(self.option['test_prep'], self.option['value_prep'])
@@ -394,26 +398,32 @@ class SingleVaspGWWork():
             inpset = MPGWDFTDiagVaspInputSet(self.structure, functional=self.spec['functional'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+            if self.spec['converge']:
+                inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
             inpset.get_incar(self.structure).write_file(os.path.join(path, 'INCAR.DIAG'))
         if self.job == 'G0W0':
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.set_dens(self.spec)
+            if self.spec['converge']:
+                inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+            inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 w_inpset = Wannier90InputSet()
                 w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
-            inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
         if self.job == 'GW0':
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.set_dens(self.spec)
             inpset.gw0_on()
+            if self.spec['converge']:
+                inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
@@ -428,6 +438,8 @@ class SingleVaspGWWork():
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.gw0_on(qpsc=True)
             inpset.set_dens(self.spec)
+            if self.spec['converge']:
+                inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
@@ -445,8 +457,9 @@ class SingleVaspGWWork():
         """
         npar = MPGWscDFTPrepVaspInputSet(self.structure, functional=self.spec['functional']).get_npar(self.structure)
         if self.option is not None:
-            option_prep_name = str('.' + self.option['test_prep'] + self.option['value_prep'])
-            option_name = str('.' + self.option['test'] + self.option['value'])
+            option_prep_name = str('.') + str(self.option['test_prep']) + str(self.option['value_prep'])
+            if 'test' in self.option.keys():
+                option_name = str('.') + str(self.option['test']) + str(self.option['value'])
         else:
             option_prep_name = option_name = ''
         # npar = int(os.environ['NPARGWCALC'])
@@ -840,7 +853,7 @@ class SingleAbinitGWWorkFlow():
             nbdbuf=8
         )
 
-        work = g0w0_with_ppmodel_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
+        work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                                           accuracy="normal", spin_mode="unpolarized", smearing=None, ppmodel="godby",
                                           charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
                                           **extra_abivars)
@@ -909,6 +922,13 @@ class GWSpecs(MSONable):
                         self.data['test'] = True
                     elif value.lower() in ['false', 'f']:
                         self.data['test'] = False
+                    else:
+                        print 'undefined value, test should be True or False'
+                elif key == 'converge':
+                    if value.lower() in ['true', 't']:
+                        self.data['converge'] = True
+                    elif value.lower() in ['false', 'f']:
+                        self.data['converge'] = False
                     else:
                         print 'undefined value, test should be True or False'
                 elif key in 'kp_grid_dens':

@@ -177,10 +177,9 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 #
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
-
-def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, 
+def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
+                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
                       sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
@@ -260,10 +259,10 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                          workdir=workdir, manager=manager)
 
 
-def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
+def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
-                      sigma_nband=None, workdir=None, manager=None, gamma=True, **extra_abivars):
+                      response_model="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
+                      sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -306,8 +305,6 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
             Dictionary with extra variables passed to ABINIT.
     """
     # TODO: Cannot use istwfk != 1.
-    if "istwfk" not in extra_abivars:
-        extra_abivars["istwfk"] = "*1"
 
     if gamma:
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
@@ -316,37 +313,43 @@ def g0w0_with_ppmodel_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
+    if "istwfk" not in extra_abivars:
+        extra_abivars["istwfk"] = "*1"
+
+    scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
+                               smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
+    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, max(nscf_nband), **extra_abivars)
+
+    if scr_nband is None:
+        scr_nband = nscf_nband
+    if sigma_nband is None:
+        sigma_nband = nscf_nband
+
     if extra_abivars['ecut'] < max(ecuteps):
         extra_abivars['ecut'] = max(ecuteps)
     if ecutsigx < max(ecuteps):
         ecutsigx = max(ecuteps)
 
-    scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling,
-                               accuracy=accuracy, spin_mode=spin_mode,
-                               smearing=smearing, charge=charge,
-                               scf_algorithm=None, **extra_abivars)
-
-    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, max(nscf_nband), **extra_abivars)
-
     sigma_strategy = []
 
-    if scr_nband is None:
-        scr_nband = nscf_nband
-
-    if sigma_nband is None:
-        sigma_nband = nscf_nband
+    if response_model == 'cd':
+        hilbert = what_ever_this_needs_to_be
 
     for ecuteps_v in ecuteps:
         for nscf_nband_v in nscf_nband:
             scr_nband = nscf_nband_v
             sigma_nband = nscf_nband_v
-            screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
-            self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
+            if response_model == 'cd':
+                screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
+                self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, hilbert=hilbert)
+            else:
+                ppmodel = 'godby'
+                screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
+                self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
             scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
             sigma_strategy.append(SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars))
 
-    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy,
-                         workdir=workdir, manager=manager)
+    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
 #def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
