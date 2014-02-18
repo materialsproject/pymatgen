@@ -23,8 +23,8 @@ import socket
 import logging
 import sys
 import shutil
-import time
 import subprocess
+import ast
 import pymatgen as pmg
 
 from pymatgen.core.structure import Structure
@@ -39,6 +39,8 @@ from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.serializers.json_coders import PMGJSONDecoder
+#from pymatgen.io.gwsetup.GWdatastructures import GWConvergenceData
+from pymatgen.io.gwsetup.GWhelpers import now
 from fireworks.core.firework import FireTaskBase, FWAction, FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_serializers import FWSerializable, load_object_from_file
@@ -53,13 +55,6 @@ sub calculations are made below.
 For many settings the number of cores on which the calculations will be run is needed, this
 number is assumed to be on the environment variable NPARGWCALC.
 """
-
-
-def now():
-    """
-    helper to return a time string
-    """
-    return time.strftime("%H:%M:%S %d/%m/%Y")
 
 
 class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
@@ -207,34 +202,6 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         self.set_gw_bands(15)
         self.incar_settings.update({"NPAR": npar})
 
-    def get_kpoints(self, structure, regular=True):
-        """
-        Writes out a KPOINTS file using the automated gamma grid method.
-        VASP crashes GW calculations on none gamma centered meshes.
-        """
-        if regular:
-            if self.sort_structure:
-                structure = structure.get_sorted_structure()
-            dens = int(self.kpoints_settings['grid_density'])
-            return Kpoints.automatic_gamma_density(structure, dens)
-        else:
-            num_kpoints = self.kpoints_settings["kpoints_density"] * structure.lattice.reciprocal_lattice.volume
-            kpoints = Kpoints.automatic_density(structure, num_kpoints * structure.num_sites)
-            mesh = kpoints.kpts[0]
-            ir_kpts = SymmetryFinder(structure, symprec=0.0).get_ir_reciprocal_mesh(mesh)
-            kpts = []
-            weights = []
-            for k in ir_kpts:
-                kpts.append(k[0])
-                weights.append(int(k[1]))
-            # add the extrema
-            kpts.append(structure.cbm)
-            weights.append(int(0))
-            kpts.append(structure.vbm)
-            weights.append(int(0))
-            return Kpoints(comment="uniform grid with extrema", style="Reciprocal", num_kpts=len(ir_kpts), kpts=kpts,
-                           kpts_weights=weights)
-
     def set_gw_bands(self, factor=15):
         """
         method to set the number of bands for GW
@@ -379,12 +346,15 @@ class SingleVaspGWWork():
         """
         create vasp input
         """
-        path = self.structure.composition.reduced_formula+'.'+str(self.option['test_prep'])+str(self.option['value_prep'])
-        if 'test' in self.option.keys():
-            option_name = '.'+str(self.option['test'])+str(self.option['value'])
+        option_name = ''
+        if self.option is None:
+            path = self.structure.composition.reduced_formula
         else:
-            option_name = ''
+            path = self.structure.composition.reduced_formula+'.'+str(self.option['test_prep'])+str(self.option['value_prep'])
+            if 'test' in self.option.keys():
+                option_name = '.'+str(self.option['test'])+str(self.option['value'])
         if self.job == 'prep':
+
             inpset = MPGWscDFTPrepVaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.set_dens(self.spec)
             if self.spec['converge']:
@@ -395,7 +365,9 @@ class SingleVaspGWWork():
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             inpset.write_input(self.structure, path)
+
             inpset = MPGWDFTDiagVaspInputSet(self.structure, functional=self.spec['functional'])
+            inpset.set_dens(self.spec)
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             if self.spec['converge']:
@@ -403,7 +375,9 @@ class SingleVaspGWWork():
             if self.spec['test']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
             inpset.get_incar(self.structure).write_file(os.path.join(path, 'INCAR.DIAG'))
+
         if self.job == 'G0W0':
+
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.set_dens(self.spec)
             if self.spec['converge']:
@@ -413,12 +387,14 @@ class SingleVaspGWWork():
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
-            inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 w_inpset = Wannier90InputSet()
                 w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
+            inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
+
         if self.job == 'GW0':
+
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.set_dens(self.spec)
             inpset.gw0_on()
@@ -434,7 +410,9 @@ class SingleVaspGWWork():
                 w_inpset = Wannier90InputSet()
                 w_inpset.write_file(self.structure, os.path.join(path, 'GW0'+option_name))
             inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
+
         if self.job == 'scGW0':
+
             inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
             inpset.gw0_on(qpsc=True)
             inpset.set_dens(self.spec)
@@ -445,6 +423,7 @@ class SingleVaspGWWork():
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 w_inpset = Wannier90InputSet()
@@ -651,7 +630,7 @@ class VaspGWExecuteTask(VaspGWTask):
         return FWAction()
 
 
-class VaspGWWriteConDat(VaspGWTask):
+class VaspGWWriteConDatTask(VaspGWTask):
     fw_name = "Vasp GW Write Convergence Data"
     """
     Write the data needed to study the convergence
@@ -664,7 +643,7 @@ class VaspGWWriteConDat(VaspGWTask):
         return FWAction()
 
 
-class VaspGWTestConv(VaspGWTask):
+class VaspGWTestConTask(VaspGWTask):
     fw_name = "Vasp GW Test converge"
     """
     test if the current conv option is converged if not calculate the nex value
@@ -826,8 +805,8 @@ class SingleAbinitGWWorkFlow():
         #nscf_shiftk = [0.0, 0.0, 0.0]
 
         # 100
-        nscf_nband = 10 * self.get_bands(self.structure)
-        ecuteps = 8
+        nscf_nband = [10 * self.get_bands(self.structure)]
+        ecuteps = [8]
         ecutsigx = 8
         ecut = 16
 
@@ -845,7 +824,7 @@ class SingleAbinitGWWorkFlow():
                         ecuteps.append(value)
 
         extra_abivars = dict(
-            ecut=ecut,
+            ecut=[ecut],
             istwfk="*1",
             timopt=-1,
             pawecutdg=ecut*2,
@@ -1055,7 +1034,13 @@ class GWSpecs(MSONable):
                           'spec': self.to_dict(), 'option': option}
             fw_work_flow.add_work(parameters)
 
-    def loop_structures(self):
+    def process_data(self, structure):
+        from pymatgen.io.gwsetup.GWdatastructures import GWConvergenceData
+        data = GWConvergenceData
+        data.read(structure)
+        data.print_plot_data(structure)
+
+    def loop_structures(self, mode):
         """
         reading the structures specified in spec, add special points, and excecute the specs
         """
@@ -1101,14 +1086,26 @@ class GWSpecs(MSONable):
             else:
                 next(item)
             print structure.composition.reduced_formula
-            self.excecute_flow(structure)
+            if mode == 'i':
+                self.excecute_flow(structure)
+            elif mode == 'o':
+                self.read_data(structure)
 
         if 'ceci' in self.data['mode']:
             os.chmod("job_collection", stat.S_IRWXU)
 
+    def write_to_file(self, filename):
+        f = open(filename, mode='w')
+        f.write(str(self.to_dict()))
+        f.close()
+
+    def read_from_file(self, filename):
+        f = open(filename, mode='r')
+        self.data = ast.literal_eval(f.read())
 
 if __name__ == "__main__":
     spec_in = GWSpecs()
     spec_in.update_interactive()
     spec_in.test()
-    spec_in.loop_structures()
+    spec_in.write_to_file('spec.in')
+    spec_in.loop_structures('i')
