@@ -305,7 +305,7 @@ class Wannier90InputSet():
     #todo projections
     #begin projections
     #V:dxy;dxz;dyz
-    #end projections
+    #end projectionsll
 
 
 class SingleVaspGWWork():
@@ -336,8 +336,8 @@ class SingleVaspGWWork():
             inpset.set_dens(self.spec)
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
-            if self.spec['test']:
-                if self.option['test_prep'] in MPGWscDFTPrepVaspInputSet(self.structure).tests.keys():
+            if self.spec['test'] or self.spec['converge']:
+                if self.option['test_prep'] in MPGWscDFTPrepVaspInputSet.get_defaults_convs().keys() or self.option['test_prep'] in MPGWscDFTPrepVaspInputSet.get_defaults_tests().keys():
                     inpset.set_test(self.option['test_prep'], self.option['value_prep'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
@@ -349,7 +349,7 @@ class SingleVaspGWWork():
                 inpset.set_prec_high()
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
-            if self.spec['test']:
+            if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
             inpset.get_incar(self.structure).write_file(os.path.join(path, 'INCAR.DIAG'))
 
@@ -359,18 +359,18 @@ class SingleVaspGWWork():
             inpset.set_dens(self.spec)
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
-            if self.spec['test']:
+            if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
-                inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
+                inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
                 w_inpset = Wannier90InputSet()
-                w_inpset.write_file(self.structure, os.path.join(path, 'GW0'+option_name))
+                w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
             else:
-                inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
+                inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
 
         if self.job == 'GW0':
 
@@ -379,7 +379,7 @@ class SingleVaspGWWork():
             inpset.gw0_on()
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
-            if self.spec['test']:
+            if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
@@ -399,18 +399,18 @@ class SingleVaspGWWork():
             inpset.set_dens(self.spec)
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
-            if self.spec['test']:
+            if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
-                inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
+                inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
                 w_inpset = Wannier90InputSet()
-                w_inpset.write_file(self.structure, os.path.join(path, 'GW0'+option_name))
+                w_inpset.write_file(self.structure, os.path.join(path, 'scGW0'+option_name))
             else:
-                inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
+                inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
 
     def create_job_script(self, add_to_collection=True):
         """
