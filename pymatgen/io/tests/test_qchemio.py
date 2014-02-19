@@ -1394,10 +1394,19 @@ $end
                           'Molecular charge is not found',
                           'Bad SCF convergence'])
         so_successfile = os.path.join(test_dir,
-                                     'thiophene_wfs_5_carboxyl.qcout')
+                                      'thiophene_wfs_5_carboxyl.qcout')
         so_successqcout = QcOutput(so_successfile)
-        so_successqcout.data[0]['errors']
         self.assertFalse(so_successqcout.data[0]['has_error'])
+
+    def test_negative_eigen(self):
+        filename = os.path.join(test_dir, "negative_eigen.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]["errors"],
+                         ['Negative Eigen',
+                          'Molecular charge is not found',
+                          'Bad SCF convergence',
+                          'Geometry optimization failed'])
 
 
 if __name__ == "__main__":
