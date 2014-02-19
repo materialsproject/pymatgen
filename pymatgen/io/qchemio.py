@@ -1103,7 +1103,9 @@ class QcOutput(object):
             (re.compile("energy\s+=\s*(\*)+"), "Numerical disaster"),
             (re.compile("NewFileMan::OpenFile\(\):\s+nopenfiles=\d+\s+"
                         "maxopenfiles=\d+s+errno=\d+"), "Open file error"),
-            (re.compile("Application \d+ exit codes: 134"), "Exit Code 134")
+            (re.compile("Application \d+ exit codes: 134"), "Exit Code 134"),
+            (re.compile("Negative overlap matrix eigenvalue. Tighten integral "
+                        "threshold \(REM_THRESH\)!"), "Negative Eigen")
         )
 
         energies = []
