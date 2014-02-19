@@ -118,9 +118,9 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         sets the grid_density to the value specified in spec
         """
-        if spec['kp_grid_dens'] < 10:
-            self.incar_settings.update({'ISMEAR': 0})
         self.kpoints_settings['grid_density'] = spec['kp_grid_dens']
+        if spec['kp_grid_dens'] < 100:
+            self.incar_settings.update({'ISMEAR': 0})
 
     def get_electrons(self, structure):
         """
