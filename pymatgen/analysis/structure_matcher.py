@@ -709,8 +709,8 @@ class StructureMatcher(MSONable):
 
         Returns:
             A list of lists of matched structures
-            Assumption: if s1=s2 and s2=s3, then s1=s3
-            This may not be true for small tolerances.
+            Assumption: if s1 == s2 but s1 != s3, than s2 and s3 will be put 
+            in different groups without comparison.
         """
         if self._subset:
             raise ValueError("allow_subset cannot be used with"
