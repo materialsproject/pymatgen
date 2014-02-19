@@ -1408,6 +1408,16 @@ $end
                           'Bad SCF convergence',
                           'Geometry optimization failed'])
 
+    def test_insufficient_memory(self):
+        filename = os.path.join(test_dir, "insufficient_memory.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]['errors'],
+                         ['Insufficient static memory',
+                          'Molecular charge is not found',
+                          'Bad SCF convergence',
+                          'Geometry optimization failed'])
+
 
 if __name__ == "__main__":
     unittest.main()

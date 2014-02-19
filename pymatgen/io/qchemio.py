@@ -1105,7 +1105,9 @@ class QcOutput(object):
                         "maxopenfiles=\d+s+errno=\d+"), "Open file error"),
             (re.compile("Application \d+ exit codes: 134"), "Exit Code 134"),
             (re.compile("Negative overlap matrix eigenvalue. Tighten integral "
-                        "threshold \(REM_THRESH\)!"), "Negative Eigen")
+                        "threshold \(REM_THRESH\)!"), "Negative Eigen"),
+            (re.compile("Unable to allocate requested memory in mega_alloc"),
+                "Insufficient static memory")
         )
 
         energies = []
