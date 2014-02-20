@@ -21,12 +21,11 @@ import logging
 import shutil
 import subprocess
 
-from pymatgen.core.structure import Structure
-from pymatgen.io.gwsetup.GWhelpers import get_cluster_params
 from pymatgen.io.gwsetup.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwsetup.GWvaspinputsets import MPGWG0W0VaspInputSet
-from fireworks.core.firework import FireTaskBase, FWAction
-from fireworks.utilities.fw_serializers import FWSerializable
+from fireworks.core.firework import FWAction
+from uclworks.utils.clusters import get_vasp_environment
+from uclworks.firetasks.vasptasks import VaspGWTask
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,42 +36,6 @@ sub calculations are made below.
 For many settings the number of cores on which the calculations will be run is needed, this
 number is assumed to be on the environment variable NPARGWCALC.
 """
-
-
-class VaspGWTask(FireTaskBase, FWSerializable):
-    """
-    Base class for vasp GW tasks
-    """
-    def __init__(self, parameters):
-        self.update(parameters)
-        structure = Structure.from_dict(parameters['structure'])
-        structure.vbm_l = parameters['band_structure']['vbm_l']
-        structure.cbm_l = parameters['band_structure']['cbm_l']
-        structure.vbm = (parameters['band_structure']['vbm_a'], parameters['band_structure']['vbm_b'], parameters['band_structure']['vbm_c'])
-        structure.cbm = (parameters['band_structure']['cbm_a'], parameters['band_structure']['cbm_b'], parameters['band_structure']['cbm_c'])
-        self.structure = structure
-        self.job = parameters['job']
-        self.spec = parameters['spec']
-        self.option = parameters['option']
-
-    def get_system(self):
-        return self.structure.composition.reduced_formula
-
-    def get_prep_dir(self):
-        launch_dir = self.get_system()
-        if self.option is not None:
-            launch_dir = launch_dir + '.' + self.option['test_prep'] + str(self.option['value_prep'])
-        return launch_dir
-
-    def get_launch_dir(self):
-        launch_dir = self.get_prep_dir()
-        if self.job not in 'prep':
-            if 'test' in self.option.keys():
-                option_name = '.' + self.option['test'] + str(self.option['value'])
-            else:
-                option_name = ''
-            launch_dir = os.path.join(launch_dir, self.job + option_name)
-        return launch_dir
 
 
 class VaspGWInputTask(VaspGWTask):
@@ -128,8 +91,8 @@ class VaspGWExecuteTask(VaspGWTask):
     def run_task(self, fw_spec):
         name = self.get_system() + self.job
         logging.basicConfig(filename=os.path.join(self.get_launch_dir(), name + '.log'), level=logging.DEBUG)
-        vasp_exe = get_cluster_params()['vasp_exe']
-        vasp_mpi_executer = get_cluster_params()['vasp_mpi_executer']
+        vasp_exe = get_vasp_environment()['vasp_exe']
+        vasp_mpi_executer = get_vasp_environment()['vasp_mpi_executer']
         n_tasks = MPGWG0W0VaspInputSet(self.structure).get_npar(self.structure)
 
         frontend_serial = True
