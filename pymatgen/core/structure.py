@@ -1824,6 +1824,33 @@ class Structure(IStructure, collections.MutableSequence):
             raise ValueError("Oxidation state of all sites must be "
                              "specified in the dictionary.")
 
+    def add_oxidation_state_by_site_fraction(self, oxidation_states):
+        """
+        Add oxidation states to a structure by site fraction.
+
+        Args:
+            oxidation_states:
+                List of oxidation states.
+                E.g., [[1, 2], [1, 1, 2], [2, 2, 2], [5, 5], [5], [5], [-2], [-2], [-2], [-2]]
+        """
+        try:
+            for i, site in enumerate(self._sites):
+                new_sp = {}
+                j = 0
+                for el, occu in site.species_and_occu.items():
+                    sym = el.symbol
+                    new_sp[Specie(sym, oxidation_states[i][j])] = occu
+                    j += 1
+                new_site = PeriodicSite(new_sp, site.frac_coords,
+                                        self._lattice,
+                                        coords_are_cartesian=False,
+                                        properties=site.properties)
+                self._sites[i] = new_site
+
+        except IndexError:
+            raise ValueError("Oxidation state of all sites must be "
+                             "specified in the dictionary.")
+
     def remove_oxidation_states(self):
         """
         Removes oxidation states from a structure.
