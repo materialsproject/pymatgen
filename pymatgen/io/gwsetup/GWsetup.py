@@ -64,7 +64,7 @@ class GWSpecs(MSONable):
 
     @staticmethod
     def get_npar(self, structure):
-        return MPGWG0W0VaspInputSet(structure).get_npar(structure)
+        return MPGWG0W0VaspInputSet(structure, self).get_npar(structure)
 
     def write_to_file(self, filename):
         f = open(filename, mode='w')
@@ -177,11 +177,11 @@ class GWSpecs(MSONable):
                 fw_work_flow = []
             if self.data['test'] or self.data['converge']:
                 if self.data['test']:
-                    tests_prep = MPGWscDFTPrepVaspInputSet(structure).tests
-                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure).tests)
+                    tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
+                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
                 else:
-                    tests_prep = MPGWscDFTPrepVaspInputSet(structure).convs
-                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure).convs)
+                    tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).convs
+                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).convs)
                 for test_prep in tests_prep:
                     print 'setting up test for: ' + test_prep
                     for value_prep in tests_prep[test_prep]['test_range']:
@@ -191,11 +191,11 @@ class GWSpecs(MSONable):
                         for job in self.data['jobs'][1:]:
                             if job == 'G0W0':
                                 if self.data['test']:
-                                    tests = MPGWG0W0VaspInputSet(structure).tests
+                                    tests = MPGWG0W0VaspInputSet(structure, self).tests
                                 else:
-                                    tests = MPGWG0W0VaspInputSet(structure).convs
+                                    tests = MPGWG0W0VaspInputSet(structure, self).convs
                             if job in ['GW0', 'scGW0']:
-                                input_set = MPGWG0W0VaspInputSet(structure)
+                                input_set = MPGWG0W0VaspInputSet(structure, self)
                                 input_set.gw0_on()
                                 if self.data['test']:
                                     tests = input_set.tests
