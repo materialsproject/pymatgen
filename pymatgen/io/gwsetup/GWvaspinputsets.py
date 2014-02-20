@@ -42,7 +42,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
     TESTS = {}
     CONVS = {}
 
-    def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
+    def __init__(self, structure, spec, functional='PBE', sym_prec=0.01, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
@@ -53,6 +53,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
         self.functional = functional
+        self.set_dens(spec)
         self.sym_prec = sym_prec
     #  todo update the fromdict and todict ot include the new atributes
 
@@ -160,7 +161,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
     TESTS = {'NBANDS': {'test_range': (10, 20, 30), 'method': 'set_nbands', 'control': "gap"}}
     CONVS = {'NBANDS': {'test_range': (10, 20, 30, 40, 50, 60, 70), 'method': 'set_nbands', 'control': "gap"}}
 
-    def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
+    def __init__(self, structure, spec, functional='PBE', sym_prec=0.01, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
@@ -172,6 +173,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         self.convs = self.__class__.get_defaults_convs()
         self.functional = functional
         self.sym_prec = sym_prec
+        self.set_dens(spec)
         npar = self.get_npar(self.structure)
         #single step exact diagonalization, output WAVEDER
         self.incar_settings.update({"ALGO": "Exact", "NELM": 1, "LOPTICS": "TRUE"})
@@ -204,7 +206,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
              'NOMEGA': {'test_range': (80, 100, 120), 'method': 'set_nomega', 'control': "gap"}}
     CONVS = {'ENCUTGW': {'test_range': (200, 400, 600, 800), 'method': 'incar_settings', 'control': "gap"}}
 
-    def __init__(self, structure, functional='PBE', sym_prec=0.01, **kwargs):
+    def __init__(self, structure, spec, functional='PBE', sym_prec=0.01, **kwargs):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
@@ -219,6 +221,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         npar = self.get_npar(structure)
         # G0W0 calculation with reduced cutoff for the response function
         self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 250, "LWAVE": "FALSE", "NELM": 1})
+        self.set_dens(spec)
         self.nomega_max = 25 * self.get_kpoints(structure).kpts[0][0]
         nomega = npar * int(self.nomega_max / npar)
         self.set_gw_bands(15)
@@ -332,8 +335,7 @@ class SingleVaspGWWork():
                 option_name = '.'+str(self.option['test'])+str(self.option['value'])
         if self.job == 'prep':
 
-            inpset = MPGWscDFTPrepVaspInputSet(self.structure, functional=self.spec['functional'])
-            inpset.set_dens(self.spec)
+            inpset = MPGWscDFTPrepVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
@@ -343,8 +345,7 @@ class SingleVaspGWWork():
                 inpset.set_prec_high()
             inpset.write_input(self.structure, path)
 
-            inpset = MPGWDFTDiagVaspInputSet(self.structure, functional=self.spec['functional'])
-            inpset.set_dens(self.spec)
+            inpset = MPGWDFTDiagVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             if self.spec['converge']:
@@ -355,8 +356,7 @@ class SingleVaspGWWork():
 
         if self.job == 'G0W0':
 
-            inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
-            inpset.set_dens(self.spec)
+            inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
@@ -374,8 +374,7 @@ class SingleVaspGWWork():
 
         if self.job == 'GW0':
 
-            inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
-            inpset.set_dens(self.spec)
+            inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             inpset.gw0_on()
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
@@ -394,9 +393,8 @@ class SingleVaspGWWork():
 
         if self.job == 'scGW0':
 
-            inpset = MPGWG0W0VaspInputSet(self.structure, functional=self.spec['functional'])
+            inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             inpset.gw0_on(qpsc=True)
-            inpset.set_dens(self.spec)
             if self.spec['converge']:
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
