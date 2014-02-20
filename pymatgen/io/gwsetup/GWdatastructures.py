@@ -16,14 +16,13 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "Oct 23, 2013"
 
 import os
-import operator
 
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from pprint import pprint
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 class GWConvergenceData():
     def __init__(self, structure, spec):
@@ -38,12 +37,11 @@ class GWConvergenceData():
             n = 3
             while read_next:
                 output = os.path.join(self.name,  'work_0', 'task_' + str(n), 'outdata', 'out_SIGRES.nc')
-                print output
                 if os.path.isfile(output):
                     n += 1
                     data = NetcdfReader(output)
                     data.print_tree()
-                    self.data.update({n: {'ecuteps': Ha_to_eV * data.read_value('ecuteps'), 'nbands': data.read_value('sigma_nband'), 'gwgap': data.read_value('egwgap')}})
+                    self.data.update({n: {'ecuteps': Ha_to_eV * data.read_value('ecuteps'), 'nbands': data.read_value('sigma_nband'), 'gwgap': data.read_value('egwgap')[0][0]}})
                     data.close()
                 else:
                     read_next = False
@@ -59,11 +57,6 @@ class GWConvergenceData():
                     bandstructure = data.get_band_structure(kpoints)
                     self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'], 'gwgap': bandstructure.get_band_gap()['energy']}})
                     n += 1
-                    #print 'gap: ', bandstructure.get_band_gap()['energy'], ' direct : ', bandstructure.get_band_gap()['direct']
-                    #print 'cbm: ', bandstructure.get_cbm()['energy'], data.actual_kpoints[bandstructure.get_cbm()['kpoint_index'][0]]
-                    #print 'vbm: ', bandstructure.get_vbm()['energy'], data.actual_kpoints[bandstructure.get_vbm()['kpoint_index'][0]]
-                    #print 'gap: ', bandstructure.get_cbm()['energy'] - bandstructure.get_vbm()['energy']
-                    #print 'direct gap: ', bandstructure.get_direct_band_gap()
 
     def print_plot_data(self):
         data_list = []
