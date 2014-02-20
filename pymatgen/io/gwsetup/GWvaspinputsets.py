@@ -414,7 +414,7 @@ class SingleVaspGWWork():
         """
         Create job script for ceci.
         """
-        npar = MPGWscDFTPrepVaspInputSet(self.structure, functional=self.spec['functional']).get_npar(self.structure)
+        npar = MPGWscDFTPrepVaspInputSet(self.structure, self.spec, functional=self.spec['functional']).get_npar(self.structure)
         if self.option is not None:
             option_prep_name = str('.') + str(self.option['test_prep']) + str(self.option['value_prep'])
             if 'test' in self.option.keys():
