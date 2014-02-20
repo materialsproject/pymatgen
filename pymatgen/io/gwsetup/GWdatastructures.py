@@ -20,10 +20,10 @@ import operator
 
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
+from pymatgen.core.units import Ha_to_eV
 from pprint import pprint
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 class GWConvergenceData():
     def __init__(self, structure, spec):
@@ -43,7 +43,7 @@ class GWConvergenceData():
                     n += 1
                     data = NetcdfReader(output)
                     data.print_tree()
-                    self.data.update({n: {'ecuteps': data.read_value('ecuteps'), 'nbands': data.read_value('sigma_nband'), 'gwgap': data.read_value('egwgap')}})
+                    self.data.update({n: {'ecuteps': Ha_to_eV * data.read_value('ecuteps'), 'nbands': data.read_value('sigma_nband'), 'gwgap': data.read_value('egwgap')}})
                     data.close()
                 else:
                     read_next = False
