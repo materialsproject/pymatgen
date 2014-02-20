@@ -31,6 +31,7 @@ class SiteTest(PymatgenTest):
                                     [0.25, 0.35, 0.45])
         self.propertied_site = Site("Fe2+", [0.25, 0.35, 0.45],
                                     {'magmom': 5.1, 'charge': 4.2})
+        self.dummy_site = Site("X", [0, 0, 0])
 
     def test_properties(self):
         self.assertRaises(AttributeError, getattr, self.disordered_site,
@@ -48,6 +49,9 @@ class SiteTest(PymatgenTest):
         site = Site.from_dict(d)
         self.assertEqual(site.magmom, 5.1)
         self.assertEqual(site.charge, 4.2)
+        d = self.dummy_site.to_dict
+        site = Site.from_dict(d)
+        self.assertEqual(site.species_and_occu, self.dummy_site.species_and_occu)
 
     def test_hash(self):
         self.assertEqual(self.ordered_site.__hash__(), 26)
@@ -83,6 +87,7 @@ class PeriodicSiteTest(PymatgenTest):
                                             self.lattice,
                                             properties={'magmom': 5.1,
                                                         'charge': 4.2})
+        self.dummy_site = PeriodicSite("X", [0, 0, 0], self.lattice)
 
     def test_properties(self):
         """
@@ -177,6 +182,11 @@ class PeriodicSiteTest(PymatgenTest):
         d = site3.to_dict
         site = PeriodicSite.from_dict(d)
         self.assertEqual(site.species_and_occu, site3.species_and_occu)
+
+        d = self.dummy_site.to_dict
+        site = PeriodicSite.from_dict(d)
+        self.assertEqual(site.species_and_occu, self.dummy_site.species_and_occu)
+
 
     def test_to_unit_cell(self):
         site = PeriodicSite("Fe", np.array([1.25, 2.35, 4.46]), self.lattice)
