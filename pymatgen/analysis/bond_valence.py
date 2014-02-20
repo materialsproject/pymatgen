@@ -231,8 +231,10 @@ class BVAnalyzer(object):
             structure: Structure to analyze
 
         Returns:
-            A list of valences for each site in the structure,
-            e.g., [1, 1, -2].
+            A list of valences for each site in the structure (for an ordered structure),
+            e.g., [1, 1, -2] or a list of valences for each fractional element for each
+            site in the structure (for an unordered structure),
+            e.g., [[1, 3], [2], [-2], [-2]]
 
         Raises:
             A ValueError is the valences cannot be determined.
@@ -259,9 +261,9 @@ class BVAnalyzer(object):
 
         #Get a list of valences and probabilities for each symmetrically
         #distinct site.
+        valences = []
+        all_prob = []
         if structure.is_ordered:
-            valences = []
-            all_prob = []
             for sites in equi_sites:
                 test_site = sites[0]
                 nn = structure.get_neighbors(test_site, self.max_radius)
@@ -274,8 +276,6 @@ class BVAnalyzer(object):
                 valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
                                        val))
         else:
-            valences = []
-            all_prob = []
             full_all_prob = []
             for sites in equi_sites:
                 test_site = sites[0]
@@ -458,9 +458,10 @@ class BVAnalyzer(object):
             ValueError if the valences cannot be determined.
         """
         s = Structure.from_sites(structure.sites)
-        valences = self.get_valences(structure)
         if structure.is_ordered:
+            valences = self.get_valences(structure)
             s.add_oxidation_state_by_site(valences)
         else:
+            valences = self.get_valences(structure)
             s.add_oxidation_state_by_site_fraction(valences)
         return s
