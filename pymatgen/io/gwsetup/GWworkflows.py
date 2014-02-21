@@ -114,7 +114,6 @@ class SingleAbinitGWWorkFlow():
         pseudos = []
         for element in self.structure.composition.element_composition:
             pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
-            print pseudo, element
             pseudos.append(pseudo)
         self.pseudo_table = PseudoTable(pseudos)
 
@@ -154,7 +153,6 @@ class SingleAbinitGWWorkFlow():
         create single abinit G0W0 flow
         """
         manager = 'slurm' if 'ceci' in self.spec['mode'] else 'shell'
-        print manager
 
         abi_structure = asabistructure(self.structure)
         manager = TaskManager.from_user_config()
