@@ -176,6 +176,8 @@ class SingleAbinitGWWorkFlow():
         ecutsigx = 8
         ecut = 16
 
+        response_model = 'godby'
+
         if self.spec['test']:
             tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
             ecuteps = []
@@ -199,9 +201,9 @@ class SingleAbinitGWWorkFlow():
         )
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
-                                          accuracy="normal", spin_mode="unpolarized", smearing=None, ppmodel="godby",
-                                          charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
-                                          **extra_abivars)
+                             accuracy="normal", spin_mode="unpolarized", smearing=None, response_model=response_model,
+                             charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
+                             **extra_abivars)
 
         flow.register_work(work)
         return flow.allocate()

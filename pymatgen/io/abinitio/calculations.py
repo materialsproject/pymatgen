@@ -9,11 +9,15 @@ import os
 from pymatgen.io.abinitio.abiobjects import (Smearing, KSampling, Screening,
     SelfEnergy, ExcHamiltonian)
 
+from pymatgen.io.abinitio.abiobjects import HilbertTransform
+
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
-from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence, 
+from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence,
     PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+
+
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -259,10 +263,10 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
                          workdir=workdir, manager=manager)
 
 
-def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
-                      accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      response_model="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
-                      sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True, **extra_abivars):
+def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
+                  smearing="fermi_dirac:0.1 eV", response_model="godby", charge=0.0, scf_algorithm=None, inclvkb=2,
+                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True,
+                  **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
 
@@ -333,17 +337,17 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
     sigma_strategy = []
 
     if response_model == 'cd':
-        hilbert = what_ever_this_needs_to_be
+        hilbert = HilbertTransform
 
     for ecuteps_v in ecuteps:
         for nscf_nband_v in nscf_nband:
             scr_nband = nscf_nband_v
             sigma_nband = nscf_nband_v
             if response_model == 'cd':
-                screening = Screening(ecuteps, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
+                screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
                 self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, hilbert=hilbert)
             else:
-                ppmodel = 'godby'
+                ppmodel = response_model
                 screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
                 self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
             scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
