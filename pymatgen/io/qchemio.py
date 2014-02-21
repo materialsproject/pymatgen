@@ -1107,7 +1107,9 @@ class QcOutput(object):
             (re.compile("Negative overlap matrix eigenvalue. Tighten integral "
                         "threshold \(REM_THRESH\)!"), "Negative Eigen"),
             (re.compile("Unable to allocate requested memory in mega_alloc"),
-                "Insufficient static memory")
+                "Insufficient static memory"),
+            (re.compile("Application \d+ exit signals: Killed"),
+                "Killed")
         )
 
         energies = []
