@@ -74,6 +74,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.2
+------
+1. Bug fix release for DummySpecie, which failed when deserializing from
+   json and had bad hash function.
+
 v2.9.1
 ------
 1. Structure/Molecule now supports Pythonic list-like API for replacing and
