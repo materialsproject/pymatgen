@@ -921,6 +921,9 @@ class DummySpecie(MSONable):
         except:
             raise AttributeError(a)
 
+    def __hash__(self):
+        return 1
+
     def __eq__(self, other):
         """
         Specie is equal to other only if element and oxidation states are
