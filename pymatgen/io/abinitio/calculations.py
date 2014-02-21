@@ -329,16 +329,10 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if sigma_nband is None:
         sigma_nband = nscf_nband
 
-    print(ecuteps)
-    print(max(ecuteps))
-    print(extra_abivars['ecut'])
-
     if extra_abivars['ecut'][0] < max(ecuteps):
         extra_abivars['ecut'][0] = max(ecuteps)
     if ecutsigx < max(ecuteps):
         ecutsigx = max(ecuteps)
-
-    print(extra_abivars['ecut'])
 
     sigma_strategy = []
 

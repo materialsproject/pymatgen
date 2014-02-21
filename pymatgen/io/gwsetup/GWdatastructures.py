@@ -52,11 +52,12 @@ class GWConvergenceData():
                 if self.name in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
                     run = os.path.join(dirs[0], 'vasprun.xml')
                     kpoints = os.path.join(dirs[0], 'IBZKPT')
-                    data = Vasprun(run, ionic_step_skip=1)
-                    parameters = data.__getattribute__('incar').to_dict
-                    bandstructure = data.get_band_structure(kpoints)
-                    self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'], 'gwgap': bandstructure.get_band_gap()['energy']}})
-                    n += 1
+                    if os.path.isfile(run):
+                        data = Vasprun(run, ionic_step_skip=1)
+                        parameters = data.__getattribute__('incar').to_dict
+                        bandstructure = data.get_band_structure(kpoints)
+                        self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'], 'gwgap': bandstructure.get_band_gap()['energy']}})
+                        n += 1
 
     def print_plot_data(self):
         data_list = []
