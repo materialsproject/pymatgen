@@ -56,7 +56,8 @@ class GWConvergenceData():
                         data = Vasprun(run, ionic_step_skip=1)
                         parameters = data.__getattribute__('incar').to_dict
                         bandstructure = data.get_band_structure(kpoints)
-                        self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'], 'gwgap': bandstructure.get_band_gap()['energy']}})
+                        self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'],
+                                              'nomega': parameters['NOMEGA'], 'gwgap': bandstructure.get_band_gap()['energy']}})
                         n += 1
 
     def print_plot_data(self):

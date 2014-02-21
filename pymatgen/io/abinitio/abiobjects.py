@@ -997,7 +997,7 @@ class HilbertTransform(AbivarAble):
         """
         # Spectral function
         self.nomegasf = nomegasf
-        self.domegasg = domegasf
+        self.domegasf = domegasf
         self.spmeth   = spmeth
 
         # Mesh for the contour-deformation method used for the integration of the self-energy
