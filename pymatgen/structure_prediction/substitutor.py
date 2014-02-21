@@ -136,9 +136,9 @@ class Substitutor(MSONable):
             #Make the list of structures from structures_list that corresponds to the
             #target species
             chemsys = list(set([sp.symbol for sp in target_species]))
-            structures_list_target = [s for s in structures_list
+            structures_list_target = [st['structure'] for st in structures_list
                                       if Substitutor._is_from_chemical_system(chemsys,
-                                                                              s)]
+                                                                              st['structure'])]
             transmuter.apply_filter(RemoveExistingFilter(structures_list_target,
                                                          symprec=self._symprec))
         return transmuter.transformed_structures
