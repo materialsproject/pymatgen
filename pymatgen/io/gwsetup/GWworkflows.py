@@ -29,6 +29,7 @@ from fireworks.core.firework import FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+RESPONSE_MODELS = ["cd", "godby", "hybersten", "linden", "farid"]
 
 
 class VaspGWFWWorkFlow():
@@ -100,7 +101,10 @@ class SingleAbinitGWWorkFlow():
     """
     interface the
     """
-    TESTS = {'ecuteps': {'test_range': (8, 16, 24, 32), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+    TESTS = {'ecuteps': {'test_range': (16, 24), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+             'nscf_nbands': {'test_range': (30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"},
+             'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
+    CONVS = {'ecuteps': {'test_range': (8, 16, 24, 32), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (10, 20, 30, 40, 50, 60, 70), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
@@ -108,6 +112,7 @@ class SingleAbinitGWWorkFlow():
         self.spec = spec
         self.option = option
         self.tests = self.__class__.get_defaults_tests()
+        self.convs = self.__class__.get_defaults_convs()
         self.work_dir = self.structure.composition.reduced_formula
         abi_pseudo = '.GGA_PBE-JTH-paw.xml'
         abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
@@ -120,6 +125,10 @@ class SingleAbinitGWWorkFlow():
     @classmethod
     def get_defaults_tests(cls):
         return cls.TESTS.copy()
+
+    @classmethod
+    def get_defaults_convs(cls):
+        return cls.CONVS.copy()
 
     def get_electrons(self, structure):
         """
@@ -174,10 +183,14 @@ class SingleAbinitGWWorkFlow():
         ecutsigx = 8
         ecut = 16
 
-        response_model = 'godby'
+        response_models = ['godby']
 
-        if self.spec['test']:
-            tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
+        if self.spec['test'] or self.spec['convs']:
+            if self.spec['test']:
+                tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
+                response_models = []
+            else:
+                tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
             ecuteps = []
             nscf_nband = []
             for test in tests:
@@ -188,6 +201,8 @@ class SingleAbinitGWWorkFlow():
                         #sigma_nband takes scr_nbands if not specified
                     if test == 'ecuteps':
                         ecuteps.append(value)
+                    if test == 'response_model':
+                        response_models.append(value)
 
         extra_abivars = dict(
             ecut=[ecut],
@@ -199,7 +214,7 @@ class SingleAbinitGWWorkFlow():
         )
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
-                             accuracy="normal", spin_mode="unpolarized", smearing=None, response_model=response_model,
+                             accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
                              charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
                              **extra_abivars)
 

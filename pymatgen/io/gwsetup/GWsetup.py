@@ -142,8 +142,8 @@ class GWSpecs(MSONable):
             if self.data['functional'] not in ['PBE', 'LDA']:
                 self.errors.append(str(self.data['functional'] + 'not defined for VASP yet'))
         elif self.data['code'] == 'ABINIT':
-            if self.data['test'] and self.data['code'] == 'ABINIT':
-                self.warnings.append('testing tests for ABINIT calculations')
+            if self.data['converge'] and self.data['code'] == 'ABINIT':
+                self.warnings.append('converge defined for abinit')
             if self.data['functional'] not in ['PBE']:
                 self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
         else:

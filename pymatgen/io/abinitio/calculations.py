@@ -264,7 +264,7 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
 
 def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
-                  smearing="fermi_dirac:0.1 eV", response_model="godby", charge=0.0, scf_algorithm=None, inclvkb=2,
+                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
                   scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True,
                   **extra_abivars):
     """
@@ -336,22 +336,24 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     sigma_strategy = []
 
-    if response_model == 'cd':
-        hilbert = HilbertTransform
+    if 'cd' in response_models:
+        hilbert = HilbertTransform(nomegasf=100, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None,
+                                      freqremin=None)
 
-    for ecuteps_v in ecuteps:
-        for nscf_nband_v in nscf_nband:
-            scr_nband = nscf_nband_v
-            sigma_nband = nscf_nband_v
-            if response_model == 'cd':
-                screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
-                self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, hilbert=hilbert)
-            else:
-                ppmodel = response_model
-                screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
-                self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
-            scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
-            sigma_strategy.append(SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars))
+    for response_model in response_models:
+        for ecuteps_v in ecuteps:
+            for nscf_nband_v in nscf_nband:
+                scr_nband = nscf_nband_v
+                sigma_nband = nscf_nband_v
+                if response_model == 'cd':
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
+                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, hilbert=hilbert)
+                else:
+                    ppmodel = response_model
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
+                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
+                scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
+                sigma_strategy.append(SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars))
 
     return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
