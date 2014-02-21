@@ -1418,6 +1418,16 @@ $end
                           'Bad SCF convergence',
                           'Geometry optimization failed'])
 
+    def test_killed(self):
+        filename = os.path.join(test_dir, "killed.qcout")
+        qcout = QcOutput(filename)
+        self.assertFalse(qcout.data[0]["has_error"])
+        self.assertTrue(qcout.data[1]["has_error"])
+        self.assertEqual(qcout.data[1]["errors"],
+                         ['Killed',
+                          'Molecular charge is not found',
+                          'Bad SCF convergence'])
+
 
 if __name__ == "__main__":
     unittest.main()
