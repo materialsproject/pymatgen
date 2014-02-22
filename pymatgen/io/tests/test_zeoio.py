@@ -16,12 +16,13 @@ import unittest
 import os
 import re
 
+from pymatgen.core.structure import Structure, Molecule
+from pymatgen.core.periodic_table import Specie
+from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.zeoio import *
 from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.core.structure import Structure, Molecule
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie
 
 try:
     import zeo
@@ -170,8 +171,11 @@ class GetVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_struct = get_voronoi_nodes(self.structure, self.rad_dict)
-        self.assertIsInstance(vor_struct, Structure)
+        vor_node_struct, vor_face_center_struct = get_voronoi_nodes(
+                self.structure, self.rad_dict
+                )
+        self.assertIsInstance(vor_node_struct, Structure)
+        self.assertIsInstance(vor_face_center_struct, Structure)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -195,9 +199,11 @@ class GetVoronoiNodesMultiOxiTest(unittest.TestCase):
             print el, self.rad_dict[el].real
 
     def test_get_voronoi_nodes(self):
-        pass
-        vor_struct = get_voronoi_nodes(self.structure, self.rad_dict)
-        self.assertIsInstance(vor_struct, Structure)
+        vor_node_struct, vor_face_center_struct = get_voronoi_nodes(
+                self.structure, self.rad_dict
+                )
+        self.assertIsInstance(vor_node_struct, Structure)
+        self.assertIsInstance(vor_face_center_struct, Structure)
 
 
 @unittest.skip("The function is deprecated")
