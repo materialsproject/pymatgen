@@ -498,7 +498,7 @@ class Interstitial(Defect):
     Subclass of Defect to generate interstitial sites
     """
 
-    def __init__(self, structure, valences, radii):
+    def __init__(self, structure, valences, radii, site_type='voronoi_vertex'):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
 
@@ -507,6 +507,9 @@ class Interstitial(Defect):
             valences: Dictionary of oxidation states of elements in {
                 El:valence} form
             radii: Radii of elemnts in the structure
+            site_type: voronoi_vertex uses voronoi nodes
+                       voronoi_facecenter uses voronoi polyhedra face centers
+                       Default is voronoi_vertex
         """
 
         try:
@@ -515,21 +518,29 @@ class Interstitial(Defect):
         except:
             try:
                 bv = BVAnalyzer(symm_tol=0.0)
-                self._structure = bv.get_oxi_state_decorated_structure(structure)
+                self._structure = bv.get_oxi_state_decorated_structure(
+                        structure
+                        )
             except:
                 raise 
-        #self._structure = structure
         self._valence_dict = valences
         self._rad_dict = radii
 
-        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and
-        #the symmetry reduced voronoi nodes
-        #are possible candidates for interstitial sites
-        #try:
-        possible_interstitial_sites = symmetry_reduced_voronoi_nodes(
-                self._structure, self._rad_dict)
-        #except:
-        #    raise ValueError("Symmetry_reduced_voronoi_nodes failed")
+        """
+        Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction
+        and the symmetry reduced voronoi nodes are possible candidates
+        for interstitial sites.
+        """
+        vor_node_sites, vor_facecenter_sites = symmetry_reduced_voronoi_nodes(
+                self._structure, self._rad_dict
+                )
+        
+        if site_type == 'voronoi_vertex':
+            possible_interstitial_sites = vor_node_sites
+        elif site_type == 'voronoi_facecenter':
+            possible_interstitial_sites = vor_facecenter_sites
+        else:
+            raise ValueError("Input site type not implemented")
 
         #Do futher processing on possibleInterstitialSites to obtain
         #interstitial sites
@@ -1252,14 +1263,6 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
     Returns:
         Symmetrically distinct voronoi nodes as pymatgen Strucutre
     """
-    vor_node_struct = get_voronoi_nodes(structure, rad_dict)
-    vor_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
-    vor_symm_struct = vor_symmetry_finder.get_symmetrized_structure()
-    #print vor_symm_struct.lattice
-    #print vor_symm_struct.lattice.abc, vor_symm_struct.lattice.angles
-    #print vor_node_struct.lattice
-    #print vor_node_struct.lattice.abc, vor_node_struct.lattice.angles
-    equiv_sites_list = vor_symm_struct.equivalent_sites
 
     def add_closest_equiv_site(dist_sites, equiv_sites):
         if not dist_sites:
@@ -1276,16 +1279,25 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
             ind = avg_dists.index(min_avg_dist)
             dist_sites.append(equiv_sites[ind])
 
-    dist_sites = []
-    for equiv_sites in equiv_sites_list:
-        add_closest_equiv_site(dist_sites, equiv_sites)
+    vor_node_struct, vor_facecenter_struct  = get_voronoi_nodes(
+                    structure, rad_dict)
+    vor_node_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
+    vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
+    node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
+        
+    node_dist_sites = []
+    for equiv_sites in node_equiv_sites_list:
+        add_closest_equiv_site(node_dist_sites, equiv_sites)
+            
+    vor_fc_symmetry_finder = SymmetryFinder(
+                    vor_facecenter_struct, symprec=1e-1)
+    vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+    facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+        
+    facecenter_dist_sites = []
+    for equiv_sites in facecenter_equiv_sites_list:
+        add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+    if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
+        facecenter_dist_sites = vor_facecenter_struct.sites
 
-    #lat = structure.lattice
-    #sp = [site.specie for site in sites]   # "X" because to Zeo++
-    #coords = [site.coords for site in sites]
-    #vor_node_radii = [site.properties['voronoi_radius'] for site in sites]
-    #vor_node_struct = Structure(lat, sp, coords,
-    #        coords_are_cartesian=True,
-    #        site_properties={'voronoi_radius':vor_node_radii}
-    #        )
-    return dist_sites
+    return node_dist_sites, facecenter_dist_sites
