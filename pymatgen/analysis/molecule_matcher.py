@@ -130,7 +130,12 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
+        label1 = range(1, obmol1.NumAtoms() + 1)
+        elements1 = InchiMolAtomMapper._get_elements(vmol1, label1)
         for label2 in label2_list:
+            elements2 = InchiMolAtomMapper._get_elements(obmol2, label2)
+            if elements1 != elements2:
+                continue
             vmol2 = ob.OBMol()
             for i in label2:
                 vmol2.AddAtom(obmol2.GetAtom(i))
@@ -140,7 +145,6 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             if rmsd < least_rmsd:
                 least_rmsd = rmsd
                 best_label2 = copy.copy(label2)
-        label1 = range(1, obmol1.NumAtoms() + 1)
         return label1, best_label2
 
     def get_molecule_hash(self, mol):
@@ -440,7 +444,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         return canon_label1, canon_label2
 
-    def _get_elements(self, mol, label):
+    @staticmethod
+    def _get_elements(mol, label):
         """
         The the elements of the atoms in the specified order
 
@@ -505,12 +510,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2,
                                                           ilabel1,
                                                           heavy_atom_indices2)
+        if clabel1 and clabel2:
+            elements1 = self._get_elements(obmol1, clabel1)
+            elements2 = self._get_elements(obmol2, clabel2)
 
-        elements1 = self._get_elements(obmol1, clabel1)
-        elements2 = self._get_elements(obmol2, clabel2)
-
-        if elements1 != elements2:
-            raise Exception("Design Error! Atomic elements are inconsistent")
+            if elements1 != elements2:
+                raise Exception("Design Error! Atomic elements are inconsistent")
 
         return clabel1, clabel2
 
