@@ -19,10 +19,11 @@ import tempfile
 import os
 import shutil
 
-from pymatgen.io.cssrio import Cssr
-from pymatgen.io.xyzio import XYZ
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
+from pymatgen.core.sites import PeriodicSite
+from pymatgen.io.cssrio import Cssr
+from pymatgen.io.xyzio import XYZ
 from monty.io import zopen
 from monty.dev import requires
 
@@ -220,7 +221,7 @@ class ZeoVoronoiXYZ(XYZ):
 def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
-    Calls Zeo++ for Voronoi decomposition
+    Calls Zeo++ for Voronoi decomposition.
 
     Args:
         structure: pymatgen.core.structure.Structure
@@ -233,6 +234,8 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
 
     Returns:
         voronoi nodes as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+        voronoi face centers as pymatgen.core.structure.Strucutre within the
         unit cell defined by the lattice of input structure
     """
 
@@ -252,12 +255,14 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             for el in rad_dict.keys():
                 print >>fp, "{} {}".format(el, rad_dict[el].real)
 
-    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
-    vornet = atmnet.perform_voronoi_decomposition()
+    atmnet = AtomNetwork.read_from_CSSR(
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
+            )
+    vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
     vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name + '_voro.xyz'
     voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
-    #print voronoi_node_mol
+
     species = ["X"] * len(voronoi_node_mol.sites)
     coords = []
     prop = []
@@ -266,17 +271,24 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         prop.append(site.properties['voronoi_radius'])
 
     lattice = Lattice.from_lengths_and_angles(
-        structure.lattice.abc, structure.lattice.angles
-    )
+        structure.lattice.abc, structure.lattice.angles)
     voronoi_node_struct = Structure(
         lattice, species, coords, coords_are_cartesian=True,
-        site_properties={"voronoi_radius": prop}
-    )
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
     os.chdir(current_dir)
     shutil.rmtree(temp_dir)
 
-    return voronoi_node_struct
+    #PMG-Zeo c<->a transformation for voronoi face centers
+    rot_face_centers = [(center[1],center[2],center[0]) for center in 
+                        voronoi_face_centers]
+    species = ["X"] * len(rot_face_centers)
+    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc 
+    voronoi_facecenter_struct = Structure(
+        lattice, species, rot_face_centers, coords_are_cartesian=True,
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+
+    return voronoi_node_struct, voronoi_facecenter_struct
 
 
 # Deprecated. Not needed anymore

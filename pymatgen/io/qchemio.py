@@ -1103,7 +1103,13 @@ class QcOutput(object):
             (re.compile("energy\s+=\s*(\*)+"), "Numerical disaster"),
             (re.compile("NewFileMan::OpenFile\(\):\s+nopenfiles=\d+\s+"
                         "maxopenfiles=\d+s+errno=\d+"), "Open file error"),
-            (re.compile("Application \d+ exit codes: 134"), "Exit Code 134")
+            (re.compile("Application \d+ exit codes: 1[34]\d+"), "Exit Code 134"),
+            (re.compile("Negative overlap matrix eigenvalue. Tighten integral "
+                        "threshold \(REM_THRESH\)!"), "Negative Eigen"),
+            (re.compile("Unable to allocate requested memory in mega_alloc"),
+                "Insufficient static memory"),
+            (re.compile("Application \d+ exit signals: Killed"),
+                "Killed")
         )
 
         energies = []
