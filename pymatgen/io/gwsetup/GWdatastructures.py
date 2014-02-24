@@ -53,12 +53,15 @@ class GWConvergenceData():
                     run = os.path.join(dirs[0], 'vasprun.xml')
                     kpoints = os.path.join(dirs[0], 'IBZKPT')
                     if os.path.isfile(run):
-                        data = Vasprun(run, ionic_step_skip=1)
-                        parameters = data.__getattribute__('incar').to_dict
-                        bandstructure = data.get_band_structure(kpoints)
-                        self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'],
+                        try:
+                            data = Vasprun(run, ionic_step_skip=1)
+                            parameters = data.__getattribute__('incar').to_dict
+                            bandstructure = data.get_band_structure(kpoints)
+                            self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'],
                                               'nomega': parameters['NOMEGA'], 'gwgap': bandstructure.get_band_gap()['energy']}})
-                        n += 1
+                            n += 1
+                        except BaseException:
+                            pass
 
     def print_plot_data(self):
         data_list = []
