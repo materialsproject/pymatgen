@@ -297,7 +297,7 @@ class GWSpecs(MSONable):
             elif mode == 'o':
                 self.process_data(structure)
 
-        if 'ceci' in self.data['mode']:
+        if 'ceci' in self.data['mode'] and mode == 'i':
             os.chmod("job_collection", stat.S_IRWXU)
 
 if __name__ == "__main__":
