@@ -61,6 +61,7 @@ class GWConvergenceData():
                             self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'],
                                               'nomega': parameters['NOMEGA'], 'gwgap': bandstructure.get_band_gap()['energy']}})
                             n += 1
+                            print n
                         except BaseException:
                             pass
 
