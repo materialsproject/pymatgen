@@ -76,10 +76,10 @@ class GWConvergenceData():
         f = open(data_file, mode='w')
         for data in sorted(data_list):
             if data[3]:
-                f.write(data[0], data[1], data[2], data[3])
+                f.write(str((data[0], data[1], data[2], data[3])))
             else:
-                f.write(data[0], data[1], data[2])
-
+                f.write(str((data[0], data[1], data[2])))
+        f.close()
 
         '''
         [u'space_group', u'primitive_vectors', u'reduced_symmetry_matrices', u'reduced_symmetry_translations',
