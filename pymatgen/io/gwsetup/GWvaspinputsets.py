@@ -222,7 +222,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         # G0W0 calculation with reduced cutoff for the response function
         self.incar_settings.update({"ALGO": "GW0", "ENCUTGW": 250, "LWAVE": "FALSE", "NELM": 1})
         self.set_dens(spec)
-        self.nomega_max = 25 * self.get_kpoints(structure).kpts[0][0]
+        self.nomega_max = 2 * self.get_kpoints(structure).kpts[0][0]**3
         nomega = npar * int(self.nomega_max / npar)
         self.set_gw_bands(15)
         self.incar_settings.update({"NPAR": npar})

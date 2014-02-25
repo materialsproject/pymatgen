@@ -72,8 +72,12 @@ class GWSpecs(MSONable):
         f.close()
 
     def read_from_file(self, filename):
-        f = open(filename, mode='r')
-        self.data = ast.literal_eval(f.read())
+        try:
+            f = open(filename, mode='r')
+            self.data = ast.literal_eval(f.read())
+        except OSError:
+            print 'Inputfile ', filename, ' not found exiting.'
+            exit()
 
     def reset_job_collection(self):
         if 'ceci' in self.data['mode']:
