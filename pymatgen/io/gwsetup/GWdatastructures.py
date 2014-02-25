@@ -59,6 +59,7 @@ class GWConvergenceData():
                             bandstructure = data.get_band_structure(kpoints)
                             self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'],
                                               'nomega': parameters['NOMEGA'], 'gwgap': bandstructure.get_band_gap()['energy']}})
+                            print self.data[n]
                             n += 1
                         except BaseException:
                             pass
@@ -66,11 +67,11 @@ class GWConvergenceData():
     def print_plot_data(self):
         data_list = []
         for k in self.data:
-            if 'nomega' in self.data.keys():
+            if 'nomega' in self.data[k].keys():
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['nomega'], self.data[k]['gwgap']])
             else:
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
-            
+
             for data in sorted(data_list):
                 if data[3]:
                     print data[0], data[1], data[2], data[3]
