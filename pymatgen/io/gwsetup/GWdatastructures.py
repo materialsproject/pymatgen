@@ -49,8 +49,9 @@ class GWConvergenceData():
             tree = os.walk('.')
             n = 0
             for dirs in tree:
-                if self.name in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
+                if self.name + "." in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
                     run = os.path.join(dirs[0], 'vasprun.xml')
+                    print run
                     kpoints = os.path.join(dirs[0], 'IBZKPT')
                     if os.path.isfile(run):
                         try:
@@ -59,7 +60,6 @@ class GWConvergenceData():
                             bandstructure = data.get_band_structure(kpoints)
                             self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'],
                                               'nomega': parameters['NOMEGA'], 'gwgap': bandstructure.get_band_gap()['energy']}})
-                            print self.data[n]
                             n += 1
                         except BaseException:
                             pass
