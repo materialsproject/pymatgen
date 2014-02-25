@@ -266,10 +266,11 @@ class Wannier90InputSet():
     """
     class containing the input parameters for the wannier90.win file
     """
-    def __init__(self):
+    def __init__(self, spec):
         self.file_name = "wannier90.win"
         self.settings = {"bands_plot": "true", "num_wann": 2, "num_bands": 4}
         self.parameters = {"n_include_bands": 1}
+        self.spec = spec
 
     def make_kpoint_path(self, structure, f):
         f.write("\nbegin kpoint_path\n")
@@ -280,11 +281,11 @@ class Wannier90InputSet():
         pass
 
     def make_exclude_bands(self, structure, f):
-        nocc = MPGWscDFTPrepVaspInputSet(structure).get_electrons(structure) / 2
+        nocc = MPGWscDFTPrepVaspInputSet(structure, self.spec).get_electrons(structure) / 2
         n1 = str(int(1))
         n2 = str(int(nocc - self.parameters["n_include_bands"]))
         n3 = str(int(nocc + 1 + self.parameters["n_include_bands"]))
-        n4 = str(int(MPGWG0W0VaspInputSet(structure).incar_settings["NBANDS"]))
+        n4 = str(int(MPGWG0W0VaspInputSet(structure, self.spec).incar_settings["NBANDS"]))
         line = "exclude_bands : " + n1 + "-" + n2 + ", " + n3 + "-" + n4 + "\n"
         f.write(line)
         #todo there is still a bug here...
@@ -367,7 +368,7 @@ class SingleVaspGWWork():
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
-                w_inpset = Wannier90InputSet()
+                w_inpset = Wannier90InputSet(self.spec)
                 w_inpset.write_file(self.structure, os.path.join(path, 'G0W0'+option_name))
             else:
                 inpset.write_input(self.structure, os.path.join(path, 'G0W0'+option_name))
@@ -386,7 +387,7 @@ class SingleVaspGWWork():
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
-                w_inpset = Wannier90InputSet()
+                w_inpset = Wannier90InputSet(self.spec)
                 w_inpset.write_file(self.structure, os.path.join(path, 'GW0'+option_name))
             else:
                 inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
@@ -405,7 +406,7 @@ class SingleVaspGWWork():
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
-                w_inpset = Wannier90InputSet()
+                w_inpset = Wannier90InputSet(self.spec)
                 w_inpset.write_file(self.structure, os.path.join(path, 'scGW0'+option_name))
             else:
                 inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
