@@ -67,18 +67,22 @@ class GWConvergenceData():
     def print_plot_data(self):
         data_list = []
         for k in self.data:
-            if 'nomega' in self.data[k].keys():
+            if self.spec['code'] == 'VASP':
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['nomega'], self.data[k]['gwgap']])
             else:
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
 
         data_file = self.name + '.data'
         f = open(data_file, mode='w')
+        tmp = sorted(data_list)[0][0]
         for data in sorted(data_list):
-            if data[3]:
-                f.write(str((data[0], data[1], data[2], data[3])))
+            if tmp != data[0]:
+                f.write('\n')
+            tmp = data[0]
+            if self.spec['code'] == 'VASP':
+                f.write(str(data[0]) + ' ' + str(data[1]) + ' ' + str(data[2]) + ' ' + str(data[3]) + '\n')
             else:
-                f.write(str((data[0], data[1], data[2])))
+                f.write(str(data[0]) + ' ' + str(data[1]) + ' ' + str(data[2]) + '\n')
         f.close()
 
         '''
