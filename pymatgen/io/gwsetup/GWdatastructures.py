@@ -77,6 +77,7 @@ class GWConvergenceData():
         try:
             tmp = sorted(data_list)[0][0]
         except IndexError:
+            tmp = 0
             pass
         for data in sorted(data_list):
             if tmp != data[0]:
