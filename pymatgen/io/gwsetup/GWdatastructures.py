@@ -49,7 +49,7 @@ class GWConvergenceData():
             tree = os.walk('.')
             n = 0
             for dirs in tree:
-                if self.name + "." in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
+                if "/" + self.name + "." in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
                     run = os.path.join(dirs[0], 'vasprun.xml')
                     print run
                     kpoints = os.path.join(dirs[0], 'IBZKPT')
@@ -72,11 +72,13 @@ class GWConvergenceData():
             else:
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
 
+        data_file = self.name + '.data'
+        f = open(data_file, mode='w')
         for data in sorted(data_list):
             if data[3]:
-                print data[0], data[1], data[2], data[3]
+                f.write(data[0], data[1], data[2], data[3])
             else:
-                print data[0], data[1], data[2]
+                f.write(data[0], data[1], data[2])
 
 
         '''
