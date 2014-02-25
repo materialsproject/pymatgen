@@ -74,7 +74,10 @@ class GWConvergenceData():
 
         data_file = self.name + '.data'
         f = open(data_file, mode='w')
-        tmp = sorted(data_list)[0][0]
+        try:
+            tmp = sorted(data_list)[0][0]
+        except IndexError:
+            pass
         for data in sorted(data_list):
             if tmp != data[0]:
                 f.write('\n')
