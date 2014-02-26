@@ -55,6 +55,23 @@ def get_derivatives(xs, ys):
     return d
 
 
+def test_conv(xs, ys, tol):
+    conv = False
+    x_value = float('inf')
+    y_value = None
+    ds = get_derivatives(xs, ys)
+    for n in range(0, len(ds), 1):
+        if abs(ds[n]) < tol:
+            conv = True
+            if xs[n] < x_value:
+                x_value = xs[n]
+                y_value = ys[n]
+            else:
+                conv = False
+                x_value = float('inf')
+    return [conv, x_value, y_value]
+
+
 class GWConvergenceData():
     def __init__(self, structure, spec):
         self.structure = structure
@@ -105,6 +122,7 @@ class GWConvergenceData():
     def get_conv_pars(self, tol=0.01):
         ecuteps_l = False
         nbands_l = False
+        conv = False
         ecuteps_c = 0
         nbands_c = 0
         y_conv = []
@@ -116,28 +134,9 @@ class GWConvergenceData():
             zs = []
             for y in ys:
                 zs.append(zd[x][y])
-
-            conv = False
-            y_value = 100000
-            ds = get_derivatives(ys, zs)
-            for n in range(0, len(ds), 1):
-                if abs(ds[n]) < tol:
-                    conv = True
-                    if ys[n] < y_value:
-                        y_value = ys[n]
-                        z_value = zs[n]
-                else:
-                    conv = False
-                    y_value = 100000
-                print n, ds[n], conv
-
-            if conv:
-                y_conv.append(y_value)
-                z_conv.append(z_value)
-            else:
-                y_conv.append(None)
-            print x, ys, zs, get_derivatives(ys, zs), y_value, z_value
-        print xs, y_conv, z_conv
+            conv_data = test_conv(ys, zs, tol)
+            print conv_data
+        ecuteps_l = conv_data[0]
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
 
