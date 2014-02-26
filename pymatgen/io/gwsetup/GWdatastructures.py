@@ -68,7 +68,8 @@ class GWConvergenceData():
 
     def get_var_range(self, var):
         var_range = []
-        for data_point in self.data:
+        for data_point in self.data.values():
+            print data_point
             print data_point[var]
             if data_point[var] not in var_range:
                 var_range.append(data_point[var])
