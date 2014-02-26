@@ -69,8 +69,6 @@ class GWConvergenceData():
     def get_var_range(self, var):
         var_range = []
         for data_point in self.data.values():
-            print data_point
-            print data_point[var]
             if data_point[var] not in var_range:
                 var_range.append(data_point[var])
         return sorted(var_range)
@@ -107,7 +105,7 @@ class GWConvergenceData():
     def get_data_array(self):
         data_array = {}
         for k in self.data:
-            data_array.update({self.data[k]['nbands']: {self.data[k]['ecuteps']: self.data[k]['gwgap']}})
+            data_array[self.data[k]['nbands']][self.data[k]['ecuteps']] = self.data[k]['gwgap']
         return data_array
 
     def print_plot_data(self):
