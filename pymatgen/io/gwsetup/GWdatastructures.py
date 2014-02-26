@@ -20,6 +20,8 @@ import os
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
+from numpy import linspace
+from scipy.interpolate import UnivariateSpline
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -63,6 +65,10 @@ class GWConvergenceData():
                             n += 1
                         except BaseException:
                             pass
+
+    def get_conv_pars(self, tol):
+
+        return ecut
 
     def print_plot_data(self):
         data_list = []

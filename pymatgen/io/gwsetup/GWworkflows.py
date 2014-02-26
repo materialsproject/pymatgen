@@ -185,7 +185,7 @@ class SingleAbinitGWWorkFlow():
 
         response_models = ['godby']
 
-        if self.spec['test'] or self.spec['convs']:
+        if self.spec['test'] or self.spec['converge']:
             if self.spec['test']:
                 tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
                 response_models = []
