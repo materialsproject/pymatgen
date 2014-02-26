@@ -32,21 +32,27 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_derivatives(xs, ys):
+    try:
+        from scipy.interpolate import UnivariateSpline
+        spline = UnivariateSpline(xs, ys)
+        d = spline.derivative(1)
+        raise NotImplementedError
+    except ImportError:
         d = []
         m, left, right = 0, 0, 0
         for n in range(1, len(xs), 1):
             try:
-                left = ys[n] - ys[n-1] / xs[n] - xs[n-1]
+                left = (ys[n] - ys[n-1]) / (xs[n] - xs[n-1])
                 m += 1
             except IndexError:
                 pass
             try:
-                right = ys[n+1] - ys[n] / xs[n+1] - xs[n]
+                right = (ys[n+1] - ys[n]) / (xs[n+1] - xs[n])
                 m += 1
             except IndexError:
                 pass
             d.append(left + right / m)
-        return d
+    return d
 
 
 class GWConvergenceData():
