@@ -244,9 +244,10 @@ class GWSpecs(MSONable):
     def process_data(self, structure):
         data = GWConvergenceData(spec=self, structure=structure)
         data.read()
+        print data.get_conv_pars()
         data.print_plot_data()
 
-    def loop_structures(self, mode):
+    def loop_structures(self, mode='i'):
         """
         reading the structures specified in spec, add special points, and excecute the specs
         """
