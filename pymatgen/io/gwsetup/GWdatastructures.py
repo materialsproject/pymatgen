@@ -66,15 +66,31 @@ class GWConvergenceData():
                         except BaseException:
                             pass
 
-    def get_conv_pars(self, tol):
+    def get_var_range(self, var):
+        var_range = []
+        for data_point in self.data:
+            if data_point[var] not in var_range:
+                var_range.append(data_point[var])
+        return sorted(var_range)
+
+    def get_conv_pars(self, tol=0.01):
+        ecuteps_l = False
+        nbands_l = False
         ecuteps_c = 0
-        nbands_c =0
-        for data_point in self.sorted_data_list():
-            pass
+        nbands_c = 0
+        xs = self.get_var_range('nbands')
+        ys = self.get_var_range('ecuteps')
+        zd = self.get_data_array()
+        zs = []
+        for x in xs:
+            for y in ys:
+                zs.append(zd[x][y])
 
-        return {'ecuteps': ecuteps_c, 'nbands': nbands_c}
+            print ys, zs
 
-    def sorted_data_list(self):
+        return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
+
+    def get_sorted_data_list(self):
         data_list = []
         for k in self.data:
             if self.spec['code'] == 'VASP':
@@ -83,15 +99,21 @@ class GWConvergenceData():
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
         return sorted(data_list)
 
+    def get_data_array(self):
+        data_array = {}
+        for k in self.data:
+            data_array.update({self.data[k]['nbands']: {self.data[k]['ecuteps']: self.data[k]['gwgap']}})
+        return data_array
+
     def print_plot_data(self):
         data_file = self.name + '.data'
         f = open(data_file, mode='w')
         try:
-            tmp = self.sorted_data_list()[0][0]
+            tmp = self.get_sorted_data_list()[0][0]
         except IndexError:
             tmp = 0
             pass
-        for data in self.sorted_data_list():
+        for data in self.get_sorted_data_list():
             if tmp != data[0]:
                 f.write('\n')
             tmp = data[0]
