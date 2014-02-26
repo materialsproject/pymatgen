@@ -40,7 +40,7 @@ def get_derivatives(xs, ys):
     except ImportError:
         d = []
         m, left, right = 0, 0, 0
-        for n in range(1, len(xs), 1):
+        for n in range(0, len(xs), 1):
             try:
                 left = (ys[n] - ys[n-1]) / (xs[n] - xs[n-1])
                 m += 1
