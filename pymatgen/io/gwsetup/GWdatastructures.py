@@ -59,6 +59,7 @@ def test_conv(xs, ys, tol):
     conv = False
     x_value = float('inf')
     y_value = None
+    n_value = None
     ds = get_derivatives(xs, ys)
     for n in range(0, len(ds), 1):
         if abs(ds[n]) < tol:
@@ -66,10 +67,11 @@ def test_conv(xs, ys, tol):
             if xs[n] < x_value:
                 x_value = xs[n]
                 y_value = ys[n]
+                n_value = n
         else:
             conv = False
             x_value = float('inf')
-    return [conv, x_value, y_value]
+    return [conv, x_value, y_value, n_value]
 
 
 class GWConvergenceData():
@@ -143,8 +145,12 @@ class GWConvergenceData():
                 y_conv.append(None)
                 z_conv.append(None)
         if ecuteps_l:
-            conv_data = test_conv(xs, z_conv, tol)
+            conv_data = test_conv(xs, z_conv, tol/100)
             print conv_data
+            if conv_data[0]:
+                nbands_l = conv_data[0]
+                nbands_c = conv_data[1]
+                ecuteps_c = y_conv[conv_data[3]]
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
 
