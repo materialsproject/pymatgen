@@ -81,8 +81,11 @@ class GWConvergenceData():
         ecuteps_c = 0
         nbands_c = 0
         xs = self.get_var_range('nbands')
+        print xs
         ys = self.get_var_range('ecuteps')
+        print ys
         zd = self.get_data_array()
+        print zd
         zs = []
         for x in xs:
             for y in ys:
