@@ -143,6 +143,7 @@ class GWConvergenceData():
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
                 ecuteps_c = y_conv[conv_data[3]]
+                print 'splot "', self.name, ".dat' w pm3d, (x-", ecuteps_c, ")**2 + (y-", nbands_c, ")**2 + ", conv_data[2], " w p"
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
 
