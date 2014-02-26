@@ -26,6 +26,24 @@ from pymatgen.core.units import Ha_to_eV
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+def get_derivatives(xs, ys):
+        d = []
+        m, left, right = 0, 0, 0
+        for n in range(1, len(xs), 1):
+            try:
+                left = ys[n] - ys[n-1] / xs[n] - xs[n-1]
+                m += 1
+            except IndexError:
+                pass
+            try:
+                right = ys[n+1] - ys[n] / xs[n+1] - xs[n]
+                m += 1
+            except IndexError:
+                pass
+            d[n] = left + right / m
+        return d
+
+
 class GWConvergenceData():
     def __init__(self, structure, spec):
         self.structure = structure
@@ -89,9 +107,10 @@ class GWConvergenceData():
             for y in ys:
                 zs.append(zd[x][y])
 
-            print x, ys, zs
+            print x, ys, zs, get_derivatives(ys, zs)
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
+
 
     def get_sorted_data_list(self):
         data_list = []
