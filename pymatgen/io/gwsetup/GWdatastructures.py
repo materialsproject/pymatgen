@@ -122,7 +122,6 @@ class GWConvergenceData():
     def get_conv_pars(self, tol=0.01):
         ecuteps_l = False
         nbands_l = False
-        conv = False
         ecuteps_c = 0
         nbands_c = 0
         y_conv = []
@@ -137,8 +136,8 @@ class GWConvergenceData():
             conv_data = test_conv(ys, zs, tol)
             print conv_data
             if conv_data[0]:
-                y_conv.append(conv_data[2])
-                z_conv.append(conv_data[3])
+                y_conv.append(conv_data[1])
+                z_conv.append(conv_data[2])
                 ecuteps_l = conv_data[0]
             else:
                 y_conv.append(None)
