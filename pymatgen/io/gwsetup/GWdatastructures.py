@@ -20,8 +20,8 @@ import os
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from numpy import linspace
-from scipy.interpolate import UnivariateSpline
+#from numpy import linspace
+#from scipy.interpolate import UnivariateSpline
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -67,25 +67,31 @@ class GWConvergenceData():
                             pass
 
     def get_conv_pars(self, tol):
+        ecuteps_c = 0
+        nbands_c =0
+        for data_point in self.sorted_data_list():
+            pass
 
-        return ecut
+        return {'ecuteps': ecuteps_c, 'nbands': nbands_c}
 
-    def print_plot_data(self):
+    def sorted_data_list(self):
         data_list = []
         for k in self.data:
             if self.spec['code'] == 'VASP':
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['nomega'], self.data[k]['gwgap']])
             else:
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
+        return sorted(data_list)
 
+    def print_plot_data(self):
         data_file = self.name + '.data'
         f = open(data_file, mode='w')
         try:
-            tmp = sorted(data_list)[0][0]
+            tmp = self.sorted_data_list()[0][0]
         except IndexError:
             tmp = 0
             pass
-        for data in sorted(data_list):
+        for data in self.sorted_data_list():
             if tmp != data[0]:
                 f.write('\n')
             tmp = data[0]
