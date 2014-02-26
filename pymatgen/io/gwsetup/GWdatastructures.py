@@ -66,9 +66,9 @@ def test_conv(xs, ys, tol):
             if xs[n] < x_value:
                 x_value = xs[n]
                 y_value = ys[n]
-            else:
-                conv = False
-                x_value = float('inf')
+        else:
+            conv = False
+            x_value = float('inf')
     return [conv, x_value, y_value]
 
 
