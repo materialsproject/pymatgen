@@ -136,7 +136,16 @@ class GWConvergenceData():
                 zs.append(zd[x][y])
             conv_data = test_conv(ys, zs, tol)
             print conv_data
-        ecuteps_l = conv_data[0]
+            if conv_data[0]:
+                y_conv.append(conv_data[2])
+                z_conv.append(conv_data[3])
+                ecuteps_l = conv_data[0]
+            else:
+                y_conv.append(None)
+                z_conv.append(None)
+        if ecuteps_l:
+            conv_data = test_conv(xs, z_conv, tol)
+            print conv_data
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
 
