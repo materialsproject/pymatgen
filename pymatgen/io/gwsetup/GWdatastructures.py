@@ -119,13 +119,14 @@ class GWConvergenceData():
                 zs.append(zd[x][y])
             ds = get_derivatives(ys, zs)
             print ys, zs, ds
-            for n in range(1, len(ds), 1):
+            for n in range(0, len(ds), 1):
                 if abs(ds[n]) < tol:
                     conv = True
                     value = ys[n]
                 else:
                     conv = False
                     value = 0
+                print n, ds[n], conv
             if conv:
                 y_conv.append(value)
             else:
