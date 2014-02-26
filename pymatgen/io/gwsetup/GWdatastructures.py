@@ -22,12 +22,6 @@ from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
 #from numpy import linspace
 
-try:
-    from scipy.interpolate import UnivariateSpline
-except ImportError:
-    NO_SCI_PY = True
-
-
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -101,7 +95,6 @@ class GWConvergenceData():
             for dirs in tree:
                 if "/" + self.name + "." in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
                     run = os.path.join(dirs[0], 'vasprun.xml')
-                    print run
                     kpoints = os.path.join(dirs[0], 'IBZKPT')
                     if os.path.isfile(run):
                         try:
@@ -136,7 +129,6 @@ class GWConvergenceData():
             for y in ys:
                 zs.append(zd[x][y])
             conv_data = test_conv(ys, zs, tol)
-            print conv_data
             if conv_data[0]:
                 y_conv.append(conv_data[1])
                 z_conv.append(conv_data[2])
