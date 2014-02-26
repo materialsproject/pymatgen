@@ -114,7 +114,7 @@ class GWConvergenceData():
                 var_range.append(data_point[var])
         return sorted(var_range)
 
-    def get_conv_pars(self, tol=0.001):
+    def get_conv_pars(self, tol=0.0001):
         ecuteps_l = False
         nbands_l = False
         ecuteps_c = 0
