@@ -105,7 +105,10 @@ class GWConvergenceData():
     def get_data_array(self):
         data_array = {}
         for k in self.data:
-            data_array[self.data[k]['nbands']][self.data[k]['ecuteps']] = self.data[k]['gwgap']
+            try:
+                data_array[self.data[k]['nbands']].update({[self.data[k]['ecuteps']]: self.data[k]['gwgap']})
+            except KeyError:
+                data_array.update({self.data[k]['nbands']: {[self.data[k]['ecuteps']]: self.data[k]['gwgap']}})
         return data_array
 
     def print_plot_data(self):
