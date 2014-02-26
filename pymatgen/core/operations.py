@@ -141,7 +141,7 @@ class SymmOp(MSONable):
             points: List of Cartesian coordinates
         
         Returns:
-            Numpy array of Coordinates after operation
+            Numpy array of coordinates after operation
         """
         affine_points = np.concatenate([points, np.ones([len(points), 1])], axis=-1)
         return np.inner(affine_points, self.affine_matrix)[:, :-1]
