@@ -21,7 +21,12 @@ from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
 #from numpy import linspace
-#from scipy.interpolate import UnivariateSpline
+
+try:
+    from scipy.interpolate import UnivariateSpline
+except ImportError:
+    NO_SCI_PY = True
+
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
