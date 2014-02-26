@@ -40,7 +40,7 @@ def get_derivatives(xs, ys):
                 m += 1
             except IndexError:
                 pass
-            d[n] = left + right / m
+            d.append(left + right / m)
         return d
 
 
@@ -110,7 +110,6 @@ class GWConvergenceData():
             print x, ys, zs, get_derivatives(ys, zs)
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
-
 
     def get_sorted_data_list(self):
         data_list = []
