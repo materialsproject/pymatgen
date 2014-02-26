@@ -108,17 +108,29 @@ class GWConvergenceData():
         ecuteps_c = 0
         nbands_c = 0
         xs = self.get_var_range('nbands')
-        print xs
         ys = self.get_var_range('ecuteps')
-        print ys
         zd = self.get_data_array()
-        print zd
         for x in xs:
             zs = []
+            y_conv = []
+            conv = False
+            value = None
             for y in ys:
                 zs.append(zd[x][y])
-
-            print x, ys, zs, get_derivatives(ys, zs)
+            ds = get_derivatives(ys, zs)
+            for n in range(1, len(ys), 1):
+                if abs(ds) < tol:
+                    conv = True
+                    value = ys[n]
+                else:
+                    conv = False
+                    value = 0
+            if conv:
+                y_conv.append(value)
+            else:
+                y_conv.append(None)
+            print x, ys, zs, get_derivatives(ys, zs), value
+        print xs, y_conv
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
 
