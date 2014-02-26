@@ -84,12 +84,12 @@ class GWConvergenceData():
         print ys
         zd = self.get_data_array()
         print zd
-        zs = []
         for x in xs:
+            zs = []
             for y in ys:
                 zs.append(zd[x][y])
 
-            print ys, zs
+            print x, ys, zs
 
         return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
 
