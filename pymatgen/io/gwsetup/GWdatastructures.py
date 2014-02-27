@@ -1,9 +1,6 @@
-#!/usr/bin/env python
-
 """
-Script to test writing GW Input for VASP.
-Reads the POSCAR_name in the the current folder and outputs GW input to
-subfolders name
+Classes for writing GW Input and analizing GW data. The undelying classe can handle the use of VASP and ABINIT
+Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name
 """
 
 from __future__ import division
@@ -16,63 +13,310 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "Oct 23, 2013"
 
 import os
+import stat
+import os.path
+import ast
+import pymatgen as pmg
 
+from pymatgen.io.vaspio.vasp_input import Poscar
+from pymatgen.matproj.rest import MPRester
+from pymatgen.serializers.json_coders import MSONable
+from pymatgen.io.gwsetup.GWvaspinputsets import SingleVaspGWWork
+from pymatgen.io.gwsetup.GWworkflows import SingleAbinitGWWorkFlow, VaspGWFWWorkFlow
+from pymatgen.io.gwsetup.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, MPGWG0W0VaspInputSet
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-#from numpy import linspace
+from pymatgen.io.gwsetup.GWhelpers import test_conv
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
-def get_derivatives(xs, ys):
-    try:
-        from scipy.interpolate import UnivariateSpline
-        spline = UnivariateSpline(xs, ys)
-        d = spline.derivative(1)
-        raise NotImplementedError
-    except ImportError:
-        d = []
-        m, left, right = 0, 0, 0
-        for n in range(0, len(xs), 1):
-            try:
-                left = (ys[n] - ys[n-1]) / (xs[n] - xs[n-1])
-                m += 1
-            except IndexError:
-                pass
-            try:
-                right = (ys[n+1] - ys[n]) / (xs[n+1] - xs[n])
-                m += 1
-            except IndexError:
-                pass
-            d.append(left + right / m)
-    return d
+"""
+MPGWVaspInputSet.joson contains the standards for GW calculations. This set contains all
+parameters for the first sc dft calculation. The modifications for the subsequent
+sub calculations are made below.
+For many settings the number of cores on which the calculations will be run is needed, this
+number is assumed to be on the environment variable NPARGWCALC.
+"""
 
 
-def test_conv(xs, ys, tol):
-    conv = False
-    x_value = float('inf')
-    y_value = None
-    n_value = None
-    ds = get_derivatives(xs, ys)
-    for n in range(0, len(ds), 1):
-        if abs(ds[n]) < tol:
-            conv = True
-            if xs[n] < x_value:
-                x_value = xs[n]
-                y_value = ys[n]
-                n_value = n
+class GWSpecs(MSONable):
+    """
+    Class for GW specifications.
+    """
+    def __init__(self):
+        self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
+                     'functional': 'PBE', 'kp_grid_dens': 500, 'prec': 'm', 'converge': False, 'tol': 0.0001}
+        self.warnings = []
+        self.errors = []
+        self.fw_specs = []
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def to_dict(self):
+        return self.data
+
+    def from_dict(self, data):
+        self.data = data
+        self.test()
+
+    @staticmethod
+    def get_npar(self, structure):
+        return MPGWG0W0VaspInputSet(structure, self).get_npar(structure)
+
+    def write_to_file(self, filename):
+        f = open(filename, mode='w')
+        f.write(str(self.to_dict()))
+        f.close()
+
+    def read_from_file(self, filename):
+        try:
+            f = open(filename, mode='r')
+            self.data = ast.literal_eval(f.read())
+        except OSError:
+            print 'Inputfile ', filename, ' not found exiting.'
+            exit()
+
+    def reset_job_collection(self):
+        if 'ceci' in self.data['mode']:
+            if os.path.isfile('job_collection'):
+                os.remove('job_collection')
+            if 'ABINIT' in self.data['code']:
+                job_file = open('job_collection', mode='w')
+                job_file.write('module load abinit \n')
+                job_file.close()
+
+    def update_interactive(self):
+        """
+        method to make changes to the GW input setting interactively
+        """
+        key = 'tmp'
+        while len(key) != 0:
+            print self.data
+            key = raw_input('enter key to change: ')
+            if key in self.data.keys():
+                value = raw_input('enter new value: ')
+                if key == 'jobs':
+                    if len(value) == 0:
+                        print 'removed', self.data['jobs'].pop(-1)
+                    else:
+                        self.data['jobs'].append(value)
+                elif key == 'test':
+                    if value.lower() in ['true', 't']:
+                        self.data['test'] = True
+                    elif value.lower() in ['false', 'f']:
+                        self.data['test'] = False
+                    else:
+                        print 'undefined value, test should be True or False'
+                elif key == 'converge':
+                    if value.lower() in ['true', 't']:
+                        self.data['converge'] = True
+                    elif value.lower() in ['false', 'f']:
+                        self.data['converge'] = False
+                    else:
+                        print 'undefined value, test should be True or False'
+                elif key in 'kp_grid_dens':
+                    self.data[key] = int(value)
+                else:
+                    self.data[key] = value
+            elif key in ['help', 'h']:
+                print "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from"
+                print "              poscar will read files starting with POSCAR_ in the working folder"
+                print 'mode:         input, ceci, fw'
+                print 'functional:   PBE, LDA'
+                print 'jobs:         prep, G0W0, GW0, scGW0'
+                print 'code:         VASP, ABINIT'
+                print 'kp_grid_dens: usually 500 - 1000, 1 gives gamma only, 2 gives a 2x2x2 mesh'
+                print 'tol:          tolerance for determining convergence d(gap)/d(encuteps) and d(gap)/d(nbands) < tol'
+                print 'test:         run all settings defined in test the calculation specific tests'
+                print 'converge:     run all settings defined in convs at low kp mesh, determine converged values,' \
+                      '              rerun all test defined in tests relative to the converged valuues with provided' \
+                      '              kp_grid dens, in progress ..... '
+                print 'prec:         m, h'
+            elif len(key) == 0:
+                print 'setup finished'
+            else:
+                print 'undefined key'
+        self.data['functional'] = self.data['functional'].upper()
+
+    def get_code(self):
+        return self['code']
+
+    def test(self):
+        if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
+            self.errors.append('unspecified mode')
+        if self.data['code'] == 'VASP':
+            if self.data['functional'] not in ['PBE', 'LDA']:
+                self.errors.append(str(self.data['functional'] + 'not defined for VASP yet'))
+        elif self.data['code'] == 'ABINIT':
+            if self.data['converge'] and self.data['code'] == 'ABINIT':
+                self.warnings.append('converge defined for abinit')
+            if self.data['functional'] not in ['PBE']:
+                self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
         else:
-            conv = False
-            x_value = float('inf')
-    return [conv, x_value, y_value, n_value]
+            self.errors.append('unknown code')
+        if self.data["source"] not in ['poscar', 'mp-vasp']:
+            if not os.path.isfile(self.data['source']):
+                self.warnings.append('no structures defined')
+        if self.data["test"] and self.data["converge"]:
+            self.errors.append('both "test" and "converge" are specified, only one can be done at the same time')
+        if self.data["converge"] and not self.data['mode'] == 'fw':
+            self.warnings.append('only real converging in fw mode, for other modes ALL convergence steps are created')
+        if len(self.errors) > 0:
+            print str(len(self.errors)) + ' error(s) found:'
+            print self.errors
+            exit()
+        if len(self.warnings) > 0:
+            print str(len(self.warnings)) + ' warning(s) found:'
+            print self.warnings
+        self.reset_job_collection()
+
+    def excecute_flow(self, structure):
+        """
+        excecute spec prepare input/jobfiles or submit to fw for a given structure
+        for vasp the different jobs are created into a flow
+        for abinit a flow is created using abinitio
+        """
+        if self.get_code() == 'VASP':
+            if self.data['mode'] == 'fw':
+                fw_work_flow = VaspGWFWWorkFlow(self.fw_specs)
+            else:
+                fw_work_flow = []
+            if self.data['test'] or self.data['converge']:
+                if self.data['test']:
+                    tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
+                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
+                else:
+                    tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).convs
+                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).convs)
+                for test_prep in tests_prep:
+                    print 'setting up test for: ' + test_prep
+                    for value_prep in tests_prep[test_prep]['test_range']:
+                        print "**" + str(value_prep) + "**"
+                        option = {'test_prep': test_prep, 'value_prep': value_prep}
+                        self.create_job(structure, 'prep', fw_work_flow, option)
+                        for job in self.data['jobs'][1:]:
+                            if job == 'G0W0':
+                                if self.data['test']:
+                                    tests = MPGWG0W0VaspInputSet(structure, self).tests
+                                else:
+                                    tests = MPGWG0W0VaspInputSet(structure, self).convs
+                            if job in ['GW0', 'scGW0']:
+                                input_set = MPGWG0W0VaspInputSet(structure, self)
+                                input_set.gw0_on()
+                                if self.data['test']:
+                                    tests = input_set.tests
+                                else:
+                                    tests = input_set.tests
+                            for test in tests:
+                                print '    setting up test for: ' + test
+                                for value in tests[test]['test_range']:
+                                    print "    **" + str(value) + "**"
+                                    option.update({'test': test, 'value': value})
+                                    self.create_job(structure, job, fw_work_flow, option)
+            else:
+                for job in self['jobs']:
+                    self.create_job(structure, job, fw_work_flow)
+            if self.data['mode'] == 'fw':
+                fw_work_flow.create()
+                fw_work_flow.add_to_db()
+        elif self.get_code() == 'ABINIT':
+            work_flow = SingleAbinitGWWorkFlow(structure, self)
+            flow = work_flow.create()
+            flow.build_and_pickle_dump()
+            work_flow.create_job_file()
+        else:
+            print 'unspecified code, actually this should have been catched earlier .. '
+            exit()
+
+    def create_job(self, structure, job, fw_work_flow, option=None):
+        work = SingleVaspGWWork(structure, job, self, option)
+        if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
+            work.create_input()
+            if 'ceci' in self.data['mode']:
+                work.create_job_script()
+        if 'fw' in self.data['mode']:
+            structure_dict = structure.to_dict
+            band_structure_dict = {'vbm_l': structure.vbm_l, 'cbm_l': structure.cbm_l, 'vbm_a': structure.vbm[0],
+                                   'vbm_b': structure.vbm[1], 'vbm_c': structure.vbm[2], 'cbm_a': structure.cbm[0],
+                                   'cbm_b': structure.cbm[1], 'cbm_c': structure.cbm[2]}
+            parameters = {'structure': structure_dict, 'band_structure': band_structure_dict, 'job': job,
+                          'spec': self.to_dict(), 'option': option}
+            fw_work_flow.add_work(parameters)
+
+    def process_data(self, structure):
+        data = GWConvergenceData(spec=self, structure=structure)
+        data.read()
+        data.find_conv_pars(self['tol'])
+        print data.conv_res
+        data.print_conv_res()
+        data.print_plot_data()
+
+    def loop_structures(self, mode='i'):
+        """
+        reading the structures specified in spec, add special points, and excecute the specs
+        """
+
+        mp_key = os.environ['MP_KEY']
+
+        mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
+                        'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
+
+        if self.data['source'] == 'mp-vasp':
+            items_list = mp_list_vasp
+        elif self.data['source'] == 'poscar':
+            files = os.listdir('.')
+            items_list = files
+        else:
+            items_list = [line.strip() for line in open(self.data['source'])]
+
+        for item in items_list:
+            if item.startswith('POSCAR_'):
+                structure = pmg.read_structure(item)
+                comment = Poscar.from_file(item).comment
+                print comment
+                if comment.startswith("gap"):
+                    structure.vbm_l = comment.split(" ")[1]
+                    structure.vbm = (comment.split(" ")[2], comment.split(" ")[3], comment.split(" ")[4])
+                    structure.cbm_l = comment.split(" ")[5]
+                    structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
+                else:
+                    print "no bandstructure information available, adding GG as 'gap'"
+                    structure.vbm_l = "G"
+                    structure.cbm_l = "G"
+                    structure.cbm = (0.0, 0.0, 0.0)
+                    structure.vbm = (0.0, 0.0, 0.0)
+            elif item.startswith('mp-'):
+                print item
+                with MPRester(mp_key) as mp_database:
+                    structure = mp_database.get_structure_by_material_id(item, final=True)
+                    bandstructure = mp_database.get_bandstructure_by_material_id(item)
+                    structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
+                    structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
+                    structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
+                    structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
+            else:
+                next(item)
+            print structure.composition.reduced_formula
+            if mode == 'i':
+                self.excecute_flow(structure)
+            elif mode == 'o':
+                self.process_data(structure)
+
+        if 'ceci' in self.data['mode'] and mode == 'i':
+            os.chmod("job_collection", stat.S_IRWXU)
 
 
 class GWConvergenceData():
+    """
+    Class for GW data, reading, plotting and testing for convergence
+    """
     def __init__(self, structure, spec):
         self.structure = structure
         self.spec = spec
         self.data = {}
+        self.conv_res = {}
         self.name = structure.composition.reduced_formula
 
     def read(self):
@@ -114,7 +358,7 @@ class GWConvergenceData():
                 var_range.append(data_point[var])
         return sorted(var_range)
 
-    def get_conv_pars(self, tol=0.0001):
+    def find_conv_pars(self, tol=0.0001):
         ecuteps_l = False
         nbands_l = False
         ecuteps_c = 0
@@ -144,8 +388,7 @@ class GWConvergenceData():
                 nbands_c = conv_data[1]
                 ecuteps_c = y_conv[conv_data[3]]
                 print "splot '"+self.name+".data' u 1:2:4 w pm3d, '< echo "+'"', nbands_c, ecuteps_c, conv_data[2], '"'+"' w p"
-
-        return {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
+        self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
 
     def get_sorted_data_list(self):
         data_list = []
@@ -196,3 +439,18 @@ class GWConvergenceData():
          u'egw', u'eigvec_qp', u'hhartree', u'sigmee', u'sigcmee0', u'sigcmesi', u'sigcme4sd', u'sigxcme4sd',
          u'ze0', u'omega4sd'] for later use
         '''
+
+    def print_conv_res(self):
+        if self.conv_res['control']['nbands']:
+            filename = self.name + '.conv_res'
+            f = open(filename, mode='w')
+            if self.spec['code'] == 'VASP':
+                string = {'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']}
+                pass
+            elif self.spec['code'] == 'ABINIT':
+                string = {'nscf_nband': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']}
+                pass
+            else:
+                string = 'undefined code'
+            f.write(string)
+            f.close()
