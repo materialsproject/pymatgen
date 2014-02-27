@@ -50,7 +50,7 @@ def get_derivatives(xs, ys):
     return d
 
 
-def test_conv(xs, ys, tol = 0.0001):
+def test_conv(xs, ys, tol=0.0001):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -72,3 +72,17 @@ def test_conv(xs, ys, tol = 0.0001):
                 x_value = float('inf')
 
     return [conv, x_value, y_value, n_value]
+
+
+def print_gnuplot_header(filename, title='', mode='convploteps'):
+    xl = 'set xlabel "nbands"\n'
+    yl = 'set ylabel "encutgw (eV)"\n'
+    zl = 'set zlabel "gap (eV)"\n'
+    if mode == 'convploteps':
+        f = open(filename, mode='w')
+        f.write('set terminal eps\n')
+        f.write('set title '+title+'\n')
+        f.write(xl)
+        f.write(yl)
+        f.write(zl)
+        f.close()

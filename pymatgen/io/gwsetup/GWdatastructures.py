@@ -27,7 +27,7 @@ from pymatgen.io.gwsetup.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWD
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.gwsetup.GWhelpers import test_conv
+from pymatgen.io.gwsetup.GWhelpers import test_conv, print_gnuplot_header
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -251,6 +251,8 @@ class GWSpecs(MSONable):
         data.find_conv_pars(self['tol'])
         print data.conv_res
         data.print_conv_res()
+        print_gnuplot_header('plots', structure.composition.reduced_formula+' tol = '+str(self['tol']))
+        data.print_gnuplot_line('plots')
         data.print_plot_data()
 
     def loop_structures(self, mode='i'):
@@ -363,6 +365,7 @@ class GWConvergenceData():
         nbands_l = False
         ecuteps_c = 0
         nbands_c = 0
+        gap = None
         y_conv = []
         z_conv = []
         xs = self.get_var_range('nbands')
@@ -386,9 +389,19 @@ class GWConvergenceData():
             if conv_data[0]:
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
+                gap = conv_data[2]
                 ecuteps_c = y_conv[conv_data[3]]
-                print "splot '"+self.name+".data' u 1:2:4 w pm3d, '< echo "+'"', nbands_c, ecuteps_c, conv_data[2], '"'+"' w p"
-        self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c}}
+#                print "splot '"+self.name+".data' u 1:2:4 w pm3d, '< echo "+'"', nbands_c, ecuteps_c, conv_data[2], '"'+"' w p"
+        self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap}}
+
+    def print_gnuplot_line(self, filename):
+        string1 = "set output '"+self.name+".eps '\n"
+        string2 = "splot '"+self.name+".data' u 1:2:4 w pm3d, '< echo "+'" '+str(self.conv_res['values']['nbands'])
+        string2 = string2+str(self.conv_res['values']['ecuteps'])+' '+str(self.conv_res['values']['gap'])+' "'+"' w p\n"
+        f = open(filename, mode='a')
+        f.write(string1)
+        f.write(string2)
+        f.close()
 
     def get_sorted_data_list(self):
         data_list = []
