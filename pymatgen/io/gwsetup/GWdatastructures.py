@@ -446,10 +446,10 @@ class GWConvergenceData():
             filename = self.name + '.conv_res'
             f = open(filename, mode='w')
             if self.spec['code'] == 'VASP':
-                string = {'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']}
+                string = str({'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']})
                 pass
             elif self.spec['code'] == 'ABINIT':
-                string = {'nscf_nband': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']}
+                string = str({'nscf_nband': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']})
                 pass
             else:
                 string = 'undefined code'
