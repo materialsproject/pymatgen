@@ -441,6 +441,7 @@ class GWConvergenceData():
         '''
 
     def print_conv_res(self):
+        print self.conv_res['control']['nbands']
         if self.conv_res['control']['nbands']:
             filename = self.name + '.conv_res'
             f = open(filename, mode='w')

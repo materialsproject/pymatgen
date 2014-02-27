@@ -50,7 +50,7 @@ def get_derivatives(xs, ys):
     return d
 
 
-def test_conv(xs, ys, tol):
+def test_conv(xs, ys, tol = 0.0001):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
