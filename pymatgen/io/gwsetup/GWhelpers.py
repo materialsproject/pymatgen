@@ -79,7 +79,7 @@ def print_gnuplot_header(filename, title='', mode='convploteps'):
     yl = 'set ylabel "encutgw (eV)"\n'
     zl = 'set zlabel "gap (eV)"\n'
     if mode == 'convploteps':
-        f = open(filename, mode='w')
+        f = open(filename, mode='a')
         f.write('set terminal eps\n')
         f.write('set title '+title+'\n')
         f.write(xl)
