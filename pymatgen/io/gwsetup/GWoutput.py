@@ -21,6 +21,8 @@ from pymatgen.io.gwsetup.GWsetup import GWSpecs
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
+    if os.path.isfile('plots'):
+        os.remove('plots')
     spec = GWSpecs()
     spec.read_from_file('spec.in')
     print 'Found setup for ', spec.data['code']
