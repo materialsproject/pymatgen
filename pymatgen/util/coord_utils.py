@@ -54,6 +54,24 @@ def in_coord_list(coord_list, coord, atol=1e-8):
     return len(find_in_coord_list(coord_list, coord, atol=atol)) > 0
 
 
+def is_coord_subset(subset, superset, atol=1e-8):
+    """
+    Tests if all coords in subset are contained in superset.
+    Doesn't use periodic boundary conditions
+    
+    Args:
+        subset, superset: List of coords
+        
+    Returns:
+        True if all of subset is in superset.
+    """
+    c1 = np.array(subset)
+    c2 = np.array(superset)
+    is_close = np.all(np.abs(c1[:, None, :] - c2[None, :, :]) < atol, axis=-1)
+    any_close = np.any(is_close, axis=-1)
+    return np.all(any_close)
+
+
 def get_linear_interpolated_value(x_values, y_values, x):
     """
     Returns an interpolated value by linear interpolation between two values.
