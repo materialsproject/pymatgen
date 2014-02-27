@@ -27,7 +27,6 @@ from fireworks.core.firework import FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-RESPONSE_MODELS = ["cd", "godby", "hybersten", "linden", "farid"]
 
 
 class VaspGWFWWorkFlow():
@@ -99,6 +98,7 @@ class SingleAbinitGWWorkFlow():
     """
     interface the
     """
+    RESPONSE_MODELS = ["cd", "godby", "hybersten", "linden", "farid"]
     TESTS = {'ecuteps': {'test_range': (16, 24), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"},
              'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
@@ -111,6 +111,7 @@ class SingleAbinitGWWorkFlow():
         self.option = option
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
+        self.response_models = self.__class__.get_response_models()
         self.work_dir = self.structure.composition.reduced_formula
         abi_pseudo = '.GGA_PBE-JTH-paw.xml'
         abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
@@ -127,6 +128,10 @@ class SingleAbinitGWWorkFlow():
     @classmethod
     def get_defaults_convs(cls):
         return cls.CONVS.copy()
+
+    @classmethod
+    def get_response_models(cls):
+        return cls.RESPONSE_MODELS.copy()
 
     def get_electrons(self, structure):
         """
