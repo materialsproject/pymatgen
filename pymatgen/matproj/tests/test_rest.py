@@ -62,7 +62,6 @@ class MPResterTest(unittest.TestCase):
                 val = self.rester.get_data("mp-540081", prop=prop)[0][prop]
                 self.assertAlmostEqual(expected_vals[i], val)
             elif prop in ["elements", "icsd_id"]:
-                print prop
                 self.assertEqual(set(expected_vals[i]),
                                  set(self.rester.get_data("mp-540081",
                                                           prop=prop)[0][prop]))
@@ -91,6 +90,10 @@ class MPResterTest(unittest.TestCase):
 
         self.assertRaises(MPRestError, self.rester.get_data, "Fe2O3",
                           "badmethod")
+
+    def test_get_materials_id_from_task_id(self):
+        self.assertEqual(self.rester.get_materials_id_from_task_id(
+            "mp-19017"), "mp-540081")
 
     def test_get_entries_in_chemsys(self):
         syms = ["Li", "Fe", "O"]
