@@ -395,7 +395,7 @@ class GWConvergenceData():
         self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap}}
 
     def print_gnuplot_line(self, filename):
-        string1 = "set output '"+self.name+".jpeg '\n"
+        string1 = "set output '"+self.name+".jpeg'\n"
         string2 = "splot '"+self.name+".data' u 1:2:4 w pm3d, '< echo "+'" '+str(self.conv_res['values']['nbands'])
         string2 = string2+' '+str(self.conv_res['values']['ecuteps'])+' '+str(self.conv_res['values']['gap'])+' "'+"' w p\n"
         f = open(filename, mode='a')
