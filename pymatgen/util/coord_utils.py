@@ -318,6 +318,38 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     return np.transpose(d)
 
 
+def lattice_points_in_supercell(supercell_matrix):
+    """
+    Returns the list of points on the original lattice contained in the supercell
+    in fractional coordinates (with the supercell basis).
+    e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]] 
+    
+    Args:
+        supercell_matrix: 3x3 matrix describing the supercell
+        
+    Returns:
+        numpy array of the fractional coordinates
+    """
+    diagonals = np.array([[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]])
+    d_points = np.dot(diagonals, supercell_matrix)
+    
+    minimax = np.array([np.min(d_points, axis = 0), np.max(d_points, axis = 0) + 1])
+    
+    ar = np.arange(minimax[0, 0], minimax[1, 0])[:, None] * np.array([1, 0, 0])[None, :]
+    br = np.arange(minimax[0, 1], minimax[1, 1])[:, None] * np.array([0, 1, 0])[None, :]
+    cr = np.arange(minimax[0, 2], minimax[1, 2])[:, None] * np.array([0, 0, 1])[None, :]
+    
+    all_points = ar[:, None, None] + br[None, :, None] + cr[None, None, :]
+    all_points = all_points.reshape((-1, 3))
+    
+    frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
+    
+    tvects = frac_points[np.where(np.all(frac_points < 1-1e-10, axis=1)
+                            & np.all(frac_points >= -1e-10, axis=1))]
+    assert len(tvects) == np.round(np.abs(np.linalg.det(supercell_matrix)))
+    return tvects
+
+
 def barycentric_coords(coords, simplex):
     """
     Converts a list of coordinates to barycentric coordinates, given a
