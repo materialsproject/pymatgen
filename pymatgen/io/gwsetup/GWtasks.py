@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Script to test writing GW Input for VASP.
 Reads the POSCAR_name in the the current folder and outputs GW input to
