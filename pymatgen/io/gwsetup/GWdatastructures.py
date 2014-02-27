@@ -391,12 +391,11 @@ class GWConvergenceData():
                 nbands_c = conv_data[1]
                 gap = conv_data[2]
                 ecuteps_c = y_conv[conv_data[3]]
-#                print "splot '"+self.name+".data' u 1:2:4 w pm3d, '< echo "+'"', nbands_c, ecuteps_c, conv_data[2], '"'+"' w p"
         self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap}}
 
     def print_gnuplot_line(self, filename):
         string1 = "set output '"+self.name+".jpeg'\n"
-        string2 = "splot '"+self.name+".data' u 1:2:4 w pm3d, '< echo "+'" '+str(self.conv_res['values']['nbands'])
+        string2 = "splot '"+self.name+".data' u 1:2:3 w pm3d, '< echo "+'" '+str(self.conv_res['values']['nbands'])
         string2 = string2+' '+str(self.conv_res['values']['ecuteps'])+' '+str(self.conv_res['values']['gap'])+' "'+"' w p\n"
         f = open(filename, mode='a')
         f.write(string1)
@@ -407,7 +406,7 @@ class GWConvergenceData():
         data_list = []
         for k in self.data:
             if self.spec['code'] == 'VASP':
-                data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['nomega'], self.data[k]['gwgap']])
+                data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgqp'], self.data[k]['nomega']])
             else:
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
         return sorted(data_list)
