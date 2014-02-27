@@ -74,13 +74,13 @@ def test_conv(xs, ys, tol=0.0001):
     return [conv, x_value, y_value, n_value]
 
 
-def print_gnuplot_header(filename, title='', mode='convploteps'):
+def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     xl = 'set xlabel "nbands"\n'
     yl = 'set ylabel "encutgw (eV)"\n'
     zl = 'set zlabel "gap (eV)"\n'
-    if mode == 'convploteps':
+    if mode == 'convplot':
         f = open(filename, mode='a')
-        f.write('set terminal eps\n')
+        f.write('set terminal '+filetype+'jpeg\n')
         f.write('set title '+title+'\n')
         f.write(xl)
         f.write(yl)
