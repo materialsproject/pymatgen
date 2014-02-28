@@ -385,7 +385,6 @@ class GWConvergenceData():
                 z_conv.append(None)
         if ecuteps_l:
             conv_data = test_conv(xs, z_conv, tol)
-            print conv_data
             if conv_data[0]:
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
