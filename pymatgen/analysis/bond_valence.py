@@ -23,6 +23,7 @@ from math import exp, sqrt
 from pymatgen.core.periodic_table import Element, Specie
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
+from pymatgen.core.periodic_table import get_el_sp
 
 #Let's initialize some module level properties.
 
@@ -156,7 +157,8 @@ class BVAnalyzer(object):
     CHARGE_NEUTRALITY_TOLERANCE = 0.00001
 
     def __init__(self, symm_tol=0.1, max_radius=4, max_permutations=100000,
-                 distance_scale_factor=1.015, charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE):
+                 distance_scale_factor=1.015, charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
+                 forbidden_species=[]):
         """
         Args:
             symm_tol:
@@ -175,19 +177,26 @@ class BVAnalyzer(object):
             charge_neutrality_tolerance:
                 Tolerance on the charge neutrality when unordered structures
                 are at stake.
+            forbidden_species:
+                List of species that are forbidden (example : ["O-"] cannot be used)
+                It is used when e.g. someone knows that some oxidation state cannot
+                occur for some atom in a structure or list of structures.
         """
         self.symm_tol = symm_tol
         self.max_radius = max_radius
         self.max_permutations = max_permutations
         self.dist_scale_factor = distance_scale_factor
         self.charge_neutrality_tolerance = charge_neutrality_tolerance
+        forbidden_species = [get_el_sp(sp) for sp in forbidden_species]
+        self.icsd_bv_data = {get_el_sp(specie): data for specie, data in ICSD_BV_DATA.items()
+                             if not specie in forbidden_species} if len(forbidden_species) > 0 else ICSD_BV_DATA
 
     def _calc_site_probabilities(self, site, nn):
         el = site.specie.symbol
         bv_sum = calculate_bv_sum(site, nn,
                                   scale_factor=self.dist_scale_factor)
         prob = {}
-        for sp, data in ICSD_BV_DATA.items():
+        for sp, data in self.icsd_bv_data.items():
             if sp.symbol == el and sp.oxi_state != 0 and data["std"] > 0:
                 u = data["mean"]
                 sigma = data["std"]
@@ -211,7 +220,7 @@ class BVAnalyzer(object):
             el = specie.symbol
 
             prob[el] = {}
-            for sp, data in ICSD_BV_DATA.items():
+            for sp, data in self.icsd_bv_data.items():
                 if sp.symbol == el and sp.oxi_state != 0 and data["std"] > 0:
                     u = data["mean"]
                     sigma = data["std"]
@@ -219,7 +228,10 @@ class BVAnalyzer(object):
                     #factors are ignored. They have no effect on the results.
                     prob[el][sp.oxi_state] = exp(-(bv_sum - u) ** 2 / 2 / (sigma ** 2)) / sigma * PRIOR_PROB[sp]
             #Normalize the probabilities
-            prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
+            try:
+                prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
+            except ZeroDivisionError:
+                prob[el] = {k: 0.0 for k in prob[el]}
         return prob
 
     def get_valences(self, structure):
@@ -231,11 +243,13 @@ class BVAnalyzer(object):
             structure: Structure to analyze
 
         Returns:
-            A list of valences for each site in the structure,
-            e.g., [1, 1, -2].
+            A list of valences for each site in the structure (for an ordered structure),
+            e.g., [1, 1, -2] or a list of lists with the valences for each fractional
+            element of each site in the structure (for an unordered structure),
+            e.g., [[2, 4], [3], [-2], [-2], [-2]]
 
         Raises:
-            A ValueError is the valences cannot be determined.
+            A ValueError if the valences cannot be determined.
         """
         els = [Element(el.symbol) for el in structure.composition.elements]
 
@@ -259,9 +273,9 @@ class BVAnalyzer(object):
 
         #Get a list of valences and probabilities for each symmetrically
         #distinct site.
+        valences = []
+        all_prob = []
         if structure.is_ordered:
-            valences = []
-            all_prob = []
             for sites in equi_sites:
                 test_site = sites[0]
                 nn = structure.get_neighbors(test_site, self.max_radius)
@@ -274,8 +288,6 @@ class BVAnalyzer(object):
                 valences.append(filter(lambda v: prob[v] > 0.01 * prob[val[0]],
                                        val))
         else:
-            valences = []
-            all_prob = []
             full_all_prob = []
             for sites in equi_sites:
                 test_site = sites[0]
@@ -284,12 +296,12 @@ class BVAnalyzer(object):
                 all_prob.append(prob)
                 full_all_prob.extend(prob.values())
                 vals = []
-                for el in prob:
-                    val = list(prob[el].keys())
+                for (elsp, occ) in test_site.species_and_occu.arb_ordered_elmap():
+                    val = list(prob[elsp.symbol].keys())
                     #Sort valences in order of decreasing probability.
-                    val = sorted(val, key=lambda v: -prob[el][v])
+                    val = sorted(val, key=lambda v: -prob[elsp.symbol][v])
                     #Retain probabilities that are at least 1/100 of highest prob.
-                    vals.append(filter(lambda v: prob[el][v] > 0.001 * prob[el][val[0]],
+                    vals.append(filter(lambda v: prob[elsp.symbol][v] > 0.001 * prob[elsp.symbol][val[0]],
                                        val))
                 valences.append(vals)
 
@@ -355,8 +367,10 @@ class BVAnalyzer(object):
                     attrib.append(insite)
             new_nsites = np.array(tmp)
             fractions = []
+            elements = []
             for sites in equi_sites:
-                for sp, occu in sites[0].species_and_occu.iteritems():
+                for sp, occu in sites[0].species_and_occu.arb_ordered_elmap():
+                    elements.append(sp.symbol)
                     fractions.append(occu)
             fractions = np.array(fractions, np.float)
             new_valences = []
@@ -374,14 +388,15 @@ class BVAnalyzer(object):
                 el_oxi = collections.defaultdict(list)
                 jj = 0
                 for i, sites in enumerate(equi_sites):
-                    for specie in sites[0].species_and_occu:
+                    for specie, occu in sites[0].species_and_occu.arb_ordered_elmap():
                         el_oxi[specie.symbol].append(v_set[jj])
                         jj += 1
                 max_diff = max([max(v) - min(v) for v in el_oxi.values()])
                 if max_diff > 2:
                     return
-                score = reduce(operator.mul, [full_all_prob[i][v]
-                                              for i, v in enumerate(v_set)])
+
+                score = reduce(operator.mul,
+                                [all_prob[attrib[iv]][elements[iv]][vv] for iv, vv in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score
@@ -430,12 +445,12 @@ class BVAnalyzer(object):
                 return [int(assigned[site]) for site in structure]
             else:
                 assigned = {}
-                unordered_best_vset = []
+                new_best_vset = []
                 for ii in range(len(equi_sites)):
-                    unordered_best_vset.append(list())
+                    new_best_vset.append(list())
                 for ival, val in enumerate(self._best_vset):
-                    unordered_best_vset[attrib[ival]].append(val)
-                for val, sites in zip(unordered_best_vset, equi_sites):
+                    new_best_vset[attrib[ival]].append(val)
+                for val, sites in zip(new_best_vset, equi_sites):
                     for site in sites:
                         assigned[site] = val
 
@@ -458,9 +473,10 @@ class BVAnalyzer(object):
             ValueError if the valences cannot be determined.
         """
         s = Structure.from_sites(structure.sites)
-        valences = self.get_valences(structure)
         if structure.is_ordered:
+            valences = self.get_valences(structure)
             s.add_oxidation_state_by_site(valences)
         else:
+            valences = self.get_valences(structure)
             s.add_oxidation_state_by_site_fraction(valences)
         return s
