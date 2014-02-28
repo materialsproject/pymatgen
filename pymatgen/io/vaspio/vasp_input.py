@@ -1029,7 +1029,12 @@ class Kpoints(MSONable):
         """json friendly dict representation of Kpoints"""
         d = {"comment": self.comment, "nkpoints": self.num_kpts,
              "generation_style": self.style, "kpoints": self.kpts,
-             "usershift": self.kpts_shift}
+             "usershift": self.kpts_shift,
+             "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
+             "labels": self.labels, "tet_number": self.tet_number,
+             "tet_weight": self.tet_weight,
+             "tet_connections": self.tet_connections
+        }
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
@@ -1047,7 +1052,13 @@ class Kpoints(MSONable):
         num_kpts = d.get("nkpoints", 0)
         #coord_type = d.get("coord_type", None)
         return cls(comment=comment, kpts=kpts, style=generation_style,
-                   kpts_shift=kpts_shift, num_kpts=num_kpts)
+                   kpts_shift=kpts_shift, num_kpts=num_kpts,
+                   kpts_weights=d.get("kpts_weights"),
+                   coord_type=d.get("coord_type"),
+                   labels=d.get("labels"), tet_number=d.get("tet_number", 0),
+                   tet_weight=d.get("tet_weight", 0),
+                   tet_connections=d.get("tet_connections")
+        )
 
 
 def get_potcar_dir():
