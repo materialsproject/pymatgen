@@ -21,7 +21,7 @@ from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     in_coord_list, is_coord_subset, pbc_diff, in_coord_list_pbc,\
     get_points_in_sphere_pbc, find_in_coord_list, find_in_coord_list_pbc,\
     pbc_all_distances, barycentric_coords, pbc_shortest_vectors,\
-    lattice_points_in_supercell
+    lattice_points_in_supercell, coord_list_mapping
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -52,6 +52,17 @@ class CoordUtilsTest(PymatgenTest):
         self.assertTrue(is_coord_subset([c1, c2], [c2, c1]))
         self.assertFalse(is_coord_subset([c1, c2], [c2, c3]))
         self.assertFalse(is_coord_subset([c1, c2], [c2]))
+        
+    def test_coord_list_mapping(self):
+        c1 = [0,.124,0]
+        c2 = [0,1.2,-1]
+        c3 = [3,2,1]
+        a = np.array([c1, c2])
+        b = np.array([c3, c2, c1])
+        inds = coord_list_mapping(a, b)
+        self.assertTrue(np.allclose(a, b[inds]))
+        self.assertRaises(Exception, coord_list_mapping, [c1,c2], [c2,c3])
+        self.assertRaises(Exception, coord_list_mapping, [c2], [c2,c2])
 
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]

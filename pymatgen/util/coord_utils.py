@@ -72,6 +72,30 @@ def is_coord_subset(subset, superset, atol=1e-8):
     return np.all(any_close)
 
 
+def coord_list_mapping(subset, superset):
+    """
+    Gives the index mapping from a subset to a superset.
+    Subset and superset cannot contain duplicate rows
+    
+    Args:
+        subset, superset: List of coords
+        
+    Returns:
+        list of indices such that superset[indices] = subset
+    """
+    c1 = np.array(subset)
+    c2 = np.array(superset)
+    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :]), axis = 2))[1]
+    result = c2[inds]
+    if not np.allclose(c1, result):
+        if not is_coord_subset(subset, superset):
+            raise ValueError("subset is not a subset of superset")
+    if not result.shape == c1.shape:
+        raise ValueError("Something wrong with the inputs, likely duplicates in "
+                         "superset")
+    return inds
+
+
 def get_linear_interpolated_value(x_values, y_values, x):
     """
     Returns an interpolated value by linear interpolation between two values.
