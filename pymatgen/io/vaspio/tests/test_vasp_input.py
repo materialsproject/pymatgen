@@ -302,12 +302,14 @@ class KpointsTest(unittest.TestCase):
         file_name = os.path.join(test_dir, 'KPOINTS.band')
         k = Kpoints.from_file(file_name)
         d = k.to_dict
+        import json
+        json.dumps(d)
         #This doesn't work
-        #k2 = Kpoints.from_dict(d)
-        #self.assertEqual(k.kpts, k2.kpts)
-        #self.assertEqual(k.style, k2.style)
-        #self.assertEqual(k.kpts_shift, k2.kpts_shift)
-        #self.assertEqual(k.num_kpts, k2.num_kpts)
+        k2 = Kpoints.from_dict(d)
+        self.assertEqual(k.kpts, k2.kpts)
+        self.assertEqual(k.style, k2.style)
+        self.assertEqual(k.kpts_shift, k2.kpts_shift)
+        self.assertEqual(k.num_kpts, k2.num_kpts)
 
 
 class PotcarSingleTest(unittest.TestCase):
