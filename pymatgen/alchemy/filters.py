@@ -208,6 +208,57 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
                 "init_args": {"structure_matcher": self._sm.to_dict}}
 
 
+class RemoveExistingFilter(AbstractStructureFilter):
+    """
+    This filter removes structures existing in a given list from the transmuter.
+    """
+
+    def __init__(self, existing_structures, structure_matcher=StructureMatcher(
+                 comparator=ElementComparator()), symprec=None):
+        """
+        Remove existing structures based on the structure matcher
+        and symmetry (if symprec is given).
+
+        Args:
+            existing_structures: List of existing structures to compare with
+            structure_matcher: Provides a structure matcher to be used for
+                structure comparison.
+            symprec: The precision in the symmetry finder algorithm if None (
+                default value), no symmetry check is performed and only the
+                structure matcher is used. A recommended value is 1e-5.
+        """
+        self._symprec = symprec
+        self._structure_list = []
+        self._existing_structures = existing_structures
+        if isinstance(structure_matcher, dict):
+            self._sm = StructureMatcher.from_dict(structure_matcher)
+        else:
+            self._sm = structure_matcher
+
+    def test(self, structure):
+
+        def get_sg(s):
+            finder = SymmetryFinder(s, symprec=self._symprec)
+            return finder.get_spacegroup_number()
+
+        for s in self._existing_structures:
+            if self._sm._comparator.get_structure_hash(structure) ==\
+                    self._sm._comparator.get_structure_hash(s):
+                if self._symprec is None or \
+                        get_sg(s) == get_sg(structure):
+                    if self._sm.fit(s, structure):
+                        return False
+
+        self._structure_list.append(structure)
+        return True
+
+    @property
+    def to_dict(self):
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {"structure_matcher": self._sm.to_dict}}
+
+
 class ChargeBalanceFilter(AbstractStructureFilter):
     """
     This filter removes structures that are not charge balanced from the
