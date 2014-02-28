@@ -49,6 +49,7 @@ from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.periodic_table import DummySpecie
 from monty.os.path import which
 from monty.dev import requires
+from monty.io import ScratchDir
 
 logger = logging.getLogger(__name__)
 
@@ -104,35 +105,28 @@ class EnumlibAdaptor(object):
         Run the enumeration.
         """
         #Create a temporary directory for working.
-        curr_dir = os.getcwd()
-        temp_dir = tempfile.mkdtemp()
-        logger.debug("Temp dir : {}".format(temp_dir))
-        try:
-            #Generate input files
-            self._gen_input_file(temp_dir)
-            #Perform the actual enumeration
-            num_structs = self._run_multienum(temp_dir)
-            #Read in the enumeration output as structures.
-            if num_structs > 0:
-                self.structures = self._get_structures(num_structs)
-            else:
-                raise ValueError("Unable to enumerate structure.")
-        except Exception:
-            import sys
-            import traceback
-
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                      limit=2, file=sys.stdout)
-        finally:
+        with ScratchDir(".") as d:
+            logger.debug("Temp dir : {}".format(d))
+            print d
             try:
-                shutil.rmtree(temp_dir)
-            except:
-                warnings.warn("Unable to delete temp dir "
-                              "{}. Please delete manually".format(temp_dir))
-            os.chdir(curr_dir)
+                #Generate input files
+                self._gen_input_file()
+                #Perform the actual enumeration
+                num_structs = self._run_multienum()
+                #Read in the enumeration output as structures.
+                if num_structs > 0:
+                    self.structures = self._get_structures(num_structs)
+                else:
+                    raise ValueError("Unable to enumerate structure.")
+            except Exception:
+                import sys
+                import traceback
 
-    def _gen_input_file(self, working_dir):
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                          limit=2, file=sys.stdout)
+
+    def _gen_input_file(self):
         """
         Generate the necessary struct_enum.in file for enumlib. See enumlib
         documentation for details.
@@ -253,11 +247,10 @@ class EnumlibAdaptor(object):
                                                 100))
         output.append("")
         logger.debug("Generated input file:\n{}".format("\n".join(output)))
-        with open(os.path.join(working_dir, "struct_enum.in"), "w") as f:
+        with open("struct_enum.in", "w") as f:
             f.write("\n".join(output))
 
-    def _run_multienum(self, working_dir):
-        os.chdir(working_dir)
+    def _run_multienum(self):
         p = subprocess.Popen(["multienum.x"],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
