@@ -32,6 +32,7 @@ from pymatgen.io.vaspio.vasp_output import Chgcar
 from pymatgen.io.vaspio.vasp_input import Potcar
 from monty.os.path import which
 from monty.dev import requires
+from monty.io import ScratchDir
 
 
 @requires(which("bader"),
@@ -84,23 +85,23 @@ class BaderAnalysis(object):
 
     def __init__(self, chgcar_filename, potcar_filename=None):
         """
+        Initializes the Bader caller.
+
         Args:
-            chgcar_filename:
-                The filename of the CHGCAR.
-            potcar_filename:
-                Optional: the filename of the corresponding POTCAR file. Used
-                for calculating the charge transfer. If None, the
-                get_charge_transfer method will raise a ValueError.
+            chgcar_filename: The filename of the CHGCAR.
+            potcar_filename: Optional: the filename of the corresponding
+                POTCAR file. Used for calculating the charge transfer. If
+                None, the get_charge_transfer method will raise a ValueError.
         """
-        temp_dir = tempfile.mkdtemp()
         self.chgcar = Chgcar.from_file(chgcar_filename)
         self.potcar = Potcar.from_file(potcar_filename) \
             if potcar_filename is not None else None
         self.natoms = self.chgcar.poscar.natoms
-        try:
-            shutil.copy(chgcar_filename, os.path.join(temp_dir, "CHGCAR"))
-            current_dir = os.getcwd()
-            os.chdir(temp_dir)
+        chgcarpath = os.path.abspath(chgcar_filename)
+
+        with ScratchDir(".") as temp_dir:
+            shutil.copy(chgcarpath, os.path.join(temp_dir, "CHGCAR"))
+
             rs = subprocess.Popen(["bader", "CHGCAR"],
                                   stdout=subprocess.PIPE,
                                   stdin=subprocess.PIPE, close_fds=True)
@@ -125,11 +126,7 @@ class BaderAnalysis(object):
                     elif toks[0] == "NUMBER OF ELECTRONS":
                         self.nelectrons = float(toks[1])
             self.data = data
-            os.chdir(current_dir)
-        except Exception as ex:
-            print str(ex)
-        finally:
-            shutil.rmtree(temp_dir)
+
 
     def get_charge(self, atom_index):
         """
