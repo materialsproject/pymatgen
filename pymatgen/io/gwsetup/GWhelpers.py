@@ -31,7 +31,6 @@ def get_derivatives(xs, ys):
         from scipy.interpolate import UnivariateSpline
         spline = UnivariateSpline(xs, ys)
         d = spline.derivative(1)
-        raise NotImplementedError
     except ImportError:
         d = []
         m, left, right = 0, 0, 0
