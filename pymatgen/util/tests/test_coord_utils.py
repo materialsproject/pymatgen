@@ -20,7 +20,8 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     in_coord_list, is_coord_subset, pbc_diff, in_coord_list_pbc,\
     get_points_in_sphere_pbc, find_in_coord_list, find_in_coord_list_pbc,\
-    pbc_all_distances, barycentric_coords, pbc_shortest_vectors
+    pbc_all_distances, barycentric_coords, pbc_shortest_vectors,\
+    lattice_points_in_supercell
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -132,6 +133,19 @@ class CoordUtilsTest(PymatgenTest):
         self.assertEqual(len(get_points_in_sphere_pbc(latt, pts,
                                                       [0.5, 0.5, 0.5],
                                                       0.5)), 515)
+ 
+    def test_lattice_points_in_supercell(self):
+        supercell = np.array([[1,3,5], [-3,2,3], [-5,3,1]])
+        points = lattice_points_in_supercell(supercell)
+        self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
+        self.assertGreaterEqual(np.min(points), -1e-10)
+        self.assertLessEqual(np.max(points), 1-1e-10)
+        
+        supercell = np.array([[-5, -5, -3],[0, -4, -2],[0, -5, -2]])
+        points = lattice_points_in_supercell(supercell)
+        self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
+        self.assertGreaterEqual(np.min(points), -1e-10)
+        self.assertLessEqual(np.max(points), 1-1e-10)
 
     def test_barycentric(self):
         #2d test
