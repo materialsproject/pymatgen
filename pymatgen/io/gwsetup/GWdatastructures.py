@@ -406,7 +406,7 @@ class GWConvergenceData():
         data_list = []
         for k in self.data:
             if self.spec['code'] == 'VASP':
-                data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgqp'], self.data[k]['nomega']])
+                data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap'], self.data[k]['nomega']])
             else:
                 data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
         return sorted(data_list)
