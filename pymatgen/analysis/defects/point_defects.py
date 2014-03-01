@@ -4,9 +4,9 @@
 This module defines classes for point defects
 """
 from __future__ import division
+
 import os
 import abc
-import re
 import json
 from bisect import bisect_left
 
@@ -20,7 +20,7 @@ from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
     RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.periodic_table import Specie
 
 file_dir = os.path.dirname(__file__)
 rad_file = os.path.join(file_dir, 'ionic_radii.json')
@@ -378,7 +378,6 @@ class Vacancy(Defect):
             sc = self.make_supercells_with_defects(um)[1:]
             rad_dict = self.struct_radii
             for i in range(len(sc)):
-                site_radi = rad_dict[self._defect_sites[i].specie.symbol]
                 vol, sa = get_void_volume_surfarea(sc[i], rad_dict)
                 self._vol.append(vol)
                 self._sa.append(sa)
@@ -657,8 +656,6 @@ class Interstitial(Defect):
         coordinates.
         """
         distinct_radii = list(set(self._radii))
-        no_dstnt_radii = len(distinct_radii)
-        flag = [False] * no_dstnt_radii
         for rad in distinct_radii:
             ind = self._radii.index(rad)  # Index of first site with 'rad'
             for i in reversed(range(ind + 1, len(self._radii))):
@@ -788,8 +785,6 @@ class InterstitialAnalyzer:
             scale_mat = [[scd, 0, 0], [0, scd, 0], [0, 0, scd]]
             sc = self._inter.make_supercells_with_defects(scale_mat, self._el)
             blk_energy = get_energy_buckingham(sc[0])
-            no = len(sc[0].sites)
-            #print no
             for i in range(1, no_inter + 1):
                 inter_energy = get_energy_buckingham(
                     sc[i], keywords=inter_gulp_kw, valence_dict=val_dict
