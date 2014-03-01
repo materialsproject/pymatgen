@@ -23,7 +23,7 @@ class TestPourbaixEntry(unittest.TestCase):
         self.ionentry = IonEntry(ion, 25)
         self.PxIon = PourbaixEntry(self.ionentry)
         self.PxSol = PourbaixEntry(self.solentry)
-        self.PxIon.set_conc(1e-4)
+        self.PxIon.conc = 1e-4
 
     def test_pourbaix_entry(self):
         self.assertEquals(self.PxIon.entry.energy, 25, "Wrong Energy!")
@@ -148,7 +148,7 @@ class TestPourbaixEntryIO(unittest.TestCase):
             delg = liq_g[Zn_ions.index(ion)]
             conc = liq_conc[Zn_ions.index(ion)]
             PoE = PourbaixEntry(IonEntry(comp_ion, delg))
-            PoE.set_conc(conc)
+            PoE.conc = conc
             ion_entry.append(PoE)
         entries = solid_entry + ion_entry
         PourbaixEntryIO.to_csv("pourbaix_test_entries.csv", entries)
@@ -164,4 +164,4 @@ class TestPourbaixEntryIO(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    
+
