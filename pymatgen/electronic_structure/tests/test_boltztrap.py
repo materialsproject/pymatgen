@@ -1,7 +1,5 @@
 import unittest
-import json
 import os
-import numpy.testing as nptest
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

@@ -76,7 +76,6 @@ class PourbaixAnalyzer(object):
         tol = PourbaixAnalyzer.numerical_tol
         all_chempots = []
         facets = self._pd.facets
-        entries = self._pd.qhull_entries
         for facet in facets:
             chempots = self.get_facet_chempots(facet)
             chempots["H+"] /= -0.0591
@@ -108,7 +107,7 @@ class PourbaixAnalyzer(object):
 
         # Find point in half-space in which optimization is desired
         ph_max_contrib = -1 * max([abs(0.0591 * row[0])
-                                    for row in self._pd._qhull_data]) * limits[0][1] 
+                                    for row in self._pd._qhull_data]) * limits[0][1]
         V_max_contrib = -1 * max([abs(row[1]) for row in self._pd._qhull_data]) * limits[1][1]
         g_max = (-1 * max([abs(pt[2]) for pt in on_plane_points])
                   + ph_max_contrib + V_max_contrib) - 10
