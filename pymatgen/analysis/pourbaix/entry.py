@@ -51,13 +51,22 @@ class PourbaixEntry(MSONable):
             self.conc = 1.0
             self.phase_type = "Solid"
             self.charge = 0.0
-        self.npH = None
-        self.nPhi = None
-        self.nH2O = None
-        self.nM = None
         self.uncorrected_energy = entry.energy
         self.correction = correction
-        self._calc_coeff_terms()
+        nH = 0
+        nO = 0
+        nM = 0
+        for elt in self.entry.composition.elements:
+            if elt == (Element("H")):
+                nH = self.entry.composition[elt]
+            elif elt == (Element("O")):
+                nO = self.entry.composition[elt]
+            else:
+                nM += self.entry.composition[elt]
+        self.nM = nM
+        self.npH = (nH - 2 * nO)
+        self.nH2O = nO
+        self.nPhi = (nH - 2 * nO - self.charge)
         self.name = self.entry.composition.reduced_formula
         if self.phase_type == "Solid":
             self.name += "(s)"
@@ -139,25 +148,6 @@ class PourbaixEntry(MSONable):
         correction = d["correction"]
         entry_id = d["entry_id"]
         return PourbaixEntry(entry, correction, entry_id)
-
-    def _calc_coeff_terms(self):
-        """
-        Calculates coefficients of pH, V, H2O
-        """
-        nH = 0
-        nO = 0
-        nM = 0
-        for elt in self.entry.composition.elements:
-            if elt == (Element("H")):
-                nH = self.entry.composition[elt]
-            elif elt == (Element("O")):
-                nO = self.entry.composition[elt]
-            else:
-                nM += self.entry.composition[elt]
-        self.nM = nM
-        self.npH = (nH - 2 * nO)
-        self.nH2O = nO
-        self.nPhi = (nH - 2 * nO - self.charge)
 
     @property
     def normalization_factor(self):
@@ -401,7 +391,6 @@ class PourbaixEntryIO(object):
         Returns:
             List of Entries
         """
-        import csv
         reader = csv.reader(open(filename, "rb"), delimiter=",",
                             quotechar="\"", quoting=csv.QUOTE_MINIMAL)
         entries = list()
