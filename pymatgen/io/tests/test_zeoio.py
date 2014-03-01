@@ -14,9 +14,7 @@ __date__ = "Aug 2, 2013"
 
 import unittest
 
-from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.periodic_table import Specie
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.zeoio import *
 from pymatgen.io.vaspio.vasp_input import Poscar
@@ -131,7 +129,7 @@ class ZeoVoronoiXYZTest(unittest.TestCase):
                 [-0.513360, 0.889165, -0.363000]]
         prop = [0.4, 0.2, 0.2, 0.2, 0.2]
         self.mol = Molecule(
-                ["C", "H", "H", "H", "H"], coords, 
+                ["C", "H", "H", "H", "H"], coords,
                 site_properties={"voronoi_radius":prop})
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
@@ -219,7 +217,7 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
             self._radii[k1] = float(Specie(k1, v).ionic_radius)
         p.remove(0)
         self._vac_struct = p
-    
+
     def test_void_volume_surface_area(self):
         pass
         vol, sa = get_void_volume_surfarea(

@@ -19,13 +19,10 @@ __date__ = "Nov 1, 2012"
 import logging
 import numpy as np
 import itertools
-import re
 from itertools import chain
 from pyhull.convex_hull import ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
 from pymatgen.core.periodic_table import Element
-from pymatgen.core import Composition
-from pymatgen.core.ion import Ion
 
 
 logger = logging.getLogger(__name__)
