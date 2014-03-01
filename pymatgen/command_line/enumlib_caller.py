@@ -31,16 +31,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 16, 2012"
 
-import os
 import re
 import math
-import tempfile
 import subprocess
-import shutil
 import logging
 
 import numpy as np
-import warnings
 
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
