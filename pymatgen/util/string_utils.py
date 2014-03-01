@@ -192,7 +192,7 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
 def is_string(s):
     """True if s behaves like a string (duck typing test)."""
     try:
-        dummy = s + " "
+        s + " "
         return True
 
     except TypeError:

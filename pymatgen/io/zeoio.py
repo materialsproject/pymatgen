@@ -21,7 +21,6 @@ import shutil
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
 from monty.io import zopen
@@ -46,9 +45,9 @@ class ZeoCssr(Cssr):
         structure: A structure to create ZeoCssr object
     """
 
-    #@requires(zeo_found,
-    #          "ZeoCssr requires Zeo++ cython extension to be installed. Please "
-    #          "contact developers of Zeo++ to obtain it.")
+    @requires(zeo_found,
+             "ZeoCssr requires Zeo++ cython extension to be installed. Please "
+             "contact developers of Zeo++ to obtain it.")
     def __init__(self, structure):
         super(ZeoCssr, self).__init__(structure)
 
@@ -280,10 +279,10 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     shutil.rmtree(temp_dir)
 
     #PMG-Zeo c<->a transformation for voronoi face centers
-    rot_face_centers = [(center[1],center[2],center[0]) for center in 
+    rot_face_centers = [(center[1],center[2],center[0]) for center in
                         voronoi_face_centers]
     species = ["X"] * len(rot_face_centers)
-    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc 
+    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc
     voronoi_facecenter_struct = Structure(
         lattice, species, rot_face_centers, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
