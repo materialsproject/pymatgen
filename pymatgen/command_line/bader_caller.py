@@ -25,7 +25,6 @@ __date__ = "4/5/13"
 
 import os
 import subprocess
-import tempfile
 import shutil
 
 from pymatgen.io.vaspio.vasp_output import Chgcar
