@@ -57,9 +57,9 @@ class PourbaixEntry(MSONable):
         nO = 0
         nM = 0
         for elt in self.entry.composition.elements:
-            if elt == (Element("H")):
+            if elt == Element("H"):
                 nH = self.entry.composition[elt]
-            elif elt == (Element("O")):
+            elif elt == Element("O"):
                 nO = self.entry.composition[elt]
             else:
                 nM += self.entry.composition[elt]
