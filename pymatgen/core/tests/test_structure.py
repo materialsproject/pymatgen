@@ -531,19 +531,6 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         self.assertEqual(propertied_mol[0].magmom, 0.5)
         self.assertEqual(propertied_mol[1].magmom, -0.5)
 
-    def test_to_from_dict(self):
-        propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
-                                  charge=1,
-                                  site_properties={'magmom':
-                                                   [0.5, -0.5, 1, 2, 3]})
-        d = propertied_mol.to_dict
-        self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
-        mol = Molecule.from_dict(d)
-        self.assertEqual(propertied_mol, mol)
-        self.assertEqual(mol[0].magmom, 0.5)
-        self.assertEqual(mol.formula, "H4 C1")
-        self.assertEqual(mol.charge, 1)
-
     def test_get_boxed_structure(self):
         s = self.mol.get_boxed_structure(9, 9, 9)
         # C atom should be in center of box.
@@ -617,7 +604,17 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         d = self.mol.to_dict
         mol2 = IMolecule.from_dict(d)
         self.assertEqual(type(mol2), IMolecule)
-
+        propertied_mol = Molecule(["C", "H", "H", "H", "H"], self.coords,
+                                  charge=1,
+                                  site_properties={'magmom':
+                                                   [0.5, -0.5, 1, 2, 3]})
+        d = propertied_mol.to_dict
+        self.assertEqual(d['sites'][0]['properties']['magmom'], 0.5)
+        mol = Molecule.from_dict(d)
+        self.assertEqual(propertied_mol, mol)
+        self.assertEqual(mol[0].magmom, 0.5)
+        self.assertEqual(mol.formula, "H4 C1")
+        self.assertEqual(mol.charge, 1)
 
 class MoleculeTest(PymatgenTest):
 

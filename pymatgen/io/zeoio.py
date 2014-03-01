@@ -45,9 +45,9 @@ class ZeoCssr(Cssr):
         structure: A structure to create ZeoCssr object
     """
 
-    @requires(zeo_found,
-             "ZeoCssr requires Zeo++ cython extension to be installed. Please "
-             "contact developers of Zeo++ to obtain it.")
+    # @requires(zeo_found,
+    #          "ZeoCssr requires Zeo++ cython extension to be installed. Please "
+    #          "contact developers of Zeo++ to obtain it.")
     def __init__(self, structure):
         super(ZeoCssr, self).__init__(structure)
 
