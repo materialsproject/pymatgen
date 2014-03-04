@@ -21,7 +21,7 @@ from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     in_coord_list, is_coord_subset, pbc_diff, in_coord_list_pbc,\
     get_points_in_sphere_pbc, find_in_coord_list, find_in_coord_list_pbc,\
     pbc_all_distances, barycentric_coords, pbc_shortest_vectors,\
-    lattice_points_in_supercell, coord_list_mapping
+    lattice_points_in_supercell, coord_list_mapping, all_distances
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -75,6 +75,12 @@ class CoordUtilsTest(PymatgenTest):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.1, 0.1, 0.1]]
         self.assertArrayEqual(find_in_coord_list(coords, test_coord,
                                                  atol=0.15), [0, 2])
+        
+    def test_all_distances(self):
+        coords1 = [[0, 0, 0], [0.5, 0.5, 0.5]]
+        coords2 = [[1, 2, -1], [1, 0, 0], [1, 0, 0]]
+        result = [[2.44948974, 1, 1], [2.17944947, 0.8660254, 0.8660254]]
+        self.assertArrayAlmostEqual(all_distances(coords1, coords2), result, 4) 
 
     def test_pbc_diff(self):
         self.assertArrayAlmostEqual(pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]),
