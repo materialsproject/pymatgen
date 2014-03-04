@@ -35,7 +35,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
-    pbc_all_distances
+    pbc_all_distances, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 from monty.dev import deprecated
@@ -80,15 +80,10 @@ class SiteCollection(collections.Sequence):
     def distance_matrix(self):
         """
         Returns the distance matrix between all sites in the structure. For
-        periodic structures, this should return the nearest image distance.
+        periodic structures, this is overwritten to return the nearest image 
+        distance.
         """
-        nsites = len(self)
-        distmatrix = np.zeros((nsites, nsites))
-        for i, j in itertools.combinations(xrange(nsites), 2):
-            dist = self.get_distance(i, j)
-            distmatrix[i, j] = dist
-            distmatrix[j, i] = dist
-        return distmatrix
+        return all_distances(self.cart_coords, self.cart_coords)
 
     @property
     def species(self):
@@ -381,6 +376,14 @@ class IStructure(SiteCollection, MSONable):
                    site_properties=props,
                    validate_proximity=validate_proximity,
                    to_unit_cell=to_unit_cell)
+
+    @property
+    def distance_matrix(self):
+        """
+        Returns the distance matrix between all sites in the structure. For
+        periodic structures, this should return the nearest image distance.
+        """
+        return pbc_all_distances(self.lattice, self.frac_coords, self.frac_coords)
 
     @property
     def sites(self):

@@ -124,6 +124,24 @@ def get_linear_interpolated_value(x_values, y_values, x):
     return y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 
 
+def all_distances(coords1, coords2):
+    """
+    Returns the distances between two lists of coordinates 
+
+    Args:
+        coords1: First set of cartesian coordinates. 
+        coords2: Second set of cartesian coordinates.
+
+    Returns:
+        2d array of cartesian distances. E.g the distance between
+        coords1[i] and coords2[j] is distances[i,j]
+    """
+    c1 = np.array(coords1)
+    c2 = np.array(coords2)
+    z = (c1[:, None, :] - c2[None, :, :]) ** 2
+    return np.sum(z, axis=-1) ** 0.5
+
+
 def pbc_diff(fcoords1, fcoords2):
     """
     Returns the 'fractional distance' between two coordinates taking into
