@@ -74,6 +74,13 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.3
+------
+1. Bug fix release for printing TranformedStructures from Substitutor (Will
+   Richards).
+2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+   David Waroquiers and Bharat Medasani).
+
 v2.9.2
 ------
 1. Bug fix release for DummySpecie, which failed when deserializing from
