@@ -129,7 +129,8 @@ class Substitutor(MSONable):
                     if Substitutor._is_charge_balanced(
                             transf.apply_transformation(s['structure'])):
                         ts = TransformedStructure(
-                            s['structure'], [transf], history=[s['id']],
+                            s['structure'], [transf], 
+                            history=[{"source": s['id']}],
                             other_parameters={
                                 'type': 'structure_prediction',
                                 'proba': self._sp.cond_prob_list(permut, els)}
