@@ -66,13 +66,11 @@ class SiteCollection(collections.Sequence):
         Returns distance between sites at index i and j.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
+            i (int): Index of first site
+            j (int): Index of second site
 
         Returns:
-            Distance between sites at index i and index j.
+            (float) Distance between sites at index i and index j.
         """
         return
 
@@ -190,7 +188,7 @@ class SiteCollection(collections.Sequence):
         """
         Returns a list of the cartesian coordinates of sites in the structure.
         """
-        return [site.coords for site in self]
+        return np.array([site.coords for site in self])
 
     @property
     def formula(self):
@@ -451,9 +449,9 @@ class IStructure(SiteCollection, MSONable):
     @property
     def frac_coords(self):
         """
-        Returns the fractional coordinates.
+        Fractional coordinates as a Nx3 numpy array.
         """
-        return [site.frac_coords for site in self._sites]
+        return np.array([site.frac_coords for site in self._sites])
 
     @property
     def volume(self):
@@ -576,16 +574,17 @@ class IStructure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
         floor = math.floor
+        inds = (0, 1, 2)
         for site in self:
             pcoords = site.frac_coords
-            inmax = [int(floor(pcoords[i] + nmax[i])) for i in xrange(3)]
-            inmin = [int(floor(pcoords[i] - nmax[i])) for i in xrange(3)]
+            inmax = [int(floor(pcoords[i] + nmax[i])) for i in inds]
+            inmin = [int(floor(pcoords[i] - nmax[i])) for i in inds]
             site_nminmax.append(zip(inmin, inmax))
 
-        nmin = [min([i[j][0] for i in site_nminmax]) for j in xrange(3)]
-        nmax = [max([i[j][1] for i in site_nminmax]) for j in xrange(3)]
+        nmin = [min([i[j][0] for i in site_nminmax]) for j in inds]
+        nmax = [max([i[j][1] for i in site_nminmax]) for j in inds]
 
-        all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
+        all_ranges = [range(nmin[i], nmax[i] + 1) for i in inds]
 
         neighbors = [list() for i in xrange(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
@@ -1139,7 +1138,7 @@ class IMolecule(SiteCollection, MSONable):
         sites = self._sites
         clusters = [[sites[ind1]], [sites[ind2]]]
 
-        sites = [sites[i] for i in xrange(len(sites)) if i not in (ind1, ind2)]
+        sites = [site for i, site in enumerate(sites) if i not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
             for test_site in cluster:
