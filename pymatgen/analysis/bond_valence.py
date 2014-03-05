@@ -52,7 +52,7 @@ with open(os.path.join(module_dir, "icsd_bv.json"), "r") as f:
                   for sp, data in all_data["occurrence"].items()}
 
 
-def calculate_bv_sum(site, nn_list, scale_factor=1):
+def calculate_bv_sum(site, nn_list, scale_factor=1.0):
     """
     Calculates the BV sum of a site.
 
@@ -497,7 +497,7 @@ class BVAnalyzer(object):
             s.add_oxidation_state_by_site(valences)
         else:
             valences = self.get_valences(structure)
-            s.add_oxidation_state_by_site_fraction(valences)
+            s = add_oxidation_state_by_site_fraction(s, valences)
         return s
 
 
@@ -509,12 +509,32 @@ def get_z_ordered_elmap(comp):
 
     The arbitrary order is based on the Z of the element and the smallest
     fractional occupations first.
-    Example : {"Ni3+": 0.2, "Ni4+": 0.2, "Cr3+": 0.15, "Zn2+": 0.34, "Cr4+": 0.11}
-            will yield the species in the following order :
-                Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
-                Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
+    Example : {"Ni3+": 0.2, "Ni4+": 0.2, "Cr3+": 0.15, "Zn2+": 0.34,
+    "Cr4+": 0.11} will yield the species in the following order :
+    Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
+    Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
     """
-    sorted_elmap_keys = sorted(
-        comp.elmap.keys(),
-        key=lambda elsp: 2 * float(elsp.Z) + comp.elmap[elsp])
-    return [(elsp, comp.elmap[elsp]) for elsp in sorted_elmap_keys]
+    return sorted([(elsp, comp.elmap[elsp]) for elsp in comp.elmap.keys()])
+
+
+def add_oxidation_state_by_site_fraction(structure, oxidation_states):
+        """
+        Add oxidation states to a structure by fractional site.
+
+        Args:
+            oxidation_states (list): List of list of oxidation states for each
+                site fraction for each site.
+                E.g., [[2, 4], [3], [-2], [-2], [-2]]
+        """
+        try:
+            for i, site in enumerate(structure):
+                new_sp = collections.defaultdict(float)
+                for j, (el, occu) in enumerate(get_z_ordered_elmap(site
+                        .species_and_occu)):
+                    specie = Specie(el.symbol, oxidation_states[i][j])
+                    new_sp[specie] += occu
+                structure[i] = new_sp
+            return structure
+        except IndexError:
+            raise ValueError("Oxidation state of all sites must be "
+                             "specified in the list.")
