@@ -80,7 +80,7 @@ class SiteCollection(collections.Sequence):
     def distance_matrix(self):
         """
         Returns the distance matrix between all sites in the structure. For
-        periodic structures, this is overwritten to return the nearest image 
+        periodic structures, this is overwritten to return the nearest image
         distance.
         """
         return all_distances(self.cart_coords, self.cart_coords)
@@ -383,7 +383,8 @@ class IStructure(SiteCollection, MSONable):
         Returns the distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
-        return pbc_all_distances(self.lattice, self.frac_coords, self.frac_coords)
+        return pbc_all_distances(self.lattice, self.frac_coords,
+                                 self.frac_coords)
 
     @property
     def sites(self):
@@ -713,8 +714,8 @@ class IStructure(SiteCollection, MSONable):
                 structure and end.
             nimages (int): No. of interpolation images. Defaults to 10 images.
             interpolate_lattices (bool): Whether to interpolate the lattices.
-                Interpolates the lengths and angles (rather than the matrix) so orientation may be
-                affected.
+                Interpolates the lengths and angles (rather than the matrix)
+                so orientation may be affected.
             pbc (bool): Whether to use periodic boundary conditions to find
                 the shortest path between endpoints.
 
@@ -1768,7 +1769,8 @@ class Structure(IStructure, collections.MutableSequence):
         symmetries.
 
         Args:
-            distance (float): Distance in angstroms by which to perturb each site.
+            distance (float): Distance in angstroms by which to perturb each
+                site.
         """
         def get_rand_vec():
             #deals with zero vectors.
@@ -1826,33 +1828,6 @@ class Structure(IStructure, collections.MutableSequence):
         except IndexError:
             raise ValueError("Oxidation state of all sites must be "
                              "specified in the dictionary.")
-
-    def add_oxidation_state_by_site_fraction(self, oxidation_states):
-        """
-        Add oxidation states to a structure by fractional site.
-
-        Args:
-            oxidation_states (list): List of list of oxidation states for each site fraction
-            for each site.
-                E.g., [[2, 4], [3], [-2], [-2], [-2]]
-        """
-        try:
-            for isite, site in enumerate(self._sites):
-                new_sp = {}
-                for ifrac, (el, occu) in enumerate(site.species_and_occu.arb_ordered_elmap()):
-                    specie = Specie(el.symbol, oxidation_states[isite][ifrac])
-                    if specie in new_sp:
-                        new_sp[specie] += occu
-                    else:
-                        new_sp[specie] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[isite] = new_site
-        except IndexError:
-            raise ValueError("Oxidation state of all sites must be "
-                             "specified in the list.")
 
     def remove_oxidation_states(self):
         """
