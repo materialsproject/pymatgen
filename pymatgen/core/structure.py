@@ -238,7 +238,7 @@ class SiteCollection(collections.Sequence):
             k (int): Index of third site.
 
         Returns:
-            Angle in degrees.
+            (float) Angle in degrees.
         """
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
@@ -255,7 +255,7 @@ class SiteCollection(collections.Sequence):
             l (int): Index of fourth site
 
         Returns:
-            Dihedral angle in degrees.
+            (float) Dihedral angle in degrees.
         """
         v1 = self[k].coords - self[l].coords
         v2 = self[j].coords - self[k].coords
@@ -268,10 +268,16 @@ class SiteCollection(collections.Sequence):
     def is_valid(self, tol=DISTANCE_TOLERANCE):
         """
         True if SiteCollection does not contain atoms that are too close
-        together.
+        together. Note that the distance definition is based on type of
+        SiteCollection. Cartesian distances are used for non-periodic
+        Molecules, while PBC is taken into account for periodic structures.
 
         Args:
             tol (float): Distance tolerance. Default is 0.01A.
+
+        Returns:
+            (bool) True if SiteCollection does not contain atoms that are too
+            close together.
         """
         if len(self.sites) == 1:
             return True
