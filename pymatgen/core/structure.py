@@ -275,10 +275,8 @@ class SiteCollection(collections.Sequence):
         Args:
             tol (float): Distance tolerance. Default is 0.01A.
         """
-        for s1, s2 in itertools.combinations(self.sites, 2):
-            if s1.distance(s2) < tol:
-                return False
-        return True
+        all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
+        return np.min(all_dists) > tol
 
 
 class IStructure(SiteCollection, MSONable):
