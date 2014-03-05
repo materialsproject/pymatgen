@@ -204,24 +204,6 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
     def __iter__(self):
         return self._elmap.__iter__()
 
-    def arb_ordered_elmap(self):
-        """
-        Arbitrary ordered elmap on the elements/species of a composition of a
-        given site in an unordered structure. Returns a list of tuples (
-        element_or_specie: occupation) in the arbitrary order.
-
-        The arbitrary order is based on the Z of the element and the smallest
-        fractional occupations first.
-        Example : {"Ni3+": 0.2, "Ni4+": 0.2, "Cr3+": 0.15, "Zn2+": 0.34, "Cr4+": 0.11}
-                will yield the species in the following order :
-                    Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
-                    Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
-        This method is ONLY used in the BVAnalyser for unordered structures
-        """
-        sorted_elmap_keys = sorted(self._elmap.keys(),
-                                   key=lambda elsp: 2.0*float(elsp.Z) + self._elmap[elsp])
-        return [(elsp, self._elmap[elsp]) for elsp in sorted_elmap_keys]
-
     @property
     def average_electroneg(self):
         return sum((el.X * amt for el, amt in self._elmap.items())) / \
