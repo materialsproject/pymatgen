@@ -211,14 +211,6 @@ def json_pretty_dump(obj, filename):
         json.dump(obj, fh, indent=4, sort_keys=4)
 
 
-def json_load(filename):
-    """
-    Deserialize a file containing a JSON document to a Python object.
-    """
-    with open(filename, "r") as fh:
-        return json.load(fh)
-
-
 def pmg_load(filename, **kwargs):
     """
     Loads a json file and deserialize it with PMGJSONDecoder.
