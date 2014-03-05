@@ -206,9 +206,10 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
 
     def arb_ordered_elmap(self):
         """
-        Arbitrary ordered elmap on the elements/species of a composition of a given site
-        in an unordered structure. Returns a list of tuples (element_or_specie: occupation)
-        in the arbitrary order.
+        Arbitrary ordered elmap on the elements/species of a composition of a
+        given site in an unordered structure. Returns a list of tuples (
+        element_or_specie: occupation) in the arbitrary order.
+
         The arbitrary order is based on the Z of the element and the smallest
         fractional occupations first.
         Example : {"Ni3+": 0.2, "Ni4+": 0.2, "Cr3+": 0.15, "Zn2+": 0.34, "Cr4+": 0.11}
