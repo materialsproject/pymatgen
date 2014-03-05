@@ -101,3 +101,8 @@ def release(skip_test=False):
     log_ver()
     update_doc()
     merge_stable()
+
+def opendoc():
+    import webbrowser
+    pth = os.path.abspath("docs/_build/html/index.html")
+    webbrowser.open("file://" + pth)
