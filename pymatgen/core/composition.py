@@ -246,12 +246,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys(),
-                      key=lambda s: get_el_sp(s).X)
-        formula = []
-        for s in syms:
-            if sym_amt[s] != 0:
-                formula.append(s + formula_double_format(sym_amt[s], False))
+        syms = sorted(sym_amt.keys(), key=lambda s: get_el_sp(s).X)
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
+                   if sym_amt[s] != 0]
         return " ".join(formula)
 
     @property
@@ -262,10 +259,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys())
-        formula = []
-        for s in syms:
-            if sym_amt[s] != 0:
-                formula.append(s + formula_double_format(sym_amt[s], False))
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
+                   if sym_amt[s] != 0]
         return " ".join(formula)
 
     @property
