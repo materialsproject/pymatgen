@@ -65,11 +65,19 @@ class Substitutor(MSONable):
     def pred_from_structures(self, target_species, structures_list,
                              remove_duplicates=True, remove_existing=False):
         """
-        performs a structure prediction targeting compounds containing the
-        target_species and based on a list of structure (those structures
+        performs a structure prediction targeting compounds containing all of 
+        the target_species, based on a list of structure (those structures
         can for instance come from a database like the ICSD). It will return
         all the structures formed by ionic substitutions with a probability
         higher than the threshold
+        
+        Notes:
+        If the default probability model is used, input structures must
+        be oxidation state decorated.
+        
+        This method does not change the number of species in a structure. i.e
+        if the number of target species is 3, only input structures containing
+        3 species will be considered.
 
         Args:
             target_species:
@@ -79,7 +87,7 @@ class Substitutor(MSONable):
             structures_list:
                 a list of dictionnary of the form {'structure':Structure object
                 ,'id':some id where it comes from}
-                the id can for instance refer to an ICSD id
+                the id can for instance refer to an ICSD id.
 
             remove_duplicates:
                 if True, the duplicates in the predicted structures will
