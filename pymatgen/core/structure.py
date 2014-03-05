@@ -276,7 +276,7 @@ class SiteCollection(collections.Sequence):
         if len(self.sites) == 1:
             return True
         all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
-        return np.min(all_dists) > tol
+        return bool(np.min(all_dists) > tol)
 
 
 class IStructure(SiteCollection, MSONable):
