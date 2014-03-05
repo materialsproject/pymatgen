@@ -158,7 +158,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                     "All elements in subtracted composition must exist in "
                     "original composition in equal or lesser amount!")
 
-            new_el_map = {sp: amt for sp, amt in new_el_map.iteritems()
+            new_el_map = {sp: amt for sp, amt in new_el_map.items()
                           if amt != 0}
         return Composition(new_el_map)
 
@@ -405,6 +405,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             if f.strip():
                 raise CompositionError("{} is an invalid formula!".format(f))
             return sym_dict
+
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
             factor = 1
