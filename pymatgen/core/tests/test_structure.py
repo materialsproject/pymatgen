@@ -40,6 +40,8 @@ class IStructureTest(PymatgenTest):
         coords.append([0.75, 0.5, 0.75])
         self.assertRaises(StructureError, IStructure, self.lattice,
                           ["Si"] * 3, coords, validate_proximity=True)
+        #this shouldn't raise an error
+        IStructure(self.lattice, ["Si"] * 2, coords[:2], True)
 
     def test_volume_and_density(self):
         self.assertAlmostEqual(self.struct.volume, 40.04, 2, "Volume wrong!")
