@@ -96,7 +96,7 @@ v2.9.0
 1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
 2. Vastly improved docs.
 3. Refactoring to move commonly used Python utility functions to `Monty
-   package <https://pypi.python.org/pypi/monty>`_, which is now a depedency
+   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
    for pymatgen.
 4. Minor fixes and improvements to DiffusionAnalyzer.
 5. Many bug fixes and improvements.
