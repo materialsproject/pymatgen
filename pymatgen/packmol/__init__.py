@@ -1,0 +1,6 @@
+__author__ = 'Yong Zhang'
+__copyright__ = 'Copyright 2013, The Materials Project'
+__version__ = '0.1'
+__maintainer__ = 'Yong Zhang'
+__email__ = 'yzhang19@nd.edu'
+__date__ = 'Feb 26, 2014'
