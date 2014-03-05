@@ -52,7 +52,7 @@ with open(os.path.join(module_dir, "icsd_bv.json"), "r") as f:
                   for sp, data in all_data["occurrence"].items()}
 
 
-def calculate_bv_sum(site, nn_list, scale_factor=1):
+def calculate_bv_sum(site, nn_list, scale_factor=1.0):
     """
     Calculates the BV sum of a site.
 
@@ -100,9 +100,12 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
             esp in the case of calculation-relaxed structures which may tend
             to under (GGA) or over bind (LDA).
     """
-    # If the site "site" has N partial occupations as : f_{site}_0, f_{site}_1, ... f_{site}_N of elements
-    # X_{site}_0, X_{site}_1, ... X_{site}_N, and each neighbors nn_i in nn has N_{nn_i} partial occupations as :
-    # f_{nn_i}_0, f_{nn_i}_1, ..., f_{nn_i}_{N_{nn_i}}, then the bv sum of site "site" is obtained as :
+    # If the site "site" has N partial occupations as : f_{site}_0,
+    # f_{site}_1, ... f_{site}_N of elements
+    # X_{site}_0, X_{site}_1, ... X_{site}_N, and each neighbors nn_i in nn
+    # has N_{nn_i} partial occupations as :
+    # f_{nn_i}_0, f_{nn_i}_1, ..., f_{nn_i}_{N_{nn_i}}, then the bv sum of
+    # site "site" is obtained as :
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
     bvsum = 0
@@ -157,8 +160,9 @@ class BVAnalyzer(object):
     CHARGE_NEUTRALITY_TOLERANCE = 0.00001
 
     def __init__(self, symm_tol=0.1, max_radius=4, max_permutations=100000,
-                 distance_scale_factor=1.015, charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
-                 forbidden_species=[]):
+                 distance_scale_factor=1.015,
+                 charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
+                 forbidden_species=None):
         """
         Args:
             symm_tol:
@@ -178,18 +182,22 @@ class BVAnalyzer(object):
                 Tolerance on the charge neutrality when unordered structures
                 are at stake.
             forbidden_species:
-                List of species that are forbidden (example : ["O-"] cannot be used)
-                It is used when e.g. someone knows that some oxidation state cannot
-                occur for some atom in a structure or list of structures.
+                List of species that are forbidden (example : ["O-"] cannot be
+                used) It is used when e.g. someone knows that some oxidation
+                state cannot occur for some atom in a structure or list of
+                structures.
         """
         self.symm_tol = symm_tol
         self.max_radius = max_radius
         self.max_permutations = max_permutations
         self.dist_scale_factor = distance_scale_factor
         self.charge_neutrality_tolerance = charge_neutrality_tolerance
-        forbidden_species = [get_el_sp(sp) for sp in forbidden_species]
-        self.icsd_bv_data = {get_el_sp(specie): data for specie, data in ICSD_BV_DATA.items()
-                             if not specie in forbidden_species} if len(forbidden_species) > 0 else ICSD_BV_DATA
+        forbidden_species = [get_el_sp(sp) for sp in forbidden_species] if \
+            forbidden_species else []
+        self.icsd_bv_data = {get_el_sp(specie): data
+                             for specie, data in ICSD_BV_DATA.items()
+                             if not specie in forbidden_species} \
+            if len(forbidden_species) > 0 else ICSD_BV_DATA
 
     def _calc_site_probabilities(self, site, nn):
         el = site.specie.symbol
@@ -213,8 +221,8 @@ class BVAnalyzer(object):
         return prob
 
     def _calc_site_probabilities_unordered(self, site, nn):
-        bv_sum = calculate_bv_sum_unordered(site, nn,
-                                            scale_factor=self.dist_scale_factor)
+        bv_sum = calculate_bv_sum_unordered(
+            site, nn, scale_factor=self.dist_scale_factor)
         prob = {}
         for specie, occu in site.species_and_occu.iteritems():
             el = specie.symbol
@@ -226,7 +234,9 @@ class BVAnalyzer(object):
                     sigma = data["std"]
                     #Calculate posterior probability. Note that constant
                     #factors are ignored. They have no effect on the results.
-                    prob[el][sp.oxi_state] = exp(-(bv_sum - u) ** 2 / 2 / (sigma ** 2)) / sigma * PRIOR_PROB[sp]
+                    prob[el][sp.oxi_state] = exp(-(bv_sum - u) ** 2 / 2 /
+                                                 (sigma ** 2)) \
+                        / sigma * PRIOR_PROB[sp]
             #Normalize the probabilities
             try:
                 prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
@@ -243,9 +253,10 @@ class BVAnalyzer(object):
             structure: Structure to analyze
 
         Returns:
-            A list of valences for each site in the structure (for an ordered structure),
-            e.g., [1, 1, -2] or a list of lists with the valences for each fractional
-            element of each site in the structure (for an unordered structure),
+            A list of valences for each site in the structure (for an ordered
+            structure), e.g., [1, 1, -2] or a list of lists with the
+            valences for each fractional element of each site in the
+            structure (for an unordered structure),
             e.g., [[2, 4], [3], [-2], [-2], [-2]]
 
         Raises:
@@ -296,13 +307,17 @@ class BVAnalyzer(object):
                 all_prob.append(prob)
                 full_all_prob.extend(prob.values())
                 vals = []
-                for (elsp, occ) in test_site.species_and_occu.arb_ordered_elmap():
+                for (elsp, occ) in get_z_ordered_elmap(
+                        test_site.species_and_occu):
                     val = list(prob[elsp.symbol].keys())
                     #Sort valences in order of decreasing probability.
                     val = sorted(val, key=lambda v: -prob[elsp.symbol][v])
-                    #Retain probabilities that are at least 1/100 of highest prob.
-                    vals.append(filter(lambda v: prob[elsp.symbol][v] > 0.001 * prob[elsp.symbol][val[0]],
-                                       val))
+                    # Retain probabilities that are at least 1/100 of highest
+                    # prob.
+                    vals.append(
+                        filter(lambda v: prob[elsp.symbol][v] >
+                               0.001 * prob[elsp.symbol][val[0]],
+                               val))
                 valences.append(vals)
 
         #make variables needed for recursion
@@ -369,7 +384,7 @@ class BVAnalyzer(object):
             fractions = []
             elements = []
             for sites in equi_sites:
-                for sp, occu in sites[0].species_and_occu.arb_ordered_elmap():
+                for sp, occu in get_z_ordered_elmap(sites[0].species_and_occu):
                     elements.append(sp.symbol)
                     fractions.append(occu)
             fractions = np.array(fractions, np.float)
@@ -388,7 +403,8 @@ class BVAnalyzer(object):
                 el_oxi = collections.defaultdict(list)
                 jj = 0
                 for i, sites in enumerate(equi_sites):
-                    for specie, occu in sites[0].species_and_occu.arb_ordered_elmap():
+                    for specie, occu in get_z_ordered_elmap(
+                            sites[0].species_and_occu):
                         el_oxi[specie.symbol].append(v_set[jj])
                         jj += 1
                 max_diff = max([max(v) - min(v) for v in el_oxi.values()])
@@ -396,7 +412,8 @@ class BVAnalyzer(object):
                     return
 
                 score = reduce(operator.mul,
-                                [all_prob[attrib[iv]][elements[iv]][vv] for iv, vv in enumerate(v_set)])
+                                [all_prob[attrib[iv]][elements[iv]][vv]
+                                 for iv, vv in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score
@@ -420,7 +437,8 @@ class BVAnalyzer(object):
                 lowest *= fractions
                 lowest = np.sum(lowest)
 
-                if highest < -self.charge_neutrality_tolerance or lowest > self.charge_neutrality_tolerance:
+                if (highest < -self.charge_neutrality_tolerance or
+                        lowest > self.charge_neutrality_tolerance):
                     self._n += 1
                     return
 
@@ -454,7 +472,8 @@ class BVAnalyzer(object):
                     for site in sites:
                         assigned[site] = val
 
-                return [[int(frac_site) for frac_site in assigned[site]] for site in structure]
+                return [[int(frac_site) for frac_site in assigned[site]]
+                        for site in structure]
         else:
             raise ValueError("Valences cannot be assigned!")
 
@@ -478,5 +497,44 @@ class BVAnalyzer(object):
             s.add_oxidation_state_by_site(valences)
         else:
             valences = self.get_valences(structure)
-            s.add_oxidation_state_by_site_fraction(valences)
+            s = add_oxidation_state_by_site_fraction(s, valences)
         return s
+
+
+def get_z_ordered_elmap(comp):
+    """
+    Arbitrary ordered elmap on the elements/species of a composition of a
+    given site in an unordered structure. Returns a list of tuples (
+    element_or_specie: occupation) in the arbitrary order.
+
+    The arbitrary order is based on the Z of the element and the smallest
+    fractional occupations first.
+    Example : {"Ni3+": 0.2, "Ni4+": 0.2, "Cr3+": 0.15, "Zn2+": 0.34,
+    "Cr4+": 0.11} will yield the species in the following order :
+    Cr4+, Cr3+, Ni3+, Ni4+, Zn2+ ... or
+    Cr4+, Cr3+, Ni4+, Ni3+, Zn2+
+    """
+    return sorted([(elsp, comp.elmap[elsp]) for elsp in comp.elmap.keys()])
+
+
+def add_oxidation_state_by_site_fraction(structure, oxidation_states):
+        """
+        Add oxidation states to a structure by fractional site.
+
+        Args:
+            oxidation_states (list): List of list of oxidation states for each
+                site fraction for each site.
+                E.g., [[2, 4], [3], [-2], [-2], [-2]]
+        """
+        try:
+            for i, site in enumerate(structure):
+                new_sp = collections.defaultdict(float)
+                for j, (el, occu) in enumerate(get_z_ordered_elmap(site
+                        .species_and_occu)):
+                    specie = Specie(el.symbol, oxidation_states[i][j])
+                    new_sp[specie] += occu
+                structure[i] = new_sp
+            return structure
+        except IndexError:
+            raise ValueError("Oxidation state of all sites must be "
+                             "specified in the list.")

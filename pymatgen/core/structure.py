@@ -35,7 +35,7 @@ from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
-    pbc_all_distances
+    pbc_all_distances, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 from monty.dev import deprecated
@@ -66,13 +66,11 @@ class SiteCollection(collections.Sequence):
         Returns distance between sites at index i and j.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
+            i (int): Index of first site
+            j (int): Index of second site
 
         Returns:
-            Distance between sites at index i and index j.
+            (float) Distance between sites at index i and index j.
         """
         return
 
@@ -80,15 +78,10 @@ class SiteCollection(collections.Sequence):
     def distance_matrix(self):
         """
         Returns the distance matrix between all sites in the structure. For
-        periodic structures, this should return the nearest image distance.
+        periodic structures, this is overwritten to return the nearest image
+        distance.
         """
-        nsites = len(self)
-        distmatrix = np.zeros((nsites, nsites))
-        for i, j in itertools.combinations(xrange(nsites), 2):
-            dist = self.get_distance(i, j)
-            distmatrix[i, j] = dist
-            distmatrix[j, i] = dist
-        return distmatrix
+        return all_distances(self.cart_coords, self.cart_coords)
 
     @property
     def species(self):
@@ -195,7 +188,7 @@ class SiteCollection(collections.Sequence):
         """
         Returns a list of the cartesian coordinates of sites in the structure.
         """
-        return [site.coords for site in self]
+        return np.array([site.coords for site in self])
 
     @property
     def formula(self):
@@ -280,10 +273,10 @@ class SiteCollection(collections.Sequence):
         Args:
             tol (float): Distance tolerance. Default is 0.01A.
         """
-        for s1, s2 in itertools.combinations(self.sites, 2):
-            if s1.distance(s2) < tol:
-                return False
-        return True
+        if len(self.sites) == 1:
+            return True
+        all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
+        return np.min(all_dists) > tol
 
 
 class IStructure(SiteCollection, MSONable):
@@ -383,6 +376,15 @@ class IStructure(SiteCollection, MSONable):
                    to_unit_cell=to_unit_cell)
 
     @property
+    def distance_matrix(self):
+        """
+        Returns the distance matrix between all sites in the structure. For
+        periodic structures, this should return the nearest image distance.
+        """
+        return pbc_all_distances(self.lattice, self.frac_coords,
+                                 self.frac_coords)
+
+    @property
     def sites(self):
         """
         Returns an iterator for the sites in the Structure.
@@ -447,9 +449,9 @@ class IStructure(SiteCollection, MSONable):
     @property
     def frac_coords(self):
         """
-        Returns the fractional coordinates.
+        Fractional coordinates as a Nx3 numpy array.
         """
-        return [site.frac_coords for site in self._sites]
+        return np.array([site.frac_coords for site in self._sites])
 
     @property
     def volume(self):
@@ -572,16 +574,17 @@ class IStructure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
         floor = math.floor
+        inds = (0, 1, 2)
         for site in self:
             pcoords = site.frac_coords
-            inmax = [int(floor(pcoords[i] + nmax[i])) for i in xrange(3)]
-            inmin = [int(floor(pcoords[i] - nmax[i])) for i in xrange(3)]
+            inmax = [int(floor(pcoords[i] + nmax[i])) for i in inds]
+            inmin = [int(floor(pcoords[i] - nmax[i])) for i in inds]
             site_nminmax.append(zip(inmin, inmax))
 
-        nmin = [min([i[j][0] for i in site_nminmax]) for j in xrange(3)]
-        nmax = [max([i[j][1] for i in site_nminmax]) for j in xrange(3)]
+        nmin = [min([i[j][0] for i in site_nminmax]) for j in inds]
+        nmax = [max([i[j][1] for i in site_nminmax]) for j in inds]
 
-        all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
+        all_ranges = [range(nmin[i], nmax[i] + 1) for i in inds]
 
         neighbors = [list() for i in xrange(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
@@ -710,8 +713,8 @@ class IStructure(SiteCollection, MSONable):
                 structure and end.
             nimages (int): No. of interpolation images. Defaults to 10 images.
             interpolate_lattices (bool): Whether to interpolate the lattices.
-                Interpolates the lengths and angles (rather than the matrix) so orientation may be
-                affected.
+                Interpolates the lengths and angles (rather than the matrix)
+                so orientation may be affected.
             pbc (bool): Whether to use periodic boundary conditions to find
                 the shortest path between endpoints.
 
@@ -1135,7 +1138,7 @@ class IMolecule(SiteCollection, MSONable):
         sites = self._sites
         clusters = [[sites[ind1]], [sites[ind2]]]
 
-        sites = [sites[i] for i in xrange(len(sites)) if i not in (ind1, ind2)]
+        sites = [site for i, site in enumerate(sites) if i not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
             for test_site in cluster:
@@ -1765,7 +1768,8 @@ class Structure(IStructure, collections.MutableSequence):
         symmetries.
 
         Args:
-            distance (float): Distance in angstroms by which to perturb each site.
+            distance (float): Distance in angstroms by which to perturb each
+                site.
         """
         def get_rand_vec():
             #deals with zero vectors.
@@ -1823,33 +1827,6 @@ class Structure(IStructure, collections.MutableSequence):
         except IndexError:
             raise ValueError("Oxidation state of all sites must be "
                              "specified in the dictionary.")
-
-    def add_oxidation_state_by_site_fraction(self, oxidation_states):
-        """
-        Add oxidation states to a structure by fractional site.
-
-        Args:
-            oxidation_states (list): List of list of oxidation states for each site fraction
-            for each site.
-                E.g., [[2, 4], [3], [-2], [-2], [-2]]
-        """
-        try:
-            for isite, site in enumerate(self._sites):
-                new_sp = {}
-                for ifrac, (el, occu) in enumerate(site.species_and_occu.arb_ordered_elmap()):
-                    specie = Specie(el.symbol, oxidation_states[isite][ifrac])
-                    if specie in new_sp:
-                        new_sp[specie] += occu
-                    else:
-                        new_sp[specie] = occu
-                new_site = PeriodicSite(new_sp, site.frac_coords,
-                                        self._lattice,
-                                        coords_are_cartesian=False,
-                                        properties=site.properties)
-                self._sites[isite] = new_site
-        except IndexError:
-            raise ValueError("Oxidation state of all sites must be "
-                             "specified in the list.")
 
     def remove_oxidation_states(self):
         """
