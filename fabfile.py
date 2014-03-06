@@ -1,17 +1,10 @@
-#!/usr/bin/env python
-
 """
 Deployment file to facilitate releases of pymatgen.
 """
 
-from __future__ import division
-
 __author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Apr 29, 2012"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Mar 6, 2014"
 
 import glob
 import os
@@ -63,10 +56,6 @@ def publish():
     local("python setup.py release")
 
 
-def test():
-    local("nosetests")
-
-
 def setver():
     local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
           .format(ver))
@@ -99,7 +88,7 @@ def log_ver():
 def release(skip_test=False):
     setver()
     if not skip_test:
-        test()
+        local("nosetests")
     publish()
     log_ver()
     update_doc()
