@@ -31,7 +31,7 @@ from pymatgen.io.vaspio.vasp_output import Chgcar
 from pymatgen.io.vaspio.vasp_input import Potcar
 from monty.os.path import which
 from monty.dev import requires
-from monty.io import ScratchDir
+from monty.tempfile import ScratchDir
 
 
 @requires(which("bader"),
