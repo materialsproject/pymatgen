@@ -126,7 +126,6 @@ class BaderAnalysis(object):
                         self.nelectrons = float(toks[1])
             self.data = data
 
-
     def get_charge(self, atom_index):
         """
         Convenience method to get the charge on a particular atom.
