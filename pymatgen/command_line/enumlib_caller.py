@@ -45,7 +45,7 @@ from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.periodic_table import DummySpecie
 from monty.os.path import which
 from monty.dev import requires
-from monty.io import ScratchDir
+from monty.tempfile import ScratchDir
 
 logger = logging.getLogger(__name__)
 
