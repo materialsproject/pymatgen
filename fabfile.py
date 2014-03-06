@@ -15,6 +15,7 @@ __date__ = "Apr 29, 2012"
 
 import glob
 import os
+import webbrowser
 
 from fabric.api import local, lcd
 from pymatgen import __version__ as ver
@@ -104,7 +105,7 @@ def release(skip_test=False):
     update_doc()
     merge_stable()
 
+
 def opendoc():
-    import webbrowser
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open("file://" + pth)
