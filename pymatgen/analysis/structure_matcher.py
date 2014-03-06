@@ -525,12 +525,13 @@ class StructureMatcher(MSONable):
         lin = LinearAssignment(all_d_2)
         inds = np.arange(len(s_subset))
         #shortest vectors from the subset to the superset
-        shortest_vecs = vec_matrix[inds, lin.solution[:len(s_subset)], :]
+        sol = lin.solution[:len(s_subset)]
+        shortest_vecs = vec_matrix[inds, sol, :]
         translation = np.average(shortest_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
         shortest_distances = np.sum((shortest_vecs - translation) ** 2,
                                     -1) ** 0.5
-        return shortest_distances / norm_length, f_translation * mult
+        return shortest_distances / norm_length, f_translation * mult, sol
 
     def fit(self, struct1, struct2):
         """
@@ -589,8 +590,8 @@ class StructureMatcher(MSONable):
                 structures
 
         Returns:
-            the value, distances, s2 lattice, and s2 translation
-            vector for the best match
+            value, distances, s2 lattice, s2 translation vector, 
+            and mapping from superset to subset for the best match
         """
         struct1 = Structure.from_sites(struct1.sites)
         struct2 = Structure.from_sites(struct2.sites)
@@ -684,8 +685,8 @@ class StructureMatcher(MSONable):
                 translation = s1fc[s1i] - s2fc[s2_translation_index]
                 t_s2fc = s2fc + translation
                 if self._cmp_fractional_struct(s1fc, t_s2fc, frac_tol, mask):
-                    distances, t = self._cart_dists(s1fc, t_s2fc, nl, nl1,
-                                                    mask)
+                    distances, t, mapping = self._cart_dists(s1fc, t_s2fc, nl, 
+                                                             nl1, mask)
                     if use_rms:
                         val = np.linalg.norm(distances) / len(distances) ** 0.5
                     else:
@@ -693,7 +694,7 @@ class StructureMatcher(MSONable):
                     if best_match is None or val < best_match[0]:
                         total_translation = translation + t
                         total_translation -= np.round(total_translation)
-                        best_match = val, distances, nl, total_translation
+                        best_match = val, distances, nl, total_translation, mapping
                     if break_on_match and val < self.stol:
                         return best_match
         if best_match and best_match[0] < self.stol:
@@ -954,9 +955,33 @@ class StructureMatcher(MSONable):
             return None
         scale_matrix = np.round(
             np.dot(match[2].matrix, struct2.lattice.inv_matrix)).astype('int')
-
+        
         temp = struct2.copy()
         temp.make_supercell(scale_matrix)
-        fc = temp.frac_coords + match[3]
-        return Structure(temp.lattice, temp.species_and_occu, fc,
-                         to_unit_cell=True)
+        temp.translate_sites(range(len(temp)), match[3])
+
+        if len(struct1) > len(temp):
+            mapping = np.argsort(match[4])
+        else:
+            mapping = range(len(temp))
+            for i in match[4]:
+                mapping.remove(i)
+            mapping = list(match[4]) + mapping
+
+        return Structure.from_sites([temp.sites[i] for i in mapping])
+        
+    def get_mapping(self, struct1, struct2):
+        """
+        Calculate the mapping from struct2 to struct1, i.e. 
+        struct2[mapping] maps in site order to struct1
+        """
+        if self._supercell:
+            raise ValueError("cannot compute mapping to supercell")
+        if self._primitive_cell:
+            raise ValueError("cannot compute mapping with primitive cell option")
+        if len(struct2) < len(struct1):
+            raise ValueError("cannot compute mapping from subset to superset")
+        match = self._find_match(struct1, struct2, break_on_match=False)
+        if match[0] > self.stol:
+            return None
+        return match[4]

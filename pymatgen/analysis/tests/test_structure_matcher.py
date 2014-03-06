@@ -10,7 +10,7 @@ from pymatgen.serializers.json_coders import PMGJSONDecoder
 from pymatgen.core.operations import SymmOp
 from pymatgen.io.smartio import read_structure
 from pymatgen.core import Structure, Composition, Lattice
-from pymatgen.util.coord_utils import find_in_coord_list_pbc
+from pymatgen.util.coord_utils import find_in_coord_list_pbc, pbc_all_distances
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
@@ -217,19 +217,50 @@ class StructureMatcherTest(unittest.TestCase):
                               primitive_cell=False, scale=True,
                               attempt_supercell=True)
         l = Lattice.orthorhombic(1, 2, 3)
-        s1 = Structure(l, ['Si', 'Si', 'Ag'],
-                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s1 = Structure(l, ['Ag', 'Si', 'Si'],
+                       [[.7,.4,.5],[0,0,0.1],[0,0,0.2]])
         s1.make_supercell([2,1,1])
         s2 = Structure(l, ['Si', 'Si', 'Ag'],
-                       [[0,0.1,0],[0,0.1,-0.95],[-.7,.5,.375]])
+                       [[0,0.1,-0.95],[0,0.1,0],[-.7,.5,.375]])
+        
+        shuffle = [0,2,1,3,4,5]
+        s1 = Structure.from_sites([s1[i] for i in shuffle])
         result = sm.get_s2_like_s1(s1, s2)
-
-        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords,
-                                                    [0.35,0.4,0.5])), 1)
-        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords,
-                                                    [0,0,0.125])), 1)
-        self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords,
-                                                    [0,0,0.175])), 1)
+        
+        for a, b in zip(s1, result):
+            self.assertTrue(a.distance(b) < 0.08)
+            self.assertEqual(a.species_and_occu, b.species_and_occu)
+        
+    def test_get_mapping(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
+                              primitive_cell=False, scale=True,
+                              attempt_supercell=False, 
+                              allow_subset = True)
+        l = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(l, ['Ag', 'Si', 'Si'],
+                       [[.7,.4,.5],[0,0,0.1],[0,0,0.2]])
+        s1.make_supercell([2,1,1])
+        s2 = Structure(l, ['Si', 'Si', 'Ag'],
+                       [[0,0.1,-0.95],[0,0.1,0],[-.7,.5,.375]])
+        
+        shuffle = [2,0,1,3,5,4]
+        s1 = Structure.from_sites([s1[i] for i in shuffle])
+        #test the mapping
+        s2.make_supercell([2,1,1])
+        #equal sizes
+        for i, x in enumerate(sm.get_mapping(s1, s2)):
+            self.assertEqual(s1[i].species_and_occu, 
+                             s2[x].species_and_occu)
+            
+        del s1[0]
+        #s1 is subset of s2
+        for i, x in enumerate(sm.get_mapping(s1, s2)):
+            self.assertEqual(s1[i].species_and_occu, 
+                             s2[x].species_and_occu)
+        #s2 is smaller than s1
+        del s2[0]
+        del s2[1]
+        self.assertRaises(ValueError, sm.get_mapping, s1, s2)
 
     def test_get_supercell_matrix(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
@@ -255,7 +286,7 @@ class StructureMatcherTest(unittest.TestCase):
         s2 = Structure(l, ['Si', 'Ag'],
                        [[0,0.1,0],[-.7,.5,.4]])
         result = sm.get_s2_like_s1(s1, s2)
-
+        
         self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords,
                                                     [0,0,0.1])), 1)
         self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords,
@@ -267,6 +298,9 @@ class StructureMatcherTest(unittest.TestCase):
         s2 = Structure(l, ['Si', 'Si'],
                        [[0,0.1,0],[-.7,.5,.4]])
         result = sm.get_s2_like_s1(s1, s2)
+        mindists = np.min(pbc_all_distances(s1.lattice, s1.frac_coords, 
+                                       result.frac_coords), axis=0)
+        self.assertLess(np.max(mindists), 1e-6)
 
         self.assertEqual(len(find_in_coord_list_pbc(result.frac_coords,
                                                     [0,0,0.1])), 1)
