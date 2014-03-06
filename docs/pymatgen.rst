@@ -16,6 +16,7 @@ Subpackages
     pymatgen.io
     pymatgen.matproj
     pymatgen.optimization
+    pymatgen.packmol
     pymatgen.phasediagram
     pymatgen.serializers
     pymatgen.structure_prediction

@@ -86,9 +86,11 @@ class SiteCollection(collections.Sequence):
     @property
     def species(self):
         """
-        List of species at each site of the structure.
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
+
+        Returns:
+            ([Specie]) List of species at each site of the structure.
         """
         return [site.specie for site in self]
 
@@ -193,14 +195,14 @@ class SiteCollection(collections.Sequence):
     @property
     def formula(self):
         """
-        Returns the formula.
+        (str) Returns the formula.
         """
         return self.composition.formula
 
     @property
     def composition(self):
         """
-        Returns the composition
+        (Composition) Returns the composition
         """
         elmap = collections.defaultdict(float)
         for site in self:
@@ -238,7 +240,7 @@ class SiteCollection(collections.Sequence):
             k (int): Index of third site.
 
         Returns:
-            Angle in degrees.
+            (float) Angle in degrees.
         """
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
@@ -255,7 +257,7 @@ class SiteCollection(collections.Sequence):
             l (int): Index of fourth site
 
         Returns:
-            Dihedral angle in degrees.
+            (float) Dihedral angle in degrees.
         """
         v1 = self[k].coords - self[l].coords
         v2 = self[j].coords - self[k].coords
@@ -268,15 +270,21 @@ class SiteCollection(collections.Sequence):
     def is_valid(self, tol=DISTANCE_TOLERANCE):
         """
         True if SiteCollection does not contain atoms that are too close
-        together.
+        together. Note that the distance definition is based on type of
+        SiteCollection. Cartesian distances are used for non-periodic
+        Molecules, while PBC is taken into account for periodic structures.
 
         Args:
             tol (float): Distance tolerance. Default is 0.01A.
+
+        Returns:
+            (bool) True if SiteCollection does not contain atoms that are too
+            close together.
         """
         if len(self.sites) == 1:
             return True
         all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
-        return np.min(all_dists) > tol
+        return bool(np.min(all_dists) > tol)
 
 
 class IStructure(SiteCollection, MSONable):
@@ -297,12 +305,13 @@ class IStructure(SiteCollection, MSONable):
         Create a periodic structure.
 
         Args:
-            lattice: The lattice, either as a pymatgen.core.lattice.Lattice or
+            lattice (Lattice/3x3 array): The lattice, either as a
+                :class:`pymatgen.core.lattice.Lattice` or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species: List of species on each site. Can take in flexible input,
-                including:
+            species ([Specie]): Sequence of species on each site. Can take in
+                flexible input, including:
 
                 i.  A sequence of element / specie specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
@@ -311,7 +320,8 @@ class IStructure(SiteCollection, MSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords: list of fractional coordinates of each species.
+            fractional_coords (Nx3 array): list of fractional coordinates of
+                each species.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
