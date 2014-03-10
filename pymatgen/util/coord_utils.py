@@ -297,6 +297,25 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol)) > 0
 
 
+def is_coord_subset_pbc(subset, superset, atol=1e-8):
+    """
+    Tests if all fractional coords in subset are contained in superset.
+    
+    Args:
+        subset, superset: List of fractional coords
+        
+    Returns:
+        True if all of subset is in superset.
+    """
+    c1 = np.array(subset)
+    c2 = np.array(superset)
+    dist = c1[:, None, :] - c2[None, :, :]
+    dist -= np.round(dist)
+    is_close = np.all(np.abs(dist) < atol, axis=-1)
+    any_close = np.any(is_close, axis=-1)
+    return np.all(any_close)
+
+
 def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     """
     Find all points within a sphere from the point taking into account
