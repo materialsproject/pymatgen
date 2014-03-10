@@ -180,9 +180,10 @@ class GWSpecs(MSONable):
             conv_res = ast.literal_eval(f.read())
             f.close()
             converged = conv_res['control']['nbands_l']
-        except OSError:
-            print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly or was not' \
-                                          ' parsed ...'
+        except (IOError, OSError):
+            if return_values:
+                print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly or was not' \
+                                              ' parsed ...'
             converged = False
         if return_values and converged:
             return conv_res['values']
@@ -198,13 +199,18 @@ class GWSpecs(MSONable):
         tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
         tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
         tests = MPGWG0W0VaspInputSet(structure, self).tests
-        for test in self.is_converged(structure, return_values=True).keys():
+        conv_res = self.is_converged(structure, return_values=True)
+        for test in conv_res.keys():
             if test in tests_prep.keys():
-                rel = tests_prep['test']['test_range'][1] - tests_prep['test']['test_range'][0]
-                tests_prep_conv.update(tests['test'].update({'test_range': (test, test + rel)}))
+                rel = tests_prep[test]['test_range'][1] - tests_prep[test]['test_range'][0]
+                value = conv_res[test]
+                tests_prep_conv.update({test: tests_prep[test]})
+                tests_prep_conv[test].update({'test_range': (value, value + rel)})
             elif test in tests.keys():
-                rel = tests['test']['test_range'][1] - tests['test']['test_range'][0]
-                tests_conv.update(tests['test'].update({'test_range': (test, test + rel)}))
+                rel = tests[test]['test_range'][1] - tests[test]['test_range'][0]
+                value = conv_res[test]
+                tests_conv.update({test: tests[test]})
+                tests_conv[test].update({'test_range': (value, value + rel)})
         return {'tests': tests_conv, 'tests_prep': tests_prep_conv}
 
     def excecute_flow(self, structure):
@@ -223,7 +229,7 @@ class GWSpecs(MSONable):
                     tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
                     tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
                 elif self.data['converge'] and self.is_converged(structure):
-                    tests_prep = self.get_conv_res_test(structure)['test_prep']
+                    tests_prep = self.get_conv_res_test(structure)['tests_prep']
                 else:
                     tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).convs
                     tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).convs)
@@ -270,7 +276,7 @@ class GWSpecs(MSONable):
             exit()
 
     def create_job(self, structure, job, fw_work_flow, option=None):
-        work = SingleVaspGWWork(structure, job, self, option=option, converged=self.is_converged(structure))
+        work = SingleVaspGWWork(structure, job, self.data, option=option, converged=self.is_converged(structure))
         if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
             work.create_input()
             if 'ceci' in self.data['mode']:
@@ -301,7 +307,7 @@ class GWSpecs(MSONable):
 
         mp_key = os.environ['MP_KEY']
 
-        mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-510626', 'mp-10695', 'mp-66',
+        mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-1986', 'mp-10695', 'mp-66',
                         'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
 
         if self.data['source'] == 'mp-vasp':
@@ -501,13 +507,15 @@ class GWConvergenceData():
         if self.conv_res['control']['nbands']:
             filename = self.name + '.conv_res'
             f = open(filename, mode='w')
+            string = '{control:'+str(self.conv_res['control'])+', values: '
             if self.spec['code'] == 'VASP':
-                string = str({'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']})
+                string += str({'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']})
                 pass
             elif self.spec['code'] == 'ABINIT':
-                string = str({'nscf_nband': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']})
+                string += str({'nscf_nband': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']})
                 pass
             else:
                 string = 'undefined code'
+            string += '}'
             f.write(string)
             f.close()
