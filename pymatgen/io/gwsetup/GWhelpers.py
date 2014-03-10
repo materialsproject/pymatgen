@@ -14,6 +14,11 @@ __date__ = "Oct 23, 2013"
 import time
 
 
+class SplineInputError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
 def now():
     """
     helper to return a time string
@@ -28,10 +33,13 @@ def get_derivatives(xs, ys):
     if scipy is not available the left and right slopes are calculated, if both exist the average is returned
     """
     try:
+        if len(xs) < 4:
+            er = SplineInputError('test')
+            raise er
         from scipy.interpolate import UnivariateSpline
         spline = UnivariateSpline(xs, ys)
         d = spline.derivative(1)(xs)
-    except ImportError:
+    except ImportError, SplineInputError:
         d = []
         m, left, right = 0, 0, 0
         for n in range(0, len(xs), 1):
