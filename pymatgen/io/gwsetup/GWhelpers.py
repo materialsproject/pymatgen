@@ -27,6 +27,7 @@ def now():
 
 
 def get_derivatives(xs, ys):
+    #from pymatgen.io.gwsetup.GWhelpsers import SplineInputError
     """
     return the derivatives of y(x) at the points x
     if scipy is available a spline is generated to calculate the derivatives
@@ -39,7 +40,7 @@ def get_derivatives(xs, ys):
         from scipy.interpolate import UnivariateSpline
         spline = UnivariateSpline(xs, ys)
         d = spline.derivative(1)(xs)
-    except ImportError, SplineInputError:
+    except (ImportError, SplineInputError):
         d = []
         m, left, right = 0, 0, 0
         for n in range(0, len(xs), 1):
