@@ -416,7 +416,7 @@ class GWConvergenceData():
                 try:
                     print x, y, zd[x][y]
                     zs.append(zd[x][y])
-                except IndexError:
+                except KeyError:
                     pass
             conv_data = test_conv(ys, zs, tol)
             if conv_data[0]:
