@@ -414,7 +414,6 @@ class GWConvergenceData():
             zs = []
             for y in ys:
                 try:
-                    print x, y, zd[x][y]
                     zs.append(zd[x][y])
                 except KeyError:
                     pass
