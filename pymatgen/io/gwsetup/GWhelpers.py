@@ -27,7 +27,6 @@ def now():
 
 
 def get_derivatives(xs, ys):
-    #from pymatgen.io.gwsetup.GWhelpsers import SplineInputError
     """
     return the derivatives of y(x) at the points x
     if scipy is available a spline is generated to calculate the derivatives
@@ -67,8 +66,6 @@ def test_conv(xs, ys, tol=0.0001):
     y_value = None
     n_value = None
     if len(xs) > 1:
-        print xs[0:len(ys)]
-        print ys
         ds = get_derivatives(xs[0:len(ys)], ys)
         for n in range(0, len(ds), 1):
             if abs(ds[n]) < tol:
