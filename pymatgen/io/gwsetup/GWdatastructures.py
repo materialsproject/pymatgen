@@ -74,6 +74,7 @@ class GWSpecs(MSONable):
         try:
             f = open(filename, mode='r')
             self.data = ast.literal_eval(f.read())
+            f.close()
         except OSError:
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
@@ -172,6 +173,40 @@ class GWSpecs(MSONable):
             print self.warnings
         self.reset_job_collection()
 
+    def is_converged(self, structure, return_values=False):
+        filename = structure.composition.reduced_formula + ".conv_res"
+        try:
+            f = open(filename, mode='r')
+            conv_res = ast.literal_eval(f.read())
+            f.close()
+            converged = conv_res['control']['nbands_l']
+        except OSError:
+            print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly or was not' \
+                                          ' parsed ...'
+            converged = False
+        if return_values and converged:
+            return conv_res['values']
+        else:
+            return converged
+
+    def get_conv_res_test(self, structure):
+        """
+        return test sets for the tests in test relative to the convergence results
+        """
+        tests_conv = {}
+        tests_prep_conv = {}
+        tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
+        tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
+        tests = MPGWG0W0VaspInputSet(structure, self).tests
+        for test in self.is_converged(structure, return_values=True).keys():
+            if test in tests_prep.keys():
+                rel = tests_prep['test']['test_range'][1] - tests_prep['test']['test_range'][0]
+                tests_prep_conv.update(tests['test'].update({'test_range': (test, test + rel)}))
+            elif test in tests.keys():
+                rel = tests['test']['test_range'][1] - tests['test']['test_range'][0]
+                tests_conv.update(tests['test'].update({'test_range': (test, test + rel)}))
+        return {'tests': tests_conv, 'tests_prep': tests_prep_conv}
+
     def excecute_flow(self, structure):
         """
         excecute spec prepare input/jobfiles or submit to fw for a given structure
@@ -187,6 +222,8 @@ class GWSpecs(MSONable):
                 if self.data['test']:
                     tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
                     tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
+                elif self.data['converge'] and self.is_converged(structure):
+                    tests_prep = self.get_conv_res_test(structure)['test_prep']
                 else:
                     tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).convs
                     tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).convs)
@@ -200,6 +237,8 @@ class GWSpecs(MSONable):
                             if job == 'G0W0':
                                 if self.data['test']:
                                     tests = MPGWG0W0VaspInputSet(structure, self).tests
+                                elif self.data['converge'] and self.is_converged(structure):
+                                    tests = self.get_conv_res_test(structure)['tests']
                                 else:
                                     tests = MPGWG0W0VaspInputSet(structure, self).convs
                             if job in ['GW0', 'scGW0']:
@@ -231,7 +270,7 @@ class GWSpecs(MSONable):
             exit()
 
     def create_job(self, structure, job, fw_work_flow, option=None):
-        work = SingleVaspGWWork(structure, job, self, option)
+        work = SingleVaspGWWork(structure, job, self, option=option, converged=self.is_converged(structure))
         if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
             work.create_input()
             if 'ceci' in self.data['mode']:
@@ -374,7 +413,10 @@ class GWConvergenceData():
         for x in xs:
             zs = []
             for y in ys:
-                zs.append(zd[x][y])
+                try:
+                    zs.append(zd[x][y])
+                except IndexError:
+                    pass
             conv_data = test_conv(ys, zs, tol)
             if conv_data[0]:
                 y_conv.append(conv_data[1])

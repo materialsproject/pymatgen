@@ -131,7 +131,7 @@ class SingleAbinitGWWorkFlow():
 
     @classmethod
     def get_response_models(cls):
-        return cls.RESPONSE_MODELS.copy()
+        return cls.RESPONSE_MODELS
 
     def get_electrons(self, structure):
         """

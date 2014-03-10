@@ -317,27 +317,33 @@ class SingleVaspGWWork():
     Create VASP input for a single standard G0W0 and GW0 calculations
     the combination of job and option specifies what needs to be created
     """
-    def __init__(self, structure, job, spec, option=None):
+    def __init__(self, structure, job, spec, option=None, converged=False):
         self.structure = structure
         self.job = job
         self.spec = spec
         self.option = option
+        self.converged = converged
 
     def create_input(self):
         """
         create vasp input
         """
         option_name = ''
+        path_add = ''
+        if self.spec['converge'] and not self.converged:
+            path_add = '.con'
         if self.option is None:
             path = self.structure.composition.reduced_formula
         else:
-            path = self.structure.composition.reduced_formula+'.'+str(self.option['test_prep'])+str(self.option['value_prep'])
+            path = self.structure.composition.reduced_formula+path_add+'.'+str(self.option['test_prep'])+str(self.option['value_prep'])
             if 'test' in self.option.keys():
                 option_name = '.'+str(self.option['test'])+str(self.option['value'])
         if self.job == 'prep':
 
             inpset = MPGWscDFTPrepVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
-            if self.spec['converge']:
+            if self.spec['converge'] and not self.converged:
+                inpset = MPGWscDFTPrepVaspInputSet(self.structure, self.spec.update({'kp_grid_dens': 2}),
+                                                   functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 if self.option['test_prep'] in MPGWscDFTPrepVaspInputSet.get_defaults_convs().keys() or self.option['test_prep'] in MPGWscDFTPrepVaspInputSet.get_defaults_tests().keys():
@@ -349,7 +355,9 @@ class SingleVaspGWWork():
             inpset = MPGWDFTDiagVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
-            if self.spec['converge']:
+            if self.spec['converge'] and not self.converged:
+                inpset = MPGWDFTDiagVaspInputSet(self.structure, self.spec.update({'kp_grid_dens': 2}),
+                                                 functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
@@ -358,7 +366,9 @@ class SingleVaspGWWork():
         if self.job == 'G0W0':
 
             inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
-            if self.spec['converge']:
+            if self.spec['converge'] and not self.converged:
+                inpset = MPGWG0W0VaspInputSet(self.structure, self.spec.update({'kp_grid_dens': 2}),
+                                              functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
@@ -376,14 +386,16 @@ class SingleVaspGWWork():
         if self.job == 'GW0':
 
             inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
-            inpset.gw0_on()
-            if self.spec['converge']:
+            if self.spec['converge'] and not self.converged:
+                inpset = MPGWG0W0VaspInputSet(self.structure, self.spec.update({'kp_grid_dens': 2}),
+                                              functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+            inpset.gw0_on()
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 inpset.write_input(self.structure, os.path.join(path, 'GW0'+option_name))
@@ -395,14 +407,16 @@ class SingleVaspGWWork():
         if self.job == 'scGW0':
 
             inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
-            inpset.gw0_on(qpsc=True)
-            if self.spec['converge']:
+            if self.spec['converge'] and not self.converged:
+                inpset = MPGWG0W0VaspInputSet(self.structure, self.spec.update({'kp_grid_dens': 2}),
+                                              functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
                 inpset.set_test(self.option['test'], self.option['value'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
+            inpset.gw0_on(qpsc=True)
             if self.spec['kp_grid_dens'] > 10:
                 inpset.wannier_on()
                 inpset.write_input(self.structure, os.path.join(path, 'scGW0'+option_name))
@@ -415,7 +429,8 @@ class SingleVaspGWWork():
         """
         Create job script for ceci.
         """
-        npar = MPGWscDFTPrepVaspInputSet(self.structure, self.spec, functional=self.spec['functional']).get_npar(self.structure)
+        npar = MPGWscDFTPrepVaspInputSet(self.structure, self.spec,
+                                         functional=self.spec['functional']).get_npar(self.structure)
         if self.option is not None:
             option_prep_name = str('.') + str(self.option['test_prep']) + str(self.option['value_prep'])
             if 'test' in self.option.keys():
@@ -430,8 +445,11 @@ class SingleVaspGWWork():
                   "#SBATCH --time=2-24:0:0 \n"
                   "#SBATCH --cpus-per-task=1 \n"
                   "#SBATCH --mem-per-cpu=4000 \n")
+        path_add = ''
+        if self.spec['converge'] and not self.converged:
+            path_add = '.con'
         if self.job == 'prep':
-            path = self.structure.composition.reduced_formula + option_prep_name
+            path = self.structure.composition.reduced_formula + option_prep_name + path_add
             # create this job
             job_file = open(name=path+'/job', mode='w')
             job_file.write(header)
@@ -453,7 +471,7 @@ class SingleVaspGWWork():
                 job_file.close()
                 os.chmod("job_collection", stat.S_IRWXU)
         if self.job in ['G0W0', 'GW0', 'scGW0']:
-            path = self.structure.composition.reduced_formula + option_prep_name + '/' + self.job + option_name
+            path = self.structure.composition.reduced_formula + option_prep_name + path_add + '/' + self.job + option_name
             # create this job
             job_file = open(name=path+'/job', mode='w')
             job_file.write(header)
