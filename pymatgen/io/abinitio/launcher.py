@@ -296,6 +296,10 @@ class PyLauncher(object):
                 break
 
             for task in tasks:
+            # see if there is place in the que
+                if get_running_jobs() > 14:
+                    break
+
                 fired = task.start()
 
                 if fired:
@@ -565,7 +569,7 @@ class PyFlowScheduler(object):
         """
         This function tries to run all the tasks that can be submitted.
         """
-        max_nlaunch, excs = -1, []
+        max_nlaunch, excs = 10, []
 
         flow = self.flow
         flow.check_status()
@@ -810,6 +814,20 @@ def sendmail(subject, text, mailto, sender=None):
     outdata, errdata = p.communicate(msg)
     return len(errdata)
 
+
+def get_running_jobs():
+    try:
+        import os
+        import subprocess
+        from subprocess import PIPE
+        name = os.environ['LOGNAME']
+        cmd = ['squeue', '-u'+name]
+        print(cmd)
+        data = subprocess.Popen(cmd, stdout=PIPE).communicate()[0]
+        n = len(data.splitlines()) - 1
+    except OSError:
+        n = 0
+    return n
 
 # Test for sendmail
 #def sendmail_test():
