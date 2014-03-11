@@ -1342,7 +1342,6 @@ def symmetry_reduced_voronoi_nodes(
 
         # Before getting the symmetry, remove the duplicates
         vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
-        #print type(vor_node_struct.sites[0])
         dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
         # Increase the symmetry precision to 0.25
         spg = SymmetryFinder(structure,symprec=2.5e-1).get_spacegroup()
