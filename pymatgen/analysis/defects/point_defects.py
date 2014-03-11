@@ -1247,7 +1247,8 @@ class RelaxedInterstitial:
             self._coord_charge_no.append(coord_chrg)
 
 
-def symmetry_reduced_voronoi_nodes(structure, rad_dict):
+def symmetry_reduced_voronoi_nodes(
+        structure, rad_dict, high_accuracy_flag=False):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and
     pymatgen.symmetry.finder.SymmetryFinder
@@ -1274,25 +1275,88 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
             ind = avg_dists.index(min_avg_dist)
             dist_sites.append(equiv_sites[ind])
 
-    vor_node_struct, vor_facecenter_struct  = get_voronoi_nodes(
-                    structure, rad_dict)
-    vor_node_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
-    vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
-    node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
+    def cmp_memoize_last_site(f): #Compares and stores last site
+        def not_duplicates(site1, site2):
+            if site1.distance(site2) < 1e-5:
+                return False
+            else:
+                return True
 
-    node_dist_sites = []
-    for equiv_sites in node_equiv_sites_list:
-        add_closest_equiv_site(node_dist_sites, equiv_sites)
+        cache = None
+        def helper(x):
+            if not cache: 
+                cache = f(x)
+                return True
+            y = f(x)
+            if not_duplicates(cache, y):
+                cache = y
+                return True
+            else:
+                return False
+        return helper
 
-    vor_fc_symmetry_finder = SymmetryFinder(
-                    vor_facecenter_struct, symprec=1e-1)
-    vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
-    facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+    @cmp_memoize_last_site
+    def check_not_duplicates(site):
+        return site
 
-    facecenter_dist_sites = []
-    for equiv_sites in facecenter_equiv_sites_list:
-        add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
-    if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
-        facecenter_dist_sites = vor_facecenter_struct.sites
 
-    return node_dist_sites, facecenter_dist_sites
+
+    if not high_accuracy_flag:
+        vor_node_struct, vor_facecenter_struct  = get_voronoi_nodes(
+                        structure, rad_dict)
+        vor_node_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
+        vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
+        node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
+
+        node_dist_sites = []
+        for equiv_sites in node_equiv_sites_list:
+            add_closest_equiv_site(node_dist_sites, equiv_sites)
+
+        vor_fc_symmetry_finder = SymmetryFinder(
+                        vor_facecenter_struct, symprec=1e-1)
+        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+
+        facecenter_dist_sites = []
+        for equiv_sites in facecenter_equiv_sites_list:
+            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
+            facecenter_dist_sites = vor_facecenter_struct.sites
+
+        return node_dist_sites, facecenter_dist_sites
+    else:
+        # Only the nodes are from high accuracy voronoi decomposition
+        vor_node_struct, vor_facecenter_struct  = \
+                get_high_accuracy_voronoi_nodes(structure, rad_dict)
+
+        # Before getting the symmetry, remove the duplicates
+        vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
+        dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
+        # Increase the symmetry precision to 0.25
+        spg = SymmetryFinder(structure,symprec=2.5e-1).get_spacegroup()
+        
+        # Remove symmetrically equivalent sites
+        i = 0
+        while (i < len(dist_sites)-1):
+            sites1 = [dist_sites[i]]
+            sites2 = [dist_sites[i+1]]
+            if spg.are_symmetrically_equivalent(sites1,sites2):
+                del dist_sites[i+1]
+            else:
+                i = i+1
+
+
+        node_dist_sites = dist_sites
+
+        vor_fc_symmetry_finder = SymmetryFinder(
+                        vor_facecenter_struct, symprec=1e-1)
+        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+
+        facecenter_dist_sites = []
+        for equiv_sites in facecenter_equiv_sites_list:
+            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
+            facecenter_dist_sites = vor_facecenter_struct.sites
+
+        return node_dist_sites, facecenter_dist_sites
