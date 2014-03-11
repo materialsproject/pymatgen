@@ -22,7 +22,7 @@ from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     get_points_in_sphere_pbc, find_in_coord_list, find_in_coord_list_pbc,\
     pbc_all_distances, barycentric_coords, pbc_shortest_vectors,\
     lattice_points_in_supercell, coord_list_mapping, all_distances,\
-    is_coord_subset_pbc
+    is_coord_subset_pbc, coord_list_mapping_pbc
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -62,6 +62,23 @@ class CoordUtilsTest(PymatgenTest):
         b = np.array([c3, c2, c1])
         inds = coord_list_mapping(a, b)
         self.assertTrue(np.allclose(a, b[inds]))
+        self.assertRaises(Exception, coord_list_mapping, [c1,c2], [c2,c3])
+        self.assertRaises(Exception, coord_list_mapping, [c2], [c2,c2])
+        
+    def test_coord_list_mapping_pbc(self):
+        c1 = [0.1, 0.2, 0.3]
+        c2 = [0.2, 0.3, 0.3]
+        c3 = [0.5, 0.3, 0.6]
+        c4 = [1.5, -0.7, -1.4]
+        
+        a = np.array([c1, c3, c2])
+        b = np.array([c4, c2, c1])
+        
+        inds =  coord_list_mapping_pbc(a, b)
+        diff = a - b[inds]
+        diff -= np.round(diff)
+        self.assertTrue(np.allclose(diff, 0))
+        
         self.assertRaises(Exception, coord_list_mapping, [c1,c2], [c2,c3])
         self.assertRaises(Exception, coord_list_mapping, [c2], [c2,c2])
 
