@@ -178,7 +178,7 @@ class SingleAbinitGWWorkFlow():
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
-        if self.spec.data['converge'] and self.option is not None:
+        if self.spec.data['converge'] and self.option is None:
             # (2x2x2) gamma centered mesh for the convergence test on nbands and ecuteps
             scf_kppa = 2
         else:
