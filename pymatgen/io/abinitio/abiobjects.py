@@ -584,6 +584,7 @@ class KSampling(AbivarAble):
             `KSampling` object.
         """
         return cls(kpts              = [kpts],
+                   kpt_shifts        = (0.0, 0.0, 0.0),
                    use_symmetries    = use_symmetries,
                    use_time_reversal = use_time_reversal,
                    comment           = "gamma-centered mode",
