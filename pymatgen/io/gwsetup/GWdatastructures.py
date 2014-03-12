@@ -267,7 +267,11 @@ class GWSpecs(MSONable):
                 fw_work_flow.create()
                 fw_work_flow.add_to_db()
         elif self.get_code() == 'ABINIT':
-            work_flow = SingleAbinitGWWorkFlow(structure, self)
+            if self['converge'] and self.is_converged(structure):
+                option = self.is_converged(structure, return_values=True)
+            else:
+                option = None
+            work_flow = SingleAbinitGWWorkFlow(structure, self, option)
             flow = work_flow.create()
             flow.build_and_pickle_dump()
             work_flow.create_job_file()
