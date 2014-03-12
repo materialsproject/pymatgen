@@ -146,11 +146,11 @@ class SpinComparator(AbstractComparator):
         Returns:
             Boolean indicating whether species are equal.
         """
-        for s1, amt2 in sp1.items():
+        for s1 in sp1.keys():
             spin1 = getattr(s1, "spin", 0)
             oxi1 = getattr(s1, "oxi_state", 0)
             found = False
-            for s2, amt2 in sp2.items():
+            for s2 in sp2.keys():
                 spin2 = getattr(s2, "spin", 0)
                 oxi2 = getattr(s2, "oxi_state", 0)
                 if (s1.symbol == s2.symbol and oxi1 == oxi2
@@ -978,7 +978,7 @@ class StructureMatcher(MSONable):
         if self._supercell:
             raise ValueError("cannot compute mapping to supercell")
         if self._primitive_cell:
-            raise ValueError("cannot compute mapping with primitive cell option")
+            raise ValueError("cannot compute mapping with primitive option")
         if len(struct2) < len(struct1):
             raise ValueError("cannot compute mapping from subset to superset")
         match = self._find_match(struct1, struct2, break_on_match=False)
