@@ -311,11 +311,20 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     # TODO: Cannot use istwfk != 1.
 
     if gamma:
-        scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
-        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+        if scf_kppa == 1:
+            scf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
+        elif scf_kppa == 2:
+            scf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+        else:
+            scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+            nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
     else:
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+
+
 
     if "istwfk" not in extra_abivars:
         extra_abivars["istwfk"] = "*1"

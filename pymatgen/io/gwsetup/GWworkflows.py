@@ -112,7 +112,11 @@ class SingleAbinitGWWorkFlow():
         self.tests = self.__class__.get_defaults_tests()
         self.convs = self.__class__.get_defaults_convs()
         self.response_models = self.__class__.get_response_models()
-        self.work_dir = self.structure.composition.reduced_formula
+        if option is not None:
+            path_add = '.conv'
+        else:
+            path_add = ''
+        self.work_dir = self.structure.composition.reduced_formula+path_add
         abi_pseudo = '.GGA_PBE-JTH-paw.xml'
         abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
         pseudos = []
@@ -174,13 +178,16 @@ class SingleAbinitGWWorkFlow():
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
-        scf_kppa = self.spec.data['kp_grid_dens']
+        if self.spec.data['converge'] and self.option is not None:
+            # (2x2x2) gamma centered mesh for the convergence test on nbands and ecuteps
+            scf_kppa = 2
+        else:
+            # use the specified density for the final calculation with the converged nbands and ecuteps of other
+            # stand alone calculations
+            scf_kppa = self.spec.data['kp_grid_dens']
         gamma = True
-        # alternatively:
-        #nscf_ngkpt = [4,4,4]
-        #nscf_shiftk = [0.0, 0.0, 0.0]
 
-        # 100
+        # 'standard' parameters for stand alone calculation
         nscf_nband = [10 * self.get_bands(self.structure)]
         ecuteps = [8]
         ecutsigx = 8
@@ -188,7 +195,7 @@ class SingleAbinitGWWorkFlow():
 
         response_models = ['godby']
 
-        if self.spec['test'] or self.spec['converge']:
+        if (self.spec['test'] or self.spec['converge']) and self.option is None:
             if self.spec['test']:
                 tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
                 response_models = []
@@ -206,9 +213,16 @@ class SingleAbinitGWWorkFlow():
                         ecuteps.append(value)
                     if test == 'response_model':
                         response_models.append(value)
+        elif self.option is not None:
+            # in this case a convergence study has already been perfromed. The resulting parameters are passed as option
+            ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
+                                               self.convs['ecuteps']['test_range'][0]]
+            nscf_nband = [self.option['nbands'], self.option['nbands'] + self.convs['nscf_nbands']['test_range'][1] -
+                                                 self.convs['nscf_nbands']['test_range'][0]]
 
         extra_abivars = dict(
             ecut=[ecut],
+            getden=-1,
             istwfk="*1",
             timopt=-1,
             pawecutdg=ecut*2,
