@@ -598,8 +598,9 @@ class PyFlowScheduler(object):
         #    return 1
 
         # Submit the tasks that are ready.
+        print('max_nlaunch :', max_nlaunch)
         try:
-            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
 
             if nlaunch:
