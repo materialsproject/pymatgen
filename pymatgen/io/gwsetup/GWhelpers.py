@@ -26,6 +26,16 @@ def now():
     return time.strftime("%H:%M:%S %d/%m/%Y")
 
 
+def clean(string, uppercase=False):
+    """
+    helper to clean up an input string
+    """
+    if uppercase:
+        return string.strip().upper()
+    else:
+        return string.strip().lower()
+
+
 def get_derivatives(xs, ys):
     """
     return the derivatives of y(x) at the points x
