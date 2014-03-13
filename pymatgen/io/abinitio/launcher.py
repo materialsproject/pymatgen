@@ -279,6 +279,7 @@ class PyLauncher(object):
 
         while num_loops != max_loops:
             tasks = self.fetch_tasks_to_run()
+            print('num_loops', num_loops)
 
             # I don't know why but we receive duplicated tasks.
             for task in tasks:
@@ -300,6 +301,8 @@ class PyLauncher(object):
                 if get_running_jobs() > 14:
                     num_loops = max_loops
                     print('too many jobs in the queue, going to sleep, num_launched: ', num_launched)
+                    print(task)
+                    print('num_loops', num_loops)
                     break
 
                 fired = task.start()
