@@ -22,7 +22,7 @@ import itertools
 from itertools import chain
 from pyhull.convex_hull import ConvexHull
 from pymatgen.analysis.pourbaix.entry import MultiEntry, ion_or_solid_comp_object
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Element, Composition
 
 
 logger = logging.getLogger(__name__)
@@ -121,12 +121,11 @@ class PourbaixDiagram(object):
         entries = self._unprocessed_entries
         el_list = self._elt_comp.keys()
         comp_list = [self._elt_comp[el] for el in el_list]
-        list_of_entries = list(itertools.combinations(
-            [i for i in xrange(len(entries))], N))
+        list_of_entries = list()
+        for j in xrange(1, N + 1):
+            list_of_entries += list(itertools.combinations(
+                                [i for i in xrange(len(entries))], j))
         processed_entries = list()
-        self._entry_components_list = list_of_entries
-        self._entry_components_dict = {}
-        count = 0
         for entry_list in list_of_entries:
             # Check if all elements in composition list are present in
             # entry_list
@@ -134,8 +133,17 @@ class PourbaixDiagram(object):
                     set(list(chain.from_iterable([entries[i].composition.keys()
                                                   for i in entry_list]))))):
                 continue
-            count += 1
-            A = [[0.0] * (len(el_list) - 1) for _ in range(len(entry_list) - 1)]
+            if len(entry_list) == 1:
+                # If only one entry in entry_list, then check if the composition matches with the set composition. 
+                entry = entries[entry_list[0]]
+                dict_of_non_oh = dict(zip([key for key in entry.composition.keys() if key.symbol not in ["O", "H"]],
+                                           [entry.composition[key] for key in [key for key in entry.composition.keys() if key.symbol not in ["O", "H"]]]))
+                if Composition(dict(zip(self._elt_comp.keys(), [self._elt_comp[key] / min([self._elt_comp[key] for key in self._elt_comp.keys()])
+                                                                 for key in self._elt_comp.keys()]))).reduced_formula == Composition(dict_of_non_oh).reduced_formula:
+                    processed_entries.append(MultiEntry([entry], [1.0]))
+                continue
+
+            A = [[0.0] * (len(entry_list) - 1) for _ in xrange(len(entry_list) - 1)]
             multi_entries = [entries[j] for j in entry_list]
             entry0 = entries[entry_list[0]]
             comp0 = entry0.composition
@@ -145,7 +153,7 @@ class PourbaixDiagram(object):
                 red_fac = 1.0
             sum_nel = sum([comp0[el] / red_fac for el in el_list])
             b = [comp0[Element(el_list[i])] / red_fac - comp_list[i] * sum_nel
-                 for i in xrange(1, len(el_list))]
+                 for i in xrange(1, len(entry_list))]
             for j in xrange(1, len(entry_list)):
                 entry = entries[entry_list[j]]
                 comp = entry.composition
@@ -154,7 +162,7 @@ class PourbaixDiagram(object):
                 else:
                     red_fac = 1.0
                 sum_nel = sum([comp[el] / red_fac for el in el_list])
-                for i in xrange(1, len(el_list)):
+                for i in xrange(1, len(entry_list)):
                     el = el_list[i]
                     A[i-1][j-1] = comp_list[i] * sum_nel -\
                         comp[Element(el)] / red_fac
@@ -170,7 +178,6 @@ class PourbaixDiagram(object):
             weights = list(weights)
             weights.insert(0, 1.0)
             super_entry = MultiEntry(multi_entries, weights)
-            self._entry_components_dict[super_entry] = entry_list
             processed_entries.append(super_entry)
         return processed_entries
 
