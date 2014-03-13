@@ -29,7 +29,7 @@ from monty.dev import requires
 try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
     from zeo.area_volume import volume, surface_area
-    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornodes
+    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode
     zeo_found = True
 except ImportError:
     zeo_found = False
@@ -328,7 +328,8 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
             )
     vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
-    red_ha_vornet = get_nearest_largest_diameter_highaccuracy_vornodes(atmnet)
+    red_ha_vornet = get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
+    print "reached here"
     red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name + '_voro.xyz'
     voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
