@@ -277,7 +277,7 @@ class PyLauncher(object):
         num_loops, num_launched, launched = 0, 0, []
         got_empty_list = 0
 
-        while num_loops != max_loops:
+        while num_loops <= max_loops:
             tasks = self.fetch_tasks_to_run()
             print('num_loops', num_loops)
 
