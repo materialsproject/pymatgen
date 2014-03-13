@@ -298,6 +298,8 @@ class PyLauncher(object):
             for task in tasks:
             # see if there is place in the que
                 if get_running_jobs() > 14:
+                    num_loops = max_loops
+                    print('too many jobs in the que, going to sleep')
                     break
 
                 fired = task.start()
