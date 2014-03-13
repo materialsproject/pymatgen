@@ -300,9 +300,7 @@ class PyLauncher(object):
             # see if there is place in the que
                 if get_running_jobs() > 14:
                     num_loops = max_loops
-                    print('too many jobs in the queue, going to sleep, num_launched: ', num_launched)
-                    print(task)
-                    print('num_loops', num_loops)
+                    print('too many jobs in the queue, going back to sleep')
                     break
 
                 fired = task.start()
@@ -313,7 +311,7 @@ class PyLauncher(object):
 
                 if num_launched == max_nlaunch:
                     # Exit the outermst loop.
-                    print('num_launched == max_nlaunch, going to sleep, num_launched: ', num_launched)
+                    print('num_launched == max_nlaunch, going back to sleep')
                     num_loops = max_loops
                     break
 
