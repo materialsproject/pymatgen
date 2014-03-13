@@ -611,7 +611,8 @@ class PyFlowScheduler(object):
             excs.append(straceback())
 
         show_status = (self.verbose or flow.num_errored_tasks or flow.num_unconverged_tasks)
-        if show_status: flow.show_status()
+        #if show_status: flow.show_status()
+        flow.show_status()
 
         if excs:
             logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
