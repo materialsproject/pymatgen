@@ -99,11 +99,11 @@ class SingleAbinitGWWorkFlow():
     interface the
     """
     RESPONSE_MODELS = ["cd", "godby", "hybersten", "linden", "farid"]
-    TESTS = {'ecuteps': {'test_range': (16, 24), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+    TESTS = {'ecuteps': {'test_range': (10, 12), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"},
              'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
-    CONVS = {'ecuteps': {'test_range': (8, 16, 24, 32), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (10, 20, 30, 40, 50, 60, 70), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
+    CONVS = {'ecuteps': {'test_range': (6, 8, 10, 12, 14), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+             'nscf_nbands': {'test_range': (10, 20, 30, 40, 50), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
         self.structure = structure

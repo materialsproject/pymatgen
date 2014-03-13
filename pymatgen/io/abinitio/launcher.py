@@ -279,7 +279,6 @@ class PyLauncher(object):
 
         while num_loops <= max_loops:
             tasks = self.fetch_tasks_to_run()
-            print('num_loops', num_loops)
 
             # I don't know why but we receive duplicated tasks.
             for task in tasks:
@@ -600,7 +599,6 @@ class PyFlowScheduler(object):
         #    return 1
 
         # Submit the tasks that are ready.
-        print('max_nlaunch :', max_nlaunch)
         try:
             nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
