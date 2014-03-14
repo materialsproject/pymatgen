@@ -167,7 +167,7 @@ class GetVoronoiNodesTest(unittest.TestCase):
         assert len(self.rad_dict) == len(self.structure.composition)
 
     def test_get_voronoi_nodes(self):
-        vor_node_struct, vor_face_center_struct = get_voronoi_nodes_monty_scratchdir(
+        vor_node_struct, vor_face_center_struct = get_voronoi_nodes(
                 self.structure, self.rad_dict
                 )
         self.assertIsInstance(vor_node_struct, Structure)
