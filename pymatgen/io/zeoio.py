@@ -15,7 +15,6 @@ __email__ = "bkmedasani@lbl.gov"
 __data__ = "Aug 2, 2013"
 
 import re
-import tempfile
 import os
 import shutil
 
@@ -370,50 +369,46 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
     Returns:
         volume: floating number representing the volume of void
     """
-    temp_dir = tempfile.mkdtemp()
-    current_dir = os.getcwd()
-    name = "temp_zeo"
-    zeo_inp_filename = name + ".cssr"
-    os.chdir(temp_dir)
-    ZeoCssr(structure).write_file(zeo_inp_filename)
+    with ScratchDir('.'):
+        name = "temp_zeo"
+        zeo_inp_filename = name + ".cssr"
+        ZeoCssr(structure).write_file(zeo_inp_filename)
 
-    rad_file = None
-    if rad_dict:
-        rad_file = name + ".rad"
-        with open(rad_file, 'w') as fp:
-            for el in rad_dict.keys():
-                fp.write("{0}     {1}".format(el, rad_dict[el]))
+        rad_file = None
+        if rad_dict:
+            rad_file = name + ".rad"
+            with open(rad_file, 'w') as fp:
+                for el in rad_dict.keys():
+                    fp.write("{0}     {1}".format(el, rad_dict[el]))
 
-    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
-    vol_str = volume(atmnet, 0.3, probe_rad, 10000)
-    sa_str = surface_area(atmnet, 0.3, probe_rad, 10000)
-    print vol_str, sa_str
-    vol = None
-    sa = None
-    for line in vol_str.split("\n"):
-        if "Number_of_pockets" in line:
-            fields = line.split()
-            if float(fields[1]) > 1:
-                vol = -1.0
-                break
-            if float(fields[1]) == 0:
-                vol = -1.0
-                break
-            vol = float(fields[3])
-    for line in sa_str.split("\n"):
-        if "Number_of_pockets" in line:
-            fields = line.split()
-            if float(fields[1]) > 1:
-                #raise ValueError("Too many voids")
-                sa = -1.0
-                break
-            if float(fields[1]) == 0:
-                sa = -1.0
-                break
-            sa = float(fields[3])
+        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
+        vol_str = volume(atmnet, 0.3, probe_rad, 10000)
+        sa_str = surface_area(atmnet, 0.3, probe_rad, 10000)
+        print vol_str, sa_str
+        vol = None
+        sa = None
+        for line in vol_str.split("\n"):
+            if "Number_of_pockets" in line:
+                fields = line.split()
+                if float(fields[1]) > 1:
+                    vol = -1.0
+                    break
+                if float(fields[1]) == 0:
+                    vol = -1.0
+                    break
+                vol = float(fields[3])
+        for line in sa_str.split("\n"):
+            if "Number_of_pockets" in line:
+                fields = line.split()
+                if float(fields[1]) > 1:
+                    #raise ValueError("Too many voids")
+                    sa = -1.0
+                    break
+                if float(fields[1]) == 0:
+                    sa = -1.0
+                    break
+                sa = float(fields[3])
 
-    os.chdir(current_dir)
-    shutil.rmtree(temp_dir)
     if not vol or not sa:
         raise ValueError("Error in zeo++ output stream")
     return vol, sa
