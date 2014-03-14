@@ -23,6 +23,10 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
     spec_in = GWSpecs()
+    try:
+        spec_in.read_from_file('spec.in')
+    except (IOError, OSError):
+        pass
     spec_in.update_interactive()
     spec_in.test()
     spec_in.write_to_file('spec.in')
