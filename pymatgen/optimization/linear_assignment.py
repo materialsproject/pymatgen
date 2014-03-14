@@ -49,12 +49,6 @@ class LinearAssignment(object):
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
         
-        if self.nx == self.ny:
-            self.c = self.orig_c
-        else:
-            self.c = np.zeros((self.n, self.n))
-            self.c[:self.nx, :self.ny] = self.orig_c
-        
         if epsilon < 0:
             self.epsilon = epsilon
         else:
@@ -62,6 +56,12 @@ class LinearAssignment(object):
         #check that cost matrix is square
         if self.nx > self.ny:
             raise ValueError("cost matrix must have at least as many columns as rows")
+        
+        if self.nx == self.ny:
+            self.c = self.orig_c
+        else:
+            self.c = np.zeros((self.n, self.n))
+            self.c[:self.nx, :self.ny] = self.orig_c
 
         #initialize solution vectors
         self._x = np.zeros(self.n, dtype=np.int) - 1
