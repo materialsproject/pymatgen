@@ -19,12 +19,14 @@ import tempfile
 import os
 import shutil
 
+from monty.io import zopen
+from monty.dev import requires
+from monty.tempfile import ScratchDir
+
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
-from monty.io import zopen
-from monty.dev import requires
 
 try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
@@ -217,6 +219,72 @@ class ZeoVoronoiXYZ(XYZ):
             ))
         return "\n".join(output)
 
+def get_voronoi_nodes_monty_scratchdir(structure, rad_dict=None, probe_rad=0.1):
+    """
+    Analyze the void space in the input structure using voronoi decomposition
+    Calls Zeo++ for Voronoi decomposition.
+
+    Args:
+        structure: pymatgen.core.structure.Structure
+        rad_dict (optional): Dictionary of radii of elements in structure.
+            If not given, Zeo++ default values are used.
+            Note: Zeo++ uses atomic radii of elements.
+            For ionic structures, pass rad_dict with ionic radii
+        probe_rad (optional): Sampling probe radius in Angstroms. Default is
+            0.1 A
+
+    Returns:
+        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+    """
+
+    with ScratchDir('.'):
+        name = "temp_zeo1"
+        zeo_inp_filename = name + ".cssr"
+        ZeoCssr(structure).write_file(zeo_inp_filename)
+        rad_file = None
+        rad_flag = False
+
+        if rad_dict:
+            rad_file = name + ".rad"
+            rad_flag = True
+            with open(rad_file, 'w+') as fp:
+                for el in rad_dict.keys():
+                    print >>fp, "{} {}".format(el, rad_dict[el].real)
+
+        atmnet = AtomNetwork.read_from_CSSR(
+                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
+        vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
+        voro_out_filename = name + '_voro.xyz'
+        voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
+
+    species = ["X"] * len(voro_node_mol.sites)
+    coords = []
+    prop = []
+    for site in voro_node_mol.sites:
+        coords.append(list(site.coords))
+        prop.append(site.properties['voronoi_radius'])
+
+    lattice = Lattice.from_lengths_and_angles(
+        structure.lattice.abc, structure.lattice.angles)
+    voronoi_node_struct = Structure(
+        lattice, species, coords, coords_are_cartesian=True,
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+
+
+    #PMG-Zeo c<->a transformation for voronoi face centers
+    rot_face_centers = [(center[1],center[2],center[0]) for center in 
+                        voronoi_face_centers]
+    species = ["X"] * len(rot_face_centers)
+    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc 
+    voronoi_facecenter_struct = Structure(
+        lattice, species, rot_face_centers, coords_are_cartesian=True,
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+
+    return voronoi_node_struct, voronoi_facecenter_struct
 
 def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
@@ -325,11 +393,9 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             print >>fp, "{} {}".format(el, rad_dict[el].real)
 
     atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
-            )
+            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
     vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
     red_ha_vornet = get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
-    print "reached here"
     red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
     voronoi_out_filename = name + '_voro.xyz'
     voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
