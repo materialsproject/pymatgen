@@ -24,7 +24,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, \
-    pbc_shortest_vectors
+    pbc_shortest_vectors, lattice_points_in_supercell
 from pymatgen.symmetry.finder import SymmetryFinder
 
 
@@ -395,7 +395,7 @@ class StructureMatcher(MSONable):
             raise ValueError('invalid argument for supercell_size')
         return fu
 
-    def _get_lattices(self, target_s, s, supercell_size=1):
+    def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
         Yields lattices for s with lengths and angles close to the
         lattice of target_s. If supercell_size is specified, the
@@ -405,7 +405,7 @@ class StructureMatcher(MSONable):
         Args:
             s, target_s: Structure objects
         """
-        t_l, t_a = target_s.lattice.lengths_and_angles
+        t_l, t_a = target_lattice.lengths_and_angles
         r = (1 + self.ltol) * max(t_l)
         fpts, dists, i = get_points_in_sphere_pbc(
             lattice=s.lattice, frac_points=[[0, 0, 0]], center=[0, 0, 0],
@@ -460,78 +460,124 @@ class StructureMatcher(MSONable):
             nl = Lattice(lat)
             yield nl
 
-    def _cmp_fractional_struct(self, s1, s2, frac_tol, mask):
-        #ensure that we always calculate distances from the subset
-        #to the superset
-        if len(s1) > len(s2):
-            s_superset, s_subset = s1, s2
+    def _get_supercells(self, struct1, struct2, fu, s1_supercell):
+        """
+        Computes all supercells of one structure close to the lattice of the other
+        if s1_supercell == True, it makes the supercells of struct1, otherwise
+        it makes them of s2
+        
+        yields: s1, s2, supercell_matrix, average_lattice, supercell_matrix
+        """
+        def av_lat(l1, l2):
+            params = (np.array(l1.lengths_and_angles) + \
+                      np.array(l2.lengths_and_angles)) / 2
+            return Lattice.from_lengths_and_angles(*params)
+        
+        def generator(s1, s2):
+            s2_fc = np.array(s2.frac_coords)
+            if fu == 1:
+                cc = np.array(s1.cart_coords)
+                for l in self._get_lattices(s2.lattice, s1, fu):
+                    supercell_matrix = np.round(np.dot(l.matrix, 
+                        s1.lattice.inv_matrix)).astype('int')
+                    yield l.get_fractional_coords(cc), s2_fc, av_lat(l, s2.lattice), supercell_matrix
+            else:
+                fc_init = np.array(s1.frac_coords)
+                for l in self._get_lattices(s2.lattice, s1, fu):
+                    supercell_matrix = np.round(np.dot(l.matrix, 
+                        s1.lattice.inv_matrix)).astype('int')
+                    fc = np.dot(fc_init, np.linalg.inv(supercell_matrix))
+                    fc = (fc[:, None, :] + lattice_points_in_supercell(supercell_matrix)[None, :, :]).reshape((-1, 3))
+                    yield fc, s2_fc, av_lat(l, s2.lattice), supercell_matrix
+        
+        if s1_supercell:
+            for x in generator(struct1, struct2):
+                yield x
         else:
-            s_superset, s_subset = s2, s1
-            mask = mask.T
-        #compares the fractional coordinates
-        mask_val = 3 * len(s_superset)
+            for x in generator(struct2, struct1):
+                yield x[1], x[0], x[2], x[3]
+
+    def _cmp_fractional_struct(self, s1, s2, frac_tol, mask):
+        if len(s2) > len(s1):
+            raise ValueError("s1 must be larger than s2")
+        if mask.shape != (len(s2), len(s1)):
+            raise ValueError("mask has incorrect shape")
+        
+        mask_val = 3 * len(s1)
         #distance from subset to superset
-        dist = s_superset[None, :] - s_subset[:, None]
+        dist = s1[None, :] - s2[:, None]
         dist = abs(dist - np.round(dist))
+        
         dist[np.where(dist > frac_tol[None, None, :])] = mask_val
         cost = np.sum(dist, axis=-1)
         cost[mask] = mask_val
+        
+        #maximin is a lower bound on linear assignment 
+        #(and faster to compute)
         if np.max(np.min(cost, axis=1)) >= mask_val:
             return False
-        if self._subset:
-            n = len(s_superset)
-            square_cost = np.zeros((n, n))
-            square_cost[:cost.shape[0], :cost.shape[1]] = cost
-            cost = square_cost
-        lin = LinearAssignment(cost)
-        if lin.min_cost >= mask_val:
-            return False
-        return True
 
-    def _cart_dists(self, s1, s2, l1, l2, mask):
+        return LinearAssignment(cost).min_cost < mask_val
+
+    def _cart_dists(self, s1, s2, avg_lattice, mask):
         """
-        Finds the cartesian distances normalized by (V/Natom) ^ 1/3
-        between two structures on the average lattice of l1 and l2
-        s_superset and s_subset are lists of fractional coordinates.
-        Minimizes the RMS distance of the matching with an additional
-        translation (but doesn't change the mapping)
-        returns distances, fractional_translation vector
+        Finds a matching in cartesian space. Finds an additional
+        fractional translation vector to minimize RMS distance
+        
+        Args:
+            s1, s2: numpy arrays of fractional coordinates.
+                len(s1) >= len(s2)
+            avg_lattice: Lattice on which to calculate distances
+            mask: numpy array of booleans. mask[i, j] = True indicates
+                that s2[i] cannot be matched to s1[j]
+        
+        Returns:
+            Distances from s2 to s1, normalized by (V/Natom) ^ 1/3
+            Fractional translation vector to apply to s2.
+            Mapping from s2 to s1
         """
-        #ensure that we always calculate distances from the subset
-        #to the superset
-        if len(s1) > len(s2):
-            s_superset, s_subset, mult = s1, s2, 1
-        else:
-            s_superset, s_subset, mult = s2, s1, -1
-            mask = mask.T
-        #create the average lattice
-        avg_params = (np.array(l1.lengths_and_angles) +
-                      np.array(l2.lengths_and_angles)) / 2
-        avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
-        norm_length = (avg_lattice.volume / len(s_superset)) ** (1 / 3)
-        mask_val = 1e20 * norm_length * self.stol
-
-        all_d_2 = np.zeros([len(s_superset), len(s_superset)])
-        vec_matrix = np.zeros([len(s_superset), len(s_superset), 3])
-
-        #vectors from subset to superset
-        #1st index subset, 2nd index superset
-        vecs = pbc_shortest_vectors(avg_lattice, s_subset, s_superset)
-        vec_matrix[:len(s_subset), :len(s_superset)] = vecs
-        vec_matrix[mask] = mask_val
-        d_2 = (np.sum(vecs ** 2, axis=-1))
-        all_d_2[:len(s_subset), :len(s_superset)] = d_2
-        all_d_2[mask] = mask_val
-        lin = LinearAssignment(all_d_2)
-        inds = np.arange(len(s_subset))
-        #shortest vectors from the subset to the superset
-        sol = lin.solution[:len(s_subset)]
-        shortest_vecs = vec_matrix[inds, sol, :]
-        translation = np.average(shortest_vecs, axis=0)
+        if len(s2) > len(s1):
+            raise ValueError("s1 must be larger than s2")
+        if mask.shape != (len(s2), len(s1)):
+            raise ValueError("mask has incorrect shape")
+        
+        norm_length = (avg_lattice.volume / len(s1)) ** (1 / 3)
+        mask_val = 1e10 * norm_length * self.stol
+        #vectors are from s2 to s1
+        vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
+        vecs[mask] = mask_val
+        d_2 = np.sum(vecs ** 2, axis=-1)
+        lin = LinearAssignment(d_2)
+        s = lin.solution
+        short_vecs = vecs[np.arange(len(s)), s]
+        translation = np.average(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
-        shortest_distances = np.sum((shortest_vecs - translation) ** 2,
-                                    -1) ** 0.5
-        return shortest_distances / norm_length, f_translation * mult, sol
+        new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
+        
+        return new_d2 ** 0.5 / norm_length, f_translation, s
+
+    def _get_mask(self, struct1, struct2, fu, s1_supercell):
+        """
+        Returns mask for matching struct2 to struct1. If struct1 has sites
+        a b c, and fu = 2, assumes supercells of struct2 will be ordered
+        aabbcc (rather than abcabc)
+        
+        Returns:
+        mask, struct1 translation indices, struct2 translation index
+        """
+        mask = np.zeros((len(struct2), len(struct1), fu), dtype=np.bool)
+        for i, site2 in enumerate(struct2):
+            for j, site1 in enumerate(struct1):
+                mask[i, j, :] = not self._comparator.are_equal(
+                        site2.species_and_occu, site1.species_and_occu)
+        if s1_supercell:
+            mask = mask.reshape((len(struct2), -1))
+        else:
+            mask = np.rollaxis(mask, 2, 1)
+            mask = mask.reshape((-1, len(struct1)))
+        
+        i = np.argmax(np.sum(mask, axis = -1))
+        return mask, np.where(mask[i] == False)[0], i
 
     def fit(self, struct1, struct2):
         """
@@ -544,9 +590,21 @@ class StructureMatcher(MSONable):
         Returns:
             True or False.
         """
-
-        match = self._find_match(struct1, struct2, break_on_match=True)
-
+        
+        struct1, struct2, ratio = self._preprocess(struct1, struct2)
+        
+        if ratio < 1:
+            fu = 1 / ratio
+        else:
+            fu = ratio
+        
+        if len(struct1) * ratio >= len(struct2):
+            match = self._new_match(struct1, struct2, fu, s1_supercell=(ratio>=1), 
+                                    break_on_match=True)
+        else:
+            match = self._new_match(struct2, struct1, fu, s1_supercell=(ratio>=1), 
+                                    break_on_match=True)
+        
         if match is None:
             return False
         else:
@@ -565,128 +623,77 @@ class StructureMatcher(MSONable):
             and maximum distance between paired sites. If no matching
             lattice is found None is returned.
         """
-        match = self._find_match(struct1, struct2, break_on_match=False,
-                                 use_rms=True)
+        struct1, struct2, fu = self._preprocess(struct1, struct2)
+        match = self._new_match(struct1, struct2, fu, use_rms=True, 
+                                break_on_match=False)
         if match is None:
             return None
         else:
             return match[0], max(match[1])
-
-    def _find_match(self, struct1, struct2, break_on_match=False,
-                    use_rms=False, niggli=True):
+    
+    def _preprocess(self, struct1, struct2, niggli=True):
         """
-        Finds the best match between two structures.
-        Typically, 'best' is determined by minimax cartesian distance
-        on the average lattice
-
-        Args:
-            struct1 (Structure): 1st structure
-            struct2 (Structure): 2nd structure
-            break_on_match (bool): If true, breaks once the max distance is
-                below the stol (RMS distance if use_rms is true)
-            use_rms (bool): If True, finds the match that minimizes
-                RMS instead of minimax.
-            niggli (bool): Whether to compute the niggli cells of the input
-                structures
-
-        Returns:
-            value, distances, s2 lattice, s2 translation vector, 
-            and mapping from superset to subset for the best match
+        Rescales, finds the reduced structures (primitive and niggli),
+        and finds fu.
         """
-        struct1 = Structure.from_sites(struct1.sites)
-        struct2 = Structure.from_sites(struct2.sites)
-
-        if (self._comparator.get_structure_hash(struct1) !=
-                self._comparator.get_structure_hash(struct2)
-                and not self._subset):
-            return None
-
-        #primitive cell transformation
-        if self._primitive_cell and struct1.num_sites != struct2.num_sites:
-            struct1 = struct1.get_primitive_structure()
-            struct2 = struct2.get_primitive_structure()
-
-        if self._supercell:
-            fu = self._get_supercell_size(struct1, struct2)
-            #force struct1 to be the larger one
-            if fu < 1:
-                struct2, struct1 = struct1, struct2
-                fu = 1 / fu
-            fu = int(round(fu))
-        else:
-            fu = 1
-
-        #can't do the check until we group with the comparator
-        if (not self._subset) and struct1.num_sites != struct2.num_sites * fu:
-            return None
-
-        # Get niggli reduced cells. Though technically not necessary, this
-        # minimizes cell lengths and speeds up the matching of skewed
-        # cells considerably.
+        struct1 = struct1.copy()
+        struct2 = struct2.copy()
         if niggli:
             struct1 = struct1.get_reduced_structure(reduction_algo="niggli")
             struct2 = struct2.get_reduced_structure(reduction_algo="niggli")
 
-        nl1 = struct1.lattice
-        nl2 = struct2.lattice
-
+        #primitive cell transformation
+        if self._primitive_cell:# and struct1.num_sites != struct2.num_sites:
+            struct1 = struct1.get_primitive_structure()
+            struct2 = struct2.get_primitive_structure()
+        
+        if self._supercell:
+            #get fu and round it correctly
+            fu = self._get_supercell_size(struct2, struct1)
+            if fu < 1:
+                fu = 1 / round(1 / fu)
+        else:
+            fu = 1
+            
         #rescale lattice to same volume
         if self._scale:
-            ratio = (fu * nl2.volume / nl1.volume) ** (1 / 6)
-            nl1 = Lattice(nl1.matrix * ratio)
+            ratio = (struct2.volume / (struct1.volume * fu)) ** (1 / 6)
+            nl1 = Lattice(struct1.lattice.matrix * ratio)
             struct1.modify_lattice(nl1)
-            nl2 = Lattice(nl2.matrix / ratio)
+            nl2 = Lattice(struct2.lattice.matrix / ratio)
             struct2.modify_lattice(nl2)
-
-        #fractional tolerance of atomic positions (2x for initial fitting)
-        normalization = ((2 * struct2.num_sites * fu) /
-                         (struct1.volume + struct2.volume * fu)) ** (1 / 3)
-        frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * \
-            self.stol / ((1 - self.ltol) * np.pi) / normalization
-
-        #make array mask
-        mask = np.zeros((len(struct2) * fu, len(struct1)), dtype=np.bool)
-        i = 0
-        for site2 in struct2:
-            for repeat in range(fu):
-                for j, site1 in enumerate(struct1):
-                    mask[i, j] = not self._comparator.are_equal(
-                        site2.species_and_occu, site1.species_and_occu)
-                i += 1
-
-        #check that there is some valid mapping between sites
-        nmax = max(mask.shape)
-        sq_mask = np.zeros((nmax, nmax))
-        sq_mask[mask] = 10000
-        if LinearAssignment(sq_mask).min_cost > 0:
+            
+        return struct1, struct2, fu
+        
+    def _new_match(self, struct1, struct2, fu, s1_supercell=True, use_rms=False, 
+                   break_on_match=False):
+        """
+        Creates a supercell of struct1, matches struct2 onto this supercell.
+        struct2 must be a subset of this supercell
+        """
+        if fu < 1:
+            raise ValueError("fu cannot be less than 1")
+        
+        mask, s1_t_inds, s2_t_ind = self._get_mask(struct1, struct2, fu, s1_supercell)
+        if mask.shape[0] > mask.shape[1]:
+            raise ValueError('after supercell creation, struct1 must have more sites than struct2')
+        
+        #check that a valid mapping exists
+        if LinearAssignment(mask).min_cost > 0:
             return None
-
-        #find the best sites for the translation vector
-        num_s1_invalid_matches = np.sum(mask, axis=1)
-        s2_translation_index = np.argmax(num_s1_invalid_matches)
-        s1_translation_indices = np.argwhere(
-            mask[s2_translation_index] == 0).flatten()
-
-        s1fc = np.array(struct1.frac_coords)
-        s2cc = np.array(struct2.cart_coords)
-
+        
         best_match = None
-        for nl in self._get_lattices(struct1, struct2, fu):
-            #if supercell needs to be created, update s2_cart
-            if self._supercell and fu > 1:
-                scale_matrix = np.round(np.dot(nl.matrix, nl2.inv_matrix))
-                supercell = struct2.copy()
-                supercell.make_supercell(scale_matrix.astype('int'))
-                s2fc = np.array(supercell.frac_coords)
-            else:
-                s2fc = nl.get_fractional_coords(s2cc)
-                #loop over possible translations
-            for s1i in s1_translation_indices:
-                translation = s1fc[s1i] - s2fc[s2_translation_index]
+        #loop over all lattices
+        for s1fc, s2fc, avg_lattice, supercell_matrix in self._get_supercells(struct1, struct2, fu, s1_supercell):
+            #compute fractional tolerance
+            normalization = (len(s1fc) / avg_lattice.volume) ** (1/3)
+            frac_tol = np.array(avg_lattice.reciprocal_lattice.abc) * self.stol / (np.pi * normalization)
+            #loop over all translations
+            for s1i in s1_t_inds:
+                translation = s1fc[s1i] - s2fc[s2_t_ind]
                 t_s2fc = s2fc + translation
                 if self._cmp_fractional_struct(s1fc, t_s2fc, frac_tol, mask):
-                    distances, t, mapping = self._cart_dists(s1fc, t_s2fc, nl, 
-                                                             nl1, mask)
+                    distances, t, mapping = self._cart_dists(s1fc, t_s2fc, avg_lattice, mask)
                     if use_rms:
                         val = np.linalg.norm(distances) / len(distances) ** 0.5
                     else:
@@ -694,7 +701,7 @@ class StructureMatcher(MSONable):
                     if best_match is None or val < best_match[0]:
                         total_translation = translation + t
                         total_translation -= np.round(total_translation)
-                        best_match = val, distances, nl, total_translation, mapping
+                        best_match = val, distances, supercell_matrix, total_translation, mapping
                     if break_on_match and val < self.stol:
                         return best_match
         if best_match and best_match[0] < self.stol:
@@ -927,13 +934,15 @@ class StructureMatcher(MSONable):
                 and self._get_supercell_size(supercell, struct) < 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
-        match = self._find_match(supercell, struct, break_on_match=False,
-                                 use_rms=True, niggli=False)
+        supercell, struct, fu = self._preprocess(supercell, struct, False)
+
+        match = self._new_match(supercell, struct, 1/fu, s1_supercell=False, 
+                                use_rms=True, break_on_match=False)
+
         if match is None:
             return None
 
-        return np.round(np.dot(match[2].matrix,
-                               struct.lattice.inv_matrix)).astype('int')
+        return match[2]
 
     def get_s2_like_s1(self, struct1, struct2):
         """
@@ -949,16 +958,30 @@ class StructureMatcher(MSONable):
         if self._subset and struct2.num_sites > struct1.num_sites:
             raise ValueError("The smaller structure must be transformed onto"
                              " the larger one, not the other way around")
-        match = self._find_match(struct1, struct2, break_on_match=False,
-                                 use_rms=True, niggli=False)
+            
+        #fu is number of s1 in s2
+        s1, s2, fu = self._preprocess(struct1, struct2, niggli=False)
+        
+        s2fu = 1 / min(fu, 1)
+        if len(s2) * s2fu >= len(s1):
+            #make a supercell of struct2, and mapping struct1 ont it
+            match = self._new_match(s2, s1, s2fu, s1_supercell=True, use_rms=True, break_on_match=False)
+            if match:
+                tvec = -match[3]
+        else:
+            #make a supercell of struct2, and map it onto struct1
+            match = self._new_match(s1, s2, s2fu, s1_supercell=False, use_rms=True, break_on_match=False)
+            if match:
+                tvec = match[3]
+        
         if match is None:
             return None
-        scale_matrix = np.round(
-            np.dot(match[2].matrix, struct2.lattice.inv_matrix)).astype('int')
+        
+        scale_matrix = match[2]
         
         temp = struct2.copy()
         temp.make_supercell(scale_matrix)
-        temp.translate_sites(range(len(temp)), match[3])
+        temp.translate_sites(range(len(temp)), tvec)
 
         if len(struct1) > len(temp):
             mapping = np.argsort(match[4])
@@ -970,18 +993,20 @@ class StructureMatcher(MSONable):
 
         return Structure.from_sites([temp.sites[i] for i in mapping])
         
-    def get_mapping(self, struct1, struct2):
+    def get_mapping(self, superset, subset):
         """
-        Calculate the mapping from struct2 to struct1, i.e. 
-        struct2[mapping] maps in site order to struct1
+        Calculate the mapping from superset to subset, i.e. 
+        superset[mapping] = subset
         """
         if self._supercell:
             raise ValueError("cannot compute mapping to supercell")
         if self._primitive_cell:
             raise ValueError("cannot compute mapping with primitive cell option")
-        if len(struct2) < len(struct1):
-            raise ValueError("cannot compute mapping from subset to superset")
-        match = self._find_match(struct1, struct2, break_on_match=False)
+        if len(subset) > len(superset):
+            raise ValueError("subset is larger than superset")
+        
+        superset, subset, _ = self._preprocess(superset, subset, True)
+        match = self._new_match(superset, subset, 1, break_on_match=False)
         if match[0] > self.stol:
             return None
         return match[4]

@@ -24,7 +24,130 @@ class StructureMatcherTest(unittest.TestCase):
         self.struct_list = [e.structure for e in entries]
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
                             for fname in ["Li2O.cif", "POSCAR.Li2O"]]
-
+    
+    def test_cmp_fractional(self):
+        sm = StructureMatcher()
+        
+        s1 = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
+        s2 = np.array([[0.11, 0.22, 0.33]])
+        s3 = np.array([[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]])
+        frac_tol = np.array([0.02, 0.03, 0.04])
+        mask = np.array([[False, False]])
+        mask2 = np.array([[True, False]])
+        mask3 = np.array([[False, False], [False, False]])
+        
+        self.assertRaises(ValueError, sm._cmp_fractional_struct, s2, s1, frac_tol, mask.T)
+        self.assertRaises(ValueError, sm._cmp_fractional_struct, s1, s2, frac_tol, mask.T)
+        
+        self.assertTrue(sm._cmp_fractional_struct(s1, s2, frac_tol, mask))
+        self.assertFalse(sm._cmp_fractional_struct(s1, s2, frac_tol/2, mask))
+        self.assertFalse(sm._cmp_fractional_struct(s1, s2, frac_tol, mask2))
+        self.assertFalse(sm._cmp_fractional_struct(s1, s3, frac_tol, mask3))
+        
+    def test_cart_dists(self):
+        sm = StructureMatcher()
+        l = Lattice.orthorhombic(1, 2, 3)
+        
+        s1 = np.array([[0.13, 0.25, 0.37], [0.1, 0.2, 0.3]])
+        s2 = np.array([[0.11, 0.22, 0.33]])
+        s3 = np.array([[0.1, 0.2, 0.3], [0.11, 0.2, 0.3]])
+        s4 = np.array([[0.1, 0.2, 0.3], [0.1, 0.6, 0.7]])
+        mask = np.array([[False, False]])
+        mask2 = np.array([[False, True]])
+        mask3 = np.array([[False, False], [False, False]])
+        mask4 = np.array([[False, True], [False, True]])
+        
+        self.assertRaises(ValueError, sm._cart_dists, s2, s1, l, mask.T)
+        self.assertRaises(ValueError, sm._cart_dists, s1, s2, l, mask.T)
+        
+        d, ft, s = sm._cart_dists(s1, s2, l, mask)
+        self.assertTrue(np.allclose(d, [0]))
+        self.assertTrue(np.allclose(ft, [-0.01, -0.02, -0.03]))
+        self.assertTrue(np.allclose(s, [1]))
+        
+        #check that masking best value works
+        d, ft, s = sm._cart_dists(s1, s2, l, mask2)
+        self.assertTrue(np.allclose(d, [0]))
+        self.assertTrue(np.allclose(ft, [0.02, 0.03, 0.04]))
+        self.assertTrue(np.allclose(s, [0]))
+        
+        #check that averaging of translation is done properly
+        d, ft, s = sm._cart_dists(s1, s3, l, mask3)
+        self.assertTrue(np.allclose(d, [0.08093341]*2))
+        self.assertTrue(np.allclose(ft, [0.01, 0.025, 0.035]))
+        self.assertTrue(np.allclose(s, [1, 0]))
+        
+        #check distances are large when mask allows no 'real' mapping
+        d, ft, s = sm._cart_dists(s1, s4, l, mask4)
+        self.assertTrue(np.min(d) > 1e8)
+        self.assertTrue(np.min(ft) > 1e8)
+        
+    def test_get_mask(self):
+        sm = StructureMatcher(comparator=ElementComparator())
+        l = Lattice.cubic(1)
+        s1 = Structure(l, ['Mg', 'Cu', 'Ag', 'Cu'], [[0]*3]*4)
+        s2 = Structure(l, ['Cu', 'Cu', 'Ag'], [[0]*3]*3)
+        
+        result = [[True, False, True, False],
+                  [True, False, True, False],
+                  [True, True, False, True]]
+        m, inds, i = sm._get_mask(s1, s2, 1, True)
+        self.assertTrue(np.all(m == result))
+        self.assertTrue(i == 2)
+        self.assertEqual(inds, [2])
+        
+        #test supercell
+        result = [[1, 1, 1, 1, 1, 1],
+                  [0, 0, 0, 0, 1, 1],
+                  [1, 1, 1, 1, 0, 0],
+                  [0, 0, 0, 0, 1, 1]]
+        m, inds, i = sm._get_mask(s2, s1, 2, True)
+        self.assertTrue(np.all(m == result))
+        self.assertTrue(i == 0)
+        self.assertTrue(np.allclose(inds, np.array([])))
+        
+        #test s2_supercell
+        result = [[1, 1, 1], [1, 1, 1],
+                  [0, 0, 1], [0, 0, 1],
+                  [1, 1, 0], [1, 1, 0],
+                  [0, 0, 1], [0, 0, 1]]
+        m, inds, i = sm._get_mask(s2, s1, 2, False)
+        self.assertTrue(np.all(m == result))
+        self.assertTrue(i == 0)
+        self.assertTrue(np.allclose(inds, np.array([])))
+        
+        #test for multiple translation indices
+        s1 = Structure(l, ['Cu', 'Ag', 'Cu', 'Ag', 'Ag'], [[0]*3]*5)
+        s2 = Structure(l, ['Ag', 'Cu', 'Ag'], [[0]*3]*3)
+        result = [[1, 0, 1, 0, 0],
+                  [0, 1, 0, 1, 1],
+                  [1, 0, 1, 0, 0]]
+        m, inds, i = sm._get_mask(s1, s2, 1, True)
+        
+        self.assertTrue(np.all(m == result))
+        self.assertTrue(i == 1)
+        self.assertTrue(np.allclose(inds, [0, 2]))
+        
+    def test_get_supercells(self):
+        sm = StructureMatcher(comparator=ElementComparator())
+        l = Lattice.cubic(1)
+        l2 = Lattice.cubic(0.5)
+        s1 = Structure(l, ['Mg', 'Cu', 'Ag', 'Cu'], [[0]*3]*4)
+        s2 = Structure(l2, ['Cu', 'Cu', 'Ag'], [[0]*3]*3)
+        scs = list(sm._get_supercells(s1, s2, 8, False))
+        for x in scs:
+            self.assertAlmostEqual(abs(np.linalg.det(x[3])), 8)
+            self.assertEqual(len(x[0]), 4)
+            self.assertEqual(len(x[1]), 24)
+        self.assertEqual(len(scs), 48)
+        
+        scs = list(sm._get_supercells(s2, s1, 8, True))
+        for x in scs:
+            self.assertAlmostEqual(abs(np.linalg.det(x[3])), 8)
+            self.assertEqual(len(x[0]), 24)
+            self.assertEqual(len(x[1]), 4)
+        self.assertEqual(len(scs), 48)
+    
     def test_fit(self):
         """
         Take two known matched structures
@@ -58,7 +181,7 @@ class StructureMatcherTest(unittest.TestCase):
         nfp = read_structure(os.path.join(test_dir, "NaFePO4.cif"))
         self.assertTrue(sm2.fit(lfp, nfp))
         self.assertFalse(sm.fit(lfp, nfp))
-
+        
         #Test anonymous fit.
         self.assertEqual(sm.fit_anonymous(lfp, nfp),
                          {Composition("Li"): Composition("Na")})
@@ -164,13 +287,13 @@ class StructureMatcherTest(unittest.TestCase):
         s1 = Structure(l1, [], [])
         s2 = Structure(l2, [], [])
 
-        lattices = list(sm._get_lattices(s = s1, target_s = s2))
+        lattices = list(sm._get_lattices(s=s1, target_lattice=s2.lattice))
         self.assertEqual(len(lattices), 16)
 
         l3 = Lattice.from_lengths_and_angles([1.1, 2, 20] , [89, 91, 90])
         s3 = Structure(l3, [], [])
 
-        lattices = list(sm._get_lattices(s = s1, target_s = s3))
+        lattices = list(sm._get_lattices(s=s1, target_lattice=s3.lattice))
         self.assertEqual(len(lattices), 0)
 
     def test_find_match1(self):
@@ -182,10 +305,10 @@ class StructureMatcherTest(unittest.TestCase):
                        [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
         s2 = Structure(l, ['Si', 'Si', 'Ag'],
                        [[0,0.1,0],[0,0.1,-0.95],[.7,.5,.375]])
-        match = sm._find_match(s1, s2, break_on_match = False,
-                               use_rms = True, niggli = False)
-        scale_matrix = np.round(np.dot(match[2].matrix,
-                            s2.lattice.inv_matrix)).astype('int')
+        
+        s1, s2, fu = sm._preprocess(s1, s2, False)
+        match = sm._new_match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
+        scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
         fc -= np.round(fc)
@@ -195,19 +318,23 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertAlmostEqual(cart_dist, 0.15)
 
     def test_find_match2(self):
+        return
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
                               primitive_cell=True, scale=True,
                               attempt_supercell=False)
         l = Lattice.orthorhombic(1, 2, 3)
         s1 = Structure(l, ['Si', 'Si'], [[0,0,0.1],[0,0,0.2]])
         s2 = Structure(l, ['Si', 'Si'], [[0,0.1,0],[0,0.1,-0.95]])
-        match = sm._find_match(s1, s2, break_on_match = False,
-                               use_rms = True, niggli = False)
-        scale_matrix = np.round(np.dot(match[2].matrix,
-                                       s2.lattice.inv_matrix)).astype('int')
+        
+        s1, s2, fu = sm._preprocess(s1, s2, False)
+        match = sm._new_match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
+        print match
+        scale_matrix = match[2]
+        
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
         fc -= np.round(fc)
+        print fc
 
         self.assertAlmostEqual(np.sum(fc), 0.3)
         self.assertAlmostEqual(np.sum(fc[:,:2]), 0)
@@ -249,18 +376,18 @@ class StructureMatcherTest(unittest.TestCase):
         s2.make_supercell([2,1,1])
         #equal sizes
         for i, x in enumerate(sm.get_mapping(s1, s2)):
-            self.assertEqual(s1[i].species_and_occu, 
-                             s2[x].species_and_occu)
+            self.assertEqual(s1[x].species_and_occu, 
+                             s2[i].species_and_occu)
             
         del s1[0]
         #s1 is subset of s2
-        for i, x in enumerate(sm.get_mapping(s1, s2)):
+        for i, x in enumerate(sm.get_mapping(s2, s1)):
             self.assertEqual(s1[i].species_and_occu, 
                              s2[x].species_and_occu)
         #s2 is smaller than s1
         del s2[0]
         del s2[1]
-        self.assertRaises(ValueError, sm.get_mapping, s1, s2)
+        self.assertRaises(ValueError, sm.get_mapping, s2, s1)
 
     def test_get_supercell_matrix(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
