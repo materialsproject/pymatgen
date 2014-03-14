@@ -217,8 +217,8 @@ class SingleAbinitGWWorkFlow():
             # in this case a convergence study has already been perfromed. The resulting parameters are passed as option
             ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
                                                self.convs['ecuteps']['test_range'][0]]
-            nscf_nband = [self.option['nbands'], self.option['nscf_nbands'] + self.convs['nscf_nbands']['test_range'][1] -
-                                                 self.convs['nscf_nbands']['test_range'][0]]
+            nscf_nband = [self.option['nscf_nbands'], self.option['nscf_nbands'] + self.convs['nscf_nbands'][
+                'test_range'][1] - self.convs['nscf_nbands']['test_range'][0]]
 
         extra_abivars = dict(
             ecut=[ecut],
