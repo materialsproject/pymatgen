@@ -179,7 +179,7 @@ class GWSpecs(MSONable):
             f = open(filename, mode='r')
             conv_res = ast.literal_eval(f.read())
             f.close()
-            converged = conv_res['control']['nbands_l']
+            converged = conv_res['control']['nbands']
         except (IOError, OSError):
             if return_values:
                 print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly or was not' \
@@ -516,7 +516,7 @@ class GWConvergenceData():
                 string += str({'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']})
                 pass
             elif self.spec['code'] == 'ABINIT':
-                string += str({'nscf_nband': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']})
+                string += str({'nscf_nbands': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']})
                 pass
             else:
                 string = 'undefined code'
