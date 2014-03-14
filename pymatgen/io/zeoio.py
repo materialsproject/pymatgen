@@ -15,20 +15,22 @@ __email__ = "bkmedasani@lbl.gov"
 __data__ = "Aug 2, 2013"
 
 import re
-import tempfile
 import os
 import shutil
+
+from monty.io import zopen
+from monty.dev import requires
+from monty.tempfile import ScratchDir
 
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.lattice import Lattice
 from pymatgen.io.cssrio import Cssr
 from pymatgen.io.xyzio import XYZ
-from monty.io import zopen
-from monty.dev import requires
 
 try:
     from zeo.netstorage import AtomNetwork, VoronoiNetwork
     from zeo.area_volume import volume, surface_area
+    from zeo.cluster import get_nearest_largest_diameter_highaccuracy_vornode
     zeo_found = True
 except ImportError:
     zeo_found = False
@@ -216,7 +218,6 @@ class ZeoVoronoiXYZ(XYZ):
             ))
         return "\n".join(output)
 
-
 def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
@@ -238,34 +239,31 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         unit cell defined by the lattice of input structure
     """
 
-    temp_dir = tempfile.mkdtemp()
-    current_dir = os.getcwd()
-    name = "temp_zeo1"
-    zeo_inp_filename = name + ".cssr"
-    os.chdir(temp_dir)
-    ZeoCssr(structure).write_file(zeo_inp_filename)
-    rad_file = None
-    rad_flag = False
+    with ScratchDir('.'):
+        name = "temp_zeo1"
+        zeo_inp_filename = name + ".cssr"
+        ZeoCssr(structure).write_file(zeo_inp_filename)
+        rad_file = None
+        rad_flag = False
 
-    if rad_dict:
-        rad_file = name + ".rad"
-        rad_flag = True
-        with open(rad_file, 'w+') as fp:
-            for el in rad_dict.keys():
-                print >>fp, "{} {}".format(el, rad_dict[el].real)
+        if rad_dict:
+            rad_file = name + ".rad"
+            rad_flag = True
+            with open(rad_file, 'w+') as fp:
+                for el in rad_dict.keys():
+                    print >>fp, "{} {}".format(el, rad_dict[el].real)
 
-    atmnet = AtomNetwork.read_from_CSSR(
-            zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file
-            )
-    vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
-    vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
-    voronoi_out_filename = name + '_voro.xyz'
-    voronoi_node_mol = ZeoVoronoiXYZ.from_file(voronoi_out_filename).molecule
+        atmnet = AtomNetwork.read_from_CSSR(
+                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
+        vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
+        voro_out_filename = name + '_voro.xyz'
+        voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
-    species = ["X"] * len(voronoi_node_mol.sites)
+    species = ["X"] * len(voro_node_mol.sites)
     coords = []
     prop = []
-    for site in voronoi_node_mol.sites:
+    for site in voro_node_mol.sites:
         coords.append(list(site.coords))
         prop.append(site.properties['voronoi_radius'])
 
@@ -275,20 +273,84 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
         lattice, species, coords, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
-    os.chdir(current_dir)
-    shutil.rmtree(temp_dir)
 
     #PMG-Zeo c<->a transformation for voronoi face centers
-    rot_face_centers = [(center[1],center[2],center[0]) for center in
+    rot_face_centers = [(center[1],center[2],center[0]) for center in 
                         voronoi_face_centers]
     species = ["X"] * len(rot_face_centers)
-    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc
+    prop = [0.0] * len(rot_face_centers)  # Vor radius not evaluated for fc 
     voronoi_facecenter_struct = Structure(
         lattice, species, rot_face_centers, coords_are_cartesian=True,
         to_unit_cell=True, site_properties={"voronoi_radius": prop})
 
     return voronoi_node_struct, voronoi_facecenter_struct
 
+def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
+    """
+    Analyze the void space in the input structure using high accuracy 
+    voronoi decomposition
+    Calls Zeo++ for Voronoi decomposition.
+
+    Args:
+        structure: pymatgen.core.structure.Structure
+        rad_dict (optional): Dictionary of radii of elements in structure.
+            If not given, Zeo++ default values are used.
+            Note: Zeo++ uses atomic radii of elements.
+            For ionic structures, pass rad_dict with ionic radii
+        probe_rad (optional): Sampling probe radius in Angstroms. 
+            Default is 0.1 A
+
+    Returns:
+        voronoi nodes as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+        voronoi face centers as pymatgen.core.structure.Strucutre within the
+        unit cell defined by the lattice of input structure
+    """
+
+    with ScratchDir('.'):
+        name = "temp_zeo1"
+        zeo_inp_filename = name + ".cssr"
+        ZeoCssr(structure).write_file(zeo_inp_filename)
+        rad_flag = True
+        rad_file = name + ".rad"
+        with open(rad_file, 'w+') as fp:
+            for el in rad_dict.keys():
+                print >>fp, "{} {}".format(el, rad_dict[el].real)
+
+        atmnet = AtomNetwork.read_from_CSSR(
+                zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
+        vornet, voronoi_face_centers = atmnet.perform_voronoi_decomposition()
+        red_ha_vornet = \
+                get_nearest_largest_diameter_highaccuracy_vornode(atmnet)
+        red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atmnet)
+        voro_out_filename = name + '_voro.xyz'
+        voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
+
+    species = ["X"] * len(voro_node_mol.sites)
+    coords = []
+    prop = []
+    for site in voro_node_mol.sites:
+        coords.append(list(site.coords))
+        prop.append(site.properties['voronoi_radius'])
+
+    lattice = Lattice.from_lengths_and_angles(
+        structure.lattice.abc, structure.lattice.angles)
+    voronoi_node_struct = Structure(
+        lattice, species, coords, coords_are_cartesian=True,
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+
+
+    #PMG-Zeo c<->a transformation for voronoi face centers
+    rot_face_centers = [(center[1],center[2],center[0]) for center in 
+                        voronoi_face_centers]
+    species = ["X"] * len(rot_face_centers)
+    # Voronoi radius not evaluated for fc. Fix in future versions
+    prop = [0.0] * len(rot_face_centers)  
+    voronoi_facecenter_struct = Structure(
+        lattice, species, rot_face_centers, coords_are_cartesian=True,
+        to_unit_cell=True, site_properties={"voronoi_radius": prop})
+
+    return voronoi_node_struct, voronoi_facecenter_struct
 
 # Deprecated. Not needed anymore
 def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
@@ -307,50 +369,46 @@ def get_void_volume_surfarea(structure, rad_dict=None, chan_rad=0.3,
     Returns:
         volume: floating number representing the volume of void
     """
-    temp_dir = tempfile.mkdtemp()
-    current_dir = os.getcwd()
-    name = "temp_zeo"
-    zeo_inp_filename = name + ".cssr"
-    os.chdir(temp_dir)
-    ZeoCssr(structure).write_file(zeo_inp_filename)
+    with ScratchDir('.'):
+        name = "temp_zeo"
+        zeo_inp_filename = name + ".cssr"
+        ZeoCssr(structure).write_file(zeo_inp_filename)
 
-    rad_file = None
-    if rad_dict:
-        rad_file = name + ".rad"
-        with open(rad_file, 'w') as fp:
-            for el in rad_dict.keys():
-                fp.write("{0}     {1}".format(el, rad_dict[el]))
+        rad_file = None
+        if rad_dict:
+            rad_file = name + ".rad"
+            with open(rad_file, 'w') as fp:
+                for el in rad_dict.keys():
+                    fp.write("{0}     {1}".format(el, rad_dict[el]))
 
-    atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
-    vol_str = volume(atmnet, 0.3, probe_rad, 10000)
-    sa_str = surface_area(atmnet, 0.3, probe_rad, 10000)
-    print vol_str, sa_str
-    vol = None
-    sa = None
-    for line in vol_str.split("\n"):
-        if "Number_of_pockets" in line:
-            fields = line.split()
-            if float(fields[1]) > 1:
-                vol = -1.0
-                break
-            if float(fields[1]) == 0:
-                vol = -1.0
-                break
-            vol = float(fields[3])
-    for line in sa_str.split("\n"):
-        if "Number_of_pockets" in line:
-            fields = line.split()
-            if float(fields[1]) > 1:
-                #raise ValueError("Too many voids")
-                sa = -1.0
-                break
-            if float(fields[1]) == 0:
-                sa = -1.0
-                break
-            sa = float(fields[3])
+        atmnet = AtomNetwork.read_from_CSSR(zeo_inp_filename, True, rad_file)
+        vol_str = volume(atmnet, 0.3, probe_rad, 10000)
+        sa_str = surface_area(atmnet, 0.3, probe_rad, 10000)
+        print vol_str, sa_str
+        vol = None
+        sa = None
+        for line in vol_str.split("\n"):
+            if "Number_of_pockets" in line:
+                fields = line.split()
+                if float(fields[1]) > 1:
+                    vol = -1.0
+                    break
+                if float(fields[1]) == 0:
+                    vol = -1.0
+                    break
+                vol = float(fields[3])
+        for line in sa_str.split("\n"):
+            if "Number_of_pockets" in line:
+                fields = line.split()
+                if float(fields[1]) > 1:
+                    #raise ValueError("Too many voids")
+                    sa = -1.0
+                    break
+                if float(fields[1]) == 0:
+                    sa = -1.0
+                    break
+                sa = float(fields[3])
 
-    os.chdir(current_dir)
-    shutil.rmtree(temp_dir)
     if not vol or not sa:
         raise ValueError("Error in zeo++ output stream")
     return vol, sa
