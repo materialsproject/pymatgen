@@ -31,24 +31,21 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Jul 16, 2012"
 
-import os
 import re
 import math
-import tempfile
 import subprocess
-import shutil
 import logging
 
 import numpy as np
-import warnings
 
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.core.periodic_table import DummySpecie
-from pymatgen.util.io_utils import which
-from pymatgen.util.decorators import requires
+from monty.os.path import which
+from monty.dev import requires
+from monty.tempfile import ScratchDir
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +59,24 @@ class EnumlibAdaptor(object):
     """
     An adaptor for enumlib.
 
+    Args:
+        structure: An input structure.
+        min_cell_size (int): The minimum cell size wanted. Defaults to 1.
+        max_cell_size (int): The maximum cell size wanted. Defaults to 1.
+        symm_prec (float): Symmetry precision. Defaults to 0.1.
+        enum_precision_parameter (float): Finite precision parameter for
+            enumlib. Default of 0.001 is usually ok, but you might need to
+            tweak it for certain cells.
+        refine_structure (bool): If you are starting from a structure that
+            has been relaxed via some electronic structure code,
+            it is usually much better to start with symmetry determination
+            and then obtain a refined structure. The refined structure have
+            cell parameters and atomic positions shifted to the expected
+            symmetry positions, which makes it much less sensitive precision
+            issues in enumlib. If you are already starting from an
+            experimental cif, refinement should have already been done and
+            it is not necessary. Defaults to False.
+
     .. attribute:: structures
 
         List of all enumerated structures.
@@ -71,30 +86,6 @@ class EnumlibAdaptor(object):
     def __init__(self, structure, min_cell_size=1, max_cell_size=1,
                  symm_prec=0.1, enum_precision_parameter=0.001,
                  refine_structure=False):
-        """
-        Args:
-            structure:
-                An input structure.
-            min_cell_size:
-                The minimum cell size wanted. Must be an int. Defaults to 1.
-            max_cell_size:
-                The maximum cell size wanted. Must be an int. Defaults to 1.
-            symm_prec:
-                Symmetry precision. Defaults to 0.1.
-            enum_precision_parameter:
-                Finite precision parameter for enumlib. Default of 0.001 is
-                usually ok, but you might need to tweak it for certain cells.
-            refine_structure:
-                If you are starting from a structure that has been relaxed via
-                some electronic structure code, it is usually much better to
-                start with symmetry determination and then obtain a refined
-                structure. The refined structure have cell parameters and
-                atomic positions shifted to the expected symmetry positions,
-                which makes it much less sensitive precision issues in enumlib.
-                If you are already starting from an experimental cif, refinment
-                should have already been done and it is not necessary. Defaults
-                to False.
-        """
         if refine_structure:
             finder = SymmetryFinder(structure, symm_prec)
             self.structure = finder.get_refined_structure()
@@ -110,35 +101,27 @@ class EnumlibAdaptor(object):
         Run the enumeration.
         """
         #Create a temporary directory for working.
-        curr_dir = os.getcwd()
-        temp_dir = tempfile.mkdtemp()
-        logger.debug("Temp dir : {}".format(temp_dir))
-        try:
-            #Generate input files
-            self._gen_input_file(temp_dir)
-            #Perform the actual enumeration
-            num_structs = self._run_multienum(temp_dir)
-            #Read in the enumeration output as structures.
-            if num_structs > 0:
-                self.structures = self._get_structures(num_structs)
-            else:
-                raise ValueError("Unable to enumerate structure.")
-        except Exception:
-            import sys
-            import traceback
-
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                      limit=2, file=sys.stdout)
-        finally:
+        with ScratchDir(".") as d:
+            logger.debug("Temp dir : {}".format(d))
             try:
-                shutil.rmtree(temp_dir)
-            except:
-                warnings.warn("Unable to delete temp dir "
-                              "{}. Please delete manually".format(temp_dir))
-            os.chdir(curr_dir)
+                #Generate input files
+                self._gen_input_file()
+                #Perform the actual enumeration
+                num_structs = self._run_multienum()
+                #Read in the enumeration output as structures.
+                if num_structs > 0:
+                    self.structures = self._get_structures(num_structs)
+                else:
+                    raise ValueError("Unable to enumerate structure.")
+            except Exception:
+                import sys
+                import traceback
 
-    def _gen_input_file(self, working_dir):
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                          limit=2, file=sys.stdout)
+
+    def _gen_input_file(self):
         """
         Generate the necessary struct_enum.in file for enumlib. See enumlib
         documentation for details.
@@ -259,11 +242,10 @@ class EnumlibAdaptor(object):
                                                 100))
         output.append("")
         logger.debug("Generated input file:\n{}".format("\n".join(output)))
-        with open(os.path.join(working_dir, "struct_enum.in"), "w") as f:
+        with open("struct_enum.in", "w") as f:
             f.write("\n".join(output))
 
-    def _run_multienum(self, working_dir):
-        os.chdir(working_dir)
+    def _run_multienum(self):
         p = subprocess.Popen(["multienum.x"],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)

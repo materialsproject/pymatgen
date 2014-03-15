@@ -1,0 +1,238 @@
+#
+#  ReaxFF force field
+#
+#  Original paper:
+#
+#  A.C.T. van Duin, S. Dasgupta, F. Lorant and W.A. Goddard III,
+#  J. Phys. Chem. A, 105, 9396-9409 (2001)
+#
+#
+#  Parameters in this file:
+#
+#  K. Chenoweth et al, J. Am. Chem. Soc., 127, 7192 (2006)
+#
+#  Cutoffs for VDW & Coulomb terms
+#
+reaxFFvdwcutoff      10.0000
+reaxFFqcutoff        10.0000
+#
+#  Bond order threshold - check anglemin as this is cutof2 given in control file
+#
+reaxFFtol       0.0001000000 0.001
+#
+#  Species independent parameters 
+#
+reaxff0_bond        50.000000     9.546900
+reaxff0_over         3.259300     1.500100     1.058800    12.117600    13.305600
+reaxff0_valence     33.866700     1.851200     1.056300     2.038400
+reaxff0_penalty      6.929000     0.398900     3.995400
+reaxff0_torsion      5.779600    10.000000     1.948700     2.164500
+reaxff0_vdw          1.559100
+reaxff0_lonepair     6.089100
+#
+#  Species parameters 
+#
+reaxff1_radii 
+C  core   1.3644   1.2395   1.2636
+H  core   0.6853  -0.1000  -0.1000
+O  core   1.2891   1.0323   0.9456
+Si core   1.9007   1.2962  -1.0000
+reaxff1_valence 
+C  core   4.0000   4.0000   4.0000   4.0000
+H  core   1.0000   1.0000   1.0000   1.0000
+O  core   2.0000   4.0000   6.0000   4.0000
+Si core   4.0000   4.0000   4.0000   4.0000
+reaxff1_over 
+C  core  33.5629   5.7133  11.9957  -2.8983
+H  core   3.2462   3.8654   1.0000 -15.7683
+O  core   3.5512  20.7724   0.5074  -3.6141
+Si core 190.1166   4.6110   0.8381  -5.4765
+reaxff1_under kcal 
+C  core  31.8793
+H  core   0.0000
+O  core  30.8697
+Si core  24.9985
+reaxff1_lonepair kcal 
+C  core   0.0000   0.0000
+H  core   0.0000   0.0000
+O  core   2.0000  29.2540
+Si core   0.0000   0.0000
+reaxff1_angle 
+C  core   4.7820   2.9663
+H  core   3.3504   2.8793
+O  core   2.7025   2.9225
+Si core   2.2852   2.5791
+reaxff1_morse kcal 
+C  core   9.4734   0.1720   1.9803   2.1241
+H  core   9.3992   0.0622   1.3588   5.0518
+O  core  10.2186   0.0880   1.9741   7.7719
+Si core  12.9535   0.2201   1.9947   1.3506
+#
+#  Element parameters 
+#
+reaxff_chi  
+C  core   5.7254
+H  core   3.8196
+O  core   8.5000
+Si core   2.9154
+reaxff_mu  
+C  core   6.9235
+H  core   9.8832
+O  core   6.9793
+Si core   7.0174
+reaxff_gamma  
+C  core   0.8712
+H  core   0.7625
+O  core   0.8628
+Si core   0.6294
+#
+#  Bond parameters 
+#
+reaxff2_bo over bo13
+C  core C  core  -0.1042   6.1688  -0.2010   8.6973  -0.7584  38.4226
+O  core O  core  -0.1290   7.0000  -0.1679   7.7980  -0.2106  29.4721
+C  core Si core  -0.1064   6.4957  -0.2869   8.3842  -0.5558  17.2117
+O  core Si core  -0.1142   6.9349  -0.4537  30.3000  -0.3000  36.0000
+reaxff2_bo bo13
+C  core H  core  -0.0098   8.5954   0.0000   0.0000   0.0000   6.0000
+H  core H  core  -0.0169   5.8818   0.0000   0.0000   0.0000   6.0000
+C  core O  core  -0.1729   4.9857  -0.2388   7.5568  -0.1638  12.1551
+H  core Si core  -0.0474   6.5704  -0.0103   0.0000   0.0000   6.0000
+Si core Si core  -0.0593   8.0170  -0.1786  18.1800  -0.3000  16.0000
+reaxff2_bond kcal 
+C  core C  core 139.8093 110.6913  77.2102   0.2737   0.1235
+C  core H  core 159.8520   0.0000   0.0000  -0.4646  12.3878
+H  core H  core 170.0433   0.0000   0.0000  -0.3573   9.6471
+C  core O  core 161.6647  58.4169 126.5609   0.2952   0.3211
+O  core O  core  87.8137 171.0665  40.0000   0.9810   0.8827
+C  core Si core 119.1620  83.3504   0.0000   0.1175   0.2527
+H  core Si core 261.8327   0.0000   0.0000  -0.7842  20.0570
+O  core Si core 282.1448  39.0786   0.0000  -0.8744   9.4685
+Si core Si core  86.6074  47.8910  30.0000   0.6601   0.3370
+reaxff2_over 
+C  core C  core   0.3288
+C  core H  core   0.6170
+H  core H  core   0.7489
+C  core O  core   0.4055
+O  core O  core   1.0000
+C  core Si core   0.1009
+H  core Si core   0.5715
+O  core Si core   0.5909
+Si core Si core   0.0145
+reaxff2_morse kcal 
+C  core H  core   0.0431  10.3632   1.7204   1.0386  -1.0000  -1.0000
+C  core O  core   0.1142   9.4709   1.9602   1.3065   1.1260   1.0865
+H  core O  core   0.0450  10.4434   1.8703   0.9232  -1.0000  -1.0000
+C  core Si core   0.0529  13.2006   2.0696   1.7495   1.5081  -1.0000
+H  core Si core   0.0659  13.7160   1.4966   1.3115  -1.0055  -1.0000
+O  core Si core   0.1156  11.3726   2.0255   1.7205   1.3699  -1.0000
+Si core Si core   0.1365  11.1784   1.9123   1.7095   1.4858  -1.0000
+#
+#  Angle parameters 
+#
+reaxff3_angle kcal 
+C  core C  core C  core  75.3892  20.0233   2.1017   1.0400   0.0031
+C  core C  core H  core  71.5185  11.6939   6.5331   1.0400   0.0000
+C  core H  core H  core  72.0977   8.3496   2.2003   1.0400   0.2000
+H  core C  core C  core   0.0000  28.5244   6.0000   1.0400   0.0000
+H  core H  core H  core   0.0000  27.9213   5.8635   1.0400   0.0000
+C  core C  core O  core  74.0268  28.8967   1.2260   1.0400   4.6228
+C  core O  core O  core  80.2138  52.6408   1.3212   1.0400   4.6228
+C  core H  core O  core  79.3704  19.7034   2.5917   1.0400   0.0000
+O  core C  core C  core  76.4435  43.0224   0.6138   1.0400   0.4897
+O  core C  core O  core  81.4803  53.9823   0.8786   1.0400   0.4897
+O  core O  core O  core  78.4963  61.0192   1.0093   1.0400   0.4897
+O  core C  core H  core  82.1464  36.8788   1.3932   1.0400   0.0000
+O  core H  core O  core  89.4640  10.1026   4.7764   1.0400   0.0000
+O  core H  core H  core  81.7479  15.4269   4.2247   1.0400   0.0000
+H  core C  core O  core   0.0000   0.0019   6.0000   1.0400   0.0000
+H  core O  core O  core   0.0000   0.0019   6.0000   1.0400   0.0000
+H  core H  core O  core   0.0000   0.0019   6.0000   1.0400   0.0000
+Si core Si core Si core  78.5354  38.9251   0.8265   1.2887   0.0100
+Si core H  core Si core  79.0822  11.1429   2.5009   1.2359   2.7527
+Si core H  core H  core  79.0377   9.4230   4.0267   1.0050   3.2371
+Si core O  core Si core  75.1800  19.3598   1.2213   1.1463   3.9834
+Si core H  core O  core  63.9892  16.5864   4.1343   1.0000   3.2120
+Si core O  core O  core  89.0000  34.7562   0.3372   1.2711   0.2152
+O  core Si core Si core  63.5212   1.7624   0.3862   1.1252   2.6557
+O  core H  core Si core  69.2579   4.4688   5.8970   1.1218   3.6100
+O  core O  core Si core  87.1521  16.3509   2.2547   1.0758   1.1312
+H  core H  core Si core   0.0000  49.9658   5.9898   1.0279   1.6112
+H  core Si core Si core   0.0000  24.8597   5.8973   1.0634   1.5840
+H  core O  core Si core   0.0000   7.4792   3.9744   1.0099   1.6980
+C  core C  core Si core  64.5561  20.9500   1.9842   1.0477   1.0417
+Si core C  core C  core  69.6070  20.4933   2.1373   1.1315   1.0375
+C  core Si core Si core  58.7586  16.6923   1.9877   1.0094   0.9878
+Si core C  core Si core  71.3550  20.3460   2.0415   1.0345   1.0111
+C  core H  core Si core  67.2572  11.8513   2.4212   1.0202   1.0191
+Si core C  core H  core  71.0461  15.3115   2.4106   1.1311   1.0505
+O  core C  core Si core  83.4540  13.2996   0.9157   1.2768   0.9692
+Si core C  core O  core  60.1831  41.2192   1.3565   1.0135   1.0285
+C  core O  core Si core  76.6122   5.4827   0.9914   1.2774   0.9836
+H  core C  core Si core   0.0000   2.7081   1.1497   1.2657   0.9548
+reaxff3_penalty kcal 
+C  core C  core C  core  35.9933
+C  core C  core H  core   0.0000
+C  core H  core H  core   0.0000
+H  core C  core H  core   0.0000
+H  core C  core C  core   0.0000
+H  core H  core H  core   0.0000
+C  core C  core O  core   0.0000
+C  core O  core O  core -35.0000
+C  core H  core O  core   0.0000
+O  core C  core C  core   0.0000
+O  core C  core O  core   0.0000
+O  core O  core O  core   0.0000
+O  core C  core H  core   0.0000
+O  core H  core O  core   0.0000
+O  core H  core H  core   0.0000
+H  core C  core O  core   0.0000
+H  core O  core O  core   0.0000
+H  core H  core O  core   0.0000
+Si core Si core Si core   0.0000
+Si core H  core Si core   0.0000
+Si core H  core H  core   0.0000
+Si core O  core Si core   0.0000
+Si core H  core O  core   0.0000
+Si core O  core O  core   0.0000
+O  core Si core Si core   0.0000
+O  core H  core Si core   0.0000
+O  core O  core Si core   0.0000
+H  core H  core Si core   0.0000
+H  core Si core Si core   0.0000
+H  core O  core Si core   0.0000
+C  core C  core Si core   0.0000
+Si core C  core C  core   0.0000
+C  core Si core Si core   0.0000
+Si core C  core Si core   0.0000
+C  core H  core Si core   0.0000
+Si core C  core H  core   0.0000
+O  core C  core Si core   0.0000
+Si core C  core O  core   0.0000
+C  core O  core Si core   0.0000
+H  core C  core Si core   0.0000
+reaxff3_conjugation kcal 
+C  core C  core C  core   2.4996  26.5405   2.6962   2.1365
+O  core O  core O  core -38.4200  26.5405   2.6962   2.1365
+#
+#  Hydrogen bond parameters 
+#
+reaxff3_hbond kcal 
+H  core O  core O  core   2.2017  -7.1638   1.6003   1.7032
+#
+#  Torsion parameters 
+#
+reaxff4_torsion kcal 
+C  core C  core C  core C  core   0.0000  38.9174   0.3649  -8.2931  -2.0127
+C  core C  core C  core H  core   0.0000  49.1001   0.2713  -8.5284  -1.5309
+H  core C  core C  core H  core   0.0000  34.0265   0.3804  -6.3917  -0.9965
+X  core C  core H  core X  core   0.0000   0.0000   0.0000   0.0000   0.0000
+X  core H  core H  core X  core   0.0000   0.0000   0.0000   0.0000   0.0000
+X  core C  core O  core X  core   3.9830  13.0320   0.4739  -1.9813  -2.0000
+X  core H  core O  core X  core   0.0000   0.1000   0.0200  -2.5415   0.0000
+X  core O  core O  core X  core   0.0318  23.1045   1.2614 -12.3670   0.0000
+X  core C  core C  core X  core   0.0000   0.6675   0.0000  -8.2352   0.0000
+H  core Si core Si core H  core   0.0000   0.0000   0.0640  -2.4426   0.0000
+H  core Si core Si core Si core   0.0000   0.0000   0.1587  -2.4426   0.0000
+X  core H  core Si core X  core   0.0000   0.0000   0.1200  -2.4847   0.0000
+ ERROR: Species number out of bounds in torsion parameters! 

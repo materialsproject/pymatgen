@@ -5,6 +5,7 @@ TODO: Modify module doc.
 """
 
 from __future__ import division
+from pymatgen.io.smartio import read_mol
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -125,6 +126,24 @@ class MoleculeMatcherTest(unittest.TestCase):
         mm = MoleculeMatcher(tolerance=0.001, mapper=mapper)
         mol1 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t3.xyz")).pymatgen_mol
         mol2 = BabelMolAdaptor.from_file(os.path.join(test_dir, "t4.xyz")).pymatgen_mol
+        self.assertFalse(mm.fit(mol1, mol2))
+
+    def test_strange_inchi(self):
+        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol1 = read_mol(os.path.join(test_dir, "k1.sdf"))
+        mol2 = read_mol(os.path.join(test_dir, "k2.sdf"))
+        self.assertTrue(mm.fit(mol1, mol2))
+
+    def test_thiane(self):
+        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol1 = read_mol(os.path.join(test_dir, "thiane1.sdf"))
+        mol2 = read_mol(os.path.join(test_dir, "thiane2.sdf"))
+        self.assertFalse(mm.fit(mol1, mol2))
+
+    def test_thiane_ethynyl(self):
+        mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
+        mol1 = read_mol(os.path.join(test_dir, "thiane_ethynyl1.sdf"))
+        mol2 = read_mol(os.path.join(test_dir, "thiane_ethynyl2.sdf"))
         self.assertFalse(mm.fit(mol1, mol2))
 
 

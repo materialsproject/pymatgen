@@ -8,6 +8,8 @@
    :alt: pymatgen
    :align: center
 
+.. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/stable.png?circle-token=:circle-token
+
 Introduction
 ============
 
@@ -72,52 +74,39 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
-v2.8.6
+v2.9.4
 ------
-1. Bug fix for VASP io set introduced by the default to sorting of structure
-   sites when generating VASP input.
+1. Bug fix for Pourbaix Maker (Sai).
+2. Streamline use of scratch directories for various calls. Require monty >=
+   0.1.2.
+3. High accuracy mode for Zeo++ (Bharat Medasani).
 
-v2.8.4
+v2.9.3
 ------
-1. Completely revamped Compatibility/Correction system which improves
-   readability (Shyue Ping Ong/Anubhav Jain/Sai Jayaraman). This change is
-   backwards compatible for the most part.
+1. Bug fix release for printing TransformedStructures from Substitutor (Will
+   Richards).
+2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+   David Waroquiers and Bharat Medasani).
 
-v2.8.3
+v2.9.2
 ------
-1. Big fix release for json dumping for unitized floats.
+1. Bug fix release for DummySpecie, which failed when deserializing from
+   json and had bad hash function.
 
-v2.8.2
+v2.9.1
 ------
-1. Bug fix release to improve CIF parsing for more non-standard CIF files.
-   In particular, non-ascii characters are removed and _cgraph* fields are
-   removed prior to parsing for better support in PyCiFRW.
+1. Structure/Molecule now supports Pythonic list-like API for replacing and
+   removing sites. See :ref:`quick_start` for examples.
 
-v2.8.1
+v2.9.0
 ------
-1. Bug fix release. Incorrect units assigned for ionic radii.
-2. Improved nwchemio supports COSMO and ESP calculations (Nav Rajput).
-
-v2.8.0
-------
-1. **Units**. Pymatgen now has a new system of managing units,
-   defined in pymatgen.core.units. Typical energy, length, time,
-   temperature and charge units are supported. Units subclass float,
-   which makes the usage transparent in all functions. The value that they
-   being are in terms of conversions between different units and addition and
-   subtraction of different units of the same type. Some basic quantities
-   like ionic radii and atomic masses are now returned in unitized forms for
-   easy conversion. Please see :mod:`pymatgen.core.units` and the
-   :doc:`examples </examples>` for a demonstration of house to use units in
-   pymatgen.
-2. **Minor backwards-incompatible change**. Structures are now sorted by
-   default when generating VASP input files using vaspio_set. Old behavior can
-   be obtained by setting sort_structure=False in the constructor. This is
-   typically the desired behavior and prevents the generation of large
-   POTCARs when atomic species are not grouped together.
-3. Bug fix for Molecule.substitute. Earlier algorithm was not detecting
-   terminal atoms properly.
-4. Additional conversion tools for ABINIT (by Matteo Giantomassi).
+1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
+2. Vastly improved docs.
+3. Refactoring to move commonly used Python utility functions to `Monty
+   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
+   for pymatgen.
+4. Minor fixes and improvements to DiffusionAnalyzer.
+5. Many bug fixes and improvements.
 
 :doc:`Older versions </changelog>`
 
@@ -154,6 +143,19 @@ to be installed for matplotlib.
 Stable version
 --------------
 
+.. note:: Preparation
+
+    Before installing pymatgen, you may need to first install a few critical
+    dependencies manually.
+
+    1. Numpy's distutils is needed to compile the spglib and pyhull
+       dependencies. This should be the first thing you install.
+    2. Pyhull and PyCifRW. The recent versions of pip does not allow the
+       installation of externally hosted files. Furthermore,
+       there are some issues with easy_install for these extensions. Install
+       both these dependencies manually using "pip install <package>
+       --allow-external <package> --allow-unverified <package>".
+
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
 install pymatgen on any system is to use easy_install or pip, as follows::
@@ -167,10 +169,9 @@ or::
 Detailed installation instructions for various platforms (Mac and Windows)
 are given on this :doc:`page </installation>`.
 
-.. note:: Install numpy first.
-
-    You may need to install numpy before installing pymatgen as numpy's
-    distutils is needed to compile the spglib and pyhull dependencies.
+Some extra functionality (e.g., generation of POTCARs) do require additional
+setup. Please see the following sections for further details on the
+dependencies needed, where to get them and how to install them.
 
 Developmental version
 ---------------------
@@ -187,9 +188,15 @@ or to install the package in developmental mode::
 
     python setup.py develop
 
-Some extra functionality (e.g., generation of POTCARs) do require additional
-setup.Please see the following sections for further details on the
-dependencies needed, where to get them and how to install them.
+Running unittests
+~~~~~~~~~~~~~~~~~
+
+To run the very comprehensive suite of unittests included with the
+developmental version, make sure you have nose installed and then just type::
+
+    nosetests
+
+in the pymatgen root directory.
 
 Installation help
 -----------------
@@ -215,6 +222,8 @@ etc.) from various sources (first principles calculations, crystallographic and
 molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
+
+.. _quick_start:
 
 Quick start
 -----------
@@ -269,6 +278,46 @@ some quick examples of the core capabilities and objects:
     >>> # formats via the optional openbabel dependency (if installed).
     >>> methane = mg.read_mol("methane.xyz")
     >>> mg.write_mol(mol, "methane.gjf")
+    >>>
+    >>> # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)
+    >>> # Changing the specie of a site.
+    >>> structure[1] = "F"
+    >>> print structure
+    Structure Summary (Cs1 F1)
+    Reduced Formula: CsF
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 F     0.500000     0.500000     0.500000
+    >>>
+    >>> #Changes species and coordinates (fractional assumed for structures)
+    >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
+    >>> print structure
+    Structure Summary (Cs1 Cl1)
+    Reduced Formula: CsCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 Cl     0.510000     0.510000     0.510000
+    >>>
+    >>> # Because structure is like a list, it supports most list-like methods
+    >>> # such as sort, reverse, etc.
+    >>> structure.reverse()
+    >>> print structure
+    Structure Summary (Cs1 Cl1)
+    Reduced Formula: CsCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cl     0.510000     0.510000     0.510000
+    2 Cs     0.000000     0.000000     0.000000
+    >>>
+    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
+    >>> # in the x-direction.
+    >>> methane[0] = "N", [0.01, 0, 0]
 
 The above illustrates only the most basic capabilities of pymatgen.
 

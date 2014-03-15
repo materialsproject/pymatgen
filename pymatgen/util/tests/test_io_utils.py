@@ -14,37 +14,30 @@ __date__ = "Nov 14, 2012"
 
 import unittest
 import os
+import json
 
-from pymatgen.util.io_utils import reverse_readline, FileLock, FileLockException
+from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.io_utils import FileLock, FileLockException, clean_json
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files')
 
 
-class BackwardsReaderTest(unittest.TestCase):
-    NUMLINES = 3000
+class FuncTest(PymatgenTest):
 
-    def test_reverse_readline(self):
-        """
-        We are making sure a file containing line numbers is read in reverse
-        order, i.e. the first line that is read corresponds to the last line.
-        number
-        """
-        with open(os.path.join(test_dir, "three_thousand_lines.txt")) as f:
-            for idx, line in enumerate(reverse_readline(f)):
-                self.assertEqual(int(line), self.NUMLINES - idx,
-                                 "read_backwards read {} whereas it should "
-                                 "have read {}".format(
-                                     int(line), self.NUMLINES - idx))
+    def test_clean_json(self):
+        #clean_json should have no effect on None types.
+        d = {"hello": 1, "world": None}
+        clean = clean_json(d)
+        self.assertIsNone(clean["world"])
+        self.assertEqual(json.dumps(d), json.dumps(clean))
 
-    def test_empty_file(self):
-        """
-        make sure an empty file does not throw an error when reverse_readline
-        is called this was a problem with an earlier implementation
-        """
-        with open(os.path.join(test_dir, "empty_file.txt")) as f:
-            for idx, line in enumerate(reverse_readline(f)):
-                raise ValueError("an empty file is being read!")
+        d = {"hello": self.get_test_structure()}
+        self.assertRaises(TypeError, json.dumps, d)
+        clean = clean_json(d)
+        self.assertIsInstance(clean["hello"], basestring)
+        clean_strict = clean_json(d, strict=True)
+        self.assertIsInstance(clean_strict["hello"], dict)
 
 
 class FileLockTest(unittest.TestCase):

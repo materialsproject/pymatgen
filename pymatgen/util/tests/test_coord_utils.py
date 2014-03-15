@@ -18,9 +18,11 @@ import itertools
 import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value,\
-    in_coord_list, pbc_diff, in_coord_list_pbc, get_points_in_sphere_pbc,\
-    find_in_coord_list, find_in_coord_list_pbc, pbc_all_distances,\
-    barycentric_coords, pbc_shortest_vectors
+    in_coord_list, is_coord_subset, pbc_diff, in_coord_list_pbc,\
+    get_points_in_sphere_pbc, find_in_coord_list, find_in_coord_list_pbc,\
+    pbc_all_distances, barycentric_coords, pbc_shortest_vectors,\
+    lattice_points_in_supercell, coord_list_mapping, all_distances,\
+    is_coord_subset_pbc, coord_list_mapping_pbc
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -40,6 +42,45 @@ class CoordUtilsTest(PymatgenTest):
         self.assertTrue(in_coord_list(coords, test_coord, atol=0.15))
         self.assertFalse(in_coord_list([0.99, 0.99, 0.99], test_coord,
                                        atol=0.15))
+        
+    def test_is_coord_subset(self):
+        c1 = [0,0,0]
+        c2 = [0,1.2,-1]
+        c3 = [3,2,1]
+        c4 = [3-9e-9, 2-9e-9, 1-9e-9]
+        self.assertTrue(is_coord_subset([c1, c2, c3], [c1, c4, c2]))
+        self.assertTrue(is_coord_subset([c1], [c2, c1]))
+        self.assertTrue(is_coord_subset([c1, c2], [c2, c1]))
+        self.assertFalse(is_coord_subset([c1, c2], [c2, c3]))
+        self.assertFalse(is_coord_subset([c1, c2], [c2]))
+        
+    def test_coord_list_mapping(self):
+        c1 = [0,.124,0]
+        c2 = [0,1.2,-1]
+        c3 = [3,2,1]
+        a = np.array([c1, c2])
+        b = np.array([c3, c2, c1])
+        inds = coord_list_mapping(a, b)
+        self.assertTrue(np.allclose(a, b[inds]))
+        self.assertRaises(Exception, coord_list_mapping, [c1,c2], [c2,c3])
+        self.assertRaises(Exception, coord_list_mapping, [c2], [c2,c2])
+        
+    def test_coord_list_mapping_pbc(self):
+        c1 = [0.1, 0.2, 0.3]
+        c2 = [0.2, 0.3, 0.3]
+        c3 = [0.5, 0.3, 0.6]
+        c4 = [1.5, -0.7, -1.4]
+        
+        a = np.array([c1, c3, c2])
+        b = np.array([c4, c2, c1])
+        
+        inds =  coord_list_mapping_pbc(a, b)
+        diff = a - b[inds]
+        diff -= np.round(diff)
+        self.assertTrue(np.allclose(diff, 0))
+        
+        self.assertRaises(Exception, coord_list_mapping, [c1,c2], [c2,c3])
+        self.assertRaises(Exception, coord_list_mapping, [c2], [c2,c2])
 
     def test_find_in_coord_list(self):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
@@ -52,6 +93,12 @@ class CoordUtilsTest(PymatgenTest):
         coords = [[0, 0, 0], [0.5, 0.5, 0.5], [0.1, 0.1, 0.1]]
         self.assertArrayEqual(find_in_coord_list(coords, test_coord,
                                                  atol=0.15), [0, 2])
+        
+    def test_all_distances(self):
+        coords1 = [[0, 0, 0], [0.5, 0.5, 0.5]]
+        coords2 = [[1, 2, -1], [1, 0, 0], [1, 0, 0]]
+        result = [[2.44948974, 1, 1], [2.17944947, 0.8660254, 0.8660254]]
+        self.assertArrayAlmostEqual(all_distances(coords1, coords2), result, 4) 
 
     def test_pbc_diff(self):
         self.assertArrayAlmostEqual(pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]),
@@ -109,6 +156,17 @@ class CoordUtilsTest(PymatgenTest):
         test_coord = [-0.499, -0.499, -0.499]
         self.assertEqual(
             find_in_coord_list_pbc(coords, test_coord, atol=0.01)[0], 1)
+        
+    def test_is_coord_subset_pbc(self):
+        c1 = [0,0,0]
+        c2 = [0,1.2,-1]
+        c3 = [2.3,0,1]
+        c4 = [1.3-9e-9, -1-9e-9, 1-9e-9]
+        self.assertTrue(is_coord_subset_pbc([c1, c2, c3], [c1, c4, c2]))
+        self.assertTrue(is_coord_subset_pbc([c1], [c2, c1]))
+        self.assertTrue(is_coord_subset_pbc([c1, c2], [c2, c1]))
+        self.assertFalse(is_coord_subset_pbc([c1, c2], [c2, c3]))
+        self.assertFalse(is_coord_subset_pbc([c1, c2], [c2]))
 
     def test_get_points_in_sphere_pbc(self):
         latt = Lattice.cubic(1)
@@ -121,6 +179,19 @@ class CoordUtilsTest(PymatgenTest):
         self.assertEqual(len(get_points_in_sphere_pbc(latt, pts,
                                                       [0.5, 0.5, 0.5],
                                                       0.5)), 515)
+ 
+    def test_lattice_points_in_supercell(self):
+        supercell = np.array([[1,3,5], [-3,2,3], [-5,3,1]])
+        points = lattice_points_in_supercell(supercell)
+        self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
+        self.assertGreaterEqual(np.min(points), -1e-10)
+        self.assertLessEqual(np.max(points), 1-1e-10)
+        
+        supercell = np.array([[-5, -5, -3],[0, -4, -2],[0, -5, -2]])
+        points = lattice_points_in_supercell(supercell)
+        self.assertAlmostEqual(len(points), abs(np.linalg.det(supercell)))
+        self.assertGreaterEqual(np.min(points), -1e-10)
+        self.assertLessEqual(np.max(points), 1-1e-10)
 
     def test_barycentric(self):
         #2d test

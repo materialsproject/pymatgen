@@ -3,9 +3,14 @@ import os
 
 from pymatgen.analysis.pourbaix.maker import PourbaixDiagram
 from pymatgen.analysis.pourbaix.entry import PourbaixEntryIO
-from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
+
+try:
+    from pymatgen.analysis.pourbaix.analyzer import PourbaixAnalyzer
+except ImportError:
+    PourbaixAnalyzer = None
 
 
+@unittest.skipIf(PourbaixAnalyzer is None, "ImportError while importing PourbaixAnalyzer")
 class TestPourbaixAnalyzer(unittest.TestCase):
 
     def setUp(self):

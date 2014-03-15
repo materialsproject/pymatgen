@@ -25,7 +25,7 @@ except ImportError:
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.coord_utils import find_in_coord_list
-from pymatgen.util.decorators import requires
+from monty.dev import requires
 
 logger = logging.getLogger(__name__)
 
@@ -35,22 +35,19 @@ class PointGroup(list):
     Defines a point group, which is essentially a sequence of symmetry
     operations.
 
+    Args:
+        sch_symbol (str): Schoenflies symbol of the point group.
+        operations ([SymmOp]): Initial set of symmetry operations. It is
+            sufficient to provide only just enough operations to generate
+            the full set of symmetries.
+        tol (float): Tolerance to generate the full set of symmetry
+            operations.
+
     .. attribute:: sch_symbol
 
         Schoenflies symbol of the point group.
     """
     def __init__(self, sch_symbol, operations, tol=0.1):
-        """
-        Args:
-            sch_symbol:
-                The schoenflies symbol of the point group.
-            operations:
-                An initial set of symmetry operations. It is sufficient to
-                provide only just enough operations to generate the full set
-                of symmetries.
-            tol:
-                Tolerance to generate the full set of symmetry operations.
-        """
         self.sch_symbol = sch_symbol
         super(PointGroup, self).__init__(
             generate_full_symmops(operations, tol))
@@ -95,17 +92,13 @@ class PointGroupAnalyzer(object):
         The default settings are usually sufficient.
 
         Args:
-            mol:
-                Molecule
-            tolerance:
-                Distance tolerance to consider sites as symmetrically
-                equivalent. Defaults to 0.3 Angstrom.
-            eigen_tolerance:
-                Tolerance to compare eigen values of the inertia tensor.
-                Defaults to 0.01.
-            matrix_tol:
-                Tolerance used to generate the full set of symmetry
-                operations of the point group.
+            mol (Molecule): Molecule to determine point group for.
+            tolerance (float): Distance tolerance to consider sites as
+                symmetrically equivalent. Defaults to 0.3 Angstrom.
+            eigen_tolerance (float): Tolerance to compare eigen values of
+                the inertia tensor. Defaults to 0.01.
+            matrix_tol (float): Tolerance used to generate the full set of
+                symmetry operations of the point group.
         """
         self.mol = mol
         self.centered_mol = mol.get_centered_molecule()
@@ -312,7 +305,7 @@ class PointGroupAnalyzer(object):
         """
         def not_on_axis(site):
             v = np.cross(site.coords, axis)
-            return np.linalg.norm(v) > self.tol
+            return np.linalg.norm(v) > 1e-3
 
         valid_sets = []
         origin_site, dist_el_sites = cluster_sites(self.centered_mol, self.tol)
@@ -442,8 +435,10 @@ class PointGroupAnalyzer(object):
         equivalent atom.
 
         Args:
-            symmop:
-                Symmetry op to test.
+            symmop (SymmOp): Symmetry operation to test.
+
+        Returns:
+            (bool): Whether SymmOp is valid for Molecule.
         """
         coords = self.centered_mol.cart_coords
         for site in self.centered_mol:
@@ -463,13 +458,11 @@ def cluster_sites(mol, tol):
     Cluster sites based on distance and species type.
 
     Args:
-        mol:
-            Molecule (should be centered at center of mass).
-        tol:
-            Tolerance to use.
+        mol (Molecule): Molecule **with origin at center of mass**.
+        tol (float): Tolerance to use.
 
     Returns:
-        (origin_site, clustered_sites). origin_site is a site at the center
+        (origin_site, clustered_sites): origin_site is a site at the center
         of mass (None if there are no origin atoms). clustered_sites is a
         dict of {(avg_dist, species_and_occu): [list of sites]}
     """
@@ -501,8 +494,7 @@ def generate_full_symmops(symmops, tol):
     identifies all operations.
 
     Args:
-        symmops:
-            Initial set of symmetry operations.
+        symmops ([SymmOp]): Initial set of symmetry operations.
 
     Returns:
         Full set of symmetry operations.
@@ -522,3 +514,4 @@ def generate_full_symmops(symmops, tol):
                 return generate_full_symmops(symmops + [SymmOp(m)], tol)
 
     return symmops
+

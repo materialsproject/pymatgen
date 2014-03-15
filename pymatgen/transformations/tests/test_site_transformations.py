@@ -23,7 +23,7 @@ from pymatgen.transformations.site_transformations import \
     ReplaceSiteSpeciesTransformation, RemoveSitesTransformation, \
     PartialRemoveSitesTransformation
 
-from pymatgen.util.io_utils import which
+from monty.os.path import which
 
 
 enumlib_present = which('multienum.x') and which('makestr.x')

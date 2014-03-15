@@ -1,13 +1,5 @@
-apps Package
-============
-
-:mod:`apps` Package
--------------------
-
-.. automodule:: pymatgen.apps
-    :members:
-    :undoc-members:
-    :show-inheritance:
+pymatgen.apps package
+=====================
 
 Subpackages
 -----------
@@ -17,3 +9,10 @@ Subpackages
     pymatgen.apps.battery
     pymatgen.apps.borg
 
+Module contents
+---------------
+
+.. automodule:: pymatgen.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:

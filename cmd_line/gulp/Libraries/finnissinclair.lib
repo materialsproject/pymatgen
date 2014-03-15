@@ -1,0 +1,95 @@
+#
+#  Finnis-Sinclair - library of potentials for GULP
+#
+#  all of the potentials come from
+#  from M.W. Finnis and J.E. Sinclair
+#  Philosophical Magazine A, Vol. 50, No. 1, 45-55 (1984)
+#
+#  except for the BCC Fe potential which Finnis improved in 1985
+#  published in M. Marchese, G. Jacucci, and C.P. Flynn
+#  Philosophical Magazine Letters, Vol. 57, No. 1, 25-30 (1988)
+#
+#  -----
+#
+#  Charge
+#
+species
+V  core	 0.000
+Nb core  0.000
+Ta core  0.000
+Cr core  0.000
+Mo core  0.000
+W  core  0.000
+Fe core  0.000
+
+#
+#  -----
+#
+#  Cutoff Distances
+#
+manybody
+V  core V  core  0.0 3.692767
+Nb core Nb core  0.0 3.915354
+Ta core Ta core  0.0 4.076980
+Cr core Cr core  0.0 3.915720
+Mo core Mo core  0.0 4.114825
+W  core W  core  0.0 4.400224
+Fe core Fe core  0.0 3.569745
+#
+#  -----
+#
+#  Functional Term
+#
+eam_functional square_root
+V  core 2.010637
+Nb core 3.013789
+Ta core 2.591061
+Cr core 1.453418
+Mo core 1.887117
+W  core 1.896373
+Fe core 1.828905
+#
+#  -----
+#
+#  Density Term
+#
+#  the original formulation is
+#  phi = (r-d)^2 + beta*(r-d)^3/d
+#  
+eam_density quadratic
+V  core 1 3.692767
+Nb core 1 3.915354
+Ta core 1 4.076980
+Cr core 1 3.915720
+Mo core 1 4.114825
+W  core 1 4.400224
+Fe core 1 3.569745
+eam_density cubic
+Cr core .459685575067 3.915720
+Fe core .504237697651 3.569745
+#
+#  -----
+#
+#  Repulsive Two-Body Components
+#
+#  polynomial pair potential
+#  originally of form (r-c)^2*(c0 + c1*r + c2*r^2)
+#  would multiply to
+#  (c^2*c0)*r^0 + (-2*c*c0+c^2*c1)*r^1 + (c0-2*c*c1+c^2*c2)*r^2 + (c1-2*c*c2)*r^3 + c2*r^4
+#
+polynomial
+4
+V  core V  core -12.73076319   28.22720134  -17.95340464  4.5128168  &
+                 -0.397637  0 3.80
+Nb core Nb core -27.58914346   48.51608152  -26.63774446  5.92313966 &
+                 -0.4663764 0 4.20
+Ta core Ta core  21.44560597   -9.733318476  -1.15970374  1.0497211  &
+                 -0.121735  0 4.20
+Cr core Cr core 245.0924727  -365.8022892   204.8618447 -50.99291496 &
+                  4.7578297 0 2.90
+Mo core Mo core 458.914449   -619.7043497   315.2384455 -71.45605965 &
+                  6.0804249 0 3.25
+W  core W  core 497.8597396  -663.0345724   332.6773121 -74.41886485 &
+                  6.2541999 0 3.25
+Fe core Fe core  14.3010494   -12.56494208    3.2340438  -0.09701    &
+                 -0.0385607 0 3.40

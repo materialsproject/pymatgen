@@ -25,6 +25,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord_utils import get_points_in_sphere_pbc, \
     pbc_shortest_vectors
+from pymatgen.symmetry.finder import SymmetryFinder
 
 
 class AbstractComparator(MSONable):
@@ -44,11 +45,9 @@ class AbstractComparator(MSONable):
         and all oxidation state information are ignored.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -67,8 +66,7 @@ class AbstractComparator(MSONable):
         should be relatively fast to compute relative to the actual matching.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             A hashable object. Examples can be string formulas, etc.
@@ -102,11 +100,9 @@ class SpeciesComparator(AbstractComparator):
         True if species are exactly the same, i.e., Fe2+ == Fe2+ but not Fe3+.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -119,14 +115,66 @@ class SpeciesComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             Reduced formula for the structure is used as a hash for the
             SpeciesComparator.
         """
         return structure.composition.reduced_formula
+
+
+class SpinComparator(AbstractComparator):
+    """
+    A Comparator that matches magnetic structures to their inverse spins.
+    This comparator is primarily used to filter magnetically ordered
+    structures with opposite spins, which are equivalent.
+    """
+
+    def are_equal(self, sp1, sp2):
+        """
+        True if species are exactly the same, i.e., Fe2+ == Fe2+ but not
+        Fe3+. and the spins are reversed. i.e., spin up maps to spin down,
+        and vice versa.
+
+        Args:
+            sp1: First species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+            sp2: Second species. A dict of {specie/element: amt} as per the
+                definition in Site and PeriodicSite.
+
+        Returns:
+            Boolean indicating whether species are equal.
+        """
+        for s1 in sp1.keys():
+            spin1 = getattr(s1, "spin", 0)
+            oxi1 = getattr(s1, "oxi_state", 0)
+            found = False
+            for s2 in sp2.keys():
+                spin2 = getattr(s2, "spin", 0)
+                oxi2 = getattr(s2, "oxi_state", 0)
+                if (s1.symbol == s2.symbol and oxi1 == oxi2
+                        and spin2 == -spin1):
+                    found = True
+                    break
+            if not found:
+                return False
+        return True
+
+    def get_structure_hash(self, structure):
+        """
+        Hash for structure.
+
+        Args:
+            structure: A structure
+
+        Returns:
+            Reduced formula for the structure is used as a hash for the
+            SpeciesComparator.
+        """
+        f = SymmetryFinder(structure, 0.1)
+        return "{} {}".format(f.get_spacegroup_number(),
+                              structure.composition.reduced_formula)
 
 
 class ElementComparator(AbstractComparator):
@@ -141,11 +189,9 @@ class ElementComparator(AbstractComparator):
         oxidation state is not considered.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -161,8 +207,7 @@ class ElementComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             Reduced formula for the structure is used as a hash for the
@@ -181,11 +226,9 @@ class FrameworkComparator(AbstractComparator):
         True if there are atoms on both sites.
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -198,8 +241,7 @@ class FrameworkComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             Number of atoms is a good hash for simple framework matching.
@@ -209,7 +251,8 @@ class FrameworkComparator(AbstractComparator):
 
 class OrderDisorderElementComparator(AbstractComparator):
     """
-    A Comparator that matches sites, regardless of species.
+    A Comparator that matches sites, given some overlap in the element
+    composition
     """
 
     def are_equal(self, sp1, sp2):
@@ -217,11 +260,9 @@ class OrderDisorderElementComparator(AbstractComparator):
         True if there is some overlap in composition between the species
 
         Args:
-            sp1:
-                First species. A dict of {specie/element: amt} as per the
+            sp1: First species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
-            sp2:
-                Second species. A dict of {specie/element: amt} as per the
+            sp2: Second species. A dict of {specie/element: amt} as per the
                 definition in Site and PeriodicSite.
 
         Returns:
@@ -238,8 +279,7 @@ class OrderDisorderElementComparator(AbstractComparator):
         Hash for structure.
 
         Args:
-            structure:
-                A structure
+            structure: A structure
 
         Returns:
             TODO No good hash yet
@@ -291,52 +331,46 @@ class StructureMatcher(MSONable):
                     lattices for the smallest average rms displacement
                     between the two structures)
 
+    Args:
+        ltol (float): Fractional length tolerance. Default is 0.2.
+        stol (float): Site tolerance. Defined as the fraction of the
+            average free length per atom := ( V / Nsites ) ** (1/3)
+            Default is 0.3.
+        angle_tol (float): Angle tolerance in degrees. Default is 5 degrees.
+        primitive_cell (bool): If true: input structures will be reduced to
+            primitive cells prior to matching. Default to True.
+        scale (bool): Input structures are scaled to equivalent volume if
+           true; For exact matching, set to False.
+        attempt_supercell (bool): If set to True and number of sites in
+            cells differ after a primitive cell reduction (divisible by an
+            integer) attempts to generate a supercell transformation of the
+            smaller cell which is equivalent to the larger structure.
+        allow_subset (bool): Allow one structure to match to the subset of
+            another structure. Eg. Matching of an ordered structure onto a
+            disordered one, or matching a delithiated to a lithiated
+            structure. This option cannot be combined with
+            attempt_supercell, or with structure grouping.
+        comparator (Comparator): A comparator object implementing an equals
+            method that declares declaring equivalency of sites. Default is
+            SpeciesComparator, which implies rigid species
+            mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
+
+            Other comparators are provided, e.g., ElementComparator which
+            matches only the elements and not the species.
+
+            The reason why a comparator object is used instead of
+            supplying a comparison function is that it is not possible to
+            pickle a function, which makes it otherwise difficult to use
+            StructureMatcher with Python's multiprocessing.
+        supercell_size: Method to use for determining the size of a
+            supercell (if applicable). Possible values are num_sites,
+            num_atoms or volume.
     """
 
     def __init__(self, ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True,
                  scale=True, attempt_supercell=False, allow_subset=False,
-                 comparator=SpeciesComparator()):
-        """
-        Args:
-            ltol:
-                Fractional length tolerance. Default is 0.2.
-            stol:
-                Site tolerance. Defined as the fraction of the
-                average free length per atom := ( V / Nsites ) ** (1/3)
-                Default is 0.3.
-            angle_tol:
-                Angle tolerance in degrees. Default is 5 degrees.
-            primitive_cell:
-                If true: input structures will be reduced to primitive
-                cells prior to matching. Default to True.
-            scale:
-                Input structures are scaled to equivalent volume if true;
-                For exact matching, set to False.
-            attempt_supercell:
-                If set to True and number of sites in cells differ
-                after a primitive cell reduction (divisible by an integer)
-                attempts to generate a supercell transformation of the
-                smaller cell which is equivalent to the larger structure.
-            allow_subset:
-                Allow one structure to match to the subset of another
-                structure. Eg. Matching of an ordered structure onto a
-                disordered one, or matching a delithiated to a lithiated
-                structure. This option cannot be combined with
-                attempt_supercell, or with structure grouping.
-            comparator:
-                A comparator object implementing an equals method that declares
-                declaring equivalency of sites. Default is
-                SpeciesComparator, which implies rigid species
-                mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
+                 comparator=SpeciesComparator(), supercell_size='num_sites'):
 
-                Other comparators are provided, e.g., ElementComparator which
-                matches only the elements and not the species.
-
-                The reason why a comparator object is used instead of
-                supplying a comparison function is that it is not possible to
-                pickle a function, which makes it otherwise difficult to use
-                StructureMatcher with Python's multiprocessing.
-        """
         self.ltol = ltol
         self.stol = stol
         self.angle_tol = angle_tol
@@ -344,10 +378,22 @@ class StructureMatcher(MSONable):
         self._primitive_cell = primitive_cell
         self._scale = scale
         self._supercell = attempt_supercell
+        self._supercell_size = supercell_size
         self._subset = allow_subset
-        if attempt_supercell and allow_subset:
-            raise ValueError("attempt_supercell cannot be combined with "
-                             "allow_subset")
+
+    def _get_supercell_size(self, target_s, s):
+        """
+        Returns the unrounded number of units of s in target_s
+        """
+        if self._supercell_size == 'num_sites':
+            fu = target_s.num_sites / s.num_sites
+        elif self._supercell_size == 'num_atoms':
+            fu = target_s.composition.num_atoms / s.composition.num_atoms
+        elif self._supercell_size == 'volume':
+            fu = target_s.volume / s.volume
+        else:
+            raise ValueError('invalid argument for supercell_size')
+        return fu
 
     def _get_lattices(self, target_s, s, supercell_size=1):
         """
@@ -415,9 +461,17 @@ class StructureMatcher(MSONable):
             yield nl
 
     def _cmp_fractional_struct(self, s1, s2, frac_tol, mask):
+        #ensure that we always calculate distances from the subset
+        #to the superset
+        if len(s1) > len(s2):
+            s_superset, s_subset = s1, s2
+        else:
+            s_superset, s_subset = s2, s1
+            mask = mask.T
         #compares the fractional coordinates
-        mask_val = 3 * len(s1)
-        dist = s2[:, None] - s1[None, :]
+        mask_val = 3 * len(s_superset)
+        #distance from subset to superset
+        dist = s_superset[None, :] - s_subset[:, None]
         dist = abs(dist - np.round(dist))
         dist[np.where(dist > frac_tol[None, None, :])] = mask_val
         cost = np.sum(dist, axis=-1)
@@ -425,7 +479,7 @@ class StructureMatcher(MSONable):
         if np.max(np.min(cost, axis=1)) >= mask_val:
             return False
         if self._subset:
-            n = len(s1)
+            n = len(s_superset)
             square_cost = np.zeros((n, n))
             square_cost[:cost.shape[0], :cost.shape[1]] = cost
             cost = square_cost
@@ -437,47 +491,55 @@ class StructureMatcher(MSONable):
     def _cart_dists(self, s1, s2, l1, l2, mask):
         """
         Finds the cartesian distances normalized by (V/Natom) ^ 1/3
-        between s1 and s2 on the average lattice of l1 and l2
-        s1 and s2 are lists of fractional coordinates. Minimizes the
-        RMS distance of the matching with an additional translation
-        (but doesn't change the mapping)
+        between two structures on the average lattice of l1 and l2
+        s_superset and s_subset are lists of fractional coordinates.
+        Minimizes the RMS distance of the matching with an additional
+        translation (but doesn't change the mapping)
         returns distances, fractional_translation vector
         """
+        #ensure that we always calculate distances from the subset
+        #to the superset
+        if len(s1) > len(s2):
+            s_superset, s_subset, mult = s1, s2, 1
+        else:
+            s_superset, s_subset, mult = s2, s1, -1
+            mask = mask.T
         #create the average lattice
         avg_params = (np.array(l1.lengths_and_angles) +
                       np.array(l2.lengths_and_angles)) / 2
         avg_lattice = Lattice.from_lengths_and_angles(*avg_params)
-        norm_length = (avg_lattice.volume / len(s1)) ** (1 / 3)
+        norm_length = (avg_lattice.volume / len(s_superset)) ** (1 / 3)
         mask_val = 1e20 * norm_length * self.stol
 
-        all_d_2 = np.zeros([len(s1), len(s1)])
-        vec_matrix = np.zeros([len(s1), len(s1), 3])
+        all_d_2 = np.zeros([len(s_superset), len(s_superset)])
+        vec_matrix = np.zeros([len(s_superset), len(s_superset), 3])
 
-        vecs = pbc_shortest_vectors(avg_lattice, s2, s1)
-        vec_matrix[:len(s2)] = vecs
+        #vectors from subset to superset
+        #1st index subset, 2nd index superset
+        vecs = pbc_shortest_vectors(avg_lattice, s_subset, s_superset)
+        vec_matrix[:len(s_subset), :len(s_superset)] = vecs
         vec_matrix[mask] = mask_val
         d_2 = (np.sum(vecs ** 2, axis=-1))
-        all_d_2[:len(s2)] = d_2
+        all_d_2[:len(s_subset), :len(s_superset)] = d_2
         all_d_2[mask] = mask_val
-
         lin = LinearAssignment(all_d_2)
-        inds = np.arange(len(s2))
-        shortest_vecs = vec_matrix[inds, lin.solution[:len(s2)], :]
+        inds = np.arange(len(s_subset))
+        #shortest vectors from the subset to the superset
+        sol = lin.solution[:len(s_subset)]
+        shortest_vecs = vec_matrix[inds, sol, :]
         translation = np.average(shortest_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
         shortest_distances = np.sum((shortest_vecs - translation) ** 2,
                                     -1) ** 0.5
-        return shortest_distances / norm_length, f_translation
+        return shortest_distances / norm_length, f_translation * mult, sol
 
     def fit(self, struct1, struct2):
         """
         Fit two structures.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             True or False.
@@ -495,10 +557,8 @@ class StructureMatcher(MSONable):
         Calculate RMS displacement between two structures
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             rms displacement normalized by (Vol / nsites) ** (1/3)
@@ -520,30 +580,25 @@ class StructureMatcher(MSONable):
         on the average lattice
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
-            break_on_match:
-                If true, breaks once the max distance is below
-                the stol (RMS distance if use_rms is true)
-            use_rms:
-                If True, finds the match that minimizes
-                RMS instead of minimax
-            niggli:
-                whether to compute the niggli cells of the input
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
+            break_on_match (bool): If true, breaks once the max distance is
+                below the stol (RMS distance if use_rms is true)
+            use_rms (bool): If True, finds the match that minimizes
+                RMS instead of minimax.
+            niggli (bool): Whether to compute the niggli cells of the input
                 structures
 
         Returns:
-            the value, distances, s2 lattice, and s2 translation
-            vector for the best match
+            value, distances, s2 lattice, s2 translation vector, 
+            and mapping from superset to subset for the best match
         """
         struct1 = Structure.from_sites(struct1.sites)
         struct2 = Structure.from_sites(struct2.sites)
 
-        if self._comparator.get_structure_hash(struct1) != \
-                self._comparator.get_structure_hash(struct2) \
-            and not self._subset:
+        if (self._comparator.get_structure_hash(struct1) !=
+                self._comparator.get_structure_hash(struct2)
+                and not self._subset):
             return None
 
         #primitive cell transformation
@@ -552,21 +607,18 @@ class StructureMatcher(MSONable):
             struct2 = struct2.get_primitive_structure()
 
         if self._supercell:
+            fu = self._get_supercell_size(struct1, struct2)
             #force struct1 to be the larger one
-            if struct2.num_sites > struct1.num_sites:
+            if fu < 1:
                 struct2, struct1 = struct1, struct2
-            fu = struct1.num_sites // struct2.num_sites
+                fu = 1 / fu
+            fu = int(round(fu))
         else:
             fu = 1
 
-        # Check that the number of sites is correct
-        if self._subset:
-            if struct2.num_sites > struct1.num_sites:
-                struct2, struct1 = struct1, struct2
-                #can't do the check until we group with the comparator
-        else:
-            if struct1.num_sites != struct2.num_sites * fu:
-                return None
+        #can't do the check until we group with the comparator
+        if (not self._subset) and struct1.num_sites != struct2.num_sites * fu:
+            return None
 
         # Get niggli reduced cells. Though technically not necessary, this
         # minimizes cell lengths and speeds up the matching of skewed
@@ -587,10 +639,10 @@ class StructureMatcher(MSONable):
             struct2.modify_lattice(nl2)
 
         #fractional tolerance of atomic positions (2x for initial fitting)
-        normalization = ((2 * struct2.num_sites) /
-                         (struct1.volume + struct2.volume)) ** (1 / 3)
+        normalization = ((2 * struct2.num_sites * fu) /
+                         (struct1.volume + struct2.volume * fu)) ** (1 / 3)
         frac_tol = np.array(struct1.lattice.reciprocal_lattice.abc) * \
-                   self.stol / ((1 - self.ltol) * np.pi) / normalization
+            self.stol / ((1 - self.ltol) * np.pi) / normalization
 
         #make array mask
         mask = np.zeros((len(struct2) * fu, len(struct1)), dtype=np.bool)
@@ -602,7 +654,13 @@ class StructureMatcher(MSONable):
                         site2.species_and_occu, site1.species_and_occu)
                 i += 1
 
-        #print LinearAssignment(mask).min_cost
+        #check that there is some valid mapping between sites
+        nmax = max(mask.shape)
+        sq_mask = np.zeros((nmax, nmax))
+        sq_mask[mask] = 10000
+        if LinearAssignment(sq_mask).min_cost > 0:
+            return None
+
         #find the best sites for the translation vector
         num_s1_invalid_matches = np.sum(mask, axis=1)
         s2_translation_index = np.argmax(num_s1_invalid_matches)
@@ -627,40 +685,20 @@ class StructureMatcher(MSONable):
                 translation = s1fc[s1i] - s2fc[s2_translation_index]
                 t_s2fc = s2fc + translation
                 if self._cmp_fractional_struct(s1fc, t_s2fc, frac_tol, mask):
-                    distances, t = self._cart_dists(s1fc, t_s2fc, nl, nl1,
-                                                    mask)
+                    distances, t, mapping = self._cart_dists(s1fc, t_s2fc, nl, 
+                                                             nl1, mask)
                     if use_rms:
-                        val = np.linalg.norm(distances) / len(distances) ** \
-                              0.5
+                        val = np.linalg.norm(distances) / len(distances) ** 0.5
                     else:
                         val = max(distances)
                     if best_match is None or val < best_match[0]:
                         total_translation = translation + t
                         total_translation -= np.round(total_translation)
-                        best_match = val, distances, nl, total_translation
+                        best_match = val, distances, nl, total_translation, mapping
                     if break_on_match and val < self.stol:
                         return best_match
         if best_match and best_match[0] < self.stol:
             return best_match
-
-    def find_indexes(self, s_list, group_list):
-        """
-        Given a list of structures, return list of indices where each
-        structure appears in group_list.
-
-        Args:
-            s_list:
-                list of structures to check
-            group_list:
-                list to find structures in
-        """
-        inds = [-1] * len(s_list)
-        for j in range(len(s_list)):
-            for i in range(len(group_list)):
-                if s_list[j] in group_list[i]:
-                    inds[j] = i
-                    break
-        return inds
 
     def group_structures(self, s_list):
         """
@@ -668,33 +706,34 @@ class StructureMatcher(MSONable):
         them by structural equality.
 
         Args:
-            s_list:
-                List of structures to be grouped
+            s_list ([Structure]): List of structures to be grouped
 
         Returns:
             A list of lists of matched structures
-            Assumption: if s1=s2 and s2=s3, then s1=s3
-            This may not be true for small tolerances.
+            Assumption: if s1 == s2 but s1 != s3, than s2 and s3 will be put 
+            in different groups without comparison.
         """
         if self._subset:
             raise ValueError("allow_subset cannot be used with"
                              " group_structures")
-            #Use structure hash to pre-group structures.
-        sorted_s_list = sorted(s_list, key=self._comparator.get_structure_hash)
+
+        #Use structure hash to pre-group structures.
+        shash = self._comparator.get_structure_hash
+        sorted_s_list = sorted(s_list, key=shash)
         all_groups = []
 
         #For each pre-grouped list of structures, perform actual matching.
-        for k, g in itertools.groupby(sorted_s_list,
-                                      key=self._comparator.get_structure_hash):
-            g = list(g)
-            group_list = [[g[0]]]
-            for i, j in itertools.combinations(range(len(g)), 2):
-                s1_ind, s2_ind = self.find_indexes([g[i], g[j]], group_list)
-                if s2_ind == -1 and self.fit(g[i], g[j]):
-                    group_list[s1_ind].append(g[j])
-                elif (j - i) == 1 and s2_ind == -1:
-                    group_list.append([g[j]])
-            all_groups.extend(group_list)
+        for k, g in itertools.groupby(sorted_s_list, key=shash):
+            unmatched = list(g)
+            while len(unmatched) > 0:
+                ref = unmatched.pop(0)
+                matches = [ref]
+                inds = filter(lambda i: self.fit(ref, unmatched[i]),
+                              xrange(len(unmatched)))
+                matches.extend([unmatched[i] for i in inds])
+                unmatched = [unmatched[i] for i in xrange(len(unmatched))
+                             if i not in inds]
+                all_groups.append(matches)
         return all_groups
 
     @property
@@ -722,10 +761,8 @@ class StructureMatcher(MSONable):
         structures are similar.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             (minimax_rms, min_mapping)
@@ -764,14 +801,12 @@ class StructureMatcher(MSONable):
         Performs an anonymous fitting, which allows distinct species in one
         structure to map to another. E.g., to compare if the Li2O and Na2O
         structures are similar. If multiple substitutions are within tolerance
-        this will return the one which minimizes the difference in electronegativity
-        between the matches species.
+        this will return the one which minimizes the difference in
+        electronegativity between the matches species.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             min_mapping
@@ -800,7 +835,7 @@ class StructureMatcher(MSONable):
                      struct1.composition.get(host_sp.elements[0]) for
                      host_sp, map_sp in sp_mapping.iteritems()])
 
-                if min_X_diff is 0:
+                if min_X_diff == 0:
                     return {}
 
                 if min_X_diff > X_diff:
@@ -819,10 +854,8 @@ class StructureMatcher(MSONable):
         substitutions that are within tolerance
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             (mappings)
@@ -842,16 +875,12 @@ class StructureMatcher(MSONable):
             sp_mapping = dict(zip(sp1, perm))
             mapped_sp = [sp_mapping[site.species_and_occu] for site in struct1]
             transformed_structure = Structure(latt1, mapped_sp, fcoords1)
-            rms = self.get_rms_dist(transformed_structure, struct2)
-            if rms is not None:
-
-                possible_mapping = {k: v for k, v in sp_mapping.items()}
-
-                if rms[1] < self.stol:
-                    #check if mapping already found
-                    for k, v in possible_mapping.iteritems():
-                        if {k: v} not in mappings:
-                            mappings.append({k: v})
+            possible_mapping = {k: v for k, v in sp_mapping.items()}
+            if self.fit(transformed_structure, struct2):
+                #check if mapping already found
+                for k, v in possible_mapping.iteritems():
+                    if {k: v} not in mappings:
+                        mappings.append({k: v})
         if not mappings:
             return None
         else:
@@ -864,10 +893,8 @@ class StructureMatcher(MSONable):
         structures are similar.
 
         Args:
-            struct1:
-                1st structure
-            struct2:
-                2nd structure
+            struct1 (Structure): 1st structure
+            struct2 (Structure): 2nd structure
 
         Returns:
             A minimal species mapping that would map struct1 to struct2 in
@@ -886,17 +913,18 @@ class StructureMatcher(MSONable):
             return None
         else:
             return min_mapping
-        
+
     def get_supercell_matrix(self, supercell, struct):
         """
         Returns the supercell matrix for transforming struct to supercell. This
         can be used for very distorted 'supercells' where the primitive cell
-        is hard to find
+        is impossible to find
         """
         if self._primitive_cell:
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
-        if self._supercell and struct.num_sites > supercell.num_sites:
+        if self._supercell \
+                and self._get_supercell_size(supercell, struct) < 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         match = self._find_match(supercell, struct, break_on_match=False,
@@ -904,7 +932,7 @@ class StructureMatcher(MSONable):
         if match is None:
             return None
 
-        return np.round(np.dot(match[2].matrix, 
+        return np.round(np.dot(match[2].matrix,
                                struct.lattice.inv_matrix)).astype('int')
 
     def get_s2_like_s1(self, struct1, struct2):
@@ -915,7 +943,7 @@ class StructureMatcher(MSONable):
         if self._primitive_cell:
             raise ValueError("get_s2_like_s1 cannot be used with the primitive"
                              " cell option")
-        if self._supercell and struct2.num_sites > struct1.num_sites:
+        if self._supercell and self._get_supercell_size(struct1, struct2) < 1:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
         if self._subset and struct2.num_sites > struct1.num_sites:
@@ -930,6 +958,30 @@ class StructureMatcher(MSONable):
         
         temp = struct2.copy()
         temp.make_supercell(scale_matrix)
-        fc = temp.frac_coords + match[3]
-        return Structure(temp.lattice, temp.species_and_occu, fc,
-                         to_unit_cell=True)
+        temp.translate_sites(range(len(temp)), match[3])
+
+        if len(struct1) > len(temp):
+            mapping = np.argsort(match[4])
+        else:
+            mapping = range(len(temp))
+            for i in match[4]:
+                mapping.remove(i)
+            mapping = list(match[4]) + mapping
+
+        return Structure.from_sites([temp.sites[i] for i in mapping])
+        
+    def get_mapping(self, struct1, struct2):
+        """
+        Calculate the mapping from struct2 to struct1, i.e. 
+        struct2[mapping] maps in site order to struct1
+        """
+        if self._supercell:
+            raise ValueError("cannot compute mapping to supercell")
+        if self._primitive_cell:
+            raise ValueError("cannot compute mapping with primitive option")
+        if len(struct2) < len(struct1):
+            raise ValueError("cannot compute mapping from subset to superset")
+        match = self._find_match(struct1, struct2, break_on_match=False)
+        if match[0] > self.stol:
+            return None
+        return match[4]

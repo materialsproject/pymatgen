@@ -1,19 +1,28 @@
-defects Package
-===============
+pymatgen.analysis.defects package
+=================================
 
-:mod:`defects` Package
-----------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.analysis.defects
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`point_defects` Module
----------------------------
+
+Submodules
+----------
+
+pymatgen.analysis.defects.point_defects module
+----------------------------------------------
 
 .. automodule:: pymatgen.analysis.defects.point_defects
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.analysis.defects
+    :members:
+    :undoc-members:
+    :show-inheritance:

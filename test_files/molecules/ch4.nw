@@ -1,3 +1,4 @@
+memory total 1000 mb stack 400 mb
 start H4C1
 geometry units angstroms
  C 0.0 0.0 0.0

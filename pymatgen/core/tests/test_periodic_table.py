@@ -6,7 +6,7 @@ import pickle
 import collections
 
 from pymatgen.core.periodic_table import Element, Specie, DummySpecie, \
-    PeriodicTable, smart_element_or_specie
+    PeriodicTable, get_el_sp
 from copy import deepcopy
 
 
@@ -264,12 +264,12 @@ class PeriodicTableTestCase(unittest.TestCase):
 
 class FuncTest(unittest.TestCase):
 
-    def test_smart_element_or_specie(self):
-        self.assertEqual(smart_element_or_specie("Fe2+"), Specie("Fe", 2))
-        self.assertEqual(smart_element_or_specie("3"), Element("Li"))
-        self.assertEqual(smart_element_or_specie("U"), Element("U"))
-        self.assertEqual(smart_element_or_specie("X2+"), DummySpecie("X", 2))
-        self.assertEqual(smart_element_or_specie("Mn3+"), Specie("Mn", 3))
+    def test_get_el_sp(self):
+        self.assertEqual(get_el_sp("Fe2+"), Specie("Fe", 2))
+        self.assertEqual(get_el_sp("3"), Element("Li"))
+        self.assertEqual(get_el_sp("U"), Element("U"))
+        self.assertEqual(get_el_sp("X2+"), DummySpecie("X", 2))
+        self.assertEqual(get_el_sp("Mn3+"), Specie("Mn", 3))
 
 if __name__ == "__main__":
     unittest.main()

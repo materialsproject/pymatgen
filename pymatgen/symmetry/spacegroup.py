@@ -18,19 +18,16 @@ from pymatgen.core.sites import PeriodicSite
 
 class Spacegroup(object):
     """
-    Represents a space group, which is a collection of symmetry operations
+    Represents a space group, which is a collection of symmetry operations.
+
+    Args:
+        int_symbol (str): International symbol of the spacegroup.
+        int_number (int): International number of the spacegroup.
+        symmops ([SymmOp]): Symmetry operations associated with the
+            spacegroup.
     """
 
     def __init__(self, int_symbol, int_number, symmops):
-        """
-        Args:
-            int_symbol:
-                The international symbol of the spacegroup.
-            int_number:
-                The international number of the spacegroup.
-            symmops:
-                The symmetry operations associated with the spacegroup.
-        """
         self.int_symbol = int_symbol
         self.int_number = int_number
         self.symmops = symmops
@@ -46,16 +43,13 @@ class Spacegroup(object):
         symmetrically distinct arrangements of atoms.
 
         Args:
-            sites1:
-                1st set of sites
-            sites2:
-                2nd set of sites
-            symm_prec:
-                The tolerance in atomic distance to test if atoms are
-                symmetrically similar.
+            sites1 ([Site]): 1st set of sites
+            sites2 ([Site]): 2nd set of sites
+            symm_prec (float): Tolerance in atomic distance to test if atoms
+                are symmetrically similar.
 
         Returns:
-            Boolean indicating whether the two sets of sites are symmetrically
+            (bool): Whether the two sets of sites are symmetrically
             equivalent.
         """
         def in_sites(site):

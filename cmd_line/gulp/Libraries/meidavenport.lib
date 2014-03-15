@@ -1,0 +1,33 @@
+#
+#  Mei-Davenport - library of potentials for GULP
+#
+#  J. Mei and J.W. Davenport,
+#  Free-energy calculations and the melting point of Al,
+#  Phys. Rev. B, 46, 21 (1992)
+#
+#  These potentials use the Embedded Atom Model for Al
+#
+species
+Al core  0.000
+manybody
+Al core Al core  0.0 5.58441
+#
+#  Taper
+#
+cutp 5.58441 mdf 0.57276
+#
+#  Functional
+#
+eam_functional mei-davenport
+Al core 3.39 4.60 7.10 7.34759 7.35 0.1318 12.0 6.0 24.0
+#
+#  Density term
+#
+eam_density mei-davenport
+Al core  0.64085 -6.83764 26.75616 -47.16495 36.18925 -8.60834 2.8638
+#
+#  Repulsive two-body components -
+#  second power is a dummy argument
+#
+mei-davenport
+Al core Al core 0.1318 7.35 7.34759 2.8638 0.0 5.58441

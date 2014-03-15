@@ -21,15 +21,13 @@ from pymatgen.util.plotting_utils import get_publication_quality_plot
 class VoltageProfilePlotter(object):
     """
     A plotter to make voltage profile plots for batteries.
+
+    Args:
+        xaxis: The quantity to use as the xaxis. Can be either capacity (the
+            default), or the frac_x.
     """
 
     def __init__(self, xaxis="capacity"):
-        """
-        Args:
-            xaxis:
-                The quantity to use as the xaxis. Can be either capacity (the
-                default), or the frac_x.
-        """
         self._electrodes = OrderedDict()
         self.xaxis = xaxis
 
@@ -38,11 +36,9 @@ class VoltageProfilePlotter(object):
         Add an electrode to the plot.
 
         Args:
-            electrode:
-                An electrode. All electrodes satisfying the AbstractElectrode
-                interface should work.
-            label:
-                A label for the electrode. If None, defaults to a counting
+            electrode: An electrode. All electrodes satisfying the
+                AbstractElectrode interface should work.
+            label: A label for the electrode. If None, defaults to a counting
                 system, i.e. 'Electrode 1', 'Electrode 2', ...
         """
         if not label:
@@ -70,15 +66,13 @@ class VoltageProfilePlotter(object):
         y.append(0)
         return x, y
 
-    def get_plot(self, width, height):
+    def get_plot(self, width=8, height=8):
         """
         Returns a plot object.
 
         Args:
-            width:
-                Width of the plot.
-            height:
-                Height of the plot.
+            width: Width of the plot. Defaults to 8 in.
+            height: Height of the plot. Defaults to 6 in.
 
         Returns:
             A matplotlib plot object.
@@ -102,10 +96,8 @@ class VoltageProfilePlotter(object):
         Show the voltage profile plot.
 
         Args:
-            width:
-                Width of the plot. Defaults to 8 in.
-            height:
-                Height of the plot. Defaults to 6 in.
+            width: Width of the plot. Defaults to 8 in.
+            height: Height of the plot. Defaults to 6 in.
         """
         self.get_plot(width, height).show()
 
@@ -114,9 +106,7 @@ class VoltageProfilePlotter(object):
         Save the plot to an image file.
 
         Args:
-            filename:
-                Filename to save to.
-            image_format:
-                Format to save to. Defaults to eps.
+            filename: Filename to save to.
+            image_format: Format to save to. Defaults to eps.
         """
         self.get_plot(width, height).savefig(filename, format=image_format)

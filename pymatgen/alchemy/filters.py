@@ -13,7 +13,7 @@ __maintainer__ = "Will Richards"
 __email__ = "wrichards@mit.edu"
 __date__ = "Sep 25, 2012"
 
-from pymatgen.core.periodic_table import smart_element_or_specie
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.analysis.structure_matcher import StructureMatcher,\
     ElementComparator
@@ -23,15 +23,20 @@ import abc
 
 class AbstractStructureFilter(MSONable):
     """
-    Abstract structure filter class.
+    AbstractStructureFilter that defines an API to perform testing of
+    Structures. Structures that return True to a test are retained during
+    transmutation while those that return False are removed.
     """
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def test(self, structure):
         """
-        Returns a boolean for any structure. Structures that return true are
-        kept in the Transmuter object during filtering.
+        Method to execute the test.
+
+        Returns:
+            (bool) Structures that return true are kept in the Transmuter
+            object during filtering.
         """
         return
 
@@ -47,27 +52,21 @@ class AbstractStructureFilter(MSONable):
 
 
 class ContainsSpecieFilter(AbstractStructureFilter):
-    """
-    Filter for structures containing certain elements or species.
-    By default compares by atomic number
-    """
 
     def __init__(self, species, strict_compare=False, AND=True, exclude=False):
         """
+        Filter for structures containing certain elements or species.
+        By default compares by atomic number
+
         Args:
-            species:
-                list of species to look for
-            AND:
-                whether all species must be present to pass (or fail)
-                filter.
-            strict_compare:
-                if true, compares objects by specie or element object
-                if false, compares atomic number
-            exclude:
-                if true, returns false for any structures with the specie
+            species ([Specie/Element]): list of species to look for
+            AND: whether all species must be present to pass (or fail) filter.
+            strict_compare: if true, compares objects by specie or element
+                object if false, compares atomic number
+            exclude: If true, returns false for any structures with the specie
                 (excludes them from the Transmuter)
         """
-        self._species = map(smart_element_or_specie, species)
+        self._species = map(get_el_sp, species)
         self._strict = strict_compare
         self._AND = AND
         self._exclude = exclude
@@ -116,20 +115,19 @@ class SpecieProximityFilter(AbstractStructureFilter):
     """
     This filter removes structures that have certain species that are too close
     together.
+
+    Args:
+        specie_and_min_dist_dict: A species string to float mapping. For
+            example, {"Na+": 1} means that all Na+ ions must be at least 1
+            Angstrom away from each other. Multiple species criteria can be
+            applied. Note that the testing is done based on the actual object
+            . If you have a structure with Element, you must use {"Na":1}
+            instead to filter based on Element and not Specie.
+
     """
 
     def __init__(self, specie_and_min_dist_dict):
-        """
-        Args:
-            specie_and_min_dist_dict:
-                A species string to float mapping. For example, {"Na+": 1}
-                means that all Na+ ions must be at least 1 Angstrom away from
-                each other. Multiple species criteria can be applied. Note that
-                the testing is done based on the actual object. If you have a
-                structure with Element, you must use {"Na":1} instead to filter
-                based on Element and not Specie.
-        """
-        self.specie_and_min_dist = {smart_element_or_specie(k): v
+        self.specie_and_min_dist = {get_el_sp(k): v
                                     for k, v
                                     in specie_and_min_dist_dict.items()}
 
@@ -170,13 +168,11 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         and symmetry (if symprec is given).
 
         Args:
-            structure_matcher:
-                Provides a structure matcher to be used for structure
-                comparison.
-            symprec:
-                The precision in the symmetry finder algorithm
-                if None (default value), no symmetry check is performed and
-                only the structure matcher is used. A recommended value is 1e-5
+            structure_matcher: Provides a structure matcher to be used for
+                structure comparison.
+            symprec: The precision in the symmetry finder algorithm if None (
+                default value), no symmetry check is performed and only the
+                structure matcher is used. A recommended value is 1e-5.
         """
         self._symprec = symprec
         self._structure_list = []
@@ -195,6 +191,57 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
             return finder.get_spacegroup_number()
 
         for s in self._structure_list:
+            if self._sm._comparator.get_structure_hash(structure) ==\
+                    self._sm._comparator.get_structure_hash(s):
+                if self._symprec is None or \
+                        get_sg(s) == get_sg(structure):
+                    if self._sm.fit(s, structure):
+                        return False
+
+        self._structure_list.append(structure)
+        return True
+
+    @property
+    def to_dict(self):
+        return {"version": __version__, "@module": self.__class__.__module__,
+                "@class": self.__class__.__name__,
+                "init_args": {"structure_matcher": self._sm.to_dict}}
+
+
+class RemoveExistingFilter(AbstractStructureFilter):
+    """
+    This filter removes structures existing in a given list from the transmuter.
+    """
+
+    def __init__(self, existing_structures, structure_matcher=StructureMatcher(
+                 comparator=ElementComparator()), symprec=None):
+        """
+        Remove existing structures based on the structure matcher
+        and symmetry (if symprec is given).
+
+        Args:
+            existing_structures: List of existing structures to compare with
+            structure_matcher: Provides a structure matcher to be used for
+                structure comparison.
+            symprec: The precision in the symmetry finder algorithm if None (
+                default value), no symmetry check is performed and only the
+                structure matcher is used. A recommended value is 1e-5.
+        """
+        self._symprec = symprec
+        self._structure_list = []
+        self._existing_structures = existing_structures
+        if isinstance(structure_matcher, dict):
+            self._sm = StructureMatcher.from_dict(structure_matcher)
+        else:
+            self._sm = structure_matcher
+
+    def test(self, structure):
+
+        def get_sg(s):
+            finder = SymmetryFinder(s, symprec=self._symprec)
+            return finder.get_spacegroup_number()
+
+        for s in self._existing_structures:
             if self._sm._comparator.get_structure_hash(structure) ==\
                     self._sm._comparator.get_structure_hash(s):
                 if self._symprec is None or \

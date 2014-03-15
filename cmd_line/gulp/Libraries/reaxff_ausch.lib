@@ -1,0 +1,216 @@
+#
+#  ReaxFF force field
+#
+#  Original paper:
+#
+#  A.C.T. van Duin, S. Dasgupta, F. Lorant and W.A. Goddard III,
+#  J. Phys. Chem. A, 105, 9396-9409 (2001)
+#
+#  Reactive MD-force field: AuSCH as published in T. T. Jarvi et al., 
+#  J. Phys. Chem. A, doi: 10.1021/jp201496x
+#
+#  Cutoffs for VDW & Coulomb terms
+#
+reaxFFvdwcutoff      10.0000
+reaxFFqcutoff        10.0000
+#
+#  Bond order threshold - check anglemin as this is cutof2 given in control file
+#
+reaxFFtol       0.0010000000 0.001
+#
+#  Species independent parameters 
+#
+reaxff0_bond        50.000000     9.546900
+reaxff0_over        50.000000     0.699100     1.058800    12.117600    13.305600
+reaxff0_valence     33.866700     1.851200     1.056300     2.038400
+reaxff0_penalty      6.929000     0.398900     3.995400
+reaxff0_torsion      5.779600    10.000000     1.948700     2.164500
+reaxff0_vdw          1.559100
+reaxff0_lonepair     6.089100
+#
+#  Species parameters 
+#
+reaxff1_radii 
+C  core   1.3825   1.1359   1.2104
+H  core   0.7853  -0.1000  -0.1000
+S  core   1.5747   1.9191  -1.0000
+Au core   2.0271  -1.0000  -1.0000
+reaxff1_valence 
+C  core   4.0000   4.0000   4.0000   4.0000
+H  core   1.0000   1.0000   1.0000   1.0000
+S  core   2.0000   4.0000   6.0000   4.0000
+Au core   1.0000   6.2998   1.0000   1.0000
+reaxff1_over 
+C  core  34.7289   8.6991  13.3894  -2.8983
+H  core   3.3517   1.9771   0.7571 -15.7683
+S  core   3.3754  20.4140   0.2702  -6.5738
+Au core   5.2294   6.2293   0.1542 -24.7561
+reaxff1_under kcal 
+C  core  33.2433
+H  core   0.0000
+S  core  14.8039
+Au core   0.0000
+reaxff1_lonepair kcal 
+C  core   0.0000   0.0000
+H  core   0.0000   0.0000
+S  core   2.0000   0.0000
+Au core   0.0000   0.0000
+reaxff1_angle 
+C  core   2.5000   2.9663
+H  core   2.1488   2.8793
+S  core   0.8540  13.6585
+Au core   2.9867   2.5791
+reaxff1_morse kcal 
+C  core   9.7602   0.1853   1.9133   2.1346
+H  core   9.3557   0.0419   1.5904   5.0518
+S  core   7.4909   1.1552   2.1610   5.4206
+Au core  11.9754   0.3446   2.2078   2.0434
+#
+#  Element parameters 
+#
+reaxff_chi  
+C  core   5.8678
+H  core   5.3200
+S  core   5.8930
+Au core   1.0082
+reaxff_mu  
+C  core   7.0000
+H  core   7.4366
+S  core   5.0465
+Au core   8.9305
+reaxff_gamma  
+C  core   0.9000
+H  core   1.0206
+S  core   1.0532
+Au core   0.5126
+#
+#  Bond parameters 
+#
+reaxff2_bo over bo13
+C  core C  core  -0.0750   6.8316  -0.1000   9.2605  -0.4591  37.7369
+S  core S  core  -0.2459   4.3680  -0.0703  14.4140   0.0000   0.0000
+reaxff2_bo bo13
+C  core H  core  -0.0500   6.8315   0.0000   0.0000   0.0000   6.0000
+H  core H  core  -0.0593   4.8358   0.0000   0.0000   0.0000   6.0000
+C  core S  core  -0.0700   4.8599  -0.3429   7.4699   0.0000   0.0000
+H  core S  core  -0.1212   4.9958   0.0000   0.0000   0.0000   6.0000
+reaxff2_bo 
+C  core Au core  -0.1324   5.9552  -0.2000  15.0000  -0.2000  16.0000
+H  core Au core  -0.0994   6.2822  -0.2000  15.0000  -0.2000  16.0000
+S  core Au core  -0.0957   5.5450  -0.2000  15.0000  -0.2000  16.0000
+Au core Au core  -0.1591   5.3892  -0.2000  15.0000  -0.2000  16.0000
+reaxff2_bond kcal 
+C  core C  core 156.5953 100.0397  80.0000  -0.8157   0.4527
+C  core H  core 170.2316   0.0000   0.0000  -0.5931   5.2267
+H  core H  core 156.0973   0.0000   0.0000  -0.1377   2.9907
+C  core S  core 173.8787 137.1725   0.0000  -0.6456   4.7908
+S  core S  core 112.9326  29.3303   0.0000   0.3670  12.4430
+H  core S  core 300.0000   0.0000   0.0000  -0.8517   5.4783
+C  core Au core  66.7504   0.0000   0.0000   0.3297   0.1314
+H  core Au core 118.0324   0.0000   0.0000   0.3177  -0.3668
+S  core Au core  82.5975   0.0000   0.0000   0.3974  -0.7617
+Au core Au core 146.6542   0.0000   0.0000  -0.0295   0.2793
+reaxff2_over 
+C  core C  core   0.4235
+C  core H  core   0.7140
+H  core H  core   0.8240
+C  core S  core   0.0691
+S  core S  core   0.2462
+H  core S  core   0.2530
+C  core Au core   0.1769
+H  core Au core   0.2106
+S  core Au core   0.1800
+Au core Au core   0.3319
+reaxff2_morse kcal 
+C  core H  core   0.1219   9.8442   1.4000   1.1203  -1.0000  -1.0000
+H  core S  core   0.1285  10.7276   1.8410   1.3619  -1.0000  -1.0000
+C  core S  core   0.2277  11.0791   1.8460   1.5987   1.5312  -1.0000
+C  core Au core   0.0673   9.9501   1.9638   1.9677  -1.0000  -1.0000
+H  core Au core   0.2896   9.1544   1.8555   1.3355  -1.0000  -1.0000
+S  core Au core   0.2257  10.2051   2.2125   2.1505  -1.0000  -1.0000
+#
+#  Angle parameters 
+#
+reaxff3_angle kcal 
+C  core C  core C  core  67.2326  22.0695   1.6286   1.8089   1.7959
+C  core C  core H  core  65.2527  14.3185   6.2977   1.1530   0.5645
+C  core H  core H  core  70.0840  25.3540   3.4508   3.0000   0.0050
+H  core C  core C  core   0.0000   3.4110   7.7350   1.0400   0.0000
+H  core H  core H  core   0.0000  27.9213   5.8635   1.0400   0.0000
+C  core C  core S  core  84.6560  37.5724   2.4323   1.0000   0.2186
+C  core S  core S  core  66.4312  22.0458   2.1462   2.9191   2.8500
+C  core H  core S  core  90.0000  17.7047   0.5527   2.9442   0.0100
+S  core C  core C  core  83.8916   7.6861   0.6380   2.7716   2.9855
+S  core C  core S  core  80.7413  14.2455   1.0576   2.1084   0.8844
+S  core S  core S  core  75.0248  51.5473   0.9217   1.0000   0.3803
+S  core C  core H  core  86.9128  46.7509   0.5275   1.0000   0.5759
+S  core H  core S  core  84.0932  24.3583   0.4025   1.3081   2.9757
+S  core H  core H  core  90.0000  34.2442   0.7683   3.0000   2.9136
+H  core C  core S  core   0.0000   5.0000   2.0000   1.2500   0.0000
+H  core S  core S  core   0.0000   5.0000   2.0000   1.2500   0.0000
+H  core H  core S  core   0.0000   5.0000   2.0000   1.2500   0.0000
+C  core C  core Au core  58.3918  13.9641   2.0300   2.2787   1.2404
+C  core H  core Au core  76.5969  12.6012   2.4132   2.5627   0.8279
+C  core S  core Au core  90.0000  50.0000   1.5719   2.3596   3.8728
+S  core C  core Au core  82.8568  50.0000   2.7832   1.1255   0.0101
+S  core H  core Au core  82.2324  23.9964   0.7710   2.4404   2.1085
+S  core S  core Au core  90.0000  15.5832   0.1041   3.0000   1.2165
+Au core C  core C  core  71.3861   3.9232   2.1478   2.1341   1.1259
+Au core C  core H  core  63.1192  38.3129   2.6511   1.0000   1.0152
+Au core C  core S  core  33.9374  50.0000   1.6182   2.5397   0.1948
+Au core H  core H  core  47.1487   9.2600   2.9275   2.5657   1.3836
+Au core H  core S  core  56.6111  27.1999   3.8869   1.4852   0.9903
+Au core S  core S  core  20.0000  24.0506   2.1768   1.7970   0.5636
+Au core C  core Au core  20.0000   7.2189   1.6647   1.2857   0.9966
+Au core H  core Au core  32.9056   9.2673   0.1644   1.0000   1.0082
+Au core S  core Au core  59.2439  17.8425   2.8942   2.3376   1.0982
+S  core Au core Au core  73.1787  11.1483   3.6845   1.5584   0.5612
+reaxff3_penalty kcal 
+C  core C  core C  core  15.4141
+C  core C  core H  core   0.0000
+C  core H  core H  core   0.0000
+H  core C  core H  core   0.0000
+H  core C  core C  core   0.0000
+H  core H  core H  core   0.0000
+C  core C  core S  core   0.0000
+C  core S  core S  core   0.0000
+C  core H  core S  core   0.0000
+S  core C  core C  core   0.0000
+S  core C  core S  core   0.0000
+S  core S  core S  core   0.0000
+S  core C  core H  core   0.0000
+S  core H  core S  core   0.0000
+S  core H  core H  core   0.0000
+H  core C  core S  core   0.0000
+H  core S  core S  core   0.0000
+H  core H  core S  core   0.0000
+C  core C  core Au core   0.0000
+C  core H  core Au core   0.0000
+C  core S  core Au core   0.0000
+S  core C  core Au core   0.0000
+S  core H  core Au core   0.0000
+S  core S  core Au core   0.0000
+Au core C  core C  core   0.0000
+Au core C  core H  core   0.0000
+Au core C  core S  core   0.0000
+Au core H  core H  core   0.0000
+Au core H  core S  core   0.0000
+Au core S  core S  core   0.0000
+Au core C  core Au core   0.0000
+Au core H  core Au core   0.0000
+Au core S  core Au core   0.0000
+S  core Au core Au core   0.0000
+reaxff3_conjugation kcal 
+#
+#  Hydrogen bond parameters 
+#
+reaxff3_hbond kcal 
+#
+#  Torsion parameters 
+#
+reaxff4_torsion kcal 
+C  core C  core C  core C  core  -0.2500  11.5822   0.1879  -4.7057  -2.2047
+C  core C  core C  core H  core  -0.2500  31.2596   0.1709  -4.6391  -1.9002
+H  core C  core C  core H  core  -0.1770  30.0252   0.4340  -5.0019  -2.0697
+X  core C  core S  core X  core   0.8010  -4.8864   0.0100  -2.5000   0.0000
+X  core S  core S  core X  core   2.0000  -2.5000   2.0000  -2.3827   0.0000

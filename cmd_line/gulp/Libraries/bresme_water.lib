@@ -1,0 +1,27 @@
+#
+#  Central Force Model for water by Fernando Bresme. 
+#
+#  F. Bresme, J. Chem. Phys., 115, 7564 (2001)
+#
+species
+O  core -0.65966
+H  core  0.32983
+#
+#  Intramolecular potentials
+#
+#  O-H target : K = 49.7635564 eV/Ang**2 and r0 = 0.9584
+#  H-H target : K = 11.1548260 eV/Ang**2 and r0 = 1.5151
+#
+cfm_harm
+O core H core 56.88150901 1.018365407784 1.45 0.02 0.0 6.0
+H core H core 10.25399858 1.448548221520 1.88 0.02 0.0 6.0
+#
+#  Intermolecular potentials
+#
+cfm_power kcal
+O core O core 23700.0 8.8591 1.0 -0.02 0.0 14.0
+cfm_gauss kcal
+O core O core -0.25 4.0 3.4 12.0 0.02 0.0 14.0
+O core O core -0.20 1.5 4.5 12.0 0.02 0.0 14.0
+cfm_fermi kcal
+O core H core -4.0 5.49305 2.2 1.45 0.02 0.0 6.0

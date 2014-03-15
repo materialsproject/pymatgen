@@ -1,19 +1,22 @@
-vis Package
-===========
+pymatgen.vis package
+====================
 
-:mod:`vis` Package
-------------------
+Submodules
+----------
 
-.. automodule:: pymatgen.vis
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`structure_vtk` Module
----------------------------
+pymatgen.vis.structure_vtk module
+---------------------------------
 
 .. automodule:: pymatgen.vis.structure_vtk
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.vis
+    :members:
+    :undoc-members:
+    :show-inheritance:

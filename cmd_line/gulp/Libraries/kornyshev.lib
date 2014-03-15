@@ -1,0 +1,56 @@
+#
+#  Potentials for proton transport in water from the group of Alexei Kornyshev
+#
+#  S. Walbran and A.A. Kornyshev, J. Chem. Phys. 114, 10039 (2001)
+#
+#  O2 -> oxygen of water
+#  O3 -> oxygen of hydronium
+#  H  -> hydrogen of either water or hydronium
+#
+keywords mole
+species
+H  core  0.33
+O2 core  0.00
+O2 shel -0.66
+O3 core  0.67
+O3 shel -0.66
+#
+#  Intramolecular potentials for water
+#
+harmonic bond
+O2 core H  core 58.239544 1.00 0.0 
+urey-bradley bond
+O2 core H  core H core 14.249371 1.633 
+bcross intra
+H  core O2 core H core -9.168780 1.0 1.633 3.0 4.0 3.0
+bcross bond
+O2 core H  core H core  4.843413 1.0 1.0 3.0 3.0 6.0
+spring 
+O2 4.77355 635.96295
+#
+#  Intramolecular potentials for hydroxonium
+#
+morse bond
+O3 core H core 11.547935 1.285 0.98 0.0 
+three bond 
+O3 core H core H core 3.17731 116.0 
+spring 
+O3 4.77355 635.96295
+#
+#  Intermolecular L-J
+#
+lennard 12 6
+O core O core 27293.01408 27.129145 0.0 12.0
+#
+#  Apply a tapered cutoff for smoothness
+#
+cutp 12.0 2.0
+#
+#  Setting of mass
+#
+element
+mass H 1.008
+mass O 16.0
+end
+shellmass 
+O 0.0125

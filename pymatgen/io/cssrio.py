@@ -15,7 +15,7 @@ __date__ = "Jan 24, 2012"
 
 import re
 
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -24,14 +24,12 @@ class Cssr(object):
     """
     Basic object for working with Cssr file. Right now, only conversion from
     a Structure to a Cssr file is supported.
+
+    Args:
+        structure (Structure/IStructure): A structure to create the Cssr object.
     """
 
     def __init__(self, structure):
-        """
-        Args:
-            structure:
-                A structure to create the Cssr object.
-        """
         if not structure.is_ordered:
             raise ValueError("Cssr file can only be constructed from ordered "
                              "structure")
@@ -54,8 +52,7 @@ class Cssr(object):
         Write out a CSSR file.
 
         Args:
-            filename:
-                Filename to write to.
+            filename (str): Filename to write to.
         """
         with open(filename, 'w') as f:
             f.write(str(self) + "\n")
@@ -66,8 +63,7 @@ class Cssr(object):
         Reads a string representation to a Cssr object.
 
         Args:
-            string:
-                A string representation of a CSSR.
+            string (str): A string representation of a CSSR.
 
         Returns:
             Cssr object.
@@ -94,8 +90,7 @@ class Cssr(object):
         Reads a CSSR file to a Cssr object.
 
         Args:
-            filename:
-                Filename to read from.
+            filename (str): Filename to read from.
 
         Returns:
             Cssr object.

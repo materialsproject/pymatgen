@@ -19,7 +19,7 @@ import os
 import json
 import logging
 
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder
 
 from multiprocessing import Manager, Pool
@@ -32,25 +32,23 @@ class BorgQueen(object):
     The Borg Queen controls the drones to assimilate data in an entire
     directory tree. Uses multiprocessing to speed up things considerably. It
     also contains convenience methods to save and load data between sessions.
+
+    Args:
+        drone (Drone): An implementation of
+            :class:`pymatgen.apps.borg.hive.AbstractDrone` to use for
+            assimilation.
+        rootpath (str): The root directory to start assimilation. Leave it
+            as None if you want to do assimilation later, or is using the
+            BorgQueen to load previously assimilated data.
+        ndrones (int): Number of drones to parallelize over.
+            Typical machines today have up to four processors. Note that you
+            won't see a 100% improvement with two drones over one, but you
+            will definitely see a significant speedup of at least 50% or so.
+            If you are running this over a server with far more processors,
+            the speedup will be even greater.
     """
 
     def __init__(self, drone, rootpath=None, number_of_drones=1):
-        """
-        Args:
-            drone:
-                The drone to use for assimilation
-            rootpath:
-                The root directory to start assimilation. Leave it as None if
-                you want to do assimilation later, or is using the BorgQueen
-                to load previously assimilated data.
-            number_of_drones:
-                Number of drones to parallelize over. Typical machines today
-                have up to four processors. Note that you won't see a 100%
-                improvement with two drones over one, but you will definitely
-                see a significant speedup of at least 50% or so. If you are
-                running this over a server with far more processors, the
-                speedup will be even greater.
-        """
         self._drone = drone
         self._num_drones = number_of_drones
         self._data = []
@@ -113,10 +111,9 @@ class BorgQueen(object):
         Save the assimilated data to a file.
 
         Args:
-            filename:
-                filename to save the assimilated data to. Note that if the
-                filename ends with gz or bz2, the relevant gzip or bz2
-                compression will be applied.
+            filename (str): filename to save the assimilated data to. Note
+                that if the filename ends with gz or bz2, the relevant gzip
+                or bz2 compression will be applied.
         """
         with zopen(filename, "w") as f:
             json.dump(list(self._data), f, cls=PMGJSONEncoder)

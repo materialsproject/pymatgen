@@ -30,24 +30,33 @@ logger = logging.getLogger('BSPlotter')
 
 class DosPlotter(object):
     """
-    Class for plotting DOSes.
+    Class for plotting DOSs. Note that the interface is extremely flexible
+    given that there are many different ways in which people want to view
+    DOS. The typical usage is::
+
+        # Initializes plotter with some optional args. Defaults are usually
+        # fine,
+        plotter = DosPlotter()
+
+        # Adds a DOS with a label.
+        plotter.add_dos("Total DOS", dos)
+
+        # Alternatively, you can add a dict of DOSs. This is the typical
+        # form returned by CompleteDos.get_spd/element/others_dos().
+        plotter.add_dos_dict({"dos1": dos1, "dos2": dos2})
+        plotter.add_dos_dict(complete_dos.get_spd_dos())
+
+    Args:
+        zero_at_efermi: Whether to shift all Dos to have zero energy at the
+            fermi energy. Defaults to True.
+        stack: Whether to plot the DOS as a stacked area graph
+        key_sort_func: function used to sort the dos_dict keys.
+        sigma: A float specifying a standard deviation for Gaussian smearing
+            the DOS for nicer looking plots. Defaults to None for no
+            smearing.
     """
 
     def __init__(self, zero_at_efermi=True, stack=False, sigma=None):
-        """
-        Args:
-            zero_at_efermi:
-                Whether to shift all Dos to have zero energy at the fermi
-                energy. Defaults to True.
-            stack:
-                Whether to plot the DOS as a stacked area graph
-            key_sort_func:
-                function used to sort the dos_dict keys.
-            sigma:
-                A float specifying a standard deviation for Gaussian smearing
-                the DOS for nicer looking plots. Defaults to None for no
-                smearing.
-        """
         self.zero_at_efermi = zero_at_efermi
         self.stack = stack
         self.sigma = sigma
@@ -77,10 +86,8 @@ class DosPlotter(object):
         keys.
 
         Args:
-            dos_dict:
-                dict of {label: Dos}
-            key_sort_func:
-                function used to sort the dos_dict keys.
+            dos_dict: dict of {label: Dos}
+            key_sort_func: function used to sort the dos_dict keys.
         """
         if key_sort_func:
             keys = sorted(dos_dict.keys(), key=key_sort_func)
@@ -106,11 +113,9 @@ class DosPlotter(object):
         Get a matplotlib plot showing the DOS.
 
         Args:
-            xlim:
-                Specifies the x-axis limits. Set to None for automatic
+            xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
-            ylim:
-                Specifies the y-axis limits.
+            ylim: Specifies the y-axis limits.
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -196,15 +201,11 @@ class DosPlotter(object):
         Save matplotlib plot to a file.
 
         Args:
-            filename:
-                Filename to write to.
-            img_format:
-                Image format to use. Defaults to EPS.
-            xlim:
-                Specifies the x-axis limits. Set to None for automatic
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
-            ylim:
-                Specifies the y-axis limits.
+            ylim: Specifies the y-axis limits.
         """
         plt = self.get_plot(xlim, ylim)
         plt.savefig(filename, format=img_format)
@@ -214,11 +215,9 @@ class DosPlotter(object):
         Show the plot using matplotlib.
 
         Args:
-            xlim:
-                Specifies the x-axis limits. Set to None for automatic
+            xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
-            ylim:
-                Specifies the y-axis limits.
+            ylim: Specifies the y-axis limits.
         """
         plt = self.get_plot(xlim, ylim)
         plt.show()
@@ -227,14 +226,12 @@ class DosPlotter(object):
 class BSPlotter(object):
     """
     Class to plot or get data to facilitate the plot of band structure objects.
+
+    Args:
+        bs: A BandStructureSymmLine object.
     """
 
     def __init__(self, bs):
-        """
-        Args:
-            bs:
-                A BandStructureSymmLine object.
-        """
         if not isinstance(bs, BandStructureSymmLine):
             raise ValueError(
                 "BSPlotter only works with BandStructureSymmLine objects. "
@@ -298,38 +295,29 @@ class BSPlotter(object):
         Get the data nicely formatted for a plot
 
         Args:
-            zero_to_efermi:
-                Automatically subtract off the Fermi energy from the
+            zero_to_efermi: Automatically subtract off the Fermi energy from the
                 eigenvalues and plot.
 
         Returns:
             A dict of the following format:
-                ticks:
-                    A dict with the 'distances' at which there is a kpoint (the
-                    x axis) and the labels (None if no label)
-                energy:
-                    A dict storing bands for spin up and spin down data
-                    [{Spin:[band_index][k_point_index]}] as a list (one element
-                    for each branch) of energy for each kpoint. The data is
-                    stored by branch to facilitate the plotting
-                vbm:
-                    A list of tuples (distance,energy) marking the vbms. The
-                    energies are shifted with respect to the fermi level is the
-                    option has been selected.
-                cbm:
-                    A list of tuples (distance,energy) marking the cbms. The
-                    energies are shifted with respect to the fermi level is the
-                    option has been selected.
-                lattice:
-                    The reciprocal lattice.
-                zero_energy:
-                    This is the energy used as zero for the plot.
-                band_gap:
-                    A string indicating the band gap and its nature (empty if
-                    it's a metal).
-                is_metal:
-                    True if the band structure is metallic (i.e., there is at
-                    least one band crossing the fermi level).
+            ticks: A dict with the 'distances' at which there is a kpoint (the
+            x axis) and the labels (None if no label)
+            energy: A dict storing bands for spin up and spin down data
+            [{Spin:[band_index][k_point_index]}] as a list (one element
+            for each branch) of energy for each kpoint. The data is
+            stored by branch to facilitate the plotting
+            vbm: A list of tuples (distance,energy) marking the vbms. The
+            energies are shifted with respect to the fermi level is the
+            option has been selected.
+            cbm: A list of tuples (distance,energy) marking the cbms. The
+            energies are shifted with respect to the fermi level is the
+            option has been selected.
+            lattice: The reciprocal lattice.
+            zero_energy: This is the energy used as zero for the plot.
+            band_gap:A string indicating the band gap and its nature (empty if
+            it's a metal).
+            is_metal: True if the band structure is metallic (i.e., there is at
+            least one band crossing the fermi level).
         """
         distance = []
         energy = []
@@ -399,19 +387,12 @@ class BSPlotter(object):
         spin.
 
         Args:
-            zero_to_efermi:
-                Automatically subtract off the Fermi energy from the
-                eigenvalues and plot (E-Ef).
-
-            ylim:
-                specify the y-axis (energy) limits;
-                by default None let the code choose.
-                It is vbm-4 and cbm+4 if insulator
+            zero_to_efermi: Automatically subtract off the Fermi energy from
+                the eigenvalues and plot (E-Ef).
+            ylim: Specify the y-axis (energy) limits; by default None let
+                the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
-
-            smooth:
-                interpolates the bands by a spline
-                cubic
+            smooth: interpolates the bands by a spline cubic
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -517,20 +498,12 @@ class BSPlotter(object):
         Show the plot using matplotlib.
 
         Args:
-            zero_to_efermi:
-                Automatically subtract off the Fermi
-                energy from the eigenvalues
-                and plot (E-Ef).
-
-            ylim
-                specify the y-axis (energy) limits; by default None
-                let the code choose.
-                It is vbm-4 and cbm+4 if insulator
+            zero_to_efermi: Automatically subtract off the Fermi energy from
+                the eigenvalues and plot (E-Ef).
+            ylim: Specify the y-axis (energy) limits; by default None let
+                the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
-
-            smooth:
-                interpolates the bands by a spline
-                cubic
+            smooth: interpolates the bands by a spline cubic
         """
         plt = self.get_plot(zero_to_efermi, ylim, smooth)
         plt.show()
@@ -541,12 +514,9 @@ class BSPlotter(object):
         Save matplotlib plot to a file.
 
         Args:
-            filename:
-                Filename to write to.
-            img_format:
-                Image format to use. Defaults to EPS.
-            ylim:
-                Specifies the y-axis limits.
+            filename: Filename to write to.
+            img_format: Image format to use. Defaults to EPS.
+            ylim: Specifies the y-axis limits.
         """
         plt = self.get_plot(ylim=ylim, zero_to_efermi=zero_to_efermi,
                             smooth=smooth)
@@ -558,9 +528,8 @@ class BSPlotter(object):
         Get all ticks and labels for a band structure plot.
 
         Returns:
-            A dict with
-                'distance': a list of distance at which ticks should be set.
-                'label': a list of label for each of those ticks.
+            A dict with 'distance': a list of distance at which ticks should
+            be set and 'label': a list of label for each of those ticks.
         """
         tick_distance = []
         tick_labels = []
@@ -625,7 +594,7 @@ class BSPlotter(object):
 
     def plot_brillouin(self):
         """
-            plot the Brillouin zone
+        plot the Brillouin zone
         """
         import matplotlib as mpl
         import matplotlib.pyplot as plt
@@ -707,15 +676,13 @@ class BSPlotterProjected(BSPlotter):
 
     """
     Class to plot or get data to facilitate the plot of band structure objects
-    projected along orbitals, elements or sites
+    projected along orbitals, elements or sites.
+
+    Args:
+        bs: A BandStructureSymmLine object with projections.
     """
 
     def __init__(self, bs):
-        """
-        Args:
-            bs:
-                A BandStructureSymmLine object with projections.
-        """
         if len(bs._projections) == 0:
             raise ValueError("try to plot projections"
                              " on a band structure without any")
@@ -758,11 +725,10 @@ class BSPlotterProjected(BSPlotter):
         and orbitals.
 
         Args:
-            dictio:
-                the element and orbitals you want a projection on. The format
-                is {Element:[Orbitals]} for instance {'Cu':['d','s'],'O':['p']}
-                will give projections for Cu on d and s orbitals and on oxygen
-                p.
+            dictio: The element and orbitals you want a projection on. The
+                format is {Element:[Orbitals]} for instance
+                {'Cu':['d','s'],'O':['p']} will give projections for Cu on
+                d and s orbitals and on oxygen p.
 
         Returns:
             a pylab object with different subfigures for each projection
@@ -915,9 +881,8 @@ class BSPlotterProjected(BSPlotter):
         spin up and spin down are differientiated by a '-' and a '--' line
 
         Args:
-            elt_ordered:
-                a list of Element ordered. The first one is red, second green,
-                last blue
+            elt_ordered: A list of Element ordered. The first one is red,
+                second green, last blue
 
         Returns:
             a pylab object
@@ -928,8 +893,9 @@ class BSPlotterProjected(BSPlotter):
             raise ValueError
         if elt_ordered is None:
             elt_ordered = self._bs._structure.composition.elements
-        proj = self._get_projections_by_branches({e.symbol: ['s', 'p', 'd']
-                                                  for e in self._bs._structure.composition.elements})
+        proj = self._get_projections_by_branches(
+            {e.symbol: ['s', 'p', 'd']
+             for e in self._bs._structure.composition.elements})
         data = self.bs_plot_data(zero_to_efermi)
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(12, 8)
@@ -945,11 +911,15 @@ class BSPlotterProjected(BSPlotter):
                         sum_e = 0.0
                         for el in elt_ordered:
                             sum_e = sum_e + \
-                                    sum([proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]])
+                                    sum([proj[b][str(s)][i][j][str(el)][o]
+                                         for o
+                                         in proj[b][str(s)][i][j][str(el)]])
                         if sum_e == 0.0:
                             color = [0.0] * len(elt_ordered)
                         else:
-                            color = [sum([proj[b][str(s)][i][j][str(el)][o] for o in proj[b][str(s)][i][j][str(el)]])
+                            color = [sum([proj[b][str(s)][i][j][str(el)][o]
+                                          for o
+                                          in proj[b][str(s)][i][j][str(el)]])
                                      / sum_e
                                      for el in elt_ordered]
                         if len(color) == 2:

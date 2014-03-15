@@ -197,7 +197,7 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpstaticparamset.get_kpoints(self.struct)
-        self.assertEquals(kpoints.kpts, [[4, 6, 6]])
+        self.assertEquals(kpoints.kpts, [[6, 6, 4]])
         self.assertEquals(kpoints.style, 'Monkhorst')
 
         kpoints = self.mpnscfparamsetl.get_kpoints(self.struct)
@@ -282,7 +282,7 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
     def test_get_incar(self):
         incar = self.vis.get_incar(self.struct)
         self.assertNotIn("LDAUU", incar)
-        self.assertAlmostEqual(incar['EDIFF'], 0.0012)
+        self.assertAlmostEqual(incar['EDIFF'], 0.00005)
 
     def test_get_kpoints(self):
         kpoints = self.vis.get_kpoints(self.struct)

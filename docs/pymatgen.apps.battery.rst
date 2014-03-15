@@ -1,43 +1,52 @@
-battery Package
-===============
+pymatgen.apps.battery package
+=============================
 
-:mod:`battery` Package
-----------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.apps.battery
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`battery_abc` Module
--------------------------
+
+Submodules
+----------
+
+pymatgen.apps.battery.battery_abc module
+----------------------------------------
 
 .. automodule:: pymatgen.apps.battery.battery_abc
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`conversion_battery` Module
---------------------------------
+pymatgen.apps.battery.conversion_battery module
+-----------------------------------------------
 
 .. automodule:: pymatgen.apps.battery.conversion_battery
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`insertion_battery` Module
--------------------------------
+pymatgen.apps.battery.insertion_battery module
+----------------------------------------------
 
 .. automodule:: pymatgen.apps.battery.insertion_battery
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`plotter` Module
----------------------
+pymatgen.apps.battery.plotter module
+------------------------------------
 
 .. automodule:: pymatgen.apps.battery.plotter
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.apps.battery
+    :members:
+    :undoc-members:
+    :show-inheritance:
