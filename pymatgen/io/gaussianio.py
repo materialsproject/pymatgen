@@ -19,13 +19,33 @@ import numpy as np
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core import Element, Molecule, Composition
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
 
 
 class GaussianInput(object):
     """
     An object representing a Gaussian input file.
+
+    Args:
+        mol: Input molecule. If molecule is a single string, it is used as a
+            direct input to the geometry section of the Gaussian input
+            file.
+        charge: Charge of the molecule. If None, charge on molecule is used.
+            Defaults to None. This allows the input file to be set a
+            charge independently from the molecule itself.
+        spin_multiplicity: Spin multiplicity of molecule. Defaults to None,
+            which means that the spin multiplicity is set to 1 if the
+            molecule has no unpaired electrons and to 2 if there are
+            unpaired electrons.
+        title: Title for run. Defaults to formula of molecule if None.
+        functional: Functional for run.
+        basis_set: Basis set for run.
+        route_parameters: Additional route parameters as a dict. For example,
+            {'SP':"", "SCF":"Tight"}
+        input_parameters: Additional input parameters for run as a dict. Used
+            for example, in PCM calculations.  E.g., {"EPS":12}
+        link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
     """
 
     #Commonly used regex patterns
@@ -36,36 +56,6 @@ class GaussianInput(object):
     def __init__(self, mol, charge=None, spin_multiplicity=None, title=None,
                  functional="HF", basis_set="6-31G(d)", route_parameters=None,
                  input_parameters=None, link0_parameters=None):
-        """
-        Args:
-            mol:
-                Input molecule. If molecule is a single string, it is used as a
-                direct input to the geometry section of the Gaussian input
-                file.
-            charge:
-                Charge of the molecule. If None, charge on molecule is used.
-                Defaults to None. This allows the input file to be set a
-                charge independently from the molecule itself.
-            spin_multiplicity:
-                Spin multiplicity of molecule. Defaults to None,
-                which means that the spin multiplicity is set to 1 if the
-                molecule has no unpaired electrons and to 2 if there are
-                unpaired electrons.
-            title:
-                Title for run. Defaults to formula of molecule if None.
-            functional:
-                Functional for run.
-            basis_set:
-                Basis set for run.
-            route_parameters:
-                Additional route parameters as a dict. For example,
-                {'SP':"", "SCF":"Tight"}
-            input_parameters:
-                Additional input parameters for run as a dict. Used for
-                example, in PCM calculations.  E.g., {"EPS":12}
-            link0_parameters:
-                Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
-        """
         self._mol = mol
         self.charge = charge if charge is not None else mol.charge
         nelectrons = - self.charge + mol.charge + mol.nelectrons
@@ -209,8 +199,7 @@ class GaussianInput(object):
         Creates GaussianInput from a string.
 
         Args:
-            contents:
-                String representing an Gaussian input file.
+            contents: String representing an Gaussian input file.
 
         Returns:
             GaussianInput object
@@ -273,8 +262,7 @@ class GaussianInput(object):
         Creates GaussianInput from a file.
 
         Args:
-            filename:
-                Gaussian input filename
+            filename: Gaussian input filename
 
         Returns:
             GaussianInput object
@@ -363,6 +351,9 @@ class GaussianOutput(object):
     """
     Parser for Gaussian output files.
 
+    Args:
+        filename: Filename of Gaussian output file.
+
     .. note::
 
         Still in early beta.
@@ -421,11 +412,6 @@ class GaussianOutput(object):
     """
 
     def __init__(self, filename):
-        """
-        Args:
-            filename:
-                Filename of Gaussian output file.
-        """
         self.filename = filename
         self._parse(filename)
 
@@ -438,7 +424,6 @@ class GaussianOutput(object):
         return self.structures[-1]
 
     def _parse(self, filename):
-
         start_patt = re.compile(" \(Enter \S+l101\.exe\)")
         route_patt = re.compile(" #[pPnNtT]*.*")
         charge_mul_patt = re.compile("Charge\s+=\s*([-\\d]+)\s+"

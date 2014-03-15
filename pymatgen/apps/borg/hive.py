@@ -21,7 +21,7 @@ import logging
 import fnmatch
 import json
 
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
 from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
 from pymatgen.io.gaussianio import GaussianOutput
@@ -51,8 +51,7 @@ class AbstractDrone(MSONable):
         pymatgen"s to_dict for parallel processing.
 
         Args:
-            path:
-                directory path
+            path: directory path
 
         Returns:
             An assimilated object
@@ -71,8 +70,7 @@ class AbstractDrone(MSONable):
         example, you will want the file paths.
 
         Args:
-            path:
-                input path as a tuple generated from os.walk, i.e.,
+            path: input path as a tuple generated from os.walk, i.e.,
                 (parent, subdirs, files).
 
         Returns:
@@ -91,23 +89,22 @@ class VaspToComputedEntryDrone(AbstractDrone):
     2. Directories designated "relax1", "relax2" are considered to be 2 parts
        of an aflow style run, and only "relax2" is parsed.
     3. The drone parses only the vasprun.xml file.
+
+
+    Args:
+        inc_structure (bool): Set to True if you want
+            ComputedStructureEntries to be returned instead of
+            ComputedEntries.
+        parameters (list): Input parameters to include. It has to be one of
+            the properties supported by the Vasprun object. See
+            :class:`pymatgen.io.vaspio.Vasprun`. If parameters == None,
+            a default set of parameters that are necessary for typical
+            post-processing will be set.
+        data (list): Output data to include. Has to be one of the properties
+            supported by the Vasprun object.
     """
 
     def __init__(self, inc_structure=False, parameters=None, data=None):
-        """
-        Args:
-            inc_structure:
-                Set to True if you want ComputedStructureEntries to be returned
-                instead of ComputedEntries.
-            parameters:
-                Input parameters to include. It has to be one of the properties
-                supported by the Vasprun object. See pymatgen.io.vaspio
-                Vasprun. If parameters == None, a default set of parameters
-                that are necessary for typical post-processing will be set.
-            data:
-                Output data to include. Has to be one of the properties
-                supported by the Vasprun object.
-        """
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
                             "run_type"}
@@ -202,16 +199,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
     parses only the INCAR, POTCAR, OSZICAR and KPOINTS files, which are much
     smaller and faster to parse. However, much fewer properties are available
     compared to the standard VaspToComputedEntryDrone.
+
+    Args:
+        inc_structure (bool): Set to True if you want
+            ComputedStructureEntries to be returned instead of
+            ComputedEntries. Structure will be parsed from the CONTCAR.
     """
 
     def __init__(self, inc_structure=False):
-        """
-        Args:
-            inc_structure:
-                Set to True if you want ComputedStructureEntries to be returned
-                instead of ComputedEntries. Structure will be parsed from the
-                CONTCAR.
-        """
         self._inc_structure = inc_structure
         self._parameters = {"is_hubbard", "hubbards", "potcar_symbols",
                             "run_type"}
@@ -320,6 +315,24 @@ class GaussianToComputedEntryDrone(AbstractDrone):
     ComputedEntry/ComputedStructureEntry objects. By default, it is assumed
     that Gaussian output files have a ".log" extension.
 
+    Args:
+        inc_structure (bool): Set to True if you want
+            ComputedStructureEntries to be returned instead of
+            ComputedEntries.
+        parameters (list): Input parameters to include. It has to be one of
+            the properties supported by the GaussianOutput object. See
+            :class:`pymatgen.io.gaussianio GaussianOutput`. The parameters
+            have to be one of python"s primitive types, i.e., list, dict of
+            strings and integers. If parameters == None, a default set of
+            parameters will be set.
+        data (list): Output data to include. Has to be one of the properties
+            supported by the GaussianOutput object. The parameters have to
+            be one of python"s primitive types, i.e. list, dict of strings
+            and integers. If data == None, a default set will be set.
+        file_extensions (list):
+            File extensions to be considered as Gaussian output files.
+            Defaults to just the typical "log" extension.
+
     .. note::
 
         Like the GaussianOutput class, this is still in early beta.
@@ -327,27 +340,6 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
     def __init__(self, inc_structure=False, parameters=None, data=None,
                  file_extensions=(".log",)):
-        """
-        Args:
-            inc_structure:
-                Set to True if you want ComputedStructureEntries to be returned
-                instead of ComputedEntries.
-            parameters:
-                Input parameters to include. It has to be one of the properties
-                supported by the GaussianOutput object. See
-                pymatgen.io.gaussianio GaussianOutput.
-                The parameters have to be one of python"s primitive types,
-                i.e. list, dict of strings and integers. If parameters == None,
-                a default set of parameters will be set.
-            data:
-                Output data to include. Has to be one of the properties
-                supported by the GaussianOutput object. The parameters have to
-                be one of python"s primitive types, i.e. list, dict of strings
-                and integers. If data == None, a default set will be set.
-            file_extensions:
-                File extensions to be considered as Gaussian output files.
-                Defaults to just the typical "log" extension.
-        """
         self._inc_structure = inc_structure
         self._parameters = {"functional", "basis_set", "charge", "spin_mult",
                             "route"}

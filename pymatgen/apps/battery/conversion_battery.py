@@ -38,13 +38,12 @@ class ConversionElectrode(AbstractElectrode):
         constructors provided.
 
         Args:
-            voltage_pairs:
-                The voltage pairs making up the Conversion Electrode.
-            working_ion_entry:
-                A single ComputedEntry or PDEntry representing the element that
-                carries charge across the battery, e.g. Li.
-            initial_comp:
-                Starting composition for ConversionElectrode.
+            voltage_pairs: The voltage pairs making up the Conversion
+                Electrode.
+            working_ion_entry: A single ComputedEntry or PDEntry
+                representing the element that carries charge across the
+                battery, e.g. Li.
+            initial_comp: Starting composition for ConversionElectrode.
         """
         self._composition = initial_comp
         self._working_ion_entry = working_ion_entry
@@ -108,14 +107,11 @@ class ConversionElectrode(AbstractElectrode):
         composition and all entries in a chemical system.
 
         Args:
-            comp:
-                Starting composition for ConversionElectrode, e.g.,
+            comp: Starting composition for ConversionElectrode, e.g.,
                 Composition("FeF3")
-            entries_in_chemsys:
-                Sequence containing all entries in a chemical system. E.g., all
-                Li-Fe-F containing entries.
-            working_ion_symbol:
-                Element symbol of working ion. Defaults to Li.
+            entries_in_chemsys: Sequence containing all entries in a
+               chemical system. E.g., all Li-Fe-F containing entries.
+            working_ion_symbol: Element symbol of working ion. Defaults to Li.
         """
         pd = PhaseDiagram(entries_in_chemsys)
         return ConversionElectrode.from_composition_and_pd(comp, pd,
@@ -131,10 +127,9 @@ class ConversionElectrode(AbstractElectrode):
         options
 
         Args:
-            adjacent_only:
-                Only return electrodes from compounds that are adjacent on the
-                convex hull, i.e. no electrodes returned will have multiple
-                voltage steps if this is set true
+            adjacent_only: Only return electrodes from compounds that are
+                adjacent on the convex hull, i.e. no electrodes returned
+                will have multiple voltage steps if this is set true
 
         Returns:
             A list of ConversionElectrode objects
@@ -320,38 +315,25 @@ class ConversionVoltagePair(AbstractVoltagePair):
     """
     A VoltagePair representing a Conversion Reaction with a defined voltage.
     Typically not initialized directly but rather used by ConversionElectrode.
+
+    Args:
+        balanced_rxn (BalancedReaction): BalancedReaction for the step
+        voltage (float): Voltage for the step
+        mAh (float): Capacity of the step
+        vol_charge (float): Volume of charged state
+        vol_discharge (float): Volume of discharged state
+        mass_charge (float): Mass of charged state
+        mass_discharge (float): Mass of discharged state
+        frac_charge (float): Fraction of working ion in the charged state
+        frac_discharge (float): Fraction of working ion in the discharged state
+        entries_charge ([ComputedEntry]): Entries in the charged state
+        entries_discharge ([ComputedEntry]): Entries in discharged state
+        working_ion_entry (ComputedEntry): Entry of the working ion.
     """
 
     def __init__(self, balanced_rxn, voltage, mAh, vol_charge, vol_discharge,
                  mass_charge, mass_discharge, frac_charge, frac_discharge,
                  entries_charge, entries_discharge, working_ion_entry):
-        """
-        Args:
-            balanced_rxn:
-                BalancedReaction for the step
-            voltage:
-                Voltage for the step
-            mAh:
-                Capacity of the step
-            vol_charge:
-                Volume of charged state
-            vol_discharge:
-                Volume of discharged state
-            mass_charge:
-                Mass of charged state
-            mass_discharge:
-                Mass of discharged state
-            frac_charge:
-                Fraction of working ion in the charged state
-            frac_discharge:
-                Fraction of working ion in the discharged state
-            entries_charge:
-                Entries present in the charged state
-            entries_discharge:
-                Entries present in discharged state
-            working_ion_entry:
-                Entry of the working ion.
-        """
         self._working_ion_entry = working_ion_entry
         working_ion = self._working_ion_entry.composition.elements[0].symbol
         self._voltage = voltage
@@ -375,13 +357,10 @@ class ConversionVoltagePair(AbstractVoltagePair):
         from a PD analysis.
 
         Args:
-            step1:
-                Starting step
-            step2:
-                Ending step
-            normalization_els:
-                Elements to normalize the reaction by. To ensure correct
-                capacities.
+            step1: Starting step
+            step2: Ending step
+            normalization_els: Elements to normalize the reaction by. To
+                ensure correct capacities.
         """
         working_ion_entry = step1["element_reference"]
         working_ion = working_ion_entry.composition.elements[0].symbol

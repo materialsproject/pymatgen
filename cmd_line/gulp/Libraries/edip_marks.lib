@@ -1,0 +1,13 @@
+#
+#  EDIP potential for carbon from Nigel Marks (Curtin University)
+#
+#  J. Phys. Conden. Matter, 14, 2901-2927 (2002)
+#
+species
+C core
+edip_coordination
+C core C core 1.544 1.547 2.27 0.30 0.06 3.2 1.481 2.0
+edip_twobody
+C core C core 20.09 0.9538 0.0490 1.257 1.892 0.170
+edip_threebody
+C core C core C core 79.34 0.30 3.615 1.354 0.936 3.5 0.645

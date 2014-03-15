@@ -1,27 +1,36 @@
-matproj Package
-===============
+pymatgen.matproj package
+========================
 
-:mod:`matproj` Package
-----------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.matproj
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`rest` Module
-------------------
+
+Submodules
+----------
+
+pymatgen.matproj.rest module
+----------------------------
 
 .. automodule:: pymatgen.matproj.rest
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`snl` Module
------------------
+pymatgen.matproj.snl module
+---------------------------
 
 .. automodule:: pymatgen.matproj.snl
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.matproj
+    :members:
+    :undoc-members:
+    :show-inheritance:

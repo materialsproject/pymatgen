@@ -94,21 +94,17 @@ class PhaseDiagram (MSONable):
         Standard constructor for phase diagram.
 
         Args:
-            entries:
-                A list of PDEntry-like objects having an energy,
-                energy_per_atom and composition.
-            elements:
-                Optional list of elements in the phase diagram. If set to None,
-                the elements are determined from the the entries themselves.
+            entries ([PDEntry]): A list of PDEntry-like objects having an
+                energy, energy_per_atom and composition.
+            elements ([Element]): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the the entries themselves.
         """
         if elements is None:
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
         elements = list(elements)
-        # Qhull seems to be sensitive to choice of independent composition
-        # components due to numerical issues in higher dimensions. The
-        # code permutes the element sequence until one that works is found.
         dim = len(elements)
         el_refs = {}
         for el in elements:
@@ -130,12 +126,34 @@ class PhaseDiagram (MSONable):
         data = np.array(data)
         self.all_entries_hulldata = data[:, 1:]
 
-        # Calculate formation energies and remove positive formation energy
-        # entries
+        #use only entries with negative formation energy
         vec = [el_refs[el].energy_per_atom for el in elements] + [-1]
         form_e = -np.dot(data, vec)
-        ind = np.where(form_e <= -self.formation_energy_tol)[0].tolist()
+
+        #make sure that if there are multiple entries at the same composition
+        #within 1e-4 eV/atom of each other, only use the lower energy one.
+        #This fixes the precision errors in the convex hull.
+        #This is significantly faster than grouping by composition and then
+        #taking the lowest energy of each group
+        ind = []
+        prev_c = [] #compositions within 1e-4 of current entry
+        prev_e = [] #energies of those compositions
+        for i in np.argsort([e.energy_per_atom for e in entries]):
+            if form_e[i] > -self.formation_energy_tol:
+                continue
+            epa = entries[i].energy_per_atom
+            #trim the front of the lists
+            while prev_e and epa > 1e-4 + prev_e[0]:
+                prev_c.pop(0)
+                prev_e.pop(0)
+            if entries[i].composition.get_fractional_composition() not in prev_c:
+                ind.append(i)
+            prev_e.append(epa)
+            prev_c.append(entries[i].composition.get_fractional_composition())
+
+        #add the elemental references
         ind.extend(map(entries.index, el_refs.values()))
+
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
 
@@ -143,9 +161,9 @@ class PhaseDiagram (MSONable):
             self.facets = [range(dim)]
         else:
             if HULL_METHOD == "scipy":
-                facets = ConvexHull(qhull_data, qhull_options="QJ i").simplices
+                facets = ConvexHull(qhull_data, qhull_options="Qt i").simplices
             else:
-                facets = ConvexHull(qhull_data, joggle=True).vertices
+                facets = ConvexHull(qhull_data, joggle=False).vertices
             finalfacets = []
             for facet in facets:
                 is_non_element_facet = any(
@@ -189,8 +207,7 @@ class PhaseDiagram (MSONable):
         elemental references.
 
         Args:
-            entry:
-                A PDEntry-like object.
+            entry: A PDEntry-like object.
 
         Returns:
             Formation energy from the elemental references.
@@ -207,8 +224,7 @@ class PhaseDiagram (MSONable):
         elemental references.
 
         Args:
-            entry:
-                An PDEntry-like object
+            entry: An PDEntry-like object
 
         Returns:
             Formation energy **per atom** from the elemental references.
@@ -268,15 +284,13 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         Standard constructor for grand potential phase diagram.
 
         Args:
-            entries:
-                A list of PDEntry-like objects having an energy,
-                energy_per_atom and composition.
-            chempots:
-                A dict of {element: float} to specify the chemical potentials
+            entries ([PDEntry]): A list of PDEntry-like objects having an
+                energy, energy_per_atom and composition.
+            chempots {Element: float}: Specify the chemical potentials
                 of the open elements.
-            elements:
-                Optional list of elements in the phase diagram. If set to None,
-                the elements are determined from the entries themselves.
+            elements ([Element]): Optional list of elements in the phase
+                diagram. If set to None, the elements are determined from
+                the the entries themselves.
         """
         if elements is None:
             elements = set()
@@ -330,16 +344,18 @@ class CompoundPhaseDiagram(PhaseDiagram):
     def __init__(self, entries, terminal_compositions,
                  normalize_terminal_compositions=True):
         """
+        Initializes a CompoundPhaseDiagram.
+
         Args:
-            entries:
-                Sequence of input entries. For example, if you want a Li2O-P2O5
-                phase diagram, you might have all Li-P-O entries as an input.
-            terminal_compositions:
-                Terminal compositions of phase space. In the Li2O-P2O5 example,
-                these will be the Li2O and P2O5 compositions.
-            normalize_terminal_compositions:
-                Whether to normalize the terminal compositions to a per atom
-                basis. If normalized, the energy above hulls will be consistent
+            entries ([PDEntry]): Sequence of input entries. For example,
+               if you want a Li2O-P2O5 phase diagram, you might have all
+               Li-P-O entries as an input.
+            terminal_compositions ([Composition]): Terminal compositions of
+                phase space. In the Li2O-P2O5 example, these will be the
+                Li2O and P2O5 compositions.
+            normalize_terminal_compositions (bool): Whether to normalize the
+                terminal compositions to a per atom basis. If normalized,
+                the energy above hulls will be consistent
                 for comparison across systems. Non-normalized terminals are
                 more intuitive in terms of compositional breakdowns.
         """
@@ -361,10 +377,8 @@ class CompoundPhaseDiagram(PhaseDiagram):
         compositions are represented by DummySpecies.
 
         Args:
-            entries:
-                Sequence of all input entries
-            terminal_compositions:
-                Terminal compositions of phase space.
+            entries: Sequence of all input entries
+            terminal_compositions: Terminal compositions of phase space.
 
         Returns:
             Sequence of TransformedPDEntries falling within the phase space.

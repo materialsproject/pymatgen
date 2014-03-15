@@ -1,51 +1,60 @@
-symmetry Package
-================
+pymatgen.symmetry package
+=========================
 
-:mod:`symmetry` Package
------------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.symmetry
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`bandstructure` Module
----------------------------
+
+Submodules
+----------
+
+pymatgen.symmetry.bandstructure module
+--------------------------------------
 
 .. automodule:: pymatgen.symmetry.bandstructure
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`finder` Module
---------------------
+pymatgen.symmetry.finder module
+-------------------------------
 
 .. automodule:: pymatgen.symmetry.finder
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`pointgroup` Module
-------------------------
+pymatgen.symmetry.pointgroup module
+-----------------------------------
 
 .. automodule:: pymatgen.symmetry.pointgroup
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`spacegroup` Module
-------------------------
+pymatgen.symmetry.spacegroup module
+-----------------------------------
 
 .. automodule:: pymatgen.symmetry.spacegroup
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`structure` Module
------------------------
+pymatgen.symmetry.structure module
+----------------------------------
 
 .. automodule:: pymatgen.symmetry.structure
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.symmetry
+    :members:
+    :undoc-members:
+    :show-inheritance:

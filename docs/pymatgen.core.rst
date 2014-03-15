@@ -1,107 +1,116 @@
-core Package
-============
+pymatgen.core package
+=====================
 
-:mod:`core` Package
--------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.core
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`bonds` Module
--------------------
+
+Submodules
+----------
+
+pymatgen.core.bonds module
+--------------------------
 
 .. automodule:: pymatgen.core.bonds
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`composition` Module
--------------------------
+pymatgen.core.composition module
+--------------------------------
 
 .. automodule:: pymatgen.core.composition
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`design_patterns` Module
------------------------------
+pymatgen.core.design_patterns module
+------------------------------------
 
 .. automodule:: pymatgen.core.design_patterns
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`ion` Module
------------------
+pymatgen.core.ion module
+------------------------
 
 .. automodule:: pymatgen.core.ion
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`lattice` Module
----------------------
+pymatgen.core.lattice module
+----------------------------
 
 .. automodule:: pymatgen.core.lattice
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`operations` Module
-------------------------
+pymatgen.core.operations module
+-------------------------------
 
 .. automodule:: pymatgen.core.operations
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`periodic_table` Module
-----------------------------
+pymatgen.core.periodic_table module
+-----------------------------------
 
 .. automodule:: pymatgen.core.periodic_table
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`physical_constants` Module
---------------------------------
+pymatgen.core.physical_constants module
+---------------------------------------
 
 .. automodule:: pymatgen.core.physical_constants
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`sites` Module
--------------------
+pymatgen.core.sites module
+--------------------------
 
 .. automodule:: pymatgen.core.sites
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`structure` Module
------------------------
+pymatgen.core.structure module
+------------------------------
 
 .. automodule:: pymatgen.core.structure
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`structure_modifier` Module
---------------------------------
+pymatgen.core.structure_modifier module
+---------------------------------------
 
 .. automodule:: pymatgen.core.structure_modifier
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`units` Module
--------------------
+pymatgen.core.units module
+--------------------------
 
 .. automodule:: pymatgen.core.units
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.core
+    :members:
+    :undoc-members:
+    :show-inheritance:

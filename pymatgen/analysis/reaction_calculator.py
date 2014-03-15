@@ -36,10 +36,10 @@ class BalancedReaction(MSONable):
         Reactants and products to be specified as dict of {Composition: coeff}.
 
         Args:
-            reactants:
-                Reactants as dict of {Composition: amt}.
-            products:
-                Products as dict of {Composition: amt}.
+            reactants ({Composition: float}): Reactants as dict of
+                {Composition: amt}.
+            products ({Composition: float}): Products as dict of
+                {Composition: amt}.
         """
 
         coeffs = []
@@ -87,8 +87,8 @@ class BalancedReaction(MSONable):
         Calculates the energy of the reaction.
 
         Args:
-            energies:
-                dict of {comp:energy}. E.g., {comp1: energy1, comp2: energy2}.
+            energies ({Composition: float}): Energy for each composition.
+                E.g ., {comp1: energy1, comp2: energy2}.
 
         Returns:
             reaction energy as a float.
@@ -103,10 +103,8 @@ class BalancedReaction(MSONable):
         coefficient of 1. Another factor can be specified.
 
         Args:
-            comp:
-                Composition to normalize to
-            factor:
-                Factor to normalize to. Defaults to 1.
+            comp (Composition): Composition to normalize to
+            factor (float): Factor to normalize to. Defaults to 1.
         """
         scale_factor = abs(1 / self._coeffs[self._all_comp.index(comp)]
                            * factor)
@@ -119,10 +117,8 @@ class BalancedReaction(MSONable):
         Another factor can be specified.
 
         Args:
-            element:
-                Element to normalize to.
-            factor:
-                Factor to normalize to. Defaults to 1.
+            element (Element/Specie): Element to normalize to.
+            factor (float): Factor to normalize to. Defaults to 1.
         """
         all_comp = self._all_comp
         coeffs = self._coeffs
@@ -136,8 +132,7 @@ class BalancedReaction(MSONable):
         Returns the amount of the element in the reaction.
 
         Args:
-            element:
-                Element in the reaction
+            element (Element/Specie): Element in the reaction
 
         Returns:
             Amount of that element in the reaction.
@@ -323,10 +318,8 @@ class Reaction(BalancedReaction):
         pymatgen.core.structure.Composition.  e.g., [comp1, comp2]
 
         Args:
-            reactants:
-                List of reactants.
-            products:
-                List of products.
+            reactants ([Composition]): List of reactants.
+            products ([Composition]): List of products.
         """
         self._input_reactants = reactants
         self._input_products = products
@@ -491,10 +484,8 @@ class ComputedReaction(Reaction):
     def __init__(self, reactant_entries, product_entries):
         """
         Args:
-            reactant_entries:
-                List of reactant_entries.
-            products:
-                List of product_entries.
+            reactant_entries ([ComputedEntry]): List of reactant_entries.
+            product_entries ([ComputedEntry]): List of product_entries.
         """
         self._reactant_entries = reactant_entries
         self._product_entries = product_entries

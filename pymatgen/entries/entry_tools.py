@@ -79,38 +79,27 @@ def group_entries_by_structure(entries, species_to_remove=None,
     them by structural similarity.
 
     Args:
-        entries:
-            Sequence of ComputedStructureEntries.
-        species_to_remove:
-            Sometimes you want to compare a host framework (e.g., in Li-ion
-            battery analysis). This allows you to specify species to remove
-            before structural comparison.
-        ltol:
-            Fractional length tolerance. Default is 0.2
-        stol:
-            Site tolerance in Angstrom. Default is 0.4 Angstrom
-        angle_tol:
-            Angle tolerance in degrees. Default is 5 degrees.
-        primitive_cell:
-            If true: input structures will be reduced to primitive cells
-            prior to matching. Defaults to True.
-        scale:
-            Input structures are scaled to equivalent volume if true;
+        entries: Sequence of ComputedStructureEntries.
+        species_to_remove: Sometimes you want to compare a host framework
+            (e.g., in Li-ion battery analysis). This allows you to specify
+            species to remove before structural comparison.
+        ltol (float): Fractional length tolerance. Default is 0.2.
+        stol (float): Site tolerance in Angstrom. Default is 0.4 Angstrom.
+        angle_tol (float): Angle tolerance in degrees. Default is 5 degrees.
+        primitive_cell (bool): If true: input structures will be reduced to
+            primitive cells prior to matching. Defaults to True.
+        scale: Input structures are scaled to equivalent volume if true;
             For exact matching, set to False.
-        comparator:
-            A comparator object implementing an equals method that declares
-            declaring equivalency of sites.
-            Default is SpeciesComparator, which implies rigid species
-            mapping.
-        ncpus:
-            Number of cpus to use. Use of multiple cpus can greatly improve
+        comparator: A comparator object implementing an equals method that
+            declares equivalency of sites. Default is SpeciesComparator,
+            which implies rigid species mapping.
+        ncpus: Number of cpus to use. Use of multiple cpus can greatly improve
             fitting speed. Default of None means serial processing.
 
     Returns:
         Sequence of sequence of entries by structural similarity. e.g,
         [[ entry1, entry2], [entry3, entry4, entry5]]
     """
-
     start = datetime.datetime.now()
     logger.info("Started at {}".format(start))
     entries_host = [(entry, _get_host(entry.structure, species_to_remove))

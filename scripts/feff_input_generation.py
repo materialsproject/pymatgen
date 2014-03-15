@@ -16,14 +16,10 @@ __email__ = "adozier@uky.edu"
 __date__ = "April 7, 2013"
 
 import argparse
-import CifFile
-import abc
 
 from pymatgen.io.feffio_set import *
 from pymatgen.io.vaspio import *
-from pymatgen.io.feffio import *
-from pymatgen.io.cifio import CifParser, CifWriter
-from pymatgen.core.structure import Structure, Site, PeriodicSite
+from pymatgen.io.cifio import CifParser
 
 parser = argparse.ArgumentParser(description='''
 Example script to generate FEFF input files from a cif file

@@ -1,0 +1,36 @@
+#
+#  Valence-Bond Order (VBO) Potential Library
+#
+#  M. Zhao, M.A. Iron, P. Staszewski, N.E. Schultz, R. Valero and D.G. Truhlar,
+#  Valence-Bond Order (VBO): A New Approach to Modeling Reactive Potential Energy
+#  Surfaces for Complex Systems, Materials, and Nanoparticles,
+#  J. Chem. Theory Comput. 5, 594-604 (2009)
+#
+#  Note that the values of the c3 and c4 coefficients are converted from Hartrees**1/rn to eV**1/rn here
+#
+species
+Al core  0.0
+H  core  0.0
+vbo_twobody
+Al core Al core 0.2248 0.3599 2.7306 6.88
+Al core Al core 0.2172 4.2538 2.7306 6.88
+Al core H  core 0.3509 7.4891 1.6637 6.88
+Al core H  core 0.5174 1.8993 1.6637 6.88
+H  core H  core 2.0112 2.7292 0.7414 5.29
+H  core H  core 0.8084 8.8100 0.7414 5.29
+manybody
+Al core Al core 6.88
+Al core H  core 6.88
+H  core H  core 5.29
+eam_functional vbo
+Al core 1.0 0.7931
+H  core 1.0 0.1536
+eam_density vbo
+Al core Al core 0.856827 1.0 0.5684 2.7306 6.88
+Al core Al core 0.438077 1.0 2.9562 2.7306 6.88
+H  core Al core 0.856827 2.93060 1.6911 1.6637 6.88
+H  core Al core 0.438077 0.00008 2.8674 1.6637 6.88
+Al core H  core 21919.226446 0.00001 13.5669 1.6637 6.88
+Al core H  core 21919.226446 0.01910 13.6902 1.6637 6.88
+H  core H  core 21919.226446 1.0 16.1462 0.7414 5.29
+H  core H  core 21919.226446 1.0 16.1330 0.7414 5.29

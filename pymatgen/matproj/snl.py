@@ -19,7 +19,7 @@ import datetime
 from collections import namedtuple
 import json
 
-from pymatgen.util.string_utils import remove_non_ascii
+from monty.string import remove_non_ascii
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex
@@ -36,8 +36,7 @@ def is_valid_bibtex(reference):
     Use pybtex to validate that a reference is in proper BibTeX format
 
     Args:
-        reference:
-            A String reference in BibTeX format
+        reference: A String reference in BibTeX format.
 
     Returns:
         Boolean indicating if reference is valid bibtex.
@@ -92,8 +91,8 @@ class HistoryNode(namedtuple('HistoryNode', ['name', 'url', 'description'])):
         Parses a History Node object from either a dict or a tuple.
 
         Args:
-            h_node:
-                A dict with name/url/description fields or a 3-element tuple.
+            h_node: A dict with name/url/description fields or a 3-element
+                tuple.
 
         Returns:
             History node.
@@ -142,9 +141,8 @@ class Author(namedtuple('Author', ['name', 'email'])):
         Parses an Author object from either a String, dict, or tuple
 
         Args:
-            author:
-                A String formatted as "NAME <email@domain.com>",
-                (name, email) tuple, or a dict with name and email keys
+            author: A String formatted as "NAME <email@domain.com>",
+                (name, email) tuple, or a dict with name and email keys.
 
         Returns:
             An Author object.
@@ -182,32 +180,23 @@ class StructureNL(object):
         - history
     - lattice (optional)
     - sites
+
+    Args:
+        struct_or_mol: A pymatgen.core.structure Structure/Molecule object
+        authors: *List* of {"name":'', "email":''} dicts,
+            *list* of Strings as 'John Doe <johndoe@gmail.com>',
+            or a single String with commas separating authors
+        projects: List of Strings ['Project A', 'Project B']
+        references: A String in BibTeX format
+        remarks: List of Strings ['Remark A', 'Remark B']
+        data: A free form dict. Namespaced at the root level with an
+            underscore, e.g. {"_materialsproject": <custom data>}
+        history: List of dicts - [{'name':'', 'url':'', 'description':{}}]
+        created_at: A datetime object
     """
 
     def __init__(self, struct_or_mol, authors, projects=None, references='',
                  remarks=None, data=None, history=None, created_at=None):
-        """
-        Args:
-            struct_or_mol:
-                A pymatgen.core.structure Structure/Molecule object
-            authors:
-                *List* of {"name":'', "email":''} dicts,
-                *list* of Strings as 'John Doe <johndoe@gmail.com>',
-                or a single String with commas separating authors
-            projects:
-                List of Strings ['Project A', 'Project B']
-            references:
-                A String in BibTeX format
-            remarks:
-                List of Strings ['Remark A', 'Remark B']
-            data:
-                A free form dict. Namespaced at the root level with an
-                underscore, e.g. {"_materialsproject": <custom data>}
-            history:
-                List of dicts - [{'name':'', 'url':'', 'description':{}}]
-            created_at:
-                A datetime object
-        """
         # initialize root-level structure keys
         self.structure = struct_or_mol
 
@@ -313,31 +302,23 @@ class StructureNL(object):
         is applied to all of the structures for ease of use.
 
         Args:
-            structures:
-                A list of Structure objects
-            authors:
-                *List* of {"name":'', "email":''} dicts,
+            structures: A list of Structure objects
+            authors: *List* of {"name":'', "email":''} dicts,
                 *list* of Strings as 'John Doe <johndoe@gmail.com>',
                 or a single String with commas separating authors
-            projects:
-                List of Strings ['Project A', 'Project B']. This applies to
-                all structures.
-            references:
-                A String in BibTeX format. Again, this applies to all
+            projects: List of Strings ['Project A', 'Project B']. This
+                applies to all structures.
+            references: A String in BibTeX format. Again, this applies to all
                 structures.
-            remarks:
-                List of Strings ['Remark A', 'Remark B']
-            data:
-                A list of free form dict. Namespaced at the root level with an
-                underscore, e.g. {"_materialsproject":<custom data>}. The
-                length of data should be the same as the list of structures
-                if not None.
-            histories:
-                List of list of dicts - [[{'name':'', 'url':'',
+            remarks: List of Strings ['Remark A', 'Remark B']
+            data: A list of free form dict. Namespaced at the root level
+                with an underscore, e.g. {"_materialsproject":<custom data>}
+                . The length of data should be the same as the list of
+                structures if not None.
+            histories: List of list of dicts - [[{'name':'', 'url':'',
                 'description':{}}], ...] The length of histories should be the
                 same as the list of structures if not None.
-            created_at:
-                A datetime object
+            created_at: A datetime object
         """
         data = [{}] * len(structures) if data is None else data
         histories = [[]] * len(structures) if histories is None else \

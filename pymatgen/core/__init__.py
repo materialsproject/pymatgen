@@ -7,7 +7,7 @@ __author__ = "Shyue Ping Ong"
 __date__ = "Dec 15, 2010 7:21:29 PM"
 
 from .periodic_table import Element, Specie, DummySpecie, \
-    smart_element_or_specie
+    get_el_sp
 from .composition import Composition
 from .structure import Structure, IStructure, Molecule, IMolecule
 from .bonds import CovalentBond, get_bond_length

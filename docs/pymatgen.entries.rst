@@ -1,51 +1,60 @@
-entries Package
-===============
+pymatgen.entries package
+========================
 
-:mod:`entries` Package
-----------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.entries
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`compatibility` Module
----------------------------
+
+Submodules
+----------
+
+pymatgen.entries.compatibility module
+-------------------------------------
 
 .. automodule:: pymatgen.entries.compatibility
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`computed_entries` Module
-------------------------------
+pymatgen.entries.computed_entries module
+----------------------------------------
 
 .. automodule:: pymatgen.entries.computed_entries
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`entry_tools` Module
--------------------------
+pymatgen.entries.entry_tools module
+-----------------------------------
 
 .. automodule:: pymatgen.entries.entry_tools
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`exp_entries` Module
--------------------------
+pymatgen.entries.exp_entries module
+-----------------------------------
 
 .. automodule:: pymatgen.entries.exp_entries
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`post_processors_abc` Module
----------------------------------
+pymatgen.entries.post_processors_abc module
+-------------------------------------------
 
 .. automodule:: pymatgen.entries.post_processors_abc
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.entries
+    :members:
+    :undoc-members:
+    :show-inheritance:

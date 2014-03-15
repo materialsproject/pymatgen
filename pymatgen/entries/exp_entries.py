@@ -28,20 +28,16 @@ class ExpEntry(PDEntry, MSONable):
 
     Current version works only with solid phases and at 298K. Further
     extensions for temperature dependence are planned.
+
+    Args:
+        composition: Composition of the entry. For flexibility, this can take
+            the form of all the typical input taken by a Composition, including
+            a {symbol: amt} dict, a string formula, and others.
+        thermodata: A sequence of ThermoData associated with the entry.
+        temperature: A temperature for the entry in Kelvin. Defaults to 298K.
     """
 
     def __init__(self, composition, thermodata, temperature=298):
-        """
-        Args:
-            composition:
-                Composition of the entry. For flexibility, this can take the
-                form of all the typical input taken by a Composition, including
-                a {symbol: amt} dict, a string formula, and others.
-            thermodata:
-                A sequence of ThermoData associated with the entry.
-            temperature:
-                A temperature for the entry in Kelvin. Defaults to 298K.
-        """
         comp = Composition(composition)
         self._thermodata = thermodata
         found = False

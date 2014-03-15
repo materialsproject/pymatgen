@@ -1,51 +1,60 @@
-electronic_structure Package
-============================
+pymatgen.electronic_structure package
+=====================================
 
-:mod:`electronic_structure` Package
------------------------------------
+Subpackages
+-----------
 
-.. automodule:: pymatgen.electronic_structure
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`bandstructure` Module
----------------------------
+
+Submodules
+----------
+
+pymatgen.electronic_structure.bandstructure module
+--------------------------------------------------
 
 .. automodule:: pymatgen.electronic_structure.bandstructure
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`boltztrap` Module
------------------------
+pymatgen.electronic_structure.boltztrap module
+----------------------------------------------
 
 .. automodule:: pymatgen.electronic_structure.boltztrap
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`core` Module
-------------------
+pymatgen.electronic_structure.core module
+-----------------------------------------
 
 .. automodule:: pymatgen.electronic_structure.core
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`dos` Module
------------------
+pymatgen.electronic_structure.dos module
+----------------------------------------
 
 .. automodule:: pymatgen.electronic_structure.dos
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`plotter` Module
----------------------
+pymatgen.electronic_structure.plotter module
+--------------------------------------------
 
 .. automodule:: pymatgen.electronic_structure.plotter
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: pymatgen.electronic_structure
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -40,10 +40,8 @@ class AbstractFeffInputSet(object):
         Returns Atoms string from a structure that goes in feff.inp file.
 
         Args:
-            structure:
-                pymatgen structure object
-            central_atom:
-                atom symbol string for absorbing atom
+            structure: pymatgen structure object
+            central_atom: atom symbol string for absorbing atom
 
         Returns:
             FeffAtoms object.
@@ -57,10 +55,10 @@ class AbstractFeffInputSet(object):
         EXAFS input.
 
         Args:
-            calc_type:
-                at this time either 'XANES' or 'EXAFS' string is supported
-                for K shell excitation. In the future this will be expanded to
-                inlude other shells and material class differentiation.
+            calc_type: At this time either 'XANES' or 'EXAFS' string is
+                supported for K shell excitation. In the future this will be
+                expanded to include other shells and material class
+                differentiation.
         """
         return
 
@@ -70,11 +68,8 @@ class AbstractFeffInputSet(object):
         Returns POTENTIAL section used in feff.inp from a structure.
 
         Args:
-            structure:
-                pymatgen structure object
-            central _atom:
-                atom symbol string for absorbing atom
-
+            structure: pymatgen structure object
+            central_atom: atom symbol string for absorbing atom
         """
         return
 
@@ -84,10 +79,8 @@ class AbstractFeffInputSet(object):
         Returns header to be used in feff.inp file from a pymatgen structure
 
         Args:
-            structure:
-                A pymatgen structure object
-            source:
-                source identifier used to create structure, can be defined
+            structure: A pymatgen structure object
+            source: Source identifier used to create structure, can be defined
                 however user wants to organize structures, calculations, etc.
                 example would be Materials Project material ID number.
         """
@@ -99,20 +92,16 @@ class AbstractFeffInputSet(object):
         Returns all input files as a dict of {filename: feffio object}
 
         Args:
-            structure:
-                Structure object
-            calc_type:
-                at this time either 'XANES' or 'EXAFS' string is supported
-                for K shell excitation. In the future this will be expanded
-                to inlude other shells and material class differentiation.
-            source:
-                source identifier used to create structure, can be defined
+            structure: Structure object
+            calc_type: At this time either 'XANES' or 'EXAFS' string is
+                supported for K shell excitation. In the future this will be
+                expanded to inlude other shells and material class
+                differentiation.
+            source: Source identifier used to create structure, can be defined
                 however user wants to organize structures, calculations, etc.
                 example would be Materials Project material ID number.
-            central _atom:
-                atom symbol string for absorbing atom
-            comment:
-                Comment to appear in Header.
+            central_atom: Atom symbol string for absorbing atom
+            comment: Comment to appear in Header.
 
         Returns:
             dict of objects used to create feff.inp file i.e. Header, FeffTags,
@@ -132,24 +121,19 @@ class AbstractFeffInputSet(object):
         Writes a set of FEFF input to a directory.
 
         Args:
-            structure:
-                Structure object
-            calc_type:
-                at this time either 'XANES' or 'EXAFS' string is supported
-                for K shell excitation. In the future this will be expanded
-                to inlude other shells and material class differentiation.
-            source:
-                source identifier used to create structure, can be defined
+            structure: Structure object
+            calc_type: At this time either 'XANES' or 'EXAFS' string is
+                supported for K shell excitation. In the future this will be
+                expanded to include other shells and material class
+                differentiation.
+            source: Source identifier used to create structure, can be defined
                 however user wants to organize structures, calculations, etc.
                 example would be Materials Project material ID number.
-            central _atom:
-                atom symbol string for absorbing atom            output_dir:
-                Directory to output the FEFF input files
-            comment:
-                comment for Header
-            make_dir_if_not_present:
-                Set to True if you want the directory (and the whole path) to
-                be created if it is not present.
+            central_atom: Atom symbol string for absorbing atom
+            output_dir: Directory to output the FEFF input files
+            comment: comment for Header
+            make_dir_if_not_present: Set to True if you want the directory (
+                and the whole path) to be created if it is not present.
         """
 
         if make_dir_if_not_present and not os.path.exists(output_dir):
@@ -191,15 +175,13 @@ class FeffInputSet(AbstractFeffInputSet):
     """
     Standard implementation of FeffInputSet, which can be extended by specific
     implementations.
+
+    Args:
+        name: The name of a grouping of input parameter sets such as
+            "MaterialsProject".
     """
 
     def __init__(self, name):
-        """
-        Args:
-            name:
-                The name of a grouping of input parameter sets such as
-                "MaterialsProject".
-        """
         self.name = name
         module_dir = os.path.dirname(os.path.abspath(__file__))
         self._config = ConfigParser.SafeConfigParser()
@@ -214,17 +196,14 @@ class FeffInputSet(AbstractFeffInputSet):
         Creates header string from structure object
 
         Args:
-            structure:
-                A pymatgen structure object
-            source:
-                source identifier used to create structure, can be defined
+            structure: A pymatgen structure object
+            source: Source identifier used to create structure, can be defined
                 however user wants to organize structures, calculations, etc.
                 example would be Materials Project material ID number.
-            comment:
-                comment to include in header
+            comment: comment to include in header
+
         Returns:
             Header object to be used in feff.inp file from a pymatgen structure
-
         """
         return Header(structure, source, comment)
 
@@ -234,10 +213,10 @@ class FeffInputSet(AbstractFeffInputSet):
         from FeffInputSets.cfg file.
 
         Args:
-            calc_type:
-                at this time either 'XANES' or 'EXAFS' string is supported
-                for K shell excitation. In the future this will be expanded
-                to inlude other shells and material class differentiation.
+            calc_type: At this time either 'XANES' or 'EXAFS' string is
+                supported for K shell excitation. In the future this will be
+                expanded to include other shells and material class
+                differentiation.
 
         Returns:
             FeffTags object
@@ -259,10 +238,9 @@ class FeffInputSet(AbstractFeffInputSet):
         feff.inp.
 
         Args:
-            structure:
-                pymatgen structure object
-            central _atom:
-                atom symbol string for absorbing atom
+            structure: pymatgen structure object
+            central_atom: atom symbol string for absorbing atom
+
         Returns:
             FeffPot object
         """
@@ -274,10 +252,9 @@ class FeffInputSet(AbstractFeffInputSet):
         ATOMS file and feff.inp.
 
         Args:
-            structure:
-                pymatgen structure object
-            central_atom:
-                atom symbol string for absorbing atom
+            structure: pymatgen structure object
+            central_atom: atom symbol string for absorbing atom
+
         Returns:
             FeffAtoms object
         """

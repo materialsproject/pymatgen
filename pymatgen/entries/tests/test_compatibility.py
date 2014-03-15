@@ -127,6 +127,27 @@ class MaterialsProjectCompatibilityTest(unittest.TestCase):
         self.assertAlmostEqual(ggacompat.process_entry(entry).energy,
                                -1)
 
+    def test_get_corrections_dict(self):
+        compat = MaterialsProjectCompatibility()
+        ggacompat = MaterialsProjectCompatibility("GGA")
+
+        #Correct parameters
+        entry = ComputedEntry(
+            'Fe2O3', -1, 0.0,
+            parameters={'is_hubbard': True, 'hubbards': {'Fe': 5.3, 'O': 0},
+                        'run_type': 'GGA+U',
+                        'potcar_symbols': ['PAW_PBE Fe_pv 06Sep2000',
+                                           'PAW_PBE O 08Apr2002']})
+        c = compat.get_corrections_dict(entry)
+
+        self.assertAlmostEqual(c["MP Gas Correction"], -2.10687)
+        self.assertAlmostEqual(c["MP Advanced Correction"], -5.466)
+
+        entry.parameters["is_hubbard"] = False
+        del entry.parameters["hubbards"]
+        c = ggacompat.get_corrections_dict(entry)
+        self.assertNotIn("MP Advanced Correction", c)
+
 
 class MITCompatibilityTest(unittest.TestCase):
 
@@ -292,6 +313,25 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
 
+    def test_process_entry_oxide(self):
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_li, el_o]
+        latt = Lattice.from_parameters(3.278, 3.278, 3.278,
+                                       60, 60, 60)
+        coords = [[0.25, 0.25, 0.25],
+                  [0.75, 0.75, 0.75],
+                  [0.0, 0.0, 0.0]]
+        struct = Structure(latt, elts, coords)
+        li2o_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        li2o_entry_corrected = self.compat.process_entry(li2o_entry)
+        self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
+
 
 class AqueousCorrectionTest(unittest.TestCase):
 
@@ -299,13 +339,22 @@ class AqueousCorrectionTest(unittest.TestCase):
         self.corr = AqueousCorrection("MIT")
 
     def test_compound_energy(self):
+
+        O2_entry = self.corr.correct_entry(ComputedEntry(Composition("O2"),
+                                                          -4.9355 * 2))
+        H2_entry = self.corr.correct_entry(ComputedEntry(Composition("H2"), 3))
+        H2O_entry = self.corr.correct_entry(ComputedEntry(Composition("H2O"), 3))
+        H2O_formation_energy = H2O_entry.energy - (H2_entry.energy +
+                                                    O2_entry.energy / 2.0)
+        self.assertAlmostEqual(H2O_formation_energy, -2.46, 2)
+
         entry = ComputedEntry(Composition("H2O"), -16)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.10057, 4)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
 
         entry = ComputedEntry(Composition("H2O"), -24)
         entry = self.corr.correct_entry(entry)
-        self.assertAlmostEqual(entry.energy, -15.10057, 4)
+        self.assertAlmostEqual(entry.energy, -14.916, 4)
 
         entry = ComputedEntry(Composition("Cl"), -24)
         entry = self.corr.correct_entry(entry)

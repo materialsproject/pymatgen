@@ -1,0 +1,133 @@
+#
+#  ClayFF force field
+#
+#  R.T. Cygan, J.-J. Liang and A.G. Kalinichev, J. Phys. Chem. B, 108, 1255-1266 (2004)
+#
+#  H1 = hydroxyl H (ho)
+#  H2 = water H (h*)
+#  O1 = hydroxyl O (oh)
+#  O2 = water O (o*)
+#  O3 = bridging O (ob)
+#  O4 = bridging O with octahedral substitution (obos)
+#  O5 = bridging O with tetrahedral substitution (obts)
+#  O6 = bridging O with double substitution (obss)
+#  O7 = hydroxyl O with substitution (ohs)
+#  Si = tetrahedral Si (st)
+#  Al1 = tetrahedral Al (at)
+#  Al2 = octahedral Al (ao)
+#  Mg1 = octahedral Mg (mgo)
+#  Mg2 = hydroxide Mg (mgh)
+#  Ca1 = octahedral Ca (cao)
+#  Ca2 = hydroxide Ca (cah)
+#  Fe  = octahedral Fe (feo)
+#  Li  = octahedral Li (lio)
+#  Na  = aqueous Na (Na)
+#  K   = aqueous K (K)
+#  Cs  = aqueous Cs (Cs)
+#  Ca3 = aqueous Ca (Ca)
+#  Ba  = aqueous Ba (Ba)
+#  Cl  = aqueous Cl (Cl)
+#
+#  Library file provided by Todd Zeitler, Sandia National Labs
+#
+keyword molmec
+#
+# Charges on species
+#
+species
+H1 core  0.425
+H2 core  0.410
+O1 core -0.950
+O2 core -0.820
+O3 core -1.050
+O4 core -1.1808
+O5 core -1.1688
+O6 core -1.2996
+O7 core -1.0808
+Si core  2.1000
+Al1 core 1.5750
+Al2 core 1.5750
+Mg1 core 1.360
+Mg2 core 1.050
+Ca1 core 1.360
+Ca2 core 1.050
+Fe  core 1.575
+Li  core 0.525
+Na  core 1.0
+K   core 1.0
+Cs  core 1.0
+Ca3 core 2.0
+Ba  core 2.0
+Cl core -1.0
+#
+# Lennard-Jones potentials
+epsilon kcal
+O1  core  0.1554  3.5532
+O2  core  0.1554  3.5532
+O3  core  0.1554  3.5532
+O4  core  0.1554  3.5532
+O5  core  0.1554  3.5532
+O6  core  0.1554  3.5532
+O7  core  0.1554  3.5532
+Si  core  1.8405d-6 3.7064
+Al1 core  1.8405d-6 3.7064
+Al2 core  1.3298d-6 4.7943
+Mg1 core  9.0298d-7 5.9090
+Mg2 core  9.0298d-7 5.9090
+Ca1 core  5.0298d-6 6.2484
+Ca2 core  5.0298d-6 6.2428
+Fe  core  9.0298d-6 5.5070
+Li  core  9.0298d-6 4.7257
+Na  core  0.1301 2.6378
+K   core  0.1000 3.7423
+Cs  core  0.1000 4.3002
+Ca3 core  0.1000 3.2237
+Ba  core  0.0470 4.2840
+Cl  core  0.1001 4.9388
+lennard epsilon geometric 12 6 inter kcal all
+0.0 8.5
+cutp 8.5 poly 0.5
+#
+# Morse bond (parameterized to different potential form)
+#morse bond kcal
+#trioctahedral
+#O1 core H1 core 132.2491 2.1350 0.9572
+#
+# Harmonic bond 
+harm bond kcal
+O2 core H2 core 1108.2698 1.0 0.0
+O1 core H1 core 1108.2698 1.0 0.0
+O7 core H1 core 1108.2698 1.0 0.0
+#
+# Three-body terms
+#Water
+three bond kcal
+O2 core H2 core H2 core 91.5392 109.47
+#Nonbonded harmonic for edge-sites
+three kcal
+O1 core H1 core Mg2 core 12.7 120.0  1.2 2.8 4.0
+O1 core H1 core Al2 core 12.7 120.0  1.2 2.8 4.0
+#old values
+#O1 core H1 core Si core 60.0 109.47  1.3 2.2 3.5
+#O1 core H1 core Al core 60.0 109.47  1.3 2.4 3.7
+#O1 core H1 core Mg core 60.0 109.47  1.3 2.4 3.7
+#O1 core H1 core Ca1 core 60.0 109.47  1.3 2.7 4.0
+#O1 core H1 core Ca2 core 60.0 109.47  1.3 2.7 4.0
+#O1 core H1 core Fe core 60.0 109.47  1.3 2.7 4.0
+#O1 core H1 core Li core 60.0 109.47  1.3 2.2 3.5
+#
+#  Set radii to zero to avoid molecules where necessary
+#
+element
+cova Si 0.0
+cova Al 0.0
+cova Mg 0.0
+cova Fe 0.0
+cova Li 0.0
+cova Na 0.0
+cova K  0.0
+cova Cs 0.0
+cova Ca 0.0
+cova Ba 0.0
+cova Cl 0.0
+end

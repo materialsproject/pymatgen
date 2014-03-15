@@ -39,15 +39,13 @@ class InsertionElectrode(AbstractElectrode):
         Create a new InsertionElectrode.
 
         Args:
-            entries:
-                A list of ComputedStructureEntries (or subclasses) representing
-                the different topotactic states of the battery, e.g. TiO2 and
-                LiTiO2.
-            working_ion_entry:
-                A single ComputedEntry or PDEntry representing the element that
-                carries charge across the battery, e.g. Li.
+            entries: A list of ComputedStructureEntries (or subclasses)
+                representing the different topotactic states of the battery,
+                e.g. TiO2 and LiTiO2.
+            working_ion_entry: A single ComputedEntry or PDEntry
+                representing the element that carries charge across the
+                battery, e.g. Li.
         """
-
         self._entries = entries
         self._working_ion = working_ion_entry.composition.elements[0]
         self._working_ion_entry = working_ion_entry
@@ -101,10 +99,11 @@ class InsertionElectrode(AbstractElectrode):
 
     def get_stable_entries(self, charge_to_discharge=True):
         """
+        Get the stable entries.
+
         Args:
-            charge_to_discharge:
-                order from most charge to most discharged state? Default to
-                True.
+            charge_to_discharge: order from most charge to most discharged
+                state? Default to True.
 
         Returns:
             A list of stable entries in the electrode, ordered by amount of the
@@ -118,9 +117,8 @@ class InsertionElectrode(AbstractElectrode):
         Returns the unstable entries for the electrode.
 
         Args:
-            charge_to_discharge:
-                order from most charge to most discharged state? Defaults to
-                True.
+            charge_to_discharge: Order from most charge to most discharged
+                state? Defaults to True.
 
         Returns:
             A list of unstable entries in the electrode, ordered by amount of
@@ -169,10 +167,8 @@ class InsertionElectrode(AbstractElectrode):
         The maximum instability along a path for a specific voltage range.
 
         Args:
-            min_voltage:
-                The minimum allowable voltage.
-            max_voltage:
-                The maximum allowable voltage.
+            min_voltage: The minimum allowable voltage.
+            max_voltage: The maximum allowable voltage.
 
         Returns:
             Maximum decomposition energy of all compounds along the insertion
@@ -187,10 +183,8 @@ class InsertionElectrode(AbstractElectrode):
         The minimum instability along a path for a specific voltage range.
 
         Args:
-            min_voltage:
-                The minimum allowable voltage.
-            max_voltage:
-                The maximum allowable voltage.
+            min_voltage: The minimum allowable voltage.
+            max_voltage: The maximum allowable voltage.
 
         Returns:
             Minimum decomposition energy of all compounds along the insertion
@@ -205,10 +199,8 @@ class InsertionElectrode(AbstractElectrode):
         Maximum critical oxygen chemical potential along path.
 
         Args:
-            min_voltage:
-                The minimum allowable voltage.
-            max_voltage:
-                The maximum allowable voltage.
+            min_voltage: The minimum allowable voltage.
+            max_voltage: The maximum allowable voltage.
 
         Returns:
             Maximum critical oxygen chemical of all compounds along the
@@ -224,10 +216,9 @@ class InsertionElectrode(AbstractElectrode):
         Minimum critical oxygen chemical potential along path.
 
         Args:
-            min_voltage:
-                the minimum allowable voltage for a given step
-            max_voltage:
-                the maximum allowable voltage allowable for a given step
+            min_voltage: The minimum allowable voltage for a given step
+            max_voltage: The maximum allowable voltage allowable for a given
+                step
 
         Returns:
             Minimum critical oxygen chemical of all compounds along the
@@ -248,12 +239,11 @@ class InsertionElectrode(AbstractElectrode):
         options
 
         Args:
-            adjacent_only:
-                Only return electrodes from compounds that are adjacent on the
-                convex hull, i.e. no electrodes returned will have multiple
-                voltage steps if this is set True.
-            include_myself:
-                Include this identical electrode in the list of results.
+            adjacent_only: Only return electrodes from compounds that are
+                adjacent on the convex hull, i.e. no electrodes returned
+                will have multiple voltage steps if this is set True.
+            include_myself: Include this identical electrode in the list of
+                results.
 
         Returns:
             A list of InsertionElectrode objects
@@ -286,14 +276,15 @@ class InsertionElectrode(AbstractElectrode):
                 all_entries.extend(unstable_entries)
                 battery_list.append(self.__class__(all_entries,
                                                    self.working_ion_entry))
-
         return battery_list
 
     def to_dict_summary(self, print_subelectrodes=True):
         """
+        Generate a summary dict.
+
         Args:
-            print_subelectrodes:
-                Also print data on all the possible subelectrodes.
+            print_subelectrodes: Also print data on all the possible
+                subelectrodes.
 
         Returns:
             A summary of this electrode"s properties in dict format.
@@ -359,19 +350,15 @@ class InsertionElectrode(AbstractElectrode):
 class InsertionVoltagePair(AbstractVoltagePair):
     """
     Defines an Insertion Voltage Pair.
+
+    Args:
+        entry1: Entry corresponding to one of the entries in the voltage step.
+        entry2: Entry corresponding to the other entry in the voltage step.
+        working_ion_entry: A single ComputedEntry or PDEntry representing
+            the element that carries charge across the battery, e.g. Li.
     """
 
     def __init__(self, entry1, entry2, working_ion_entry):
-        """
-        Args:
-            entry1:
-                Entry corresponding to one of the entries in the voltage step.
-            entry2:
-                Entry corresponding to the other entry in the voltage step.
-            working_ion_entry:
-                A single ComputedEntry or PDEntry representing the element that
-                carries charge across the battery, e.g. Li.
-        """
         #initialize some internal variables
         working_element = working_ion_entry.composition.elements[0]
 

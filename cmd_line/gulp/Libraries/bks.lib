@@ -1,0 +1,24 @@
+#
+#  BKS library - rigid ion potentials for silica
+#
+#  Reference:
+#  B.W.H. van Beest et al, Phys. Rev. Lett., 64, 1955 (1990)
+#
+#  NOTE: Because of the large C6 terms (which are unphysical
+#        and the short cutoff given in the paper, there will
+#        be lots of problems associated with potential 
+#        discontinuities if using this library. It should also
+#        be noted that the SiO2 potential is known to give the
+#        incorrect ground state polymorph for silica. You have
+#        been warned!
+#
+species
+Al    core  1.4
+Si    core  2.4
+P     core  3.4
+O     core -1.2
+buck
+Al core O core 16008.5345 0.208478  130.5669 0.0 10.0
+Si core O core 18803.7572 0.205205  133.5381 0.0 10.0
+P  core O core  9034.2080 0.192642   19.8793 0.0 10.0
+O  core O core  1338.7730 0.362319  175.0000 0.0 10.0

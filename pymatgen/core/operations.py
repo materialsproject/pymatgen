@@ -39,10 +39,9 @@ class SymmOp(MSONable):
         generate a SymmOp from proper rotations and translation.
 
         Args:
-            affine_transformation_matrix:
-                A 4x4 numpy.array representing an affine transformation.
-            tol:
-                Tolerance for determining if matrices are equal.
+            affine_transformation_matrix (4x4 array): Representing an
+                affine transformation.
+            tol (float): Tolerance for determining if matrices are equal.
         """
         affine_transformation_matrix = np.array(affine_transformation_matrix)
         if affine_transformation_matrix.shape != (4, 4):
@@ -61,12 +60,9 @@ class SymmOp(MSONable):
         vector.
 
         Args:
-            rotation_matrix:
-                A 3x3 numpy.array specifying a rotation matrix.
-            translation_vec:
-                A rank 1 numpy.array specifying a translation vector.
-            tol:
-                Tolerance to determine if rotation matrix is valid.
+            rotation_matrix (3x3 array): Rotation matrix.
+            translation_vec (3x1 array): Translation vector.
+            tol (float): Tolerance to determine if rotation matrix is valid.
 
         Returns:
             SymmOp object
@@ -96,12 +92,9 @@ class SymmOp(MSONable):
         vector.
 
         Args:
-            rotation_matrix:
-                A 3x3 numpy.array specifying a rotation matrix.
-            translation_vec:
-                A rank 1 numpy.array specifying a translation vector.
-            tol:
-                Tolerance to determine if rotation matrix is valid.
+            rotation_matrix (3x3 array): Rotation matrix.
+            translation_vec (3x1 array): Translation vector.
+            tol (float): Tolerance to determine if rotation matrix is valid.
 
         Returns:
             SymmOp object
@@ -132,24 +125,34 @@ class SymmOp(MSONable):
         Apply the operation on a point.
 
         Args:
-            point:
-                A cartesian coordinate represented as a rank 1 numpy array
-                of 3 elements.
+            point: Cartesian coordinate.
 
         Returns:
             Coordinates of point after operation.
         """
         affine_point = np.array([point[0], point[1], point[2], 1])
         return np.dot(self.affine_matrix, affine_point)[0:3]
-
+    
+    def operate_multi(self, points):
+        """
+        Apply the operation on a list of points.
+        
+        Args:
+            points: List of Cartesian coordinates
+        
+        Returns:
+            Numpy array of coordinates after operation
+        """
+        affine_points = np.concatenate([points, np.ones([len(points), 1])], axis=-1)
+        return np.inner(affine_points, self.affine_matrix)[:, :-1]
+        
     def apply_rotation_only(self, vector):
         """
         Vectors should only be operated by the rotation matrix and not the
         translation vector.
 
         Args:
-            vector:
-                A rank 1 numpy array of 3 elements representing a vector.
+            vector (3x1 array): A vector.
         """
         return np.dot(self.rotation_matrix, vector)
 
@@ -158,12 +161,9 @@ class SymmOp(MSONable):
         Checks if two points are symmetrically related.
 
         Args:
-            point_a:
-                First point.
-            point_b:
-                Second point.
-            tol:
-                Absolute tolerance for checking.
+            point_a (3x1 array): First point.
+            point_b (3x1 array): Second point.
+            tol (float): Absolute tolerance for checking distance.
 
         Returns:
             True if self.operate(point_a) == point_b or vice versa.
@@ -211,16 +211,12 @@ class SymmOp(MSONable):
         Generates a SymmOp for a rotation about a given axis plus translation.
 
         Args:
-            axis:
-                The axis of rotation in cartesian space. For example, [1,0,0]
-                indicates rotation about x-axis.
-            angle:
-                The angle of rotation.
-            angle_in_radians:
-                Set to True if angles are given in radians. Or else, units of
-                degrees are assumed.
-            translation_vec:
-                A translation vector. Defaults to zero.
+            axis: The axis of rotation in cartesian space. For example,
+                [1, 0, 0]indicates rotation about x-axis.
+            angle (float): Angle of rotation.
+            angle_in_radians (bool): Set to True if angles are given in
+                radians. Or else, units of degrees are assumed.
+            translation_vec: A translation vector. Defaults to zero.
 
         Returns:
             SymmOp for a rotation about given axis and translation.
@@ -252,6 +248,21 @@ class SymmOp(MSONable):
 
     @staticmethod
     def from_origin_axis_angle(origin, axis, angle, angle_in_radians=False):
+        """
+        Generates a SymmOp for a rotation about a given axis through an
+        origin.
+
+        Args:
+            origin (3x1 array): The origin which the axis passes through.
+            axis (3x1 array): The axis of rotation in cartesian space. For
+                example, [1, 0, 0]indicates rotation about x-axis.
+            angle (float): Angle of rotation.
+            angle_in_radians (bool): Set to True if angles are given in
+                radians. Or else, units of degrees are assumed.
+
+        Returns:
+            SymmOp.
+        """
         theta = angle * pi / 180 if not angle_in_radians else angle
         a = origin[0]
         b = origin[1]
@@ -299,10 +310,10 @@ class SymmOp(MSONable):
         Returns reflection symmetry operation.
 
         Args:
-            normal:
-                Vector of the normal to the plane of reflection.
-            origin:
-             A point in which the mirror plane passes through.
+            normal (3x1 array): Vector of the normal to the plane of
+                reflection.
+            origin (3x1 array): A point in which the mirror plane passes
+                through.
 
         Returns:
             SymmOp for the reflection about the plane
@@ -335,8 +346,8 @@ class SymmOp(MSONable):
         Inversion symmetry operation about axis.
 
         Args:
-            origin:
-                The origin of the inversion operation. Defaults to [0, 0, 0].
+            origin (3x1 array): Origin of the inversion operation. Defaults
+                to [0, 0, 0].
 
         Returns:
             SymmOp representing an inversion operation about the origin.
@@ -352,13 +363,10 @@ class SymmOp(MSONable):
         Returns a roto-reflection symmetry operation
 
         Args:
-            axis:
-                Axis of rotation / mirror normal
-            angle:
-                Angle in degrees
-            origin:
-                Point left invariant by roto-reflection. Defaults to
-                (0, 0, 0).
+            axis (3x1 array): Axis of rotation / mirror normal
+            angle (float): Angle in degrees
+            origin (3x1 array): Point left invariant by roto-reflection.
+                Defaults to (0, 0, 0).
 
         Return:
             Roto-reflection operation

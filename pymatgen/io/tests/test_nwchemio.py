@@ -150,14 +150,16 @@ class NwInputTest(unittest.TestCase):
         ]
 
         self.nwi = NwInput(mol, tasks,
-                           geometry_options=["units", "angstroms", "noautoz"])
+                           geometry_options=["units", "angstroms", "noautoz"],
+                           memory_options="total 1000 mb")
         self.nwi_symm = NwInput(mol, tasks,
                                 geometry_options=["units", "angstroms",
                                                   "noautoz"],
                                 symmetry_options=["c1"])
 
     def test_str(self):
-        ans = """geometry units angstroms noautoz
+        ans = """memory total 1000 mb
+geometry units angstroms noautoz
  C 0.0 0.0 0.0
  H 0.0 0.0 1.089
  H 1.026719 0.0 -0.363
@@ -313,6 +315,7 @@ task dft energy
     def test_from_string_and_file(self):
         nwi = NwInput.from_file(os.path.join(test_dir, "ch4.nw"))
         self.assertEqual(nwi.tasks[0].theory, "dft")
+        self.assertEqual(nwi.memory_options, "total 1000 mb stack 400 mb")
         self.assertEqual(nwi.tasks[0].basis_set["C"], "6-31++G*")
         self.assertEqual(nwi.tasks[-1].basis_set["C"], "6-311++G**")
         #Try a simplified input.

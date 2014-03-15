@@ -53,6 +53,19 @@ class MPRester(object):
         The Materials Project recently switched to using string ids with a
         "mp-" prefix for greater flexibility going forward. The MPRester
         should still work as intended if you provide the proper string ids.
+
+    Args:
+        api_key (str): A String API key for accessing the MaterialsProject
+            REST interface. Please apply on the Materials Project website for
+            one.
+            If this is None, the code will check if there is a "MAPI_KEY"
+            environment variable set. If so, it will use that environment
+            variable. This makes easier for heavy users to simply add
+            this environment variable to their setups and MPRester can
+            then be called without any arguments.
+        host (str): Url of host to access the MaterialsProject REST interface.
+            Defaults to the standard Materials Project REST address, but
+            can be changed to other urls implementing a similar interface.
     """
 
     supported_properties = ("energy", "energy_per_atom", "volume",
@@ -65,23 +78,6 @@ class MPRester(object):
                             "material_id")
 
     def __init__(self, api_key=None, host="www.materialsproject.org"):
-        """
-        Args:
-            api_key:
-                A String API key for accessing the MaterialsProject REST
-                interface. Please apply on the Materials Project website for
-                one.
-
-                If this is None, the code will check if there is a "MAPI_KEY"
-                environment variable set. If so, it will use that environment
-                variable. This makes easier for heavy users to simply add
-                this environment variable to their setups and MPRester can
-                then be called without any arguments.
-            host:
-                Url of host to access the MaterialsProject REST interface.
-                Defaults to the standard Materials Project REST address, but
-                can be changed to other urls implementing a similar interface.
-        """
         if api_key is not None:
             self.api_key = api_key
         else:
@@ -102,6 +98,18 @@ class MPRester(object):
         """
         self.session.close()
 
+    def get_materials_id_from_task_id(self, task_id):
+        """
+        Returns a new MP materials id from a task id (which can be
+        equivalent to an old materials id)
+
+        Args:
+            task_id (str): A task id.
+        """
+        data = self.mpquery({"task_ids": task_id}, ["task_id"])
+        return data[0]["task_id"]
+
+
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
         Flexible method to get any data using the Materials Project REST
@@ -113,14 +121,11 @@ class MPRester(object):
         [{"material_id": material_id, "property_name" : value}, ...]
 
         Args:
-            chemsys_formula_id:
-                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., mp-1234).
-            data_type:
-                Type of data to return. Currently can either be "vasp" or
-                "exp".
-            prop:
-                Property to be obtained. Should be one of the
+            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
+                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
+            data_type (str): Type of data to return. Currently can either be
+                "vasp" or "exp".
+            prop (str): Property to be obtained. Should be one of the
                 MPRester.supported_properties. Leave as empty string for a
                 general list of useful properties.
         """
@@ -154,11 +159,9 @@ class MPRester(object):
         or materials_id.
 
         Args:
-            chemsys_formula_id:
-                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., mp-1234).
-            final:
-                Whether to get the final structure, or the initial
+            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
+                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
+            final (bool): Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
 
         Returns:
@@ -175,20 +178,19 @@ class MPRester(object):
         to a chemical system, formula, or materials_id.
 
         Args:
-            chemsys_formula_id:
-                A chemical system (e.g., Li-Fe-O), or formula (e.g., Fe2O3) or
-                materials_id (e.g., mp-1234).
-            compatible_only:
-                Whether to return only "compatible" entries. Compatible entries
-                are entries that have been processed using the
-                MaterialsProjectCompatibility class, which performs adjustments
-                to allow mixing of GGA and GGA+U calculations for more accurate
-                phase diagrams and reaction energies.
-            inc_structure:
-                If None, entries returned are ComputedEntries. If
-                inc_structure="final", ComputedStructureEntries with final
-                structures are returned. Otherwise, ComputedStructureEntries
-                with initial structures are returned.
+            chemsys_formula_id (str): A chemical system (e.g., Li-Fe-O),
+                or formula (e.g., Fe2O3) or materials_id (e.g., mp-1234).
+            compatible_only (bool): Whether to return only "compatible"
+                entries. Compatible entries are entries that have been
+                processed using the MaterialsProjectCompatibility class,
+                which performs adjustments to allow mixing of GGA and GGA+U
+                calculations for more accurate phase diagrams and reaction
+                energies.
+            inc_structure (str): If None, entries returned are
+                ComputedEntries. If inc_structure="final",
+                ComputedStructureEntries with final structures are returned.
+                Otherwise, ComputedStructureEntries with initial structures
+                are returned.
 
         Returns:
             List of ComputedEntry or ComputedStructureEntry objects.
@@ -216,10 +218,9 @@ class MPRester(object):
         Get a Structure corresponding to a material_id.
 
         Args:
-            material_id:
-                Materials Project material_id (a string, e.g., mp-1234).
-            final:
-                Whether to get the final structure, or the initial
+            material_id (str): Materials Project material_id (a string,
+                e.g., mp-1234).
+            final (bool): Whether to get the final structure, or the initial
                 (pre-relaxation) structure. Defaults to True.
 
         Returns:
@@ -234,8 +235,8 @@ class MPRester(object):
         Get a ComputedEntry corresponding to a material_id.
 
         Args:
-            material_id:
-                Materials Project material_id (a string, e.g., mp-1234).
+            material_id (str): Materials Project material_id (a string,
+                e.g., mp-1234).
 
         Returns:
             ComputedEntry object.
@@ -248,8 +249,8 @@ class MPRester(object):
         Get a Dos corresponding to a material_id.
 
         Args:
-            material_id:
-                Materials Project material_id (a string, e.g., mp-1234).
+            material_id (str): Materials Project material_id (a string,
+                e.g., mp-1234).
 
         Returns:
             A Dos object.
@@ -262,8 +263,7 @@ class MPRester(object):
         Get a BandStructure corresponding to a material_id.
 
         Args:
-            material_id:
-                Materials Project material_id (an int).
+            material_id (str): Materials Project material_id (an int).
 
         Returns:
             A BandStructure object.
@@ -280,14 +280,14 @@ class MPRester(object):
         creating phase diagrams of entire chemical systems.
 
         Args:
-            elements:
-                List of element symbols, e.g., ["Li", "Fe", "O"].
-            compatible_only:
-                Whether to return only "compatible" entries. Compatible entries
-                are entries that have been processed using the
-                MaterialsProjectCompatibility class, which performs adjustments
-                to allow mixing of GGA and GGA+U calculations for more accurate
-                phase diagrams and reaction energies.
+            elements ([str]): List of element symbols, e.g., ["Li", "Fe",
+                "O"].
+            compatible_only (bool): Whether to return only "compatible"
+                entries. Compatible entries are entries that have been
+                processed using the MaterialsProjectCompatibility class,
+                which performs adjustments to allow mixing of GGA and GGA+U
+                calculations for more accurate phase diagrams and reaction
+                energies.
 
         Returns:
             List of ComputedEntries.
@@ -301,8 +301,7 @@ class MPRester(object):
         Materials Project REST interface.
 
         Args:
-            formula:
-                A formula to search for.
+            formula (str): A formula to search for.
 
         Returns:
             List of ThermoData objects.
@@ -315,8 +314,7 @@ class MPRester(object):
         ComputedEntry and can be used for analyses using experimental data.
 
         Args:
-            formula:
-                A formula to search for.
+            formula (str): A formula to search for.
 
         Returns:
             An ExpEntry object.
@@ -331,9 +329,8 @@ class MPRester(object):
         particular date.
 
         Args:
-            date_string:
-                A date string in the format of "YYYY-MM-DD". Defaults to
-                None, which means the VaspInputSet today.
+            date_string (str): A date string in the format of "YYYY-MM-DD".
+                Defaults to None, which means the VaspInputSet today.
 
         Returns:
             DictVaspInputSet
@@ -371,16 +368,14 @@ class MPRester(object):
         methods.
 
         Args:
-            criteria:
-                Criteria of the query as a mongo-style dict. For example,
-                {"elements":{"$in":["Li", "Na", "K"], "$all": ["O"]},
-                "nelements":2} selects all Li, Na and K oxides.
+            criteria (dict): Criteria of the query as a mongo-style dict.
+                For example, {"elements":{"$in":["Li", "Na", "K"], "$all": [
+                "O"]}, "nelements":2} selects all Li, Na and K oxides.
                 {"band_gap": {"$gt": 1}} selects all materials with band gaps
                 greater than 1 eV.
-            properties:
-                Properties to request for as a list. For example,
-                ["formula", "formation_energy_per_atom"] returns the formula
-                and formation energy per atom.
+            properties (list): Properties to request for as a list. For
+                example, ["formula", "formation_energy_per_atom"] returns
+                the formula and formation energy per atom.
 
         Returns:
             List of results. E.g.,
@@ -426,31 +421,23 @@ class MPRester(object):
             the future.
 
         Args:
-            structures:
-                A list of Structure objects
-            authors:
-                *List* of {"name":'', "email":''} dicts,
+            structures: A list of Structure objects
+            authors (list): List of {"name":'', "email":''} dicts,
                 *list* of Strings as 'John Doe <johndoe@gmail.com>',
                 or a single String with commas separating authors
-            projects:
-                List of Strings ['Project A', 'Project B']. This applies to
-                all structures.
-            references:
-                A String in BibTeX format. Again, this applies to all
+            projects ([str]): List of Strings ['Project A', 'Project B'].
+                This applies to all structures.
+            references (str): A String in BibTeX format. Again, this applies to all
                 structures.
-            remarks:
-                List of Strings ['Remark A', 'Remark B']
-            data:
-                A list of free form dict. Namespaced at the root level with an
-                underscore, e.g. {"_materialsproject":<custom data>}. The
-                length of data should be the same as the list of structures
+            remarks ([str]): List of Strings ['Remark A', 'Remark B']
+            data ([dict]): A list of free form dict. Namespaced at the root
+                level with an underscore, e.g. {"_materialsproject":<custom
+                data>}. The length of data should be the same as the list of structures
                 if not None.
-            histories:
-                List of list of dicts - [[{'name':'', 'url':'',
+            histories: List of list of dicts - [[{'name':'', 'url':'',
                 'description':{}}], ...] The length of histories should be the
                 same as the list of structures if not None.
-            created_at:
-                A datetime object
+            created_at (datetime): A datetime object
 
         Returns:
             A list of inserted submission ids.
@@ -471,11 +458,14 @@ class MPRester(object):
             the future.
 
         Args:
-            snl:
-                A single StructureNL, or a list of StructureNL objects
+            snl (StructureNL/[StructureNL]): A single StructureNL, or a list
+            of StructureNL objects
 
         Returns:
             A list of inserted submission ids.
+
+        Raises:
+            MPRestError
         """
         try:
             snl = snl if isinstance(snl, list) else [snl]
@@ -509,8 +499,10 @@ class MPRester(object):
             the future.
 
         Args:
-            snl_ids:
-                List of SNL ids.
+            snl_ids: List of SNL ids.
+
+        Raises:
+            MPRestError
         """
         try:
             payload = {"ids": json.dumps(snl_ids)}
@@ -543,11 +535,13 @@ class MPRester(object):
             the future.
 
         Args:
-            criteria:
-                Query criteria.
+            criteria (dict): Query criteria.
 
         Returns:
             A dict, with a list of submitted SNLs in the "response" key.
+
+        Raises:
+            MPRestError
         """
         try:
             payload = {"criteria": json.dumps(criteria)}
@@ -585,32 +579,24 @@ class MPRester(object):
             the future.
 
         Args:
-            rootdir:
-                Rootdir to start assimilating VASP runs from.
-            authors:
-                *List* of {"name":'', "email":''} dicts,
+            rootdir (str): Rootdir to start assimilating VASP runs from.
+            authors: *List* of {"name":'', "email":''} dicts,
                 *list* of Strings as 'John Doe <johndoe@gmail.com>',
                 or a single String with commas separating authors. The same
                 list of authors should apply to all runs.
-            projects:
-                List of Strings ['Project A', 'Project B']. This applies to
-                all structures.
-            references:
-                A String in BibTeX format. Again, this applies to all
+            projects ([str]): List of Strings ['Project A', 'Project B'].
+                This applies to all structures.
+            references (str): A String in BibTeX format. Again, this applies to all
                 structures.
-            remarks:
-                List of Strings ['Remark A', 'Remark B']
-            master_data:
-                A free form dict. Namespaced at the root level with an
-                underscore, e.g. {"_materialsproject":<custom data>}. This
-                data is added to all structures detected in the directory,
+            remarks ([str]): List of Strings ['Remark A', 'Remark B']
+            master_data (dict): A free form dict. Namespaced at the root
+                level with an underscore, e.g. {"_materialsproject":<custom
+                data>}. This data is added to all structures detected in the directory,
                 in addition to other vasp data on a per structure basis.
-            master_history:
-                A master history to be added to all entries.
-            created_at:
-                A datetime object
-            ncpus:
-                Number of cpus to use in using BorgQueen to assimilate
+            master_history: A master history to be added to all entries.
+            created_at (datetime): A datetime object
+            ncpus (int): Number of cpus to use in using BorgQueen to
+                assimilate. Defaults to None, which means serial.
        """
         drone = VaspToComputedEntryDrone(inc_structure=True,
                                          data=["filename",

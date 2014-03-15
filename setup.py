@@ -2,8 +2,8 @@ import glob
 import os
 import subprocess
 
-from distribute_setup import use_setuptools
-use_setuptools(version="0.6.34")
+from ez_setup import use_setuptools
+use_setuptools()
 from setuptools import setup, find_packages, Extension
 
 try:
@@ -21,7 +21,7 @@ def get_spglib_ext():
     """
     spglibs = glob.glob(os.path.join("dependencies", "spglib*"))
     if len(spglibs) == 0:
-        raise ValueError("No spglib found in dependencies/")
+        raise ValueError("No spglib found in dependencies.")
     spglibdir = spglibs[0]
 
     # set rest of spglib
@@ -44,19 +44,23 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.8.6",
+    version="2.9.4",
     install_requires=["numpy>=1.5", "pyhull>=1.4.3", "PyCifRW>=3.3",
-                      "requests>=1.0", "pybtex>=0.16"],
+                      "requests>=1.0", "pybtex>=0.16", "pyyaml>=3.0",
+                      "monty>=0.2.2"],
     extras_require={"electronic_structure": ["scipy>=0.10"],
                     "plotting": ["matplotlib>=1.1"],
                     "ase_adaptor": ["ase>=3.3"],
-                    "vis": ["vtk>=6.0.0"]},
+                    "vis": ["vtk>=6.0.0"],
+                    "abinitio": ["pydispatcher>=2.0", "apscheduler>=2.1.1"]},
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg", "*.json"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.structure_prediction": ["data/*.json"],
-                  "pymatgen.vis": ["ElementColorSchemes.cfg"]},
+                  "pymatgen.vis": ["ElementColorSchemes.cfg"],
+                  "pymatgen.command_line": ["OxideTersoffPotentials"],
+                  "pymatgen.analysis.defects": ["*.json"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
