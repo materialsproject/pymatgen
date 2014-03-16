@@ -103,7 +103,6 @@ class EnumlibAdaptor(object):
         #Create a temporary directory for working.
         with ScratchDir(".") as d:
             logger.debug("Temp dir : {}".format(d))
-            print d
             try:
                 #Generate input files
                 self._gen_input_file()
