@@ -85,14 +85,46 @@ def coord_list_mapping(subset, superset):
     """
     c1 = np.array(subset)
     c2 = np.array(superset)
-    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :]), axis = 2))[1]
+    inds = np.where(np.all(np.isclose(c1[:, None, :], c2[None, :, :]),
+                           axis=2))[1]
     result = c2[inds]
     if not np.allclose(c1, result):
         if not is_coord_subset(subset, superset):
             raise ValueError("subset is not a subset of superset")
     if not result.shape == c1.shape:
-        raise ValueError("Something wrong with the inputs, likely duplicates in "
-                         "superset")
+        raise ValueError("Something wrong with the inputs, likely duplicates "
+                         "in superset")
+    return inds
+
+
+def coord_list_mapping_pbc(subset, superset, atol=1e-8):
+    """
+    Gives the index mapping from a subset to a superset.
+    Subset and superset cannot contain duplicate rows
+    
+    Args:
+        subset, superset: List of frac_coords
+        
+    Returns:
+        list of indices such that superset[indices] = subset
+    """
+    c1 = np.array(subset)
+    c2 = np.array(superset)
+    
+    diff = c1[:, None, :] - c2[None, :, :]
+    diff -= np.round(diff)
+    inds = np.where(np.all(np.abs(diff) < atol, axis = 2))[1]
+    
+    #verify result (its easier to check validity of the result than
+    #the validity of inputs)
+    test = c2[inds] - c1
+    test -= np.round(test)
+    if not np.allclose(test, 0):
+        if not is_coord_subset_pbc(subset, superset):
+            raise ValueError("subset is not a subset of superset")
+    if not test.shape == c1.shape:
+        raise ValueError("Something wrong with the inputs, likely duplicates "
+                         "in superset")
     return inds
 
 
@@ -297,6 +329,25 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol=1e-8):
     return len(find_in_coord_list_pbc(fcoord_list, fcoord, atol=atol)) > 0
 
 
+def is_coord_subset_pbc(subset, superset, atol=1e-8):
+    """
+    Tests if all fractional coords in subset are contained in superset.
+    
+    Args:
+        subset, superset: List of fractional coords
+        
+    Returns:
+        True if all of subset is in superset.
+    """
+    c1 = np.array(subset)
+    c2 = np.array(superset)
+    dist = c1[:, None, :] - c2[None, :, :]
+    dist -= np.round(dist)
+    is_close = np.all(np.abs(dist) < atol, axis=-1)
+    any_close = np.any(is_close, axis=-1)
+    return np.all(any_close)
+
+
 def get_points_in_sphere_pbc(lattice, frac_points, center, r):
     """
     Find all points within a sphere from the point taking into account
@@ -362,8 +413,8 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
 
 def lattice_points_in_supercell(supercell_matrix):
     """
-    Returns the list of points on the original lattice contained in the supercell
-    in fractional coordinates (with the supercell basis).
+    Returns the list of points on the original lattice contained in the
+    supercell in fractional coordinates (with the supercell basis).
     e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]] 
     
     Args:
@@ -372,22 +423,27 @@ def lattice_points_in_supercell(supercell_matrix):
     Returns:
         numpy array of the fractional coordinates
     """
-    diagonals = np.array([[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]])
+    diagonals = np.array(
+        [[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1],
+         [1, 1, 0], [1, 1, 1]])
     d_points = np.dot(diagonals, supercell_matrix)
-    
-    minimax = np.array([np.min(d_points, axis = 0), np.max(d_points, axis = 0) + 1])
-    
-    ar = np.arange(minimax[0, 0], minimax[1, 0])[:, None] * np.array([1, 0, 0])[None, :]
-    br = np.arange(minimax[0, 1], minimax[1, 1])[:, None] * np.array([0, 1, 0])[None, :]
-    cr = np.arange(minimax[0, 2], minimax[1, 2])[:, None] * np.array([0, 0, 1])[None, :]
-    
+
+    minimax = np.array([np.min(d_points, axis=0), np.max(d_points, axis=0) + 1])
+
+    ar = np.arange(minimax[0, 0], minimax[1, 0])[:, None] * \
+         np.array([1, 0, 0])[None, :]
+    br = np.arange(minimax[0, 1], minimax[1, 1])[:, None] * \
+         np.array([0, 1, 0])[None, :]
+    cr = np.arange(minimax[0, 2], minimax[1, 2])[:, None] * \
+         np.array([0, 0, 1])[None, :]
+
     all_points = ar[:, None, None] + br[None, :, None] + cr[None, None, :]
     all_points = all_points.reshape((-1, 3))
-    
+
     frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
-    
-    tvects = frac_points[np.where(np.all(frac_points < 1-1e-10, axis=1)
-                            & np.all(frac_points >= -1e-10, axis=1))]
+
+    tvects = frac_points[np.where(np.all(frac_points < 1 - 1e-10, axis=1)
+                                  & np.all(frac_points >= -1e-10, axis=1))]
     assert len(tvects) == np.round(np.abs(np.linalg.det(supercell_matrix)))
     return tvects
 
