@@ -172,6 +172,33 @@ class GetVoronoiNodesTest(unittest.TestCase):
                 )
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_face_center_struct, Structure)
+        print len(vor_node_struct.sites)
+        print len(vor_face_center_struct.sites)
+
+
+@unittest.skipIf(not zeo, "zeo not present.")
+class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        p = Poscar.from_file(filepath)
+        self.structure = p.structure
+        bv = BVAnalyzer()
+        valences = bv.get_valences(self.structure)
+        el = [site.species_string for site in self.structure.sites]
+        valence_dict = dict(zip(el, valences))
+        self.rad_dict = {}
+        for k, v in valence_dict.items():
+            self.rad_dict[k] = float(Specie(k,v).ionic_radius)
+
+        assert len(self.rad_dict) == len(self.structure.composition)
+
+    def test_get_voronoi_nodes(self):
+        vor_node_struct, vor_fc_struct = get_high_accuracy_voronoi_nodes(
+                self.structure, self.rad_dict)
+        self.assertIsInstance(vor_node_struct, Structure)
+        self.assertIsInstance(vor_fc_struct, Structure)
+        print len(vor_node_struct.sites)
+        print len(vor_fc_struct.sites)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
