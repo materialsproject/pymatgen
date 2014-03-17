@@ -157,6 +157,11 @@ class PhaseDiagram (MSONable):
 
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
+        
+        #add an extra point to enforce full dimensionality
+        extra_point = np.zeros(dim) + 0.5012
+        extra_point[-1] = np.max(qhull_data) + 1
+        qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
 
         if len(qhull_data) == dim:
             self.facets = [range(dim)]
@@ -167,6 +172,9 @@ class PhaseDiagram (MSONable):
                 facets = ConvexHull(qhull_data, joggle=False).vertices
             finalfacets = []
             for facet in facets:
+                #skip facets that include the extra point
+                if max(facet) == len(qhull_data)-1:
+                    continue
                 is_non_element_facet = any(
                     (len(qhull_entries[i].composition) > 1 for i in facet))
                 if is_non_element_facet:
