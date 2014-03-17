@@ -292,9 +292,9 @@ class GWSpecs(MSONable):
     def process_data(self, structure):
         data = GWConvergenceData(spec=self, structure=structure)
         data.read()
-        data.find_conv_pars(self['tol'])
+        extrapolated = data.find_conv_pars(self['tol'])
         print data.conv_res
-        print data.find_extrapolated()
+        print extrapolated
         data.print_conv_res()
         print_gnuplot_header('plots', structure.composition.reduced_formula+' tol = '+str(self['tol']))
         data.print_gnuplot_line('plots')
