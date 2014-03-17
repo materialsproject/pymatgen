@@ -89,6 +89,7 @@ def test_conv(xs, ys, tol=0.0001):
     x_value = float('inf')
     y_value = None
     n_value = None
+    popt = None
     if len(xs) > 1:
         ds = get_derivatives(xs[0:len(ys)], ys)
         try:
@@ -103,8 +104,11 @@ def test_conv(xs, ys, tol=0.0001):
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
 
-            if tol < 0 and popt is not None:
-                test = abs(popt[0] - ys[n])
+            if tol < 0:
+                if popt is not None:
+                    test = abs(popt[0] - ys[n])
+                else:
+                    test = float('inf')
             else:
                 test = abs(ds[n])
 
