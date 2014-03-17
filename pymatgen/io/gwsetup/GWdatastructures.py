@@ -98,28 +98,21 @@ class GWSpecs(MSONable):
             key = raw_input('enter key to change: ')
             if key in self.data.keys():
                 value = raw_input('enter new value: ')
-                if key == 'jobs':
+                if key in ['jobs']:                                         # list
                     if len(value) == 0:
-                        print 'removed', self.data['jobs'].pop(-1)
+                        print 'removed', self.data[key].pop(-1)
                     else:
-                        self.data['jobs'].append(value)
-                elif key == 'test':
+                        self.data[key].append(value)
+                elif key in ['test', 'converge']:                           # logical
                     if value.lower() in ['true', 't']:
-                        self.data['test'] = True
+                        self.data[key] = True
                     elif value.lower() in ['false', 'f']:
-                        self.data['test'] = False
+                        self.data[key] = False
                     else:
-                        print 'undefined value, test should be True or False'
-                elif key == 'converge':
-                    if value.lower() in ['true', 't']:
-                        self.data['converge'] = True
-                    elif value.lower() in ['false', 'f']:
-                        self.data['converge'] = False
-                    else:
-                        print 'undefined value, test should be True or False'
-                elif key in 'kp_grid_dens':
+                        print 'undefined value, should be True or False'
+                elif key in ['kp_grid_dens', 'tol']:                        # integer
                     self.data[key] = int(value)
-                else:
+                else:                                                       # string
                     self.data[key] = value
             elif key in ['help', 'h']:
                 print "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from"
@@ -129,7 +122,9 @@ class GWSpecs(MSONable):
                 print 'jobs:         prep, G0W0, GW0, scGW0'
                 print 'code:         VASP, ABINIT'
                 print 'kp_grid_dens: usually 500 - 1000, 1 gives gamma only, 2 gives a 2x2x2 mesh'
-                print 'tol:          tolerance for determining convergence d(gap)/d(encuteps) and d(gap)/d(nbands) < tol'
+                print 'tol:          tolerance for determining convergence d(gap)/d(encuteps) and d(gap)/d(nbands) < tol' \
+                      '              for negative values the data is extra polated agains 1/n and covergence wrt the' \
+                      '              complete limit is tested'
                 print 'test:         run all settings defined in test the calculation specific tests'
                 print 'converge:     run all settings defined in convs at low kp mesh, determine converged values,' \
                       '              rerun all test defined in tests relative to the converged valuues with provided' \
