@@ -900,11 +900,11 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         Helper method to get necessary user_incar_settings from previous run.
 
-            Args:
-                vasp_run (Vasprun): Vasprun that contains the final
-                    structure from previous run.
-                outcar (Outcar): Outcar that contains the magnetization info
-                    from previous run.
+        Args:
+            vasp_run (Vasprun): Vasprun that contains the final
+                structure from previous run.
+            outcar (Outcar): Outcar that contains the magnetization info
+                from previous run.
 
         """
         # Turn off spin when magmom for every site is smaller than 0.02.
