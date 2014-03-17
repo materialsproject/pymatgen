@@ -67,7 +67,21 @@ def get_derivatives(xs, ys):
     return d
 
 
-def test_conv(xs, ys, tol=0.0001):
+def reciprocal(x, a, b):
+    y = a + b / x
+    return y
+
+
+def p0reci(xs, ys):
+    """
+    predictor for first gues
+    """
+    a0 = ys[len(ys) - 1]
+    b0 = ys[0]*xs[0] - a0*xs[0]
+    return [a0, b0]
+
+
+def test_conv(xs, ys, tol=0.0001, reciprocal_extra=False):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -77,8 +91,20 @@ def test_conv(xs, ys, tol=0.0001):
     n_value = None
     if len(xs) > 1:
         ds = get_derivatives(xs[0:len(ys)], ys)
+        try:
+            import numpy as np
+            from scipy.optimize import curve_fit
+            popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
+        except ImportError:
+            popt, pcov = None, None
         for n in range(0, len(ds), 1):
-            if abs(ds[n]) < tol:
+
+            if tol < 0 and popt is not None:
+                test = abs(popt[0] - ys[n])
+            else:
+                test = abs(ds[n])
+
+            if test < abs(tol):
                 conv = True
                 if xs[n] < x_value:
                     x_value = xs[n]
