@@ -425,6 +425,7 @@ class GWConvergenceData():
                 except KeyError:
                     pass
             conv_data = test_conv(ys, zs, tol)
+
             extrapolated.append(conv_data[3])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
