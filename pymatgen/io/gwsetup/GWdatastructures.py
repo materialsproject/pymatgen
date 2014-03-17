@@ -294,6 +294,7 @@ class GWSpecs(MSONable):
         data.read()
         data.find_conv_pars(self['tol'])
         print data.conv_res
+        print data.find_extrapolated()
         data.print_conv_res()
         print_gnuplot_header('plots', structure.composition.reduced_formula+' tol = '+str(self['tol']))
         data.print_gnuplot_line('plots')
@@ -412,6 +413,7 @@ class GWConvergenceData():
         gap = None
         y_conv = []
         z_conv = []
+        extrapolated = []
         xs = self.get_var_range('nbands')
         ys = self.get_var_range('ecuteps')
         zd = self.get_data_array()
@@ -423,6 +425,7 @@ class GWConvergenceData():
                 except KeyError:
                     pass
             conv_data = test_conv(ys, zs, tol)
+            extrapolated.append(conv_data[3])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
                 z_conv.append(conv_data[2])
@@ -438,6 +441,7 @@ class GWConvergenceData():
                 gap = conv_data[2]
                 ecuteps_c = y_conv[conv_data[3]]
         self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap}}
+        return test_conv(xs, extrapolated, -1)
 
     def print_gnuplot_line(self, filename):
         string1 = "set output '"+self.name+".jpeg'\n"

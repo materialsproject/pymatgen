@@ -122,7 +122,7 @@ def test_conv(xs, ys, tol=0.0001):
                 conv = False
                 x_value = float('inf')
 
-    return [conv, x_value, y_value, n_value]
+    return [conv, x_value, y_value, n_value, popt[0]]
 
 
 def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
