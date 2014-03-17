@@ -136,8 +136,8 @@ class PhaseDiagram (MSONable):
         #This is significantly faster than grouping by composition and then
         #taking the lowest energy of each group
         ind = []
-        prev_c = [] #compositions within 1e-4 of current entry
-        prev_e = [] #energies of those compositions
+        prev_c = []  # compositions within 1e-4 of current entry
+        prev_e = []  # energies of those compositions
         for i in np.argsort([e.energy_per_atom for e in entries]):
             if form_e[i] > -self.formation_energy_tol:
                 continue
@@ -146,10 +146,11 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            if entries[i].composition.get_fractional_composition() not in prev_c:
+            frac_comp = entries[i].composition.get_fractional_composition()
+            if frac_comp not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
-            prev_c.append(entries[i].composition.get_fractional_composition())
+            prev_c.append(frac_comp)
 
         #add the elemental references
         ind.extend(map(entries.index, el_refs.values()))
