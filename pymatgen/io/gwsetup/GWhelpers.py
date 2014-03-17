@@ -96,9 +96,9 @@ def test_conv(xs, ys, tol=0.0001):
             from scipy.optimize import curve_fit
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
+                print 'a, b: ', popt
             print 'xs    ', xs
             print 'ys    ', ys
-            print 'a, b: ', popt
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
