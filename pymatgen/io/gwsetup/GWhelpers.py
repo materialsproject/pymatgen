@@ -81,7 +81,7 @@ def p0reci(xs, ys):
     return [a0, b0]
 
 
-def test_conv(xs, ys, tol=0.0001, reciprocal_extra=False):
+def test_conv(xs, ys, tol=0.0001):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -95,6 +95,9 @@ def test_conv(xs, ys, tol=0.0001, reciprocal_extra=False):
             import numpy as np
             from scipy.optimize import curve_fit
             popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
+            print 'xs    ', xs
+            print 'ys    ', ys
+            print 'a, b: ', popt
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
