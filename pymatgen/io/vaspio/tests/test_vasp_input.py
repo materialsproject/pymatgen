@@ -45,7 +45,8 @@ class PoscarTest(unittest.TestCase):
 1 1
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 F"""
+0.750000 0.500000 0.750000 F
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("SiF"))
 
@@ -58,7 +59,8 @@ direct
 1 1
 direct
 0.000000 0.000000 0.000000
-0.750000 0.500000 0.750000"""
+0.750000 0.500000 0.750000
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
 
@@ -72,7 +74,8 @@ direct
 Selective dynamics
 direct
 0.000000 0.000000 0.000000 T T T Si
-0.750000 0.500000 0.750000 F F F O"""
+0.750000 0.500000 0.750000 F F F O
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True],
                                                      [False, False, False]])
@@ -88,7 +91,8 @@ direct
 Selective dynamics
 direct
 0.000000 0.000000 0.000000 T T T Si
-0.750000 0.500000 0.750000 F F F O"""
+0.750000 0.500000 0.750000 F F F O
+"""
         poscar = Poscar.from_string(poscar_string)
         d = poscar.to_dict
         poscar2 = Poscar.from_dict(d)
@@ -117,7 +121,8 @@ Si
 2
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 Si'''
+0.750000 0.500000 0.750000 Si
+'''
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
 
@@ -130,7 +135,8 @@ direct
 1 1
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 F"""
+0.750000 0.500000 0.750000 F
+"""
 
         expected = """Test1
 1.0
@@ -141,7 +147,8 @@ Si F
 1 1
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 F"""
+0.750000 0.500000 0.750000 F
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(str(poscar), expected)
 
