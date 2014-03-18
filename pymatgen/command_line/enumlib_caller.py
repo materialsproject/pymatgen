@@ -169,7 +169,7 @@ class EnumlibAdaptor(object):
         min_disordered_sg = 300
         for (sites, sgnum) in site_symmetries:
             if sites[0].is_ordered:
-                ordered_sites.append(sites)
+                ordered_sites.append((sites, sgnum))
             else:
                 min_disordered_sg = min(min_disordered_sg, sgnum)
                 sp_label = []
@@ -197,23 +197,38 @@ class EnumlibAdaptor(object):
         #It could be that some of the ordered sites has a lower symmetry than
         #the disordered sites.  So we consider the lowest symmetry sites as
         #disordered in our enumeration.
-        if min_disordered_sg > min_sg_num:
-            logger.debug("Ordered sites have lower symmetry than disordered.")
-            sites = ordered_sites.pop(0)
-            index_species.append(sites[0].specie)
-            index_amounts.append(len(sites))
-            sp_label = len(index_species) - 1
-            logger.debug("Lowest symmetry {} sites are included in enum."
-                         .format(sites[0].specie))
-            for site in sites:
-                coord_str.append("{} {}".format(
-                    coord_format.format(*site.coords),
-                    sp_label))
-            disordered_sites.append(sites)
-
         self.ordered_sites = []
-        for sites in ordered_sites:
+        while ordered_sites:
+            sites, sgnum = ordered_sites.pop(0)
+            if sgnum < min_disordered_sg:
+                index_species.append(sites[0].specie)
+                index_amounts.append(len(sites))
+                sp_label = len(index_species) - 1
+                logger.debug("Lowest symmetry {} sites are included in enum."
+                             .format(sites[0].specie))
+                for site in sites:
+                    coord_str.append("{} {}".format(
+                        coord_format.format(*site.coords),
+                        sp_label))
+                disordered_sites.append(sites)
+                break
+            elif sgnum == min_disordered_sg:
+                index_species.append(sites[0].specie)
+                index_amounts.append(len(sites))
+                sp_label = len(index_species) - 1
+                logger.debug("Similar symmetry {} sites are included in enum."
+                             .format(sites[0].specie))
+                for site in sites:
+                    coord_str.append("{} {}".format(
+                        coord_format.format(*site.coords),
+                        sp_label))
+                disordered_sites.append(sites)
+            else:
+                self.ordered_sites.extend(sites)
+
+        for sites, sgnum in ordered_sites:
             self.ordered_sites.extend(sites)
+
         self.index_species = index_species
 
         lattice = self.structure.lattice
