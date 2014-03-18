@@ -159,7 +159,8 @@ class PhaseDiagram (MSONable):
         qhull_data = data[ind][:, 1:]
         
         #add an extra point to enforce full dimensionality
-        extra_point = np.zeros(dim) + 0.5012
+        #this point will be present in all upper hull facets
+        extra_point = np.zeros(dim) + 1/dim
         extra_point[-1] = np.max(qhull_data) + 1
         qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
 
@@ -175,13 +176,10 @@ class PhaseDiagram (MSONable):
                 #skip facets that include the extra point
                 if max(facet) == len(qhull_data)-1:
                     continue
-                is_non_element_facet = any(
-                    (len(qhull_entries[i].composition) > 1 for i in facet))
-                if is_non_element_facet:
-                    m = qhull_data[facet]
-                    m[:, -1] = 1
-                    if abs(np.linalg.det(m)) > 1e-8:
-                        finalfacets.append(facet)
+                m = qhull_data[facet]
+                m[:, -1] = 1
+                if abs(np.linalg.det(m)) > 1e-8:
+                    finalfacets.append(facet)
             self.facets = finalfacets
 
         self.all_entries = entries

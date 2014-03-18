@@ -73,8 +73,7 @@ class PDAnalyzer(object):
         els = self._pd.elements
         dim = len(els)
         if dim > 1:
-            coords = [np.array(self._pd.qhull_data[f][0:dim - 1])
-                      for f in facet]
+            coords = self._pd.qhull_data[facet, :-1]
             simplex = Simplex(coords)
             comp_point = [comp.get_atomic_fraction(e) for e in els[1:]]
             return simplex.in_simplex(comp_point, PDAnalyzer.numerical_tol)
