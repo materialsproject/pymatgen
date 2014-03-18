@@ -442,7 +442,7 @@ class GWConvergenceData():
                 gap = conv_data[2]
                 ecuteps_c = y_conv[conv_data[3]]
         self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap}}
-        return test_conv(xs, extrapolated, -1)
+        return test_conv(xs, extrapolated, -1, file_name=self.name+'condat')
 
     def print_gnuplot_line(self, filename):
         string1 = "set output '"+self.name+".jpeg'\n"
