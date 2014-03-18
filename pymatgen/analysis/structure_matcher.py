@@ -606,6 +606,9 @@ class StructureMatcher(MSONable):
         Returns:
             True or False.
         """
+        if not self._subset and self._comparator.get_structure_hash(struct1) \
+                != self._comparator.get_structure_hash(struct2):
+            return None
         
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
         ratio = fu if s1_supercell else 1/fu
