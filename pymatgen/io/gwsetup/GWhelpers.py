@@ -99,9 +99,10 @@ def test_conv(xs, ys, tol=0.0001):
             print 'ys    ', ys
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
-                print 'plot ', popt[0], ' + ', popt[1], '/x, - wp'
+                print 'plot ', popt[0], ' + ', popt[1], "/x, '-' wp"
                 for n in range(0, len(ys), 1):
                     print xs[n], ys[n]
+                print 'e'
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
