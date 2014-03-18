@@ -95,7 +95,7 @@ def p0reci(xs, ys):
     return [a0, b0, 1]
 
 
-def test_conv(xs, ys, tol=0.0001):
+def test_conv(xs, ys, tol=0.0001, file='data'):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -113,10 +113,11 @@ def test_conv(xs, ys, tol=0.0001):
             #print 'ys    ', ys
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
-                print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ", '-' w p"
+                print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], file, " w p"
+                f = open(file, mode='w')
                 for n in range(0, len(ys), 1):
-                    print xs[n], ys[n]
-                print 'e'
+                    f.write(str(xs[n]) + ' ' + str(ys[n]))
+                f.close()
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
