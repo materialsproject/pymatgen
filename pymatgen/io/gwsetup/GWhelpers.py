@@ -113,7 +113,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
             #print 'ys    ', ys
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
-                print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], file_name, " w p"
+                print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ", '", file_name, "' w p"
                 f = open(file_name, mode='a')
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
