@@ -68,8 +68,9 @@ def get_derivatives(xs, ys):
 
 
 def reciprocal(x, a, b):
+    import numpy as np
     print a, b, x
-    y = a + b / pow(x, 2)
+    y = a + b * np.exp(-1 * x)
     return y
 
 
