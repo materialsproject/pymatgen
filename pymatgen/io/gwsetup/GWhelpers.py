@@ -124,7 +124,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
         for n in range(0, len(ds), 1):
 
             if tol < 0:
-                if popt is not None:
+                if popt[0] is not None:
                     test = abs(popt[0] - ys[n])
                 else:
                     test = float('inf')
