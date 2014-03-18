@@ -25,7 +25,7 @@ class StructureMatcherTest(unittest.TestCase):
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
                             for fname in ["Li2O.cif", "POSCAR.Li2O"]]
     
-    def test_cmp_fractional(self):
+    def test_cmp_fstruct(self):
         sm = StructureMatcher()
         
         s1 = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
@@ -36,13 +36,13 @@ class StructureMatcherTest(unittest.TestCase):
         mask2 = np.array([[True, False]])
         mask3 = np.array([[False, False], [False, False]])
         
-        self.assertRaises(ValueError, sm._cmp_fractional_struct, s2, s1, frac_tol, mask.T)
-        self.assertRaises(ValueError, sm._cmp_fractional_struct, s1, s2, frac_tol, mask.T)
+        self.assertRaises(ValueError, sm._cmp_fstruct, s2, s1, frac_tol, mask.T)
+        self.assertRaises(ValueError, sm._cmp_fstruct, s1, s2, frac_tol, mask.T)
         
-        self.assertTrue(sm._cmp_fractional_struct(s1, s2, frac_tol, mask))
-        self.assertFalse(sm._cmp_fractional_struct(s1, s2, frac_tol/2, mask))
-        self.assertFalse(sm._cmp_fractional_struct(s1, s2, frac_tol, mask2))
-        self.assertFalse(sm._cmp_fractional_struct(s1, s3, frac_tol, mask3))
+        self.assertTrue(sm._cmp_fstruct(s1, s2, frac_tol, mask))
+        self.assertFalse(sm._cmp_fstruct(s1, s2, frac_tol/2, mask))
+        self.assertFalse(sm._cmp_fstruct(s1, s2, frac_tol, mask2))
+        self.assertFalse(sm._cmp_fstruct(s1, s3, frac_tol, mask3))
         
     def test_cart_dists(self):
         sm = StructureMatcher()
@@ -306,8 +306,8 @@ class StructureMatcherTest(unittest.TestCase):
         s2 = Structure(l, ['Si', 'Si', 'Ag'],
                        [[0,0.1,0],[0,0.1,-0.95],[.7,.5,.375]])
         
-        s1, s2, fu = sm._preprocess(s1, s2, False)
-        match = sm._new_match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
+        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
+        match = sm._match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
         scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
         fc = s2.frac_coords + match[3]
@@ -318,7 +318,6 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertAlmostEqual(cart_dist, 0.15)
 
     def test_find_match2(self):
-        return
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
                               primitive_cell=True, scale=True,
                               attempt_supercell=False)
@@ -326,23 +325,26 @@ class StructureMatcherTest(unittest.TestCase):
         s1 = Structure(l, ['Si', 'Si'], [[0,0,0.1],[0,0,0.2]])
         s2 = Structure(l, ['Si', 'Si'], [[0,0.1,0],[0,0.1,-0.95]])
         
-        s1, s2, fu = sm._preprocess(s1, s2, False)
-        match = sm._new_match(s1, s2, fu, s1_supercell = True, use_rms = True, break_on_match = False)
-        print match
-        scale_matrix = match[2]
+        s1, s2, fu, s1_supercell = sm._preprocess(s1, s2, False)
         
+        match = sm._match(s1, s2, fu, s1_supercell = False, 
+                          use_rms = True, break_on_match = False)
+        scale_matrix = match[2]
         s2.make_supercell(scale_matrix)
-        fc = s2.frac_coords + match[3]
-        fc -= np.round(fc)
-        print fc
+        s2.translate_sites(range(len(s2)), match[3])
 
-        self.assertAlmostEqual(np.sum(fc), 0.3)
-        self.assertAlmostEqual(np.sum(fc[:,:2]), 0)
-
-    def test_get_s2_like_s1(self):
+        self.assertAlmostEqual(np.sum(s2.frac_coords), 0.3)
+        self.assertAlmostEqual(np.sum(s2.frac_coords[:,:2]), 0)
+    
+    def test_supercell_subsets(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
                               primitive_cell=False, scale=True,
-                              attempt_supercell=True)
+                              attempt_supercell=True, allow_subset=True,
+                              supercell_size='volume')
+        sm_no_s = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
+                              primitive_cell=False, scale=True,
+                              attempt_supercell=True, allow_subset=False,
+                              supercell_size='volume')
         l = Lattice.orthorhombic(1, 2, 3)
         s1 = Structure(l, ['Ag', 'Si', 'Si'],
                        [[.7,.4,.5],[0,0,0.1],[0,0,0.2]])
@@ -352,11 +354,57 @@ class StructureMatcherTest(unittest.TestCase):
         
         shuffle = [0,2,1,3,4,5]
         s1 = Structure.from_sites([s1[i] for i in shuffle])
-        result = sm.get_s2_like_s1(s1, s2)
         
+        #test when s1 is exact supercell of s2
+        result = sm.get_s2_like_s1(s1, s2)
         for a, b in zip(s1, result):
             self.assertTrue(a.distance(b) < 0.08)
             self.assertEqual(a.species_and_occu, b.species_and_occu)
+        
+        self.assertTrue(sm.fit(s1, s2))
+        self.assertTrue(sm.fit(s2, s1))
+        self.assertTrue(sm_no_s.fit(s1, s2))
+        self.assertTrue(sm_no_s.fit(s2, s1))
+        
+        rms = (0.048604032430991401, 0.059527539448807391)
+        self.assertTrue(np.allclose(sm.get_rms_dist(s1, s2), rms))
+        self.assertTrue(np.allclose(sm.get_rms_dist(s2, s1), rms))
+            
+        #test when the supercell is a subset of s2
+        subset_supercell = s1.copy()
+        del subset_supercell[0]
+        result = sm.get_s2_like_s1(subset_supercell, s2)
+        self.assertEqual(len(result), 6)
+        for a, b in zip(subset_supercell, result):
+            self.assertTrue(a.distance(b) < 0.08)
+            self.assertEqual(a.species_and_occu, b.species_and_occu)
+        
+        self.assertTrue(sm.fit(subset_supercell, s2))
+        self.assertTrue(sm.fit(s2, subset_supercell))
+        self.assertFalse(sm_no_s.fit(subset_supercell, s2))
+        self.assertFalse(sm_no_s.fit(s2, subset_supercell))
+        
+        rms = (0.053243049896333279, 0.059527539448807336)
+        self.assertTrue(np.allclose(sm.get_rms_dist(subset_supercell, s2), rms))
+        self.assertTrue(np.allclose(sm.get_rms_dist(s2, subset_supercell), rms))
+        
+        #test when s2 (once made a supercell) is a subset of s1
+        s2_missing_site = s2.copy()
+        del s2_missing_site[1]
+        result = sm.get_s2_like_s1(s1, s2_missing_site)
+        for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result):
+            self.assertTrue(a.distance(b) < 0.08)
+            self.assertEqual(a.species_and_occu, b.species_and_occu)
+            
+        self.assertTrue(sm.fit(s1, s2_missing_site))
+        self.assertTrue(sm.fit(s2_missing_site, s1))
+        self.assertFalse(sm_no_s.fit(s1, s2_missing_site))
+        self.assertFalse(sm_no_s.fit(s2_missing_site, s1))
+        
+        rms = (0.029763769724403633, 0.029763769724403987)
+        self.assertTrue(np.allclose(sm.get_rms_dist(s1, s2_missing_site), rms))
+        self.assertTrue(np.allclose(sm.get_rms_dist(s2_missing_site, s1), rms))
+        
         
     def test_get_mapping(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
@@ -461,13 +509,14 @@ class StructureMatcherTest(unittest.TestCase):
         ls = Lattice.orthorhombic(20,20,30)
         scoords = [[0,    0,   0],
                    [0.75, 0.5, 0.5]]
-        s1 = Structure(lp, [{'Na':0.5}, {'Cl':0.5}], pcoords)
-        s2 = Structure(ls, ['Na', 'Cl'], scoords)
+        prim = Structure(lp, [{'Na':0.5}, {'Cl':0.5}], pcoords)
+        supercell = Structure(ls, ['Na', 'Cl'], scoords)
 
-        self.assertFalse(sm_sites.fit(s1, s2))
-        self.assertTrue(sm_atoms.fit(s1, s2))
-        self.assertRaises(ValueError, sm_atoms.get_s2_like_s1, s1, s2)
-        self.assertEqual(len(sm_atoms.get_s2_like_s1(s2, s1)), 4)
+        self.assertFalse(sm_sites.fit(prim, supercell))
+        self.assertTrue(sm_atoms.fit(prim, supercell))
+        
+        self.assertRaises(ValueError, sm_atoms.get_s2_like_s1, prim, supercell)
+        self.assertEqual(len(sm_atoms.get_s2_like_s1(supercell, prim)), 4)
 
     def test_ordered_primitive_to_disordered_supercell(self):
         sm_atoms = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,

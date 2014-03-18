@@ -381,19 +381,24 @@ class StructureMatcher(MSONable):
         self._supercell_size = supercell_size
         self._subset = allow_subset
 
-    def _get_supercell_size(self, target_s, s):
+    def _get_supercell_size(self, s1, s2):
         """
-        Returns the unrounded number of units of s in target_s
+        Returns the supercell size, and whether the supercell should
+        be applied to s1
         """
         if self._supercell_size == 'num_sites':
-            fu = target_s.num_sites / s.num_sites
+            fu = s2.num_sites / s1.num_sites
         elif self._supercell_size == 'num_atoms':
-            fu = target_s.composition.num_atoms / s.composition.num_atoms
+            fu = s2.composition.num_atoms / s1.composition.num_atoms
         elif self._supercell_size == 'volume':
-            fu = target_s.volume / s.volume
+            fu = s2.volume / s1.volume
         else:
             raise ValueError('invalid argument for supercell_size')
-        return fu
+        
+        if fu < 1:
+            return round(1/fu), False
+        else:
+            return round(fu), True
 
     def _get_lattices(self, target_lattice, s, supercell_size=1):
         """
@@ -602,18 +607,14 @@ class StructureMatcher(MSONable):
             True or False.
         """
         
-        struct1, struct2, ratio = self._preprocess(struct1, struct2)
-        
-        if ratio < 1:
-            fu = 1 / ratio
-        else:
-            fu = ratio
+        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+        ratio = fu if s1_supercell else 1/fu
         
         if len(struct1) * ratio >= len(struct2):
-            match = self._match(struct1, struct2, fu, s1_supercell=(ratio>=1), 
+            match = self._match(struct1, struct2, fu, s1_supercell=s1_supercell, 
                                     break_on_match=True)
         else:
-            match = self._match(struct2, struct1, fu, s1_supercell=(ratio>=1), 
+            match = self._match(struct2, struct1, fu, s1_supercell=(not s1_supercell), 
                                     break_on_match=True)
         
         if match is None:
@@ -634,9 +635,15 @@ class StructureMatcher(MSONable):
             and maximum distance between paired sites. If no matching
             lattice is found None is returned.
         """
-        struct1, struct2, fu = self._preprocess(struct1, struct2)
-        match = self._match(struct1, struct2, fu, use_rms=True, 
-                                break_on_match=False)
+        struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
+        ratio = fu if s1_supercell else 1/fu
+        
+        if len(struct1) * ratio >= len(struct2):
+            match = self._match(struct1, struct2, fu, s1_supercell=s1_supercell, 
+                                    break_on_match=False, use_rms=True)
+        else:
+            match = self._match(struct2, struct1, fu, s1_supercell=(not s1_supercell), 
+                                    break_on_match=False, use_rms=True)
         if match is None:
             return None
         else:
@@ -661,24 +668,20 @@ class StructureMatcher(MSONable):
             struct2 = struct2.get_primitive_structure()
         
         if self._supercell:
-            #get fu and round it correctly
-            fu = self._get_supercell_size(struct2, struct1)
-            if fu < 1:
-                fu = 1 / round(1 / fu)
-            else:
-                fu = round(fu)
+            fu, s1_supercell = self._get_supercell_size(struct1, struct2)
         else:
-            fu = 1
-            
+            fu, s1_supercell = 1, True
+        mult = fu if s1_supercell else 1/fu
+        
         #rescale lattice to same volume
         if self._scale:
-            ratio = (struct2.volume / (struct1.volume * fu)) ** (1 / 6)
+            ratio = (struct2.volume / (struct1.volume * mult)) ** (1 / 6)
             nl1 = Lattice(struct1.lattice.matrix * ratio)
             struct1.modify_lattice(nl1)
             nl2 = Lattice(struct2.lattice.matrix / ratio)
             struct2.modify_lattice(nl2)
             
-        return struct1, struct2, fu
+        return struct1, struct2, fu, s1_supercell
         
     def _match(self, struct1, struct2, fu, s1_supercell=True, use_rms=False, 
                    break_on_match=False):
@@ -699,11 +702,14 @@ class StructureMatcher(MSONable):
         
         mask, s1_t_inds, s2_t_ind = self._get_mask(struct1, struct2, 
                                                    fu, s1_supercell)
+        
         if mask.shape[0] > mask.shape[1]:
             raise ValueError('after supercell creation, struct1 must '
                              'have more sites than struct2')
         
         #check that a valid mapping exists
+        if not self._subset and mask.shape[1] != mask.shape[0]:
+            return None
         if LinearAssignment(mask).min_cost > 0:
             return None
         
@@ -958,13 +964,13 @@ class StructureMatcher(MSONable):
         if self._primitive_cell:
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
-        if self._supercell \
-                and self._get_supercell_size(supercell, struct) < 1:
+        supercell, struct, fu, s1_supercell = self._preprocess(supercell, struct, False)
+        
+        if s1_supercell:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
-        supercell, struct, fu = self._preprocess(supercell, struct, False)
 
-        match = self._match(supercell, struct, 1/fu, s1_supercell=False, 
+        match = self._match(supercell, struct, fu, s1_supercell=False, 
                                 use_rms=True, break_on_match=False)
 
         if match is None:
@@ -980,27 +986,26 @@ class StructureMatcher(MSONable):
         if self._primitive_cell:
             raise ValueError("get_s2_like_s1 cannot be used with the primitive"
                              " cell option")
-        if self._supercell and self._get_supercell_size(struct1, struct2) < 1:
-            raise ValueError("The non-supercell must be put onto the basis"
-                             " of the supercell, not the other way around")
-        if self._subset and struct2.num_sites > struct1.num_sites:
+            
+        s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
+        ratio = fu if s1_supercell else 1/fu
+        
+        if s1_supercell and fu > 1:
             raise ValueError("The smaller structure must be transformed onto"
                              " the larger one, not the other way around")
-            
-        #fu is number of s1 in s2
-        s1, s2, fu = self._preprocess(struct1, struct2, niggli=False)
         
-        s2fu = 1 / min(fu, 1)
-        if len(s2) * s2fu >= len(s1):
-            #make a supercell of struct1, and mapping struct1 ont it
-            match = self._match(s2, s1, s2fu, s1_supercell=True, use_rms=True, break_on_match=False)
-            if match:
-                tvec = -match[3]
-        else:
-            #make a supercell of struct2, and map it onto struct1
-            match = self._match(s1, s2, s2fu, s1_supercell=False, use_rms=True, break_on_match=False)
+        if len(s1) * ratio >= len(s2):
+            #s1 is superset
+            match = self._match(s1, s2, fu=fu, s1_supercell=s1_supercell, 
+                                use_rms=True, break_on_match=False)
             if match:
                 tvec = match[3]
+        else:
+            #s2 is superset
+            match = self._match(s2, s1, fu=fu, s1_supercell=(not s1_supercell), 
+                                use_rms=True, break_on_match=False)
+            if match:
+                tvec = -match[3]
         
         if match is None:
             return None
@@ -1009,7 +1014,7 @@ class StructureMatcher(MSONable):
         temp.make_supercell(match[2])
         temp.translate_sites(range(len(temp)), tvec)
 
-        if len(struct1) > len(temp):
+        if len(struct1) >= len(temp):
             mapping = np.argsort(match[4])
         else:
             mapping = range(len(temp))
@@ -1031,7 +1036,7 @@ class StructureMatcher(MSONable):
         if len(subset) > len(superset):
             raise ValueError("subset is larger than superset")
         
-        superset, subset, _ = self._preprocess(superset, subset, True)
+        superset, subset, _, _ = self._preprocess(superset, subset, True)
         match = self._match(superset, subset, 1, break_on_match=False)
         
         if match[0] > self.stol:
