@@ -71,8 +71,8 @@ def reciprocal(x, a, b, n):
     import numpy as np
     if n < 1:
         n = 1
-    elif n > 3:
-        n = 3
+    elif n > 4:
+        n = 4
     #print a, b, x
     if isinstance(x, list):
         y_l = []
