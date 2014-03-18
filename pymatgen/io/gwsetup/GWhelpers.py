@@ -67,7 +67,7 @@ def get_derivatives(xs, ys):
     return d
 
 
-def reciprocalt(x, a, b):
+def reciprocal(x, a, b):
     n = 2
     import numpy as np
     print a, b, x
@@ -79,10 +79,11 @@ def reciprocalt(x, a, b):
     else:
         y = a + b / x ** n
     print y
+    print type(y)
     return y
 
 
-def reciprocal(x, a, b):
+def reciprocalt(x, a, b):
     print a, b, x
     y = a + b / x
     print y
