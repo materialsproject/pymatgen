@@ -110,8 +110,10 @@ class GWSpecs(MSONable):
                         self.data[key] = False
                     else:
                         print 'undefined value, should be True or False'
-                elif key in ['kp_grid_dens', 'tol']:                        # integer
+                elif key in ['kp_grid_dens']:                               # integer
                     self.data[key] = int(value)
+                elif key in ['tol']:                                        # float
+                    self.data[key] = float(value)
                 else:                                                       # string
                     self.data[key] = value
             elif key in ['help', 'h']:
