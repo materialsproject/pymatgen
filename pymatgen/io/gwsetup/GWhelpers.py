@@ -67,8 +67,8 @@ def get_derivatives(xs, ys):
     return d
 
 
-def reciprocal(x, a, b):
-    y = a + b / x
+def reciprocal(x, a, b, c):
+    y = a + b / x**c
     return y
 
 
@@ -78,7 +78,7 @@ def p0reci(xs, ys):
     """
     a0 = ys[len(ys) - 1]
     b0 = ys[0]*xs[0] - a0*xs[0]
-    return [a0, b0]
+    return [a0, b0, 1]
 
 
 def test_conv(xs, ys, tol=0.0001):
@@ -99,7 +99,7 @@ def test_conv(xs, ys, tol=0.0001):
             #print 'ys    ', ys
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
-                print 'plot ', popt[0], ' + ', popt[1], "/x, '-' w p"
+                print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "'-' w p"
                 for n in range(0, len(ys), 1):
                     print xs[n], ys[n]
                 print 'e'
