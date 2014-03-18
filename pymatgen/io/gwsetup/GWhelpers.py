@@ -103,7 +103,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
     x_value = float('inf')
     y_value = None
     n_value = None
-    popt = None
+    popt = [None, None, None]
     if len(xs) > 1:
         ds = get_derivatives(xs[0:len(ys)], ys)
         try:
