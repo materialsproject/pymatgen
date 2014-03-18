@@ -2,7 +2,7 @@ import unittest
 import os
 
 from pymatgen import Element, Composition
-from pymatgen.phasediagram.entries import PDEntryIO
+from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram, CompoundPhaseDiagram, PhaseDiagramError
 
@@ -51,6 +51,20 @@ class PhaseDiagramTest(unittest.TestCase):
                                    7)
     def test_all_entries_hulldata(self):
         self.assertEqual(len(self.pd.all_entries_hulldata), 492)
+        
+    def test_planar_inputs(self):
+        e1 = PDEntry('H',    0)
+        e2 = PDEntry('HLiB', 0)
+        e3 = PDEntry('He',   0)
+        e4 = PDEntry('Li',   0)
+        e5 = PDEntry('Be',   0)
+        e6 = PDEntry('B',    0)
+        e7 = PDEntry('HBe',  0)
+        e8 = PDEntry('Rb',   0)
+
+        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6, e7, e8], 
+                          map(Element, ['Rb', 'He', 'B', 'Be','Li', 'He', 'H']))
+        
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))

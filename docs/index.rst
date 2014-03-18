@@ -74,6 +74,13 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.4
+------
+1. Bug fix for Pourbaix Maker (Sai).
+2. Streamline use of scratch directories for various calls. Require monty >=
+   0.1.2.
+3. High accuracy mode for Zeo++ (Bharat Medasani).
+
 v2.9.3
 ------
 1. Bug fix release for printing TransformedStructures from Substitutor (Will
