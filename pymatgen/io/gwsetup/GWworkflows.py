@@ -102,8 +102,8 @@ class SingleAbinitGWWorkFlow():
     TESTS = {'ecuteps': {'test_range': (10, 12), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"},
              'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
-    CONVS = {'ecuteps': {'test_range': (8, 10, 12, 14, 16, 18, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
-             'nscf_nbands': {'test_range': (10, 20, 30, 40, 50), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
+    CONVS = {'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+             'nscf_nbands': {'test_range': (5, 15, 25, 35, 45), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
         self.structure = structure
