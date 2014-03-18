@@ -67,7 +67,7 @@ def get_derivatives(xs, ys):
     return d
 
 
-def reciprocal(x, a, b):
+def reciprocalt(x, a, b):
     n = 2
     print a, b, x
     if isinstance(x, list):
@@ -81,11 +81,12 @@ def reciprocal(x, a, b):
     return y
 
 
-#def reciprocal(x, a, b):
-#    print a, b, x
-#    y = a + b / x
-#    print y
-#    return y
+def reciprocal(x, a, b):
+    print a, b, x
+    y = a + b / x
+    print y
+    print type(y)
+    return y
 
 
 def p0reci(xs, ys):
