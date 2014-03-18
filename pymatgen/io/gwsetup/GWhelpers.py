@@ -67,23 +67,24 @@ def get_derivatives(xs, ys):
     return d
 
 
-#def reciprocal(x, a, b):
-#    n = 2
-#    print a, b, x
-#    if isinstance(x, list):
-#        y = []
-#        for x_v in x:
-#            y.append(a + b / x_v ** n)
-#    else:
-#        y = a + b / x ** n
-#    return y
-
-
 def reciprocal(x, a, b):
+    n = 2
     print a, b, x
-    y = a + b / x
+    if isinstance(x, list):
+        y = []
+        for x_v in x:
+            y.append(a + b / x_v ** n)
+    else:
+        y = a + b / x ** n
     print y
     return y
+
+
+#def reciprocal(x, a, b):
+#    print a, b, x
+#    y = a + b / x
+#    print y
+#    return y
 
 
 def p0reci(xs, ys):
