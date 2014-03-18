@@ -95,11 +95,11 @@ def test_conv(xs, ys, tol=0.0001):
         try:
             import numpy as np
             from scipy.optimize import curve_fit
-            print 'xs    ', xs
-            print 'ys    ', ys
+            #print 'xs    ', xs
+            #print 'ys    ', ys
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
-                print 'plot ', popt[0], ' + ', popt[1], "/x, '-' wp"
+                print 'plot ', popt[0], ' + ', popt[1], "/x, '-' w p"
                 for n in range(0, len(ys), 1):
                     print xs[n], ys[n]
                 print 'e'
