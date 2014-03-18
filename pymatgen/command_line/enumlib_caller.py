@@ -187,8 +187,7 @@ class EnumlibAdaptor(object):
             sgnum = finder.get_spacegroup_number()
             return sgnum
 
-        curr_sites = []
-        map(curr_sites.extend, disordered_sites)
+        curr_sites = [s for sites in disordered_sites for s in sites]
         min_sgnum = get_sg_info(curr_sites)
         logger.debug("Disorderd sites has sgnum %d" % (
             min_sgnum))
