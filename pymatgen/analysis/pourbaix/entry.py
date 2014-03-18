@@ -257,7 +257,7 @@ class MultiEntry(PourbaixEntry):
             for el in entry.composition.elements:
                 if (el == Element("O")) | (el == Element("H")):
                     continue
-                if entry._phase_type == 'Solid':
+                if entry.phase_type == 'Solid':
                     red_fac = entry.composition.\
                         get_reduced_composition_and_factor()[1]
                 else:

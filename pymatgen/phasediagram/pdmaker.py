@@ -136,8 +136,8 @@ class PhaseDiagram (MSONable):
         #This is significantly faster than grouping by composition and then
         #taking the lowest energy of each group
         ind = []
-        prev_c = [] #compositions within 1e-4 of current entry
-        prev_e = [] #energies of those compositions
+        prev_c = []  # compositions within 1e-4 of current entry
+        prev_e = []  # energies of those compositions
         for i in np.argsort([e.energy_per_atom for e in entries]):
             if form_e[i] > -self.formation_energy_tol:
                 continue
@@ -146,16 +146,22 @@ class PhaseDiagram (MSONable):
             while prev_e and epa > 1e-4 + prev_e[0]:
                 prev_c.pop(0)
                 prev_e.pop(0)
-            if entries[i].composition.get_fractional_composition() not in prev_c:
+            frac_comp = entries[i].composition.get_fractional_composition()
+            if frac_comp not in prev_c:
                 ind.append(i)
             prev_e.append(epa)
-            prev_c.append(entries[i].composition.get_fractional_composition())
+            prev_c.append(frac_comp)
 
         #add the elemental references
         ind.extend(map(entries.index, el_refs.values()))
 
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
+        
+        #add an extra point to enforce full dimensionality
+        extra_point = np.zeros(dim) + 0.5012
+        extra_point[-1] = np.max(qhull_data) + 1
+        qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
 
         if len(qhull_data) == dim:
             self.facets = [range(dim)]
@@ -166,6 +172,9 @@ class PhaseDiagram (MSONable):
                 facets = ConvexHull(qhull_data, joggle=False).vertices
             finalfacets = []
             for facet in facets:
+                #skip facets that include the extra point
+                if max(facet) == len(qhull_data)-1:
+                    continue
                 is_non_element_facet = any(
                     (len(qhull_entries[i].composition) > 1 for i in facet))
                 if is_non_element_facet:
