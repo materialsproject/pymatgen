@@ -69,12 +69,13 @@ def get_derivatives(xs, ys):
 
 def reciprocalt(x, a, b):
     n = 2
+    import numpy as np
     print a, b, x
     if isinstance(x, list):
         y_l = []
         for x_v in x:
             y_l.append(a + b / x_v ** n)
-        y = tuple(y_l)
+        y = np.array(y_l)
     else:
         y = a + b / x ** n
     print y
