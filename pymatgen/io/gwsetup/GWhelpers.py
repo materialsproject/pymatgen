@@ -69,6 +69,10 @@ def get_derivatives(xs, ys):
 
 def reciprocal(x, a, b, n):
     import numpy as np
+    if n < 1:
+        n = 1
+    elif n > 3:
+        n = 3
     #print a, b, x
     if isinstance(x, list):
         y_l = []
