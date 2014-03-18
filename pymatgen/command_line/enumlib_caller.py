@@ -197,20 +197,18 @@ class EnumlibAdaptor(object):
         self.ordered_sites = []
         to_add = []
 
-        for n in xrange(1, len(ordered_sites) + 1):
-            for selected in itertools.combinations(ordered_sites, n):
-                temp_sites = list(curr_sites)
-                map(temp_sites.extend, selected)
-                sgnum = get_sg_info(temp_sites)
-                if sgnum < min_sgnum:
-                    logger.debug("Adding {} to sites to be ordered. "
-                                 "New sgnum {}"
-                                 .format(selected, sgnum))
-                    to_add = selected
-                    min_sgnum = sgnum
+        for sites in ordered_sites:
+            temp_sites = list(curr_sites) + sites
+            sgnum = get_sg_info(temp_sites)
+            if sgnum < min_sgnum:
+                logger.debug("Adding {} to sites to be ordered. "
+                             "New sgnum {}"
+                             .format(sites, sgnum))
+                to_add = sites
+                min_sgnum = sgnum
 
         for sites in ordered_sites:
-            if sites in to_add:
+            if sites == to_add:
                 index_species.append(sites[0].specie)
                 index_amounts.append(len(sites))
                 sp_label = len(index_species) - 1
