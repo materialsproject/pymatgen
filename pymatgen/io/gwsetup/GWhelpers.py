@@ -71,9 +71,10 @@ def reciprocal(x, a, b):
     n = 2
     print a, b, x
     if isinstance(x, list):
-        y = []
+        y_l = []
         for x_v in x:
-            y.append(a + b / x_v ** n)
+            y_l.append(a + b / x_v ** n)
+        y = tuple(y_l)
     else:
         y = a + b / x ** n
     print y
