@@ -69,7 +69,7 @@ def get_derivatives(xs, ys):
 
 def reciprocal(x, a, b):
     print a, b, x
-    y = a + b / (x ** 2)
+    y = a + b / (x * x)
     return y
 
 
