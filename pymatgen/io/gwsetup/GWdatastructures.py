@@ -424,7 +424,7 @@ class GWConvergenceData():
                     zs.append(zd[x][y])
                 except KeyError:
                     pass
-            conv_data = test_conv(ys, zs, tol, file_name=self.name)
+            conv_data = test_conv(ys, zs, tol, file_name=self.name+'condat')
             extrapolated.append(conv_data[4])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
@@ -434,7 +434,7 @@ class GWConvergenceData():
                 y_conv.append(None)
                 z_conv.append(None)
         if ecuteps_l:
-            conv_data = test_conv(xs, z_conv, tol, file_name=self.name)
+            conv_data = test_conv(xs, z_conv, tol, file_name=self.name+'condat')
             if conv_data[0]:
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
