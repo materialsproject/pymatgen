@@ -89,7 +89,8 @@ class EnumlibAdaptorTest(unittest.TestCase):
         structures = adaptor.structures
         self.assertEqual(len(structures), 10)
 
-        struct = CifParser(os.path.join(test_dir, "EnumerateTest.cif")).get_structures()[0]
+        struct = CifParser(os.path.join(test_dir, "EnumerateTest.cif"))\
+            .get_structures()[0]
         adaptor = EnumlibAdaptor(struct, 1, 1)
         adaptor.run()
         structures = adaptor.structures
