@@ -499,6 +499,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         vmol1 = self._virtual_molecule(obmol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(obmol2, ilabel2, iequal_atom2)
 
+        if vmol1.NumAtoms() != vmol2.NumAtoms():
+            return None, None
+
         if vmol1.NumAtoms() < 3 or self._is_molecule_linear(vmol1) \
                 or self._is_molecule_linear(vmol2):
             # using isomorphism for difficult (actually simple) molecules

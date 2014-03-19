@@ -150,7 +150,7 @@ class MoleculeMatcherTest(unittest.TestCase):
         mm = MoleculeMatcher(tolerance=0.05, mapper=InchiMolAtomMapper())
         mol1 = read_mol(os.path.join(test_dir, "cdi_23_1.xyz"))
         mol2 = read_mol(os.path.join(test_dir, "cdi_23_2.xyz"))
-        self.assertTrue(mm.fit(mol1, mol2))
+        self.assertFalse(mm.fit(mol1, mol2))
 
 
 if __name__ == '__main__':
