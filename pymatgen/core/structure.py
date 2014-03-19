@@ -675,15 +675,16 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             site_properties (dict): Properties to add or override. The
-                properties are specified in the same way as the constructor, i.e.,
-                as a dict of the form {property: [values]}. The properties
-                should be in the order of the *original* structure if you
-                are performing sanitization.
+                properties are specified in the same way as the constructor,
+                i.e., as a dict of the form {property: [values]}. The
+                properties should be in the order of the *original* structure
+                if you are performing sanitization.
             sanitize (bool): If True, this method will return a sanitized
-                structure. Sanitization performs a few things: (i) The sites are sorted
-                by electronegativity, (ii) a LLL lattice reduction is carried
-                out to obtain a relatively orthogonalized cell, (iii) all
-                fractional coords for sites are mapped into the unit cell.
+                structure. Sanitization performs a few things: (i) The sites are
+                sorted by electronegativity, (ii) a LLL lattice reduction is
+                carried out to obtain a relatively orthogonalized cell,
+                (iii) all fractional coords for sites are mapped into the
+                unit cell.
 
         Returns:
             A copy of the Structure, with optionally new site_properties and
@@ -2351,7 +2352,9 @@ class FunctionalGroups(dict):
         """
         Loads functional group data from json file. Return list that can be
         easily converted into a Molecule object. The .json file, of course,
-        has to be under the same directory of this function"""
+        has to be under the same directory of this function
+        """
+        dict.__init__(self)
         with open(os.path.join(os.path.dirname(__file__),
                                "func_groups.json")) as f:
             for k, v in json.load(f).items():
