@@ -462,10 +462,12 @@ class StructureMatcherTest(unittest.TestCase):
         self.assertRaises(ValueError, sm.get_mapping, s2, s1)
 
     def test_get_supercell_matrix(self):
-        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
+        sm = StructureMatcher(ltol=0.1, stol=0.3, angle_tol=2,
                               primitive_cell=False, scale=True,
                               attempt_supercell=True)
+        
         l = Lattice.orthorhombic(1, 2, 3)
+        
         s1 = Structure(l, ['Si', 'Si', 'Ag'],
                        [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
         s1.make_supercell([2,1,1])
@@ -473,6 +475,16 @@ class StructureMatcherTest(unittest.TestCase):
                        [[0,0.1,0],[0,0.1,-0.95],[-.7,.5,.375]])
         result = sm.get_supercell_matrix(s1, s2)
         self.assertTrue((result == [[-2,0,0],[0,1,0],[0,0,1]]).all())
+        
+        s1 = Structure(l, ['Si', 'Si', 'Ag'],
+                       [[0,0,0.1],[0,0,0.2],[.7,.4,.5]])
+        s1.make_supercell([[1, -1, 0],[0, 0, -1],[0, 1, 0]])
+
+        s2 = Structure(l, ['Si', 'Si', 'Ag'],
+                       [[0,0.1,0],[0,0.1,-0.95],[-.7,.5,.375]])
+        result = sm.get_supercell_matrix(s1, s2)
+        self.assertTrue((result == [[-1,-1,0],[0,0,-1],[0,1,0]]).all())
+        
 
     def test_subset(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
@@ -535,6 +547,7 @@ class StructureMatcherTest(unittest.TestCase):
                    [0.75, 0.5, 0.5]]
         prim = Structure(lp, [{'Na':0.5}, {'Cl':0.5}], pcoords)
         supercell = Structure(ls, ['Na', 'Cl'], scoords)
+        supercell.make_supercell([[-1,1,0],[0,1,1],[1,0,0]])
 
         self.assertFalse(sm_sites.fit(prim, supercell))
         self.assertTrue(sm_atoms.fit(prim, supercell))

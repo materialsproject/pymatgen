@@ -488,6 +488,7 @@ class StructureMatcher(MSONable):
                     supercell_matrix = np.round(np.dot(l.matrix, 
                         s1.lattice.inv_matrix)).astype('int')
                     fc = l.get_fractional_coords(cc)
+                    fc -= np.floor(fc)
                     yield fc, s2_fc, av_lat(l, s2.lattice), supercell_matrix
             else:
                 fc_init = np.array(s1.frac_coords)
@@ -497,8 +498,8 @@ class StructureMatcher(MSONable):
                     fc = np.dot(fc_init, np.linalg.inv(supercell_matrix))
                     lp = lattice_points_in_supercell(supercell_matrix)
                     fc = (fc[:, None, :] + lp[None, :, :]).reshape((-1, 3))
+                    fc -= np.floor(fc)
                     yield fc, s2_fc, av_lat(l, s2.lattice), supercell_matrix
-        
         if s1_supercell:
             for x in sc_generator(struct1, struct2):
                 yield x
@@ -548,7 +549,7 @@ class StructureMatcher(MSONable):
         Returns:
             Distances from s2 to s1, normalized by (V/Natom) ^ 1/3
             Fractional translation vector to apply to s2.
-            Mapping from s2 to s1
+            Mapping from s1 to s2, i.e. with numpy slicing, s1[mapping] => s2
         """
         if len(s2) > len(s1):
             raise ValueError("s1 must be larger than s2")
@@ -961,16 +962,15 @@ class StructureMatcher(MSONable):
 
     def get_supercell_matrix(self, supercell, struct):
         """
-        Returns the supercell matrix for transforming struct to supercell. This
+        Returns the matrix for transforming struct to supercell. This
         can be used for very distorted 'supercells' where the primitive cell
         is impossible to find
         """
         if self._primitive_cell:
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
-        supercell, struct, fu, s1_supercell = self._preprocess(supercell, struct, False)
-        
-        if s1_supercell:
+        struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, False)
+        if not s1_supercell:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
 
@@ -995,37 +995,37 @@ class StructureMatcher(MSONable):
         ratio = fu if s1_supercell else 1/fu
         
         if s1_supercell and fu > 1:
-            raise ValueError("The smaller structure must be transformed onto"
-                             " the larger one, not the other way around")
+            raise ValueError("Struct1 must be the supercell, "
+                             "not the other way around")
         
         if len(s1) * ratio >= len(s2):
             #s1 is superset
             match = self._match(s1, s2, fu=fu, s1_supercell=s1_supercell, 
                                 use_rms=True, break_on_match=False)
-            if match:
-                tvec = match[3]
         else:
             #s2 is superset
             match = self._match(s2, s1, fu=fu, s1_supercell=(not s1_supercell), 
                                 use_rms=True, break_on_match=False)
-            if match:
-                tvec = -match[3]
-        
+
         if match is None:
             return None
         
         temp = struct2.copy()
         temp.make_supercell(match[2])
-        temp.translate_sites(range(len(temp)), tvec)
-
+        
         if len(struct1) >= len(temp):
+            #invert the mapping, since it needs to be from s2 to s1
             mapping = np.argsort(match[4])
+            tvec = match[3]
         else:
-            mapping = range(len(temp))
+            #add sites not included in the mapping
+            not_included = range(len(temp))
             for i in match[4]:
-                mapping.remove(i)
-            mapping = list(match[4]) + mapping
-
+                not_included.remove(i)
+            mapping = list(match[4]) + not_included
+            tvec = -match[3]
+            
+        temp.translate_sites(range(len(temp)), tvec)
         return Structure.from_sites([temp.sites[i] for i in mapping])
         
     def get_mapping(self, superset, subset):
