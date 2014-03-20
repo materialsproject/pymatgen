@@ -43,9 +43,8 @@ class EnumlibAdaptorTest(unittest.TestCase):
         structures = adaptor.structures
         self.assertEqual(len(structures), 86)
         for s in structures:
-            self.assertAlmostEqual(s.composition
-                                   .get_atomic_fraction(Element("Li")),
-                                   0.5 / 6.5)
+            self.assertAlmostEqual(
+                s.composition.get_atomic_fraction(Element("Li")), 0.5 / 6.5)
         adaptor = EnumlibAdaptor(subtrans.apply_transformation(struct), 1, 2,
                                  refine_structure=True)
         adaptor.run()
@@ -89,6 +88,13 @@ class EnumlibAdaptorTest(unittest.TestCase):
         adaptor.run()
         structures = adaptor.structures
         self.assertEqual(len(structures), 10)
+
+        struct = CifParser(os.path.join(test_dir, "EnumerateTest.cif"))\
+            .get_structures()[0]
+        adaptor = EnumlibAdaptor(struct, 1, 1)
+        adaptor.run()
+        structures = adaptor.structures
+        self.assertEqual(len(structures), 2)
 
 if __name__ == '__main__':
     unittest.main()

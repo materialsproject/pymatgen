@@ -34,6 +34,7 @@ __date__ = "Jul 16, 2012"
 import re
 import math
 import subprocess
+import itertools
 import logging
 
 import numpy as np
@@ -151,27 +152,14 @@ class EnumlibAdaptor(object):
         index_species = []
         index_amounts = []
 
-        #Let"s group and sort the sites by symmetry.
-        site_symmetries = []
-        for sites in symmetrized_structure.equivalent_sites:
-            finder = SymmetryFinder(Structure.from_sites(sites),
-                                    self.symm_prec)
-            sgnum = finder.get_spacegroup_number()
-            site_symmetries.append((sites, sgnum))
-
-        site_symmetries = sorted(site_symmetries, key=lambda s: s[1])
-
         #Stores the ordered sites, which are not enumerated.
-        min_sg_num = site_symmetries[0][1]
         ordered_sites = []
         disordered_sites = []
         coord_str = []
-        min_disordered_sg = 300
-        for (sites, sgnum) in site_symmetries:
+        for sites in symmetrized_structure.equivalent_sites:
             if sites[0].is_ordered:
                 ordered_sites.append(sites)
             else:
-                min_disordered_sg = min(min_disordered_sg, sgnum)
                 sp_label = []
                 species = {k: v for k, v in sites[0].species_and_occu.items()}
                 if sum(species.values()) < 1 - EnumlibAdaptor.amount_tol:
@@ -194,26 +182,46 @@ class EnumlibAdaptor(object):
                         sp_label))
                 disordered_sites.append(sites)
 
+        def get_sg_info(ss):
+            finder = SymmetryFinder(Structure.from_sites(ss), self.symm_prec)
+            sgnum = finder.get_spacegroup_number()
+            return sgnum
+
+        curr_sites = list(itertools.chain.from_iterable(disordered_sites))
+        min_sgnum = get_sg_info(curr_sites)
+        logger.debug("Disorderd sites has sgnum %d" % (
+            min_sgnum))
         #It could be that some of the ordered sites has a lower symmetry than
         #the disordered sites.  So we consider the lowest symmetry sites as
         #disordered in our enumeration.
-        if min_disordered_sg > min_sg_num:
-            logger.debug("Ordered sites have lower symmetry than disordered.")
-            sites = ordered_sites.pop(0)
-            index_species.append(sites[0].specie)
-            index_amounts.append(len(sites))
-            sp_label = len(index_species) - 1
-            logger.debug("Lowest symmetry {} sites are included in enum."
-                         .format(sites[0].specie))
-            for site in sites:
-                coord_str.append("{} {}".format(
-                    coord_format.format(*site.coords),
-                    sp_label))
-            disordered_sites.append(sites)
-
         self.ordered_sites = []
+        to_add = []
+
         for sites in ordered_sites:
-            self.ordered_sites.extend(sites)
+            temp_sites = list(curr_sites) + sites
+            sgnum = get_sg_info(temp_sites)
+            if sgnum < min_sgnum:
+                logger.debug("Adding {} to sites to be ordered. "
+                             "New sgnum {}"
+                             .format(sites, sgnum))
+                to_add = sites
+                min_sgnum = sgnum
+
+        for sites in ordered_sites:
+            if sites == to_add:
+                index_species.append(sites[0].specie)
+                index_amounts.append(len(sites))
+                sp_label = len(index_species) - 1
+                logger.debug("Lowest symmetry {} sites are included in enum."
+                             .format(sites[0].specie))
+                for site in sites:
+                    coord_str.append("{} {}".format(
+                        coord_format.format(*site.coords),
+                        sp_label))
+                disordered_sites.append(sites)
+            else:
+                self.ordered_sites.extend(sites)
+
         self.index_species = index_species
 
         lattice = self.structure.lattice
