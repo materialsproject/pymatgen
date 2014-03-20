@@ -26,6 +26,10 @@ if __name__ == "__main__":
     try:
         spec_in.read_from_file('spec.in')
     except (IOError, OSError):
+        try:
+            spec_in.read_from_file('$HOME/.abinit/abipy/spec.in')
+        except (IOError, OSError):
+            pass
         pass
     spec_in.update_interactive()
     spec_in.test()
