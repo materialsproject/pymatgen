@@ -106,6 +106,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
     popt = [None, None, None]
     if len(xs) > 1:
         ds = get_derivatives(xs[0:len(ys)], ys)
+        print ds
         try:
             import numpy as np
             from scipy.optimize import curve_fit
@@ -143,6 +144,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
         return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
     else:
         return [conv, x_value, y_value, n_value, popt[0], None]
+
 
 def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     xl = 'set xlabel "nbands"\n'
