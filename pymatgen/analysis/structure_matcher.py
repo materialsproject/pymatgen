@@ -384,7 +384,8 @@ class StructureMatcher(MSONable):
     def _get_supercell_size(self, s1, s2):
         """
         Returns the supercell size, and whether the supercell should
-        be applied to s1
+        be applied to s1. If fu == 1, s1_supercell is returned as 
+        true, to avoid ambiguity.
         """
         if self._supercell_size == 'num_sites':
             fu = s2.num_sites / s1.num_sites
@@ -395,7 +396,7 @@ class StructureMatcher(MSONable):
         else:
             raise ValueError('invalid argument for supercell_size')
         
-        if fu < 1:
+        if fu < 2/3:
             return round(1/fu), False
         else:
             return round(fu), True

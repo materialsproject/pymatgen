@@ -25,6 +25,30 @@ class StructureMatcherTest(unittest.TestCase):
         self.oxi_structs = [read_structure(os.path.join(test_dir, fname))
                             for fname in ["Li2O.cif", "POSCAR.Li2O"]]
     
+    def test_get_supercell_size(self):
+        l = Lattice.cubic(1)
+        l2 = Lattice.cubic(0.9)
+        s1 = Structure(l, ['Mg', 'Cu', 'Ag', 'Cu', 'Ag'], [[0]*3]*5)
+        s2 = Structure(l2, ['Cu', 'Cu', 'Ag'], [[0]*3]*3)
+        
+        sm = StructureMatcher(supercell_size='volume')
+        result = sm._get_supercell_size(s1, s2)
+        self.assertEqual(result[0], 1)
+        self.assertEqual(result[1], True)
+        
+        result = sm._get_supercell_size(s2, s1)
+        self.assertEqual(result[0], 1)
+        self.assertEqual(result[1], True)
+        
+        sm = StructureMatcher(supercell_size='num_sites')
+        result = sm._get_supercell_size(s1, s2)
+        self.assertEqual(result[0], 2)
+        self.assertEqual(result[1], False)
+        
+        result = sm._get_supercell_size(s2, s1)
+        self.assertEqual(result[0], 2)
+        self.assertEqual(result[1], True)
+    
     def test_cmp_fstruct(self):
         sm = StructureMatcher()
         
