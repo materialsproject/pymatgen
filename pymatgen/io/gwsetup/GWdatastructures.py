@@ -524,7 +524,7 @@ class GWConvergenceData():
         if self.conv_res['control']['nbands']:
             filename = self.name + '.conv_res'
             f = open(filename, mode='w')
-            string = "{'control':"+str(self.conv_res['control'])+", 'values': "
+            string = "{'control': "+str(self.conv_res['control'])+", 'values': "
             if self.spec['code'] == 'VASP':
                 string += str({'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']})
                 pass
@@ -533,7 +533,7 @@ class GWConvergenceData():
                 pass
             else:
                 string = 'undefined code'
-            string += "{'derivatives':"+str(self.conv_res['derivatives'])
+            string += ", 'derivatives': "+str(self.conv_res['derivatives'])
             string += '}'
             f.write(string)
             f.close()
