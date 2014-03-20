@@ -26,7 +26,7 @@ from pymatgen.io.gwsetup.GWworkflows import SingleAbinitGWWorkFlow, VaspGWFWWork
 from pymatgen.io.gwsetup.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, MPGWG0W0VaspInputSet
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
-from pymatgen.core.units import Ha_to_eV
+from pymatgen.core.units import Ha_to_eV, eV_to_Ha
 from pymatgen.io.gwsetup.GWhelpers import test_conv, print_gnuplot_header
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -183,6 +183,8 @@ class GWSpecs(MSONable):
                                               ' parsed ...'
             converged = False
         if return_values and converged:
+            if self.get_code() == 'ABINIT':
+                conv_res['values']['ecuteps'] = conv_res['values']['ecuteps'] * eV_to_Ha
             return conv_res['values']
         else:
             return converged
