@@ -415,9 +415,12 @@ class GWConvergenceData():
         nbands_l = False
         ecuteps_c = 0
         nbands_c = 0
+        ecuteps_d = 0
+        nbands_d = 0
         gap = None
         y_conv = []
         z_conv = []
+        y_conv_der = []
         extrapolated = []
         xs = self.get_var_range('nbands')
         ys = self.get_var_range('ecuteps')
@@ -434,6 +437,7 @@ class GWConvergenceData():
             extrapolated.append(conv_data[4])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
+                y_conv_der.append(conv_data[4])
                 z_conv.append(conv_data[2])
                 ecuteps_l = conv_data[0]
             else:
@@ -446,7 +450,11 @@ class GWConvergenceData():
                 nbands_c = conv_data[1]
                 gap = conv_data[2]
                 ecuteps_c = y_conv[conv_data[3]]
-        self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l}, 'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap}}
+                nbands_d = conv_data[4]
+                ecuteps_d = y_conv_der[conv_data[3]]
+        self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l},
+                         'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
+                         'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}}
         return test_conv(xs, extrapolated, -1, file_name=self.name+'condat')
 
     def print_gnuplot_line(self, filename):
@@ -525,6 +533,7 @@ class GWConvergenceData():
                 pass
             else:
                 string = 'undefined code'
+            string += "{'derivatives':"+str(self.conv_res['derivatives'])
             string += '}'
             f.write(string)
             f.close()
