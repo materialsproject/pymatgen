@@ -16,6 +16,7 @@ import os
 import stat
 import os.path
 import ast
+import math
 import pymatgen as pmg
 
 from pymatgen.io.vaspio.vasp_input import Poscar
@@ -184,7 +185,7 @@ class GWSpecs(MSONable):
             converged = False
         if return_values and converged:
             if self.get_code() == 'ABINIT':
-                conv_res['values']['ecuteps'] = conv_res['values']['ecuteps'] * eV_to_Ha
+                conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
             return conv_res['values']
         else:
             return converged
