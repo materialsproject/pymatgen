@@ -141,6 +141,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
             else:
                 conv = False
                 x_value = float('inf')
+        print ds[n_value]
         return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
     else:
         return [conv, x_value, y_value, n_value, popt[0], None]
