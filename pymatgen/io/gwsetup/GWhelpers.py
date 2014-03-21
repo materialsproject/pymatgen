@@ -44,7 +44,7 @@ def get_derivatives(xs, ys):
     """
     try:
         if len(xs) < 4:
-            er = SplineInputError('test')
+            er = SplineInputError('too few data points')
             raise er
         from scipy.interpolate import UnivariateSpline
         spline = UnivariateSpline(xs, ys)
@@ -104,13 +104,11 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
     y_value = None
     n_value = None
     popt = [None, None, None]
-    if len(xs) > 1:
+    if len(xs) > 2:
         ds = get_derivatives(xs[0:len(ys)], ys)
         try:
             import numpy as np
             from scipy.optimize import curve_fit
-            #print 'xs    ', xs
-            #print 'ys    ', ys
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
                 print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+file_name+'"'

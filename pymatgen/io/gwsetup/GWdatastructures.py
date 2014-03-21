@@ -296,14 +296,45 @@ class GWSpecs(MSONable):
 
     def process_data(self, structure):
         data = GWConvergenceData(spec=self, structure=structure)
-        data.read()
-        extrapolated = data.find_conv_pars(self['tol'])
-        print data.conv_res
-        print extrapolated[4]
-        data.print_conv_res()
-        print_gnuplot_header('plots', structure.composition.reduced_formula+' tol = '+str(self['tol']))
-        data.print_gnuplot_line('plots')
-        data.print_plot_data()
+        if self.data['converge']:
+            done = False
+            data.set_type(structure)
+            while not done:
+                if data.type['convergence']:
+                    data.read()
+                    # determine the parameters that give converged results
+                    extrapolated = data.find_conv_pars(self['tol'])
+                    print data.conv_res
+                    print extrapolated[4]
+                    if not data.conv_res['control']['nbands']:
+                        data.conv_res['control']['grid'] += 1
+                    data.print_conv_res()
+                    print_gnuplot_header('plots', structure.composition.reduced_formula+' tol = '+str(self['tol']))
+                    data.print_gnuplot_line('plots')
+                    data.print_plot_data()
+                    done = True
+                elif data.type['full']:
+                    data.read(subset='.conv')
+                    if data.test_full_kp_results():
+                        data.conv_res['control'].update({'all_done': True})
+                        data.print_conv_res()
+                        done = True
+                        data.print_plot_data()
+                    else:
+                        # read the system specific tol for Sytems.conv_res
+                        # if it's not there create it from the global tol
+                        # reduce tol
+                        # set data.type to convergence
+                        # loop
+                        pass
+        elif self.data['test']:
+            data.read()
+            data.set_type()
+            data.print_plot_data()
+        else:
+            data.read()
+            data.set_type()
+            data.print_plot_data()
 
     def loop_structures(self, mode='i'):
         """
@@ -368,15 +399,16 @@ class GWConvergenceData():
         self.structure = structure
         self.spec = spec
         self.data = {}
-        self.conv_res = {}
+        self.conv_res = {'control': {'grid': 0}}
         self.name = structure.composition.reduced_formula
+        self.type = {'convergence': False, 'full': False, 'single': False, 'test': False}
 
-    def read(self):
+    def read(self, subset=''):
         if self.spec['code'] == 'ABINIT':
             read_next = True
             n = 3
             while read_next:
-                output = os.path.join(self.name,  'work_0', 'task_' + str(n), 'outdata', 'out_SIGRES.nc')
+                output = os.path.join(self.name + subset,  'work_0', 'task_' + str(n), 'outdata', 'out_SIGRES.nc')
                 if os.path.isfile(output):
                     n += 1
                     data = NetcdfReader(output)
@@ -389,7 +421,7 @@ class GWConvergenceData():
             tree = os.walk('.')
             n = 0
             for dirs in tree:
-                if "/" + self.name + "." in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
+                if "/" + self.name + subset + "." in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
                     run = os.path.join(dirs[0], 'vasprun.xml')
                     kpoints = os.path.join(dirs[0], 'IBZKPT')
                     if os.path.isfile(run):
@@ -402,6 +434,24 @@ class GWConvergenceData():
                             n += 1
                         except BaseException:
                             pass
+
+    def set_type(self, structure):
+        name = structure.composition.reduced_composition
+        if self.spec['converge']:
+            if os.path.isdir(name) and not os.path.isdir(name+'.conv'):
+                self.type['convergence'] = True
+            elif os.path.isdir(name) and os.path.isdir(name+'.conv'):
+                a = max(os.path.getatime(name), os.path.getctime(name), os.path.getmtime(name))
+                b = max(os.path.getatime(name+'.conv'), os.path.getctime(name+'.conv'), os.path.getmtime(name+'.conv'))
+                if b > a:
+                    self.type['full'] = True
+                elif a > b:
+                    self.type['convergence'] = True
+        elif self.spec['test']:
+            self.type['test'] = True
+        else:
+            self.type['single'] = True
+        print name, self.type
 
     def get_var_range(self, var):
         var_range = []
@@ -456,6 +506,10 @@ class GWConvergenceData():
                          'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
                          'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}}
         return test_conv(xs, extrapolated, -1, file_name=self.name+'condat')
+
+    def test_full_kp_results(self, tol=0.005):
+        # test if the slopes of the gap data at the full kp mesh are comparable to those of the low kp mesh
+        pass
 
     def print_gnuplot_line(self, filename):
         string1 = "set output '"+self.name+".jpeg'\n"
