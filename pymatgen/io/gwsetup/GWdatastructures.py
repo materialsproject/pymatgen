@@ -28,7 +28,7 @@ from pymatgen.io.gwsetup.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWD
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV, eV_to_Ha
-from pymatgen.io.gwsetup.GWhelpers import test_conv, print_gnuplot_header
+from pymatgen.io.gwsetup.GWhelpers import test_conv, print_gnuplot_header, s_name
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -172,7 +172,7 @@ class GWSpecs(MSONable):
         self.reset_job_collection()
 
     def is_converged(self, structure, return_values=False):
-        filename = structure.composition.reduced_formula + ".conv_res"
+        filename = s_name(structure) + ".conv_res"
         try:
             f = open(filename, mode='r')
             conv_res = ast.literal_eval(f.read())
@@ -298,9 +298,9 @@ class GWSpecs(MSONable):
         data = GWConvergenceData(spec=self, structure=structure)
         if self.data['converge']:
             done = False
-            data.set_type(structure)
+            data.set_type()
             while not done:
-                if data.type['convergence']:
+                if data.type['parm_scr']:
                     data.read()
                     # determine the parameters that give converged results
                     extrapolated = data.find_conv_pars(self['tol'])
@@ -321,7 +321,7 @@ class GWSpecs(MSONable):
                         done = True
                         data.print_plot_data()
                     else:
-                        # read the system specific tol for Sytems.conv_res
+                        # read the system specific tol for Sytem.conv_res
                         # if it's not there create it from the global tol
                         # reduce tol
                         # set data.type to convergence
@@ -371,7 +371,6 @@ class GWSpecs(MSONable):
                     structure.cbm = (0.0, 0.0, 0.0)
                     structure.vbm = (0.0, 0.0, 0.0)
             elif item.startswith('mp-'):
-                print item
                 with MPRester(mp_key) as mp_database:
                     structure = mp_database.get_structure_by_material_id(item, final=True)
                     bandstructure = mp_database.get_bandstructure_by_material_id(item)
@@ -381,7 +380,7 @@ class GWSpecs(MSONable):
                     structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
             else:
                 next(item)
-            print structure.composition.reduced_formula
+            print item, s_name(structure)
             if mode == 'i':
                 self.excecute_flow(structure)
             elif mode == 'o':
@@ -400,8 +399,8 @@ class GWConvergenceData():
         self.spec = spec
         self.data = {}
         self.conv_res = {'control': {'grid': 0}}
-        self.name = structure.composition.reduced_formula
-        self.type = {'convergence': False, 'full': False, 'single': False, 'test': False}
+        self.name = s_name(structure)
+        self.type = {'parm_scr': False, 'full': False, 'single': False, 'test': False}
 
     def read(self, subset=''):
         if self.spec['code'] == 'ABINIT':
@@ -435,18 +434,25 @@ class GWConvergenceData():
                         except BaseException:
                             pass
 
-    def set_type(self, structure):
-        name = structure.composition.reduced_formula
+    def set_type(self):
+        name = self.name
         if self.spec['converge']:
             if os.path.isdir(name) and not os.path.isdir(name+'.conv'):
-                self.type['convergence'] = True
+                # convergence setting in spec, but only the low grid dirs exist
+                self.type['parm_scr'] = True
+            if not os.path.isdir(name) and os.path.isdir(name+'.conv'):
+                # test case, separate folder was made for the .conv caluclations
+                self.type['full'] = True
             elif os.path.isdir(name) and os.path.isdir(name+'.conv'):
+                # both convergence and full dirs exists
                 a = max(os.path.getatime(name), os.path.getctime(name), os.path.getmtime(name))
                 b = max(os.path.getatime(name+'.conv'), os.path.getctime(name+'.conv'), os.path.getmtime(name+'.conv'))
                 if b > a:
+                    # full is newer
                     self.type['full'] = True
                 elif a > b:
-                    self.type['convergence'] = True
+                    # convergence on low grid is newer
+                    self.type['parm_scr'] = True
         elif self.spec['test']:
             self.type['test'] = True
         else:
