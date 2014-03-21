@@ -436,7 +436,7 @@ class GWConvergenceData():
                             pass
 
     def set_type(self, structure):
-        name = structure.composition.reduced_composition
+        name = structure.composition.reduced_formula
         if self.spec['converge']:
             if os.path.isdir(name) and not os.path.isdir(name+'.conv'):
                 self.type['convergence'] = True
