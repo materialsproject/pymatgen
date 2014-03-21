@@ -26,6 +26,11 @@ def now():
     return time.strftime("%H:%M:%S %d/%m/%Y")
 
 
+def s_name(structure):
+    name_ = structure.composition.reduced_formula
+    return name_
+
+
 def clean(string, uppercase=False):
     """
     helper to clean up an input string
