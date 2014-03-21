@@ -502,9 +502,9 @@ class GWConvergenceData():
                 ecuteps_c = y_conv[conv_data[3]]
                 nbands_d = conv_data[5]
                 ecuteps_d = y_conv_der[conv_data[3]]
-        self.conv_res = {'control': {'ecuteps': ecuteps_l, 'nbands': nbands_l},
-                         'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
-                         'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}}
+        self.conv_res['control'].update({'ecuteps': ecuteps_l, 'nbands': nbands_l})
+        self.conv_res.update({'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
+                              'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}})
         return test_conv(xs, extrapolated, -1, file_name=self.name+'condat')
 
     def test_full_kp_results(self, tol=0.005):
