@@ -63,6 +63,7 @@ class Lattice(MSONable):
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
+        self._metric_tensor = None
 
     def copy(self):
         """Deep copy of self."""
@@ -78,6 +79,12 @@ class Lattice(MSONable):
         if self._inv_matrix is None:
             self._inv_matrix = inv(self._matrix)
         return self._inv_matrix
+
+    @property
+    def metric_tensor(self):
+        if self._metric_tensor is None:
+            self._metric_tensor = np.dot(self._matrix, self._matrix.T)
+        return self._metric_tensor
 
     def get_cartesian_coords(self, fractional_coords):
         """
