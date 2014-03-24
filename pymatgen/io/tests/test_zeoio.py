@@ -14,9 +14,7 @@ __date__ = "Aug 2, 2013"
 
 import unittest
 
-from pymatgen.core.structure import Structure, Molecule
 from pymatgen.core.periodic_table import Specie
-from pymatgen.core.sites import PeriodicSite
 from pymatgen.io.cifio import CifParser
 from pymatgen.io.zeoio import *
 from pymatgen.io.vaspio.vasp_input import Poscar
@@ -131,7 +129,7 @@ class ZeoVoronoiXYZTest(unittest.TestCase):
                 [-0.513360, 0.889165, -0.363000]]
         prop = [0.4, 0.2, 0.2, 0.2, 0.2]
         self.mol = Molecule(
-                ["C", "H", "H", "H", "H"], coords, 
+                ["C", "H", "H", "H", "H"], coords,
                 site_properties={"voronoi_radius":prop})
         self.xyz = ZeoVoronoiXYZ(self.mol)
 
@@ -174,6 +172,33 @@ class GetVoronoiNodesTest(unittest.TestCase):
                 )
         self.assertIsInstance(vor_node_struct, Structure)
         self.assertIsInstance(vor_face_center_struct, Structure)
+        print len(vor_node_struct.sites)
+        print len(vor_face_center_struct.sites)
+
+
+@unittest.skipIf(not zeo, "zeo not present.")
+class GetHighAccuracyVoronoiNodesTest(unittest.TestCase):
+    def setUp(self):
+        filepath = os.path.join(test_dir, 'POSCAR')
+        p = Poscar.from_file(filepath)
+        self.structure = p.structure
+        bv = BVAnalyzer()
+        valences = bv.get_valences(self.structure)
+        el = [site.species_string for site in self.structure.sites]
+        valence_dict = dict(zip(el, valences))
+        self.rad_dict = {}
+        for k, v in valence_dict.items():
+            self.rad_dict[k] = float(Specie(k,v).ionic_radius)
+
+        assert len(self.rad_dict) == len(self.structure.composition)
+
+    def test_get_voronoi_nodes(self):
+        vor_node_struct, vor_fc_struct = get_high_accuracy_voronoi_nodes(
+                self.structure, self.rad_dict)
+        self.assertIsInstance(vor_node_struct, Structure)
+        self.assertIsInstance(vor_fc_struct, Structure)
+        print len(vor_node_struct.sites)
+        print len(vor_fc_struct.sites)
 
 
 @unittest.skipIf(not zeo, "zeo not present.")
@@ -219,7 +244,7 @@ class GetVoidVolumeSurfaceTest(unittest.TestCase):
             self._radii[k1] = float(Specie(k1, v).ionic_radius)
         p.remove(0)
         self._vac_struct = p
-    
+
     def test_void_volume_surface_area(self):
         pass
         vol, sa = get_void_volume_surfarea(

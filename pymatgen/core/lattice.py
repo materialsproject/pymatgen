@@ -22,7 +22,6 @@ from numpy.linalg import inv
 from numpy import pi, dot, transpose, radians
 
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 
 
 class Lattice(MSONable):
@@ -63,6 +62,7 @@ class Lattice(MSONable):
         self._matrix = m
         # The inverse matrix is lazily generated for efficiency.
         self._inv_matrix = None
+        self._metric_tensor = None
 
     def copy(self):
         """Deep copy of self."""
@@ -78,6 +78,12 @@ class Lattice(MSONable):
         if self._inv_matrix is None:
             self._inv_matrix = inv(self._matrix)
         return self._inv_matrix
+
+    @property
+    def metric_tensor(self):
+        if self._metric_tensor is None:
+            self._metric_tensor = np.dot(self._matrix, self._matrix.T)
+        return self._metric_tensor
 
     def get_cartesian_coords(self, fractional_coords):
         """
@@ -411,8 +417,8 @@ class Lattice(MSONable):
         (lengths, angles) = other_lattice.lengths_and_angles
         (alpha, beta, gamma) = angles
 
-        points = get_points_in_sphere_pbc(self, [[0, 0, 0]], [0, 0, 0],
-                                          max(lengths) + 0.1)
+        points = self.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
+                                           max(lengths) + 0.1)
         all_frac = [p[0] for p in points]
         dist = [p[1] for p in points]
         cart = self.get_cartesian_coords(all_frac)
@@ -798,3 +804,113 @@ class Lattice(MSONable):
             one-dimensional `numpy` array.
         """
         return np.sqrt(self.dot(coords, coords, frac_coords=frac_coords))
+
+    def get_points_in_sphere(self, frac_points, center, r):
+        """
+        Find all points within a sphere from the point taking into account
+        periodic boundary conditions. This includes sites in other periodic images.
+
+        Algorithm:
+
+        1. place sphere of radius r in crystal and determine minimum supercell
+           (parallelpiped) which would contain a sphere of radius r. for this
+           we need the projection of a_1 on a unit vector perpendicular
+           to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
+           determine how many a_1"s it will take to contain the sphere.
+
+           Nxmax = r * length_of_b_1 / (2 Pi)
+
+        2. keep points falling within r.
+
+        Args:
+            frac_points: All points in the lattice in fractional coordinates.
+            center: Cartesian coordinates of center of sphere.
+            r: radius of sphere.
+
+        Returns:
+            [(fcoord, dist) ...] since most of the time, subsequent processing
+            requires the distance.
+        """
+        recp_len = np.array(self.reciprocal_lattice.abc)
+        sr = r + 0.15
+        nmax = sr * recp_len / (2 * math.pi)
+        pcoords = self.get_fractional_coords(center)
+        floor = math.floor
+
+        n = len(frac_points)
+        fcoords = np.array(frac_points)
+        pts = np.tile(center, (n, 1))
+        indices = np.array(range(n))
+
+        arange = np.arange(start=int(floor(pcoords[0] - nmax[0])),
+                           stop=int(floor(pcoords[0] + nmax[0])) + 1)
+        brange = np.arange(start=int(floor(pcoords[1] - nmax[1])),
+                           stop=int(floor(pcoords[1] + nmax[1])) + 1)
+        crange = np.arange(start=int(floor(pcoords[2] - nmax[2])),
+                           stop=int(floor(pcoords[2] + nmax[2])) + 1)
+
+        arange = arange[:, None] * np.array([1, 0, 0])[None, :]
+        brange = brange[:, None] * np.array([0, 1, 0])[None, :]
+        crange = crange[:, None] * np.array([0, 0, 1])[None, :]
+
+        images = arange[:, None, None] + brange[None, :, None] +\
+            crange[None, None, :]
+
+        shifted_coords = fcoords[:, None, None, None, :] + images[None, :, :, :, :]
+        coords = self.get_cartesian_coords(shifted_coords)
+        dists = np.sqrt(np.sum((coords - pts[:, None, None, None, :]) ** 2,
+                               axis=4))
+        within_r = np.where(dists <= r)
+
+        d = [shifted_coords[within_r], dists[within_r], indices[within_r[0]]]
+
+        return np.transpose(d)
+
+    def get_all_distances(self, fcoords1, fcoords2):
+        """
+        Returns the distances between two lists of coordinates taking into
+        account periodic boundary conditions and the lattice. Note that this
+        computes an MxN array of distances (i.e. the distance between each
+        point in fcoords1 and every coordinate in fcoords2). This is
+        different functionality from pbc_diff.
+
+        Args:
+            fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6,
+                0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
+                coord or any array of coords.
+            fcoords2: Second set of fractional coordinates.
+
+        Returns:
+            2d array of cartesian distances. E.g the distance between
+            fcoords1[i] and fcoords2[j] is distances[i,j]
+        """
+        #ensure correct shape
+        fcoords1, fcoords2 = np.atleast_2d(fcoords1, fcoords2)
+
+        #ensure that all points are in the unit cell
+        fcoords1 = np.mod(fcoords1, 1)
+        fcoords2 = np.mod(fcoords2, 1)
+
+        #create images, 2d array of all length 3 combinations of [-1,0,1]
+        r = np.arange(-1, 2)
+        arange = r[:, None] * np.array([1, 0, 0])[None, :]
+        brange = r[:, None] * np.array([0, 1, 0])[None, :]
+        crange = r[:, None] * np.array([0, 0, 1])[None, :]
+        images = arange[:, None, None] + brange[None, :, None] +\
+            crange[None, None, :]
+        images = images.reshape((27, 3))
+
+        #create images of f2
+        shifted_f2 = fcoords2[:, None, :] + images[None, :, :]
+
+        cart_f1 = self.get_cartesian_coords(fcoords1)
+        cart_f2 = self.get_cartesian_coords(shifted_f2)
+
+        #all vectors from f1 to f2
+        vectors = cart_f2[None, :, :, :] - cart_f1[:, None, None, :]
+
+        d_2 = np.sum(vectors ** 2, axis=3)
+
+        distances = np.min(d_2, axis=2) ** 0.5
+
+        return distances

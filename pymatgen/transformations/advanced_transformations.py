@@ -29,8 +29,7 @@ from pymatgen.structure_prediction.substitution_probability import \
     SubstitutionPredictor
 from pymatgen.analysis.structure_matcher import StructureMatcher, \
     SpinComparator
-from pymatgen.analysis.energy_models import SymmetryModel, \
-    EwaldElectrostaticModel, NsitesModel
+from pymatgen.analysis.energy_models import SymmetryModel
 from pymatgen.serializers.json_coders import PMGJSONDecoder
 
 
@@ -55,9 +54,9 @@ class ChargeBalanceTransformation(AbstractTransformation):
         if removal_fraction < 0:
             raise ValueError("addition of specie not yet supported by "
                              "ChargeBalanceTransformation")
-        trans = SubstitutionTransformation({self._charge_balance_sp:
-                                                {self._charge_balance_sp:
-                                                     1 - removal_fraction}})
+        trans = SubstitutionTransformation(
+            {self._charge_balance_sp: {self._charge_balance_sp:
+                1 - removal_fraction}})
         return trans.apply_transformation(structure)
 
     def __str__(self):
@@ -162,8 +161,8 @@ class MultipleSubstitutionTransformation(object):
                 }
                 The number is the charge used for each of the list of elements
                 (an element can be present in multiple lists)
-            charge_balance_species: If specified, will balance the charge on the structure using
-                that specie.
+            charge_balance_species: If specified, will balance the charge on
+                the structure using that specie.
         """
         self._sp_to_replace = sp_to_replace
         self._r_fraction = r_fraction
@@ -184,9 +183,9 @@ class MultipleSubstitutionTransformation(object):
             else:
                 sign = "-"
             dummy_sp = "X{}{}".format(str(charge), sign)
-            mapping[self._sp_to_replace] = {self._sp_to_replace:
-                                                1 - self._r_fraction,
-                                            dummy_sp: self._r_fraction}
+            mapping[self._sp_to_replace] = {
+                self._sp_to_replace: 1 - self._r_fraction,
+                dummy_sp: self._r_fraction}
             trans = SubstitutionTransformation(mapping)
             dummy_structure = trans.apply_transformation(structure)
             if self._charge_balance_species is not None:
@@ -201,9 +200,9 @@ class MultipleSubstitutionTransformation(object):
                     sign = "+"
                 else:
                     sign = "-"
-                st = SubstitutionTransformation({"X{}+".format(str(charge)):
-                                                     "{}{}{}".format(el, charge,
-                                                                     sign)})
+                st = SubstitutionTransformation(
+                    {"X{}+".format(str(charge)): "{}{}{}".format(el, charge,
+                                                                 sign)})
                 new_structure = st.apply_transformation(dummy_structure)
                 outputs.append({"structure": new_structure})
         return outputs
@@ -226,11 +225,11 @@ class MultipleSubstitutionTransformation(object):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"sp_to_replace": self._sp_to_replace,
-                              "r_fraction": self._r_fraction,
-                              "substitution_dict": self._substitution_dict,
-                              "charge_balance_species":
-                                  self._charge_balance_species},
+                "init_args": {
+                    "sp_to_replace": self._sp_to_replace,
+                    "r_fraction": self._r_fraction,
+                    "substitution_dict": self._substitution_dict,
+                    "charge_balance_species": self._charge_balance_species},
                 "@module": self.__class__.__module__,
                 "@class": self.__class__.__name__}
 
@@ -305,7 +304,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
         contains_oxidation_state = False
         for sp in structure.composition.elements:
-            if hasattr(sp, "oxi_state") and sp._oxi_state != 0:
+            if hasattr(sp, "oxi_state") and sp.oxi_state != 0:
                 contains_oxidation_state = True
                 break
 
@@ -485,8 +484,9 @@ class MagOrderingTransformation(AbstractTransformation):
         n_gcd = reduce(gcd, atom_per_specie)
 
         if not n_gcd:
-            raise ValueError('The specified species do not exist in the structure'
-                             ' to be enumerated')
+            raise ValueError(
+                'The specified species do not exist in the structure'
+                ' to be enumerated')
 
         return lcm(n_gcd, denom) / n_gcd
 

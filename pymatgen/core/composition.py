@@ -132,13 +132,11 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         Adds two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
-        new_el_map = {el: self[el] for el in self}
+        new_el_map = collections.defaultdict(float)
+        new_el_map.update(self)
         for k in other.keys():
             el = get_el_sp(k)
-            if el in self:
-                new_el_map[el] += other[k]
-            else:
-                new_el_map[el] = other[k]
+            new_el_map[el] += other[k]
         return Composition(new_el_map)
 
     def __sub__(self, other):
@@ -160,7 +158,7 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
                     "All elements in subtracted composition must exist in "
                     "original composition in equal or lesser amount!")
 
-            new_el_map = {sp: amt for sp, amt in new_el_map.iteritems()
+            new_el_map = {sp: amt for sp, amt in new_el_map.items()
                           if amt != 0}
         return Composition(new_el_map)
 
@@ -246,12 +244,9 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         e.g., Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
-        syms = sorted(sym_amt.keys(),
-                      key=lambda s: get_el_sp(s).X)
-        formula = []
-        for s in syms:
-            if sym_amt[s] != 0:
-                formula.append(s + formula_double_format(sym_amt[s], False))
+        syms = sorted(sym_amt.keys(), key=lambda s: get_el_sp(s).X)
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
+                   if sym_amt[s] != 0]
         return " ".join(formula)
 
     @property
@@ -262,10 +257,8 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt.keys())
-        formula = []
-        for s in syms:
-            if sym_amt[s] != 0:
-                formula.append(s + formula_double_format(sym_amt[s], False))
+        formula = [s + formula_double_format(sym_amt[s], False) for s in syms
+                   if sym_amt[s] != 0]
         return " ".join(formula)
 
     @property
@@ -401,20 +394,18 @@ class Composition(collections.Mapping, collections.Hashable, MSONable):
             Composition with that formula.
         """
         def get_sym_dict(f, factor):
-            sym_dict = {}
+            sym_dict = collections.defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)([\.\d]*)", f):
                 el = m.group(1)
                 amt = 1
                 if m.group(2).strip() != "":
                     amt = float(m.group(2))
-                if el in sym_dict:
-                    sym_dict[el] += amt * factor
-                else:
-                    sym_dict[el] = amt * factor
+                sym_dict[el] += amt * factor
                 f = f.replace(m.group(), "", 1)
             if f.strip():
                 raise CompositionError("{} is an invalid formula!".format(f))
             return sym_dict
+
         m = re.search(r"\(([^\(\)]+)\)([\.\d]*)", formula)
         if m:
             factor = 1
