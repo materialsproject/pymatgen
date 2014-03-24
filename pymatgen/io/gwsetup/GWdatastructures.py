@@ -326,6 +326,8 @@ class GWSpecs(MSONable):
                         # reduce tol
                         # set data.type to convergence
                         # loop
+                        print 'test full kp not ok'
+                        done = True
                         pass
         elif self.data['test']:
             data.read()
@@ -401,6 +403,15 @@ class GWConvergenceData():
         self.conv_res = {'control': {'grid': 0}}
         self.name = s_name(structure)
         self.type = {'parm_scr': False, 'full': False, 'single': False, 'test': False}
+
+    def read_conv_res_from_file(self, filename):
+        try:
+            f = open(filename, mode='r')
+            self.conv_res = ast.literal_eval(f.read())
+            f.close()
+        except OSError:
+            print 'Inputfile ', filename, ' not found exiting.'
+            exit()
 
     def read(self, subset=''):
         if self.spec['code'] == 'ABINIT':
@@ -515,8 +526,11 @@ class GWConvergenceData():
 
     def test_full_kp_results(self, tol=0.005):
         # test if the slopes of the gap data at the full kp mesh are comparable to those of the low kp mesh
-
-        diff = 0.1
+        print 'test full kp results'
+        self.read_conv_res_from_file(self.name+'.conv')
+        print self.conv_res['derivatives']
+        print self.data
+        diff = 0.001
         if diff < tol:
             return True
         else:
