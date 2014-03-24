@@ -756,6 +756,9 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
                 for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
                     previous_incar.update({tag: new_incar[tag]})
+            # ensure to have LMAXMIX for GGA+U static run
+            if "LMAXMIX" not in previous_incar:
+                previous_incar.update({"LMAXMIX": new_incar["LMAXMIX"]})
 
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
