@@ -29,14 +29,12 @@ import numpy as np
 from fractions import gcd
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
-    get_el_sp
+from pymatgen.core.periodic_table import Element, Specie, get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
-    pbc_all_distances
+from pymatgen.util.coord_utils import get_angle, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 from monty.dev import deprecated
@@ -67,13 +65,11 @@ class SiteCollection(collections.Sequence):
         Returns distance between sites at index i and j.
 
         Args:
-            i:
-                Index of first site
-            j:
-                Index of second site
+            i (int): Index of first site
+            j (int): Index of second site
 
         Returns:
-            Distance between sites at index i and index j.
+            (float) Distance between sites at index i and index j.
         """
         return
 
@@ -81,22 +77,19 @@ class SiteCollection(collections.Sequence):
     def distance_matrix(self):
         """
         Returns the distance matrix between all sites in the structure. For
-        periodic structures, this should return the nearest image distance.
+        periodic structures, this is overwritten to return the nearest image
+        distance.
         """
-        nsites = len(self)
-        distmatrix = np.zeros((nsites, nsites))
-        for i, j in itertools.combinations(xrange(nsites), 2):
-            dist = self.get_distance(i, j)
-            distmatrix[i, j] = dist
-            distmatrix[j, i] = dist
-        return distmatrix
+        return all_distances(self.cart_coords, self.cart_coords)
 
     @property
     def species(self):
         """
-        List of species at each site of the structure.
         Only works for ordered structures.
         Disordered structures will raise an AttributeError.
+
+        Returns:
+            ([Specie]) List of species at each site of the structure.
         """
         return [site.specie for site in self]
 
@@ -196,19 +189,19 @@ class SiteCollection(collections.Sequence):
         """
         Returns a list of the cartesian coordinates of sites in the structure.
         """
-        return [site.coords for site in self]
+        return np.array([site.coords for site in self])
 
     @property
     def formula(self):
         """
-        Returns the formula.
+        (str) Returns the formula.
         """
         return self.composition.formula
 
     @property
     def composition(self):
         """
-        Returns the composition
+        (Composition) Returns the composition
         """
         elmap = collections.defaultdict(float)
         for site in self:
@@ -246,7 +239,7 @@ class SiteCollection(collections.Sequence):
             k (int): Index of third site.
 
         Returns:
-            Angle in degrees.
+            (float) Angle in degrees.
         """
         v1 = self[i].coords - self[j].coords
         v2 = self[k].coords - self[j].coords
@@ -263,7 +256,7 @@ class SiteCollection(collections.Sequence):
             l (int): Index of fourth site
 
         Returns:
-            Dihedral angle in degrees.
+            (float) Dihedral angle in degrees.
         """
         v1 = self[k].coords - self[l].coords
         v2 = self[j].coords - self[k].coords
@@ -276,22 +269,28 @@ class SiteCollection(collections.Sequence):
     def is_valid(self, tol=DISTANCE_TOLERANCE):
         """
         True if SiteCollection does not contain atoms that are too close
-        together.
+        together. Note that the distance definition is based on type of
+        SiteCollection. Cartesian distances are used for non-periodic
+        Molecules, while PBC is taken into account for periodic structures.
 
         Args:
             tol (float): Distance tolerance. Default is 0.01A.
+
+        Returns:
+            (bool) True if SiteCollection does not contain atoms that are too
+            close together.
         """
-        for s1, s2 in itertools.combinations(self.sites, 2):
-            if s1.distance(s2) < tol:
-                return False
-        return True
+        if len(self.sites) == 1:
+            return True
+        all_dists = self.distance_matrix[np.triu_indices(len(self), 1)]
+        return bool(np.min(all_dists) > tol)
 
 
 class IStructure(SiteCollection, MSONable):
     """
     Basic immutable Structure object with periodicity. Essentially a sequence
     of PeriodicSites having a common lattice. IStructure is made to be
-    immutable so that they can function as keys in a dict. To make
+    (somewhat) immutable so that they can function as keys in a dict. To make
     modifications, use the standard Structure object instead. Structure
     extends Sequence and Hashable, which means that in many cases,
     it can be used like any Python sequence. Iterating through a
@@ -305,12 +304,13 @@ class IStructure(SiteCollection, MSONable):
         Create a periodic structure.
 
         Args:
-            lattice: The lattice, either as a pymatgen.core.lattice.Lattice or
+            lattice (Lattice/3x3 array): The lattice, either as a
+                :class:`pymatgen.core.lattice.Lattice` or
                 simply as any 2D array. Each row should correspond to a lattice
                 vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
-            species: List of species on each site. Can take in flexible input,
-                including:
+            species ([Specie]): Sequence of species on each site. Can take in
+                flexible input, including:
 
                 i.  A sequence of element / specie specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
@@ -319,7 +319,8 @@ class IStructure(SiteCollection, MSONable):
                 ii. List of dict of elements/species and occupancies, e.g.,
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
-            fractional_coords: list of fractional coordinates of each species.
+            fractional_coords (Nx3 array): list of fractional coordinates of
+                each species.
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 0.01 Ang apart. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
@@ -382,6 +383,15 @@ class IStructure(SiteCollection, MSONable):
                    site_properties=props,
                    validate_proximity=validate_proximity,
                    to_unit_cell=to_unit_cell)
+
+    @property
+    def distance_matrix(self):
+        """
+        Returns the distance matrix between all sites in the structure. For
+        periodic structures, this should return the nearest image distance.
+        """
+        return self.lattice.get_all_distances(self.frac_coords,
+                                              self.frac_coords)
 
     @property
     def sites(self):
@@ -448,9 +458,9 @@ class IStructure(SiteCollection, MSONable):
     @property
     def frac_coords(self):
         """
-        Returns the fractional coordinates.
+        Fractional coordinates as a Nx3 numpy array.
         """
-        return [site.frac_coords for site in self._sites]
+        return np.array([site.frac_coords for site in self._sites])
 
     @property
     def volume(self):
@@ -508,8 +518,8 @@ class IStructure(SiteCollection, MSONable):
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []
-        for fcoord, dist, i in get_points_in_sphere_pbc(self._lattice,
-                                                        site_fcoords, pt, r):
+        for fcoord, dist, i in self._lattice.get_points_in_sphere(
+                site_fcoords, pt, r):
             nnsite = PeriodicSite(self[i].species_and_occu,
                                   fcoord, self._lattice,
                                   properties=self[i].properties)
@@ -573,16 +583,17 @@ class IStructure(SiteCollection, MSONable):
         nmax = [sr * l / (2 * math.pi) for l in recp_len]
         site_nminmax = []
         floor = math.floor
+        inds = (0, 1, 2)
         for site in self:
             pcoords = site.frac_coords
-            inmax = [int(floor(pcoords[i] + nmax[i])) for i in xrange(3)]
-            inmin = [int(floor(pcoords[i] - nmax[i])) for i in xrange(3)]
+            inmax = [int(floor(pcoords[i] + nmax[i])) for i in inds]
+            inmin = [int(floor(pcoords[i] - nmax[i])) for i in inds]
             site_nminmax.append(zip(inmin, inmax))
 
-        nmin = [min([i[j][0] for i in site_nminmax]) for j in xrange(3)]
-        nmax = [max([i[j][1] for i in site_nminmax]) for j in xrange(3)]
+        nmin = [min([i[j][0] for i in site_nminmax]) for j in inds]
+        nmax = [max([i[j][1] for i in site_nminmax]) for j in inds]
 
-        all_ranges = [range(nmin[i], nmax[i] + 1) for i in xrange(3)]
+        all_ranges = [range(nmin[i], nmax[i] + 1) for i in inds]
 
         neighbors = [list() for i in xrange(len(self._sites))]
         all_fcoords = np.mod(self.frac_coords, 1)
@@ -663,15 +674,16 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             site_properties (dict): Properties to add or override. The
-                properties are specified in the same way as the constructor, i.e.,
-                as a dict of the form {property: [values]}. The properties
-                should be in the order of the *original* structure if you
-                are performing sanitization.
+                properties are specified in the same way as the constructor,
+                i.e., as a dict of the form {property: [values]}. The
+                properties should be in the order of the *original* structure
+                if you are performing sanitization.
             sanitize (bool): If True, this method will return a sanitized
-                structure. Sanitization performs a few things: (i) The sites are sorted
-                by electronegativity, (ii) a LLL lattice reduction is carried
-                out to obtain a relatively orthogonalized cell, (iii) all
-                fractional coords for sites are mapped into the unit cell.
+                structure. Sanitization performs a few things: (i) The sites are
+                sorted by electronegativity, (ii) a LLL lattice reduction is
+                carried out to obtain a relatively orthogonalized cell,
+                (iii) all fractional coords for sites are mapped into the
+                unit cell.
 
         Returns:
             A copy of the Structure, with optionally new site_properties and
@@ -711,8 +723,8 @@ class IStructure(SiteCollection, MSONable):
                 structure and end.
             nimages (int): No. of interpolation images. Defaults to 10 images.
             interpolate_lattices (bool): Whether to interpolate the lattices.
-                Interpolates the lengths and angles (rather than the matrix) so orientation may be
-                affected.
+                Interpolates the lengths and angles (rather than the matrix)
+                so orientation may be affected.
             pbc (bool): Whether to use periodic boundary conditions to find
                 the shortest path between endpoints.
 
@@ -1136,7 +1148,7 @@ class IMolecule(SiteCollection, MSONable):
         sites = self._sites
         clusters = [[sites[ind1]], [sites[ind2]]]
 
-        sites = [sites[i] for i in xrange(len(sites)) if i not in (ind1, ind2)]
+        sites = [site for i, site in enumerate(sites) if i not in (ind1, ind2)]
 
         def belongs_to_cluster(site, cluster):
             for test_site in cluster:
@@ -1383,8 +1395,8 @@ class IMolecule(SiteCollection, MSONable):
                     new_coords = np.dot(m, centered_coords.T).T + box_center
                     if len(coords) == 0:
                         break
-                    distances = pbc_all_distances(
-                        lattice, lattice.get_fractional_coords(new_coords),
+                    distances = lattice.get_all_distances(
+                        lattice.get_fractional_coords(new_coords),
                         lattice.get_fractional_coords(coords))
                     if np.amin(distances) > min_dist:
                         break
@@ -1766,7 +1778,8 @@ class Structure(IStructure, collections.MutableSequence):
         symmetries.
 
         Args:
-            distance (float): Distance in angstroms by which to perturb each site.
+            distance (float): Distance in angstroms by which to perturb each
+                site.
         """
         def get_rand_vec():
             #deals with zero vectors.
@@ -2338,7 +2351,9 @@ class FunctionalGroups(dict):
         """
         Loads functional group data from json file. Return list that can be
         easily converted into a Molecule object. The .json file, of course,
-        has to be under the same directory of this function"""
+        has to be under the same directory of this function
+        """
+        dict.__init__(self)
         with open(os.path.join(os.path.dirname(__file__),
                                "func_groups.json")) as f:
             for k, v in json.load(f).items():

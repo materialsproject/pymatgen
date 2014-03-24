@@ -74,6 +74,25 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.4
+------
+1. Bug fix for Pourbaix Maker (Sai).
+2. Streamline use of scratch directories for various calls. Require monty >=
+   0.1.2.
+3. High accuracy mode for Zeo++ (Bharat Medasani).
+
+v2.9.3
+------
+1. Bug fix release for printing TransformedStructures from Substitutor (Will
+   Richards).
+2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+   David Waroquiers and Bharat Medasani).
+
+v2.9.2
+------
+1. Bug fix release for DummySpecie, which failed when deserializing from
+   json and had bad hash function.
+
 v2.9.1
 ------
 1. Structure/Molecule now supports Pythonic list-like API for replacing and
@@ -84,7 +103,7 @@ v2.9.0
 1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
 2. Vastly improved docs.
 3. Refactoring to move commonly used Python utility functions to `Monty
-   package <https://pypi.python.org/pypi/monty>`_, which is now a depedency
+   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
    for pymatgen.
 4. Minor fixes and improvements to DiffusionAnalyzer.
 5. Many bug fixes and improvements.

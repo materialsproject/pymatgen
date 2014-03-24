@@ -618,14 +618,18 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         self.kpoints_settings.update({"kpoints_density": kpoints_density})
         self.sym_prec = sym_prec
 
-    def get_kpoints(self, structure):
+    def get_kpoints(self, structure, primitive_standard=False):
         """
         Get a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
 
         Args:
             structure (Structure/IStructure): structure to get kpoints
+            primitive_standard (Bool): whether the input structure is
+            a primitive standardized cell
         """
+        if not primitive_standard:
+            structure=self.get_poscar(structure).structure
         self.kpoints_settings['grid_density'] = \
             self.kpoints_settings["kpoints_density"] * \
             structure.lattice.reciprocal_lattice.volume * \
@@ -722,7 +726,6 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
             previous_kpoints = vasp_run.kpoints
-            previous_final_structure = vasp_run.final_structure
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
@@ -897,11 +900,11 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         Helper method to get necessary user_incar_settings from previous run.
 
-            Args:
-                vasp_run (Vasprun): Vasprun that contains the final
-                    structure from previous run.
-                outcar (Outcar): Outcar that contains the magnetization info
-                    from previous run.
+        Args:
+            vasp_run (Vasprun): Vasprun that contains the final
+                structure from previous run.
+            outcar (Outcar): Outcar that contains the magnetization info
+                from previous run.
 
         """
         # Turn off spin when magmom for every site is smaller than 0.02.

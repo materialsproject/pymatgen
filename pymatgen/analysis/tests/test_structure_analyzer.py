@@ -84,7 +84,7 @@ class VoronoiConnectivityTest(unittest.TestCase):
         self.assertEqual(site.specie, Element('O'))
         expected = np.array([-0.29158, 0.74889, 0.95684])
         self.assertTrue(np.allclose(site.frac_coords, expected))
-    
+
 
 class MiscFunctionTest(unittest.TestCase):
 

@@ -30,7 +30,21 @@ logger = logging.getLogger('BSPlotter')
 
 class DosPlotter(object):
     """
-    Class for plotting DOSes.
+    Class for plotting DOSs. Note that the interface is extremely flexible
+    given that there are many different ways in which people want to view
+    DOS. The typical usage is::
+
+        # Initializes plotter with some optional args. Defaults are usually
+        # fine,
+        plotter = DosPlotter()
+
+        # Adds a DOS with a label.
+        plotter.add_dos("Total DOS", dos)
+
+        # Alternatively, you can add a dict of DOSs. This is the typical
+        # form returned by CompleteDos.get_spd/element/others_dos().
+        plotter.add_dos_dict({"dos1": dos1, "dos2": dos2})
+        plotter.add_dos_dict(complete_dos.get_spd_dos())
 
     Args:
         zero_at_efermi: Whether to shift all Dos to have zero energy at the

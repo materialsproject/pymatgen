@@ -74,7 +74,7 @@ class InsertSitesTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"species": self._species, "coords": self._coords,
+                "init_args": {"species": self._species, "coords": [list(x) for x in self._coords],
                               "coords_are_cartesian": self._cartesian,
                               "validate_proximity": self._validate_proximity},
                 "@module": self.__class__.__module__,

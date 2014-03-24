@@ -192,7 +192,7 @@ def pprint_table(table, out=sys.stdout, rstrip=False):
 def is_string(s):
     """True if s behaves like a string (duck typing test)."""
     try:
-        dummy = s + " "
+        s + " "
         return True
 
     except TypeError:
@@ -219,19 +219,6 @@ def list_strings(arg):
         return [arg]
     else:
         return arg
-
-
-def remove_non_ascii(s):
-    """
-    Remove non-ascii characters in a file.
-
-    Args:
-        s: Input string
-
-    Returns:
-        String with all non-ascii characters removed.
-    """
-    return "".join(i for i in s if ord(i) < 128)
 
 
 def stream_has_colours(stream):
