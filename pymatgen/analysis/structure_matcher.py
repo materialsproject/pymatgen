@@ -741,8 +741,8 @@ class StructureMatcher(MSONable):
                         total_t = t + t_adj
                         total_t -= np.round(total_t)
                         best_match = val, dist, sc_m, total_t, mapping
-                    if break_on_match and val < self.stol:
-                        return best_match
+                        if (break_on_match or val < 1e-5) and val < self.stol:
+                            return best_match
         if best_match and best_match[0] < self.stol:
             return best_match
 
