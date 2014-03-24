@@ -22,16 +22,16 @@ from pymatgen.analysis.molecule_matcher import IsomorphismMolAtomMapper
 from pymatgen.analysis.molecule_matcher import InchiMolAtomMapper
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
-import openbabel as ob
+try:
+    import openbabel as ob
+except ImportError:
+    ob = None
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",
                         'test_files', "molecules", "molecule_matcher")
 
-ob_methods = dir(ob)
-obalign_missing = False
-if 'OBAlign' not in ob_methods:
-    obalign_missing = True
+obalign_missing = ob is None or 'OBAlign' not in dir(ob)
 
 
 @unittest.skipIf(obalign_missing, "OBAlign is missing, Skipping")
