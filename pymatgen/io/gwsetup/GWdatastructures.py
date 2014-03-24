@@ -527,7 +527,7 @@ class GWConvergenceData():
                               'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}})
         return test_conv(xs, extrapolated, -1, file_name=self.name+'condat')
 
-    def test_full_kp_results(self, tol=0.1):
+    def test_full_kp_results(self, tol=0.5):
         # test if the slopes of the gap data at the full kp mesh are comparable to those of the low kp mesh
         print 'test full kp results'
         self.read_conv_res_from_file(self.name+'.conv_res')
@@ -542,10 +542,11 @@ class GWConvergenceData():
         nb_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[0]][ecs[-1]]) / (nbs[-1] - nbs[0])
         ec_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[-1]][ecs[0]]) / (ecs[-1] - ecs[0])
         print nb_slope, ec_slope
-        lnb = abs(self.conv_res['derivatives']['nbands']) > abs(nb_slope)
-        print abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb
-        lec = abs(self.conv_res['derivatives']['ecuteps']) > abs(ec_slope)
-        print abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec
+        print '          parm_scan          full'
+        lnb = abs(self.conv_res['derivatives']['nbands']) > (1 + tol) * abs(nb_slope)
+        print 'nbands  ', abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb
+        lec = abs(self.conv_res['derivatives']['ecuteps']) > (1 + tol) * abs(ec_slope)
+        print 'ecuteps ', abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec
         if lnb and lec:
             return True
         else:
