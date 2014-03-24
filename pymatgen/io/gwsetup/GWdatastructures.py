@@ -539,8 +539,8 @@ class GWConvergenceData():
         print zd
         # bands sloop:
         print self.conv_res['derivatives']
-        nb_slope = zd[-1][-1] - zd[0][-1] / (nbs[-1] - nbs[0])
-        ec_slope = zd[-1][-1] - zd[-1][0] / (ecs[-1] - ecs[0])
+        nb_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[0]][ecs[-1]]) / (nbs[-1] - nbs[0])
+        ec_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[-1]][ecs[0]]) / (ecs[-1] - ecs[0])
         print nb_slope, ec_slope
         diff = [self.conv_res['derivatives']['nbands'] / nb_slope - 1, self.conv_res['derivatives']['ecuteps'] / ec_slope - 1]
         print diff
