@@ -98,6 +98,18 @@ class MPRester(object):
         """
         self.session.close()
 
+    def get_materials_id_from_task_id(self, task_id):
+        """
+        Returns a new MP materials id from a task id (which can be
+        equivalent to an old materials id)
+
+        Args:
+            task_id (str): A task id.
+        """
+        data = self.mpquery({"task_ids": task_id}, ["task_id"])
+        return data[0]["task_id"]
+
+
     def get_data(self, chemsys_formula_id, data_type="vasp", prop=""):
         """
         Flexible method to get any data using the Materials Project REST

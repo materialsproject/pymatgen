@@ -29,8 +29,8 @@ class LinearAssignment(object):
 
     Args:
         costs: The cost matrix of the problem. cost[i,j] should be the
-            cost of matching x[i] to y[j]. The cost matrix must be
-            square.
+            cost of matching x[i] to y[j]. The cost matrix may be 
+            rectangular
         epsilon: Tolerance for determining if solution vector is < 0
 
     .. attribute: min_cost:
@@ -45,15 +45,23 @@ class LinearAssignment(object):
     """
 
     def __init__(self, costs, epsilon=-1e-6):
-        self.c = np.array(costs)
-        self.n = len(costs)
+        self.orig_c = np.array(costs)
+        self.nx, self.ny = self.orig_c.shape
+        self.n = self.ny
+        
         if epsilon < 0:
             self.epsilon = epsilon
         else:
             raise ValueError("epsilon must be negative")
         #check that cost matrix is square
-        if self.c.shape != (self.n, self.n):
-            raise ValueError("cost matrix is not square")
+        if self.nx > self.ny:
+            raise ValueError("cost matrix must have at least as many columns as rows")
+        
+        if self.nx == self.ny:
+            self.c = self.orig_c
+        else:
+            self.c = np.zeros((self.n, self.n))
+            self.c[:self.nx, :self.ny] = self.orig_c
 
         #initialize solution vectors
         self._x = np.zeros(self.n, dtype=np.int) - 1
@@ -67,8 +75,8 @@ class LinearAssignment(object):
             self._update_cred()
             while np.min(self._x) < self.epsilon:
                 self._augment()
-
-        self.solution = self._x
+        
+        self.solution = self._x[:self.nx]
         self._min_cost = None
 
     @property
@@ -79,7 +87,7 @@ class LinearAssignment(object):
         if self._min_cost:
             return self._min_cost
 
-        self._min_cost = np.sum(self.c[np.arange(len(self.c)), self.solution])
+        self._min_cost = np.sum(self.c[np.arange(self.nx), self.solution])
         return self._min_cost
 
     def _column_reduction(self):

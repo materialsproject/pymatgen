@@ -17,7 +17,6 @@ __date__ = "2/14/13"
 import datetime
 import unittest
 import numpy as np
-import json
 
 from pymatgen import Structure, Molecule
 from pymatgen.matproj.snl import StructureNL, HistoryNode, Author

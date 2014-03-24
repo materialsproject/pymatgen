@@ -26,6 +26,9 @@ import logging
 import numpy as np
 from numpy.linalg import det
 
+from monty.io import zopen
+from monty.os.path import zpath
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
@@ -33,10 +36,9 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.periodic_table import Element
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
-from pymatgen.util.io_utils import clean_lines, zpath
+from pymatgen.util.io_utils import clean_lines
 from pymatgen.serializers.json_coders import MSONable, PMGJSONDecoder
 import pymatgen
-from monty.io import zopen
 
 
 logger = logging.getLogger(__name__)
@@ -384,7 +386,7 @@ class Poscar(MSONable):
             for v in self.predictor_corrector[2:]:
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
-        return "\n".join(lines)
+        return "\n".join(lines) + "\n"
 
     def __str__(self):
         """
@@ -398,7 +400,7 @@ class Poscar(MSONable):
         the Poscar.get_string method and are passed through directly.
         """
         with open(filename, "w") as f:
-            f.write(self.get_string(**kwargs) + "\n")
+            f.write(self.get_string(**kwargs))
 
     @property
     def to_dict(self):
@@ -533,9 +535,9 @@ class Incar(dict):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str_aligned(lines)
+            return str_aligned(lines) + "\n"
         else:
-            return str_delimited(lines, None, " = ")
+            return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
@@ -548,7 +550,7 @@ class Incar(dict):
             filename (str): filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
@@ -1040,7 +1042,7 @@ class Kpoints(MSONable):
             filename (str): Filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style]
@@ -1071,14 +1073,19 @@ class Kpoints(MSONable):
         #Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join([str(x) for x in self.kpts_shift]))
-        return "\n".join(lines)
+        return "\n".join(lines) + "\n"
 
     @property
     def to_dict(self):
         """json friendly dict representation of Kpoints"""
         d = {"comment": self.comment, "nkpoints": self.num_kpts,
              "generation_style": self.style, "kpoints": self.kpts,
-             "usershift": self.kpts_shift}
+             "usershift": self.kpts_shift,
+             "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
+             "labels": self.labels, "tet_number": self.tet_number,
+             "tet_weight": self.tet_weight,
+             "tet_connections": self.tet_connections
+        }
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
@@ -1096,7 +1103,13 @@ class Kpoints(MSONable):
         num_kpts = d.get("nkpoints", 0)
         #coord_type = d.get("coord_type", None)
         return cls(comment=comment, kpts=kpts, style=generation_style,
-                   kpts_shift=kpts_shift, num_kpts=num_kpts)
+                   kpts_shift=kpts_shift, num_kpts=num_kpts,
+                   kpts_weights=d.get("kpts_weights"),
+                   coord_type=d.get("coord_type"),
+                   labels=d.get("labels"), tet_number=d.get("tet_number", 0),
+                   tet_weight=d.get("tet_weight", 0),
+                   tet_connections=d.get("tet_connections")
+        )
 
 
 def get_potcar_dir():
@@ -1147,12 +1160,11 @@ class PotcarSingle(object):
         self.keywords = dict(keypairs)
 
     def __str__(self):
-        return self.data
+        return self.data + "\n"
 
     def write_file(self, filename):
-        writer = open(filename, "w")
-        writer.write(self.__str__() + "\n")
-        writer.close()
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
@@ -1277,7 +1289,7 @@ class Potcar(list):
         return potcar
 
     def __str__(self):
-        return "\n".join([str(potcar).strip("\n") for potcar in self])
+        return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
 
     def write_file(self, filename):
         """
@@ -1287,7 +1299,7 @@ class Potcar(list):
             filename (str): filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     @property
     def symbols(self):
@@ -1402,8 +1414,8 @@ class VaspInput(dict, MSONable):
         sub_d = {}
         for fname, ftype in [("INCAR", Incar), ("KPOINTS", Kpoints),
                              ("POSCAR", Poscar), ("POTCAR", Potcar)]:
-            sub_d[fname.lower()] = ftype.from_file(os.path.join(input_dir,
-                                                                fname))
+            fullzpath = zpath(os.path.join(input_dir, fname))
+            sub_d[fname.lower()] = ftype.from_file(fullzpath)
         sub_d["optional_files"] = {}
         if optional_files is not None:
             for fname, ftype in optional_files.items():

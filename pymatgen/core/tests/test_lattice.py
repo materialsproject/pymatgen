@@ -2,6 +2,7 @@
 
 from __future__ import division
 
+import itertools
 from pymatgen.core.lattice import Lattice
 import numpy as np
 from pymatgen.util.testing import PymatgenTest
@@ -254,6 +255,39 @@ class LatticeTestCase(PymatgenTest):
         with self.assertRaises(ValueError):
             lattice.dot(np.zeros(3), np.zeros(6))
 
+    def test_get_points_in_sphere(self):
+        latt = Lattice.cubic(1)
+        pts = []
+        for a, b, c in itertools.product(xrange(10), xrange(10), xrange(10)):
+            pts.append([a / 10, b / 10, c / 10])
+
+        self.assertEqual(len(latt.get_points_in_sphere(
+            pts, [0, 0, 0], 0.1)), 7)
+        self.assertEqual(len(latt.get_points_in_sphere(
+            pts, [0.5, 0.5, 0.5], 0.5)), 515)
+
+    def test_get_all_distances(self):
+        fcoords = np.array([[0.3, 0.3, 0.5],
+                            [0.1, 0.1, 0.3],
+                            [0.9, 0.9, 0.8],
+                            [0.1, 0.0, 0.5],
+                            [0.9, 0.7, 0.0]])
+        lattice = Lattice.from_lengths_and_angles([8, 8, 4],
+                                                  [90, 76, 58])
+        expected = np.array([[0.000, 3.015, 4.072, 3.519, 3.245],
+                             [3.015, 0.000, 3.207, 1.131, 4.453],
+                             [4.072, 3.207, 0.000, 2.251, 1.788],
+                             [3.519, 1.131, 2.251, 0.000, 3.852],
+                             [3.245, 4.453, 1.788, 3.852, 0.000]])
+        output = lattice.get_all_distances(fcoords, fcoords)
+        self.assertArrayAlmostEqual(output, expected, 3)
+        #test just one input point
+        output2 = lattice.get_all_distances(fcoords[0], fcoords)
+        self.assertArrayAlmostEqual(output2, [expected[0]], 2)
+        #test distance when initial points are not in unit cell
+        f1 = [0, 0, 17]
+        f2 = [0, 0, 10]
+        self.assertEqual(lattice.get_all_distances(f1, f2)[0, 0], 0)
 
 if __name__ == '__main__':
     import unittest

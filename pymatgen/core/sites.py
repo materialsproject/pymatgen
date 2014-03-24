@@ -17,7 +17,7 @@ import collections
 import numpy as np
 
 from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element, Specie, \
+from pymatgen.core.periodic_table import Element, Specie, DummySpecie,\
     get_el_sp
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.util.coord_utils import pbc_diff
@@ -58,10 +58,9 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
-            self._is_ordered = (totaloccu == 1 and len(self._species) == 1)
+            self._is_ordered = totaloccu == 1 and len(self._species) == 1
         else:
-            self._species = Composition(
-                {get_el_sp(atoms_n_occu): 1})
+            self._species = Composition({get_el_sp(atoms_n_occu): 1})
             self._is_ordered = True
 
         self._coords = coords
@@ -218,9 +217,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
-            self.species_string, self._coords[0], self._coords[1],
-            self._coords[2]
-        )
+            self.species_string, *self._coords)
 
     def __cmp__(self, other):
         """
@@ -269,8 +266,13 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
         """
         atoms_n_occu = {}
         for sp_occu in d["species"]:
-            sp = Specie.from_dict(sp_occu) if "oxidation_state" in sp_occu \
-                else Element(sp_occu["element"])
+            if "oxidation_state" in sp_occu and Element.is_valid_symbol(
+                    sp_occu["element"]):
+                sp = Specie.from_dict(sp_occu)
+            elif "oxidation_state" in sp_occu:
+                sp = DummySpecie.from_dict(sp_occu)
+            else:
+                sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         return cls(atoms_n_occu, d["xyz"], properties=props)
@@ -525,8 +527,13 @@ class PeriodicSite(Site, MSONable):
         """
         atoms_n_occu = {}
         for sp_occu in d["species"]:
-            sp = Specie.from_dict(sp_occu) if "oxidation_state" in sp_occu \
-                else Element(sp_occu["element"])
+            if "oxidation_state" in sp_occu and Element.is_valid_symbol(
+                    sp_occu["element"]):
+                sp = Specie.from_dict(sp_occu)
+            elif "oxidation_state" in sp_occu:
+                sp = DummySpecie.from_dict(sp_occu)
+            else:
+                sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = d.get("properties", None)
         lattice = lattice if lattice else Lattice.from_dict(d["lattice"])

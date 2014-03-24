@@ -132,7 +132,20 @@ class SymmOp(MSONable):
         """
         affine_point = np.array([point[0], point[1], point[2], 1])
         return np.dot(self.affine_matrix, affine_point)[0:3]
-
+    
+    def operate_multi(self, points):
+        """
+        Apply the operation on a list of points.
+        
+        Args:
+            points: List of Cartesian coordinates
+        
+        Returns:
+            Numpy array of coordinates after operation
+        """
+        affine_points = np.concatenate([points, np.ones([len(points), 1])], axis=-1)
+        return np.inner(affine_points, self.affine_matrix)[:, :-1]
+        
     def apply_rotation_only(self, vector):
         """
         Vectors should only be operated by the rotation matrix and not the

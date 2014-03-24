@@ -5,7 +5,6 @@ This module implements input and output processing from Nwchem.
 """
 
 from __future__ import division
-import itertools
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -517,6 +516,7 @@ class NwOutput(object):
         coords = []
         errors = []
         basis_set = {}
+        bset_header = []
         parse_geom = False
         parse_freq = False
         parse_bset = False
