@@ -970,11 +970,17 @@ class StructureMatcher(MSONable):
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
         struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, False)
+        ratio = fu if s1_supercell else 1/fu
+
         if not s1_supercell:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
-
-        match = self._match(supercell, struct, fu, s1_supercell=False,
+        
+        if len(supercell) >= len(struct) * ratio:
+            match = self._match(supercell, struct, fu, s1_supercell=False,
+                                use_rms=True, break_on_match=False)
+        else:
+            match = self._match(struct, supercell, fu, s1_supercell=True,
                                 use_rms=True, break_on_match=False)
 
         if match is None:
