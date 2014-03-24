@@ -515,7 +515,12 @@ class GWConvergenceData():
 
     def test_full_kp_results(self, tol=0.005):
         # test if the slopes of the gap data at the full kp mesh are comparable to those of the low kp mesh
-        pass
+
+        diff = 0.1
+        if diff < tol:
+            return True
+        else:
+            return False
 
     def print_gnuplot_line(self, filename):
         string1 = "set output '"+self.name+".jpeg'\n"
