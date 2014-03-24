@@ -315,8 +315,8 @@ class GWSpecs(MSONable):
                     done = True
                 elif data.type['full']:
                     data.read(subset='.conv')
-                    if len(data.data) == 0:
-                        break
+#                    if len(data.data) == 0:
+#                        break
                     if data.test_full_kp_results():
                         data.conv_res['control'].update({'all_done': True})
                         done = True
