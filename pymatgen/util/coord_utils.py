@@ -217,8 +217,7 @@ def pbc_all_distances(lattice, fcoords1, fcoords2):
         2d array of cartesian distances. E.g the distance between
         fcoords1[i] and fcoords2[j] is distances[i,j]
     """
-    return None
-    #return lattice.get_all_distances(fcoords1, fcoords2)
+    return lattice.get_all_distances(fcoords1, fcoords2)
 
 
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2):
@@ -351,8 +350,7 @@ def get_points_in_sphere_pbc(lattice, frac_points, center, r):
         [(fcoord, dist) ...] since most of the time, subsequent processing
         requires the distance.
     """
-    return None
-    #return lattice.get_points_in_sphere(frac_points, center, r)
+    return lattice.get_points_in_sphere(frac_points, center, r)
 
 
 def lattice_points_in_supercell(supercell_matrix):
