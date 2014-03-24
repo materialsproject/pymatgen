@@ -28,7 +28,7 @@ import numpy as np
 from pymatgen.core.periodic_table import Element, Specie
 from monty.io import zopen
 from pymatgen.util.coord_utils import in_coord_list_pbc
-from pymatgen.util.string_utils import remove_non_ascii
+from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition

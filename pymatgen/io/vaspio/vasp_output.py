@@ -31,7 +31,6 @@ import numpy as np
 
 from monty.io import zopen, reverse_readline
 
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 from pymatgen.util.io_utils import clean_lines, micro_pyawk, \
     clean_json
 from pymatgen.core.structure import Structure
@@ -1705,9 +1704,8 @@ class VolumetricData(object):
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
-            sites_dist = get_points_in_sphere_pbc(struct.lattice, coords,
-                                                  struct[ind].coords,
-                                                  radius)
+            sites_dist = struct.lattice.get_points_in_sphere(
+                coords, struct[ind].coords, radius)
             self._distance_matrix[ind] = {"max_radius": radius,
                                           "data": np.array(sites_dist)}
 
