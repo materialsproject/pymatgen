@@ -1,6 +1,6 @@
 """
 Classes for writing GW Input and analizing GW data. The undelying classe can handle the use of VASP and ABINIT
-Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name
+Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
 """
 
 from __future__ import division
@@ -66,6 +66,9 @@ class GWSpecs(MSONable):
     def get_npar(self, structure):
         return MPGWG0W0VaspInputSet(structure, self).get_npar(structure)
 
+    def get_code(self):
+        return self['code']
+
     def write_to_file(self, filename):
         f = open(filename, mode='w')
         f.write(str(self.to_dict()))
@@ -79,15 +82,6 @@ class GWSpecs(MSONable):
         except OSError:
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
-
-    def reset_job_collection(self):
-        if 'ceci' in self.data['mode']:
-            if os.path.isfile('job_collection'):
-                os.remove('job_collection')
-            if 'ABINIT' in self.data['code']:
-                job_file = open('job_collection', mode='w')
-                job_file.write('module load abinit \n')
-                job_file.close()
 
     def update_interactive(self):
         """
@@ -139,10 +133,10 @@ class GWSpecs(MSONable):
                 print 'undefined key'
         self.data['functional'] = self.data['functional'].upper()
 
-    def get_code(self):
-        return self['code']
-
     def test(self):
+        """
+        test if there are inherent errors in the input
+        """
         if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
             self.errors.append('unspecified mode')
         if self.data['code'] == 'VASP':
@@ -295,6 +289,14 @@ class GWSpecs(MSONable):
             fw_work_flow.add_work(parameters)
 
     def process_data(self, structure):
+        """
+        Process the data of a set of GW calculations:
+        for 'single' and 'test' calculations the data is read and outputted
+        for the parameter scanning part of a convergence calculation the data is read and parameters that provide
+        converged results are determined
+        for the 'full' part of a convergence calculation the data is read and it is tested if the slopes are in
+        agreement with the scanning part
+        """
         data = GWConvergenceData(spec=self, structure=structure)
         if self.data['converge']:
             done = False
@@ -343,6 +345,9 @@ class GWSpecs(MSONable):
     def loop_structures(self, mode='i'):
         """
         reading the structures specified in spec, add special points, and excecute the specs
+        mode:
+        i: loop structures for input generation
+        o: loop structures for output parsing
         """
 
         mp_key = os.environ['MP_KEY']
@@ -394,6 +399,15 @@ class GWSpecs(MSONable):
         if 'ceci' in self.data['mode'] and mode == 'i':
             os.chmod("job_collection", stat.S_IRWXU)
 
+    def reset_job_collection(self):
+        if 'ceci' in self.data['mode']:
+            if os.path.isfile('job_collection'):
+                os.remove('job_collection')
+            if 'ABINIT' in self.data['code']:
+                job_file = open('job_collection', mode='w')
+                job_file.write('module load abinit \n')
+                job_file.close()
+
 
 class GWConvergenceData():
     """
@@ -408,6 +422,9 @@ class GWConvergenceData():
         self.type = {'parm_scr': False, 'full': False, 'single': False, 'test': False}
 
     def read_conv_res_from_file(self, filename):
+        """
+        Read the results of a previous paramert screening set of calculations from file
+        """
         try:
             f = open(filename, mode='r')
             self.conv_res = ast.literal_eval(f.read())
@@ -417,6 +434,11 @@ class GWConvergenceData():
             exit()
 
     def read(self, subset=''):
+        """
+        Read the G-G gaps from a GW calculation ABINIT / VASP.
+        subset: read from System.subset (the . 'dot' should be included in subset)
+        Data is placed in self.data, combined with the values of key parameters
+        """
         if self.spec['code'] == 'ABINIT':
             read_next = True
             n = 3
@@ -449,6 +471,13 @@ class GWConvergenceData():
                             pass
 
     def set_type(self):
+        """
+        determine the type of data we are looking at.
+        single   : Single calculation with standard parameters
+        test     : Test calculation, results of a set of calculations specified in TESTS
+        parm_scr : Convergence calculation first part, screening the parameters nbands and ecuteps at a low kp density
+        full     : Convergence calculation second part, testing the obtained parameters values at the provided kp density
+        """
         name = self.name
         if self.spec['converge']:
             if os.path.isdir(name) and not os.path.isdir(name+'.conv'):
@@ -473,14 +502,12 @@ class GWConvergenceData():
             self.type['single'] = True
         print name, self.type
 
-    def get_var_range(self, var):
-        var_range = []
-        for data_point in self.data.values():
-            if data_point[var] not in var_range:
-                var_range.append(data_point[var])
-        return sorted(var_range)
-
     def find_conv_pars(self, tol=0.0001):
+        """
+        find the pair of smallest values of ecuteps and nbands that give a gamma - gamma gap converged within tol
+        positive tol ensures the dirivative is smaller than tol
+        negative tol ensures the value is closer than -tol to the assymtotic limmit of a 'A + B / x ^ N' fit
+        """
         ecuteps_l = False
         nbands_l = False
         ecuteps_c = 0
@@ -528,7 +555,9 @@ class GWConvergenceData():
         return test_conv(xs, extrapolated, -1, file_name=self.name+'condat')
 
     def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
-        # test if the slopes of the gap data at the full kp mesh are comparable to those of the low kp mesh
+        """
+        test if the slopes of the gap data at the full kp mesh are 'comparable' to those of the low kp mesh
+        """
         print 'test full kp results'
         self.read_conv_res_from_file(self.name+'.conv_res')
         nbs = self.get_var_range('nbands')
@@ -545,18 +574,6 @@ class GWConvergenceData():
             return True
         else:
             return False
-
-    def print_gnuplot_line(self, filename):
-        string1 = "set output '"+self.name+".jpeg'\n"
-        if self.conv_res['control']['nbands']:
-            string2 = "splot '"+self.name+".data' u 1:2:3 w pm3d, '< echo "+'" '+str(self.conv_res['values']['nbands'])
-            string2 = string2+' '+str(self.conv_res['values']['ecuteps'])+' '+str(self.conv_res['values']['gap'])+' "'+"' w p\n"
-        else:
-            string2 = "splot '"+self.name+".data' u 1:2:3 w pm3d\n"
-        f = open(filename, mode='a')
-        f.write(string1)
-        f.write(string2)
-        f.close()
 
     def get_sorted_data_list(self):
         data_list = []
@@ -576,7 +593,32 @@ class GWConvergenceData():
                 data_array.update({self.data[k]['nbands']: {self.data[k]['ecuteps']: self.data[k]['gwgap']}})
         return data_array
 
+    def get_var_range(self, var):
+        var_range = []
+        for data_point in self.data.values():
+            if data_point[var] not in var_range:
+                var_range.append(data_point[var])
+        return sorted(var_range)
+
+    def print_gnuplot_line(self, filename):
+        """
+        print plotting instructions for plotting the G-G gap data
+        """
+        string1 = "set output '"+self.name+".jpeg'\n"
+        if self.conv_res['control']['nbands']:
+            string2 = "splot '"+self.name+".data' u 1:2:3 w pm3d, '< echo "+'" '+str(self.conv_res['values']['nbands'])
+            string2 = string2+' '+str(self.conv_res['values']['ecuteps'])+' '+str(self.conv_res['values']['gap'])+' "'+"' w p\n"
+        else:
+            string2 = "splot '"+self.name+".data' u 1:2:3 w pm3d\n"
+        f = open(filename, mode='a')
+        f.write(string1)
+        f.write(string2)
+        f.close()
+
     def print_plot_data(self):
+        """
+        print the gap data in a way for 3d plotting using gnuplot to file
+        """
         data_file = self.name + '.data'
         f = open(data_file, mode='w')
         try:
@@ -609,6 +651,10 @@ class GWConvergenceData():
         '''
 
     def print_conv_res(self):
+        """
+        print the results of a paramter screening calculation to file
+        this file is later used in a subsequent 'full' calculation to perform the calculations at a higher kp-mesh
+        """
         print self.conv_res['control']['nbands']
         if self.conv_res['control']['nbands']:
             filename = self.name + '.conv_res'
