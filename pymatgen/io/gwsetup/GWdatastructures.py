@@ -317,7 +317,6 @@ class GWSpecs(MSONable):
                     data.read(subset='.conv')
                     if data.test_full_kp_results():
                         data.conv_res['control'].update({'all_done': True})
-                        data.print_conv_res()
                         done = True
                         data.print_plot_data()
                     else:
@@ -420,6 +419,7 @@ class GWConvergenceData():
             while read_next:
                 output = os.path.join(self.name + subset,  'work_0', 'task_' + str(n), 'outdata', 'out_SIGRES.nc')
                 if os.path.isfile(output):
+                    print n
                     n += 1
                     data = NetcdfReader(output)
                     data.print_tree()
