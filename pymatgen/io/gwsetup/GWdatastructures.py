@@ -542,10 +542,11 @@ class GWConvergenceData():
         nb_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[0]][ecs[-1]]) / (nbs[-1] - nbs[0])
         ec_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[-1]][ecs[0]]) / (ecs[-1] - ecs[0])
         print nb_slope, ec_slope
-        diff = [abs(self.conv_res['derivatives']['nbands']) - abs(nb_slope),
-                abs(self.conv_res['derivatives']['ecuteps']) - abs(ec_slope)]
-        print diff
-        if abs(diff[0]) < tol*abs(self.conv_res['derivatives']['nbands']) and abs(diff[1]) < tol*abs(self.conv_res['derivatives']['nbands']):
+        lnb = abs(self.conv_res['derivatives']['nbands']) > abs(nb_slope)
+        print abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb
+        lec = abs(self.conv_res['derivatives']['ecuteps']) > abs(ec_slope)
+        print abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec
+        if lnb and lec:
             return True
         else:
             return False
