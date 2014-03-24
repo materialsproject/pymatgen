@@ -315,6 +315,8 @@ class GWSpecs(MSONable):
                     done = True
                 elif data.type['full']:
                     data.read(subset='.conv')
+                    if len(data.data) == 0:
+                        break
                     if data.test_full_kp_results():
                         data.conv_res['control'].update({'all_done': True})
                         done = True
@@ -420,7 +422,6 @@ class GWConvergenceData():
                 output = os.path.join(self.name + subset,  'work_0', 'task_' + str(n), 'outdata', 'out_SIGRES.nc')
                 if os.path.isfile(output):
                     print n
-                    n += 1
                     data = NetcdfReader(output)
                     data.print_tree()
                     self.data.update({n: {'ecuteps': Ha_to_eV * data.read_value('ecuteps'), 'nbands': data.read_value('sigma_nband'), 'gwgap': data.read_value('egwgap')[0][0]}})
@@ -529,7 +530,8 @@ class GWConvergenceData():
         print 'test full kp results'
         self.read_conv_res_from_file(self.name+'.conv_res')
         print self.conv_res['derivatives']
-        print self.data
+        sorted_list = self.get_sorted_data_list()
+        print sorted_list
         diff = 0.001
         if diff < tol:
             return True
