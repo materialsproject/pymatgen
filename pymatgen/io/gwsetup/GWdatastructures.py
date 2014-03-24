@@ -532,8 +532,12 @@ class GWConvergenceData():
         print 'test full kp results'
         self.read_conv_res_from_file(self.name+'.conv_res')
         print self.conv_res['derivatives']
-        sorted_list = self.get_sorted_data_list()
-        print sorted_list
+        xs = self.get_var_range('nbands')
+        ys = self.get_var_range('ecuteps')
+        zd = self.get_data_array()
+        print xs
+        print ys
+        print zd
         diff = 0.001
         if diff < tol:
             return True
