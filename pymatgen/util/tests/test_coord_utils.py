@@ -13,14 +13,12 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Apr 25, 2012"
 
-import itertools
-
 import numpy as np
 from pymatgen.core.lattice import Lattice
 from pymatgen.util.coord_utils import get_linear_interpolated_value,\
     in_coord_list, is_coord_subset, pbc_diff, in_coord_list_pbc,\
-    get_points_in_sphere_pbc, find_in_coord_list, find_in_coord_list_pbc,\
-    pbc_all_distances, barycentric_coords, pbc_shortest_vectors,\
+    find_in_coord_list, find_in_coord_list_pbc,\
+    barycentric_coords, pbc_shortest_vectors,\
     lattice_points_in_supercell, coord_list_mapping, all_distances,\
     is_coord_subset_pbc, coord_list_mapping_pbc
 from pymatgen.util.testing import PymatgenTest
