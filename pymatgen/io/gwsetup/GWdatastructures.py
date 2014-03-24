@@ -527,7 +527,7 @@ class GWConvergenceData():
     def test_full_kp_results(self, tol=0.005):
         # test if the slopes of the gap data at the full kp mesh are comparable to those of the low kp mesh
         print 'test full kp results'
-        self.read_conv_res_from_file(self.name+'.conv')
+        self.read_conv_res_from_file(self.name+'.conv_res')
         print self.conv_res['derivatives']
         print self.data
         diff = 0.001
