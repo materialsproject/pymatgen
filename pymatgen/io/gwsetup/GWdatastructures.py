@@ -534,14 +534,8 @@ class GWConvergenceData():
         nbs = self.get_var_range('nbands')
         ecs = self.get_var_range('ecuteps')
         zd = self.get_data_array()
-        print nbs
-        print ecs
-        print zd
-        # bands sloop:
-        print self.conv_res['derivatives']
         nb_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[0]][ecs[-1]]) / (nbs[-1] - nbs[0])
         ec_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[-1]][ecs[0]]) / (ecs[-1] - ecs[0])
-        print nb_slope, ec_slope
         print '          parm_scan          full'
         lnb = abs(self.conv_res['derivatives']['nbands']) > (1 + tol) * abs(nb_slope)
         print 'nbands  ', abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb
