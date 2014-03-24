@@ -34,8 +34,7 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.core.sites import Site, PeriodicSite
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc, get_angle, \
-    pbc_all_distances, all_distances
+from pymatgen.util.coord_utils import get_angle, all_distances
 from monty.design_patterns import singleton
 from pymatgen.core.units import Mass, Length
 from monty.dev import deprecated
@@ -391,8 +390,8 @@ class IStructure(SiteCollection, MSONable):
         Returns the distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
-        return pbc_all_distances(self.lattice, self.frac_coords,
-                                 self.frac_coords)
+        return self.lattice.get_all_distances(self.frac_coords,
+                                              self.frac_coords)
 
     @property
     def sites(self):
@@ -519,8 +518,8 @@ class IStructure(SiteCollection, MSONable):
         """
         site_fcoords = np.mod(self.frac_coords, 1)
         neighbors = []
-        for fcoord, dist, i in get_points_in_sphere_pbc(self._lattice,
-                                                        site_fcoords, pt, r):
+        for fcoord, dist, i in self._lattice.get_points_in_sphere(
+                site_fcoords, pt, r):
             nnsite = PeriodicSite(self[i].species_and_occu,
                                   fcoord, self._lattice,
                                   properties=self[i].properties)
@@ -1396,8 +1395,8 @@ class IMolecule(SiteCollection, MSONable):
                     new_coords = np.dot(m, centered_coords.T).T + box_center
                     if len(coords) == 0:
                         break
-                    distances = pbc_all_distances(
-                        lattice, lattice.get_fractional_coords(new_coords),
+                    distances = lattice.get_all_distances(
+                        lattice.get_fractional_coords(new_coords),
                         lattice.get_fractional_coords(coords))
                     if np.amin(distances) > min_dist:
                         break
