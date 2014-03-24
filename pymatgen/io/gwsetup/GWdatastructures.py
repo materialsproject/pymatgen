@@ -531,15 +531,20 @@ class GWConvergenceData():
         # test if the slopes of the gap data at the full kp mesh are comparable to those of the low kp mesh
         print 'test full kp results'
         self.read_conv_res_from_file(self.name+'.conv_res')
-        print self.conv_res['derivatives']
-        xs = self.get_var_range('nbands')
-        ys = self.get_var_range('ecuteps')
+        nbs = self.get_var_range('nbands')
+        ecs = self.get_var_range('ecuteps')
         zd = self.get_data_array()
-        print xs
-        print ys
+        print nbs
+        print ecs
         print zd
-        diff = 0.001
-        if diff < tol:
+        # bands sloop:
+        print self.conv_res['derivatives']
+        nb_slope = zd[-1][-1] - zd[0][-1] / (nbs[-1] - nbs[0])
+        ec_slope = zd[-1][-1] - zd[-1][0] / (ecs[-1] - ecs[0])
+        print nb_slope, ec_slope
+        diff = [self.conv_res['derivatives']['nbands'] / nb_slope - 1, self.conv_res['derivatives']['ecuteps'] / ec_slope - 1]
+        print diff
+        if abs(diff[0]) < tol and abs(diff[1]) < tol:
             return True
         else:
             return False
