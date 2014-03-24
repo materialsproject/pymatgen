@@ -387,7 +387,8 @@ class GWSpecs(MSONable):
             if mode == 'i':
                 self.excecute_flow(structure)
             elif mode == 'o':
-                self.process_data(structure)
+                if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
+                    self.process_data(structure)
 
         if 'ceci' in self.data['mode'] and mode == 'i':
             os.chmod("job_collection", stat.S_IRWXU)
