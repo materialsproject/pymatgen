@@ -222,6 +222,8 @@ class SingleAbinitGWWorkFlow():
 
         extra_abivars = dict(
             ecut=[ecut],
+            gwpara=2,
+            gwmem=11,
             getden=-1,
             istwfk="*1",
             timopt=-1,
