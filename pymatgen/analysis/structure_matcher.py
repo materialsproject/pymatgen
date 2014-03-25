@@ -595,7 +595,7 @@ class StructureMatcher(MSONable):
 
         #find the best translation index
         i = np.argmax(np.sum(mask, axis=-1))
-        return mask, np.where(mask[i] == False)[0], i
+        return mask, np.where(np.invert(mask[i]))[0], i
 
     def fit(self, struct1, struct2):
         """
