@@ -1,5 +1,5 @@
 """
-Helper modules for generating gw input / workflows.
+Helper methods for generating gw input / and work flows.
 """
 
 from __future__ import division
@@ -73,6 +73,9 @@ def get_derivatives(xs, ys):
 
 
 def reciprocal(x, a, b, n):
+    """
+    reciprocal function to the power n to fit convergence data
+    """
     import numpy as np
     if n < 1:
         n = 1
@@ -93,7 +96,7 @@ def reciprocal(x, a, b, n):
 
 def p0reci(xs, ys):
     """
-    predictor for first gues
+    predictor for first guess for reciprocal
     """
     a0 = ys[len(ys) - 1]
     b0 = ys[0]*xs[0] - a0*xs[0]
