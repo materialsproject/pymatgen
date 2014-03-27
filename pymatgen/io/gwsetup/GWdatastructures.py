@@ -389,7 +389,7 @@ class GWSpecs(MSONable):
                     structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
             else:
                 next(item)
-            print "/n", item, s_name(structure)
+            print "\n", item, s_name(structure)
             if mode == 'i':
                 self.excecute_flow(structure)
             elif mode == 'o':
