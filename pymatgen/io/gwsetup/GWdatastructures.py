@@ -409,7 +409,6 @@ class GWSpecs(MSONable):
                 job_file.close()
 
 
-
 class GWConvergenceData():
     """
     Class for GW data, reading, plotting and testing for convergence
@@ -501,7 +500,6 @@ class GWConvergenceData():
             self.type['test'] = True
         else:
             self.type['single'] = True
-        print name, self.type
 
     def find_conv_pars(self, tol=0.0001):
         """
