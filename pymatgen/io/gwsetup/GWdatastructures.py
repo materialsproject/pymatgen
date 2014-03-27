@@ -568,9 +568,9 @@ class GWConvergenceData():
         ec_slope = (zd[nbs[-1]][ecs[-1]] - zd[nbs[-1]][ecs[0]]) / (ecs[-1] - ecs[0])
         print '          parm_scan          full'
         lnb = abs(nb_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['nbands']) and abs(nb_slope) < tol_abs
-        print 'nbands  %0.5f %0.5f %r' % abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb
+        print 'nbands  %0.5f %0.5f %r' % (abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb)
         lec = abs(ec_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['ecuteps']) and abs(ec_slope) < tol_abs
-        print 'ecuteps %0.5f %0.5f %r' % abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec
+        print 'ecuteps %0.5f %0.5f %r' % (abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec)
         if lnb and lec:
             return True
         else:
