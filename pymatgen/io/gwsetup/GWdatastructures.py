@@ -409,6 +409,7 @@ class GWSpecs(MSONable):
                 job_file.close()
 
 
+
 class GWConvergenceData():
     """
     Class for GW data, reading, plotting and testing for convergence
@@ -604,12 +605,13 @@ class GWConvergenceData():
         """
         print plotting instructions for plotting the G-G gap data
         """
-        string1 = "set output '"+self.name+".jpeg'\n"
+        string1 = "%s%s%s" % ("set output '", self.name, ".jpeg'\n")
         if self.conv_res['control']['nbands']:
-            string2 = "splot '"+self.name+".data' u 1:2:3 w pm3d, '< echo "+'" '+str(self.conv_res['values']['nbands'])
-            string2 = string2+' '+str(self.conv_res['values']['ecuteps'])+' '+str(self.conv_res['values']['gap'])+' "'+"' w p\n"
+            string2 = "%s%s%s%s%s%s%s%s%s%s%s" % ("splot '", self.name, ".data' u 1:2:3 w pm3d, '< echo ", '" ',
+                       str(self.conv_res['values']['nbands']), ' ', str(self.conv_res['values']['ecuteps']), ' ',
+                       str(self.conv_res['values']['gap']), ' "', "' w p\n")
         else:
-            string2 = "splot '"+self.name+".data' u 1:2:3 w pm3d\n"
+            string2 = "%s%s%s" % ("splot '", self.name, ".data' u 1:2:3 w pm3d\n")
         f = open(filename, mode='a')
         f.write(string1)
         f.write(string2)
@@ -631,9 +633,9 @@ class GWConvergenceData():
                 f.write('\n')
             tmp = data[0]
             if self.spec['code'] == 'VASP':
-                f.write(str(data[0]) + ' ' + str(data[1]) + ' ' + str(data[2]) + ' ' + str(data[3]) + '\n')
+                f.write('%10.5f %10.5f %10.5f %10.5f \n' % (data[0], data[1], data[2], data[3]))
             else:
-                f.write(str(data[0]) + ' ' + str(data[1]) + ' ' + str(data[2]) + '\n')
+                f.write('%10.5f %10.5f %10.5f \n' % (data[0], data[1], data[2]))
         f.close()
 
         '''
