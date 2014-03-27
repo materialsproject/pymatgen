@@ -124,6 +124,8 @@ class SingleAbinitGWWorkFlow():
             pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
             pseudos.append(pseudo)
         self.pseudo_table = PseudoTable(pseudos)
+        print self.pseudo_table
+        print self.pseudo_table.keys()
 
     @classmethod
     def get_defaults_tests(cls):
