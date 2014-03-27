@@ -1147,7 +1147,7 @@ class SelfEnergy(AbivarAble):
     }
 
     def __init__(self, se_type, sc_mode, nband, ecutsigx, screening,
-                 gw_qprange=1, ppmodel=None, ecuteps=None, ecutwfn=None):
+                 gw_qprange=1, ppmodel=None, ecuteps=None, ecutwfn=None, gwpara=2):
         """
         Args:
             se_type:
@@ -1183,6 +1183,7 @@ class SelfEnergy(AbivarAble):
         self.ecutsigx  = ecutsigx
         self.screening = screening
         self.gw_qprange = gw_qprange
+        self.gwpara = gwpara
 
         if ppmodel is not None:
             assert not screening.use_hilbert
@@ -1240,6 +1241,7 @@ class SelfEnergy(AbivarAble):
             ecutsigx=self.ecutsigx,
             symsigma=self.symsigma,
             gw_qprange=self.gw_qprange,
+            gwpara=self.gwpara
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,
