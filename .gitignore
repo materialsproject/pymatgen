@@ -20,3 +20,7 @@ setuptools*
 .ipynb_checkpoints
 
 gulptmp_4_1
+
+distribute-0.6.34-py2.7.egg
+
+distribute-0.6.34.tar.gz

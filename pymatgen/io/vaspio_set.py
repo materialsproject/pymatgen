@@ -756,6 +756,9 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
                 for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
                     previous_incar.update({tag: new_incar[tag]})
+            # ensure to have LMAXMIX for GGA+U static run
+            if "LMAXMIX" not in previous_incar:
+                previous_incar.update({"LMAXMIX": new_incar["LMAXMIX"]})
 
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
@@ -930,7 +933,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
-                               mode="Uniform", user_incar_settings=None,
+                               mode="Uniform", user_incar_settings={},
                                copy_chgcar=True, make_dir_if_not_present=True):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
@@ -957,15 +960,15 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
+            previous_incar = vasp_run.incar
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar)
-        user_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
-                                                                      outcar)
-        mpnscfvip = MPNonSCFVaspInputSet(user_incar_settings, mode)
+        nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run, outcar)
+        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
             try:
@@ -976,6 +979,13 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 
+        #Overwrite necessary INCAR parameters from previous runs
+        previous_incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001, "LCHARG": False,
+             "LORBIT": 11, "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
+        previous_incar.update(nscf_incar_settings)
+        previous_incar.update(user_incar_settings)
+        previous_incar.pop("MAGMOM", None)
+        previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
