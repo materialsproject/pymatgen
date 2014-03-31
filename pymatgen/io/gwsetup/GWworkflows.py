@@ -124,8 +124,6 @@ class SingleAbinitGWWorkFlow():
             pseudo = os.path.join(abi_pseudo_dir, str(element) + abi_pseudo)
             pseudos.append(pseudo)
         self.pseudo_table = PseudoTable(pseudos)
-        print self.pseudo_table
-        print self.pseudo_table.keys()
 
     @classmethod
     def get_defaults_tests(cls):
@@ -171,8 +169,9 @@ class SingleAbinitGWWorkFlow():
         create single abinit G0W0 flow
         """
         manager = 'slurm' if 'ceci' in self.spec['mode'] else 'shell'
-
-        abi_structure = asabistructure(self.structure)
+        # an AbiStructure object has an overwritten version of get_sorted_structure that sorts according to Z
+        # this could also be pulled into the constructor of Abistructure
+        abi_structure = asabistructure(self.structure).get_sorted_structure()
         manager = TaskManager.from_user_config()
         # Initialize the flow.
         # FIXME
@@ -224,7 +223,6 @@ class SingleAbinitGWWorkFlow():
 
         extra_abivars = dict(
             ecut=[ecut],
-         #   gwpara=2,
             gwmem=11,
             getden=-1,
             istwfk="*1",

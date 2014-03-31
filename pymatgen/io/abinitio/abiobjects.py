@@ -399,6 +399,14 @@ class AbiStructure(Structure, AbivarAble):
         """
         return cls.boxed_molecule([pseudo], cart_coords, acell=acell)
 
+    def get_sorted_structure(self):
+        """
+        orders the structure according to increasing Z of the elements
+        """
+        sites = sorted(self.sites, key=lambda site: site.specie.Z)
+        structure = Structure.from_sites(sites)
+        return AbiStructure(structure)
+
     def to_abivars(self):
         "Returns a dictionary with the abinit variables."
         types_of_specie = self.types_of_specie

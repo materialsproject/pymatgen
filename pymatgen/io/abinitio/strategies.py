@@ -41,6 +41,8 @@ def select_pseudos(pseudos, structure, ret_table=True):
                                                                              
         pseudos.append(pseudos_for_type[0])
 
+    print('       in select pseudos : ',  pseudos)
+
     if ret_table:
         return PseudoTable(pseudos)
     else:
@@ -48,6 +50,7 @@ def select_pseudos(pseudos, structure, ret_table=True):
 
 
 def order_pseudos(pseudos, structure):
+    print('calling order pseudos')
     return select_pseudos(pseudos, structure, ret_table=False)
 
 
@@ -699,6 +702,7 @@ class InputWriter(object):
 
         # Write the Abinit objects first.
         for obj in self.abiobjects:
+#            print(obj)
             app([80*"#", ""])
             app(["#", "%s" % obj.__class__.__name__])
             app([80*"#", ""])
