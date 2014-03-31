@@ -1993,7 +1993,6 @@ class AbinitTask(Task):
         # Paths to the pseudopotential files.
         # Note that here the pseudos **must** be sorted according to znucl.
         for pseudo in self.pseudos:
-            print('adding', pseudo)
             app(pseudo.path)
 
         return "\n".join(lines)

@@ -41,8 +41,6 @@ def select_pseudos(pseudos, structure, ret_table=True):
                                                                              
         pseudos.append(pseudos_for_type[0])
 
-    print('       in select pseudos : ',  pseudos)
-
     if ret_table:
         return PseudoTable(pseudos)
     else:
