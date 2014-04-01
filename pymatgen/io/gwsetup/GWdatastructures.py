@@ -695,7 +695,7 @@ class GWConvergenceData():
         print the results of a paramter screening calculation to file
         this file is later used in a subsequent 'full' calculation to perform the calculations at a higher kp-mesh
         """
-        print self.conv_res['control']['nbands']
+        # print self.conv_res['control']['nbands']
         if self.conv_res['control']['nbands'] or True:
             filename = self.name + '.conv_res'
             f = open(filename, mode='w')
