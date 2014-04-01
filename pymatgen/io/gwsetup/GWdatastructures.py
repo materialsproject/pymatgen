@@ -302,45 +302,57 @@ class GWSpecs(MSONable):
         data = GWConvergenceData(spec=self, structure=structure)
         if self.data['converge']:
             done = False
+            try:
+                data.read_full_res_from_file()
+                if data.full_res['all_done']:
+                    done = True
+            except (IOError, OSError, SyntaxError):
+                pass
+
             data.set_type()
             while not done:
                 if data.type['parm_scr']:
                     data.read()
                     # determine the parameters that give converged results
                     extrapolated = data.find_conv_pars(self['tol'])
-                    print data.conv_res
-                    print extrapolated[4]
-                    if not data.conv_res['control']['nbands']:
-                        data.conv_res['control']['grid'] += 1
+                    # if converged ok, if not increase the grid parameter of the next set of calculations
+                    if data.conv_res['control']['nbands']:
+                        print '| parm_scr type calculation, converged values found, extrapolated value: ' + extrapolated[4]
+                    else:
+                        print '| parm_scr type calculation, no converged values found, increasing grid'
+                        data.full_res['control']['grid'] += 1
+                    data.print_full_res()
                     data.print_conv_res()
-                    print_gnuplot_header('plots', structure.composition.reduced_formula+' tol = '+str(self['tol']))
+                    # plot data:
+                    print_gnuplot_header('plots', s_name(structure)+' tol = '+str(self['tol']))
                     data.print_gnuplot_line('plots')
                     data.print_plot_data()
                     done = True
                 elif data.type['full']:
                     if not os.path.isfile(s_name(structure)+'.conv_res'):
-                        print 'full type calculation but the conv_res file is not available, trying to reconstruct'
+                        print '| Full type calculation but the conv_res file is not available, trying to reconstruct'
                         data.read()
-                        print data.data
                         data.find_conv_pars(self['tol'])
-                        print data.print_conv_res()
                         data.print_conv_res()
                     data.read(subset='.conv')
                     if len(data.data) == 0:
+                        print '| Full type calculation but no data found.'
                         break
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
-                        data.conv_res['control'].update({'all_done': True})
-                        data.print_conv_res()
-                        print 'test full kp ok'
+                        print '| Full type calculation and the full results agree with the parm_scr. All_done for this compound.'
+                        data.full_res['control'].update({'all_done': True})
+                        data.print_full_res()
                         done = True
                         data.print_plot_data()
                     else:
+                        print '| Full type calculation but the full results do not agree with the parm_scr.'
+                        print '|   Increase the tol to find beter converged parameters and test the full grid again.'
+                        print '|   TODO'
                         # read the system specific tol for Sytem.conv_res
                         # if it's not there create it from the global tol
                         # reduce tol
                         # set data.type to convergence
                         # loop
-                        print 'test full kp not ok'
                         done = True
                         pass
         elif self.data['test']:
@@ -427,7 +439,8 @@ class GWConvergenceData():
         self.structure = structure
         self.spec = spec
         self.data = {}
-        self.conv_res = {'control': {'grid': 0}}
+        self.conv_res = {}
+        self.full_res = {'all_done': False, 'control': {'grid': 0}}
         self.name = s_name(structure)
         self.type = {'parm_scr': False, 'full': False, 'single': False, 'test': False}
 
@@ -441,7 +454,21 @@ class GWConvergenceData():
             f.close()
         except SyntaxError:
             print 'Problems reading ', filename
+        except (OSError, IOError):
+            print 'Inputfile ', filename, ' not found exiting.'
+            exit()
 
+    def read_full_res_from_file(self):
+        """
+        Read the results of a full set of calculations from file
+        """
+        filename = self.name+'.full_res'
+        try:
+            f = open(filename, mode='r')
+            self.full_res = ast.literal_eval(f.read())
+            f.close()
+        except SyntaxError:
+            print 'Problems reading ', filename
         except (OSError, IOError):
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
@@ -687,3 +714,14 @@ class GWConvergenceData():
             string += '}'
             f.write(string)
             f.close()
+
+    def print_full_res(self):
+        """
+        print the results of full calculation to fiule
+        """
+        print self.full_res
+        filename = self.name + '.full_res'
+        f = open(filename, mode='w')
+        string = str(self.full_res)
+        f.write(string)
+        f.close()
