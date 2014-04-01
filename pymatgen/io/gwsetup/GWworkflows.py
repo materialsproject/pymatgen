@@ -228,7 +228,7 @@ class SingleAbinitGWWorkFlow():
             istwfk="*1",
             timopt=-1,
             pawecutdg=ecut*2,
-            paral_kgb=1,
+            paral_kgb=0,
             nbdbuf=8
         )
 
