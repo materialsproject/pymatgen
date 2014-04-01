@@ -158,7 +158,8 @@ class GWSpecs(MSONable):
             self.warnings.append('only real converging in fw mode, for other modes ALL convergence steps are created')
         if len(self.errors) > 0:
             print str(len(self.errors)) + ' error(s) found:'
-            print self.errors
+            for error in self.errors:
+                print error
             exit()
         if len(self.warnings) > 0:
             print str(len(self.warnings)) + ' warning(s) found:'
