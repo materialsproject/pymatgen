@@ -317,7 +317,7 @@ class GWSpecs(MSONable):
                     extrapolated = data.find_conv_pars(self['tol'])
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     if data.conv_res['control']['nbands']:
-                        print '| parm_scr type calculation, converged values found, extrapolated value: ' + extrapolated[4]
+                        print '| parm_scr type calculation, converged values found, extrapolated value: ', extrapolated[4]
                     else:
                         print '| parm_scr type calculation, no converged values found, increasing grid'
                         data.full_res['grid'] += 1
