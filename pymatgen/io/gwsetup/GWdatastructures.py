@@ -323,6 +323,7 @@ class GWSpecs(MSONable):
                         break
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
                         data.conv_res['control'].update({'all_done': True})
+                        data.print_conv_res()
                         print 'test full kp ok'
                         done = True
                         data.print_plot_data()
