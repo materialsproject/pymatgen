@@ -340,7 +340,7 @@ class GWSpecs(MSONable):
                         break
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
                         print '| Full type calculation and the full results agree with the parm_scr. All_done for this compound.'
-                        data.full_res['control'].update({'all_done': True})
+                        data.full_res.update({'all_done': True})
                         data.print_full_res()
                         done = True
                         data.print_plot_data()
