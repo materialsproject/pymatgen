@@ -320,7 +320,7 @@ class GWSpecs(MSONable):
                         print '| parm_scr type calculation, converged values found, extrapolated value: ' + extrapolated[4]
                     else:
                         print '| parm_scr type calculation, no converged values found, increasing grid'
-                        data.full_res['control']['grid'] += 1
+                        data.full_res['grid'] += 1
                     data.print_full_res()
                     data.print_conv_res()
                     # plot data:
