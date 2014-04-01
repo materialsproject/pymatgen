@@ -439,8 +439,8 @@ class GWConvergenceData():
         self.structure = structure
         self.spec = spec
         self.data = {}
-        self.conv_res = {}
-        self.full_res = {'all_done': False, 'control': {'grid': 0}}
+        self.conv_res = {'control': {}}
+        self.full_res = {'all_done': False, 'grid': 0}
         self.name = s_name(structure)
         self.type = {'parm_scr': False, 'full': False, 'single': False, 'test': False}
 
