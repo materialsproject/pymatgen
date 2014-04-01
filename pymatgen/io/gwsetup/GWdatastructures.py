@@ -319,8 +319,11 @@ class GWSpecs(MSONable):
                     done = True
                 elif data.type['full']:
                     if not os.path.isfile(s_name(structure)+'.conv_res'):
+                        print 'full type calculation but the conv_res file is not available, trying to reconstruct'
                         data.read()
+                        print data.data
                         data.find_conv_pars(self['tol'])
+                        print data.print_conv_res()
                         data.print_conv_res()
                     data.read(subset='.conv')
                     if len(data.data) == 0:
@@ -436,6 +439,9 @@ class GWConvergenceData():
             f = open(filename, mode='r')
             self.conv_res = ast.literal_eval(f.read())
             f.close()
+        except SyntaxError:
+            print 'Problems reading ', filename
+
         except (OSError, IOError):
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
