@@ -159,12 +159,12 @@ class GWSpecs(MSONable):
         if len(self.errors) > 0:
             print str(len(self.errors)) + ' error(s) found:'
             for error in self.errors:
-                print error
+                print ' > ' + error
             exit()
         if len(self.warnings) > 0:
             print str(len(self.warnings)) + ' warning(s) found:'
             for warning in self.warnings:
-                print warning
+                print ' > ' + warning
         self.reset_job_collection()
 
     def is_converged(self, structure, return_values=False):
