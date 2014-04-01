@@ -318,6 +318,10 @@ class GWSpecs(MSONable):
                     data.print_plot_data()
                     done = True
                 elif data.type['full']:
+                    if not os.path.isfile(s_name(structure)+'.conv_res'):
+                        data.read()
+                        data.find_conv_pars(self['tol'])
+                        data.print_conv_res()
                     data.read(subset='.conv')
                     if len(data.data) == 0:
                         break
@@ -432,7 +436,7 @@ class GWConvergenceData():
             f = open(filename, mode='r')
             self.conv_res = ast.literal_eval(f.read())
             f.close()
-        except OSError:
+        except (OSError, IOError):
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
 
@@ -442,6 +446,7 @@ class GWConvergenceData():
         subset: read from System.subset (the . 'dot' should be included in subset)
         Data is placed in self.data, combined with the values of key parameters
         """
+        self.data = {}
         if self.spec['code'] == 'ABINIT':
             read_next = True
             n = 3
