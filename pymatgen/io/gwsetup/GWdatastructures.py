@@ -306,6 +306,7 @@ class GWSpecs(MSONable):
                 data.read_full_res_from_file()
                 if data.full_res['all_done']:
                     done = True
+                    print '| no action needed al is done already'
             except (IOError, OSError, SyntaxError):
                 pass
 
@@ -329,7 +330,7 @@ class GWSpecs(MSONable):
                     data.print_plot_data()
                     done = True
                 elif data.type['full']:
-                    if not os.path.isfile(s_name(structure)+'.conv_res'):
+                    if not data.read_conv_res_from_file(s_name(structure)+'.conv_res'):
                         print '| Full type calculation but the conv_res file is not available, trying to reconstruct'
                         data.read()
                         data.find_conv_pars(self['tol'])
@@ -448,28 +449,34 @@ class GWConvergenceData():
         """
         Read the results of a previous paramert screening set of calculations from file
         """
+        success = False
         try:
             f = open(filename, mode='r')
             self.conv_res = ast.literal_eval(f.read())
             f.close()
+            success = True
         except SyntaxError:
             print 'Problems reading ', filename
         except (OSError, IOError):
             print 'Inputfile ', filename, ' not found exiting.'
+        return success
 
     def read_full_res_from_file(self):
         """
         Read the results of a full set of calculations from file
         """
         filename = self.name+'.full_res'
+        success = False
         try:
             f = open(filename, mode='r')
             self.full_res = ast.literal_eval(f.read())
             f.close()
+            success = True
         except SyntaxError:
             print 'Problems reading ', filename
         except (OSError, IOError):
             print 'Inputfile ', filename, ' not found exiting.'
+        return success
 
     def read(self, subset=''):
         """
