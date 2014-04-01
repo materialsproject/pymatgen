@@ -514,6 +514,7 @@ class GWConvergenceData():
             self.type['test'] = True
         else:
             self.type['single'] = True
+        print self.type
 
     def find_conv_pars(self, tol=0.0001):
         """
