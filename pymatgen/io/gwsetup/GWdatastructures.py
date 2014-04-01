@@ -389,14 +389,14 @@ class GWSpecs(MSONable):
             if item.startswith('POSCAR_'):
                 structure = pmg.read_structure(item)
                 comment = Poscar.from_file(item).comment
-                print comment
+                # print comment
                 if comment.startswith("gap"):
                     structure.vbm_l = comment.split(" ")[1]
                     structure.vbm = (comment.split(" ")[2], comment.split(" ")[3], comment.split(" ")[4])
                     structure.cbm_l = comment.split(" ")[5]
                     structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
                 else:
-                    print "no bandstructure information available, adding GG as 'gap'"
+                    # print "no bandstructure information available, adding GG as 'gap'"
                     structure.vbm_l = "G"
                     structure.cbm_l = "G"
                     structure.cbm = (0.0, 0.0, 0.0)
