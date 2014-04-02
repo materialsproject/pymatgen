@@ -273,6 +273,8 @@ class KpointsTest(unittest.TestCase):
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.labels)
         self.assertEqual(kpoints.style, "Line_mode")
+        kpoints_str = str(kpoints)
+        self.assertEqual(kpoints_str.split("\n")[3], "Reciprocal")
 
         filepath = os.path.join(test_dir, 'KPOINTS.explicit')
         kpoints = Kpoints.from_file(filepath)
