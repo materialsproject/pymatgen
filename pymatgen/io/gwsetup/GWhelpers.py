@@ -154,13 +154,14 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
 def expand_tests(tests, level):
 
     for test in tests.keys():
+        print test
         if test in ['ecuteps', 'ENCUTGW']:
             ec = test
         elif test in ['nscf_bandss', 'NBANDS']:
             nb = test
 
-    nb_range = tests[nb]['testrange']
-    ec_range = tests[ec]['testrange']
+    nb_range = tests[nb]['test_range']
+    ec_range = tests[ec]['test_range']
     nb_step = nb_range[-1] - nb_range[-2]
     ec_step = ec_range[-1] - ec_range[-2]
 
