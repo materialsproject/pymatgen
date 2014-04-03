@@ -173,13 +173,13 @@ def expand_tests(tests, level):
         extension = tuple(range(nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step))
         print extension
         new_nb_range = nb_range + extension
-        new_ec_range = tuple(ec_range[-1] + int(level / 2 * ec_step))
+        new_ec_range = (ec_range[-1] + int(level / 2 * ec_step))
     else:
         # odd level of grid extension > new nb wedge
         print (ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step)
         extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step))
         print extension
-        new_nb_range = tuple(nb_range[-1] + int((level + 1) / 2 * nb_step))
+        new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step))
         new_ec_range = ec_range + extension
 
     tests[ec]['test_range'] = new_ec_range
