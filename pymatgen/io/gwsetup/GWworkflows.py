@@ -22,8 +22,7 @@ from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwsetup.GWtasks import *
-from pymatgen.io.gwsetup.GWhelpers import now, s_name
-from pymatgen.io.gwsetup.GWdatastructures import GWConvergenceData
+from pymatgen.io.gwsetup.GWhelpers import now, s_name, expand_tests, read_grid_from_file
 from fireworks.core.firework import FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 
@@ -189,8 +188,6 @@ class SingleAbinitGWWorkFlow():
             scf_kppa = self.spec.data['kp_grid_dens']
         gamma = True
 
-        grid = 0
-
         # 'standard' parameters for stand alone calculation
         nscf_nband = [10 * self.get_bands(self.structure)]
         ecuteps = [8]
@@ -199,11 +196,12 @@ class SingleAbinitGWWorkFlow():
 
         response_models = ['godby']
 
-        workdir = None
-        data = GWConvergenceData(spec=self.spec, structure=self.structure)
-        if data.read_full_res_from_file():
-            grid = data.full_res['grid']
+        try:
+            grid = read_grid_from_file(s_name(self.structure)+".full_res")
             workdir = os.path.join(s_name(self.structure), 'work_'+str(grid))
+        except (IOError, OSError):
+            grid = 0
+            workdir = None
 
         if (self.spec['test'] or self.spec['converge']) and self.option is None:
             if self.spec['test']:
@@ -213,7 +211,7 @@ class SingleAbinitGWWorkFlow():
                 if grid == 0:
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                 else:
-                    tests = self.expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                    tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
                     print grid
                     print tests
                     exit()
