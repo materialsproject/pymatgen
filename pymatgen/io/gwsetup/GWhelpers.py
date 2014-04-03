@@ -169,14 +169,14 @@ def expand_tests(tests, level):
 
     if int(level / 2) == level:
         # even level of grid extension > new ec wedge
-        print nb_range[-1] + nb_step, nb_range[-1] + level / 2 * nb_step, nb_step
-        extention = range(nb_range[-1] + nb_step, nb_range[-1] + level / 2 * nb_step, nb_step)
+        print nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step
+        extention = range(nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step)
         new_nb_range = nb_range + extention
         new_ec_range = ec_range[-1] + level / 2 * ec_step
     else:
         # odd level of grid extension > new nb wedge
-        print (ec_range[-1] + ec_step, ec_range[-1] + (level - 1) / 2 * ec_step, ec_step)
-        extention = range(ec_range[-1] + ec_step, ec_range[-1] + (level - 1) / 2 * ec_step, ec_step)
+        print (ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step)
+        extention = range(ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step)
         new_nb_range = nb_range[-1] + (level + 1) / 2 * nb_step
         new_ec_range = ec_range + extention
 
