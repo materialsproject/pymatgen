@@ -12,7 +12,7 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "Oct 23, 2013"
 
 import time
-
+import ast
 
 class SplineInputError(Exception):
     def __init__(self, msg):
@@ -193,3 +193,18 @@ def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
         f.write(yl)
         f.write(zl)
         f.close()
+
+
+def read_grid_from_file(filename):
+    """
+    Read the results of a full set of calculations from file
+    """
+    try:
+        f = open(filename, mode='r')
+        full_res = ast.literal_eval(f.read())
+        f.close()
+    except SyntaxError:
+        print 'Problems reading ', filename
+    except (OSError, IOError):
+        print 'Inputfile ', filename, ' not found exiting.'
+    return full_res
