@@ -151,6 +151,36 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
         return [conv, x_value, y_value, n_value, popt[0], None]
 
 
+def expand_tests(tests, level):
+
+    for test in tests.keys():
+        if test in ['ecuteps', 'ENCUTGW']:
+            ec = test
+        elif test in ['nscf_bandss', 'NBANDS']:
+            nb = test
+
+    nb_range = tests[nb]['testrange']
+    ec_range = tests[ec]['testrange']
+    nb_step = nb_range[-1] - nb_range[-2]
+    ec_step = ec_range[-1] - ec_range[-2]
+
+    if int(level / 2) == level:
+        # even level of grid extension > new ec wedge
+        extention = range(nb_range[-1] + nb_step, nb_range[-1] + level / 2 * nb_step, nb_step)
+        new_nb_range = nb_range + extention
+        new_ec_range = ec_range[-1] + level / 2 * ec_step
+    else:
+        # odd level of grid extension > new nb wedge
+        extention = range(ec_range[-1] + ec_step, ec_range[-1] + (level - 1) / 2 * ec_step, ec_step)
+        new_nb_range = nb_range[-1] + (level + 1) / 2 * nb_step
+        new_ec_range = ec_range + extention
+
+    tests[ec]['test_range'] = new_ec_range
+    tests[nb]['test_range'] = new_nb_range
+
+    return tests
+
+
 def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     xl = 'set xlabel "nbands"\n'
     yl = 'set ylabel "encutgw (eV)"\n'

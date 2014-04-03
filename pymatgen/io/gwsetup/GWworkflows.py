@@ -22,7 +22,8 @@ from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwsetup.GWtasks import *
-from pymatgen.io.gwsetup.GWhelpers import now
+from pymatgen.io.gwsetup.GWhelpers import now, s_name
+from pymatgen.io.gwsetup.GWdatastructures import GWConvergenceData
 from fireworks.core.firework import FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 
@@ -99,7 +100,7 @@ class SingleAbinitGWWorkFlow():
     interface the
     """
     RESPONSE_MODELS = ["cd", "godby", "hybersten", "linden", "farid"]
-    TESTS = {'ecuteps': {'test_range': (10, 12), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+    TESTS = {'ecuteps': {'test_range': (10, 14), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"},
              'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
     CONVS = {'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
@@ -188,20 +189,34 @@ class SingleAbinitGWWorkFlow():
             scf_kppa = self.spec.data['kp_grid_dens']
         gamma = True
 
+        grid = 0
+
         # 'standard' parameters for stand alone calculation
         nscf_nband = [10 * self.get_bands(self.structure)]
         ecuteps = [8]
         ecutsigx = 8
-        ecut = 16
+        ecut = 20
 
         response_models = ['godby']
+
+        workdir = None
+        data = GWConvergenceData(spec=self.spec, structure=self.structure)
+        if data.read_full_res_from_file():
+            grid = data.full_res['grid']
+            workdir = os.path.join(s_name(self.structure), 'work_'+str(grid))
 
         if (self.spec['test'] or self.spec['converge']) and self.option is None:
             if self.spec['test']:
                 tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
                 response_models = []
             else:
-                tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                if grid == 0:
+                    tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                else:
+                    tests = self.expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                    print grid
+                    print tests
+                    exit()
             ecuteps = []
             nscf_nband = []
             for test in tests:
@@ -223,7 +238,7 @@ class SingleAbinitGWWorkFlow():
 
         extra_abivars = dict(
             ecut=[ecut],
-            gwmem=11,
+            gwmem=01,
             getden=-1,
             istwfk="*1",
             timopt=-1,
@@ -237,7 +252,7 @@ class SingleAbinitGWWorkFlow():
                              charge=0.0, inclvkb=2, sigma_nband=None, scr_nband=None, gamma=gamma,
                              **extra_abivars)
 
-        flow.register_work(work)
+        flow.register_work(work, workdir=workdir)
         return flow.allocate()
 
     def create_job_file(self):
