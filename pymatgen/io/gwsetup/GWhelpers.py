@@ -157,7 +157,7 @@ def expand_tests(tests, level):
         print test
         if test in ['ecuteps', 'ENCUTGW']:
             ec = test
-        elif test in ['nscf_bandss', 'NBANDS']:
+        elif test in ['nscf_bands', 'NBANDS']:
             nb = test
 
     nb_range = tests[nb]['test_range']
