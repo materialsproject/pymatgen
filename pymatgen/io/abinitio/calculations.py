@@ -338,8 +338,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if sigma_nband is None:
         sigma_nband = nscf_nband
 
-    if extra_abivars['ecut'][0] < max(ecuteps):
-        extra_abivars['ecut'][0] = max(ecuteps)
+    if extra_abivars['ecut'][0] < 4 * max(ecuteps):
+        extra_abivars['ecut'][0] = 4 * max(ecuteps)
     if ecutsigx < max(ecuteps):
         ecutsigx = max(ecuteps)
 
