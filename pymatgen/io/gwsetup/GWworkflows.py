@@ -197,7 +197,7 @@ class SingleAbinitGWWorkFlow():
         response_models = ['godby']
 
         try:
-            grid = read_grid_from_file(s_name(self.structure)+".full_res")
+            grid = read_grid_from_file(s_name(self.structure)+".full_res")['grid']
             workdir = os.path.join(s_name(self.structure), 'work_'+str(grid))
         except (IOError, OSError):
             grid = 0
@@ -211,8 +211,9 @@ class SingleAbinitGWWorkFlow():
                 if grid == 0:
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                 else:
-                    tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
                     print grid
+                    print SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                    tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
                     print tests
                     exit()
             ecuteps = []
