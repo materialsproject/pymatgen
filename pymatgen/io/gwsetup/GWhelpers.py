@@ -183,10 +183,11 @@ def expand_tests(tests, level):
         new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step),)
         new_ec_range = ec_range + extension
 
-    tests[ec]['test_range'] = new_ec_range
-    tests[nb]['test_range'] = new_nb_range
+    new_tests = tests.copy()
+    new_tests[ec]['test_range'] = new_ec_range
+    new_tests[nb]['test_range'] = new_nb_range
 
-    return tests
+    return new_tests
 
 
 def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
