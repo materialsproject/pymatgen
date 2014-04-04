@@ -15,6 +15,7 @@ __date__ = "Oct 23, 2013"
 
 import os
 import os.path
+import copy
 
 from pymatgen.io.abinitio.abiobjects import asabistructure
 from pymatgen.io.abinitio.calculations import g0w0_extended
@@ -127,15 +128,15 @@ class SingleAbinitGWWorkFlow():
 
     @classmethod
     def get_defaults_tests(cls):
-        return cls.TESTS.copy()
+        return copy.deepcopy(cls.TESTS)
 
     @classmethod
     def get_defaults_convs(cls):
-        return cls.CONVS.copy()
+        return copy.deepcopy(cls.CONVS)
 
     @classmethod
     def get_response_models(cls):
-        return cls.RESPONSE_MODELS
+        return copy.deepcopy(cls.RESPONSE_MODELS)
 
     def get_electrons(self, structure):
         """
