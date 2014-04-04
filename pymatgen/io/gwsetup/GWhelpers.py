@@ -15,6 +15,7 @@ import time
 import ast
 import copy
 
+
 class SplineInputError(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -153,39 +154,28 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
 
 
 def expand_tests(tests, level):
-
-    print 'extending ', tests, 'to level ', level
     for test in tests.keys():
         if test in ['ecuteps', 'ENCUTGW']:
             ec = str(test)
         if test in ['NBANDS', 'nscf_nbands']:
             nb = str(test)
-
     new_tests = copy.deepcopy(tests)
-
     nb_range = tests[nb]['test_range']
     ec_range = tests[ec]['test_range']
     nb_step = nb_range[-1] - nb_range[-2]
     ec_step = ec_range[-1] - ec_range[-2]
-
     if int(level / 2) == level:
         # even level of grid extension > new ec wedge
-        print nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step
         extension = tuple(range(nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step))
-        print extension
         new_nb_range = nb_range + extension
         new_ec_range = (ec_range[-1] + int(level / 2 * ec_step),)
     else:
         # odd level of grid extension > new nb wedge
-        print (ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step)
         extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step))
-        print extension
         new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step),)
         new_ec_range = ec_range + extension
-
     new_tests[ec].update({'test_range': new_ec_range})
     new_tests[nb].update({'test_range': new_nb_range})
-
     return new_tests
 
 

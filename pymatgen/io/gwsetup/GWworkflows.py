@@ -206,12 +206,15 @@ class SingleAbinitGWWorkFlow():
 
         if (self.spec['test'] or self.spec['converge']) and self.option is None:
             if self.spec['test']:
+                print '| setting test calculation'
                 tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
                 response_models = []
             else:
                 if grid == 0:
+                    print '| setting convergence calculations for grid 0'
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                 else:
+                    print '| extending grid'
                     tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
             ecuteps = []
             nscf_nband = []
@@ -226,6 +229,7 @@ class SingleAbinitGWWorkFlow():
                     if test == 'response_model':
                         response_models.append(value)
         elif self.option is not None:
+            print '| setting up for testing the converged values at the high kp grid '
             # in this case a convergence study has already been perfromed. The resulting parameters are passed as option
             ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
                                                self.convs['ecuteps']['test_range'][0]]
