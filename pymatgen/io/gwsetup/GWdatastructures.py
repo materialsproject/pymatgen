@@ -443,10 +443,6 @@ class GWSpecs(MSONable):
         if 'ceci' in self.data['mode']:
             if os.path.isfile('job_collection'):
                 os.remove('job_collection')
-            if 'ABINIT' in self.data['code']:
-                job_file = open('job_collection', mode='w')
-                job_file.write('module load abinit \n')
-                job_file.close()
 
 
 class GWConvergenceData():
