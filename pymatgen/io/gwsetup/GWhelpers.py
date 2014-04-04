@@ -151,10 +151,10 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
         return [conv, x_value, y_value, n_value, popt[0], None]
 
 
-def expand_tests(tests, level):
+def expand_tests(_tests, level):
 
-    print 'extending ', tests, 'to level ', level
-    for test in tests.keys():
+    print 'extending ', _tests, 'to level ', level
+    for test in _tests.keys():
         print test
         if test in ['ecuteps', 'ENCUTGW']:
             print 'ec'
@@ -163,8 +163,8 @@ def expand_tests(tests, level):
             print 'nb'
             nb = test
 
-    nb_range = tests[nb]['test_range']
-    ec_range = tests[ec]['test_range']
+    nb_range = _tests[nb]['test_range']
+    ec_range = _tests[ec]['test_range']
     nb_step = nb_range[-1] - nb_range[-2]
     ec_step = ec_range[-1] - ec_range[-2]
 
@@ -183,11 +183,10 @@ def expand_tests(tests, level):
         new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step),)
         new_ec_range = ec_range + extension
 
-    new_tests = tests.copy()
-    new_tests[ec]['test_range'] = new_ec_range
-    new_tests[nb]['test_range'] = new_nb_range
+    _tests.update({[ec]['test_range']: new_ec_range})
+    _tests.update({[nb]['test_range']: new_nb_range})
 
-    return new_tests
+    return _tests
 
 
 def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
