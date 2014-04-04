@@ -158,13 +158,15 @@ def expand_tests(tests, level):
         print test
         if test in ['ecuteps', 'ENCUTGW']:
             print 'ec'
-            ec = test
+            ec = str(test)
+            print ec
         if test in ['NBANDS', 'nscf_nbands']:
             print 'nb'
-            nb = test
+            nb = str(test)
+            print nb
 
     new_tests = {}
-    new_tests.update(tests)
+    new_tests.update({ec: {}, nb: {}})
 
     nb_range = tests[nb]['test_range']
     ec_range = tests[ec]['test_range']
