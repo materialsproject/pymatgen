@@ -13,6 +13,7 @@ __date__ = "Oct 23, 2013"
 
 import time
 import ast
+import copy
 
 class SplineInputError(Exception):
     def __init__(self, msg):
@@ -160,8 +161,7 @@ def expand_tests(tests, level):
         if test in ['NBANDS', 'nscf_nbands']:
             nb = str(test)
 
-    new_tests = {}
-    new_tests.update({ec: ast.literal_eval(str(tests[ec])), nb: ast.literal_eval(str(tests[nb]))})
+    new_tests = copy.deepcopy(tests)
 
     nb_range = tests[nb]['test_range']
     ec_range = tests[ec]['test_range']
