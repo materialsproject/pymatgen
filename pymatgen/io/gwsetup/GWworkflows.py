@@ -214,6 +214,7 @@ class SingleAbinitGWWorkFlow():
                     tests = expand_tests(SingleAbinitGWWorkFlow.CONVS, grid)
                     print SingleAbinitGWWorkFlow.CONVS
                     print SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                    print self.CONVS
                     print tests
             ecuteps = []
             nscf_nband = []
