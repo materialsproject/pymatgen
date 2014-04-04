@@ -211,8 +211,8 @@ class SingleAbinitGWWorkFlow():
                 if grid == 0:
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                 else:
-                    tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
-                    tests = expand_tests(tests, grid)
+                    tests = expand_tests(SingleAbinitGWWorkFlow.CONVS, grid)
+                    print SingleAbinitGWWorkFlow.CONVS
                     print SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                     print tests
             ecuteps = []
