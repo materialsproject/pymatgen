@@ -107,7 +107,7 @@ class GWSpecs(MSONable):
         key = 'tmp'
         while len(key) != 0:
             print self
-            key = raw_input('enter key to change: ')
+            key = raw_input('enter key to change (h for help): ')
             if key in self.data.keys():
                 value = raw_input('enter new value: ')
                 if key in ['jobs']:                                         # list
@@ -133,7 +133,7 @@ class GWSpecs(MSONable):
                 print "              poscar will read files starting with POSCAR_ in the working folder"
                 print 'mode:         input, ceci, fw'
                 print 'functional:   PBE, LDA'
-                print 'jobs:         prep, G0W0, GW0, scGW0'
+                print 'jobs:         prep, G0W0, GW0, scGW0, no option, just enter, remove the last option'
                 print 'code:         VASP, ABINIT'
                 print 'kp_grid_dens: usually 500 - 1000, 1 gives gamma only, 2 gives a 2x2x2 mesh'
                 print 'tol:          tolerance for determining convergence d(gap)/d(encuteps) and d(gap)/d(nbands) < tol' \
