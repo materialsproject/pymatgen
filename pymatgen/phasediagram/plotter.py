@@ -51,12 +51,12 @@ class PDPlotter(object):
 
         Returns:
             (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD.
-                - stable_entries is a {coordinate : entry} for each stable node
-                  in the phase diagram. (Each coordinate can only have one
-                  stable phase)
-                - unstable_entries is a {entry: coordinates} for all unstable
-                  nodes in the phase diagram.
+            - lines is a list of list of coordinates for lines in the PD.
+            - stable_entries is a {coordinate : entry} for each stable node
+              in the phase diagram. (Each coordinate can only have one
+              stable phase)
+            - unstable_entries is a {entry: coordinates} for all unstable
+              nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -576,12 +576,12 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
 
     Returns:
         (newlines, newstable_entries, newunstable_entries):
-            - newlines is a list of list of coordinates for lines in the PD.
-            - newstable_entries is a {coordinate : entry} for each stable node
-              in the phase diagram. (Each coordinate can only have one
-              stable phase)
-            - newunstable_entries is a {entry: coordinates} for all unstable
-              nodes in the phase diagram.
+        - newlines is a list of list of coordinates for lines in the PD.
+        - newstable_entries is a {coordinate : entry} for each stable node
+        in the phase diagram. (Each coordinate can only have one
+        stable phase)
+        - newunstable_entries is a {entry: coordinates} for all unstable
+        nodes in the phase diagram.
     """
     yup = -1000.0
     xleft = 1000.0
