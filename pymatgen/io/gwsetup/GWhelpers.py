@@ -161,7 +161,7 @@ def expand_tests(tests, level):
             nb = str(test)
 
     new_tests = {}
-    new_tests.update({ec: repr(tests[ec]), nb: repr(tests[nb])})
+    new_tests.update({ec: ast.literal_eval(str(tests[ec])), nb: ast.literal_eval(str(tests[nb]))})
 
     nb_range = tests[nb]['test_range']
     ec_range = tests[ec]['test_range']
