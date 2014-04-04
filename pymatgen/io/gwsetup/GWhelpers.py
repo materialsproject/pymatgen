@@ -186,8 +186,8 @@ def expand_tests(tests, level):
         new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step),)
         new_ec_range = ec_range + extension
 
-    new_tests[ec].update({'test_range': new_ec_range})
-    new_tests[nb].update({'test_range': new_nb_range})
+    new_tests[ec].update({'new_test_range': new_ec_range})
+    new_tests[nb].update({'new_test_range': new_nb_range})
 
     return new_tests
 
