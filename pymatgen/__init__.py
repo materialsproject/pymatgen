@@ -3,8 +3,8 @@ __author__ = ", ".join(["Shyue Ping Ong", "Anubhav Jain", "Geoffroy Hautier",
                         "Sai Jayaraman", "Michael Kocher", "Dan Gunter",
                         "Shreyas Cholia", "Vincent L Chevrier",
                         "Rickard Armiento"])
-__date__ = "Dec 18 2013"
-__version__ = "2.9.4"
+__date__ = "Apr 4 2014"
+__version__ = "2.9.5"
 
 #Useful aliases for commonly used objects and modules.
 
