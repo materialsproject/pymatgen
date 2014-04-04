@@ -65,7 +65,7 @@ class GWSpecs(MSONable):
                         '  tol          : %s \n' \
                         '  test         : %s \n' \
                         '  converge     : %s' % (self.__class__.__name__, self.__doc__, self.get_code(), self.data['source'],
-                                                 self['jobs'], self['mode'], self['functional'], self['kp_gird_dens'],
+                                                 self['jobs'], self['mode'], self['functional'], self['kp_grid_dens'],
                                                  self['prec'], self['tol'], self['test'], self['converge'])
         return self._message
 
