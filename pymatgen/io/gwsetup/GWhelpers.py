@@ -153,6 +153,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
 
 def expand_tests(tests, level):
 
+    print 'extending ', tests, 'to level ', level
     for test in tests.keys():
         print test
         if test in ['ecuteps', 'ENCUTGW']:
