@@ -51,6 +51,23 @@ class GWSpecs(MSONable):
         self.warnings = []
         self.errors = []
         self.fw_specs = []
+        self._message = str
+
+    def __str__(self):
+        self._message = '%s  %s\n' \
+                        '  code         : %s \n' \
+                        '  source       : %s \n' \
+                        '  jobs         : %s \n' \
+                        '  mode         : %s \n' \
+                        '  functional   : %s \n' \
+                        '  kp_grid_dens : %s \n' \
+                        '  prec         : %s \n' \
+                        '  tol          : %s \n' \
+                        '  test         : %s \n' \
+                        '  converge     : %s' % (self.__name__, self.__doc__, self.get_code(), self.data['source'],
+                                                 self['jobs'], self['mode'], self['functional'], self['kp_gird_dens'],
+                                                 self['prec'], self['tol'], self['test'], self['converge'])
+        return self._message
 
     def __getitem__(self, item):
         return self.data[item]
@@ -89,7 +106,7 @@ class GWSpecs(MSONable):
         """
         key = 'tmp'
         while len(key) != 0:
-            print self.data
+            print self
             key = raw_input('enter key to change: ')
             if key in self.data.keys():
                 value = raw_input('enter new value: ')
