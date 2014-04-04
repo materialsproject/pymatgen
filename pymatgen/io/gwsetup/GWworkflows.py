@@ -212,10 +212,8 @@ class SingleAbinitGWWorkFlow():
                 if grid == 0:
                     tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
                 else:
-                    tests = expand_tests(SingleAbinitGWWorkFlow.CONVS.copy(), grid)
-                    print SingleAbinitGWWorkFlow.CONVS
+                    tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
                     print SingleAbinitGWWorkFlow(self.structure, self.spec).convs
-                    print self.CONVS
                     print tests
             ecuteps = []
             nscf_nband = []
