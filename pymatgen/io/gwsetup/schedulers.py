@@ -175,13 +175,16 @@ class AbstractErrorParser():
         metadata = None
         for k in errmsg.keys():
             print 'parsing ', self.files[k], ' for ', errmsg[k]['string']
-            with open(self.files[k], mode='r') as f:
-                lines = f.read().split('\n')
-            for line in lines:
-                if errmsg[k]['string'] in line:
-                    found = True
-                    message = line.strip()
-                    metadata = self.extract_metadata(lines, errmsg[k]['metafilter'])
+            try:
+                with open(self.files[k], mode='r') as f:
+                    lines = f.read().split('\n')
+                for line in lines:
+                    if errmsg[k]['string'] in line:
+                        found = True
+                        message = line.strip()
+                        metadata = self.extract_metadata(lines, errmsg[k]['metafilter'])
+            except IOError:
+                print self.files[k], not found
 
         return found, message, metadata
 
