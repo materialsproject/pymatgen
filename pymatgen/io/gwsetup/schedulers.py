@@ -183,7 +183,7 @@ class AbstractErrorParser():
                         message = line.strip()
                         metadata = self.extract_metadata(message, errmsg[k]['metafilter'])
             except (IOError, OSError):
-                print self.files[k], not found
+                print self.files[k], 'not found'
 
         return found, message, metadata
 
