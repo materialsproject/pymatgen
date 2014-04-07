@@ -218,7 +218,7 @@ class SlurmErrorParser(AbstractErrorParser):
               MemoryCancelError: {'err': {'string': "Exceeded job memory limit",
                                           'metafilter': ""}},
               NodeFailureError: {'run_err': {'string': "can't open /dev/ipath, network down",
-                                      'metafilter': {'node': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\).", 1]}}},
+                                      'metafilter': {'node': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]}}},
               AbstractError: {'out': {'string': "a string to be found",
                                       'metafilter': ""}},
               }
