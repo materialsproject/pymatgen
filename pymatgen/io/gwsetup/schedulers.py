@@ -55,7 +55,7 @@ class AbstractError():
 
     def __init__(self, errmsg, meta_data):
         self.errmsg = errmsg
-        self.meta_data = meta_data
+        self.meta_data = meta_data if meta_data is not None else {}
         self._message = str
 
     def __str__(self):
@@ -100,9 +100,7 @@ class TimeCancelError(AbstractError):
     """
     def __init__(self, errmsg, meta_data):
         super(TimeCancelError, self).__init__(errmsg, meta_data)
-        self.limit = None
-        if meta_data is not None and 'broken_limit' in meta_data.keys():
-                self.limit = meta_data['broken_limit']
+        self.limit = self.meta_data.get('broken_limit')
 
 
 class MemoryCancelError(AbstractError):
@@ -112,9 +110,7 @@ class MemoryCancelError(AbstractError):
     """
     def __init__(self, errmsg, meta_data):
         super(MemoryCancelError, self).__init__(errmsg, meta_data)
-        self.limit = None
-        if meta_data is not None and 'broken_limit' in meta_data.keys():
-                self.limit = meta_data['broken_limit']
+        self.limit = self.meta_data.get('broken_limit')
 
 
 class NodeFailureError(AbstractError):
@@ -124,9 +120,7 @@ class NodeFailureError(AbstractError):
     """
     def __init__(self, errmsg, meta_data):
         super(NodeFailureError, self).__init__(errmsg, meta_data)
-        self.node = None
-        if len(meta_data) > None and 'node' in meta_data.keys():
-                self.node = meta_data['node']
+        self.node = self.meta_data.get('node')
 
 
 class AbstractErrorParser():
@@ -189,7 +183,7 @@ class AbstractErrorParser():
 
     def parse(self):
         """
-        Parse for the occurce of all errors defined in ERRORS
+        Parse for the occurens of all errors defined in ERRORS
         """
         for my_error in self.ERRORS:
             result = self.parse_single(self.ERRORS[my_error])
