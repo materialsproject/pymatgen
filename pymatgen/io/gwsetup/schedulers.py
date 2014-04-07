@@ -160,15 +160,8 @@ class AbstractErrorParser():
     def extract_metadata(message, metafilter):
         meta_dict = {}
         for key in metafilter.keys():
-            print key
-            print metafilter[key]
-            print metafilter[key][0]
-            print " !!!!!!!  next line"
-            print message
             match = re.match(metafilter[key][0], message)
             if match is not None:
-                print ' !!! match found'
-                print match
                 meta_dict.update({key: re.match(metafilter[key][0], message).group(metafilter[key][1])})
         return meta_dict
 
