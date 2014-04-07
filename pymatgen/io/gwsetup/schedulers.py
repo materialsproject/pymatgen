@@ -125,8 +125,8 @@ class NodeFailureError(AbstractError):
     def __init__(self, errmsg, meta_data):
         super(NodeFailureError, self).__init__(errmsg, meta_data)
         self.node = None
-        if meta_data is not None and 'node' in meta_data.keys():
-                self.limit = meta_data['node']
+        if len(meta_data) > None and 'node' in meta_data.keys():
+                self.node = meta_data['node']
 
 
 class AbstractErrorParser():
@@ -164,6 +164,7 @@ class AbstractErrorParser():
             print metafilter[key]
             print metafilter[key][0]
             for line in message:
+                print " !!!!!!!  next line"
                 print line
                 match = re.match(metafilter[key][0], line)
                 if match is not None:
