@@ -164,8 +164,11 @@ class AbstractErrorParser():
             print metafilter[key]
             print metafilter[key][0]
             for line in message:
-                print re.match(metafilter[key][0], line)
-                meta_dict.update({key: re.match(metafilter[key][0], line).group(metafilter[key][1])})
+                print line
+                match = re.match(metafilter[key][0], line)
+                if match is not None:
+                    print match
+                    meta_dict.update({key: re.match(metafilter[key][0], line).group(metafilter[key][1])})
         return meta_dict
 
     def parse_single(self, errmsg):
