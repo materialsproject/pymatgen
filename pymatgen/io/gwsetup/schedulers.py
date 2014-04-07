@@ -225,6 +225,9 @@ class PBSErrorParse(AbstractErrorParser):
 
 if __name__ == "__main__":
     my_parser = SlurmErrorParser(err_file='queue.err', out_file='queue.out', run_err_file='run.err', batch_err_file='batch.err')
+    #or use the factory function:
+    #parser = AbstractErrorParser.factory('slurm', err_file=self.err_file, out_file=self.out_file, run_err_file=self.run_err_file, batch_err_file=self.batch_err_file)
+
     my_parser.parse()
     print 'parser.errors', my_parser.errors
     for error in my_parser.errors:
