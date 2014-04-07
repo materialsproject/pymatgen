@@ -1,5 +1,5 @@
 """
-Error handelers of errors originating from the Submission systems.
+Error handlers for errors originating from the Submission systems.
 """
 
 from __future__ import division
