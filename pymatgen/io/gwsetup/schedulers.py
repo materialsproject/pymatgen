@@ -162,7 +162,7 @@ class AbstractErrorParser():
         for key in metafilter.keys():
             print key
             print metafilter[key]
-            print re.match(metafilter[key], message)
+            print re.match(metafilter[key][0], message)
             meta_dict.update({key: re.match(metafilter[key][0], message).group(metafilter[key][1])})
         return meta_dict
 
