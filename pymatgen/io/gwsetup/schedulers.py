@@ -163,13 +163,13 @@ class AbstractErrorParser():
             print key
             print metafilter[key]
             print metafilter[key][0]
-            for line in message:
-                print " !!!!!!!  next line"
-                print line
-                match = re.match(metafilter[key][0], line)
-                if match is not None:
-                    print match
-                    meta_dict.update({key: re.match(metafilter[key][0], line).group(metafilter[key][1])})
+            print " !!!!!!!  next line"
+            print message
+            match = re.match(metafilter[key][0], message)
+            if match is not None:
+                print ' !!! match found'
+                print match
+                meta_dict.update({key: re.match(metafilter[key][0], message).group(metafilter[key][1])})
         return meta_dict
 
     def parse_single(self, errmsg):
@@ -188,7 +188,7 @@ class AbstractErrorParser():
                     if errmsg[k]['string'] in line:
                         found = True
                         message = line.strip()
-                        metadata = self.extract_metadata(lines, errmsg[k]['metafilter'])
+                        metadata = self.extract_metadata(message, errmsg[k]['metafilter'])
             except (IOError, OSError):
                 print self.files[k], not found
 
@@ -236,4 +236,4 @@ if __name__ == "__main__":
     print 'parser.errors', my_parser.errors
     for error in my_parser.errors:
         print error
-        print error.limit
+        print error.node
