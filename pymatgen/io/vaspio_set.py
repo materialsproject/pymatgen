@@ -933,7 +933,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
-                               mode="Uniform", user_incar_settings={},
+                               mode="Uniform", user_incar_settings=None,
                                copy_chgcar=True, make_dir_if_not_present=True):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
@@ -956,6 +956,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 directory (and the whole path) to be created if it is not
                 present.
         """
+        user_incar_settings = user_incar_settings or {}
+        
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
