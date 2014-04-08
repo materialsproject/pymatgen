@@ -53,10 +53,10 @@ class PDPlotter(object):
             (lines, stable_entries, unstable_entries):
             - lines is a list of list of coordinates for lines in the PD.
             - stable_entries is a {coordinate : entry} for each stable node
-              in the phase diagram. (Each coordinate can only have one
-              stable phase)
+            in the phase diagram. (Each coordinate can only have one
+            stable phase)
             - unstable_entries is a {entry: coordinates} for all unstable
-              nodes in the phase diagram.
+            nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
