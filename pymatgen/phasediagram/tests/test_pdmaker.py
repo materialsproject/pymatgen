@@ -5,6 +5,7 @@ from pymatgen import Element, Composition
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram, CompoundPhaseDiagram, PhaseDiagramError
+from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 
 
 class PhaseDiagramTest(unittest.TestCase):
@@ -23,6 +24,19 @@ class PhaseDiagramTest(unittest.TestCase):
                          self.entries)
         self.assertRaises(PhaseDiagramError, PhaseDiagram, entries,
                           self.elements)
+
+    def test_dim1(self):
+        #Ensure that dim 1 PDs can eb generated.
+        for el in ["Li", "Fe", "O2"]:
+            entries = [e for e in self.entries
+                       if e.composition.reduced_formula == el]
+            pd = PhaseDiagram(entries)
+            self.assertEqual(len(pd.stable_entries), 1)
+
+            a = PDAnalyzer(pd)
+            for e in entries:
+                decomp, ehull = a.get_decomp_and_e_above_hull(e)
+                self.assertGreaterEqual(ehull, 0)
 
     def test_stable_entries(self):
         stable_formulas = [ent.composition.reduced_formula

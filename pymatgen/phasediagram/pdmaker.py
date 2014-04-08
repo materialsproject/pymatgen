@@ -165,7 +165,9 @@ class PhaseDiagram (MSONable):
         extra_point[-1] = np.max(qhull_data) + 1
         qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
 
-        if len(qhull_data) == dim:
+        if dim == 1:
+            self.facets = [qhull_data.argmin(axis=0)]
+        elif len(qhull_data) == dim:
             self.facets = [range(dim)]
         else:
             if HULL_METHOD == "scipy":
