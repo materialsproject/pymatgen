@@ -117,7 +117,7 @@ class AbstractErrorParser():
             for line in lines:
                 match = re.match(metafilter[key][0], line)
                 if match is not None:
-                    values.append(re.match(metafilter[key][0], lines).group(metafilter[key][1]))
+                    values.append(re.match(metafilter[key][0], line).group(metafilter[key][1]))
             values = set(values)
             meta_dict.update({key: values})
         return meta_dict
