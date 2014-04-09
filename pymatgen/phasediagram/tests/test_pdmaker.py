@@ -42,7 +42,6 @@ class PhaseDiagramTest(unittest.TestCase):
             lines, stable_entries, unstable_entries = plotter.pd_plot_data
             self.assertEqual(lines[0][1], [0, 0])
 
-
     def test_stable_entries(self):
         stable_formulas = [ent.composition.reduced_formula
                            for ent in self.pd.stable_entries]
