@@ -837,8 +837,9 @@ class Node(object):
     S_RUN = Status(5)
     S_DONE = Status(6)
     S_ERROR = Status(7)
-    S_UNCONVERGED = Status(8)
-    S_OK = Status(9)
+    S_QUEUE_ERROR = Status(8)
+    S_UNCONVERGED = Status(9)
+    S_OK = Status(10)
 
     ALL_STATUS = [
         S_INIT,
@@ -848,6 +849,7 @@ class Node(object):
         S_RUN,
         S_DONE,
         S_ERROR,
+        S_QUEUE_ERROR,
         S_UNCONVERGED,
         S_OK,
     ]
@@ -1565,13 +1567,31 @@ class Task(Node):
                 return self.set_status(self.S_ERROR, info_msg=err_info)
 
         # 3) Analyze the error file of the resource manager.
+       # if self.qerr_file.exists:
+       #     err_info = self.qerr_file.read()
+       #     if err_info:
+       #         return self.set_status(self.S_ERROR, info_msg=err_info)
+
+        # 3) Analyze the files of the resource manager (mvs)
         if self.qerr_file.exists:
-            err_info = self.qerr_file.read()
-            if err_info:
-                return self.set_status(self.S_ERROR, info_msg=err_info)
+            from pymatgen.io.gwsetup.scheduler_error_parsers import get_parser
+            scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file, out_file=self.qout_file,
+                                    run_err_file=self.stderr_file)
+            scheduler_parser.parse()
+            if scheduler_parser.errors:
+                # the queue errors in the task
+                self.queue_errors = scheduler_parser.errors
+
+                return self.set_status(self.S_QUEUE_ERROR)
+            else:
+                err_info = self.qerr_file.read()
+                if err_info:
+                    return self.set_status(self.S_ERROR, info_msg=err_info)
+
 
         # 4) Assume the job is still running.
         return self.set_status(self.S_RUN)
+
 
     def out_to_in(self, out_file):
         """

@@ -22,6 +22,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 if __name__ == "__main__":
+    import this
     spec_in = GWSpecs()
     try:
         spec_in.read_from_file('spec.in')

@@ -396,6 +396,32 @@ class AbstractQueueAdapter(object):
             username: (str) the username of the jobs to count (default is to autodetect)
         """
 
+    #some method to fix problems
+
+    @abc.abstractmethod
+    def exclude_nodes(self, nodes):
+        """
+        Method to exclude nodes in the calculation
+        """
+
+    @abc.abstractmethod
+    def increase_mem(self, factor):
+        """
+        Method to increase the amound of memory asked for, by factor.
+        """
+
+    @abc.abstractmethod
+    def increase_time(self, factor):
+        """
+        Method to increase the available wall time asked for, by factor.
+        """
+
+    @abc.abstractmethod
+    def increase_cpus(self, factor):
+        """
+        Method to increase the number of cpus asked for.
+        """
+
 ####################
 # Concrete classes #
 ####################
@@ -458,6 +484,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --account=$${account}
 #SBATCH --job-name=$${job_name}
 #SBATCH	--nodes=$${nodes}
+#SBATCH	--exclude=$${exclude_nodes}
 #SBATCH --mem=$${mem}
 #SBATCH --mem-per-cpu=$${mem_per_cpu}
 #SBATCH --mail-user=$${mail_user}
@@ -499,7 +526,7 @@ class SlurmAdapter(AbstractQueueAdapter):
         # submit the job
         try:
             cmd = ['sbatch', script_file]
-            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            process = Popen(cmd, stdout=PIPE, stderr='sbatch.err')
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -526,6 +553,25 @@ class SlurmAdapter(AbstractQueueAdapter):
         except:
             # random error, e.g. no qsub on machine!
             raise self.Error('Running sbatch caused an error...')
+
+    def exclude_nodes(self, nodes):
+        try:
+            if 'exlcude_nodes' not in self.qparams.keys():
+                self.qparams.update({'exlcude_nodes': 'node'+nodes[0]})
+            for node in nodes[1:]:
+                self.qparams['exclude_nodes'] += ',node'+node
+            return True
+        except:
+            return False
+
+    def increase_cpus(self, factor):
+        return False
+
+    def increase_mem(self, factor):
+        return False
+
+    def increase_time(self, factor):
+        return False
 
     def get_njobs_in_queue(self, username=None):
         if username is None:
@@ -599,7 +645,7 @@ class PbsAdapter(AbstractQueueAdapter):
 
         # submit the job
         try:
-            cmd = ['qsub', scriprocesst_file]
+            cmd = ['qsub', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             process.wait()
 

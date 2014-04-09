@@ -319,6 +319,7 @@ class PyLauncher(object):
 
         # Update the database.
         self.flow.check_status()
+        self.flow.fix_queue_errors()
         self.flow.pickle_dump()
 
         return num_launched
