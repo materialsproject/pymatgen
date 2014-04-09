@@ -407,7 +407,7 @@ class AbstractQueueAdapter(object):
     @abc.abstractmethod
     def increase_mem(self, factor):
         """
-        Method to increase the amound of memory asked for, by factor.
+        Method to increase the amount of memory asked for, by factor.
         """
 
     @abc.abstractmethod
@@ -499,6 +499,14 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --error=$${_qerr_path}
 
 """
+    @property
+    def limits(self):
+        """
+        the limits for certain parameters set on the cluster.
+        currently hard coded, should be read at init
+        the increase functions will not increase beyond thise limits
+        """
+        return {'max_total_tasks': 544, 'max_cpus_per_node': 16, 'mem': 6400000, 'mem_per_cpu': 64000, 'time': 2880}
 
     @property
     def mpi_ncpus(self):
@@ -562,17 +570,91 @@ class SlurmAdapter(AbstractQueueAdapter):
             for node in nodes[1:]:
                 self.qparams['exclude_nodes'] += ',node'+node
             return True
-        except:
+        except (KeyError, IndexError):
             return False
 
-    def increase_cpus(self, factor):
-        return False
+    def increase_cpus(self, factor=1.5):
+        print('increasing cpus')
+        try:
+            if self.qparams['ntasks'] > 1:
+                # mpi parallel
+                n = int(self.qparams['ntasks'] * factor)
+                if n < self.limits['max_total_tasks']:
+                    self.qparams['ntasks'] = n
+                    return True
+                else:
+                    raise QueueAdapterError
+            elif self.qparams['ntasks'] == 1 and self.qparams['cpus_per_task'] > 1:
+                # open mp parallel
+                n = int(self.qparams['cpus_per_task'] * factor)
+                if n < self.limits['max_cpus_per_node']:
+                    self.qparams['cpus_per_task'] = n
+                    return True
+                else:
+                    raise QueueAdapterError
+            else:
+                raise QueueAdapterError
+        except (KeyError, QueueAdapterError):
+            return False
 
-    def increase_mem(self, factor):
-        return False
+    def increase_mem(self, factor=1.5):
+        print('increasing memory')
+        try:
+            if 'mem' in self.qparams.keys():
+                n = int(self.qparams['mem'] * factor)
+                if n < self.limits['mem']:
+                    self.qparams['mem'] = n
+                    return True
+                else:
+                    raise QueueAdapterError
+            elif 'mem_per_cpu' in self.qparams.keys():
+                n = int(self.qparams['mem_per_cpu'] * factor)
+                if n < self.limits['mem_per_cpu']:
+                    self.qparams['mem'] = n
+                    return True
+                else:
+                    raise QueueAdapterError
+            else:
+                raise QueueAdapterError
+        except (KeyError, IndexError, QueueAdapterError):
+            return False
 
-    def increase_time(self, factor):
-        return False
+    def increase_time(self, factor=1.5):
+        print('increasing time')
+        days, hours, minutes = 0, 0, 0
+        try:
+            # a slurm time parser ;-) forgetting about seconds
+            # feel free to pull this out and mak time in minutes always
+            if '-' not in self.qparams['time']:
+                # "minutes",
+                # "minutes:seconds",
+                # "hours:minutes:seconds",
+                if ':' not in self.qparams['time']:
+                    minutes = int(float(self.qparams['time']))
+                elif self.qparams['time'].count(':') == 1:
+                    minutes = int(float(self.qparams['time'].split(':')[0]))
+                else:
+                    minutes = int(float(self.qparams['time'].split(':')[1]))
+                    hours = int(float(self.qparams['time'].split(':')[0]))
+            else:
+                # "days-hours",
+                # "days-hours:minutes",
+                # "days-hours:minutes:seconds".
+                days = int(float(self.qparams['time'].split('-')[0]))
+                hours = int(float(self.qparams['time'].split('-')[1].split(':')[0]))
+                try:
+                    minutes = int(float(self.qparams['time'].split('-')[1].split(':')[1]))
+                except IndexError:
+                    pass
+            time = (days * 24 + hours) * 60 + minutes
+            time *= factor
+            if time < self.limits['time']:
+                self.qparams['time'] = time
+                return True
+            else:
+                raise QueueAdapterError
+        except (KeyError, QueueAdapterError):
+            return False
 
     def get_njobs_in_queue(self, username=None):
         if username is None:

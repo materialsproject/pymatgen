@@ -838,8 +838,9 @@ class Node(object):
     S_DONE = Status(6)
     S_ERROR = Status(7)
     S_QUEUE_ERROR = Status(8)
-    S_UNCONVERGED = Status(9)
-    S_OK = Status(10)
+    S_FINAL_ERROR = Status(9)
+    S_UNCONVERGED = Status(10)
+    S_OK = Status(11)
 
     ALL_STATUS = [
         S_INIT,
@@ -850,6 +851,7 @@ class Node(object):
         S_DONE,
         S_ERROR,
         S_QUEUE_ERROR,
+        S_FINAL_ERROR,
         S_UNCONVERGED,
         S_OK,
     ]
@@ -1576,22 +1578,35 @@ class Task(Node):
         if self.qerr_file.exists:
             from pymatgen.io.gwsetup.scheduler_error_parsers import get_parser
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file, out_file=self.qout_file,
-                                    run_err_file=self.stderr_file)
+                                          run_err_file=self.stderr_file)
             scheduler_parser.parse()
             if scheduler_parser.errors:
                 # the queue errors in the task
                 self.queue_errors = scheduler_parser.errors
-
                 return self.set_status(self.S_QUEUE_ERROR)
             else:
                 err_info = self.qerr_file.read()
                 if err_info:
                     return self.set_status(self.S_ERROR, info_msg=err_info)
 
-
         # 4) Assume the job is still running.
         return self.set_status(self.S_RUN)
 
+    def reduce_memory_demand(self):
+        """
+        Method that can be called by the flow to decrease the memory demand of a specific task.
+        Returns True in case of success, False in case of Failure.
+        Should be overwritten by specific tasks.
+        """
+        return False
+
+    def speed_up(self):
+        """
+        Method that can be called by the flow to decrease the time needed for a specific task.
+        Returns True in case of success, False in case of Failure
+        Should be overwritten by specific tasks.
+        """
+        return False
 
     def out_to_in(self, out_file):
         """
