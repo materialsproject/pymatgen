@@ -60,7 +60,7 @@ class DiskError(AbstractError):
 class TimeCancelError(AbstractError):
     """
     Error due to exceeding the time limit for the job.
-      .limit will return the limit that was broken, None if it could not be determined.
+      .limit will return a list of limits that were broken, None if it could not be determined.
     """
 
     @property
@@ -71,7 +71,7 @@ class TimeCancelError(AbstractError):
 class MemoryCancelError(AbstractError):
     """
     Error due to exceeding the memory limit for the job.
-      .limit will return the limit that was broken, None if it could not be determined.
+      .limit will return a list of limits that were broken, None if it could not be determined.
     """
 
     @property
@@ -82,7 +82,7 @@ class MemoryCancelError(AbstractError):
 class NodeFailureError(AbstractError):
     """
     Error due the hardware failure of a specific node.
-     .node will return the problematic node, None if it could not be determined.
+     .node will return a list of problematic nodes, None if it could not be determined.
     """
 
     @property
