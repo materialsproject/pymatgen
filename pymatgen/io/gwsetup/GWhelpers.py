@@ -203,6 +203,8 @@ def read_grid_from_file(filename):
         f.close()
     except SyntaxError:
         print 'Problems reading ', filename
+        full_res = {'grid': 0, 'all_done': False}
     except (OSError, IOError):
         print 'Inputfile ', filename, ' not found exiting.'
+        full_res = {'grid': 0, 'all_done': False}
     return full_res
