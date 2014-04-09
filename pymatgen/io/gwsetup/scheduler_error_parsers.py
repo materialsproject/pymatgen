@@ -15,6 +15,7 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
                   'NodeFailureError']
 
 import re
+import abc
 from abc import ABCMeta
 
 
@@ -30,8 +31,8 @@ class AbstractError():
 
     def __str__(self):
         _message = '%s  %s\n' \
-                        '  error message : %s \n' \
-                        '  meta data     : %s' % (self.name, self.__doc__, self.errmsg, str(self.meta_data))
+                   '  error message : %s \n' \
+                   '  meta data     : %s' % (self.name, self.__doc__, self.errmsg, str(self.meta_data))
         return _message
 
     @property
@@ -109,6 +110,10 @@ class AbstractErrorParser():
         self.errors = []
         return
 
+    @abc.abstractproperty
+    def error_definitions(self):
+        return {}
+
     @staticmethod
     def extract_metadata(lines, metafilter):
         meta_dict = {}
@@ -149,8 +154,8 @@ class AbstractErrorParser():
         """
         Parse for the occurens of all errors defined in ERRORS
         """
-        for my_error in self.ERRORS:
-            result = self.parse_single(self.ERRORS[my_error])
+        for my_error in self.error_definitions:
+            result = self.parse_single(self.error_definitions[my_error])
             if result[0]:
                 self.errors.append(my_error(result[1], result[2]))
 
@@ -160,17 +165,48 @@ class SlurmErrorParser(AbstractErrorParser):
     Implementation for the Slurm scheduler
     """
 
-    ERRORS = {SubmitError: {'batch_err': {'string': "sbatch: error: Batch job submission failed:",
-                                          'metafilter': ""}},
-              FullQueueError: {'batch_err': {'string': "sbatch: error: Batch job submission failed: Job violates accounting/QOS policy",
-                                             'metafilter': ""}},
-              MemoryCancelError: {'err': {'string': "Exceeded job memory limit",
-                                          'metafilter': ""}},
-              NodeFailureError: {'run_err': {'string': "can't open /dev/ipath, network down",
-                                      'metafilter': {'node': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]}}},
-              AbstractError: {'out': {'string': "a string to be found",
-                                      'metafilter': ""}},
-              }
+    @property
+    def error_definitions(self):
+        return {
+            SubmitError: {
+                'batch_err': {
+                    'string': "sbatch: error: Batch job submission failed:",
+                    'metafilter': {}
+                }
+            },
+            FullQueueError: {
+                'batch_err': {
+                    'string': "sbatch: error: Batch job submission failed: Job violates accounting/QOS policy",
+                    'metafilter': {}
+                }
+            },
+            MemoryCancelError: {
+                'err': {
+                    'string': "Exceeded job memory limit",
+                    'metafilter': {}
+                }
+            },
+            TimeCancelError: {
+                'err': {
+                    'string': "Exceeded job time limit",
+                    'metafilter': {}
+                }
+            },
+            NodeFailureError: {
+                'run_err': {
+                    'string': "can't open /dev/ipath, network down",
+                    'metafilter': {
+                        'node': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]
+                    }
+                }
+            },
+            AbstractError: {
+                'out': {
+                    'string': "a string to be found",
+                    'metafilter': {}
+                }
+            }
+        }
 
 
 class PBSErrorParse(AbstractErrorParser):
@@ -178,13 +214,14 @@ class PBSErrorParse(AbstractErrorParser):
     Implementation for the PBS scheduler
     """
 
+
 ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParse}
 
 
 def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_file=None):
     """
     Factory function to provide the parser for the specified scheduler. If the scheduler is not implemented None is
-    returned. The **kwargs are the file names of the out and err files:
+    returned. The files correspond to file names of the out and err files:
     err_file        stderr of the scheduler
     out_file        stdout of the scheduler
     run_err_file    stderr of the application

@@ -399,7 +399,7 @@ class AbinitFlow(Node):
                         return task.set_status(task.S_READY)
                     else:
                         info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
+                        return task.set_status(task.S_FINAL_ERROR, info_msg)
                 elif isinstance(error, MemoryCancelError):
                     # ask the qadapter to provide more memory
                     if task.manager.qadapter.increase_mem():
@@ -410,7 +410,7 @@ class AbinitFlow(Node):
                     else:
                         info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
                                    'memory demand be decreased. Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
+                        return task.set_status(task.S_FINAL_ERROR, info_msg)
                 elif isinstance(error, TimeCancelError):
                     # ask the qadapter to provide more memory
                     if task.manager.qadapter.increase_time():
@@ -425,10 +425,10 @@ class AbinitFlow(Node):
                         info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
                                    'the time demand be decreased by speedup of increasing the number of cpus. ' \
                                    'Unrecoverable error.'
-                        return task.set_status(task.S_ERROR, info_msg)
+                        return task.set_status(task.S_FINAL_ERROR, info_msg)
                 else:
                     info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
-                    return task.set_status(task.S_ERROR, info_msg)
+                    return task.set_status(task.S_FINAL_ERROR, info_msg)
 
     def show_status(self, stream=sys.stdout):
         """
