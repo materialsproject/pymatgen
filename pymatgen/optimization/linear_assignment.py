@@ -45,7 +45,7 @@ class LinearAssignment(object):
     """
 
     def __init__(self, costs, epsilon=-1e-6):
-        self.orig_c = np.array(costs)
+        self.orig_c = np.array(costs, dtype=np.float64)
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
         

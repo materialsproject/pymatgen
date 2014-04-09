@@ -882,6 +882,43 @@ class Kpoints(MSONable):
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
     @staticmethod
+    def automatic_linemode(divisions, ibz):
+        """
+        Convenient static constructor for a KPOINTS in mode line_mode.
+        gamma centered Monkhorst-Pack grids and the number of subdivisions
+        along each reciprocal lattice vector determined by the scheme in the
+        VASP manual.
+
+        Args:
+            divisions: Parameter determining the number of k-points along each
+                hight symetry lines.
+            ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
+
+        Returns:
+            Kpoints object
+        """
+        kpoints = list()
+        labels = list()
+        for path in ibz.kpath["path"]:
+            kpoints.append(ibz.kpath["kpoints"][path[0]])
+            labels.append(path[0])
+            for i in range(1, len(path) - 1):
+                kpoints.append(ibz.kpath["kpoints"][path[i]])
+                labels.append(path[i])
+                kpoints.append(ibz.kpath["kpoints"][path[i]])
+                labels.append(path[i])
+
+            kpoints.append(ibz.kpath["kpoints"][path[-1]])
+            labels.append(path[-1])
+
+        return Kpoints("Line_mode KPOINTS file",
+                       style=Kpoints.supported_modes.Line_mode,
+                       coord_type="Reciprocal",
+                       kpts=kpoints,
+                       labels=labels,
+                       num_kpts=int(divisions))
+
+    @staticmethod
     def from_file(filename):
         """
         Reads a Kpoints object from a KPOINTS file.
@@ -996,12 +1033,14 @@ class Kpoints(MSONable):
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style]
         style = self.style.lower()[0]
-        if style == "Line-mode":
+        if style == "l":
             lines.append(self.coord_type)
         for i in xrange(len(self.kpts)):
             lines.append(" ".join([str(x) for x in self.kpts[i]]))
             if style == "l":
                 lines[-1] += " ! " + self.labels[i]
+                if i % 2 == 1:
+                    lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
                     lines[-1] += " %i %s" % (self.kpts_weights[i],
