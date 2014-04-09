@@ -11,14 +11,9 @@ __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
 __date__ = "Mar 24, 2014"
 
-import os
-import os.path
-import abc
-import re
-
-from abc import ABCMeta
 from pymatgen.io.gwsetup.scheduler_error_parsers import get_parser
-from custodian.custodian import Custodian, ErrorHandler
+from pymatgen.io.gwsetup.scheduler_error_correcters import get_correcter
+from custodian.custodian import ErrorHandler
 
 
 class SchedulerErrorHandler(ErrorHandler):
@@ -26,16 +21,20 @@ class SchedulerErrorHandler(ErrorHandler):
     Custodian error handler for scheduler related errors
       scheduler takes the schduler, currently: slurm is supported
     """
-    def __init__(self, scheduler, err_file='queue.err', out_file='queue.out', run_err_file='run.err', batch_err_file='batch.err'):
+    def __init__(self, scheduler, code, err_file='queue.err', out_file='queue.out', run_err_file='run.err',
+                 batch_err_file='batch.err'):
         self.scheduler = scheduler
+        self.code = code
         self.err_file = err_file
         self.out_file = out_file
         self.run_err_file = run_err_file
         self.batch_err_file = batch_err_file
         self.errors = []
+        self.corrections = {}
 
     def check(self):
-        parser = AbstractErrorParser.factory('slurm', err_file=self.err_file, out_file=self.out_file, run_err_file=self.run_err_file, batch_err_file=self.batch_err_file)
+        parser = get_parser(self.scheduler, err_file=self.err_file, out_file=self.out_file,
+                            run_err_file=self.run_err_file, batch_err_file=self.batch_err_file)
         parser.parse()
         self.errors = parser.errors
         if len(self.errors) == 0:
@@ -44,4 +43,7 @@ class SchedulerErrorHandler(ErrorHandler):
             return True
 
     def correct(self):
-        pass
+        correcter = get_correcter(self.scheduler, self.code)
+        correcter.correct()
+        self.corrections = correcter.corrections
+        return self.corrections
