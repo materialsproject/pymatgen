@@ -37,10 +37,11 @@ class PDPlotter(object):
     def __init__(self, phasediagram, show_unstable=False):
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
-        self.lines = uniquelines(self._pd.facets)
+        if self._dim > 4:
+            raise ValueError("Only 1-4 components supported!")
+        self.lines = uniquelines(self._pd.facets) if self._dim > 1 else \
+            [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
-        if self._dim < 2 or self._dim > 4:
-            raise ValueError("Only 2-4 components supported!")
 
     @property
     def pd_plot_data(self):
@@ -66,7 +67,7 @@ class PDPlotter(object):
         for line in self.lines:
             entry1 = entries[line[0]]
             entry2 = entries[line[1]]
-            if self._dim == 2:
+            if self._dim < 3:
                 x = [data[line[0]][0], data[line[1]][0]]
                 y = [pd.get_form_energy_per_atom(entry1),
                      pd.get_form_energy_per_atom(entry2)]
@@ -87,7 +88,7 @@ class PDPlotter(object):
         for i in xrange(0, len(all_entries)):
             entry = all_entries[i]
             if entry not in stable:
-                if self._dim == 2:
+                if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
                     y = [pd.get_form_energy_per_atom(entry),
                          pd.get_form_energy_per_atom(entry)]
