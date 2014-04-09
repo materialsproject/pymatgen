@@ -136,6 +136,7 @@ class AbstractErrorParser():
                     lines = f.read().split('\n')
                 for line in lines:
                     if errmsg[k]['string'] in line:
+                        message = line
                         found = True
                 if found:
                     metadata = self.extract_metadata(lines, errmsg[k]['metafilter'])
