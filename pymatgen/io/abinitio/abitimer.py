@@ -1,6 +1,6 @@
 """
-This module provides objects for extracting timing data from ABINIT output files 
-and tools to analye and to visualize the parallel efficiency.
+This module provides objects for extracting timing data from the ABINIT output files 
+It also provides tools to analye and to visualize the parallel efficiency.
 """
 from __future__ import print_function, division
 
@@ -27,7 +27,7 @@ def alternate(*iterables):
 
 
 def minloc(iterable):
-    """Return the min value and its position."""
+    """Return the minimum value in an iterable and its (first) position."""
     min_val, min_idx = iterable[0], 0
 
     for (idx, item) in enumerate(iterable[1:]):
