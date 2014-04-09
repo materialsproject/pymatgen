@@ -55,11 +55,13 @@ __all__ = [
     "AnaddbTask",
 ]
 
+
 # Tools and helper functions.
 def straceback():
     """Returns a string with the traceback."""
     import traceback
     return traceback.format_exc()
+
 
 class TaskResults(dict, MSONable):
     """
@@ -188,7 +190,6 @@ class ParalConf(AttrDict):
     def tot_mem(self):
         """Estimated total memory in Mbs (computed from mem_per_cpu)"""
         return self.mem_per_cpu * self.tot_ncpus
-
 
 
 class ParalHintsParser(object):
@@ -607,6 +608,7 @@ try:
 except IOError:
     _COUNTER = -1
 
+
 def get_newnode_id():
     """
     Returns a new node identifier used both for `Task` and `Workflow` objects.
@@ -795,10 +797,13 @@ STATUS2STR = collections.OrderedDict([
     (4, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
     (5, "Running"),       # Node is running.
     (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (7, "Error"),         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    (8, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
-    (9, "Completed"),     # Execution completed successfully.
+    (7, "Error"),         # Node raised an Error by ABINIT.
+    (8, "Queue_Error"),   # Node raised an Error by submitting submission script, or by executing it
+    (9, "Final_Error"),   # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (10, "Unconverged"),  # This usually means that an iterative algorithm didn't converge.
+    (11, "Completed"),    # Execution completed successfully.
 ])
+
 
 class Status(int):
     """This object is an integer representing the status of the `Node`."""
@@ -2532,6 +2537,7 @@ class OpticTask(Task):
         Optic allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
 
 class AnaddbTask(Task):
     # TODO
