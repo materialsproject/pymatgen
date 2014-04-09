@@ -200,3 +200,4 @@ if __name__ == "__main__":
     print 'parser.errors', my_parser.errors
     for error in my_parser.errors:
         print error
+        print error.node
