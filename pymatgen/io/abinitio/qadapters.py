@@ -468,8 +468,8 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --nodelist=$${nodelist}
 #SBATCH --propagate=$${propagate}
 
-#SBATCH --output=$${_qerr_path}
-#SBATCH --error=$${_qout_path}
+#SBATCH --output=$${_qout_path}
+#SBATCH --error=$${_qerr_path}
 
 """
 
@@ -566,8 +566,8 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -l mppwidth=$${mppwidth}
 #PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -N $${job_name}
-#PBS -o $${_qerr_path}
-#PBS -e $${_qout_path}
+#PBS -o $${_qout_path}
+#PBS -e $${_qerr_path}
 
 """
     @property
