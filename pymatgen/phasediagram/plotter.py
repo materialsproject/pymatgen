@@ -354,7 +354,7 @@ class PDPlotter(object):
 
         plt.savefig(stream, format=image_format)
 
-    def plot_chempot_range_map(self, elements):
+    def plot_chempot_range_map(self, elements, referenced=True):
         """
         Plot the chemical potential range _map. Currently works only for
         3-component PDs.
@@ -364,10 +364,12 @@ class PDPlotter(object):
                 variables. E.g., if you want to show the stability ranges of
                 all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+            referenced: if True, gives the results with a reference being the
+                        energy of the elemental phase. If False, gives absolute values.
         """
-        self.get_chempot_range_map_plot(elements).show()
+        self.get_chempot_range_map_plot(elements, referenced=referenced).show()
 
-    def get_chempot_range_map_plot(self, elements):
+    def get_chempot_range_map_plot(self, elements,referenced=True):
         """
         Returns a plot of the chemical potential range _map. Currently works
         only for 3-component PDs.
@@ -377,13 +379,15 @@ class PDPlotter(object):
                 variables. E.g., if you want to show the stability ranges of
                 all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+            referenced: if True, gives the results with a reference being the
+                        energy of the elemental phase. If False, gives absolute values.
         Returns:
             A matplotlib plot object.
         """
 
         plt = get_publication_quality_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
-        chempot_ranges = analyzer.get_chempot_range_map(elements)
+        chempot_ranges = analyzer.get_chempot_range_map(elements,referenced=referenced)
         missing_lines = {}
         excluded_region = []
         for entry, lines in chempot_ranges.items():
