@@ -596,7 +596,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
             initial_sp = max(total_occupancy.keys(),
                              key=lambda x: abs(x.oxi_state))
             for i in g:
-                s.replace(i, initial_sp)
+                s[i] = initial_sp
             #determine the manipulations
             for k, v in total_occupancy.items():
                 if k == initial_sp:
@@ -625,7 +625,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 if manipulation[1] is None:
                     del_indices.append(manipulation[0])
                 else:
-                    s_copy.replace(manipulation[0], manipulation[1])
+                    s_copy[manipulation[0]] = manipulation[1]
             s_copy.remove_sites(del_indices)
             self._all_structures.append(
                 {"energy": output[0],

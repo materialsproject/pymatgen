@@ -1,20 +1,14 @@
-#!/usr/bin/env python
-
 """
 Deployment file to facilitate releases of pymatgen.
 """
 
-from __future__ import division
-
 __author__ = "Shyue Ping Ong"
-__copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Shyue Ping Ong"
-__email__ = "shyue@mit.edu"
-__date__ = "Apr 29, 2012"
+__email__ = "ongsp@ucsd.edu"
+__date__ = "Mar 6, 2014"
 
 import glob
 import os
+import webbrowser
 
 from fabric.api import local, lcd
 from pymatgen import __version__ as ver
@@ -62,10 +56,6 @@ def publish():
     local("python setup.py release")
 
 
-def test():
-    local("nosetests")
-
-
 def setver():
     local("sed s/version=.*,/version=\\\"{}\\\",/ setup.py > newsetup"
           .format(ver))
@@ -80,6 +70,14 @@ def update_doc():
         local("git push origin gh-pages")
 
 
+def merge_stable():
+    local("git checkout stable")
+    local("git pull")
+    local("git merge master")
+    local("git push")
+    local("git checkout master")
+
+
 def log_ver():
     filepath = os.path.join(os.environ["HOME"], "Dropbox", "Public",
                             "pymatgen", ver)
@@ -87,9 +85,16 @@ def log_ver():
         f.write("Release")
 
 
-def release():
+def release(skip_test=False):
     setver()
-    test()
+    if not skip_test:
+        local("nosetests")
     publish()
     log_ver()
     update_doc()
+    merge_stable()
+
+
+def opendoc():
+    pth = os.path.abspath("docs/_build/html/index.html")
+    webbrowser.open("file://" + pth)

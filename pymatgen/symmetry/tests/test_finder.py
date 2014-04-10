@@ -39,7 +39,7 @@ class SymmetryFinderTest(unittest.TestCase):
         self.disordered_sg = SymmetryFinder(self.disordered_structure, 0.001)
         s = p.structure.copy()
         site = s[0]
-        s.remove(0)
+        del s[0]
         s.append(site.species_and_occu, site.frac_coords)
         self.sg3 = SymmetryFinder(s, 0.001)
         parser = CifParser(os.path.join(test_dir, 'Graphite.cif'))

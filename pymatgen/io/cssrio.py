@@ -15,7 +15,7 @@ __date__ = "Jan 24, 2012"
 
 import re
 
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 

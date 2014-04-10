@@ -4,21 +4,29 @@
 This module defines classes for point defects
 """
 from __future__ import division
+
+import os
 import abc
-import re
+import json
+from bisect import bisect_left
 
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
-from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea
+from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea, \
+        get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham
 from pymatgen.command_line.gulp_caller import \
-    get_energy_relax_structure_buckingham
+        get_energy_relax_structure_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
-    RelaxationAnalyzer
+        RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.core.periodic_table import Specie, Element
+from pymatgen.core.periodic_table import Specie
 
+file_dir = os.path.dirname(__file__)
+rad_file = os.path.join(file_dir, 'ionic_radii.json')
+with open(rad_file, 'r') as fp:
+    _ion_radii = json.load(fp)
 
 class ValenceIonicRadiusEvaluator:
     """
@@ -39,14 +47,18 @@ class ValenceIonicRadiusEvaluator:
         """
         List of ionic radii of elements in the order of sites.
         """
-        return self._ionic_radii
+        el = [site.species_string for site in self._structure.sites]
+        radii_dict = dict(zip(el, self._ionic_radii))
+        return radii_dict
 
     @property
     def valences(self):
         """
         List of oxidation states of elements in the order of sites.
         """
-        return self._valences
+        el = [site.species_string for site in self._structure.sites]
+        valence_dict = dict(zip(el, self._valences))
+        return valence_dict
 
     @property
     def structure(self):
@@ -60,27 +72,82 @@ class ValenceIonicRadiusEvaluator:
         Computes ionic radii of elements for all sites in the structure.
         If valence is zero, atomic radius is used.
         """
-        rad_dict = {}
-        for k, val in self._valences.items():
-            el = re.sub('[1-9,+,\-]', '', k)
-            if val:
-                #rad_dict[k] = Specie(el, val).ionic_radius
-                rad_dict[k] = float(Element(el).ionic_radii[val])
-                if not rad_dict[k]:  
-                    raise LookupError()
-            else:
-                rad_dict[k] = Element(el).atomic_radius
-        return rad_dict
+        radii = []
+        coord_finder = VoronoiCoordFinder(self._structure)
+
+        def nearest_key(sorted_vals, key):
+            i = bisect_left(sorted_vals, key)
+            if i == len(sorted_vals):
+                i = -1
+            return sorted_vals[i]
+
+        for i in range(len(self._structure.sites)):
+            site = self._structure.sites[i]
+            el = site.specie.symbol
+            oxi_state = int(round(site.specie.oxi_state))
+            coord_no = int(round(coord_finder.get_coordination_number(i)))
+            try:
+                tab_oxi_states = map(int, _ion_radii[el].keys())
+                tab_oxi_states.sort()
+                oxi_state = nearest_key(tab_oxi_states, oxi_state)
+                radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
+            except KeyError:
+                if coord_finder.get_coordination_number(i)-coord_no > 0:
+                    new_coord_no = coord_no + 1
+                else:
+                    new_coord_no = coord_no - 1
+                try:
+                    radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
+                    coord_no = new_coord_no
+                except:
+                    tab_coords = map(int, _ion_radii[el][str(oxi_state)].keys())
+                    tab_coords.sort()
+                    new_coord_no = nearest_key(tab_coords, coord_no)
+                    i = 0
+                    for val in tab_coords:
+                        if  val > coord_no:
+                            break
+                        i = i + 1
+                    if i == len(tab_coords):
+                        key = str(tab_coords[-1])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    elif i == 0:
+                        key = str(tab_coords[0])
+                        radius = _ion_radii[el][str(oxi_state)][key]
+                    else:
+                        key = str(tab_coords[i-1])
+                        radius1 = _ion_radii[el][str(oxi_state)][key]
+                        key = str(tab_coords[i])
+                        radius2 = _ion_radii[el][str(oxi_state)][key]
+                        radius = (radius1+radius2)/2
+
+            #implement complex checks later
+            radii.append(radius)
+        return radii
 
     def _get_valences(self):
         """
         Computes ionic valences of elements for all sites in the structure.
         """
-        bv = BVAnalyzer()
-        valences = bv.get_valences(self._structure)
-        el = [site.specie.symbol for site in self.structure.sites]
-        valence_dict = dict(zip(el, valences))
-        return valence_dict
+        try:
+            bv = BVAnalyzer()
+            self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+            valences = bv.get_valences(self._structure)
+        except:
+            try:
+                bv = BVAnalyzer(symm_tol=0.0)
+                self._structure = bv.get_oxi_state_decorated_structure(self._structure)
+                valences = bv.get_valences(self._structure)
+            except:
+                raise
+
+        #print valences
+        #el = [site.specie.symbol for site in self._structure.sites]
+        #el = [site.species_string for site in self._structure.sites]
+        #el = [site.specie for site in self._structure.sites]
+        #valence_dict = dict(zip(el, valences))
+        #print valence_dict
+        return valences
 
 
 class Defect:
@@ -249,8 +316,8 @@ class Vacancy(Defect):
 
     def get_defectsite_effective_charge(self, n):
         """
-        Effective charge (In Kroger-Vink notation, cation vacancy has 
-        effectively -ve charge and anion vacancy has +ve charge.) 
+        Effective charge (In Kroger-Vink notation, cation vacancy has
+        effectively -ve charge and anion vacancy has +ve charge.)
 
         Args:
             n: Index of vacancy list
@@ -258,11 +325,11 @@ class Vacancy(Defect):
         Returns:
             Effective charnge of defect site
         """
-        # Effective charge (In Kroger-Vink notation, cation vacancy has 
+        # Effective charge (In Kroger-Vink notation, cation vacancy has
         # effectively -ve charge and anion vacancy has +ve charge.) Inverse
         # the BVAnalyzer.get_valences result.
 
-        el = self.get_defectsite(n).specie.symbol
+        el = self.get_defectsite(n).species_string
         return -self._valence_dict[el]
         #if not self._vac_eff_charges:
         #    self._vac_eff_charges = []
@@ -312,7 +379,6 @@ class Vacancy(Defect):
             sc = self.make_supercells_with_defects(um)[1:]
             rad_dict = self.struct_radii
             for i in range(len(sc)):
-                site_radi = rad_dict[self._defect_sites[i].specie.symbol]
                 vol, sa = get_void_volume_surfarea(sc[i], rad_dict)
                 self._vol.append(vol)
                 self._sa.append(sa)
@@ -432,31 +498,61 @@ class Interstitial(Defect):
     Subclass of Defect to generate interstitial sites
     """
 
-    def __init__(self, structure, valences, radii):
+    def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
+                 accuracy='Normal'):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
-        
+
         Args:
             structure: pymatgen.core.structure.Structure
-            valences: Dictionary of oxidation states of elements in {
-                El:valence} form
+            valences: Dictionary of oxidation states of elements in 
+                      {el:valence} form
             radii: Radii of elemnts in the structure
+            site_type: "voronoi_vertex" uses voronoi nodes
+                       "voronoi_facecenter" uses voronoi polyhedra face centers
+                       Default is "voronoi_vertex"
+            accuracy: Flag denoting whether to use high accuracy version 
+                      of Zeo++. Options are "Normal" and "High".
+                      Default is normal.
         """
 
-        self._structure = structure
+        try:
+            bv = BVAnalyzer()
+            self._structure = bv.get_oxi_state_decorated_structure(structure)
+        except:
+            try:
+                bv = BVAnalyzer(symm_tol=0.0)
+                self._structure = bv.get_oxi_state_decorated_structure(
+                        structure
+                        )
+            except:
+                raise
         self._valence_dict = valences
         self._rad_dict = radii
 
-        #Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction and 
-        #the symmetry reduced voronoi nodes
-        #are possible candidates for interstitial sites
-        #try:
-        possible_interstitial_sites = symmetry_reduced_voronoi_nodes(
-                self._structure, self._rad_dict)
-        #except:
-        #    raise ValueError("Symmetry_reduced_voronoi_nodes failed")
+        """
+        Use Zeo++ to obtain the voronoi nodes. Apply symmetry reduction
+        and the symmetry reduced voronoi nodes are possible candidates
+        for interstitial sites.
+        """
+        if accuracy == "Normal":
+            high_accuracy_flag = False
+        elif accuracy == "High":
+            high_accuracy_flag = True
+        else:
+            raise ValueError("Accuracy setting not understood.")
+        vor_node_sites, vor_facecenter_sites = symmetry_reduced_voronoi_nodes(
+                self._structure, self._rad_dict, high_accuracy_flag
+                )
 
-        #Do futher processing on possibleInterstitialSites to obtain 
+        if site_type == 'voronoi_vertex':
+            possible_interstitial_sites = vor_node_sites
+        elif site_type == 'voronoi_facecenter':
+            possible_interstitial_sites = vor_facecenter_sites
+        else:
+            raise ValueError("Input site type not implemented")
+
+        #Do futher processing on possibleInterstitialSites to obtain
         #interstitial sites
         self._defect_sites = possible_interstitial_sites
         self._defectsite_coord_no = []
@@ -487,7 +583,7 @@ class Interstitial(Defect):
         coord_no = coord_finder.get_coordination_number(-1)
         coord_sites = coord_finder.get_coordinated_sites(-1)
 
-        # In some cases coordination sites to interstitials include 
+        # In some cases coordination sites to interstitials include
         # interstitials also. Filtering them.
         def no_inter(site):
             return not site.specie.symbol == 'X'
@@ -496,7 +592,7 @@ class Interstitial(Defect):
         coord_chrg = 0
         for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
             if not site.specie.symbol == 'X':
-                coord_chrg += weight * self._valence_dict[site.specie.symbol]
+                coord_chrg += weight * self._valence_dict[site.species_string]
 
         return coord_no, coord_sites, coord_chrg
 
@@ -571,8 +667,6 @@ class Interstitial(Defect):
         coordinates.
         """
         distinct_radii = list(set(self._radii))
-        no_dstnt_radii = len(distinct_radii)
-        flag = [False] * no_dstnt_radii
         for rad in distinct_radii:
             ind = self._radii.index(rad)  # Index of first site with 'rad'
             for i in reversed(range(ind + 1, len(self._radii))):
@@ -596,7 +690,7 @@ class Interstitial(Defect):
 
     def prune_defectsites(self, el="C", oxi_state=4, dlta=0.1):
         """
-        Prune all the defect sites which can't acoomodate the input elment 
+        Prune all the defect sites which can't acoomodate the input elment
         with the input oxidation state.
         """
         rad = float(Specie(el, oxi_state).ionic_radius) - dlta
@@ -625,7 +719,19 @@ class Interstitial(Defect):
         sc.make_supercell(scaling_matrix)
         oldf_coords = defect_site.frac_coords
         coords = defect_site.lattice.get_cartesian_coords(oldf_coords)
+        #print coords
         newf_coords = sc.lattice.get_fractional_coords(coords)
+        for i in range(3):
+            coord = newf_coords[i]
+            if coord < 0:
+                while (coord < 0):
+                    coord = coord+1
+                newf_coords[i] = coord
+            elif coord > 1:
+                while (coord > 1):
+                    coord = coord-1
+                newf_coords[i] = coord
+        #print newf_coords
         #sc_defect_site = PeriodicSite(element, newf_coords,
         #                              sc.lattice)
         try:
@@ -690,8 +796,6 @@ class InterstitialAnalyzer:
             scale_mat = [[scd, 0, 0], [0, scd, 0], [0, 0, scd]]
             sc = self._inter.make_supercells_with_defects(scale_mat, self._el)
             blk_energy = get_energy_buckingham(sc[0])
-            no = len(sc[0].sites)
-            #print no
             for i in range(1, no_inter + 1):
                 inter_energy = get_energy_buckingham(
                     sc[i], keywords=inter_gulp_kw, valence_dict=val_dict
@@ -706,7 +810,7 @@ class InterstitialAnalyzer:
 
     def _relax_analysis(self):
         """
-        Optimize interstitial structures 
+        Optimize interstitial structures
         """
 
         no_inter = self._inter.defectsite_count()
@@ -728,7 +832,7 @@ class InterstitialAnalyzer:
 
     def get_relaxed_structure(self, n):
         """
-        Optimized interstitial structure 
+        Optimized interstitial structure
 
         Args:
             n: Symmetrically distinct interstitial index
@@ -792,7 +896,7 @@ class InterstitialAnalyzer:
 
     def relaxed_structure_match(self, i, j):
         """
-        Check if the relaxed structures of two interstitials match 
+        Check if the relaxed structures of two interstitials match
 
         Args:
             i: Symmetrically distinct interstitial index
@@ -846,7 +950,7 @@ class InterstitialStructureRelaxer:
 
     def relax(self):
         """
-        Optimize interstitial structures 
+        Optimize interstitial structures
         """
 
         no_inter = self._inter.defectsite_count()
@@ -881,7 +985,7 @@ class InterstitialStructureRelaxer:
 
     def relaxed_structure_match(self, i, j):
         """
-        Check if the relaxed structures of two interstitials match 
+        Check if the relaxed structures of two interstitials match
 
         Args:
             i: Symmetrically distinct interstitial index
@@ -900,7 +1004,7 @@ class InterstitialStructureRelaxer:
 
     def relaxed_energy_match(self, i, j):
         """
-        Check if the relaxed energies of two interstitials match 
+        Check if the relaxed energies of two interstitials match
 
         Args:
             i: Symmetrically distinct interstitial index
@@ -1008,7 +1112,7 @@ class RelaxedInterstitial:
             n: Index of interstitials
             chem_pot: Chemical potential of interstitial site element.
                 If not given, assumed as zero. The user is strongly
-                urged to supply the chemical potential value 
+                urged to supply the chemical potential value
         """
         return self._energies[n] - self._blk_energy - chem_pot
 
@@ -1150,13 +1254,14 @@ class RelaxedInterstitial:
             self._coord_sites.append(coord_finder.get_coordinated_sites(-1))
             coord_chrg = 0
             for site, weight in coord_finder.get_voronoi_polyhedra(-1).items():
-                coord_chrg += weight * self._valence_dict[site.specie.symbol]
+                coord_chrg += weight * self._valence_dict[site.species_string]
             self._coord_charge_no.append(coord_chrg)
 
 
-def symmetry_reduced_voronoi_nodes(structure, rad_dict):
+def symmetry_reduced_voronoi_nodes(
+        structure, rad_dict, high_accuracy_flag=False):
     """
-    Obtain symmetry reduced voronoi nodes using Zeo++ and 
+    Obtain symmetry reduced voronoi nodes using Zeo++ and
     pymatgen.symmetry.finder.SymmetryFinder
 
     Args:
@@ -1165,14 +1270,6 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
     Returns:
         Symmetrically distinct voronoi nodes as pymatgen Strucutre
     """
-    vor_node_struct = get_voronoi_nodes(structure, rad_dict)
-    vor_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
-    vor_symm_struct = vor_symmetry_finder.get_symmetrized_structure()
-    #print vor_symm_struct.lattice
-    #print vor_symm_struct.lattice.abc, vor_symm_struct.lattice.angles
-    #print vor_node_struct.lattice
-    #print vor_node_struct.lattice.abc, vor_node_struct.lattice.angles
-    equiv_sites_list = vor_symm_struct.equivalent_sites
 
     def add_closest_equiv_site(dist_sites, equiv_sites):
         if not dist_sites:
@@ -1189,16 +1286,89 @@ def symmetry_reduced_voronoi_nodes(structure, rad_dict):
             ind = avg_dists.index(min_avg_dist)
             dist_sites.append(equiv_sites[ind])
 
-    dist_sites = []
-    for equiv_sites in equiv_sites_list:
-        add_closest_equiv_site(dist_sites, equiv_sites)
+    def cmp_memoize_last_site(f): #Compares and stores last site
+        def not_duplicates(site1, site2):
+            if site1.distance(site2) < 1e-5:
+                return False
+            else:
+                return True
 
-    #lat = structure.lattice
-    #sp = [site.specie for site in sites]   # "X" because to Zeo++
-    #coords = [site.coords for site in sites]
-    #vor_node_radii = [site.properties['voronoi_radius'] for site in sites]
-    #vor_node_struct = Structure(lat, sp, coords, 
-    #        coords_are_cartesian=True, 
-    #        site_properties={'voronoi_radius':vor_node_radii}
-    #        )
-    return dist_sites
+        cmp_memoize_last_site.cache = None
+        def helper(x):
+            if not cmp_memoize_last_site.cache: 
+                cmp_memoize_last_site.cache = f(x)
+                return True
+            y = f(x)
+            if not_duplicates(cmp_memoize_last_site.cache, y):
+                cmp_memoize_last_site.cache = y
+                return True
+            else:
+                return False
+        return helper
+
+    @cmp_memoize_last_site
+    def check_not_duplicates(site):
+        return site
+
+
+
+    if not high_accuracy_flag:
+        vor_node_struct, vor_facecenter_struct  = get_voronoi_nodes(
+                        structure, rad_dict)
+        vor_node_symmetry_finder = SymmetryFinder(vor_node_struct, symprec=1e-1)
+        vor_node_symm_struct = vor_node_symmetry_finder.get_symmetrized_structure()
+        node_equiv_sites_list = vor_node_symm_struct.equivalent_sites
+
+        node_dist_sites = []
+        for equiv_sites in node_equiv_sites_list:
+            add_closest_equiv_site(node_dist_sites, equiv_sites)
+
+        vor_fc_symmetry_finder = SymmetryFinder(
+                        vor_facecenter_struct, symprec=1e-1)
+        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+
+        facecenter_dist_sites = []
+        for equiv_sites in facecenter_equiv_sites_list:
+            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
+            facecenter_dist_sites = vor_facecenter_struct.sites
+
+        return node_dist_sites, facecenter_dist_sites
+    else:
+        # Only the nodes are from high accuracy voronoi decomposition
+        vor_node_struct, vor_facecenter_struct  = \
+                get_high_accuracy_voronoi_nodes(structure, rad_dict)
+
+        # Before getting the symmetry, remove the duplicates
+        vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
+        #print type(vor_node_struct.sites[0])
+        dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
+        # Increase the symmetry precision to 0.25
+        spg = SymmetryFinder(structure,symprec=2.5e-1).get_spacegroup()
+        
+        # Remove symmetrically equivalent sites
+        i = 0
+        while (i < len(dist_sites)-1):
+            sites1 = [dist_sites[i]]
+            sites2 = [dist_sites[i+1]]
+            if spg.are_symmetrically_equivalent(sites1,sites2):
+                del dist_sites[i+1]
+            else:
+                i = i+1
+
+
+        node_dist_sites = dist_sites
+
+        vor_fc_symmetry_finder = SymmetryFinder(
+                        vor_facecenter_struct, symprec=1e-1)
+        vor_fc_symm_struct = vor_fc_symmetry_finder.get_symmetrized_structure()
+        facecenter_equiv_sites_list = vor_fc_symm_struct.equivalent_sites
+
+        facecenter_dist_sites = []
+        for equiv_sites in facecenter_equiv_sites_list:
+            add_closest_equiv_site(facecenter_dist_sites, equiv_sites)
+        if not facecenter_equiv_sites_list:     # Fix this so doesn't arise
+            facecenter_dist_sites = vor_facecenter_struct.sites
+
+        return node_dist_sites, facecenter_dist_sites

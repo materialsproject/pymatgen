@@ -39,10 +39,12 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Apr 30, 2012"
 
 import json
+import numpy as np
+
 from abc import ABCMeta, abstractproperty
 import datetime
 
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 
 
 class MSONable(object):
@@ -120,6 +122,11 @@ class PMGJSONEncoder(json.JSONEncoder):
                 return {"@module": "datetime",
                         "@class": "datetime",
                         "string": str(o)}
+            elif isinstance(o, np.ndarray):
+                return o.tolist()
+            elif isinstance(o, np.generic):
+                return o.item()
+
             d = o.to_dict
             if "@module" not in d:
                 d["@module"] = o.__class__.__module__
@@ -180,6 +187,7 @@ class PMGJSONDecoder(json.JSONDecoder):
                     for k, v in d.items()}
         elif isinstance(d, list):
             return [self.process_decoded(x) for x in d]
+
         return d
 
     def decode(self, s):
@@ -201,14 +209,6 @@ def json_pretty_dump(obj, filename):
     """
     with open(filename, "w") as fh:
         json.dump(obj, fh, indent=4, sort_keys=4)
-
-
-def json_load(filename):
-    """
-    Deserialize a file containing a JSON document to a Python object.
-    """
-    with open(filename, "r") as fh:
-        return json.load(fh)
 
 
 def pmg_load(filename, **kwargs):

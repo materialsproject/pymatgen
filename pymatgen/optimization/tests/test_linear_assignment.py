@@ -49,8 +49,44 @@ class LinearAssignmentTest(unittest.TestCase):
         self.assertEqual(la1.min_cost, 125, 'Incorrect cost')
         la2 = LinearAssignment(w2)
         self.assertEqual(la2.min_cost, 110, 'Incorrect cost')
-
         
+    def test_rectangular(self):
+        w0 = np.array([[19, 95,  9, 43, 62, 90, 10, 77, 71, 27],
+                       [26, 30, 88, 78, 87,  2, 14, 71, 78, 11],
+                       [48, 70, 26, 82, 32, 16, 36, 26, 42, 79],
+                       [47, 46, 93, 66, 38, 20, 73, 39, 55, 51],
+                       [ 1, 81, 31, 49, 20, 24, 95, 80, 82, 11],
+                       [81, 48, 35, 54, 35, 55, 27, 87, 96,  7],
+                       [42, 17, 60, 73, 37, 36, 79,  3, 60, 82],
+                       [14, 57, 23, 69, 93, 78, 56, 49, 83, 36],
+                       [11, 37, 24, 70, 62, 35, 64, 18, 99, 20]])
+        la0 = LinearAssignment(w0)
+        
+        w1 = np.array([[19, 95,  9, 43, 62, 90, 10, 77, 71, 27],
+                       [26, 30, 88, 78, 87,  2, 14, 71, 78, 11],
+                       [48, 70, 26, 82, 32, 16, 36, 26, 42, 79],
+                       [47, 46, 93, 66, 38, 20, 73, 39, 55, 51],
+                       [ 1, 81, 31, 49, 20, 24, 95, 80, 82, 11],
+                       [81, 48, 35, 54, 35, 55, 27, 87, 96,  7],
+                       [42, 17, 60, 73, 37, 36, 79,  3, 60, 82],
+                       [14, 57, 23, 69, 93, 78, 56, 49, 83, 36],
+                       [11, 37, 24, 70, 62, 35, 64, 18, 99, 20],
+                       [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,]])
+        la1 = LinearAssignment(w1)
+        self.assertEqual(len(la1.solution), 10)
+        self.assertEqual(la0.min_cost, la1.min_cost)
+        
+        self.assertRaises(ValueError, LinearAssignment, w0.T)
+
+    def test_boolean_inputs(self):
+        w = np.ones((135,135), dtype=np.bool)
+        np.fill_diagonal(w, False)
+        la = LinearAssignment(w)
+        #if the input doesn't get converted to a float, the masking
+        #doesn't work properly
+        self.assertEqual(la.orig_c.dtype, np.float64)
+
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

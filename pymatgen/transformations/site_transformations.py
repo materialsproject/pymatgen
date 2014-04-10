@@ -74,7 +74,7 @@ class InsertSitesTransformation(AbstractTransformation):
     @property
     def to_dict(self):
         return {"name": self.__class__.__name__, "version": __version__,
-                "init_args": {"species": self._species, "coords": self._coords,
+                "init_args": {"species": self._species, "coords": [list(x) for x in self._coords],
                               "coords_are_cartesian": self._cartesian,
                               "validate_proximity": self._validate_proximity},
                 "@module": self.__class__.__module__,
@@ -99,7 +99,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def apply_transformation(self, structure):
         s = Structure.from_sites(structure.sites)
         for i, sp in self._indices_species_map.items():
-            s.replace(int(i), sp)
+            s[int(i)] = sp
         return s
 
     def __str__(self):
@@ -434,7 +434,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 new_sp = {sp: occu * fraction
                           for sp, occu
                           in structure[ind].species_and_occu.items()}
-                s.replace(ind, new_sp)
+                s[ind] = new_sp
         # Perform enumeration
         from pymatgen.transformations.advanced_transformations import \
             EnumerateStructureTransformation

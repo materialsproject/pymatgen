@@ -37,10 +37,11 @@ class PDPlotter(object):
     def __init__(self, phasediagram, show_unstable=False):
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
-        self.lines = uniquelines(self._pd.facets)
+        if self._dim > 4:
+            raise ValueError("Only 1-4 components supported!")
+        self.lines = uniquelines(self._pd.facets) if self._dim > 1 else \
+            [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
-        if self._dim < 2 or self._dim > 4:
-            raise ValueError("Only 2-4 components supported!")
 
     @property
     def pd_plot_data(self):
@@ -51,12 +52,12 @@ class PDPlotter(object):
 
         Returns:
             (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD.
-                - stable_entries is a {coordinate : entry} for each stable node
-                  in the phase diagram. (Each coordinate can only have one
-                  stable phase)
-                - unstable_entries is a {entry: coordinates} for all unstable
-                  nodes in the phase diagram.
+            - lines is a list of list of coordinates for lines in the PD.
+            - stable_entries is a {coordinate : entry} for each stable node
+            in the phase diagram. (Each coordinate can only have one
+            stable phase)
+            - unstable_entries is a {entry: coordinates} for all unstable
+            nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -66,7 +67,7 @@ class PDPlotter(object):
         for line in self.lines:
             entry1 = entries[line[0]]
             entry2 = entries[line[1]]
-            if self._dim == 2:
+            if self._dim < 3:
                 x = [data[line[0]][0], data[line[1]][0]]
                 y = [pd.get_form_energy_per_atom(entry1),
                      pd.get_form_energy_per_atom(entry2)]
@@ -87,7 +88,7 @@ class PDPlotter(object):
         for i in xrange(0, len(all_entries)):
             entry = all_entries[i]
             if entry not in stable:
-                if self._dim == 2:
+                if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
                     y = [pd.get_form_energy_per_atom(entry),
                          pd.get_form_energy_per_atom(entry)]
@@ -132,8 +133,8 @@ class PDPlotter(object):
             (lines, labels, unstable) = self.pd_plot_data
         else:
             (_lines, _labels, _unstable) = self.pd_plot_data
-            (lines, labels, unstable) = order_phase_diagram(_lines, _labels,
-                                                            _unstable, ordering)
+            (lines, labels, unstable) = order_phase_diagram(
+                _lines, _labels, _unstable, ordering)
         if energy_colormap is None:
             if process_attributes:
                 for x, y in lines:
@@ -158,7 +159,6 @@ class PDPlotter(object):
         else:
             from matplotlib.colors import Normalize, LinearSegmentedColormap
             from matplotlib.cm import ScalarMappable
-            from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
             pda = PDAnalyzer(self._pd)
             for x, y in lines:
                 plt.plot(x, y, "k-", linewidth=3, markeredgecolor="k")
@@ -251,7 +251,6 @@ class PDPlotter(object):
                                  fontproperties=font)
 
         if self.show_unstable:
-            from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
             font = FontProperties()
             font.set_size(16)
             pda = PDAnalyzer(self._pd)
@@ -292,8 +291,8 @@ class PDPlotter(object):
             ticks = cbar.ax.get_yticklabels()
             cbar.ax.set_yticklabels(['${v}$'.format(
                 v=float(t.get_text().strip('$'))*1000.0) for t in ticks])
-        F = plt.gcf()
-        F.set_size_inches((8, 6))
+        f = plt.gcf()
+        f.set_size_inches((8, 6))
         plt.subplots_adjust(left=0.09, right=0.98, top=0.98, bottom=0.07)
         return plt
 
@@ -567,7 +566,7 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     """
     Orders the entries (their coordinates) in a phase diagram plot according
     to the user specified ordering.
-    Ordering should be given as ['Up','Left','Right'], where Up,
+    Ordering should be given as ['Up', 'Left', 'Right'], where Up,
     Left and Right are the names of the entries in the upper, left and right
     corners of the triangle respectively.
 
@@ -582,12 +581,12 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
 
     Returns:
         (newlines, newstable_entries, newunstable_entries):
-            - newlines is a list of list of coordinates for lines in the PD.
-            - newstable_entries is a {coordinate : entry} for each stable node
-              in the phase diagram. (Each coordinate can only have one
-              stable phase)
-            - newunstable_entries is a {entry: coordinates} for all unstable
-              nodes in the phase diagram.
+        - newlines is a list of list of coordinates for lines in the PD.
+        - newstable_entries is a {coordinate : entry} for each stable node
+        in the phase diagram. (Each coordinate can only have one
+        stable phase)
+        - newunstable_entries is a {entry: coordinates} for all unstable
+        nodes in the phase diagram.
     """
     yup = -1000.0
     xleft = 1000.0
@@ -607,7 +606,8 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     if (not nameup in ordering) or (not nameright in ordering) or \
             (not nameleft in ordering):
         raise ValueError(
-            'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{right}"'
+            'Error in ordering_phase_diagram : \n"{up}", "{left}" and "{'
+            'right}"'
             ' should be in ordering : {ord}'.format(up=nameup, left=nameleft,
                                                     right=nameright,
                                                     ord=ordering))
@@ -621,9 +621,10 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
         else:
             newlines = [[np.array(1.0 - x), y] for x, y in lines]
             newstable_entries = {(1.0 - c[0], c[1]): entry
-                                 for c, entry in stable_entries.iteritems()}
+                                 for c, entry in stable_entries.items()}
             newunstable_entries = {entry: (1.0 - c[0], c[1])
-                                   for entry, c in unstable_entries.iteritems()}
+                                   for entry, c in
+                                   unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries
     elif nameup == ordering[1]:
         if nameleft == ordering[2]:
@@ -634,16 +635,18 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c120*(xx-cc[0])-s120*(y[ii]-cc[1])+cc[0]
-                    newy[ii] = s120*(xx-cc[0])+c120*(y[ii]-cc[1])+cc[1]
+                    newx[ii] = c120 * (xx - cc[0]) - s120 * (y[ii] - cc[1]) + \
+                               cc[0]
+                    newy[ii] = s120 * (xx - cc[0]) + c120 * (y[ii] - cc[1]) + \
+                               cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
-                (c120*(c[0]-cc[0])-s120*(c[1]-cc[1])+cc[0],
-                 s120*(c[0]-cc[0])+c120*(c[1]-cc[1])+cc[1]): entry
+                (c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
+                 s120 * (c[0] - cc[0]) + c120 * (c[1] - cc[1]) + cc[1]): entry
                 for c, entry in stable_entries.iteritems()}
             newunstable_entries = {
-                entry: (c120*(c[0]-cc[0])-s120*(c[1]-cc[1])+cc[0],
-                        s120*(c[0]-cc[0])+c120*(c[1] - cc[1])+cc[1])
+                entry: (c120 * (c[0] - cc[0]) - s120 * (c[1] - cc[1]) + cc[0],
+                        s120 * (c[0] - cc[0]) + c120 * (c[1] - cc[1]) + cc[1])
                 for entry, c in unstable_entries.iteritems()}
             return newlines, newstable_entries, newunstable_entries
         else:
@@ -654,15 +657,16 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = -c120*(xx-1.0)-s120*y[ii]+1.0
-                    newy[ii] = -s120*(xx-1.0)+c120*y[ii]
+                    newx[ii] = -c120 * (xx - 1.0) - s120 * y[ii] + 1.0
+                    newy[ii] = -s120 * (xx - 1.0) + c120 * y[ii]
                 newlines.append([newx, newy])
-            newstable_entries = {(-c120*(c[0]-1.0)-s120*c[1]+1.0,
-                                  -s120*(c[0]-1.0)+c120*c[1]): entry
+            newstable_entries = {(-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
+                                  -s120 * (c[0] - 1.0) + c120 * c[1]): entry
                                  for c, entry in stable_entries.iteritems()}
-            newunstable_entries = {entry: (-c120*(c[0]-1.0)-s120*c[1]+1.0,
-                                           -s120*(c[0]-1.0)+c120*c[1])
-                                   for entry, c in unstable_entries.iteritems()}
+            newunstable_entries = {
+            entry: (-c120 * (c[0] - 1.0) - s120 * c[1] + 1.0,
+                    -s120 * (c[0] - 1.0) + c120 * c[1])
+            for entry, c in unstable_entries.iteritems()}
             return newlines, newstable_entries, newunstable_entries
     elif nameup == ordering[2]:
         if nameleft == ordering[0]:
@@ -673,16 +677,18 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = c240*(xx-cc[0])-s240*(y[ii]-cc[1])+cc[0]
-                    newy[ii] = s240*(xx-cc[0])+c240*(y[ii]-cc[1])+cc[1]
+                    newx[ii] = c240 * (xx - cc[0]) - s240 * (y[ii] - cc[1]) + \
+                               cc[0]
+                    newy[ii] = s240 * (xx - cc[0]) + c240 * (y[ii] - cc[1]) + \
+                               cc[1]
                 newlines.append([newx, newy])
             newstable_entries = {
-                (c240*(c[0]-cc[0])-s240*(c[1]-cc[1])+cc[0],
-                 s240*(c[0]-cc[0])+c240*(c[1]-cc[1])+cc[1]): entry
+                (c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],
+                 s240 * (c[0] - cc[0]) + c240 * (c[1] - cc[1]) + cc[1]): entry
                 for c, entry in stable_entries.iteritems()}
             newunstable_entries = {
-                entry: (c240*(c[0]-cc[0])-s240*(c[1]-cc[1])+cc[0],
-                        s240*(c[0]-cc[0])+c240*(c[1] - cc[1])+cc[1])
+                entry: (c240 * (c[0] - cc[0]) - s240 * (c[1] - cc[1]) + cc[0],
+                        s240 * (c[0] - cc[0]) + c240 * (c[1] - cc[1]) + cc[1])
                 for entry, c in unstable_entries.iteritems()}
             return newlines, newstable_entries, newunstable_entries
         else:
@@ -693,13 +699,13 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
                 newx = np.zeros_like(x)
                 newy = np.zeros_like(y)
                 for ii, xx in enumerate(x):
-                    newx[ii] = -c240*xx-s240*y[ii]
-                    newy[ii] = -s240*xx+c240*y[ii]
+                    newx[ii] = -c240 * xx - s240 * y[ii]
+                    newy[ii] = -s240 * xx + c240 * y[ii]
                 newlines.append([newx, newy])
-            newstable_entries = {(-c240*c[0]-s240*c[1],
-                                  -s240*c[0]+c240*c[1]): entry
-                                 for c, entry in stable_entries.iteritems()}
-            newunstable_entries = {entry: (-c240*c[0]-s240*c[1],
-                                           -s240*c[0]+c240*c[1])
-                                   for entry, c in unstable_entries.iteritems()}
+            newstable_entries = {(-c240 * c[0] - s240 * c[1],
+                                  -s240 * c[0] + c240 * c[1]): entry
+                                 for c, entry in stable_entries.items()}
+            newunstable_entries = {entry: (-c240 * c[0] - s240 * c[1],
+                                           -s240 * c[0] + c240 * c[1])
+                                   for entry, c in unstable_entries.items()}
             return newlines, newstable_entries, newunstable_entries

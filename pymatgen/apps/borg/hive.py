@@ -21,7 +21,7 @@ import logging
 import fnmatch
 import json
 
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.io.vaspio.vasp_input import Incar, Potcar, Poscar
 from pymatgen.io.vaspio.vasp_output import Vasprun, Oszicar
 from pymatgen.io.gaussianio import GaussianOutput

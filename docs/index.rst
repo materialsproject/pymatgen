@@ -8,6 +8,8 @@
    :alt: pymatgen
    :align: center
 
+.. image:: https://circleci.com/gh/materialsproject/pymatgen/tree/stable.png?circle-token=:circle-token
+
 Introduction
 ============
 
@@ -72,12 +74,47 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.6
+------
+1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
+   phase).
+
+v2.9.5
+------
+1. Bug fix for linear assignment, which may sometimes affect Structure
+   Matcher results.
+2. Minor improvement to the way grand canonical PDs work.
+
+v2.9.4
+------
+1. Bug fix for Pourbaix Maker (Sai).
+2. Streamline use of scratch directories for various calls. Require monty >=
+   0.1.2.
+3. High accuracy mode for Zeo++ (Bharat Medasani).
+
+v2.9.3
+------
+1. Bug fix release for printing TransformedStructures from Substitutor (Will
+   Richards).
+2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+   David Waroquiers and Bharat Medasani).
+
+v2.9.2
+------
+1. Bug fix release for DummySpecie, which failed when deserializing from
+   json and had bad hash function.
+
+v2.9.1
+------
+1. Structure/Molecule now supports Pythonic list-like API for replacing and
+   removing sites. See :ref:`quick_start` for examples.
+
 v2.9.0
 ------
 1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
 2. Vastly improved docs.
 3. Refactoring to move commonly used Python utility functions to `Monty
-   package <https://pypi.python.org/pypi/monty>`_, which is now a depedency
+   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
    for pymatgen.
 4. Minor fixes and improvements to DiffusionAnalyzer.
 5. Many bug fixes and improvements.
@@ -117,10 +154,18 @@ to be installed for matplotlib.
 Stable version
 --------------
 
-.. note:: Install numpy first.
+.. note:: Preparation
 
-    You may need to install numpy before installing pymatgen as numpy's
-    distutils is needed to compile the spglib and pyhull dependencies.
+    Before installing pymatgen, you may need to first install a few critical
+    dependencies manually.
+
+    1. Numpy's distutils is needed to compile the spglib and pyhull
+       dependencies. This should be the first thing you install.
+    2. Pyhull and PyCifRW. The recent versions of pip does not allow the
+       installation of externally hosted files. Furthermore,
+       there are some issues with easy_install for these extensions. Install
+       both these dependencies manually using "pip install <package>
+       --allow-external <package> --allow-unverified <package>".
 
 The version at the Python Package Index (PyPI) is always the latest stable
 release that will be hopefully, be relatively bug-free. The easiest way to
@@ -189,6 +234,8 @@ molecule input files, Materials Project, etc.) into Python objects using
 pymatgen's io packages, which are then used to perform further structure
 manipulation or analyses.
 
+.. _quick_start:
+
 Quick start
 -----------
 
@@ -242,6 +289,46 @@ some quick examples of the core capabilities and objects:
     >>> # formats via the optional openbabel dependency (if installed).
     >>> methane = mg.read_mol("methane.xyz")
     >>> mg.write_mol(mol, "methane.gjf")
+    >>>
+    >>> # Pythonic API for editing Structures and Molecules (v2.9.1 onwards)
+    >>> # Changing the specie of a site.
+    >>> structure[1] = "F"
+    >>> print structure
+    Structure Summary (Cs1 F1)
+    Reduced Formula: CsF
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 F     0.500000     0.500000     0.500000
+    >>>
+    >>> #Changes species and coordinates (fractional assumed for structures)
+    >>> structure[1] = "Cl", [0.51, 0.51, 0.51]
+    >>> print structure
+    Structure Summary (Cs1 Cl1)
+    Reduced Formula: CsCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cs     0.000000     0.000000     0.000000
+    2 Cl     0.510000     0.510000     0.510000
+    >>>
+    >>> # Because structure is like a list, it supports most list-like methods
+    >>> # such as sort, reverse, etc.
+    >>> structure.reverse()
+    >>> print structure
+    Structure Summary (Cs1 Cl1)
+    Reduced Formula: CsCl
+    abc   :   4.200000   4.200000   4.200000
+    angles:  90.000000  90.000000  90.000000
+    Sites (2)
+    1 Cl     0.510000     0.510000     0.510000
+    2 Cs     0.000000     0.000000     0.000000
+    >>>
+    >>> # Molecules function similarly, but with Site and cartesian coords.
+    >>> # The following changes the C in CH4 to an N and displaces it by 0.01A
+    >>> # in the x-direction.
+    >>> methane[0] = "N", [0.01, 0, 0]
 
 The above illustrates only the most basic capabilities of pymatgen.
 

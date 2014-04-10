@@ -45,23 +45,10 @@ class PDEntry(MSONable):
     """
 
     def __init__(self, composition, energy, name=None, attribute=None):
-        self._energy = energy
-        self._composition = Composition(composition)
-        self.name = name if name else self._composition.reduced_formula
-        self._attribute = attribute
-
-    def set_attribute(self, attribute):
-        """
-        Sets the optional attribute of the entry.
-        """
-        self._attribute = attribute
-
-    @property
-    def energy(self):
-        """
-        Returns the final energy.
-        """
-        return self._energy
+        self.energy = energy
+        self.composition = Composition(composition)
+        self.name = name if name else self.composition.reduced_formula
+        self.attribute = attribute
 
     @property
     def energy_per_atom(self):
@@ -71,25 +58,11 @@ class PDEntry(MSONable):
         return self.energy / self.composition.num_atoms
 
     @property
-    def composition(self):
-        """
-        Returns the composition.
-        """
-        return self._composition
-
-    @property
-    def attribute(self):
-        """
-        Returns the optional attribute of the entry.
-        """
-        return self._attribute
-
-    @property
     def is_element(self):
         """
         True if the entry is an element.
         """
-        return self._composition.is_element
+        return self.composition.is_element
 
     def __repr__(self):
         return "PDEntry : {} with energy = {:.4f}".format(self.composition,
@@ -102,10 +75,10 @@ class PDEntry(MSONable):
     def to_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "composition": self._composition.to_dict,
-                "energy": self._energy,
+                "composition": self.composition.to_dict,
+                "energy": self.energy,
                 "name": self.name,
-                "attribute": self._attribute}
+                "attribute": self.attribute}
 
     @classmethod
     def from_dict(cls, d):
@@ -127,8 +100,8 @@ class GrandPotPDEntry(PDEntry):
     """
     def __init__(self, entry, chempots, name=None):
         comp = entry.composition
-        self._original_entry = entry
-        self._original_comp = comp
+        self.original_entry = entry
+        self.original_comp = comp
         grandpot = entry.energy - sum([comp[el] * pot
                                        for el, pot in chempots.items()])
         self.chempots = chempots
@@ -139,18 +112,11 @@ class GrandPotPDEntry(PDEntry):
         self.name = name if name else entry.name
 
     @property
-    def original_entry(self):
-        """
-        Original entry.
-        """
-        return self._original_entry
-
-    @property
     def is_element(self):
         """
         True if the entry is an element.
         """
-        return self._original_comp.is_element
+        return self.original_comp.is_element
 
     def __repr__(self):
         chempot_str = " ".join(["mu_%s = %.4f" % (el, mu)
@@ -167,7 +133,7 @@ class GrandPotPDEntry(PDEntry):
     def to_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entry": self._original_entry.to_dict,
+                "entry": self.original_entry.to_dict,
                 "chempots": {el.symbol: u for el, u in self.chempots.items()},
                 "name": self.name}
 
@@ -181,8 +147,8 @@ class GrandPotPDEntry(PDEntry):
         """
         Delegate attribute to original entry if available.
         """
-        if hasattr(self._original_entry, a):
-            return getattr(self._original_entry, a)
+        if hasattr(self.original_entry, a):
+            return getattr(self.original_entry, a)
         raise AttributeError(a)
 
 
@@ -264,22 +230,15 @@ class TransformedPDEntry(PDEntry):
 
     def __init__(self, comp, original_entry):
         PDEntry.__init__(self, comp, original_entry.energy)
-        self._original_entry = original_entry
+        self.original_entry = original_entry
         self.name = original_entry.name
-
-    @property
-    def original_entry(self):
-        """
-        Original PDEntry object.
-        """
-        return self._original_entry
 
     def __getattr__(self, a):
         """
         Delegate attribute to original entry if available.
         """
-        if hasattr(self._original_entry, a):
-            return getattr(self._original_entry, a)
+        if hasattr(self.original_entry, a):
+            return getattr(self.original_entry, a)
         raise AttributeError(a)
 
     def __repr__(self):
@@ -296,7 +255,7 @@ class TransformedPDEntry(PDEntry):
     def to_dict(self):
         return {"@module": self.__class__.__module__,
                 "@class": self.__class__.__name__,
-                "entry": self._original_entry.to_dict,
+                "entry": self.original_entry.to_dict,
                 "composition": self.composition}
 
     @classmethod
