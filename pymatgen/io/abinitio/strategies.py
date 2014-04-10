@@ -51,6 +51,34 @@ def order_pseudos(pseudos, structure):
     return select_pseudos(pseudos, structure, ret_table=False)
 
 
+def num_valence_electrons(pseudos, structure):
+    """
+    Compute the number of valence electrons from 
+    a list of pseudopotentials and the crystalline structure.
+
+    Args:
+        pseudos: 
+            List of strings, list of of pseudos or `PseudoTable` instance.
+        structure:
+            Pymatgen structure.
+
+    Raises:
+        ValueError if cannot find a pseudo in the input pseudos or if the
+        input list contains more than one pseudo for the chemical symbols
+        appearing in structure.
+    """
+    table = PseudoTable.astable(pseudos)
+
+    valence = 0.0
+    for site in structure:
+        entries = table.pseudos_with_symbol(site.specie.symbol)
+        if len(entries) != 1:
+            raise ValueError("Found %d entries for symbol %s" % (len(entries), site.specie.symbol))
+        valence += entries[0].Z_val
+
+    return valence
+
+
 class Strategy(object):
     """
     A Strategy object generates the ABINIT input file used for a particular type of calculation
@@ -224,6 +252,9 @@ class Strategy(object):
     @abc.abstractmethod
     def make_input(self, *args, **kwargs):
         """Returns an Input instance."""
+
+    def num_valence_electrons(self):
+        return num_valence_electrons(self.pseudos, self.structure)
 
 
 class ScfStrategy(Strategy):
