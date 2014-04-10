@@ -6,7 +6,8 @@ from numpy import array
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
-    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet
+    MPStaticVaspInputSet, MPNonSCFVaspInputSet, MITMDVaspInputSet,\
+    MPHSEVaspInputSet, MPBSHSEVaspInputSet, MPStaticDielectricDFPTVaspInputSet
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen import Specie, Lattice, Structure
 from pymatgen.serializers.json_coders import PMGJSONDecoder
@@ -37,6 +38,10 @@ class MITMPVaspInputSetTest(unittest.TestCase):
             {"NBANDS": 50}, mode="Uniform")
         self.mpnscfparamsetl = MPNonSCFVaspInputSet(
             {"NBANDS": 60}, mode="Line")
+        self.mphseparamset = MPHSEVaspInputSet()
+        self.mpbshseparamsetl = MPBSHSEVaspInputSet(mode="Line")
+        self.mpbshseparamsetu = MPBSHSEVaspInputSet(mode="Uniform", added_kpoints=[[0.5, 0.5, 0.0]])
+        self.mpdielparamset = MPStaticDielectricDFPTVaspInputSet()
         
     def test_get_poscar(self):
         coords = list()
@@ -52,7 +57,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         
         self.assertEqual(s_unsorted[0].specie.symbol, 'Fe')
         self.assertEqual(s_sorted[0].specie.symbol, 'Mn')
-        
 
     def test_get_potcar_symbols(self):
         coords = list()
@@ -69,7 +73,6 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         
         syms = MPVaspInputSet(sort_structure=False).get_potcar_symbols(struct)
         self.assertEquals(syms, ['P', 'Fe_pv', 'O'])
-        
 
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)
@@ -92,6 +95,24 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         incar_nscfu = self.mpnscfparamsetu.get_incar(self.struct)
         self.assertEqual(incar_nscfu["ISYM"], 0)
+
+        incar_hse = self.mphseparamset.get_incar(self.struct)
+        self.assertEqual(incar_hse['LHFCALC'], True)
+        self.assertEqual(incar_hse['HFSCREEN'], 0.2)
+
+        incar_hse_bsl = self.mpbshseparamsetl.get_incar(self.struct)
+        self.assertEqual(incar_hse_bsl['LHFCALC'], True)
+        self.assertEqual(incar_hse_bsl['HFSCREEN'], 0.2)
+        self.assertEqual(incar_hse_bsl['NSW'], 0)
+
+        incar_hse_bsu = self.mpbshseparamsetu.get_incar(self.struct)
+        self.assertEqual(incar_hse_bsu['LHFCALC'], True)
+        self.assertEqual(incar_hse_bsu['HFSCREEN'], 0.2)
+        self.assertEqual(incar_hse_bsu['NSW'], 0)
+
+        incar_diel = self.mpdielparamset.get_incar(self.struct)
+        self.assertEqual(incar_diel['IBRION'], 8)
+        self.assertEqual(incar_diel['LEPSILON'], True)
 
         si = 14
         coords = list()
@@ -207,6 +228,24 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         kpoints = self.mpnscfparamsetu.get_kpoints(self.struct)
         self.assertEquals(kpoints.num_kpts, 168)
 
+        kpoints = self.mpbshseparamsetl.get_kpoints(self.struct)
+        self.assertAlmostEquals(kpoints.num_kpts, 188)
+        self.assertAlmostEqual(kpoints.kpts[10][0], 0.25)
+        self.assertAlmostEqual(kpoints.kpts[10][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[10][2], 0.0)
+        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.66006924)
+        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.51780182)
+        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.30173482)
+
+        kpoints = self.mpbshseparamsetu.get_kpoints(self.struct)
+        self.assertAlmostEquals(kpoints.num_kpts, 49)
+        self.assertAlmostEqual(kpoints.kpts[23][0], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[23][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[23][2], 0.16666667)
+        self.assertAlmostEqual(kpoints.kpts[-1][0], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[-1][1], 0.5)
+        self.assertAlmostEqual(kpoints.kpts[-1][2], 0.0)
+
     def test_to_from_dict(self):
         self.mitparamset = MITVaspInputSet()
         self.mithseparamset = MITHSEVaspInputSet()
@@ -224,6 +263,10 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         self.assertNotIn("LDAUU", v.incar_settings)
 
         d = self.mithseparamset.to_dict
+        v = dec.process_decoded(d)
+        self.assertEqual(v.incar_settings["LHFCALC"], True)
+
+        d = self.mphseparamset.to_dict
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["LHFCALC"], True)
 
