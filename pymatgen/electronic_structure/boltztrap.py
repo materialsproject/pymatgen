@@ -153,7 +153,6 @@ class BoltztrapRunner():
                     "36,'boltztrap_band.gpl',           'unknown',    'formatted',0\n")
 
     def _make_proj_files(self, file_name, def_file_name):
-        from pymatgen.electronic_structure.core import Orbital
         for o in Orbital.all_orbitals:
             for site_nb in range(0, len(self._bs._structure.sites)):
                 if o in self._bs._projections[Spin.up][0][0]:

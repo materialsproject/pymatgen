@@ -313,6 +313,25 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         lio3_entry_corrected = self.compat.process_entry(lio3_entry)
         self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0)
 
+    def test_process_entry_oxide(self):
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_li, el_o]
+        latt = Lattice.from_parameters(3.278, 3.278, 3.278,
+                                       60, 60, 60)
+        coords = [[0.25, 0.25, 0.25],
+                  [0.75, 0.75, 0.75],
+                  [0.0, 0.0, 0.0]]
+        struct = Structure(latt, elts, coords)
+        li2o_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        li2o_entry_corrected = self.compat.process_entry(li2o_entry)
+        self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
+
 
 class AqueousCorrectionTest(unittest.TestCase):
 

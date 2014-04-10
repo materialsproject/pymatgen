@@ -123,7 +123,7 @@ DERIVED_UNITS = {
 }
 
 
-ALL_UNITS = dict(BASE_UNITS.items() + DERIVED_UNITS.items())
+ALL_UNITS = dict(list(BASE_UNITS.items()) + list(DERIVED_UNITS.items()))
 
 # Mapping unit name --> unit type (unit names must be unique).
 _UNAME2UTYPE = {}

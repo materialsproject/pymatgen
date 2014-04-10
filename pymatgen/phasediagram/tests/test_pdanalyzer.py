@@ -10,7 +10,7 @@ from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
 from pymatgen.phasediagram.entries import PDEntryIO
 
 
-class  PDAnalyzerTest(unittest.TestCase):
+class PDAnalyzerTest(unittest.TestCase):
 
     def setUp(self):
         module_dir = os.path.dirname(os.path.abspath(__file__))

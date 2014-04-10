@@ -190,6 +190,33 @@ class DiffusionAnalyzer(MSONable):
             self.conductivity_components = self.diffusivity_components * \
                 conv_factor
 
+    def get_summary_dict(self, include_msd_t=False):
+        """
+        Provides a summary of diffusion information.
+
+        Args:
+            include_msd_t (bool): Whether to include mean square displace and
+                time data with the data.
+
+        Returns:
+            (dict) of diffusion and conductivity data.
+        """
+        d = {
+            "D": self.diffusivity,
+            "S": self.conductivity,
+            "D_components": self.diffusivity_components.tolist(),
+            "S_components": self.conductivity_components.tolist(),
+            "specie": str(self.sp),
+            "step_skip": self.step_skip,
+            "time_step": self.time_step,
+            "temperature": self.temperature
+        }
+        if include_msd_t:
+            d["msd"] = self.s_msd.tolist()
+            d["msd_components"] = self.s_msd_components.tolist()
+            d["dt"] = self.dt.tolist()
+        return d
+
     def get_smoothed_msd_plot(self, plt=None):
         """
         Get the plot of the smoothed msd vs time graph. Useful for
@@ -416,7 +443,48 @@ def _get_vasprun(args):
     return Vasprun(args[0], ionic_step_skip=args[1])
 
 
-def get_arrhenius_plot(temps, diffusivites, **kwargs):
+def get_extrapolated_diffusivity(temps, diffusivities, new_temp):
+    """
+    Returns (Arrhenius) extrapolated diffusivity at new_temp
+    
+    Args:
+        temps ([float]): A sequence of temperatures. units: K
+        diffusivities ([float]): A sequence of diffusivities (e.g.,
+            from DiffusionAnalyzer.diffusivity). units: cm^2/s
+        new_temp (float): desired temperature. units: K
+
+    Returns:
+        (float) Diffusivity at extrapolated temp in mS/cm.
+    """
+    t_1 = 1000 / np.array(temps)
+    logd = np.log10(diffusivities)
+    #Do a least squares regression of log(D) vs 1000/T
+    A = np.array([t_1, np.ones(len(temps))]).T
+    w = np.array(np.linalg.lstsq(A, logd)[0])
+    return 10 ** (w[0] * 1000 / new_temp + w[1])
+
+
+def get_extrapolated_conductivity(temps, diffusivities, new_temp, structure,
+                                  species):
+    """
+    Returns extrapolated mS/cm conductivity.
+    
+    Args:
+        temps ([float]): A sequence of temperatures. units: K
+        diffusivities ([float]): A sequence of diffusivities (e.g.,
+            from DiffusionAnalyzer.diffusivity). units: cm^2/s
+        new_temp (float): desired temperature. units: K
+        structure (structure): structure used for the diffusivity calculation 
+        species (string/Specie): conducting species
+
+    Returns:
+        (float) Conductivity at extrapolated temp in mS/cm.
+    """
+    return get_extrapolated_diffusivity(temps, diffusivities, new_temp) \
+        * get_conversion_factor(structure, species, new_temp)
+
+
+def get_arrhenius_plot(temps, diffusivities, **kwargs):
     """
     Returns an Arrhenius plot.
 
@@ -431,7 +499,7 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
         A matplotlib.pyplot object. Do plt.show() to show the plot.
     """
     t_1 = 1000 / np.array(temps)
-    logd = np.log10(diffusivites)
+    logd = np.log10(diffusivities)
     #Do a least squares regression of log(D) vs 1000/T
     A = np.array([t_1, np.ones(len(temps))]).T
     w = np.array(np.linalg.lstsq(A, logd)[0])
@@ -445,9 +513,8 @@ def get_arrhenius_plot(temps, diffusivites, **kwargs):
     # out in base 10 for easier reading of the diffusivity scale,
     # but the Arrhenius relationship is in base e).
     actv_energy = - w[0] * phyc.k_b / phyc.e * 1e6 * math.log(10)
-    plt.annotate("E$_a$ = {:.0f} meV".format(actv_energy),
-                 (t_1[-1], w[0] * t_1[-1] + w[1]), xytext=(100, 0),
-                 xycoords='data', textcoords='offset points', fontsize=30)
+    plt.text(0.6, 0.85, "E$_a$ = {:.0f} meV".format(actv_energy), 
+             fontsize=30, transform=plt.axes().transAxes)
     plt.ylabel("log(D (cm$^2$/s))")
     plt.xlabel("1000/T (K$^{-1}$)")
     plt.tight_layout()

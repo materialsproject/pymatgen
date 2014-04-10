@@ -19,7 +19,7 @@ import numpy as np
 
 from pymatgen.core.operations import SymmOp
 from pymatgen.core import Element, Molecule, Composition
-from pymatgen.util.io_utils import zopen
+from monty.io import zopen
 from pymatgen.util.coord_utils import get_angle
 
 

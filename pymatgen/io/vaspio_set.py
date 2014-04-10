@@ -22,7 +22,11 @@ import os
 import abc
 import json
 import re
+import traceback
+import shutil
 from functools import partial
+
+import numpy as np
 
 from pymatgen.io.cifio import CifWriter
 from pymatgen.io.vaspio.vasp_input import Incar, Poscar, Potcar, Kpoints
@@ -31,9 +35,6 @@ from pymatgen.serializers.json_coders import MSONable
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen import write_structure
-import traceback
-import numpy as np
-import shutil
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -178,8 +179,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
             config_dict. Defaults to False, i.e., follow settings in
             config_dict.
         user_incar_settings (dict): User INCAR settings. This allows a user
-            to override INCAR settings, e.g., setting a different MAGMOM for various elements
-            or species.
+            to override INCAR settings, e.g., setting a different MAGMOM for
+            various elements or species.
         constrain_total_magmom (bool): Whether to constrain the total magmom
             (NUPDOWN in INCAR) to be the sum of the expected MAGMOM for all
             species. Defaults to False.
@@ -219,7 +220,7 @@ class DictVaspInputSet(AbstractVaspInputSet):
             structure = structure.get_sorted_structure()
         comp = structure.composition
         elements = sorted([el for el in comp.elements if comp[el] > 0],
-                          key=lambda el: el.X)
+                          key=lambda e: e.X)
         most_electroneg = elements[-1].symbol
         poscar = Poscar(structure)
         for key, setting in self.incar_settings.items():
@@ -267,7 +268,8 @@ class DictVaspInputSet(AbstractVaspInputSet):
                     del incar[key]
 
         if self.set_nupdown:
-            nupdown = sum([mag if abs(mag) > 0.6 else 0 for mag in incar['MAGMOM']])
+            nupdown = sum([mag if abs(mag) > 0.6 else 0
+                           for mag in incar['MAGMOM']])
             incar['NUPDOWN'] = nupdown
 
         return incar
@@ -594,8 +596,8 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
     kwargs:
         hubbard_off (bool): Whether to turn off Hubbard U if it is specified in
-            config_dict ("MP Static"). Defaults to False, i.e., follow settings in
-            config_dict.
+            config_dict ("MP Static"). Defaults to False, i.e., follow settings
+            in config_dict.
         user_incar_settings (dict): User INCAR settings. This allows a user
             to override INCAR settings, e.g., setting a different MAGMOM for
             various elements or species.
@@ -620,16 +622,20 @@ class MPStaticVaspInputSet(DictVaspInputSet):
              "LORBIT": 11, "LVHAR": True, "LWAVE": False, "NSW": 0,
              "ICHARG": 0, "EDIFF": 0.000001})
         self.kpoints_settings.update({"kpoints_density": kpoints_density})
-        self.sym_prec= sym_prec
+        self.sym_prec = sym_prec
 
-    def get_kpoints(self, structure):
+    def get_kpoints(self, structure, primitive_standard=False):
         """
         Get a KPOINTS file using the fully automated grid method. Uses
         Gamma centered meshes for hexagonal cells and Monk grids otherwise.
 
         Args:
             structure (Structure/IStructure): structure to get kpoints
+            primitive_standard (Bool): whether the input structure is
+            a primitive standardized cell
         """
+        if not primitive_standard:
+            structure=self.get_poscar(structure).structure
         self.kpoints_settings['grid_density'] = \
             self.kpoints_settings["kpoints_density"] * \
             structure.lattice.reciprocal_lattice.volume * \
@@ -726,7 +732,6 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
             previous_incar = vasp_run.incar
             previous_kpoints = vasp_run.kpoints
-            previous_final_structure = vasp_run.final_structure
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
@@ -757,6 +762,9 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             if sum([u[x] - j[x] for x, y in enumerate(u)]) > 0:
                 for tag in ('LDAUU', 'LDAUL', 'LDAUJ'):
                     previous_incar.update({tag: new_incar[tag]})
+            # ensure to have LMAXMIX for GGA+U static run
+            if "LMAXMIX" not in previous_incar:
+                previous_incar.update({"LMAXMIX": new_incar["LMAXMIX"]})
 
         # Compare ediff between previous and staticinputset values,
         # choose the tighter ediff
@@ -769,9 +777,6 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Prefer to use k-point scheme from previous run
-        previous_kpoints_density = np.prod(previous_kpoints.kpts[0]) / \
-            previous_final_structure.lattice.reciprocal_lattice.volume
-        new_kpoints_density = max(previous_kpoints_density, kpoints_density)
         new_kpoints = mpsvip.get_kpoints(structure)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
             if previous_kpoints.style[0] == "M" and \
@@ -909,7 +914,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                  constrain_total_magmom=False, sort_structure=False,
                  kpoints_density=1000, sym_prec=0.01):
         self.mode = mode
-        self.sym_prec= sym_prec
+        self.sym_prec = sym_prec
         if mode not in ["Line", "Uniform"]:
             raise ValueError("Supported modes for NonSCF runs are 'Line' and "
                              "'Uniform'!")
@@ -972,11 +977,11 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         """
         Helper method to get necessary user_incar_settings from previous run.
 
-            Args:
-                vasp_run (Vasprun): Vasprun that contains the final
-                    structure from previous run.
-                outcar (Outcar): Outcar that contains the magnetization info
-                    from previous run.
+        Args:
+            vasp_run (Vasprun): Vasprun that contains the final
+                structure from previous run.
+            outcar (Outcar): Outcar that contains the magnetization info
+                from previous run.
 
         """
         # Turn off spin when magmom for every site is smaller than 0.02.
@@ -992,7 +997,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         incar_settings = {"ISPIN": ispin, "NBANDS": nbands}
         for grid in ["NGX", "NGY", "NGZ"]:
             if vasp_run.incar.get(grid):
-                incar_settings.update({grid:vasp_run.incar.get(grid)})
+                incar_settings.update({grid: vasp_run.incar.get(grid)})
         return incar_settings
 
     def get_incar(self, structure):
@@ -1025,19 +1030,21 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 directory (and the whole path) to be created if it is not
                 present.
         """
+        user_incar_settings = user_incar_settings or {}
+        
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
             outcar = Outcar(os.path.join(previous_vasp_dir, "OUTCAR"))
+            previous_incar = vasp_run.incar
         except:
             traceback.format_exc()
             raise RuntimeError("Can't get valid results from previous run")
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar)
-        user_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
-                                                                      outcar)
-        mpnscfvip = MPNonSCFVaspInputSet(user_incar_settings, mode)
+        nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run, outcar)
+        mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
             try:
@@ -1048,6 +1055,13 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 raise RuntimeError("Can't copy CHGCAR from SC run" + '\n'
                                    + str(e))
 
+        #Overwrite necessary INCAR parameters from previous runs
+        previous_incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001, "LCHARG": False,
+             "LORBIT": 11, "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
+        previous_incar.update(nscf_incar_settings)
+        previous_incar.update(user_incar_settings)
+        previous_incar.pop("MAGMOM", None)
+        previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,

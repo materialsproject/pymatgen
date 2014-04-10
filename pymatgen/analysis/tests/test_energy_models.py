@@ -75,8 +75,8 @@ class IsingModelTest(unittest.TestCase):
         s = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
         s.replace_species({"Fe": Specie("Fe", 2, {"spin": 4})})
         self.assertEqual(m.get_energy(s), 172.81260515787977)
-        s.replace(4, Specie("Fe", 2, {"spin": -4}))
-        s.replace(5, Specie("Fe", 2, {"spin": -4}))
+        s[4] = Specie("Fe", 2, {"spin": -4})
+        s[5] = Specie("Fe", 2, {"spin": -4})
         self.assertAlmostEqual(m.get_energy(s), 51.97424405382921)
 
     def test_to_from_dict(self):

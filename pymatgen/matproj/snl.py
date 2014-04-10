@@ -19,7 +19,7 @@ import datetime
 from collections import namedtuple
 import json
 
-from pymatgen.util.string_utils import remove_non_ascii
+from monty.string import remove_non_ascii
 from pymatgen.core.structure import Structure, Molecule
 from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pybtex.database.input import bibtex

@@ -33,8 +33,6 @@ All units are in SI units except for conversion factors.
     Avogardo's constant
 """
 
-import numpy as _np
-
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"

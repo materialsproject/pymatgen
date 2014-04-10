@@ -121,7 +121,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         isomorph = ob.vvpairUIntUInt()
         isomapper.MapAll(obmol2, isomorph)
 
-        sorted_isomorph = [sorted(x, key=lambda p: p[0]) for x in isomorph]
+        sorted_isomorph = [sorted(x, key=lambda morp: morp[0])
+                           for x in isomorph]
         label2_list = tuple([tuple([p[1] + 1 for p in x])
                              for x in sorted_isomorph])
 
@@ -130,7 +131,14 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         aligner.SetRefMol(vmol1)
         least_rmsd = float("Inf")
         best_label2 = None
+        label1 = range(1, obmol1.NumAtoms() + 1)
+        # noinspection PyProtectedMember
+        elements1 = InchiMolAtomMapper._get_elements(vmol1, label1)
         for label2 in label2_list:
+            # noinspection PyProtectedMember
+            elements2 = InchiMolAtomMapper._get_elements(obmol2, label2)
+            if elements1 != elements2:
+                continue
             vmol2 = ob.OBMol()
             for i in label2:
                 vmol2.AddAtom(obmol2.GetAtom(i))
@@ -140,17 +148,16 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             if rmsd < least_rmsd:
                 least_rmsd = rmsd
                 best_label2 = copy.copy(label2)
-        label1 = range(1, obmol1.NumAtoms() + 1)
         return label1, best_label2
 
     def get_molecule_hash(self, mol):
         """
         Return inchi as molecular hash
         """
-        obConv = ob.OBConversion()
-        obConv.SetOutFormat("inchi")
-        obConv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obConv.WriteString(mol)
+        obconv = ob.OBConversion()
+        obconv.SetOutFormat("inchi")
+        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = obconv.WriteString(mol)
         match = re.search("InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
 
@@ -186,7 +193,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
     def from_dict(cls, d):
         return InchiMolAtomMapper(angle_tolerance=d["angle_tolerance"])
 
-    def _inchi_labels(self, mol):
+    @staticmethod
+    def _inchi_labels(mol):
         """
         Get the inchi canonical labels of the heavy atoms in the molecule
 
@@ -198,24 +206,29 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             original label
             List of equivalent atoms.
         """
-        obConv = ob.OBConversion()
-        obConv.SetOutFormat("inchi")
-        obConv.AddOption("a", ob.OBConversion.OUTOPTIONS)
-        obConv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obConv.WriteString(mol)
-        match = re.search("InChI=(?P<inchi>.+)\nAuxInfo=.+/N:(?P<labels>[0-9,]+)/(E:(?P<eq_atoms>[0-9,\(\)]*)/)?", inchi_text)
+        obconv = ob.OBConversion()
+        obconv.SetOutFormat("inchi")
+        obconv.AddOption("a", ob.OBConversion.OUTOPTIONS)
+        obconv.AddOption("X", ob.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = obconv.WriteString(mol)
+        match = re.search("InChI=(?P<inchi>.+)\nAuxInfo=.+"
+                          "/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,"
+                          ";\(\)]*)/)?", inchi_text)
         inchi = match.group("inchi")
         label_text = match.group("labels")
         eq_atom_text = match.group("eq_atoms")
-        heavy_atom_labels = tuple([int(i) for i in label_text.split(',')])
+        heavy_atom_labels = tuple([int(i) for i in label_text.replace(
+            ';', ',').split(',')])
         eq_atoms = []
         if eq_atom_text is not None:
-            eq_tokens = re.findall('\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text)
+            eq_tokens = re.findall('\(((?:[0-9]+,)+[0-9]+)\)', eq_atom_text
+                                   .replace(';', ','))
             eq_atoms = tuple([tuple([int(i) for i in t.split(',')])
                               for t in eq_tokens])
         return heavy_atom_labels, eq_atoms, inchi
 
-    def _group_centroid(self, mol, ilabels, group_atoms):
+    @staticmethod
+    def _group_centroid(mol, ilabels, group_atoms):
         """
         Calculate the centroids of a group atoms indexed by the labels of inchi
 
@@ -286,7 +299,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         return vmol
 
-    def _align_heavy_atoms(self, mol1, mol2, vmol1, vmol2, ilabel1, ilabel2,
+    @staticmethod
+    def _align_heavy_atoms(mol1, mol2, vmol1, vmol2, ilabel1, ilabel2,
                            eq_atoms):
         """
         Align the label of topologically identical atoms of second molecule
@@ -365,11 +379,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                                  for canon, inchi, orig in
                                  zip(canon_label2, range(1, nheavy + 1),
                                      ilabel2)]
-        canon_inchi_orig_map2.sort(key=lambda x: x[0])
+        canon_inchi_orig_map2.sort(key=lambda m: m[0])
         heavy_atom_indices2 = tuple([x[2] for x in canon_inchi_orig_map2])
         return heavy_atom_indices2
 
-    def _align_hydrogen_atoms(self, mol1, mol2, heavy_indices1,
+    @staticmethod
+    def _align_hydrogen_atoms(mol1, mol2, heavy_indices1,
                               heavy_indices2):
         """
         Align the label of topologically identical atoms of second molecule
@@ -429,7 +444,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         hydrogen_canon_orig_map2 = [(canon, orig) for canon, orig
                                     in zip(hydrogen_label2,
                                            hydrogen_orig_idx2)]
-        hydrogen_canon_orig_map2.sort(key=lambda x: x[0])
+        hydrogen_canon_orig_map2.sort(key=lambda m: m[0])
         hydrogen_canon_indices2 = [x[1] for x in hydrogen_canon_orig_map2]
 
         canon_label1 = label1
@@ -437,7 +452,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
         return canon_label1, canon_label2
 
-    def _get_elements(self, mol, label):
+    @staticmethod
+    def _get_elements(mol, label):
         """
         The the elements of the atoms in the specified order
 
@@ -491,6 +507,9 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         vmol1 = self._virtual_molecule(obmol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(obmol2, ilabel2, iequal_atom2)
 
+        if vmol1.NumAtoms() != vmol2.NumAtoms():
+            return None, None
+
         if vmol1.NumAtoms() < 3 or self._is_molecule_linear(vmol1) \
                 or self._is_molecule_linear(vmol2):
             # using isomorphism for difficult (actually simple) molecules
@@ -502,12 +521,13 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             clabel1, clabel2 = self._align_hydrogen_atoms(obmol1, obmol2,
                                                           ilabel1,
                                                           heavy_atom_indices2)
+        if clabel1 and clabel2:
+            elements1 = self._get_elements(obmol1, clabel1)
+            elements2 = self._get_elements(obmol2, clabel2)
 
-        elements1 = self._get_elements(obmol1, clabel1)
-        elements2 = self._get_elements(obmol2, clabel2)
-
-        if elements1 != elements2:
-            raise Exception("Design Error! Atomic elements are inconsistent")
+            if elements1 != elements2:
+                raise Exception("Design Error! "
+                                "Atomic elements are inconsistent")
 
         return clabel1, clabel2
 
@@ -563,7 +583,8 @@ class MoleculeMatcher(MSONable):
             return float("Inf")
         return self._calc_rms(mol1, mol2, label1, label2)
 
-    def _calc_rms(self, mol1, mol2, clabel1, clabel2):
+    @staticmethod
+    def _calc_rms(mol1, mol2, clabel1, clabel2):
         """
         Calculate the RMSD.
 
@@ -633,7 +654,7 @@ class MoleculeMatcher(MSONable):
             alone_mols = set(rg) - not_alone_mols
             group_indices.extend([[m] for m in alone_mols])
             while len(not_alone_mols) > 0:
-                current_group = set([not_alone_mols.pop()])
+                current_group = {not_alone_mols.pop()}
                 while len(not_alone_mols) > 0:
                     candidate_pairs = set(
                         [tuple(sorted(p)) for p
