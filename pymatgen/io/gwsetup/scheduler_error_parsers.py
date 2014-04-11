@@ -147,9 +147,8 @@ class AbstractErrorParser():
                     metadata = self.extract_metadata(lines, errmsg[k]['metafilter'])
             except (IOError, OSError):
                 print self.files[k], 'not found'
-            except (TypeError):
+            except TypeError:
                 print 'type error', self.files[k], ' has type ', self.files[k].cls(), ' should be string.'
-                pass
 
         return found, message, metadata
 
