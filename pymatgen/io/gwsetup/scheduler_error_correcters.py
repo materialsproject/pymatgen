@@ -18,7 +18,7 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 
 class CorrectorProtocol():
     """
-    Abstract class to define the protocol / interface for correction operators. The client code quadapter / submission
+    Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
     script generator method / ... should implement these methods.
     """
     __metaclass__ = ABCMeta
@@ -30,12 +30,30 @@ class CorrectorProtocol():
         have been crashed due to a hardware failure at the nodes specified.
 
             nodes: list of node numbers that were found to cause problems
+
+        returns True is the memory could be increased False otherwise
         """
+        return bool
+
+    @abstractmethod
+    def increase_mem(self):
+        """
+        Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed
+        due to a insufficient memory.
+
+        returns True is the memory could be increased False otherwise
+        """
+        return bool
 
     @abstractmethod
     def increase_time(self):
         """
+        Method to exclude certain nodes from being used in the calculation. It is called when a calculation seemed to
+        have been crashed due to a hardware failure at the nodes specified.
+
+        returns True is the memory could be increased False otherwise
         """
+        return bool
 
 
 class AbstractCorrection():
@@ -174,6 +192,21 @@ class AbstractCorrecter():
                 self.errors.append(my_error(result[1], result[2]))
 
 
+class Correcter():
+    """
+    """
+    def __init__(self):
+        self.corrections = {}
+
+    def find_corrections(self):
+        """
+        """
+
+    def apply_corrections(self):
+        """
+        """
+
+
 class SlurmCorrecter(AbstractCorrecter):
     """
     Implementation for the Slurm scheduler
@@ -190,12 +223,11 @@ ALL_CORRECTERS = {'slurm': SlurmCorrecter, 'pbs': PBSCorrecter}
 
 def get_correcter(scheduler, code):
     """
-    Factory function to provide the correcter for the specified scheduler. If the scheduler is not implemented None is
-    returned. The code is passed to the correcter.
+    Factory function to provide the correcter.
     """
     cls = ALL_CORRECTERS.get(scheduler)
 
-    return cls(code)
+    return Correcter()
 
 
 if __name__ == "__main__":
