@@ -29,10 +29,13 @@ class CorrectorProtocol():
         Method to exclude certain nodes from being used in the calculation. It is called when a calculation seemed to
         have been crashed due to a hardware failure at the nodes specified.
 
-            nodes: list of node numbers that were fond t
+            nodes: list of node numbers that were found to cause problems
         """
 
-
+    @abstractmethod
+    def increase_time(self):
+        """
+        """
 
 
 class AbstractCorrection():
