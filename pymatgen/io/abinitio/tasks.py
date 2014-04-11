@@ -1459,8 +1459,6 @@ class Task(Node):
             except AttributeError:
                 status = Status.from_string(status)
 
-        print(status)
-
         assert status in STATUS2STR
 
         changed = True
