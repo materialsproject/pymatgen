@@ -221,14 +221,13 @@ ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParse}
 def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_file=None):
     """
     Factory function to provide the parser for the specified scheduler. If the scheduler is not implemented None is
-    returned. The files correspond to file names of the out and err files:
+    returned. The files, string, correspond to file names of the out and err files:
     err_file        stderr of the scheduler
     out_file        stdout of the scheduler
     run_err_file    stderr of the application
     batch_err_file  stderr of the submission
     """
     cls = ALL_PARSERS.get(scheduler)
-
     return cls(err_file, out_file, run_err_file, batch_err_file)
 
 
