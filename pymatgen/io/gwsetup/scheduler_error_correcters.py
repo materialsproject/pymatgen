@@ -13,7 +13,26 @@ __date__ = "Mar 24, 2014"
 
 
 import re
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod, abstractproperty
+
+
+class CorrectorProtocol():
+    """
+    Abstract class to define the protocol / interface for correction operators. The client code quadapter / submission
+    script generator method / ... should implement these methods.
+    """
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def exclude_nodes(self, nodes):
+        """
+        Method to exclude certain nodes from being used in the calculation. It is called when a calculation seemed to
+        have been crashed due to a hardware failure at the nodes specified.
+
+            nodes: list of node numbers that were fond t
+        """
+
+
 
 
 class AbstractCorrection():
