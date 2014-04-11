@@ -526,7 +526,7 @@ class SlurmAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
 
-    def submit_to_queue(self, script_file):
+    def submit_to_queue(self, script_file, submit_err_file="sbatch_err"):
 
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
@@ -534,7 +534,7 @@ class SlurmAdapter(AbstractQueueAdapter):
         # submit the job
         try:
             cmd = ['sbatch', script_file]
-            process = Popen(cmd, stdout=PIPE, stderr='sbatch.err')
+            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -556,6 +556,10 @@ class SlurmAdapter(AbstractQueueAdapter):
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
                            "The error response reads: {}".format(process.stderr.read()))
+                # write the err output to file, a error parser may read it and a fixer may know what to do ...
+                f = open(submit_err_file, mode='w')
+                f.write(str(process.stderr.read()))
+                f.close()
                 raise self.Error(err_msg)
 
         except:

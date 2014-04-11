@@ -233,7 +233,7 @@ def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_
 
 
 if __name__ == "__main__":
-    my_parser = get_parser('slurm', err_file='queue.err', out_file='queue.out', run_err_file='run.err', batch_err_file='batch.err')
+    my_parser = get_parser('slurm', err_file='queue.err', out_file='queue.out', run_err_file='run.err', batch_err_file='sbatch.err')
     my_parser.parse()
     print 'parser.errors', my_parser.errors
     for error in my_parser.errors:
