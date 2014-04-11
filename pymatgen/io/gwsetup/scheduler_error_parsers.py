@@ -96,13 +96,13 @@ class AbstractErrorParser():
     Abstract class for parsing errors originating from the scheduler system and error that are not reported by the
     program itself, i.e. segmentation faults.
 
-    A concrete implementation of this class for a specific sceduler needs a class attribute ERRORS for containing a
+    A concrete implementation of this class for a specific scheduler needs a class attribute ERRORS for containing a
     dictionary specifying error:
 
     ERRORS = {ErrorClass: {
-                'filespecifier' : {
-                    'string': "the string to be lookedfor",
-                    'metafilter': "string specifing the regular exprecion to obtian the meta data"
+                'file_specifier' : {
+                    'string': "the string to be looked for",
+                    'metafilter': "string specifing the regular expression to obtain the meta data"
                     }
                 }
 
