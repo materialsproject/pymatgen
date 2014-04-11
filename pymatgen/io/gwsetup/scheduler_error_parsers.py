@@ -102,7 +102,7 @@ class AbstractErrorParser():
     ERRORS = {ErrorClass: {
                 'file_specifier' : {
                     'string': "the string to be looked for",
-                    'metafilter': "string specifing the regular expression to obtain the meta data"
+                    'meta_filter': "string specifing the regular expression to obtain the meta data"
                     }
                 }
 
@@ -119,14 +119,14 @@ class AbstractErrorParser():
         return {}
 
     @staticmethod
-    def extract_metadata(lines, metafilter):
+    def extract_metadata(lines, meta_filter):
         meta_dict = {}
-        for key in metafilter.keys():
+        for key in meta_filter.keys():
             values = []
             for line in lines:
-                match = re.match(metafilter[key][0], line)
+                match = re.match(meta_filter[key][0], line)
                 if match is not None:
-                    values.append(re.match(metafilter[key][0], line).group(metafilter[key][1]))
+                    values.append(re.match(meta_filter[key][0], line).group(meta_filter[key][1]))
             values = sorted(set(values))
             meta_dict.update({key: values})
         return meta_dict
@@ -148,7 +148,7 @@ class AbstractErrorParser():
                         message = line
                         found = True
                 if found:
-                    metadata = self.extract_metadata(lines, errmsg[k]['metafilter'])
+                    metadata = self.extract_metadata(lines, errmsg[k]['meta_filter'])
             except (IOError, OSError):
                 print self.files[k], 'not found'
             except TypeError:
@@ -177,31 +177,31 @@ class SlurmErrorParser(AbstractErrorParser):
             SubmitError: {
                 'batch_err': {
                     'string': "sbatch: error: Batch job submission failed:",
-                    'metafilter': {}
+                    'meta_filter': {}
                 }
             },
             FullQueueError: {
                 'batch_err': {
                     'string': "sbatch: error: Batch job submission failed: Job violates accounting/QOS policy",
-                    'metafilter': {}
+                    'meta_filter': {}
                 }
             },
             MemoryCancelError: {
                 'err': {
                     'string': "Exceeded job memory limit",
-                    'metafilter': {}
+                    'meta_filter': {}
                 }
             },
             TimeCancelError: {
                 'err': {
                     'string': "Exceeded job time limit",
-                    'metafilter': {}
+                    'meta_filter': {}
                 }
             },
             NodeFailureError: {
                 'run_err': {
                     'string': "can't open /dev/ipath, network down",
-                    'metafilter': {
+                    'meta_filter': {
                         'node': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]
                     }
                 }
@@ -209,7 +209,7 @@ class SlurmErrorParser(AbstractErrorParser):
             AbstractError: {
                 'out': {
                     'string': "a string to be found",
-                    'metafilter': {}
+                    'meta_filter': {}
                 }
             }
         }
