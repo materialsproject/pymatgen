@@ -244,7 +244,11 @@ class Vasprun(object):
         """
         Final energy from the vasp run.
         """
-#        return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
+        try:
+            return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
+        except (IndexError, KeyError):
+            # not all calculations have a total energy, i.e. GW
+            return None
 
     @property
     def complete_dos(self):
@@ -511,11 +515,18 @@ class Vasprun(object):
 
         nsites = len(self.final_structure)
 
-        vout = {"ionic_steps": self.ionic_steps,
-                "final_energy": self.final_energy,
-#                "final_energy_per_atom": self.final_energy / nsites,
-                "crystal": self.final_structure.to_dict,
-                "efermi": self.efermi}
+        try:
+            vout = {"ionic_steps": self.ionic_steps,
+                    "final_energy": self.final_energy,
+                    "final_energy_per_atom": self.final_energy / nsites,
+                    "crystal": self.final_structure.to_dict,
+                    "efermi": self.efermi}
+        except (ArithmeticError, TypeError):
+            vout = {"ionic_steps": self.ionic_steps,
+                    "final_energy": self.final_energy,
+                    "final_energy_per_atom": None,
+                    "crystal": self.final_structure.to_dict,
+                    "efermi": self.efermi}
 
         eigen = defaultdict(dict)
         for (spin, index), values in self.eigenvalues.items():
@@ -865,9 +876,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_positions = False
         elif name == "calculation":
             self.ionic_steps.append({"electronic_steps": self.scdata,
-                                     "structure": self.structures[-1]})
-#                                     "forces": self.forces,
-#                                     "stress": self.stress})
+                                     "structure": self.structures[-1],
+# something to fix
+                                     "forces": self.forces,
+                                     "stress": self.stress})
+# something to fix
             self.read_calculation = False
 
     def _read_structure(self, name):
