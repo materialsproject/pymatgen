@@ -469,6 +469,18 @@ export MPI_NCPUS=$${MPI_NCPUS}
     def get_njobs_in_queue(self, username=None):
         return None
 
+    def exclude_nodes(self, nodes):
+        return False
+
+    def increase_mem(self, factor):
+        return False
+
+    def increase_time(self, factor):
+        return False
+
+    def increase_cpus(self, factor):
+        return False
+
 
 class SlurmAdapter(AbstractQueueAdapter):
     QTYPE = "slurm"
@@ -789,6 +801,18 @@ class PbsAdapter(AbstractQueueAdapter):
         logger.critical(err_msg)
 
         return None
+
+    def exclude_nodes(self, nodes):
+        return False
+
+    def increase_mem(self, factor):
+        return False
+
+    def increase_time(self, factor):
+        return False
+
+    def increase_cpus(self, factor):
+        return False
 
 
 class QScriptTemplate(string.Template):
