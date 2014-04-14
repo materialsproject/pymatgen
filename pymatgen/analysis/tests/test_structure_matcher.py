@@ -428,7 +428,26 @@ class StructureMatcherTest(unittest.TestCase):
         rms = (0.029763769724403633, 0.029763769724403987)
         self.assertTrue(np.allclose(sm.get_rms_dist(s1, s2_missing_site), rms))
         self.assertTrue(np.allclose(sm.get_rms_dist(s2_missing_site, s1), rms))
+        
+    def test_get_s2_large_s2(self):
+        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
+                              primitive_cell=False, scale=False,
+                              attempt_supercell=True, allow_subset=False,
+                              supercell_size='volume')
+        
+        l = Lattice.orthorhombic(1, 2, 3)
+        s1 = Structure(l, ['Ag', 'Si', 'Si'],
+                       [[.7,.4,.5],[0,0,0.1],[0,0,0.2]])
+        
+        l2 = Lattice.orthorhombic(1.01, 2.01, 3.01)
+        s2 = Structure(l2, ['Si', 'Si', 'Ag'],
+                       [[0,0.1,-0.95],[0,0.1,0],[-.7,.5,.375]])
+        s2.make_supercell([[0,-1,0],[1,0,0],[0,0,1]])
+        
+        result = sm.get_s2_like_s1(s1, s2)
 
+        for x,y in zip(s1, result):
+            self.assertLess(x.distance(y), 0.08)
 
     def test_get_mapping(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
