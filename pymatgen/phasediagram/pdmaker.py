@@ -28,6 +28,7 @@ except ImportError:
     from pyhull.convex_hull import ConvexHull
     HULL_METHOD = "pyhull"
 
+from pymatgen.core.periodic_table import get_el_sp
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.entries import GrandPotPDEntry, TransformedPDEntry
 from pymatgen.entries.computed_entries import ComputedEntry
@@ -157,14 +158,16 @@ class PhaseDiagram (MSONable):
 
         qhull_entries = [entries[i] for i in ind]
         qhull_data = data[ind][:, 1:]
-        
+
         #add an extra point to enforce full dimensionality
         #this point will be present in all upper hull facets
         extra_point = np.zeros(dim) + 1 / dim
         extra_point[-1] = np.max(qhull_data) + 1
         qhull_data = np.concatenate([qhull_data, [extra_point]], axis=0)
 
-        if len(qhull_data) == dim:
+        if dim == 1:
+            self.facets = [qhull_data.argmin(axis=0)]
+        elif len(qhull_data) == dim:
             self.facets = [range(dim)]
         else:
             if HULL_METHOD == "scipy":
@@ -303,13 +306,12 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
             elements = set()
             map(elements.update, [entry.composition.elements
                                   for entry in entries])
-
-        elements = set(elements).difference(chempots.keys())
-        all_entries = [GrandPotPDEntry(e, chempots)
+        self.chempots = {get_el_sp(el): u for el, u in chempots.items()}
+        elements = set(elements).difference(self.chempots.keys())
+        all_entries = [GrandPotPDEntry(e, self.chempots)
                        for e in entries
                        if (not e.is_element) or
                        e.composition.elements[0] in elements]
-        self.chempots = chempots
 
         super(GrandPotentialPhaseDiagram, self).__init__(all_entries, elements)
 

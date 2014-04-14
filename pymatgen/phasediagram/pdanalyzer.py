@@ -306,7 +306,7 @@ class PDAnalyzer(object):
                                   'reaction': rxn, 'entries': decomp_entries})
         return evolution
 
-    def get_chempot_range_map(self, elements):
+    def get_chempot_range_map(self, elements, referenced=True):
         """
         Returns a chemical potential range map for each stable entry.
 
@@ -315,6 +315,8 @@ class PDAnalyzer(object):
                 variables. E.g., if you want to show the stability ranges
                 of all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+            referenced: if True, gives the results with a reference being the
+            energy of the elemental phase. If False, gives absolute values.
 
         Returns:
             Returns a dict of the form {entry: [simplices]}. The list of
@@ -328,9 +330,10 @@ class PDAnalyzer(object):
             chempots = self.get_facet_chempots(facet)
             all_chempots.append([chempots[el] for el in pd.elements])
         inds = [pd.elements.index(el) for el in elements]
-
-        el_energies = {el: pd.el_refs[el].energy_per_atom
-                       for el in elements}
+        el_energies = {el: 0.0 for el in elements}
+        if referenced:
+            el_energies = {el: pd.el_refs[el].energy_per_atom
+                           for el in elements}
         chempot_ranges = collections.defaultdict(list)
         vertices = [[i for i in range(len(self._pd.elements))]]
         if len(all_chempots) > len(self._pd.elements):
@@ -352,6 +355,46 @@ class PDAnalyzer(object):
 
         return chempot_ranges
 
+    def getmu_vertices_stability_phase(self, target_comp, dep_elt):
+        """
+        returns a set of chemical potentials correspoding to the vertices of the simplex
+        in the chemical potential phase diagram.
+        The simplex is buit using all elements in the target_composition except dep_elt.
+        The chemical potential of dep_elt is computed from the target composition energy.
+        This method is useful to get the limiting conditions for
+        defects computations for instance.
+
+        Args:
+            target_comp: A Composition object
+            dep_elt: the element for which the chemical potential is computed from the energy of
+            the stable phase at the target composition
+
+        Returns:
+             [{Element:mu}]: An array of conditions on simplex vertices for which each element has a chemical potential
+             set to a given value. "absolute" values (i.e., not referenced to element energies)
+        """
+        muref = np.array([self._pd.el_refs[e].energy_per_atom for e in self._pd.elements if e != dep_elt])
+        chempot_ranges = self.get_chempot_range_map([e for e in self._pd.elements if e != dep_elt])
+
+        for e in self._pd.elements:
+            if not e in target_comp.elements:
+                target_comp = target_comp+Composition({e: 0.0})
+        coeff = [-target_comp[e] for e in self._pd.elements if e != dep_elt]
+        for e in chempot_ranges.keys():
+            if e.composition.reduced_composition == target_comp.reduced_composition:
+                multiplicator = e.composition[dep_elt]/target_comp[dep_elt]
+                ef = e.energy/multiplicator
+                all_coords = []
+                for s in chempot_ranges[e]:
+                    for v in s._coords:
+                        elts = [e for e in self._pd.elements if e != dep_elt]
+                        res = {}
+                        for i in range(len(elts)):
+                            res[elts[i]] = v[i] + muref[i]
+                        res[dep_elt]=(np.dot(v+muref,coeff)+ef)/target_comp[dep_elt]
+                        all_coords.append(res)
+        return all_coords
+
     def getmu_range_stability_phase(self, target_comp, open_elt):
         """
         returns a set of chemical potentials correspoding to the max and min chemical potential
@@ -371,28 +414,28 @@ class PDAnalyzer(object):
         muref = np.array([self._pd.el_refs[e].energy_per_atom for e in self._pd.elements if e != open_elt])
         chempot_ranges = self.get_chempot_range_map([e for e in self._pd.elements if e != open_elt])
         for e in self._pd.elements:
-            if not e in target_comp._elmap.keys():
+            if not e in target_comp.elements:
                 target_comp = target_comp+Composition({e: 0.0})
-        coeff = [-target_comp._elmap[e] for e in self._pd.elements if e != open_elt]
+        coeff = [-target_comp[e] for e in self._pd.elements if e != open_elt]
         max_open = -100000000
         min_open = 1000000000
         max_mus = None
         min_mus = None
         for e in chempot_ranges.keys():
             if e.composition.reduced_composition == target_comp.reduced_composition:
-                multiplicator = e.composition._elmap[open_elt]/target_comp._elmap[open_elt]
-                Ef = e.energy/multiplicator
+                multiplicator = e.composition[open_elt]/target_comp[open_elt]
+                ef = e.energy/multiplicator
                 all_coords = []
                 for s in chempot_ranges[e]:
                     for v in s._coords:
                         all_coords.append(v)
-                        if (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt] > max_open:
-                            max_open = (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt]
+                        if (np.dot(v+muref,coeff)+ef)/target_comp[open_elt] > max_open:
+                            max_open = (np.dot(v+muref,coeff)+ef)/target_comp[open_elt]
                             max_mus = v
-                        if (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt] < min_open:
-                            min_open = (np.dot(v+muref,coeff)+Ef)/target_comp._elmap[open_elt]
+                        if (np.dot(v+muref, coeff)+ef)/target_comp[open_elt] < min_open:
+                            min_open = (np.dot(v+muref, coeff)+ef)/target_comp[open_elt]
                             min_mus = v
-        elts = [e for e in target_comp.elements if e != open_elt]
+        elts = [e for e in self._pd.elements if e != open_elt]
         res = {}
         for i in range(len(elts)):
             res[elts[i]] = (min_mus[i]+muref[i], max_mus[i]+muref[i])

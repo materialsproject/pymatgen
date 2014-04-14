@@ -51,9 +51,14 @@ from monty.tempfile import ScratchDir
 logger = logging.getLogger(__name__)
 
 
-@requires(which('multienum.x') and which('makestr.x'),
-          "EnumlibAdaptor requires the executables 'multienum.x' and "
-          "'makestr.x' to be in the path. Please download the library at"
+# Favor the use of the newer "enum.x" by Gus Hart instead of the older
+# "multienum.x"
+enum_cmd = which('multienum.x')
+
+
+@requires(enum_cmd and which('makestr.x'),
+          "EnumlibAdaptor requires the executables 'enum.x' or 'multienum.x' "
+          "and 'makestr.x' to be in the path. Please download the library at"
           "http://enum.sourceforge.net/ and follow the instructions in "
           "the README to compile these two executables accordingly.")
 class EnumlibAdaptor(object):
@@ -257,7 +262,7 @@ class EnumlibAdaptor(object):
             f.write("\n".join(output))
 
     def _run_multienum(self):
-        p = subprocess.Popen(["multienum.x"],
+        p = subprocess.Popen([enum_cmd],
                              stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, close_fds=True)
         output = p.communicate()[0]

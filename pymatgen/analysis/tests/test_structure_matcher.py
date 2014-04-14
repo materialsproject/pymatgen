@@ -484,7 +484,14 @@ class StructureMatcherTest(unittest.TestCase):
                        [[0,0.1,0],[0,0.1,-0.95],[-.7,.5,.375]])
         result = sm.get_supercell_matrix(s1, s2)
         self.assertTrue((result == [[-1,-1,0],[0,0,-1],[0,1,0]]).all())
-
+        
+        #test when the supercell is a subset
+        sm = StructureMatcher(ltol=0.1, stol=0.3, angle_tol=2,
+                              primitive_cell=False, scale=True,
+                              attempt_supercell=True, allow_subset=True)
+        del s1[0]
+        result = sm.get_supercell_matrix(s1, s2)
+        self.assertTrue((result == [[-1,-1,0],[0,0,-1],[0,1,0]]).all())
 
     def test_subset(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5,
