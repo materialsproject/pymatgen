@@ -37,10 +37,11 @@ class PDPlotter(object):
     def __init__(self, phasediagram, show_unstable=False):
         self._pd = phasediagram
         self._dim = len(self._pd.elements)
-        self.lines = uniquelines(self._pd.facets)
+        if self._dim > 4:
+            raise ValueError("Only 1-4 components supported!")
+        self.lines = uniquelines(self._pd.facets) if self._dim > 1 else \
+            [[self._pd.facets[0][0], self._pd.facets[0][0]]]
         self.show_unstable = show_unstable
-        if self._dim < 2 or self._dim > 4:
-            raise ValueError("Only 2-4 components supported!")
 
     @property
     def pd_plot_data(self):
@@ -51,12 +52,12 @@ class PDPlotter(object):
 
         Returns:
             (lines, stable_entries, unstable_entries):
-                - lines is a list of list of coordinates for lines in the PD.
-                - stable_entries is a {coordinate : entry} for each stable node
-                  in the phase diagram. (Each coordinate can only have one
-                  stable phase)
-                - unstable_entries is a {entry: coordinates} for all unstable
-                  nodes in the phase diagram.
+            - lines is a list of list of coordinates for lines in the PD.
+            - stable_entries is a {coordinate : entry} for each stable node
+            in the phase diagram. (Each coordinate can only have one
+            stable phase)
+            - unstable_entries is a {entry: coordinates} for all unstable
+            nodes in the phase diagram.
         """
         pd = self._pd
         entries = pd.qhull_entries
@@ -66,7 +67,7 @@ class PDPlotter(object):
         for line in self.lines:
             entry1 = entries[line[0]]
             entry2 = entries[line[1]]
-            if self._dim == 2:
+            if self._dim < 3:
                 x = [data[line[0]][0], data[line[1]][0]]
                 y = [pd.get_form_energy_per_atom(entry1),
                      pd.get_form_energy_per_atom(entry2)]
@@ -87,7 +88,7 @@ class PDPlotter(object):
         for i in xrange(0, len(all_entries)):
             entry = all_entries[i]
             if entry not in stable:
-                if self._dim == 2:
+                if self._dim < 3:
                     x = [all_data[i][0], all_data[i][0]]
                     y = [pd.get_form_energy_per_atom(entry),
                          pd.get_form_energy_per_atom(entry)]
@@ -352,7 +353,7 @@ class PDPlotter(object):
 
         plt.savefig(stream, format=image_format)
 
-    def plot_chempot_range_map(self, elements):
+    def plot_chempot_range_map(self, elements, referenced=True):
         """
         Plot the chemical potential range _map. Currently works only for
         3-component PDs.
@@ -362,10 +363,12 @@ class PDPlotter(object):
                 variables. E.g., if you want to show the stability ranges of
                 all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+            referenced: if True, gives the results with a reference being the
+                        energy of the elemental phase. If False, gives absolute values.
         """
-        self.get_chempot_range_map_plot(elements).show()
+        self.get_chempot_range_map_plot(elements, referenced=referenced).show()
 
-    def get_chempot_range_map_plot(self, elements):
+    def get_chempot_range_map_plot(self, elements,referenced=True):
         """
         Returns a plot of the chemical potential range _map. Currently works
         only for 3-component PDs.
@@ -375,13 +378,15 @@ class PDPlotter(object):
                 variables. E.g., if you want to show the stability ranges of
                 all Li-Co-O phases wrt to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
+            referenced: if True, gives the results with a reference being the
+                        energy of the elemental phase. If False, gives absolute values.
         Returns:
             A matplotlib plot object.
         """
 
         plt = get_publication_quality_plot(12, 8)
         analyzer = PDAnalyzer(self._pd)
-        chempot_ranges = analyzer.get_chempot_range_map(elements)
+        chempot_ranges = analyzer.get_chempot_range_map(elements,referenced=referenced)
         missing_lines = {}
         excluded_region = []
         for entry, lines in chempot_ranges.items():
@@ -576,12 +581,12 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
 
     Returns:
         (newlines, newstable_entries, newunstable_entries):
-            - newlines is a list of list of coordinates for lines in the PD.
-            - newstable_entries is a {coordinate : entry} for each stable node
-              in the phase diagram. (Each coordinate can only have one
-              stable phase)
-            - newunstable_entries is a {entry: coordinates} for all unstable
-              nodes in the phase diagram.
+        - newlines is a list of list of coordinates for lines in the PD.
+        - newstable_entries is a {coordinate : entry} for each stable node
+        in the phase diagram. (Each coordinate can only have one
+        stable phase)
+        - newunstable_entries is a {entry: coordinates} for all unstable
+        nodes in the phase diagram.
     """
     yup = -1000.0
     xleft = 1000.0

@@ -575,6 +575,12 @@ Same as the MPVaspInput set, but the +U is enforced to be turned off.
 """
 
 
+MPHSEVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP HSE",
+                            os.path.join(MODULE_DIR, "MPHSEVaspInputSet.json"))
+"""
+Same as the MPVaspInput set, but with HSE parameters.
+"""
+
 class MPStaticVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
@@ -810,6 +816,74 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
             del self.incar_settings['NPAR']
 
 
+class MPBSHSEVaspInputSet(DictVaspInputSet):
+    """
+    Implementation of a VaspInputSet for HSE band structure computations
+    Remember that HSE band structures cannot be non-self consistent. So, a band structure
+    along syymetry lines for instance needs a uniform grid with appropriate weights + weight 0
+    path in reciprocal space
+    Args:
+        user_incar_settings(dict): A dict specifying additional incar
+            settings
+        added_kpoints: a list of kpoints (list of 3 number list) with weight 0 added to the run.
+            The k-points are in fractional coordinates
+        kpoints_density: the kpoint density of the uniform grid used for the band structure run
+        mode: Line: Generate k-points along symmetry lines for
+            bandstructure. Uniform: Generate uniform k-points grid
+
+    """
+
+    def __init__(self, user_incar_settings=None, added_kpoints=[], mode="Line", kpoints_density=100):
+        with open(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.json")) as f:
+            DictVaspInputSet.__init__(
+                self, "MaterialsProject HSE Band Structure", json.load(f))
+            self.user_incar_settings = user_incar_settings if \
+                user_incar_settings is not None else {}
+            self.incar_settings.update(
+                {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 0,
+                 "LCHARG": False})
+        self.added_kpoints = added_kpoints
+        self.mode = mode
+        self.kpoints_density = kpoints_density
+
+    def get_kpoints(self, structure):
+        self.kpoints_settings['grid_density'] = self.kpoints_density * \
+            structure.lattice.reciprocal_lattice.volume * structure.num_sites
+        grid = super(MPBSHSEVaspInputSet, self).get_kpoints(structure).kpts
+        if self.mode == "Line":
+            ir_kpts = SymmetryFinder(structure,symprec=0.01).get_ir_reciprocal_mesh(grid[0])
+            kpoints, labels=HighSymmKpath(structure).get_kpoints()
+            kpts = []
+            weights = []
+            all_labels=[]
+            for k in ir_kpts:
+                kpts.append(k[0])
+                weights.append(int(k[1]))
+                all_labels.append(None)
+            for k in range(len(kpoints)):
+                kpts.append(kpoints[k])
+                weights.append(0.0)
+                all_labels.append(labels[k])
+            return Kpoints(comment="HSE run along symmetry lines",
+                           style="Reciprocal", num_kpts=len(kpts),
+                           kpts=kpts, kpts_weights=weights, labels=all_labels)
+
+        elif self.mode == "Uniform":
+            ir_kpts=SymmetryFinder(structure,symprec=0.01).get_ir_reciprocal_mesh(grid[0])
+            kpts = []
+            weights = []
+            for k in ir_kpts:
+                kpts.append(k[0])
+                weights.append(int(k[1]))
+            for k in self.added_kpoints:
+                kpts.append(k)
+                weights.append(0.0)
+            return Kpoints(comment="HSE run on uniform grid",
+                           style="Reciprocal", num_kpts=len(kpts),
+                           kpts=kpts, kpts_weights=weights)
+
+
+
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
@@ -933,7 +1007,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
-                               mode="Uniform", user_incar_settings={},
+                               mode="Uniform", user_incar_settings=None,
                                copy_chgcar=True, make_dir_if_not_present=True):
         """
         Generate a set of Vasp input files for NonSCF calculations from a
@@ -956,6 +1030,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 directory (and the whole path) to be created if it is not
                 present.
         """
+        user_incar_settings = user_incar_settings or {}
+        
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
