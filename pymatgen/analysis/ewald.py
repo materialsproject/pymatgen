@@ -303,7 +303,7 @@ class EwaldSummation(object):
             epoint[i] = qi * qi
             epoint[i] *= -1.0 * sqrt(self._eta / pi)
             # add jellium term
-            epoint[i] += qi * pi / (2.0 * self._vol * self._eta)
+            epoint[i] += - qi * pi / (2.0 * self._vol * self._eta)
 
             rij = np.zeros(num_neighbors)
             qj = np.zeros(num_neighbors)
