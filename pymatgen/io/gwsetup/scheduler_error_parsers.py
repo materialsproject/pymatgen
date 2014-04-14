@@ -16,10 +16,95 @@ __all_errors__ = ['SubmitError', 'FullQueueError', 'DiskError', 'TimeCancelError
 
 import re
 import abc
-from abc import ABCMeta
+from abc import ABCMeta, abstractproperty, abstractmethod
 
 
-class AbstractError():
+class CorrectorProtocolScheduler(object):
+    """
+    Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
+    script generator method / ... should implement these methods.
+    """
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def name(self):
+        return str()
+
+    @abstractmethod
+    def exclude_nodes(self, nodes):
+        """
+        Method to exclude certain nodes from being used in the calculation. It is called when a calculation seemed to
+        have been crashed due to a hardware failure at the nodes specified.
+
+            nodes: list of node numbers that were found to cause problems
+
+        returns True is the memory could be increased False otherwise
+        """
+        return bool
+
+    @abstractmethod
+    def increase_mem(self):
+        """
+        Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed
+        due to a insufficient memory.
+
+        returns True is the memory could be increased False otherwise
+        """
+        return bool
+
+    @abstractmethod
+    def increase_time(self):
+        """
+        Method to increase te time for the calculation. It is called when a calculation seemed to
+        have been crashed due to a time limit.
+
+        returns True is the memory could be increased False otherwise
+        """
+        return bool
+
+    @abstractmethod
+    def increase_cpus(self):
+        """
+        Method to increse the number of cpus being used in the calculation. It is called when a calculation seemed to
+        have been crashed due to time or memory limits being broken.
+
+        returns True is the memory could be increased False otherwise
+        """
+        return bool
+
+
+class CorrectorProtocolApplication(object):
+    """
+    Abstract class to define the protocol / interface for correction operators. The client code quadapters / submission
+    script generator method / ... should implement these methods.
+    """
+    __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def name(self):
+        return str()
+
+    @abstractmethod
+    def decrease_mem(self):
+        """
+        Method to increase then memory in the calculation. It is called when a calculation seemed to have been crashed
+        due to a insufficient memory.
+
+        returns True is the memory could be increased False otherwise
+        """
+        return bool
+
+    @abstractmethod
+    def speed_up(self):
+        """
+        Method to speed_up the calculation. It is called when a calculation seemed to time limits being broken.
+
+        returns True is the memory could be increased False otherwise
+        """
+        return bool
+
+
+class AbstractError(object):
     """
     Error base class
     """
@@ -38,6 +123,31 @@ class AbstractError():
     @property
     def name(self):
         return self.__class__.__name__
+
+    @property
+    def scheduler_adapter_solutions(self):
+        """
+        to be implemented by concrete errors returning a list of tuples defining corrections. The First element of the
+          tuple should be a string of one of the methods in CorrectorProtocolScheduler, the second element should
+          contain the arguments.
+        """
+        return []
+
+    @property
+    def application_adapter_solutions(self):
+        """
+        to be implemented by concrete errors returning a list of tuples defining corrections. The First element of the
+          tuple should be a string of one of the methods in CorrectorProtocolApplication, the second element should
+          contain the arguments.
+        """
+        return []
+
+    def last_resort_solution(self):
+        """
+        what to do if every thing else fails...
+        """
+        print 'non of the defined solutions for %s returned success...' % self.name
+        return
 
 
 class SubmitError(AbstractError):
@@ -68,6 +178,14 @@ class TimeCancelError(AbstractError):
     def limit(self):
         return self.meta_data.get('broken_limit')
 
+    @property
+    def scheduler_adapter_solutions(self):
+        return [(CorrectorProtocolScheduler.increase_time,)]
+
+    @property
+    def application_adapter_solutions(self):
+        return [(CorrectorProtocolApplication.speed_up,)]
+
 
 class MemoryCancelError(AbstractError):
     """
@@ -79,6 +197,14 @@ class MemoryCancelError(AbstractError):
     def limit(self):
         return self.meta_data.get('broken_limit')
 
+    @property
+    def scheduler_adapter_solutions(self):
+        return [(CorrectorProtocolScheduler.increase_mem,)]
+
+    @property
+    def application_adapter_solutions(self):
+        return [(CorrectorProtocolApplication.decrease_mem,)]
+
 
 class NodeFailureError(AbstractError):
     """
@@ -87,8 +213,12 @@ class NodeFailureError(AbstractError):
     """
 
     @property
-    def node(self):
-        return self.meta_data.get('node')
+    def nodes(self):
+        return self.meta_data.get('nodes')
+
+    @property
+    def scheduler_adapter_solutions(self):
+        return [(CorrectorProtocolScheduler.exclude_nodes, [self.nodes])]
 
 
 class AbstractErrorParser():
@@ -171,7 +301,7 @@ class AbstractErrorParser():
 
 class SlurmErrorParser(AbstractErrorParser):
     """
-    Implementation for the Slurm scheduler
+    Implementation of the error definitions for the Slurm scheduler
     """
 
     @property
@@ -205,7 +335,7 @@ class SlurmErrorParser(AbstractErrorParser):
                 'run_err': {
                     'string': "can't open /dev/ipath, network down",
                     'meta_filter': {
-                        'node': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]
+                        'nodes': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]
                     }
                 }
             },
