@@ -584,7 +584,7 @@ class StructureMatcher(MSONable):
         for i, site2 in enumerate(struct2):
             for j, site1 in enumerate(struct1):
                 mask[i, j, :] = not self._comparator.are_equal(
-                        site2.species_and_occu, site1.species_and_occu)
+                    site2.species_and_occu, site1.species_and_occu)
         if s1_supercell:
             mask = mask.reshape((len(struct2), -1))
         else:
@@ -594,8 +594,8 @@ class StructureMatcher(MSONable):
             mask = mask.reshape((-1, len(struct1)))
 
         #find the best translation index
-        i = np.argmax(np.sum(mask, axis = -1))
-        return mask, np.where(mask[i] == False)[0], i
+        i = np.argmax(np.sum(mask, axis=-1))
+        return mask, np.where(np.invert(mask[i]))[0], i
 
     def fit(self, struct1, struct2):
         """
@@ -617,10 +617,11 @@ class StructureMatcher(MSONable):
 
         if len(struct1) * ratio >= len(struct2):
             match = self._match(struct1, struct2, fu, s1_supercell=s1_supercell,
-                                    break_on_match=True)
+                                break_on_match=True)
         else:
-            match = self._match(struct2, struct1, fu, s1_supercell=(not s1_supercell),
-                                    break_on_match=True)
+            match = self._match(struct2, struct1, fu,
+                                s1_supercell=(not s1_supercell),
+                                break_on_match=True)
 
         if match is None:
             return False
@@ -645,10 +646,11 @@ class StructureMatcher(MSONable):
 
         if len(struct1) * ratio >= len(struct2):
             match = self._match(struct1, struct2, fu, s1_supercell=s1_supercell,
-                                    break_on_match=False, use_rms=True)
+                                break_on_match=False, use_rms=True)
         else:
-            match = self._match(struct2, struct1, fu, s1_supercell=(not s1_supercell),
-                                    break_on_match=False, use_rms=True)
+            match = self._match(struct2, struct1, fu,
+                                s1_supercell=(not s1_supercell),
+                                break_on_match=False, use_rms=True)
         if match is None:
             return None
         else:
@@ -741,8 +743,8 @@ class StructureMatcher(MSONable):
                         total_t = t + t_adj
                         total_t -= np.round(total_t)
                         best_match = val, dist, sc_m, total_t, mapping
-                    if break_on_match and val < self.stol:
-                        return best_match
+                        if (break_on_match or val < 1e-5) and val < self.stol:
+                            return best_match
         if best_match and best_match[0] < self.stol:
             return best_match
 
@@ -969,12 +971,19 @@ class StructureMatcher(MSONable):
         if self._primitive_cell:
             raise ValueError("get_supercell_matrix cannot be used with the "
                              "primitive cell option")
-        struct, supercell, fu, s1_supercell = self._preprocess(struct, supercell, False)
+        struct, supercell, fu, s1_supercell = self._preprocess(struct,
+                                                               supercell, False)
+        ratio = fu if s1_supercell else 1/fu
+
         if not s1_supercell:
             raise ValueError("The non-supercell must be put onto the basis"
                              " of the supercell, not the other way around")
 
-        match = self._match(supercell, struct, fu, s1_supercell=False,
+        if len(supercell) >= len(struct) * ratio:
+            match = self._match(supercell, struct, fu, s1_supercell=False,
+                                use_rms=True, break_on_match=False)
+        else:
+            match = self._match(struct, supercell, fu, s1_supercell=True,
                                 use_rms=True, break_on_match=False)
 
         if match is None:
@@ -1036,7 +1045,8 @@ class StructureMatcher(MSONable):
         if self._supercell:
             raise ValueError("cannot compute mapping to supercell")
         if self._primitive_cell:
-            raise ValueError("cannot compute mapping with primitive cell option")
+            raise ValueError("cannot compute mapping with primitive cell "
+                             "option")
         if len(subset) > len(superset):
             raise ValueError("subset is larger than superset")
 
