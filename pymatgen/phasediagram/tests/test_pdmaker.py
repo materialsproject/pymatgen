@@ -5,6 +5,8 @@ from pymatgen import Element, Composition
 from pymatgen.phasediagram.entries import PDEntryIO, PDEntry
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
     GrandPotentialPhaseDiagram, CompoundPhaseDiagram, PhaseDiagramError
+from pymatgen.phasediagram.pdanalyzer import PDAnalyzer
+from pymatgen.phasediagram.plotter import PDPlotter
 
 
 class PhaseDiagramTest(unittest.TestCase):
@@ -23,6 +25,22 @@ class PhaseDiagramTest(unittest.TestCase):
                          self.entries)
         self.assertRaises(PhaseDiagramError, PhaseDiagram, entries,
                           self.elements)
+
+    def test_dim1(self):
+        #Ensure that dim 1 PDs can eb generated.
+        for el in ["Li", "Fe", "O2"]:
+            entries = [e for e in self.entries
+                       if e.composition.reduced_formula == el]
+            pd = PhaseDiagram(entries)
+            self.assertEqual(len(pd.stable_entries), 1)
+
+            a = PDAnalyzer(pd)
+            for e in entries:
+                decomp, ehull = a.get_decomp_and_e_above_hull(e)
+                self.assertGreaterEqual(ehull, 0)
+            plotter = PDPlotter(pd)
+            lines, stable_entries, unstable_entries = plotter.pd_plot_data
+            self.assertEqual(lines[0][1], [0, 0])
 
     def test_stable_entries(self):
         stable_formulas = [ent.composition.reduced_formula
@@ -51,7 +69,7 @@ class PhaseDiagramTest(unittest.TestCase):
                                    7)
     def test_all_entries_hulldata(self):
         self.assertEqual(len(self.pd.all_entries_hulldata), 492)
-        
+
     def test_planar_inputs(self):
         e1 = PDEntry('H',    0)
         e2 = PDEntry('HLiB', 0)
@@ -62,9 +80,9 @@ class PhaseDiagramTest(unittest.TestCase):
         e7 = PDEntry('HBe',  0)
         e8 = PDEntry('Rb',   0)
 
-        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6, e7, e8], 
+        pd = PhaseDiagram([e1, e2, e3, e4, e5, e6, e7, e8],
                           map(Element, ['Rb', 'He', 'B', 'Be','Li', 'He', 'H']))
-        
+
 
     def test_str(self):
         self.assertIsNotNone(str(self.pd))

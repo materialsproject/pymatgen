@@ -142,19 +142,6 @@ class BVAnalyzer(object):
     3) The oxidation states are then ranked in order of decreasing probability
     and the oxidation state combination that result in a charge neutral cell
     is selected.
-
-    Args:
-        symm_tol (float): Symmetry tolerance used to determine which sites are
-            symmetrically equivalent. Set to 0 to turn off symmetry.
-        max_radius (float): Maximum radius in Angstrom used to find nearest
-            neighbors.
-        max_permutations (int): The maximum number of permutations of
-            oxidation states to test.
-        distance_scale_factor:
-            A scale factor to be applied. This is useful for scaling
-            distances, esp in the case of calculation-relaxed structures
-            which may tend to under (GGA) or over bind (LDA). The default
-            of 1.015 works for GGA. For experimental structure, set this to 1.
     """
 
     CHARGE_NEUTRALITY_TOLERANCE = 0.00001
@@ -164,6 +151,8 @@ class BVAnalyzer(object):
                  charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
                  forbidden_species=None):
         """
+        Initializes the BV analyzer, with useful defaults.
+
         Args:
             symm_tol:
                 Symmetry tolerance used to determine which sites are
