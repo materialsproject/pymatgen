@@ -776,6 +776,13 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             previous_incar.update(user_incar_settings)
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
+        # Perform checking on INCAR parameters
+        if any([previous_incar.get("NSW", 0) != 0, previous_incar["IBRION"] != -1,
+               previous_incar["LCHARG"] != True,
+               any([sum(previous_incar["LDAUU"])<=0, previous_incar["LMAXMIX"]<4])
+               if previous_incar.get("LDAU") else False]):
+            raise ValueError("Incompatible INCAR parameters!")
+
         # Prefer to use k-point scheme from previous run
         new_kpoints = mpsvip.get_kpoints(structure)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
@@ -1062,6 +1069,14 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
         previous_incar.update(user_incar_settings)
         previous_incar.pop("MAGMOM", None)
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
+
+        # Perform checking on INCAR parameters
+        if any([previous_incar.get("NSW",0) != 0, previous_incar["IBRION"] != -1,
+               previous_incar["ICHARG"] != 11,
+               any([sum(previous_incar["LDAUU"])<=0, previous_incar["LMAXMIX"]<4])
+               if previous_incar.get("LDAU") else False]):
+            raise ValueError("Incompatible INCAR parameters!")
+
 
 def batch_write_vasp_input(structures, vasp_input_set, output_dir,
                            make_dir_if_not_present=True, subfolder=None,
