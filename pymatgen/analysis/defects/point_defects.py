@@ -421,7 +421,7 @@ class Vacancy(Defect):
                                       properties=defect_site.properties)
         for i in range(len(sc.sites)):
             if sc_defect_site == sc.sites[i]:
-                sc.remove(i)
+                del sc[i]
                 return sc
 
     def make_supercells_with_defects(self, scaling_matrix):
