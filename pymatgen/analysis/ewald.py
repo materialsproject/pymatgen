@@ -71,7 +71,7 @@ class EwaldSummation(object):
 
         # set screening length
         self._eta = eta if eta \
-            else (len(structure) * 0.01 / (self._vol ** 2)) ** (1.0 / 3) * pi
+            else (len(structure) * 0.01 / self._vol) ** (1 / 3) * pi
         self._sqrt_eta = sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
@@ -253,7 +253,8 @@ class EwaldSummation(object):
         oxistates = np.array(self._oxi_states)
         #create array where q_2[i,j] is qi * qj
         qiqj = oxistates[None, :] * oxistates[:, None]
-        for fcoords, dist, i in recip_nn:
+
+        for (fcoords, dist, i) in recip_nn:
             if dist == 0:
                 continue
             gvect = frac_to_cart(fcoords)
@@ -278,6 +279,7 @@ class EwaldSummation(object):
             factor = prefactor * pref * \
                 (sreal * np.sin(gvectdot)
                  - simag * np.cos(gvectdot)) * EwaldSummation.CONV_FACT
+
             forces += factor[:, None] * gvect[None, :]
 
         return erecip * prefactor * EwaldSummation.CONV_FACT, forces
@@ -303,7 +305,7 @@ class EwaldSummation(object):
             epoint[i] = qi * qi
             epoint[i] *= -1.0 * sqrt(self._eta / pi)
             # add jellium term
-            epoint[i] += - qi * pi / (2.0 * self._vol * self._eta)
+            epoint[i] += qi * pi / (2.0 * self._vol * self._eta)
 
             rij = np.zeros(num_neighbors)
             qj = np.zeros(num_neighbors)
