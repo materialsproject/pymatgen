@@ -17,7 +17,6 @@ import os
 import os.path
 import pymatgen as pmg
 import pymatgen.io.vaspio.vasp_output
-
 from pymatgen.core import structure
 
 from pymatgen.io.vaspio.vasp_input import Kpoints
