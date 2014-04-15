@@ -16,9 +16,9 @@ except ImportError:
     zeo = None
 
 gulp_present = which('gulp')
-
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
                         'test_files')
+
 
 class ValenceIonicRadiusEvaluatorTest(unittest.TestCase):
     def setUp(self):
