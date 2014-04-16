@@ -499,7 +499,7 @@ class Interstitial(Defect):
     """
 
     def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
-                 accuracy='Normal'):
+                 accuracy='Normal', symmetry_flag=True):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
 
@@ -541,8 +541,9 @@ class Interstitial(Defect):
             high_accuracy_flag = True
         else:
             raise ValueError("Accuracy setting not understood.")
+
         vor_node_sites, vor_facecenter_sites = symmetry_reduced_voronoi_nodes(
-                self._structure, self._rad_dict, high_accuracy_flag
+                self._structure, self._rad_dict, high_accuracy_flag, symmetry_flag
                 )
         
         if site_type == 'voronoi_vertex':
@@ -1259,13 +1260,16 @@ class RelaxedInterstitial:
 
 
 def symmetry_reduced_voronoi_nodes(
-        structure, rad_dict, high_accuracy_flag=False):
+        structure, rad_dict, high_accuracy_flag=False, symm_flag=True):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and
     pymatgen.symmetry.finder.SymmetryFinder
 
     Args:
         strucutre: pymatgen Structure object
+        rad_dict: Dictionary containing radii of spcies in the structure
+        high_accuracy_flag: Flag denotting whether to use high accuracy version of Zeo++
+        symm_flag: Flag denoting whether to return symmetrically distinct sites only
 
     Returns:
         Symmetrically distinct voronoi nodes as pymatgen Strucutre
@@ -1310,6 +1314,21 @@ def symmetry_reduced_voronoi_nodes(
     def check_not_duplicates(site):
         return site
 
+
+    if not symm_flag:
+        if not high_accuracy_flag:
+            vor_node_struct, vor_facecenter_struct  = get_voronoi_nodes(
+                        structure, rad_dict)
+            return vor_node_struct.sites, vor_facecenter_struct.sites
+        else:
+            # Only the nodes are from high accuracy voronoi decomposition
+            vor_node_struct, vor_facecenter_struct  = \
+                    get_high_accuracy_voronoi_nodes(structure, rad_dict)
+            # Before getting the symmetry, remove the duplicates
+            vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
+            #print type(vor_node_struct.sites[0])
+            dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
+            return dist_sites, vor_facecenter_struct.sites
 
 
     if not high_accuracy_flag:
