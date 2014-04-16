@@ -199,42 +199,47 @@ class SingleAbinitGWWorkFlow():
 
         try:
             grid = read_grid_from_file(s_name(self.structure)+".full_res")['grid']
+            all_done = read_grid_from_file(s_name(self.structure)+".full_res")['all_done']
             workdir = os.path.join(s_name(self.structure), 'work_'+str(grid))
         except (IOError, OSError):
             grid = 0
+            all_done = False
             workdir = None
 
-        if (self.spec['test'] or self.spec['converge']) and self.option is None:
-            if self.spec['test']:
-                print '| setting test calculation'
-                tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
-                response_models = []
-            else:
-                if grid == 0:
-                    print '| setting convergence calculations for grid 0'
-                    tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+        if not all_done:
+            if (self.spec['test'] or self.spec['converge']) and self.option is None:
+                if self.spec['test']:
+                    print '| setting test calculation'
+                    tests = SingleAbinitGWWorkFlow(self.structure, self.spec).tests
+                    response_models = []
                 else:
-                    print '| extending grid'
-                    tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
-            ecuteps = []
-            nscf_nband = []
-            for test in tests:
-                for value in tests[test]['test_range']:
-                    if test == 'nscf_nbands':
-                        nscf_nband.append(value * self.get_bands(self.structure))
-                        #scr_nband takes nscf_nbands if not specified
-                        #sigma_nband takes scr_nbands if not specified
-                    if test == 'ecuteps':
-                        ecuteps.append(value)
-                    if test == 'response_model':
-                        response_models.append(value)
-        elif self.option is not None:
-            print '| setting up for testing the converged values at the high kp grid '
-            # in this case a convergence study has already been perfromed. The resulting parameters are passed as option
-            ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
-                                               self.convs['ecuteps']['test_range'][0]]
-            nscf_nband = [self.option['nscf_nbands'], self.option['nscf_nbands'] + self.convs['nscf_nbands'][
-                'test_range'][1] - self.convs['nscf_nbands']['test_range'][0]]
+                    if grid == 0:
+                        print '| setting convergence calculations for grid 0'
+                        tests = SingleAbinitGWWorkFlow(self.structure, self.spec).convs
+                    else:
+                        print '| extending grid'
+                        tests = expand_tests(SingleAbinitGWWorkFlow(self.structure, self.spec).convs, grid)
+                ecuteps = []
+                nscf_nband = []
+                for test in tests:
+                    for value in tests[test]['test_range']:
+                        if test == 'nscf_nbands':
+                            nscf_nband.append(value * self.get_bands(self.structure))
+                            #scr_nband takes nscf_nbands if not specified
+                            #sigma_nband takes scr_nbands if not specified
+                        if test == 'ecuteps':
+                            ecuteps.append(value)
+                        if test == 'response_model':
+                            response_models.append(value)
+            elif self.option is not None:
+                print '| setting up for testing the converged values at the high kp grid '
+                # in this case a convergence study has already been perfromed. The resulting parameters are passed as option
+                ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
+                                                   self.convs['ecuteps']['test_range'][0]]
+                nscf_nband = [self.option['nscf_nbands'], self.option['nscf_nbands'] + self.convs['nscf_nbands'][
+                    'test_range'][1] - self.convs['nscf_nbands']['test_range'][0]]
+        else:
+            print '| all is done for this material'
 
         extra_abivars = dict(
             ecut=[ecut],
