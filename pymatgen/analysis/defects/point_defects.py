@@ -88,7 +88,7 @@ class ValenceIonicRadiusEvaluator:
             coord_no = int(round(coord_finder.get_coordination_number(i)))
             try:
                 tab_oxi_states = map(int, _ion_radii[el].keys())
-                tab_oxi_states.sort() 
+                tab_oxi_states.sort()
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
@@ -526,7 +526,7 @@ class Interstitial(Defect):
                         structure
                         )
             except:
-                raise 
+                raise
         self._valence_dict = valences
         self._rad_dict = radii
 
