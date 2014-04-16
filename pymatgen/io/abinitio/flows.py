@@ -388,7 +388,7 @@ class AbinitFlow(Node):
         Fixer for errors originating from the scheduler. General strategy, first try to increase resources in order to
         fix the problem, if this is not possible, call a task specific method to attempt to decrease the demands.
         """
-        from pymatgen.io.gwsetup.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
 
         for task in self.iflat_tasks(status='S_QUEUE_ERROR'):
             for error in task.queue_errors:

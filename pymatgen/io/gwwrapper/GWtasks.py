@@ -19,8 +19,8 @@ import logging
 import shutil
 import subprocess
 
-from pymatgen.io.gwsetup.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwsetup.GWvaspinputsets import MPGWG0W0VaspInputSet
+from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
+from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWG0W0VaspInputSet
 from fireworks.core.firework import FWAction
 from uclworks.utils.clusters import get_vasp_environment
 from uclworks.firetasks.vasptasks import VaspGWTask

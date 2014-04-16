@@ -327,8 +327,10 @@ class SlurmErrorParser(AbstractErrorParser):
             },
             TimeCancelError: {
                 'err': {
-                    'string': "Exceeded job time limit",
-                    'meta_filter': {}
+                    'string': "JOB 28400 CANCELLED AT 2014-04-14T15:42:06 DUE TO TIME LIMIT",
+                    'meta_filter': {
+                        'time_of_cancel': [r"JOB (\d+) CANCELLED AT (\S*) DUE TO TIME LIMIT", 1]
+                    }
                 }
             },
             NodeFailureError: {

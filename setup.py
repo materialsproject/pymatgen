@@ -56,7 +56,7 @@ setup(
     package_data={"pymatgen.core": ["*.json"],
                   "pymatgen.analysis": ["bvparam_1991.json", "icsd_bv.json"],
                   "pymatgen.io": ["*.cfg", "*.json"],
-                  "pymatgen.io.gwsetup":["*.json"],
+                  "pymatgen.io.gwwrapper":["*.json"],
                   "pymatgen.entries": ["*.cfg"],
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"],
