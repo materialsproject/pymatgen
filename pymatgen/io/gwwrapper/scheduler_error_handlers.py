@@ -11,7 +11,7 @@ __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
 __date__ = "Mar 24, 2014"
 
-from pymatgen.io.gwsetup.scheduler_error_parsers import get_parser
+from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
 from custodian.custodian import ErrorHandler
 
 

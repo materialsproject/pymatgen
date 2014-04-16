@@ -22,13 +22,13 @@ import pymatgen as pmg
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.matproj.rest import MPRester
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.io.gwsetup.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwsetup.GWworkflows import SingleAbinitGWWorkFlow, VaspGWFWWorkFlow
-from pymatgen.io.gwsetup.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, MPGWG0W0VaspInputSet
+from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
+from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow, VaspGWFWWorkFlow
+from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, MPGWG0W0VaspInputSet
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV, eV_to_Ha
-from pymatgen.io.gwsetup.GWhelpers import test_conv, print_gnuplot_header, s_name
+from pymatgen.io.gwwrapper.GWhelpers import test_conv, print_gnuplot_header, s_name
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
