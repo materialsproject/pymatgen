@@ -286,8 +286,9 @@ class GWSpecs(MSONable):
                 option = None
             work_flow = SingleAbinitGWWorkFlow(structure, self, option)
             flow = work_flow.create()
-            flow.build_and_pickle_dump()
-            work_flow.create_job_file()
+            if flow is not None:
+                flow.build_and_pickle_dump()
+                work_flow.create_job_file()
         else:
             print 'unspecified code, actually this should have been catched earlier .. '
             exit()
