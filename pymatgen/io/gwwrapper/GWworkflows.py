@@ -240,6 +240,7 @@ class SingleAbinitGWWorkFlow():
                     'test_range'][1] - self.convs['nscf_nbands']['test_range'][0]]
         else:
             print '| all is done for this material'
+            return
 
         extra_abivars = dict(
             ecut=[ecut],
