@@ -42,9 +42,9 @@ number is assumed to be on the environment variable NPARGWCALC.
 """
 
 
-class AbstractAbinitioSprec(MSONable):
+class AbstractAbinitioSprec(object):
     """
-
+    todo for some reason I can not make this class have both a metaclass and subcalss from msonable ...
     """
     __metaclass__ = ABCMeta
 
@@ -56,13 +56,6 @@ class AbstractAbinitioSprec(MSONable):
 
     def get_code(self):
         return self['code']
-
-    def to_dict(self):
-        return self.data
-
-    def from_dict(self, data):
-        self.data = data
-        self.test()
 
     def write_to_file(self, filename):
         f = open(filename, mode='w')
@@ -204,7 +197,7 @@ class AbstractAbinitioSprec(MSONable):
         """
 
 
-class GWSpecs(AbstractAbinitioSprec):
+class GWSpecs(AbstractAbinitioSprec, MSONable):
     """
     Class for GW specifications.
     """
@@ -253,6 +246,13 @@ class GWSpecs(AbstractAbinitioSprec):
                '              rerun all test defined in tests relative to the converged valuues with provided \n' \
                '              kp_grid dens' \
                'prec:         m, h'
+
+    def to_dict(self):
+        return self.data
+
+    def from_dict(self, data):
+        self.data = data
+        self.test()
 
     def test(self):
         """
