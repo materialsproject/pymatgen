@@ -118,7 +118,7 @@ class SingleAbinitGWWorkFlow():
         else:
             path_add = ''
         self.work_dir = self.structure.composition.reduced_formula+path_add
-        abi_pseudo = '.GGA_PBE-JTH-paw.xml'
+        abi_pseudo = os.environ['ABINIT_PS_EXT']
         abi_pseudo_dir = os.path.join(os.environ['ABINIT_PS'], 'GGA_PBE-JTH-paw')
         pseudos = []
         for element in self.structure.composition.element_composition:
