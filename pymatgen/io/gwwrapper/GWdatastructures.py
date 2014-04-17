@@ -42,7 +42,7 @@ number is assumed to be on the environment variable NPARGWCALC.
 """
 
 
-class AbstractAbinitioSprec(MSONable):
+class AbstractAbinitioSprec():
     """
 
     """
