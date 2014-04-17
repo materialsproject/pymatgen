@@ -16,14 +16,14 @@ __date__ = "Oct 23, 2013"
 import os
 import os.path
 
-from pymatgen.io.gwwrapper.GWsetup import GWSpecs
+from pymatgen.io.gwwrapper.GWsetup import get_spec
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
     if os.path.isfile('plots'):
         os.remove('plots')
-    spec = GWSpecs()
+    spec = get_spec('GW')
     spec.read_from_file('spec.in')
-    print 'Found setup for ', spec.data['code']
+    print 'Found setup for ', spec.get_code()
     spec.loop_structures('o')

@@ -16,14 +16,14 @@ __date__ = "Oct 23, 2013"
 import os
 import os.path
 
-from pymatgen.io.gwwrapper.GWdatastructures import GWSpecs
+from pymatgen.io.gwwrapper.GWdatastructures import get_spec
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 if __name__ == "__main__":
     import this
-    spec_in = GWSpecs()
+    spec_in = get_spec('GW')
     try:
         spec_in.read_from_file('spec.in')
     except (IOError, OSError):
