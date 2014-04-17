@@ -49,7 +49,18 @@ class AbstractAbinitioSprec(object):
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        self.data = {}
+        self.data = {'code': 'VASP',
+                     'source': 'mp-vasp',
+                     'mode': 'ceci',
+                     'test': False,
+                     'converge': False,
+                     'functional': 'PBE',
+                     'prec': 'm',
+                     'kp_grid_dens': 500,
+                     'tol': 0.0001}
+        self.warnings = []
+        self.errors = []
+
 
     def __getitem__(self, item):
         return self.data[item]
@@ -202,10 +213,8 @@ class GWSpecs(AbstractAbinitioSprec, MSONable):
     Class for GW specifications.
     """
     def __init__(self):
-        self.data = {'mode': 'ceci', 'jobs': ['prep', 'G0W0'], 'test': False, 'source': 'mp-vasp', 'code': 'VASP',
-                     'functional': 'PBE', 'kp_grid_dens': 500, 'prec': 'm', 'converge': False, 'tol': 0.0001}
-        self.warnings = []
-        self.errors = []
+        super(GWSpecs, self).__init__()
+        self.data.update({'jobs': ['prep', 'G0W0']})
         self.fw_specs = []
         self._message = str
 
@@ -723,7 +732,7 @@ class GWConvergenceData():
         print the gap data in a way for 3d plotting using gnuplot to file
         """
         data_file = self.name + '.data'
-        f = open(data_file, mode='w')
+        f = open(data_file, mode='a')
         try:
             tmp = self.get_sorted_data_list()[0][0]
         except IndexError:
@@ -786,3 +795,14 @@ class GWConvergenceData():
         string = str(self.full_res)
         f.write(string)
         f.close()
+
+
+# API :
+
+
+def get_spec(comp_type):
+    return {'GW': GWSpecs()}[comp_type]
+
+
+def get_convergence_data_structure(comp_type, spec, structure):
+    return {'GW': GWConvergenceData(spec=spec, structure=structure)}[comp_type]
