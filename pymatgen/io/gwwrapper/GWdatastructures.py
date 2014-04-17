@@ -46,7 +46,6 @@ class AbstractAbinitioSprec():
     """
 
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self):
         self.data = {}
