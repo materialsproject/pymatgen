@@ -19,6 +19,7 @@ import ast
 import math
 import pymatgen as pmg
 
+from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.matproj.rest import MPRester
 from pymatgen.serializers.json_coders import MSONable
@@ -41,7 +42,169 @@ number is assumed to be on the environment variable NPARGWCALC.
 """
 
 
-class GWSpecs(MSONable):
+class AbstractAbinitioSprec(MSONable):
+    """
+
+    """
+    __metaclass__ = ABCMeta
+
+    def __init__(self):
+        self.data = {}
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    @abstractproperty
+    def help(self):
+        """
+        property containing a help string for the interactive update
+        """
+        return str
+
+    @abstractmethod
+    def test(self):
+        """
+        method to test the input for consistency. needs to be implemented by the concrete class
+        """
+
+    @abstractmethod
+    def excecute_flow(self, structure):
+        """
+        method called in loopstructures in 'i' input mode, this method schould generate input, job script files etc
+         or create fire_work workflows and put them in a database
+        """
+
+    @abstractmethod
+    def process_data(self, structure):
+        """
+        method called in loopstructures in 'o' input mode, this method should take the results from the calcultations
+        and perform analysis'
+        """
+
+    def get_code(self):
+        return self['code']
+
+    def to_dict(self):
+        return self.data
+
+    def from_dict(self, data):
+        self.data = data
+        self.test()
+
+    def write_to_file(self, filename):
+        f = open(filename, mode='w')
+        f.write(str(self.to_dict()))
+        f.close()
+
+    def read_from_file(self, filename):
+        try:
+            f = open(filename, mode='r')
+            self.data = ast.literal_eval(f.read())
+            f.close()
+        except OSError:
+            print 'Inputfile ', filename, ' not found exiting.'
+            exit()
+
+    def update_interactive(self):
+        """
+        method to make changes to the GW input setting interactively
+        """
+        key = 'tmp'
+        while len(key) != 0:
+            print self
+            key = raw_input('enter key to change (h for help): ')
+            if key in self.data.keys():
+                value = raw_input('enter new value: ')
+                if isinstance(self.data[key], list):                        # list
+                    if len(value) == 0:
+                        print 'removed', self.data[key].pop(-1)
+                    else:
+                        self.data[key].append(value)
+                elif isinstance(self.data[key], bool):                      # logical
+                    if value.lower() in ['true', 't']:
+                        self.data[key] = True
+                    elif value.lower() in ['false', 'f']:
+                        self.data[key] = False
+                    else:
+                        print 'undefined value, should be True or False'
+                elif isinstance(self.data[key], int):                       # integer
+                    self.data[key] = int(value)
+                elif isinstance(self.data[key], float):                     # float
+                    self.data[key] = float(value)
+                elif isinstance(self.data[key], str):                       # string
+                    self.data[key] = value
+            elif key in ['help', 'h']:
+                print self.help
+            elif len(key) == 0:
+                print 'setup finished'
+            else:
+                print 'undefined key'
+        self.data['functional'] = self.data['functional'].upper()
+
+    def loop_structures(self, mode='i'):
+        """
+        reading the structures specified in spec, add special points, and excecute the specs
+        mode:
+        i: loop structures for input generation
+        o: loop structures for output parsing
+        """
+
+        mp_key = os.environ['MP_KEY']
+
+        mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-1986', 'mp-10695', 'mp-66',
+                        'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
+
+        if self.data['source'] == 'mp-vasp':
+            items_list = mp_list_vasp
+        elif self.data['source'] == 'poscar':
+            files = os.listdir('.')
+            items_list = files
+        else:
+            items_list = [line.strip() for line in open(self.data['source'])]
+
+        for item in items_list:
+            if item.startswith('POSCAR_'):
+                structure = pmg.read_structure(item)
+                comment = Poscar.from_file(item).comment
+                # print comment
+                if comment.startswith("gap"):
+                    structure.vbm_l = comment.split(" ")[1]
+                    structure.vbm = (comment.split(" ")[2], comment.split(" ")[3], comment.split(" ")[4])
+                    structure.cbm_l = comment.split(" ")[5]
+                    structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
+                else:
+                    # print "no bandstructure information available, adding GG as 'gap'"
+                    structure.vbm_l = "G"
+                    structure.cbm_l = "G"
+                    structure.cbm = (0.0, 0.0, 0.0)
+                    structure.vbm = (0.0, 0.0, 0.0)
+            elif item.startswith('mp-'):
+                with MPRester(mp_key) as mp_database:
+                    structure = mp_database.get_structure_by_material_id(item, final=True)
+                    bandstructure = mp_database.get_bandstructure_by_material_id(item)
+                    structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
+                    structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
+                    structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
+                    structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
+            else:
+                continue
+            print "\n", item, s_name(structure)
+            if mode == 'i':
+                self.excecute_flow(structure)
+            elif mode == 'o':
+                if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
+                    self.process_data(structure)
+
+        if 'ceci' in self.data['mode'] and mode == 'i':
+            os.chmod("job_collection", stat.S_IRWXU)
+
+    def reset_job_collection(self):
+        if 'ceci' in self.data['mode']:
+            if os.path.isfile('job_collection'):
+                os.remove('job_collection')
+
+
+class GWSpecs(MSONable, AbstractAbinitioSprec):
     """
     Class for GW specifications.
     """
@@ -69,86 +232,27 @@ class GWSpecs(MSONable):
                                                  self['prec'], self['tol'], self['test'], self['converge'])
         return self._message
 
-    def __getitem__(self, item):
-        return self.data[item]
-
-    def to_dict(self):
-        return self.data
-
-    def from_dict(self, data):
-        self.data = data
-        self.test()
-
     @staticmethod
     def get_npar(self, structure):
         return MPGWG0W0VaspInputSet(structure, self).get_npar(structure)
 
-    def get_code(self):
-        return self['code']
-
-    def write_to_file(self, filename):
-        f = open(filename, mode='w')
-        f.write(str(self.to_dict()))
-        f.close()
-
-    def read_from_file(self, filename):
-        try:
-            f = open(filename, mode='r')
-            self.data = ast.literal_eval(f.read())
-            f.close()
-        except OSError:
-            print 'Inputfile ', filename, ' not found exiting.'
-            exit()
-
-    def update_interactive(self):
-        """
-        method to make changes to the GW input setting interactively
-        """
-        key = 'tmp'
-        while len(key) != 0:
-            print self
-            key = raw_input('enter key to change (h for help): ')
-            if key in self.data.keys():
-                value = raw_input('enter new value: ')
-                if key in ['jobs']:                                         # list
-                    if len(value) == 0:
-                        print 'removed', self.data[key].pop(-1)
-                    else:
-                        self.data[key].append(value)
-                elif key in ['test', 'converge']:                           # logical
-                    if value.lower() in ['true', 't']:
-                        self.data[key] = True
-                    elif value.lower() in ['false', 'f']:
-                        self.data[key] = False
-                    else:
-                        print 'undefined value, should be True or False'
-                elif key in ['kp_grid_dens']:                               # integer
-                    self.data[key] = int(value)
-                elif key in ['tol']:                                        # float
-                    self.data[key] = float(value)
-                else:                                                       # string
-                    self.data[key] = value
-            elif key in ['help', 'h']:
-                print "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from"
-                print "              poscar will read files starting with POSCAR_ in the working folder"
-                print 'mode:         input, ceci, fw'
-                print 'functional:   PBE, LDA'
-                print 'jobs:         prep, G0W0, GW0, scGW0, no option, just enter, remove the last option'
-                print 'code:         VASP, ABINIT'
-                print 'kp_grid_dens: usually 500 - 1000, 1 gives gamma only, 2 gives a 2x2x2 mesh'
-                print 'tol:          tolerance for determining convergence d(gap)/d(encuteps) and d(gap)/d(nbands) < tol' \
-                      '              for negative values the data is extra polated agains 1/n and covergence wrt the' \
-                      '              complete limit is tested'
-                print 'test:         run all settings defined in test the calculation specific tests'
-                print 'converge:     run all settings defined in convs at low kp mesh, determine converged values,' \
-                      '              rerun all test defined in tests relative to the converged valuues with provided' \
-                      '              kp_grid dens, in progress ..... '
-                print 'prec:         m, h'
-            elif len(key) == 0:
-                print 'setup finished'
-            else:
-                print 'undefined key'
-        self.data['functional'] = self.data['functional'].upper()
+    @property
+    def help(self):
+        return "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from \n" \
+               '              poscar will read files starting with POSCAR_ in the working folder \n' \
+               'mode:         input, ceci, fw \n' \
+               'functional:   PBE, LDA \n' \
+               'jobs:         prep, G0W0, GW0, scGW0, no option, just enter, remove the last option \n' \
+               'code:         VASP, ABINIT \n' \
+               'kp_grid_dens: usually 500 - 1000, 1 gives gamma only, 2 gives a 2x2x2 mesh \n' \
+               'tol:          tolerance for determining convergence d(gap)/d(encuteps) and d(gap)/d(nbands) < tol \n' \
+               '              for negative values the data is extra polated agains 1/n and covergence wrt the \n' \
+               '              complete limit is tested \n' \
+               'test:         run all settings defined in test the calculation specific tests \n' \
+               'converge:     run all settings defined in convs at low kp mesh, determine converged values, \n' \
+               '              rerun all test defined in tests relative to the converged valuues with provided \n' \
+               '              kp_grid dens' \
+               'prec:         m, h'
 
     def test(self):
         """
@@ -382,68 +486,6 @@ class GWSpecs(MSONable):
             data.read()
             data.set_type()
             data.print_plot_data()
-
-    def loop_structures(self, mode='i'):
-        """
-        reading the structures specified in spec, add special points, and excecute the specs
-        mode:
-        i: loop structures for input generation
-        o: loop structures for output parsing
-        """
-
-        mp_key = os.environ['MP_KEY']
-
-        mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-1986', 'mp-10695', 'mp-66',
-                        'mp-1639', 'mp-1265', 'mp-1138', 'mp-23155', 'mp-111']
-
-        if self.data['source'] == 'mp-vasp':
-            items_list = mp_list_vasp
-        elif self.data['source'] == 'poscar':
-            files = os.listdir('.')
-            items_list = files
-        else:
-            items_list = [line.strip() for line in open(self.data['source'])]
-
-        for item in items_list:
-            if item.startswith('POSCAR_'):
-                structure = pmg.read_structure(item)
-                comment = Poscar.from_file(item).comment
-                # print comment
-                if comment.startswith("gap"):
-                    structure.vbm_l = comment.split(" ")[1]
-                    structure.vbm = (comment.split(" ")[2], comment.split(" ")[3], comment.split(" ")[4])
-                    structure.cbm_l = comment.split(" ")[5]
-                    structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
-                else:
-                    # print "no bandstructure information available, adding GG as 'gap'"
-                    structure.vbm_l = "G"
-                    structure.cbm_l = "G"
-                    structure.cbm = (0.0, 0.0, 0.0)
-                    structure.vbm = (0.0, 0.0, 0.0)
-            elif item.startswith('mp-'):
-                with MPRester(mp_key) as mp_database:
-                    structure = mp_database.get_structure_by_material_id(item, final=True)
-                    bandstructure = mp_database.get_bandstructure_by_material_id(item)
-                    structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
-                    structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
-                    structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
-                    structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
-            else:
-                continue
-            print "\n", item, s_name(structure)
-            if mode == 'i':
-                self.excecute_flow(structure)
-            elif mode == 'o':
-                if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
-                    self.process_data(structure)
-
-        if 'ceci' in self.data['mode'] and mode == 'i':
-            os.chmod("job_collection", stat.S_IRWXU)
-
-    def reset_job_collection(self):
-        if 'ceci' in self.data['mode']:
-            if os.path.isfile('job_collection'):
-                os.remove('job_collection')
 
 
 class GWConvergenceData():
