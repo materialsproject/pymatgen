@@ -42,43 +42,17 @@ number is assumed to be on the environment variable NPARGWCALC.
 """
 
 
-class AbstractAbinitioSprec():
+class AbstractAbinitioSprec(object, MSONable):
     """
 
     """
+    __metaclass__ = ABCMeta
 
     def __init__(self):
         self.data = {}
 
     def __getitem__(self, item):
         return self.data[item]
-
-    @abstractproperty
-    def help(self):
-        """
-        property containing a help string for the interactive update
-        """
-        return str
-
-    @abstractmethod
-    def test(self):
-        """
-        method to test the input for consistency. needs to be implemented by the concrete class
-        """
-
-    @abstractmethod
-    def excecute_flow(self, structure):
-        """
-        method called in loopstructures in 'i' input mode, this method schould generate input, job script files etc
-         or create fire_work workflows and put them in a database
-        """
-
-    @abstractmethod
-    def process_data(self, structure):
-        """
-        method called in loopstructures in 'o' input mode, this method should take the results from the calcultations
-        and perform analysis'
-        """
 
     def get_code(self):
         return self['code']
@@ -202,8 +176,35 @@ class AbstractAbinitioSprec():
             if os.path.isfile('job_collection'):
                 os.remove('job_collection')
 
+    @abstractproperty
+    def help(self):
+        """
+        property containing a help string for the interactive update
+        """
+        return str
 
-class GWSpecs(MSONable, AbstractAbinitioSprec):
+    @abstractmethod
+    def test(self):
+        """
+        method to test the input for consistency. needs to be implemented by the concrete class
+        """
+
+    @abstractmethod
+    def excecute_flow(self, structure):
+        """
+        method called in loopstructures in 'i' input mode, this method schould generate input, job script files etc
+         or create fire_work workflows and put them in a database
+        """
+
+    @abstractmethod
+    def process_data(self, structure):
+        """
+        method called in loopstructures in 'o' input mode, this method should take the results from the calcultations
+        and perform analysis'
+        """
+
+
+class GWSpecs(AbstractAbinitioSprec):
     """
     Class for GW specifications.
     """
@@ -287,48 +288,6 @@ class GWSpecs(MSONable, AbstractAbinitioSprec):
                 print ' > ' + warning
         self.reset_job_collection()
 
-    def is_converged(self, structure, return_values=False):
-        filename = s_name(structure) + ".conv_res"
-        try:
-            f = open(filename, mode='r')
-            conv_res = ast.literal_eval(f.read())
-            f.close()
-            converged = conv_res['control']['nbands']
-        except (IOError, OSError):
-            if return_values:
-                print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly or was not' \
-                                              ' parsed ...'
-            converged = False
-        if return_values and converged:
-            if self.get_code() == 'ABINIT':
-                conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
-            return conv_res['values']
-        else:
-            return converged
-
-    def get_conv_res_test(self, structure):
-        """
-        return test sets for the tests in test relative to the convergence results
-        """
-        tests_conv = {}
-        tests_prep_conv = {}
-        tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
-        tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
-        tests = MPGWG0W0VaspInputSet(structure, self).tests
-        conv_res = self.is_converged(structure, return_values=True)
-        for test in conv_res.keys():
-            if test in tests_prep.keys():
-                rel = tests_prep[test]['test_range'][1] - tests_prep[test]['test_range'][0]
-                value = conv_res[test]
-                tests_prep_conv.update({test: tests_prep[test]})
-                tests_prep_conv[test].update({'test_range': (value, value + rel)})
-            elif test in tests.keys():
-                rel = tests[test]['test_range'][1] - tests[test]['test_range'][0]
-                value = conv_res[test]
-                tests_conv.update({test: tests[test]})
-                tests_conv[test].update({'test_range': (value, value + rel)})
-        return {'tests': tests_conv, 'tests_prep': tests_prep_conv}
-
     def excecute_flow(self, structure):
         """
         excecute spec prepare input/jobfiles or submit to fw for a given structure
@@ -395,21 +354,6 @@ class GWSpecs(MSONable, AbstractAbinitioSprec):
         else:
             print 'unspecified code, actually this should have been catched earlier .. '
             exit()
-
-    def create_job(self, structure, job, fw_work_flow, option=None):
-        work = SingleVaspGWWork(structure, job, self.data, option=option, converged=self.is_converged(structure))
-        if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
-            work.create_input()
-            if 'ceci' in self.data['mode']:
-                work.create_job_script()
-        if 'fw' in self.data['mode']:
-            structure_dict = structure.to_dict
-            band_structure_dict = {'vbm_l': structure.vbm_l, 'cbm_l': structure.cbm_l, 'vbm_a': structure.vbm[0],
-                                   'vbm_b': structure.vbm[1], 'vbm_c': structure.vbm[2], 'cbm_a': structure.cbm[0],
-                                   'cbm_b': structure.cbm[1], 'cbm_c': structure.cbm[2]}
-            parameters = {'structure': structure_dict, 'band_structure': band_structure_dict, 'job': job,
-                          'spec': self.to_dict(), 'option': option}
-            fw_work_flow.add_work(parameters)
 
     def process_data(self, structure):
         """
@@ -485,6 +429,63 @@ class GWSpecs(MSONable, AbstractAbinitioSprec):
             data.read()
             data.set_type()
             data.print_plot_data()
+
+    def is_converged(self, structure, return_values=False):
+        filename = s_name(structure) + ".conv_res"
+        try:
+            f = open(filename, mode='r')
+            conv_res = ast.literal_eval(f.read())
+            f.close()
+            converged = conv_res['control']['nbands']
+        except (IOError, OSError):
+            if return_values:
+                print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly or was not' \
+                                              ' parsed ...'
+            converged = False
+        if return_values and converged:
+            if self.get_code() == 'ABINIT':
+                conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
+            return conv_res['values']
+        else:
+            return converged
+
+    def get_conv_res_test(self, structure):
+        """
+        return test sets for the tests in test relative to the convergence results
+        """
+        tests_conv = {}
+        tests_prep_conv = {}
+        tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
+        tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
+        tests = MPGWG0W0VaspInputSet(structure, self).tests
+        conv_res = self.is_converged(structure, return_values=True)
+        for test in conv_res.keys():
+            if test in tests_prep.keys():
+                rel = tests_prep[test]['test_range'][1] - tests_prep[test]['test_range'][0]
+                value = conv_res[test]
+                tests_prep_conv.update({test: tests_prep[test]})
+                tests_prep_conv[test].update({'test_range': (value, value + rel)})
+            elif test in tests.keys():
+                rel = tests[test]['test_range'][1] - tests[test]['test_range'][0]
+                value = conv_res[test]
+                tests_conv.update({test: tests[test]})
+                tests_conv[test].update({'test_range': (value, value + rel)})
+        return {'tests': tests_conv, 'tests_prep': tests_prep_conv}
+
+    def create_job(self, structure, job, fw_work_flow, option=None):
+        work = SingleVaspGWWork(structure, job, self.data, option=option, converged=self.is_converged(structure))
+        if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
+            work.create_input()
+            if 'ceci' in self.data['mode']:
+                work.create_job_script()
+        if 'fw' in self.data['mode']:
+            structure_dict = structure.to_dict
+            band_structure_dict = {'vbm_l': structure.vbm_l, 'cbm_l': structure.cbm_l, 'vbm_a': structure.vbm[0],
+                                   'vbm_b': structure.vbm[1], 'vbm_c': structure.vbm[2], 'cbm_a': structure.cbm[0],
+                                   'cbm_b': structure.cbm[1], 'cbm_c': structure.cbm[2]}
+            parameters = {'structure': structure_dict, 'band_structure': band_structure_dict, 'job': job,
+                          'spec': self.to_dict(), 'option': option}
+            fw_work_flow.add_work(parameters)
 
 
 class GWConvergenceData():
