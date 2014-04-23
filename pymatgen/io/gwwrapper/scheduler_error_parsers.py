@@ -270,7 +270,7 @@ class AbstractErrorParser():
         metadata = None
         for k in errmsg.keys():
             if self.files[k] is not None:
-                print 'parsing ', self.files[k], ' for ', errmsg[k]['string']
+                # print 'parsing ', self.files[k], ' for ', errmsg[k]['string']
                 try:
                     with open(self.files[k], mode='r') as f:
                         lines = f.read().split('\n')
