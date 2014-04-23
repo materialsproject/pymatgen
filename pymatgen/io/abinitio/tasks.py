@@ -1501,7 +1501,8 @@ class Task(Node):
         black_list = [self.S_LOCKED]
         if self.status in black_list: return
 
-        # Check the returncode of the process first.
+        # Check the returncode of the process (the process of submitting the job) first.
+        # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
             return self.set_status(self.S_ERROR, info_msg="return code %s" % self.returncode)
 
@@ -1564,10 +1565,12 @@ class Task(Node):
             return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
-        if self.stderr_file.exists:
-            err_info = self.stderr_file.read()
-            if err_info:
-                return self.set_status(self.S_ERROR, info_msg=err_info)
+       #    (removed because if the scheduler killed the job or had other problems. the stderr will also be filled
+       #     with lots of useless crap ... )
+       # if self.stderr_file.exists:
+       #     err_info = self.stderr_file.read()
+       #     if err_info:
+       #         return self.set_status(self.S_ERROR, info_msg=err_info)
 
         # 3) Analyze the error file of the resource manager.
        # if self.qerr_file.exists:
