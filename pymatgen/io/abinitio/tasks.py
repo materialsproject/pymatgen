@@ -1496,89 +1496,65 @@ class Task(Node):
         """
         This function check the status of the task by inspecting the output and the 
         error files produced by the application and by the queue manager.
+        The process
+        1) see it the job is blocked
+        2) see if an error occured at submitting the job the job was submitted, TODO these problems can be solved
+        3) see if there is output
+            4) see if abinit reports problems
+            5) see if both err files exist and are empty
+        6) no output and no err files, the job must still be running
+        7) try to find out what caused the problems
+        8) there is a problem but we did not figure out what ...
+        9) the only way of landing here is if there is a output file but no err files...
         """
-        # A locked task can only be unlocked by calling set_status explicitly.
+
+        # 1) A locked task can only be unlocked by calling set_status explicitly.
         black_list = [self.S_LOCKED]
         if self.status in black_list: return
 
-        # Check the returncode of the process (the process of submitting the job) first.
+        # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
-            return self.set_status(self.S_ERROR, info_msg="return code %s" % self.returncode)
+            info_msg = "return code %s" % self.returncode
+            return self.set_status(self.S_ERROR, info_msg=info_msg)           # The job was not submitter properly
 
-        # Start to check when the output file has been created.
+        err_msg = None
+        if self.stderr_file.exists:
+            err_msg = self.stderr_file.read()
+
+        err_info = None
+        if self.qerr_file.exists:
+            err_info = self.qerr_file.read()
+
+        # 3) Start to check if the output file has been created.
+        if self.output_file.exists:
+            report = self.get_event_report()
+            # 4)
+            if report.errors or report.bugs:                                 # Abinit reports problems
+                logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
+                info_msg = str(report.errors) + str(report.bugs)
+                return self.set_status(self.S_ERROR, info_msg=info_msg)      # The job is unfixable due to ABINIT errors
+            # 5)
+            if self.stderr_file.exists and not err_info:
+                if self.qerr_file.exists and not err_msg:                    # there is output and no errors
+                    # Check if the run completed successfully.
+                    if report.run_completed:
+                        # Check if the calculation converged.
+                        not_ok = self.not_converged()
+                        if not_ok:
+                            return self.set_status(self.S_UNCONVERGED)       # The job finished but did not converge
+                        else:
+                            return self.set_status(self.S_OK)                # The job finished properly
+
+                    return self.set_status(self.S_RUN)                       # The job still seems to be running
+
+        # 6)
         if not self.output_file.exists:
             logger.debug("output_file does not exists")
+            if not self.stderr_file.exists and not self.qerr_file.exists:     # No output at all
+                return self.status                                            # The job is still in the queue.
 
-            if not self.stderr_file.exists and not self.qerr_file.exists:
-                # The job is still in the queue.
-                return self.status
-
-            else:
-                # Analyze the standard error of the executable:
-                if self.stderr_file.exists:
-                    err_msg = self.stderr_file.read()
-                    if err_msg:
-                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
-                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-
-                # Analyze the error file of the resource manager.
-                if self.qerr_file.exists:
-                    err_info = self.qerr_file.read()
-                    if err_info:
-                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
-                        return self.set_status(self.S_ERROR, info_msg=err_info)
-
-                return self.status
-
-        # Check if the run completed successfully.
-        report = self.get_event_report()
-
-        if report.run_completed:
-            # Check if the calculation converged.
-            not_ok = self.not_converged()
-
-            if not_ok:
-                return self.set_status(self.S_UNCONVERGED)
-            else:
-                return self.set_status(self.S_OK)
-
-        # This is the delicate part since we have to discern among different possibilities:
-        #
-        # 1) Calculation stopped due to an Abinit Error or Bug.
-        #
-        # 2) Segmentation fault that (by definition) was not handled by ABINIT.
-        #    In this case we check if the ABINIT standard error is not empty.
-        #    hoping that nobody has written to sdterr (e.g. libraries in debug mode)
-        #
-        # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
-        #    In this case we check if the error file of the queue manager is not empty.
-        #    Also in this case we *assume* that there's something wrong if the stderr of the queue manager is not empty
-        # 
-        # 4) Calculation is still running!
-        #
-        # Point 2) and 3) are the most complicated since there's no standard!
-
-        # 1) Search for possible errors or bugs in the ABINIT **output** file.
-        if report.errors or report.bugs:
-            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
-            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
-
-        # 2) Analyze the stderr file for Fortran runtime errors.
-       #    (removed because if the scheduler killed the job or had other problems. the stderr will also be filled
-       #     with lots of useless crap ... )
-       # if self.stderr_file.exists:
-       #     err_info = self.stderr_file.read()
-       #     if err_info:
-       #         return self.set_status(self.S_ERROR, info_msg=err_info)
-
-        # 3) Analyze the error file of the resource manager.
-       # if self.qerr_file.exists:
-       #     err_info = self.qerr_file.read()
-       #     if err_info:
-       #         return self.set_status(self.S_ERROR, info_msg=err_info)
-
-        # 3) Analyze the files of the resource manager (mvs)
+        # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
             from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
             print(self.manager.qadapter.QTYPE, self.qerr_file.path, self.qout_file.basename, self.stderr_file.relpath)
@@ -1588,13 +1564,20 @@ class Task(Node):
             if scheduler_parser.errors:
                 # the queue errors in the task
                 self.queue_errors = scheduler_parser.errors
-                return self.set_status(self.S_QUEUE_ERROR)
+                return self.set_status(self.S_QUEUE_ERROR)                    # The job is killed or crashed and we know what happend
             else:
                 err_info = self.qerr_file.read()
                 if err_info:
-                    return self.set_status(self.S_ERROR, info_msg=err_info)
+                    return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)   # The job is killed or crashed but we don't know what happend
 
-        # 4) Assume the job is still running.
+        # 8) anlizing the err files and abinit output did not identify a problem
+        # but if the files are not empty we do have a problem but no way of solving it:
+        if err_info or err_msg:
+            return self.set_status(self.S_FINAL_ERROR, info_msg=err_info) # The job is killed or crashed but we don't know what happend
+
+        # 9) if we still haven't returned there is no indication of any error and the job can only still be running
+        # but we should actually never land here ....
+        print('the job still seems to be running maybe it is hanging without producing output... ')
         return self.set_status(self.S_RUN)
 
     def reduce_memory_demand(self):
