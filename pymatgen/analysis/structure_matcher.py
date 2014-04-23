@@ -1002,18 +1002,17 @@ class StructureMatcher(MSONable):
 
         s1, s2, fu, s1_supercell = self._preprocess(struct1, struct2, False)
         ratio = fu if s1_supercell else 1/fu
-
         if s1_supercell and fu > 1:
             raise ValueError("Struct1 must be the supercell, "
                              "not the other way around")
 
         if len(s1) * ratio >= len(s2):
             #s1 is superset
-            match = self._match(s1, s2, fu=fu, s1_supercell=s1_supercell,
+            match = self._match(s1, s2, fu=fu, s1_supercell=False,
                                 use_rms=True, break_on_match=False)
         else:
             #s2 is superset
-            match = self._match(s2, s1, fu=fu, s1_supercell=(not s1_supercell),
+            match = self._match(s2, s1, fu=fu, s1_supercell=True,
                                 use_rms=True, break_on_match=False)
 
         if match is None:
