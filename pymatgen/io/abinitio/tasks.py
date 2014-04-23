@@ -578,7 +578,8 @@ class TaskManager(object):
         task.set_status(task.S_SUB)
 
         # FIXME: CD to script file dir?
-        process, queue_id = self.qadapter.submit_to_queue(script_file)
+        # Michiel: I need to pass the lauch dir here to be able to write the error output of the submit command to file
+        process, queue_id = self.qadapter.submit_to_queue(script_file, launch_dir=task.workdir)
 
         # Save the queue id.
         task.set_queue_id(queue_id)
