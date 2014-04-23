@@ -389,6 +389,7 @@ class AbinitFlow(Node):
         fix the problem, if this is not possible, call a task specific method to attempt to decrease the demands.
         """
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+        print('trying to fix queue errors ...')
 
         for task in self.iflat_tasks(status='S_QUEUE_ERROR'):
             for error in task.queue_errors:
