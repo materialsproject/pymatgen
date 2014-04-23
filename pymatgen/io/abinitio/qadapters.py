@@ -676,8 +676,8 @@ class SGEAdapter(AbstractQueueAdapter):
 #$ -cwd
 #$ -j y
 #$ -m n
-#$ -e $${_qout_path}
-#$ -o $${_qerr_path}
+#$ -e $${_qerr_path}
+#$ -o $${_qout_path}
 #$ -S /bin/bash
 """
     @property
