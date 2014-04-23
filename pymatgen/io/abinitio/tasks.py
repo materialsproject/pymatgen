@@ -196,7 +196,7 @@ class ParalHintsParser(object):
 
     def parse(self, filename):
         """
-        Read the AutoParal section (YAML forma) from filename.
+        Read the AutoParal section (YAML format) from filename.
         Assumes the file contains only one section.
         """
         with abiinspect.YamlTokenizer(filename) as r:
