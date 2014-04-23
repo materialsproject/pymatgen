@@ -297,6 +297,8 @@ class AbstractErrorParser():
             result = self.parse_single(self.error_definitions[my_error])
             if result[0]:
                 self.errors.append(my_error(result[1], result[2]))
+        if len(self.errors) > 0:
+            print self.errors
 
 
 class SlurmErrorParser(AbstractErrorParser):
