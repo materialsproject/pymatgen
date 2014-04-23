@@ -126,6 +126,7 @@ def qadapter_class(qtype):
     return {"shell": ShellAdapter,
             "slurm": SlurmAdapter,
             "pbs": PbsAdapter,
+            "sge": SGEAdapter,
             }[qtype.lower()]
 
 
@@ -599,7 +600,7 @@ class PbsAdapter(AbstractQueueAdapter):
 
         # submit the job
         try:
-            cmd = ['qsub', scriprocesst_file]
+            cmd = ['qsub', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             process.wait()
 
@@ -657,6 +658,110 @@ class PbsAdapter(AbstractQueueAdapter):
 
         return None
 
+
+class SGEAdapter(AbstractQueueAdapter):
+    """
+    Adapter for Sun Grid Engine (SGE) task submission software.
+    """
+
+    QTYPE = "sge"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#$ -A $${account}
+#$ -N $${job_name}
+#$ -l h rt=$${walltime}
+#$ -pe $${queue} $${ncpus}
+#$ -cwd
+#$ -j y
+#$ -m n
+#$ -e $${_qout_path}
+#$ -o $${_qerr_path}
+#$ -S /bin/bash
+"""
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qparams.get("ncpus", 1) 
+                                                    
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of CPUs used for MPI."""
+        self.qparams["ncpus"] = mpi_ncpus 
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+        raise NotImplementedError("")
+        #self.qparams["mem_per_cpu"] = mem_mb
+        ## Remove mem if it's defined.
+        #self.qparams.pop("mem", None)
+
+    def cancel(self, job_id):
+        return os.system("qdel %d" % job_id)
+
+    def submit_to_queue(self, script_file):
+
+        if not os.path.exists(script_file):
+            raise self.Error('Cannot find script file located at: {}'.format(script_file))
+
+        # submit the job
+        try:
+            cmd = ['qsub', script_file]
+            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            process.wait()
+
+            # grab the returncode. PBS returns 0 if the job was successful
+            if process.returncode == 0:
+                try:
+                    # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
+                    queue_id = int(process.stdout.read().split('.')[0])
+                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
+
+                except:
+                    # probably error parsing job code
+                    logger.warning("Could not parse job id following qsub...")
+                    queue_id = None
+
+                finally:
+                    return process, queue_id
+
+            else:
+                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
+                msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
+                      'The error response reads: {}'.format(process.stderr.read()))
+
+        except:
+            # random error, e.g. no qsub on machine!
+            raise self.Error("Running qsub caused an error...")
+
+    def get_njobs_in_queue(self, username=None):
+        # Initialize username
+        if username is None:
+            username = getpass.getuser()
+
+        # run qstat
+        qstat = Command(['qstat', '-a', '-u', username])
+        process = qstat.run(timeout=5)
+
+        # parse the result
+        if process[0] == 0:
+            # lines should have this form
+            # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
+            # count lines that include the username in it
+
+            # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
+            outs = process[1].split('\n')
+            njobs = len([line.split() for line in outs if username in line])
+            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+
+            return njobs
+
+        # there's a problem talking to qstat server?
+        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
+                   'The error response reads: {}'.format(process[2]))
+        logger.critical(err_msg)
+
+        return None
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'
