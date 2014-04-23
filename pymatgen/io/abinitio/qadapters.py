@@ -547,6 +547,10 @@ class SlurmAdapter(AbstractQueueAdapter):
         try:
             cmd = ['sbatch', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            # write the err output to file, a error parser may read it and a fixer may know what to do ...
+            f = open(submit_err_file, mode='w')
+            f.write(str(process.stderr.read()))
+            f.close()
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -568,13 +572,21 @@ class SlurmAdapter(AbstractQueueAdapter):
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
                            "The error response reads: {}".format(process.stderr.read()))
-                # write the err output to file, a error parser may read it and a fixer may know what to do ...
-                f = open(submit_err_file, mode='w')
-                f.write(str(process.stderr.read()))
-                f.close()
                 raise self.Error(err_msg)
 
-        except:
+        except BaseException as details:
+            print('print exception: ' + str(details))
+            f = open(submit_err_file, mode='a')
+            f.write('print exception: ' + str(details))
+            f.close()
+            try:
+                print('sometimes we land here, no idea what is happening ... Michiel')
+                print(details)
+                print(cmd)
+                print(process.returncode)
+            except:
+                pass
+
             # random error, e.g. no qsub on machine!
             raise self.Error('Running sbatch caused an error...')
 
