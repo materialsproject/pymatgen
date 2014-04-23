@@ -375,7 +375,7 @@ class AbstractQueueAdapter(object):
         return qheader + shell_text
 
     @abc.abstractmethod
-    def submit_to_queue(self, script_file, launch_dir=None):
+    def submit_to_queue(self, script_file):
         """
         Submits the job to the queue, probably using subprocess or shutil
 
@@ -451,7 +451,7 @@ export MPI_NCPUS=$${MPI_NCPUS}
     def cancel(self, job_id):
         return os.system("kill -9 %d" % job_id)
 
-    def submit_to_queue(self, script_file, launch_dir=None):
+    def submit_to_queue(self, script_file):
 
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
@@ -538,13 +538,12 @@ class SlurmAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
 
-    def submit_to_queue(self, script_file, launch_dir=None, submit_err_file="sbatch_err"):
+    def submit_to_queue(self, script_file, submit_err_file="sbatch_err"):
 
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
 
-        if launch_dir is not None:
-            submit_err_file = os.path.join(launch_dir, submit_err_file)
+        submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
 
         # submit the job
         try:
