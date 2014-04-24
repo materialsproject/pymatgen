@@ -1562,7 +1562,8 @@ class Task(Node):
             scheduler_parser.parse()
             if scheduler_parser.errors:
                 # the queue errors in the task
-                print('scheduler errors found: %s') % scheduler_parser.errors
+                print('scheduler errors found:')
+                print(scheduler_parser.errors)
                 self.queue_errors = scheduler_parser.errors
                 return self.set_status(self.S_QUEUE_ERROR)                    # The job is killed or crashed and we know what happend
             else:
