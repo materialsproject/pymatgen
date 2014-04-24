@@ -1557,7 +1557,6 @@ class Task(Node):
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
             from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
-            print(self.manager.qadapter.QTYPE, self.qerr_file.path, self.qout_file.basename, self.stderr_file.relpath)
             scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
                                           out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
             scheduler_parser.parse()
