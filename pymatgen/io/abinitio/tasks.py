@@ -1563,6 +1563,7 @@ class Task(Node):
             scheduler_parser.parse()
             if scheduler_parser.errors:
                 # the queue errors in the task
+                print('scheduler errors found: %s') % scheduler_parser.errors
                 self.queue_errors = scheduler_parser.errors
                 return self.set_status(self.S_QUEUE_ERROR)                    # The job is killed or crashed and we know what happend
             else:
@@ -1576,7 +1577,7 @@ class Task(Node):
             return self.set_status(self.S_FINAL_ERROR, info_msg=err_info) # The job is killed or crashed but we don't know what happend
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
-        # but we should actually never land here ....
+        # but we should actually never land here, or we have delays in the file system ....
         print('the job still seems to be running maybe it is hanging without producing output... ')
         return self.set_status(self.S_RUN)
 
