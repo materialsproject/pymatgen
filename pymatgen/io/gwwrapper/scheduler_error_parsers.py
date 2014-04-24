@@ -298,6 +298,7 @@ class AbstractErrorParser():
             if result[0]:
                 self.errors.append(my_error(result[1], result[2]))
         if len(self.errors) > 0:
+            print 'QUEUE_ERROR FOUND'
             print self.errors
 
 
