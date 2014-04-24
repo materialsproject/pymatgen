@@ -23,6 +23,7 @@ from pymatgen.io.vaspio.vasp_input import Kpoints
 from pymatgen.io.vaspio_set import DictVaspInputSet
 from pymatgen.matproj.rest import MPRester
 from pymatgen.io.vaspio.vasp_output import Vasprun
+from abipy.electrons.scissors import ScissorsBuilder
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,11 +35,19 @@ For many settings the number of cores on which the calculations will be run is n
 number is assumed to be on the environment variable NPARGWCALC.
 """
 
-data = Vasprun('vasprun.xml', ionic_step_skip=1)
-print data.converged
-bandstructure = data.get_band_structure('../IBZKPT')
-print 'gap: ', bandstructure.get_band_gap()['energy'], ' direct : ', bandstructure.get_band_gap()['direct']
-print 'cbm: ', bandstructure.get_cbm()['energy'], data.actual_kpoints[bandstructure.get_cbm()['kpoint_index'][0]]
-print 'vbm: ', bandstructure.get_vbm()['energy'], data.actual_kpoints[bandstructure.get_vbm()['kpoint_index'][0]]
-print 'gap: ', bandstructure.get_cbm()['energy'] - bandstructure.get_vbm()['energy']
-print 'direct gap: ', bandstructure.get_direct_band_gap()
+try:
+    data = Vasprun('vasprun.xml', ionic_step_skip=1)
+    print data.converged
+    bandstructure = data.get_band_structure('../IBZKPT')
+    print 'gap: ', bandstructure.get_band_gap()['energy'], ' direct : ', bandstructure.get_band_gap()['direct']
+    print 'cbm: ', bandstructure.get_cbm()['energy'], data.actual_kpoints[bandstructure.get_cbm()['kpoint_index'][0]]
+    print 'vbm: ', bandstructure.get_vbm()['energy'], data.actual_kpoints[bandstructure.get_vbm()['kpoint_index'][0]]
+    print 'gap: ', bandstructure.get_cbm()['energy'] - bandstructure.get_vbm()['energy']
+    print 'direct gap: ', bandstructure.get_direct_band_gap()
+except (IOError, OSError):
+    print 'no vasp output found'
+
+try:
+    scissor = ScissorsBuilder.from_file('outdata/')
+except (IOError, OSError):
+    print 'no abinit output found'
