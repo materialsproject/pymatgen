@@ -597,8 +597,10 @@ class SlurmAdapter(AbstractQueueAdapter):
         try:
             if 'exlcude_nodes' not in self.qparams.keys():
                 self.qparams.update({'exlcude_nodes': 'node'+nodes[0]})
+                print('excluded node %s' % nodes[0])
             for node in nodes[1:]:
                 self.qparams['exclude_nodes'] += ',node'+node
+                print('excluded node %s' % node)
             return True
         except (KeyError, IndexError):
             return False
@@ -611,6 +613,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                 n = int(self.qparams['ntasks'] * factor)
                 if n < self.limits['max_total_tasks']:
                     self.qparams['ntasks'] = n
+                    print('increased ntasks to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -634,6 +637,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                 n = int(self.qparams['mem'] * factor)
                 if n < self.limits['mem']:
                     self.qparams['mem'] = n
+                    print('increased mem to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -641,6 +645,7 @@ class SlurmAdapter(AbstractQueueAdapter):
                 n = int(self.qparams['mem_per_cpu'] * factor)
                 if n < self.limits['mem_per_cpu']:
                     self.qparams['mem'] = n
+                    print('increased mem_per_cpu to %s' % n)
                     return True
                 else:
                     raise QueueAdapterError
@@ -680,6 +685,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             time *= factor
             if time < self.limits['time']:
                 self.qparams['time'] = time
+                print('increased time to %s' % time)
                 return True
             else:
                 raise QueueAdapterError
