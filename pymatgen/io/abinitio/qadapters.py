@@ -538,7 +538,7 @@ class SlurmAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
 
-    def submit_to_queue(self, script_file, submit_err_file="sbatch_err"):
+    def submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
 
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
