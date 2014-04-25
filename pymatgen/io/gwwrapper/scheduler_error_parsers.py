@@ -293,13 +293,14 @@ class AbstractErrorParser():
         """
         Parse for the occurens of all errors defined in ERRORS
         """
-        for my_error in self.error_definitions:
-            result = self.parse_single(self.error_definitions[my_error])
+        for error in self.error_definitions:
+            result = self.parse_single(self.error_definitions[error])
             if result[0]:
-                self.errors.append(my_error(result[1], result[2]))
+                self.errors.append(error(result[1], result[2]))
         if len(self.errors) > 0:
             print 'QUEUE_ERROR FOUND'
-            print self.errors
+            for error in self.errors:
+                print error
 
 
 class SlurmErrorParser(AbstractErrorParser):
@@ -380,5 +381,5 @@ if __name__ == "__main__":
                            batch_err_file='sbatch.err')
     my_parser.parse()
     print 'parser.errors', my_parser.errors
-    for error in my_parser.errors:
-        print error
+    for my_error in my_parser.errors:
+        print my_error
