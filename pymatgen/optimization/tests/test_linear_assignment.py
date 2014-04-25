@@ -77,9 +77,16 @@ class LinearAssignmentTest(unittest.TestCase):
         self.assertEqual(la0.min_cost, la1.min_cost)
         
         self.assertRaises(ValueError, LinearAssignment, w0.T)
-        
 
-        
+    def test_boolean_inputs(self):
+        w = np.ones((135,135), dtype=np.bool)
+        np.fill_diagonal(w, False)
+        la = LinearAssignment(w)
+        #if the input doesn't get converted to a float, the masking
+        #doesn't work properly
+        self.assertEqual(la.orig_c.dtype, np.float64)
+
+
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

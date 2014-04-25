@@ -690,6 +690,19 @@ class SymmetryFinder(object):
                     transf = np.zeros(shape=(3, 3))
                     for c in range(len(sorted_dic)):
                         transf[c][sorted_dic[c]['orig_index']] = 1
+
+            # The above code makes alpha the non-right angle.
+            # The following will convert to proper international convention
+            # that beta is the non-right angle.
+            op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
+            transf = np.dot(op, transf)
+            new_matrix = np.dot(op, new_matrix)
+            beta = Lattice(new_matrix).beta
+            if beta < 90:
+                op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+                transf = np.dot(op, transf)
+                new_matrix = np.dot(op, new_matrix)
+
             latt = Lattice(new_matrix)
 
         elif latt_type == "triclinic":
