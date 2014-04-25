@@ -1858,6 +1858,44 @@ class Procar(object):
                     data[index][current_kpoint]["bands"][current_band] = \
                         dict(zip(headers, num_data))
             self.data = data
+            self._nb_kpoints = len(data[0].keys())
+            self._nb_bands = len(data[0][1]["bands"].keys())
+
+    @property
+    def nb_bands(self):
+        """
+        returns the number of bands in the band structure
+        """
+        return self._nb_bands
+
+    @property
+    def nb_kpoints(self):
+        """
+        returns the number of k-points in the band structure calculation
+        """
+        return self._nb_kpoints
+
+    def get_projection_on_elements(self, structure):
+        """
+        Method returning a dictionary of projections on elements.
+        Spin polarized calculation are not supported.
+
+        Returns:
+            a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
+        """
+        dico = {Spin.up: []}
+        dico[Spin.up] = [[defaultdict(float) 
+                          for i in range(self._nb_kpoints)] 
+                         for j in range(self.nb_bands)]
+
+        for iat in self.data:
+            name = structure.species[iat].symbol
+            for k in self.data[iat]:
+                for b in self.data[iat][k]["bands"]:
+                    dico[Spin.up][b-1][k-1][name] = \
+                        sum(self.data[iat][k]["bands"][b].values())
+
+        return dico
 
     def get_d_occupation(self, atom_index):
         """
