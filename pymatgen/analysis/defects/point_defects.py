@@ -13,12 +13,12 @@ from bisect import bisect_left
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.finder import SymmetryFinder
 from pymatgen.io.zeoio import get_voronoi_nodes, get_void_volume_surfarea, \
-        get_high_accuracy_voronoi_nodes
+    get_high_accuracy_voronoi_nodes
 from pymatgen.command_line.gulp_caller import get_energy_buckingham
 from pymatgen.command_line.gulp_caller import \
-        get_energy_relax_structure_buckingham
+    get_energy_relax_structure_buckingham
 from pymatgen.analysis.structure_analyzer import VoronoiCoordFinder, \
-        RelaxationAnalyzer
+    RelaxationAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core.periodic_table import Specie
@@ -28,7 +28,8 @@ rad_file = os.path.join(file_dir, 'ionic_radii.json')
 with open(rad_file, 'r') as fp:
     _ion_radii = json.load(fp)
 
-class ValenceIonicRadiusEvaluator:
+
+class ValenceIonicRadiusEvaluator(object):
     """
     Computes site valences and ionic radii for a structure using bond valence
     analyzer
@@ -150,7 +151,7 @@ class ValenceIonicRadiusEvaluator:
         return valences
 
 
-class Defect:
+class Defect(object):
     """
     Abstract class for point defects
     """
@@ -420,7 +421,7 @@ class Vacancy(Defect):
                                       properties=defect_site.properties)
         for i in range(len(sc.sites)):
             if sc_defect_site == sc.sites[i]:
-                sc.remove(i)
+                del sc[i]
                 return sc
 
     def make_supercells_with_defects(self, scaling_matrix):
@@ -444,7 +445,7 @@ class Vacancy(Defect):
         return sc_with_vac
 
 
-class VacancyFormationEnergy:
+class VacancyFormationEnergy(object):
     """
     Using GULP compute the vacancy formation energy.
     Works only for binary metal oxides due to the use of Buckingham Potentials
@@ -499,23 +500,21 @@ class Interstitial(Defect):
     """
 
     def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
-                 accuracy='Normal'):
+                 accuracy='Normal', symmetry_flag=True):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
 
         Args:
             structure: pymatgen.core.structure.Structure
             valences: Dictionary of oxidation states of elements in 
-                      {el:valence} form
+                {el:valence} form
             radii: Radii of elemnts in the structure
             site_type: "voronoi_vertex" uses voronoi nodes
-                       "voronoi_facecenter" uses voronoi polyhedra face centers
-                       Default is "voronoi_vertex"
+                "voronoi_facecenter" uses voronoi polyhedra face centers
+                Default is "voronoi_vertex"
             accuracy: Flag denoting whether to use high accuracy version 
-                      of Zeo++. Options are "Normal" and "High".
-                      Default is normal.
+                of Zeo++. Options are "Normal" and "High". Default is normal.
         """
-
         try:
             bv = BVAnalyzer()
             self._structure = bv.get_oxi_state_decorated_structure(structure)
@@ -541,10 +540,11 @@ class Interstitial(Defect):
             high_accuracy_flag = True
         else:
             raise ValueError("Accuracy setting not understood.")
-        vor_node_sites, vor_facecenter_sites = symmetry_reduced_voronoi_nodes(
-                self._structure, self._rad_dict, high_accuracy_flag
-                )
 
+        vor_node_sites, vor_facecenter_sites = symmetry_reduced_voronoi_nodes(
+                self._structure, self._rad_dict, high_accuracy_flag, symmetry_flag
+                )
+        
         if site_type == 'voronoi_vertex':
             possible_interstitial_sites = vor_node_sites
         elif site_type == 'voronoi_facecenter':
@@ -761,7 +761,7 @@ class Interstitial(Defect):
         return sc_list_with_interstitial
 
 
-class InterstitialAnalyzer:
+class InterstitialAnalyzer(object):
     """
     Use GULP to compute the interstitial formation energy, relaxed structures.
     Works only for metal oxides due to the use of Buckingham Potentials.
@@ -1259,13 +1259,16 @@ class RelaxedInterstitial:
 
 
 def symmetry_reduced_voronoi_nodes(
-        structure, rad_dict, high_accuracy_flag=False):
+        structure, rad_dict, high_accuracy_flag=False, symm_flag=True):
     """
     Obtain symmetry reduced voronoi nodes using Zeo++ and
     pymatgen.symmetry.finder.SymmetryFinder
 
     Args:
         strucutre: pymatgen Structure object
+        rad_dict: Dictionary containing radii of spcies in the structure
+        high_accuracy_flag: Flag denotting whether to use high accuracy version of Zeo++
+        symm_flag: Flag denoting whether to return symmetrically distinct sites only
 
     Returns:
         Symmetrically distinct voronoi nodes as pymatgen Strucutre
@@ -1310,6 +1313,21 @@ def symmetry_reduced_voronoi_nodes(
     def check_not_duplicates(site):
         return site
 
+
+    if not symm_flag:
+        if not high_accuracy_flag:
+            vor_node_struct, vor_facecenter_struct  = get_voronoi_nodes(
+                        structure, rad_dict)
+            return vor_node_struct.sites, vor_facecenter_struct.sites
+        else:
+            # Only the nodes are from high accuracy voronoi decomposition
+            vor_node_struct, vor_facecenter_struct  = \
+                    get_high_accuracy_voronoi_nodes(structure, rad_dict)
+            # Before getting the symmetry, remove the duplicates
+            vor_node_struct.sites.sort(key = lambda site: site.voronoi_radius)
+            #print type(vor_node_struct.sites[0])
+            dist_sites = filter(check_not_duplicates, vor_node_struct.sites)
+            return dist_sites, vor_facecenter_struct.sites
 
 
     if not high_accuracy_flag:

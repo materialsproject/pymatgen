@@ -74,6 +74,17 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.6
+------
+1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
+   phase).
+
+v2.9.5
+------
+1. Bug fix for linear assignment, which may sometimes affect Structure
+   Matcher results.
+2. Minor improvement to the way grand canonical PDs work.
+
 v2.9.4
 ------
 1. Bug fix for Pourbaix Maker (Sai).
