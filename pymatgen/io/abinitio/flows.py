@@ -362,9 +362,9 @@ class AbinitFlow(Node):
                     deadlocks.append((task, dep.node))
 
         if deadlocks:
-           lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
-           lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
-           raise ValueError("\n".join(lines))
+            lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
+            lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
+            raise ValueError("\n".join(lines))
 
     #def detect_deadlock(self):
     #    eu_tasks = list(self.errored_tasks) + list(self.unconverged_tasks)
@@ -389,10 +389,11 @@ class AbinitFlow(Node):
         fix the problem, if this is not possible, call a task specific method to attempt to decrease the demands.
         """
         from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
-        print('trying to fix queue errors ...')
 
         for task in self.iflat_tasks(status='S_QUEUE_ERROR'):
+            print(task)
             for error in task.queue_errors:
+                print('fixing :' + str(error))
                 if isinstance(error, NodeFailureError):
                     # if the problematic node is know exclude it
                     if error.node is not None:
