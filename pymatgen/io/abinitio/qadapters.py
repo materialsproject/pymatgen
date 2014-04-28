@@ -303,7 +303,7 @@ class AbstractQueueAdapter(object):
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
-        subs_dict['job_name'] = job_name 
+        subs_dict['job_name'] = job_name.replace('/','_') 
         subs_dict['_qout_path'] = qout_path
         subs_dict['_qerr_path'] = qerr_path
 
