@@ -551,7 +551,7 @@ class GWConvergenceData():
         """
         n = 0
         self.data = {}
-        tree = os.walk(s_name(self.name + subset))
+        tree = os.walk(self.name + subset)
         for dirs in tree:
             print 'looking at : ' + dirs[0]
             if self.spec['code'] == 'ABINIT':
