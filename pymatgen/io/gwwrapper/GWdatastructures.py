@@ -549,25 +549,22 @@ class GWConvergenceData():
         subset: read from System.subset (the . 'dot' should be included in subset)
         Data is placed in self.data, combined with the values of key parameters
         """
+        n = 0
         self.data = {}
-        if self.spec['code'] == 'ABINIT':
-            read_next = True
-            n = 3
-            while read_next:
-                output = os.path.join(self.name + subset,  'work_0', 'task_' + str(n), 'outdata', 'out_SIGRES.nc')
-                if os.path.isfile(output):
-                    n += 1
-                    data = NetcdfReader(output)
+        tree = os.walk(s_name(self.name + subset))
+        for dirs in tree:
+            print 'looking at : ' + dirs[0]
+            if self.spec['code'] == 'ABINIT':
+                run = os.path.join(dirs[0], 'out_SIGRES.nc')
+                if os.path.isfile(run):
+                    data = NetcdfReader(run)
                     data.print_tree()
-                    self.data.update({n: {'ecuteps': Ha_to_eV * data.read_value('ecuteps'), 'nbands': data.read_value('sigma_nband'), 'gwgap': data.read_value('egwgap')[0][0]}})
+                    self.data.update({n: {'ecuteps': Ha_to_eV * data.read_value('ecuteps'),
+                                          'nbands': data.read_value('sigma_nband'),
+                                          'gwgap': data.read_value('egwgap')[0][0]}})
                     data.close()
-                else:
-                    read_next = False
-        elif self.spec['code'] == 'VASP':
-            tree = os.walk('.')
-            n = 0
-            for dirs in tree:
-                if "/" + self.name + subset + "." in dirs[0] and ('G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]):
+            elif self.spec['code'] == 'VASP':
+                if 'G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]:
                     run = os.path.join(dirs[0], 'vasprun.xml')
                     kpoints = os.path.join(dirs[0], 'IBZKPT')
                     if os.path.isfile(run):
@@ -575,11 +572,16 @@ class GWConvergenceData():
                             data = Vasprun(run, ionic_step_skip=1)
                             parameters = data.__getattribute__('incar').to_dict
                             bandstructure = data.get_band_structure(kpoints)
-                            self.data.update({n: {'ecuteps': parameters['ENCUTGW'], 'nbands': parameters['NBANDS'],
-                                              'nomega': parameters['NOMEGA'], 'gwgap': bandstructure.get_band_gap()['energy']}})
-                            n += 1
+                            self.data.update({n: {'ecuteps': parameters['ENCUTGW'],
+                                                  'nbands': parameters['NBANDS'],
+                                                  'nomega': parameters['NOMEGA'],
+                                                  'gwgap': bandstructure.get_band_gap()['energy']}})
                         except BaseException:
                             pass
+            elif self.spec['code'] == 'NEW_CODE':
+                # read data from all gw calculations and put it in self.data
+                raise NotImplementedError
+            n += 1
 
     def set_type(self):
         """
