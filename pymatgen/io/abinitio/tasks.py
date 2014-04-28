@@ -2116,6 +2116,11 @@ class AbinitTask(Task):
 
         return confs, optimal
 
+    def restart(self):
+        """
+        general restart used when scheduler problems have been taken care of
+        """
+        return self._restart()
 
 # TODO
 # Enable restarting capabilites:
@@ -2124,6 +2129,7 @@ class AbinitTask(Task):
 #   2) Change the parser so that we can use strings in the input file.
 #      We need this change for restarting structural relaxations so that we can read 
 #      the initial structure from file.
+
 
 class ScfTask(AbinitTask):
     """
