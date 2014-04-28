@@ -593,7 +593,6 @@ class SlurmAdapter(AbstractQueueAdapter):
             raise self.Error('Running sbatch caused an error...')
 
     def exclude_nodes(self, nodes):
-        print('exluding nodes %s') % nodes
         try:
             if 'exlcude_nodes' not in self.qparams.keys():
                 self.qparams.update({'exlcude_nodes': 'node'+nodes[0]})
