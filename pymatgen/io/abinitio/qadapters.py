@@ -713,8 +713,9 @@ class SGEAdapter(AbstractQueueAdapter):
             # grab the returncode. PBS returns 0 if the job was successful
             if process.returncode == 0:
                 try:
-                    # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    queue_id = int(process.stdout.read().split('.')[0])
+                    # output should of the form 
+                    # Your job 1659048 ("NAME_OF_JOB") has been submitted 
+                    queue_id = int(process.stdout.read().split(' ')[2])
                     logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
 
                 except:
