@@ -59,7 +59,7 @@ class AbstractCodeInterface(object):
         errors = []
         for job in data['jobs']:
             if job not in self.supported_methods:
-                errors.append('')
+                errors.append(job + ' is not supported')
         return errors
 
     @abstractmethod
@@ -133,10 +133,10 @@ class VaspInterface(AbstractCodeInterface):
         if data['converge']:
             warnings.append('converge defined for VASP, very early stage of development')
         if data['functional'] not in ['PBE', 'LDA']:
-            errors.append(str(data['functional'] + 'not defined for VASP yet'))
+            errors.append(str(data['functional'] + ' not defined for VASP yet'))
         if 'prep' not in data['jobs']:
             warnings.append('no preparation job specified, this only makes sense for testing')
-        errors.append(self.test_methods(data))
+        errors.extend(self.test_methods(data))
         return warnings, errors
 
     def excecute_flow(self, structure, spec_data):
@@ -331,16 +331,18 @@ class NewCodeInterface(AbstractCodeInterface):
         warnings = []
         errors.append(self.test_methods(data))
 
-
     def excecute_flow(self, structure, spec_data):
         """
         excecute spec prepare input/jobfiles or submit to fw for a given structure
-        here eighter an method is implemented that creates the flow, like vasp, or a flow is created from a class,
+        here either an method is implemented that creates the flow, like vasp, or a flow is created from a class,
         like in abinit
         """
 
 
 def get_code_interface(code):
+    """
+    Factory function to return a code interface object
+    """
     code_classes = {'VASP': VaspInterface,
                     'ABINIT': AbinitInterface,
                     'NEW_CODE': NewCodeInterface}
