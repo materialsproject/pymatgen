@@ -34,7 +34,7 @@ class VaspGWFWWorkFlow():
     """
     Object containing a VASP GW workflow for a single structure
     """
-    def __init__(self, fw_specs):
+    def __init__(self):
         self.work_list = []
         self.connections = {}
         self.fw_id = 1
@@ -264,4 +264,5 @@ class SingleAbinitGWWorkFlow():
     def create_job_file(self):
         job_file = open("job_collection", mode='a')
         job_file.write('nohup abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log & \n')
+        job_file.write('sleep 2')
         job_file.close()
