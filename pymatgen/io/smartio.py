@@ -30,7 +30,7 @@ from pymatgen.serializers.json_coders import PMGJSONDecoder, PMGJSONEncoder
 from pymatgen.io.babelio import BabelMolAdaptor
 
 
-def read_structure(filename):
+def read_structure(filename, primitive=True, sort=False):
     """
     Reads a structure based on file extension. For example, anything ending in
     a "cif" is assumed to be a Crystallographic Information Format file.
@@ -39,6 +39,9 @@ def read_structure(filename):
 
     Args:
         filename (str): A filename to read from.
+        primitive (bool): Whether to convert to a primitive cell. Defaults to
+            False.
+        sort (bool): Whether to sort sites. Default to False.
 
     Returns:
         A Structure object.
@@ -46,25 +49,29 @@ def read_structure(filename):
     fname = os.path.basename(filename)
     if fnmatch(fname.lower(), "*.cif*"):
         parser = CifParser(filename)
-        return parser.get_structures(True)[0]
+        s = parser.get_structures(primitive=primitive)[0]
     elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
-        return Poscar.from_file(filename, False).structure
+        s = Poscar.from_file(filename, False).structure
     elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
-        return Chgcar.from_file(filename).structure
+        s = Chgcar.from_file(filename).structure
     elif fnmatch(fname, "vasprun*.xml*"):
-        return Vasprun(filename).final_structure
+        s = Vasprun(filename).final_structure
     elif fnmatch(fname.lower(), "*.cssr*"):
         cssr = Cssr.from_file(filename)
-        return cssr.structure
+        s = cssr.structure
     elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
         with zopen(filename) as f:
             s = json.load(f, cls=PMGJSONDecoder)
             if type(s) != Structure:
                 raise IOError("File does not contain a valid serialized "
                               "structure")
-            return s
-    raise ValueError("Unrecognized file extension!")
-
+    else:
+        raise ValueError("Unrecognized file extension!")
+    if primitive:
+        s = s.get_primitive_structure()
+    if sort:
+        s = s.get_sorted_structure()
+    return s
 
 def write_structure(structure, filename):
     """
