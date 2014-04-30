@@ -313,7 +313,7 @@ class SlurmErrorParser(AbstractErrorParser):
         return {
             SubmitError: {
                 'batch_err': {
-                    'string': "sbatch: error: Batch job submission failed:",
+                    'string': "Batch job submission failed",
                     'meta_filter': {}
                 }
             },
