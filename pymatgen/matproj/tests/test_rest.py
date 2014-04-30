@@ -108,6 +108,7 @@ class MPResterTest(unittest.TestCase):
     def test_get_structure_by_material_id(self):
         s1 = self.rester.get_structure_by_material_id("mp-1")
         self.assertEqual(s1.formula, "Cs1")
+        self.assertTrue(len(s1[0].properties) == 0)
 
     def test_get_entry_by_material_id(self):
         e = self.rester.get_entry_by_material_id("mp-19017")
@@ -139,6 +140,7 @@ class MPResterTest(unittest.TestCase):
         self.assertTrue(len(structs) > 0)
         for s in structs:
             self.assertEqual(s.composition.reduced_formula, "Mn3O4")
+            self.assertFalse(s[0].properties)
 
     def test_get_entries(self):
         entries = self.rester.get_entries("TiO2")
