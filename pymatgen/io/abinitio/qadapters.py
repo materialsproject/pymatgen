@@ -297,7 +297,7 @@ class AbstractQueueAdapter(object):
         qtemplate = QScriptTemplate(self.QTEMPLATE)
 
         # set substitution dict for replacements into the template and clean null values
-        subs_dict = {k: v for k,v in self.qparams.items() if v is not None}  
+        subs_dict = {k: v for k, v in self.qparams.items() if v is not None}
 
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
@@ -422,9 +422,11 @@ class AbstractQueueAdapter(object):
         Method to increase the number of cpus asked for.
         """
 
+
 ####################
 # Concrete classes #
 ####################
+
 
 class ShellAdapter(AbstractQueueAdapter):
     QTYPE = "shell"
@@ -511,6 +513,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --error=$${_qerr_path}
 
 """
+
     @property
     def limits(self):
         """
@@ -551,7 +554,10 @@ class SlurmAdapter(AbstractQueueAdapter):
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             # write the err output to file, a error parser may read it and a fixer may know what to do ...
             f = open(submit_err_file, mode='w')
+            f.write('sbatch submit process stderr:')
             f.write(str(process.stderr.read()))
+            f.write('qparams:')
+            f.write(str(self.qparams))
             f.close()
             process.wait()
 
@@ -573,7 +579,7 @@ class SlurmAdapter(AbstractQueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
-                           "The error response reads: {}".format(process.stderr.read()))
+                           "The error response reads: {c}".format(c=process.stderr.read()))
                 raise self.Error(err_msg)
 
         except BaseException as details:
@@ -735,6 +741,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -e $${_qerr_path}
 
 """
+
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
@@ -786,12 +793,11 @@ class PbsAdapter(AbstractQueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
-                      'The error response reads: {}'.format(process.stderr.read()))
+                       'The error response reads: {}'.format(process.stderr.read()))
 
         except:
             # random error, e.g. no qsub on machine!
             raise self.Error("Running qsub caused an error...")
-
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
