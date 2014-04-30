@@ -624,8 +624,14 @@ class GWConvergenceData():
 
 
 def get_spec(comp_type):
+    """
+    Main entry point
+    """
     return {'GW': GWSpecs()}[comp_type]
 
 
 def get_convergence_data_structure(comp_type, spec, structure):
+    """
+    Main entry point
+    """
     return {'GW': GWConvergenceData(spec=spec, structure=structure)}[comp_type]
