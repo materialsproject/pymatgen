@@ -914,7 +914,7 @@ class InterstitialAnalyzer(object):
         return sm.fit(struct1, struct2)
 
 
-class StructureRelaxer:
+class StructureRelaxer(object):
     def __init__(self, structure):
         self._unrelax_struct = structure
         self.relax()
@@ -928,7 +928,7 @@ class StructureRelaxer:
         return self._relax_struct
 
 
-class InterstitialStructureRelaxer:
+class InterstitialStructureRelaxer(object):
     """
     Performs structural relaxation for each interstitial supercell.
 
@@ -1074,7 +1074,7 @@ class InterstitialStructureRelaxer:
         )
 
 
-class RelaxedInterstitial:
+class RelaxedInterstitial(object):
     """
     Stores the relaxed supercell structures for each interstitial
     Used to compute formation energies, displacement of atoms near the
