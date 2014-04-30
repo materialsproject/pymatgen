@@ -39,8 +39,8 @@ def read_structure(filename, primitive=True, sort=False):
 
     Args:
         filename (str): A filename to read from.
-        primitive (bool): Whether to convert to a primitive cell. Defaults to
-            False.
+        primitive (bool): Whether to convert to a primitive cell for cifs.
+            Defaults to False.
         sort (bool): Whether to sort sites. Default to False.
 
     Returns:
@@ -67,8 +67,6 @@ def read_structure(filename, primitive=True, sort=False):
                               "structure")
     else:
         raise ValueError("Unrecognized file extension!")
-    if primitive:
-        s = s.get_primitive_structure()
     if sort:
         s = s.get_sorted_structure()
     return s
