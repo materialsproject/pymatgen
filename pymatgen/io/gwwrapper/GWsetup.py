@@ -16,7 +16,7 @@ __date__ = "Oct 23, 2013"
 import os
 import os.path
 
-from pymatgen.io.gwwrapper.GWdatastructures import get_spec
+from pymatgen.io.gwwrapper.datastructures import get_spec
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 

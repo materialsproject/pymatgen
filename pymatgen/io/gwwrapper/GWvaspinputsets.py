@@ -20,7 +20,7 @@ import json
 import os.path
 import stat
 
-from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar, Poscar
+from pymatgen.io.vaspio.vasp_input import Kpoints, Potcar
 from pymatgen.io.vaspio_set import DictVaspInputSet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -46,7 +46,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(os.path.join(MODULE_DIR, "MPGWVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "GWVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static Self consistent run for GW", json.load(f), **kwargs)
         self.structure = structure
@@ -165,7 +165,7 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(os.path.join(MODULE_DIR, "MPGWVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "GWVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static exact diagonalization", json.load(f), **kwargs)
         self.structure = structure
@@ -210,7 +210,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         """
         Supports the same kwargs as :class:`JSONVaspInputSet`.
         """
-        with open(os.path.join(MODULE_DIR, "MPGWVaspInputSet.json")) as f:
+        with open(os.path.join(MODULE_DIR, "GWVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static G0W0", json.load(f), **kwargs)
         self.structure = structure
@@ -305,11 +305,6 @@ class Wannier90InputSet():
         f.write("\n")
         self.make_exclude_bands(structure, f)
         f.close()
-
-    #todo projections
-    #begin projections
-    #V:dxy;dxz;dyz
-    #end projectionsll
 
 
 class SingleVaspGWWork():

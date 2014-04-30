@@ -1,5 +1,6 @@
 """
-Classes for writing GW Input and analizing GW data. The undelying classe can handle the use of VASP and ABINIT
+Classes for writing GW Input and analyzing GW data. The underlying classes can handle the use of VASP and ABINIT via the
+code interfaces provided in CodeInterfaces.
 Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
 """
 
@@ -16,33 +17,19 @@ import os
 import stat
 import os.path
 import ast
-import math
 import pymatgen as pmg
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar
 from pymatgen.matproj.rest import MPRester
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwwrapper.GWworkflows import SingleAbinitGWWorkFlow, VaspGWFWWorkFlow
-from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, MPGWG0W0VaspInputSet
-from pymatgen.io.abinitio.netcdf import NetcdfReader
-from pymatgen.io.vaspio.vasp_output import Vasprun
-from pymatgen.core.units import Ha_to_eV, eV_to_Ha
 from pymatgen.io.gwwrapper.GWhelpers import test_conv, print_gnuplot_header, s_name
+from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-"""
-MPGWVaspInputSet.joson contains the standards for GW calculations. This set contains all
-parameters for the first sc dft calculation. The modifications for the subsequent
-sub calculations are made below.
-For many settings the number of cores on which the calculations will be run is needed, this
-number is assumed to be on the environment variable NPARGWCALC.
-"""
 
-
-class AbstractAbinitioSprec(object):
+class AbstractAbinitioSpec(object):
     """
     todo for some reason I can not make this class have both a metaclass and subcalss from msonable ...
     """
@@ -60,10 +47,13 @@ class AbstractAbinitioSprec(object):
                      'tol': 0.0001}
         self.warnings = []
         self.errors = []
-
+        self.update_code_interface()
 
     def __getitem__(self, item):
         return self.data[item]
+
+    def update_code_interface(self):
+        self.code_interface = get_code_interface(self.get_code())
 
     def get_code(self):
         return self['code']
@@ -81,6 +71,7 @@ class AbstractAbinitioSprec(object):
         except OSError:
             print 'Inputfile ', filename, ' not found exiting.'
             exit()
+        self.update_code_interface()
 
     def update_interactive(self):
         """
@@ -117,6 +108,7 @@ class AbstractAbinitioSprec(object):
             else:
                 print 'undefined key'
         self.data['functional'] = self.data['functional'].upper()
+        self.update_code_interface()
 
     def loop_structures(self, mode='i'):
         """
@@ -208,7 +200,7 @@ class AbstractAbinitioSprec(object):
         """
 
 
-class GWSpecs(AbstractAbinitioSprec, MSONable):
+class GWSpecs(AbstractAbinitioSpec, MSONable):
     """
     Class for GW specifications.
     """
@@ -234,10 +226,6 @@ class GWSpecs(AbstractAbinitioSprec, MSONable):
                                                  self['prec'], self['tol'], self['test'], self['converge'])
         return self._message
 
-    @staticmethod
-    def get_npar(self, structure):
-        return MPGWG0W0VaspInputSet(structure, self).get_npar(structure)
-
     @property
     def help(self):
         return "source:       poscar, mp-vasp, any other will be interpreted as a filename to read mp-id's from \n" \
@@ -261,24 +249,16 @@ class GWSpecs(AbstractAbinitioSprec, MSONable):
 
     def from_dict(self, data):
         self.data = data
+        self.update_code_interface()
         self.test()
 
     def test(self):
         """
         test if there are inherent errors in the input
         """
+        self.warnings, self.errors = self.code_interface.test()
         if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
             self.errors.append('unspecified mode')
-        if self.data['code'] == 'VASP':
-            if self.data['functional'] not in ['PBE', 'LDA']:
-                self.errors.append(str(self.data['functional'] + 'not defined for VASP yet'))
-        elif self.data['code'] == 'ABINIT':
-            if self.data['converge'] and self.data['code'] == 'ABINIT':
-                self.warnings.append('converge defined for abinit')
-            if self.data['functional'] not in ['PBE']:
-                self.errors.append(str(self.data['functional'] + 'not defined for ABINIT yet'))
-        else:
-            self.errors.append('unknown code')
         if self.data["source"] not in ['poscar', 'mp-vasp']:
             if not os.path.isfile(self.data['source']):
                 self.warnings.append('no structures defined')
@@ -299,70 +279,10 @@ class GWSpecs(AbstractAbinitioSprec, MSONable):
 
     def excecute_flow(self, structure):
         """
-        excecute spec prepare input/jobfiles or submit to fw for a given structure
-        for vasp the different jobs are created into a flow
-        for abinit a flow is created using abinitio
+        excecute spec prepare input/jobfiles or submit to fw for a given structure and the given code interface
         """
-        if self.get_code() == 'VASP':
-            if self.data['mode'] == 'fw':
-                fw_work_flow = VaspGWFWWorkFlow(self.fw_specs)
-            else:
-                fw_work_flow = []
-            if self.data['test'] or self.data['converge']:
-                if self.data['test']:
-                    tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
-                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
-                elif self.data['converge'] and self.is_converged(structure):
-                    tests_prep = self.get_conv_res_test(structure)['tests_prep']
-                else:
-                    tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).convs
-                    tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).convs)
-                for test_prep in tests_prep:
-                    print 'setting up test for: ' + test_prep
-                    for value_prep in tests_prep[test_prep]['test_range']:
-                        print "**" + str(value_prep) + "**"
-                        option = {'test_prep': test_prep, 'value_prep': value_prep}
-                        self.create_job(structure, 'prep', fw_work_flow, option)
-                        for job in self.data['jobs'][1:]:
-                            if job == 'G0W0':
-                                if self.data['test']:
-                                    tests = MPGWG0W0VaspInputSet(structure, self).tests
-                                elif self.data['converge'] and self.is_converged(structure):
-                                    tests = self.get_conv_res_test(structure)['tests']
-                                else:
-                                    tests = MPGWG0W0VaspInputSet(structure, self).convs
-                            if job in ['GW0', 'scGW0']:
-                                input_set = MPGWG0W0VaspInputSet(structure, self)
-                                input_set.gw0_on()
-                                if self.data['test']:
-                                    tests = input_set.tests
-                                else:
-                                    tests = input_set.tests
-                            for test in tests:
-                                print '    setting up test for: ' + test
-                                for value in tests[test]['test_range']:
-                                    print "    **" + str(value) + "**"
-                                    option.update({'test': test, 'value': value})
-                                    self.create_job(structure, job, fw_work_flow, option)
-            else:
-                for job in self['jobs']:
-                    self.create_job(structure, job, fw_work_flow)
-            if self.data['mode'] == 'fw':
-                fw_work_flow.create()
-                fw_work_flow.add_to_db()
-        elif self.get_code() == 'ABINIT':
-            if self['converge'] and self.is_converged(structure):
-                option = self.is_converged(structure, return_values=True)
-            else:
-                option = None
-            work_flow = SingleAbinitGWWorkFlow(structure, self, option)
-            flow = work_flow.create()
-            if flow is not None:
-                flow.build_and_pickle_dump()
-                work_flow.create_job_file()
-        else:
-            print 'unspecified code, actually this should have been catched earlier .. '
-            exit()
+        # todo the mode should actually be handeled here... and not inside the code interface
+        self.code_interface.excecute_flow(structure, self.data)
 
     def process_data(self, structure):
         """
@@ -439,63 +359,6 @@ class GWSpecs(AbstractAbinitioSprec, MSONable):
             data.set_type()
             data.print_plot_data()
 
-    def is_converged(self, structure, return_values=False):
-        filename = s_name(structure) + ".conv_res"
-        try:
-            f = open(filename, mode='r')
-            conv_res = ast.literal_eval(f.read())
-            f.close()
-            converged = conv_res['control']['nbands']
-        except (IOError, OSError):
-            if return_values:
-                print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly or was not' \
-                                              ' parsed ...'
-            converged = False
-        if return_values and converged:
-            if self.get_code() == 'ABINIT':
-                conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
-            return conv_res['values']
-        else:
-            return converged
-
-    def get_conv_res_test(self, structure):
-        """
-        return test sets for the tests in test relative to the convergence results
-        """
-        tests_conv = {}
-        tests_prep_conv = {}
-        tests_prep = MPGWscDFTPrepVaspInputSet(structure, self).tests
-        tests_prep.update(MPGWDFTDiagVaspInputSet(structure, self).tests)
-        tests = MPGWG0W0VaspInputSet(structure, self).tests
-        conv_res = self.is_converged(structure, return_values=True)
-        for test in conv_res.keys():
-            if test in tests_prep.keys():
-                rel = tests_prep[test]['test_range'][1] - tests_prep[test]['test_range'][0]
-                value = conv_res[test]
-                tests_prep_conv.update({test: tests_prep[test]})
-                tests_prep_conv[test].update({'test_range': (value, value + rel)})
-            elif test in tests.keys():
-                rel = tests[test]['test_range'][1] - tests[test]['test_range'][0]
-                value = conv_res[test]
-                tests_conv.update({test: tests[test]})
-                tests_conv[test].update({'test_range': (value, value + rel)})
-        return {'tests': tests_conv, 'tests_prep': tests_prep_conv}
-
-    def create_job(self, structure, job, fw_work_flow, option=None):
-        work = SingleVaspGWWork(structure, job, self.data, option=option, converged=self.is_converged(structure))
-        if 'input' in self.data['mode'] or 'ceci' in self.data['mode']:
-            work.create_input()
-            if 'ceci' in self.data['mode']:
-                work.create_job_script()
-        if 'fw' in self.data['mode']:
-            structure_dict = structure.to_dict
-            band_structure_dict = {'vbm_l': structure.vbm_l, 'cbm_l': structure.cbm_l, 'vbm_a': structure.vbm[0],
-                                   'vbm_b': structure.vbm[1], 'vbm_c': structure.vbm[2], 'cbm_a': structure.cbm[0],
-                                   'cbm_b': structure.cbm[1], 'cbm_c': structure.cbm[2]}
-            parameters = {'structure': structure_dict, 'band_structure': band_structure_dict, 'job': job,
-                          'spec': self.to_dict(), 'option': option}
-            fw_work_flow.add_work(parameters)
-
 
 class GWConvergenceData():
     """
@@ -505,6 +368,7 @@ class GWConvergenceData():
         self.structure = structure
         self.spec = spec
         self.data = {}
+        self.code_interface = get_code_interface(spec.code)
         self.conv_res = {'control': {}}
         self.full_res = {'all_done': False, 'grid': 0}
         self.name = s_name(structure)
@@ -554,33 +418,7 @@ class GWConvergenceData():
         tree = os.walk(self.name + subset)
         for dirs in tree:
             print 'looking at : ' + dirs[0]
-            if self.spec['code'] == 'ABINIT':
-                run = os.path.join(dirs[0], 'out_SIGRES.nc')
-                if os.path.isfile(run):
-                    data = NetcdfReader(run)
-                    data.print_tree()
-                    self.data.update({n: {'ecuteps': Ha_to_eV * data.read_value('ecuteps'),
-                                          'nbands': data.read_value('sigma_nband'),
-                                          'gwgap': data.read_value('egwgap')[0][0]}})
-                    data.close()
-            elif self.spec['code'] == 'VASP':
-                if 'G0W0' in dirs[0] or 'GW0' in dirs[0] or 'scGW0' in dirs[0]:
-                    run = os.path.join(dirs[0], 'vasprun.xml')
-                    kpoints = os.path.join(dirs[0], 'IBZKPT')
-                    if os.path.isfile(run):
-                        try:
-                            data = Vasprun(run, ionic_step_skip=1)
-                            parameters = data.__getattribute__('incar').to_dict
-                            bandstructure = data.get_band_structure(kpoints)
-                            self.data.update({n: {'ecuteps': parameters['ENCUTGW'],
-                                                  'nbands': parameters['NBANDS'],
-                                                  'nomega': parameters['NOMEGA'],
-                                                  'gwgap': bandstructure.get_band_gap()['energy']}})
-                        except BaseException:
-                            pass
-            elif self.spec['code'] == 'NEW_CODE':
-                # read data from all gw calculations and put it in self.data
-                raise NotImplementedError
+            self.data.update(self.code_interface.read_convergence_data(dirs[0]))
             n += 1
 
     def set_type(self):
@@ -691,10 +529,15 @@ class GWConvergenceData():
     def get_sorted_data_list(self):
         data_list = []
         for k in self.data:
-            if self.spec['code'] == 'VASP':
-                data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap'], self.data[k]['nomega']])
-            else:
-                data_list.append([self.data[k]['nbands'], self.data[k]['ecuteps'], self.data[k]['gwgap']])
+            try:
+                data_list.append([self.data[k]['nbands'],
+                                  self.data[k]['ecuteps'],
+                                  self.data[k]['gwgap'],
+                                  self.data[k]['nomega']])
+            except KeyError:
+                data_list.append([self.data[k]['nbands'],
+                                  self.data[k]['ecuteps'],
+                                  self.data[k]['gwgap']])
         return sorted(data_list)
 
     def get_data_array(self):
@@ -744,44 +587,22 @@ class GWConvergenceData():
             if tmp != data[0]:
                 f.write('\n')
             tmp = data[0]
-            if self.spec['code'] == 'VASP':
+            try:
                 f.write('%10.5f %10.5f %10.5f %10.5f \n' % (data[0], data[1], data[2], data[3]))
-            else:
+            except KeyError:
                 f.write('%10.5f %10.5f %10.5f \n' % (data[0], data[1], data[2]))
         f.close()
 
-        '''
-        [u'space_group', u'primitive_vectors', u'reduced_symmetry_matrices', u'reduced_symmetry_translations',
-         u'atom_species', u'reduced_atom_positions', u'valence_charges', u'atomic_numbers', u'atom_species_names',
-         u'chemical_symbols', u'pseudopotential_types', u'symafm', u'kpoint_grid_shift', u'kpoint_grid_vectors',
-         u'monkhorst_pack_folding', u'reduced_coordinates_of_kpoints', u'kpoint_weights', u'number_of_electrons',
-         u'exchange_functional', u'correlation_functional', u'fermi_energy', u'smearing_scheme', u'smearing_width',
-          u'number_of_states', u'eigenvalues', u'occupations', u'tphysel', u'occopt', u'istwfk', u'shiftk',
-         u'kptrlatt', u'ngkpt_shiftk', u'ecutwfn', u'ecuteps', u'ecutsigx', u'sigma_nband', u'gwcalctyp',
-         u'omegasrdmax', u'deltae', u'omegasrmax', u'scissor_ene', u'usepawu', u'kptgw', u'minbnd', u'maxbnd',
-         u'degwgap', u'egwgap', u'en_qp_diago', u'e0', u'e0gap', u'sigxme', u'vxcme', u'vUme', u'degw', u'dsigmee0',
-         u'egw', u'eigvec_qp', u'hhartree', u'sigmee', u'sigcmee0', u'sigcmesi', u'sigcme4sd', u'sigxcme4sd',
-         u'ze0', u'omega4sd'] for later use
-        '''
-
     def print_conv_res(self):
         """
-        print the results of a paramter screening calculation to file
+        print the results of a parameter screening calculation to file
         this file is later used in a subsequent 'full' calculation to perform the calculations at a higher kp-mesh
         """
-        # print self.conv_res['control']['nbands']
         if self.conv_res['control']['nbands'] or True:
             filename = self.name + '.conv_res'
             f = open(filename, mode='w')
             string = "{'control': "+str(self.conv_res['control'])+", 'values': "
-            if self.spec['code'] == 'VASP':
-                string += str({'NBANDS': self.conv_res['values']['nbands'], 'ENCUTGW': self.conv_res['values']['ecuteps']})
-                pass
-            elif self.spec['code'] == 'ABINIT':
-                string += str({'nscf_nbands': self.conv_res['values']['nbands'], 'ecuteps': self.conv_res['values']['ecuteps']})
-                pass
-            else:
-                string = 'undefined code'
+            string += self.code_interface.conv_res_string(self.conv_res)
             string += ", 'derivatives': "+str(self.conv_res['derivatives'])
             string += '}'
             f.write(string)
