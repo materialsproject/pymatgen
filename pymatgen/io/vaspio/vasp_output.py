@@ -248,7 +248,7 @@ class Vasprun(object):
             return self.ionic_steps[-1]["electronic_steps"][-1]["e_wo_entrp"]
         except (IndexError, KeyError):
             # not all calculations have a total energy, i.e. GW
-            return None
+            return np.inf
 
     @property
     def complete_dos(self):

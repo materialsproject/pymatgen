@@ -14,6 +14,8 @@ __date__ = "Oct 23, 2013"
 import time
 import ast
 import copy
+import math
+from pymatgen.core.units import Ha_to_eV, eV_to_Ha
 
 
 class SplineInputError(Exception):
@@ -208,3 +210,24 @@ def read_grid_from_file(filename):
         print 'Inputfile ', filename, ' not found, asuming first calculations grid = 0'
         full_res = {'grid': 0, 'all_done': False}
     return full_res
+
+
+def is_converged(hartree_parameters, structure, return_values=False):
+    filename = s_name(structure) + ".conv_res"
+    try:
+        f = open(filename, mode='r')
+        conv_res = ast.literal_eval(f.read())
+        f.close()
+        converged = conv_res['control']['nbands']
+    except (IOError, OSError):
+        if return_values:
+            print 'Inputfile ', filename, ' not found, the convergence calculation did not finish properly' \
+                                          ' or was not parsed ...'
+        converged = False
+        return converged
+    if return_values and converged:
+        if hartree_parameters:
+            conv_res['values']['ecuteps'] = 4 * math.ceil(conv_res['values']['ecuteps'] * eV_to_Ha / 4)
+        return conv_res['values']
+    else:
+        return converged
