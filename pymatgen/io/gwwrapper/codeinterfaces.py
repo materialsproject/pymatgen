@@ -27,7 +27,8 @@ from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.gwwrapper.GWhelpers import is_converged
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
-from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, MPGWG0W0VaspInputSet
+from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, \
+    MPGWG0W0VaspInputSet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -47,6 +48,19 @@ class AbstractCodeInterface(object):
         information of the unit of the input parameters True for hartree, False for eV
         return bool
         """
+
+    @abstractproperty
+    def supported_methods(self):
+        """
+        returns a list of supported method for this code, should correspond to the possible jobs in spec['jobs']
+        """
+
+    def test_methods(self, data):
+        errors = []
+        for job in data['jobs']:
+            if job not in self.supported_methods:
+                errors.append('')
+        return errors
 
     @abstractmethod
     def read_convergence_data(self, data_dir):
@@ -87,6 +101,10 @@ class VaspInterface(AbstractCodeInterface):
     def hartree_parameters(self):
         return False
 
+    @property
+    def supported_methods(self):
+        return ['prep', 'G0W0', 'GW0', 'scGW']
+
     def conv_res_string(self, conv_res):
         string = str({'NBANDS': conv_res['values']['nbands'], 'ENCUTGW': conv_res['values']['ecuteps']})
         return string
@@ -105,7 +123,7 @@ class VaspInterface(AbstractCodeInterface):
                                'nbands': parameters['NBANDS'],
                                'nomega': parameters['NOMEGA'],
                                'gwgap': bandstructure.get_band_gap()['energy']}
-                except BaseException:
+                except (IOError, OSError, IndexError, KeyError):
                     pass
         return results
 
@@ -116,6 +134,9 @@ class VaspInterface(AbstractCodeInterface):
             warnings.append('converge defined for VASP, very early stage of development')
         if data['functional'] not in ['PBE', 'LDA']:
             errors.append(str(data['functional'] + 'not defined for VASP yet'))
+        if 'prep' not in data['jobs']:
+            warnings.append('no preparation job specified, this only makes sense for testing')
+        errors.append(self.test_methods(data))
         return warnings, errors
 
     def excecute_flow(self, structure, spec_data):
@@ -125,7 +146,7 @@ class VaspInterface(AbstractCodeInterface):
         """
         converged = is_converged(self.hartree_parameters, structure)
         if spec_data['mode'] == 'fw':
-            fw_work_flow = VaspGWFWWorkFlow(self.fw_specs)
+            fw_work_flow = VaspGWFWWorkFlow()
         else:
             fw_work_flow = []
         if spec_data['test'] or spec_data['converge']:
@@ -166,7 +187,7 @@ class VaspInterface(AbstractCodeInterface):
                                 self.create_job(spec_data, structure, job, fw_work_flow, converged, option)
 
     @staticmethod
-    def get_conv_res_test(self, spec_data, structure):
+    def get_conv_res_test(spec_data, structure):
         """
         return test sets for the tests in test relative to the convergence results
         """
@@ -190,7 +211,7 @@ class VaspInterface(AbstractCodeInterface):
         return {'tests': tests_conv, 'tests_prep': tests_prep_conv}
 
     @staticmethod
-    def create_job(self, spec_data, structure, job, fw_work_flow, converged, option=None):
+    def create_job(spec_data, structure, job, fw_work_flow, converged, option=None):
         work = SingleVaspGWWork(structure, job, spec_data, option=option, converged=converged)
         if 'input' in spec_data['mode'] or 'ceci' in spec_data['mode']:
             work.create_input()
@@ -206,8 +227,8 @@ class VaspInterface(AbstractCodeInterface):
             fw_work_flow.add_work(parameters)
 
     @staticmethod
-    def get_npar(self, structure):
-        return MPGWG0W0VaspInputSet(structure, self).get_npar(structure)
+    def get_npar(spec_data, structure):
+        return MPGWG0W0VaspInputSet(structure, spec_data).get_npar(structure)
 
 
 class AbinitInterface(AbstractCodeInterface):
@@ -217,6 +238,10 @@ class AbinitInterface(AbstractCodeInterface):
     @property
     def hartree_parameters(self):
         return True
+
+    @property
+    def supported_methods(self):
+        return ['prep', 'G0W0']
 
     other_vars = """
         [u'space_group', u'primitive_vectors', u'reduced_symmetry_matrices', u'reduced_symmetry_translations',
@@ -254,6 +279,7 @@ class AbinitInterface(AbstractCodeInterface):
             warnings.append('converge defined for abinit, still under development')
         if data['functional'] not in ['PBE']:
             errors.append(str(data['functional'] + 'not defined for ABINIT yet'))
+        errors.append(self.test_methods(data))
         return warnings, errors
 
     def excecute_flow(self, structure, spec_data):
@@ -280,6 +306,10 @@ class NewCodeInterface(AbstractCodeInterface):
     def hartree_parameters(self):
         return False  # adapt: true is input parameters are in hartree, false for eV
 
+    @property
+    def supported_methods(self):
+        return ['method1', 'method2']
+
     # methods for data parsing
 
     def conv_res_string(self, conv_res):
@@ -297,6 +327,10 @@ class NewCodeInterface(AbstractCodeInterface):
         test if there are inherent errors in the input in spec
         return warning, errors
         """
+        errors = []
+        warnings = []
+        errors.append(self.test_methods(data))
+
 
     def excecute_flow(self, structure, spec_data):
         """
