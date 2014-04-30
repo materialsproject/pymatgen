@@ -256,7 +256,8 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
         """
         test if there are inherent errors in the input
         """
-        self.warnings, self.errors = self.code_interface.test()
+        print self.code_interface.test(self.data)
+        self.warnings, self.errors = self.code_interface.test(self.data)
         if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
             self.errors.append('unspecified mode')
         if self.data["source"] not in ['poscar', 'mp-vasp']:
@@ -267,6 +268,7 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
         if self.data["converge"] and not self.data['mode'] == 'fw':
             self.warnings.append('only real converging in fw mode, for other modes ALL convergence steps are created')
         if len(self.errors) > 0:
+            print self.errors
             print str(len(self.errors)) + ' error(s) found:'
             for error in self.errors:
                 print ' > ' + error
