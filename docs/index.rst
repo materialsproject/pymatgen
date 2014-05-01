@@ -74,6 +74,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.7
+------
+1. Quick bug-fix release that provides a better solution to Structure handling
+   of properties instead of sanitizing MPRester structures.
+
 v2.9.6
 ------
 1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
