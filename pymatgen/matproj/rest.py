@@ -25,7 +25,7 @@ import requests
 import json
 import warnings
 
-from pymatgen import Composition, PMGJSONDecoder
+from pymatgen import Structure, Composition, PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
@@ -169,7 +169,9 @@ class MPRester(object):
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(chemsys_formula_id, prop=prop)
-        return [d[prop] for d in data]
+        ss = [d[prop] for d in data]
+        return [Structure(s.lattice, s.species_and_occu, s.frac_coords)
+                for s in ss]
 
     def get_entries(self, chemsys_formula_id, compatible_only=True,
                     inc_structure=None):
@@ -228,7 +230,8 @@ class MPRester(object):
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
-        return data[0][prop]
+        s = data[0][prop]
+        return Structure(s.lattice, s.species_and_occu, s.frac_coords)
 
     def get_entry_by_material_id(self, material_id):
         """
