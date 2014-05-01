@@ -369,6 +369,9 @@ class IStructure(SiteCollection, MSONable):
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to translate sites into the unit
                 cell.
+
+        Returns:
+            (Structure) Note that missing properties are set as None.
         """
         prop_keys = []
         props = {}

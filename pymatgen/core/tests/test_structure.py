@@ -10,6 +10,7 @@ from pymatgen.core.lattice import Lattice
 import random
 import warnings
 
+
 class IStructureTest(PymatgenTest):
 
     def setUp(self):
