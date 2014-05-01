@@ -78,6 +78,8 @@ v2.9.6
 ------
 1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
    phase).
+2. Better error checking for Bandstructure KPOINTs.
+3. Patch to sanitize structures obtained from MPRester.
 
 v2.9.5
 ------
