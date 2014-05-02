@@ -25,7 +25,7 @@ import requests
 import json
 import warnings
 
-from pymatgen import Composition, PMGJSONDecoder
+from pymatgen import Structure, Composition, PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry

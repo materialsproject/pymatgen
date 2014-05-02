@@ -432,6 +432,9 @@ class Vasprun(object):
                 else:
                     eigenvals = {Spin.up: up_eigen}
             else:
+                if '' in kpoint_file.labels:
+                    raise Exception("a band structure along symmetry lines requires a label for each kpoint. "
+                                    "Check your KPOINTS file")
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
                 labels_dict.pop(None, None)
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new,

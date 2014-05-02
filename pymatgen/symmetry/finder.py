@@ -784,7 +784,8 @@ class SymmetryFinder(object):
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(latt, struct.species_and_occu, new_coords,
-                               site_properties=struct.site_properties,to_unit_cell=True)
+                               site_properties=struct.site_properties,
+                               to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
 
