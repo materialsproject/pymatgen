@@ -1428,6 +1428,18 @@ $end
                           'Molecular charge is not found',
                           'Bad SCF convergence'])
 
+    def test_gdm_scf(self):
+        filename = os.path.join(test_dir, "gmd_scf.qcout")
+        qcout = QcOutput(filename)
+        self.assertTrue(qcout.data[0]['has_error'])
+        self.assertEqual(qcout.data[0]['errors'],
+                         ['Exit Code 134',
+                          'Bad SCF convergence',
+                          'Geometry optimization failed'])
+        self.assertEqual(len(qcout.data[0]['scf_iteration_energies']), 2)
+        self.assertEqual(len(qcout.data[0]['scf_iteration_energies'][-1]), 192)
+        self.assertAlmostEqual(qcout.data[0]['scf_iteration_energies'][-1][-1][0],
+                               -1944.945908459, 5)
 
 if __name__ == "__main__":
     unittest.main()

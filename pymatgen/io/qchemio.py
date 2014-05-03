@@ -1281,7 +1281,8 @@ class QcOutput(object):
                     parse_input = True
                 elif "Standard Nuclear Orientation (Angstroms)" in line:
                     parse_coords = True
-                elif "Cycle       Energy         DIIS Error" in line:
+                elif "Cycle       Energy         DIIS Error" in line\
+                        or "Cycle       Energy        RMS Gradient" in line:
                     parse_scf_iter = True
                     scf_iters.append([])
                     scf_successful = False
