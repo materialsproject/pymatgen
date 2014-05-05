@@ -39,7 +39,7 @@ def test_cd():
 if __name__ == '__main__':
     n = 100
     print 'write', timeit.timeit("test_write()", setup="from __main__ import test_write", number=n)
-    print 'read', timeit.timeit("test_read()", setup="from __main__ import test_read", number=n*200)
+    print 'read (200 times as many)', timeit.timeit("test_read()", setup="from __main__ import test_read", number=n*200)
     print 'mk folders', timeit.timeit("test_make_folders()", setup="from __main__ import test_make_folders", number=n)
     print 'cd folders', timeit.timeit("test_cd()", setup="from __main__ import test_cd", number=n)
 
