@@ -163,7 +163,6 @@ def expand_tests(tests, level):
             ec = str(test)
             ec_range = tests[ec]['test_range']
             ec_step = ec_range[-1] - ec_range[-2]
-            print ec_step
             if int(level / 2) == level / 2:
                 print 'new ec wedge'
                 # even level of grid extension > new ec wedge
