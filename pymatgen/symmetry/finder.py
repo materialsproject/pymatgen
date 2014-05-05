@@ -374,68 +374,6 @@ class SymmetryFinder(object):
             #structure.
             return self._structure.get_reduced_structure()
 
-    def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True,
-                               is_shift=np.zeros(3, dtype='intc')):
-        """
-        Irreducible k-points are searched from the input kpoints. The result is
-        returned as a map of numbers. The array index of map corresponds to the
-        reducible k-point numbering. After finding irreducible k-points, the
-        indices of the irreducible k-points are mapped to the elements of map,
-        i.e., number of unique values in map is the number of the irreducible
-        k-points.
-
-        Args:
-            kpoints (Nx3 array): Input kpoints.
-            is_time_reversal (bool): Set to True to impose time reversal
-                symmetry.
-
-        Returns:
-            Numbering of reducible kpoints. Equivalent kpoints will have the
-            same number. The number of unique values is the number of the
-            irreducible kpoints.
-        """
-        mesh = np.array(kpoints)
-        positions = self._positions.copy()
-        lattice = self._transposed_latt.copy()
-        numbers = self._numbers.copy()
-        mapping = np.zeros(np.prod(mesh), dtype='intc')
-        mesh_points = np.zeros((np.prod(mesh), 3), dtype='intc')
-        spg.ir_reciprocal_mesh(
-            mesh_points,
-            mapping,
-            np.array(mesh, dtype='intc'),
-            np.array(is_shift, dtype='intc'),
-            is_time_reversal * 1,
-            lattice,
-            positions,
-            numbers,
-            self._symprec)
-        return mapping
-
-    def get_ir_kpoints(self, kpoints, is_time_reversal=True):
-        """
-        Irreducible k-points are searched from the input kpoints.
-
-        Args:
-            kpoints (Nx3 array): Input kpoints.
-            is_time_reversal (bool): Set to True to impose time reversal
-                symmetry.
-
-        Returns:
-            A set of irreducible kpoints.
-        """
-        #print kpoints
-        mapping = self.get_ir_kpoints_mapping(kpoints, is_time_reversal)
-        #print mapping
-
-        irr_kpts = []
-        n = []
-        for i, kpts in enumerate(kpoints):
-            if mapping[i] not in n:
-                irr_kpts.append(kpts)
-                n.append(i)
-        return irr_kpts
-
     def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0),
                                is_time_reversal=True):
         """
@@ -456,7 +394,7 @@ class SymmetryFinder(object):
             tuples [(ir_kpoint, weight)], with ir_kpoint given
             in fractional coordinates
         """
-        mapping = np.zeros((np.prod(mesh), 3), dtype='intc')
+        mapping = np.zeros(np.prod(mesh), dtype='intc')
         mesh_points = np.zeros((np.prod(mesh), 3), dtype='intc')
         spg.ir_reciprocal_mesh(
             mesh_points,
@@ -469,7 +407,11 @@ class SymmetryFinder(object):
             self._numbers,
             self._symprec)
 
-        return mesh_points
+        results = []
+        tmp_map = list(mapping)
+        for i in np.unique(mapping):
+            results.append((mesh_points[i] / mesh, tmp_map.count(i)))
+        return results
 
     def get_primitive_standard_structure(self):
         """
