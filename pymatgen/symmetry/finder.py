@@ -246,8 +246,8 @@ class SymmetryFinder(object):
         # Get number of symmetry operations and allocate symmetry operations
         # multi = spg.multiplicity(cell, positions, numbers, symprec)
         multi = 48 * self._structure.num_sites
-        rotation = np.zeros((multi, 3, 3), dtype=int)
-        translation = np.zeros((multi, 3))
+        rotation = np.zeros((multi, 3, 3), dtype='intc')
+        translation = np.zeros((multi, 3), dtype='double')
 
         num_sym = spg.symmetry(rotation, translation,
                                self._transposed_latt.copy(),
