@@ -7,7 +7,9 @@ import os
 
 
 def test_write():
-    """file write test function"""
+    """
+    file write test function
+    """
     l = []
     for i in range(100000):
         l.append(i)
@@ -17,18 +19,27 @@ def test_write():
 
 
 def test_read():
+    """
+    file read test function
+    """
     f = open('test', mode='r')
     line = f.read()
     f.close()
 
 
 def test_make_folders():
+    """
+    creating and removing test function
+    """
     for i in range(0, 100, 1):
         os.mkdir('test_folder_%s' % i)
         os.rmdir('test_folder_%s' % i)
 
 
 def test_cd():
+    """
+    filesystems navigation test function
+    """
     for i in range(0, 100, 1):
         os.mkdir('test_folder_%s' % i)
         os.chdir('test_folder_%s' % i)
@@ -37,6 +48,11 @@ def test_cd():
 
 
 if __name__ == '__main__':
+    """
+    Testing file writing and reading and folder operations, an asserion error is raised when the filesystem seems to be
+    too slow
+    """
+
     n = 100
 
     test_write()
@@ -53,7 +69,7 @@ if __name__ == '__main__':
     print 'made and removed 100 folders', mk_folders
     print 'made, moved to, returned and removed 100 folders', cd_folders
 
-    assert write < 5
-    assert read < 5
-    assert mk_folders < 1
-    assert cd_folders < 1
+    assert write < 5 * n / 100
+    assert read < 5 * n / 100
+    assert mk_folders < 1 * n / 100
+    assert cd_folders < 1 * n / 100
