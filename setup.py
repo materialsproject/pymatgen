@@ -27,11 +27,8 @@ def get_spglib_ext():
     # set rest of spglib
     spgsrcdir = os.path.join(spglibdir, "src")
     include_dirs = [spgsrcdir]
-    sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
-               "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
-               "sitesym_database.c", "site_symmetry.c", "spacegroup.c",
-               "spin.c", "spg_database.c", "spglib.c", "symmetry.c"]
-    sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
+    sources = [os.path.join(spgsrcdir, srcfile) for srcfile in
+        os.listdir(spgsrcdir) if srcfile.endswith(".c")]
     return Extension("pymatgen._spglib",
                      include_dirs=include_dirs + get_numpy_include_dirs(),
                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources)

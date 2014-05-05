@@ -4,7 +4,7 @@
 #include "spg_database.h"
 #include "pointgroup.h"
 
-/* In Hall symbols (4th column), '=' is used instead of '"'. */
+/* In Hall symbols (3rd column), '=' is used instead of '"'. */
 static const SpacegroupType spacegroup_types[] = {
   {  0, "      ", "                ", "                               ", "                   ", "          ", NONE }, /*  0*/
   {  1, "C1^1  ", "P 1             ", "P 1                            ", "P 1                ", "P1        ", TRICLI }, /*  1*/
@@ -8465,6 +8465,11 @@ static const int symmetry_operation_index[][2] = {
   {  96, 7293}, /* 530 */
 };
 
+static int remove_space(char symbol[],
+			const int num_char);
+static void replace_equal_char(char symbol[],
+			       const int position);
+
 int spgdb_get_operation( int rot[3][3],
 			 double trans[3],
 			 const int index )
@@ -8506,6 +8511,37 @@ void spgdb_get_operation_index( int indices[2], const int hall_number )
 
 SpacegroupType spgdb_get_spacegroup_type( int index )
 {
-  return spacegroup_types[index];
+  int position; 
+  SpacegroupType spgtype;
+  
+  spgtype = spacegroup_types[index];
+  remove_space(spgtype.schoenflies, 7);
+  position = remove_space(spgtype.hall_symbol, 17);
+  replace_equal_char(spgtype.hall_symbol, position);
+  remove_space(spgtype.international, 32);
+  remove_space(spgtype.international_full, 20);
+  remove_space(spgtype.international_short, 11);
+  
+  return spgtype;
 }
 
+static int remove_space(char symbol[],
+			const int num_char) {
+  int i;
+  for (i = num_char - 2; i > -1; i--) {
+    if (symbol[i] == ' ') {
+      symbol[i] = '\0';
+    } else {
+      return i;
+    }
+  }
+  return i;
+}
+
+static void replace_equal_char(char symbol[],
+			       const int position) {
+  int i;
+  for (i = position; i > -1; i--) {
+    if (symbol[i] == '=') { symbol[i] = '\"'; }
+  }
+}
