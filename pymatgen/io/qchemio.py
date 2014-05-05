@@ -1205,8 +1205,21 @@ class QcOutput(object):
                             raise Exception("Gradient section parsing failed")
                     grad_comp = []
                 else:
+                    grad_line_token = list(line)
+                    grad_crowd = False
+                    grad_line_final = line
+                    for i in range(5, len(line), 12):
+                        c = grad_line_token[i]
+                        if not c.isspace():
+                            grad_crowd = True
+                            if ' ' in grad_line_token[i+1: i+6+1] or \
+                                    len(grad_line_token[i+1: i+6+1]) < 6:
+                                continue
+                            grad_line_token[i-1] = ' '
+                    if grad_crowd:
+                        grad_line_final = ''.join(grad_line_token)
                     grad_comp.append([float(x) for x
-                                      in line.strip().split()[1:]])
+                                      in grad_line_final.strip().split()[1:]])
             elif parse_freq:
                 if parse_modes:
                     if "TransDip" in line:
