@@ -23,11 +23,38 @@ from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwwrapper.GWtasks import *
-from pymatgen.io.gwwrapper.GWhelpers import now, s_name, expand_tests, read_grid_from_file
+from pymatgen.io.gwwrapper.GWhelpers import now, s_name, expand_tests, read_grid_from_file, is_converged
 from fireworks.core.firework import FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+class GWWorkflow(object):
+
+    @property
+    def grid(self):
+        return self._grid
+
+    @property
+    def all_done(self):
+        return self._all_done
+
+    @property
+    def workdir(self):
+        return self._workdir
+
+    def set_status(self, structure):
+        self._grid = 0
+        self._all_done = False
+        self._workdir = None
+        self._converged = is_converged(False, structure)
+        try:
+            self._grid = read_grid_from_file(s_name(structure)+".full_res")['grid']
+            self._all_done = read_grid_from_file(s_name(structure)+".full_res")['all_done']
+            self._workdir = os.path.join(s_name(structure), 'work_'+str(self.grid))
+        except (IOError, OSError):
+            pass
 
 
 class VaspGWFWWorkFlow():
@@ -79,7 +106,6 @@ class VaspGWFWWorkFlow():
             self.fw_id += 1
         else:
             fw = []
-            connection = []
             print 'unspecified job, this should have been captured before !!'
             exit()
 
@@ -180,13 +206,13 @@ class SingleAbinitGWWorkFlow():
         flow = AbinitFlow(self.work_dir, manager, pickle_protocol=0)
 
         # kpoint grid defined over density 40 > ~ 3 3 3
-        if self.spec.data['converge'] and self.option is None:
+        if self.spec['converge'] and self.option is None:
             # (2x2x2) gamma centered mesh for the convergence test on nbands and ecuteps
             scf_kppa = 2
         else:
             # use the specified density for the final calculation with the converged nbands and ecuteps of other
             # stand alone calculations
-            scf_kppa = self.spec.data['kp_grid_dens']
+            scf_kppa = self.spec['kp_grid_dens']
         gamma = True
 
         # 'standard' parameters for stand alone calculation
@@ -233,7 +259,8 @@ class SingleAbinitGWWorkFlow():
                             response_models.append(value)
             elif self.option is not None:
                 print '| setting up for testing the converged values at the high kp grid '
-                # in this case a convergence study has already been perfromed. The resulting parameters are passed as option
+                # in this case a convergence study has already been performed.
+                # The resulting parameters are passed as option
                 ecuteps = [self.option['ecuteps'], self.option['ecuteps'] + self.convs['ecuteps']['test_range'][1] -
                                                    self.convs['ecuteps']['test_range'][0]]
                 nscf_nband = [self.option['nscf_nbands'], self.option['nscf_nbands'] + self.convs['nscf_nbands'][
