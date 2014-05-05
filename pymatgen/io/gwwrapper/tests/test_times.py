@@ -72,7 +72,7 @@ if __name__ == '__main__':
         read = timeit.timeit("test_read()", setup="from __main__ import test_read", number=n*200)
 
         print n, 'times written in ', write, 's, ', size * n / write / 1000000, 'MB/s'
-        print n*200, 'times read in  ', read, 's, ', size * 200 * n / write / 1000000, 'MB/s'
+        print n*200, 'times read in  ', read, 's, ', size * 200 * n / read / 1000000, 'MB/s'
 
         assert write < 10 * n / 100 * my_m / 100000
         assert read < 10 * n / 100 * my_m / 100000
