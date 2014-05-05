@@ -61,9 +61,6 @@ if __name__ == '__main__':
     print 'made and removed 100 folders in', mk_folders, 's'
     print 'made, moved to, returned and removed 100 folders in', cd_folders, 's'
 
-    assert mk_folders < 1 * n / 100
-    assert cd_folders < 1 * n / 100
-
     for my_m in [50000, 100000, 200000]:
         test_write(my_m)
         size = os.path.getsize('test')
@@ -79,3 +76,6 @@ if __name__ == '__main__':
 
         assert write < 10 * n / 100 * my_m / 100000
         assert read < 10 * n / 100 * my_m / 100000
+
+    assert mk_folders < 1 * n / 100
+    assert cd_folders < 1 * n / 100
