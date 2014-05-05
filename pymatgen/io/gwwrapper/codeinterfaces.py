@@ -24,7 +24,7 @@ from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.gwwrapper.GWhelpers import is_converged
+from pymatgen.io.gwwrapper.GWhelpers import is_converged, read_grid_from_file, s_name, expand_tests
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
 from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, \
@@ -42,6 +42,12 @@ class AbstractCodeInterface(object):
     """
     __metaclass__ = ABCMeta
 
+    def __init__(self):
+        self.converged = False
+        self.grid = 0
+        self.all_done = False
+        self.workdir = None
+
     @abstractproperty
     def hartree_parameters(self):
         """
@@ -55,6 +61,21 @@ class AbstractCodeInterface(object):
         returns a list of supported method for this code, should correspond to the possible jobs in spec['jobs']
         """
 
+    @abstractproperty
+    def conv_pars(self):
+        """
+        returns a dictionary with the parameter names of nbands and ecuteps
+        """
+
+    def conv_res_string(self, conv_res):
+        """
+        print a dictionary of the parameters that give a converged result the dictionary should contain keywords
+        specific to the code, and values as they are interpreted by the code
+        """
+        string = str({self.conv_pars['nbands']: conv_res['values']['nbands'],
+                      self.conv_pars['ecuteps']: conv_res['values']['ecuteps']})
+        return string
+
     def test_methods(self, data):
         errors = []
         for job in data['jobs']:
@@ -67,14 +88,6 @@ class AbstractCodeInterface(object):
         """
         Method read from the datafile in data_dir the convergence data.
         return dict
-        """
-
-    @abstractmethod
-    def conv_res_string(self, conv_res):
-        """
-        print a dictionary of the parameters that give a converged result the dictionary should contain keywords
-        specific to the code, and values as they are interpreted by the code
-        return str
         """
 
     @abstractmethod
@@ -105,9 +118,9 @@ class VaspInterface(AbstractCodeInterface):
     def supported_methods(self):
         return ['prep', 'G0W0', 'GW0', 'scGW']
 
-    def conv_res_string(self, conv_res):
-        string = str({'NBANDS': conv_res['values']['nbands'], 'ENCUTGW': conv_res['values']['ecuteps']})
-        return string
+    @property
+    def conv_pars(self):
+        return {'nbands': 'NBANDS', 'ecuteps': 'ENCUTGW'}
 
     def read_convergence_data(self, data_dir):
         results = {}
@@ -143,8 +156,26 @@ class VaspInterface(AbstractCodeInterface):
         """
         excecute spec prepare input/jobfiles or submit to fw for a given structure
         for vasp the different jobs are created into a flow
+        todo this should actually create and excecute a VaspGWWorkFlow(GWWorkflow)
         """
-        converged = is_converged(self.hartree_parameters, structure)
+        ### general part for the base class
+        grid = 0
+        all_done = False
+        workdir = None
+        converged = is_converged(False, structure)
+        try:
+            grid = read_grid_from_file(s_name(structure)+".full_res")['grid']
+            all_done = read_grid_from_file(s_name(structure)+".full_res")['all_done']
+            workdir = os.path.join(s_name(structure), 'work_'+str(self.grid))
+        except (IOError, OSError):
+            pass
+
+        if all_done:
+            print '| all is done for this material'
+            return
+
+        ### specific part
+
         if spec_data['mode'] == 'fw':
             fw_work_flow = VaspGWFWWorkFlow()
         else:
@@ -158,6 +189,9 @@ class VaspInterface(AbstractCodeInterface):
             else:
                 tests_prep = MPGWscDFTPrepVaspInputSet(structure, spec_data).convs
                 tests_prep.update(MPGWDFTDiagVaspInputSet(structure, spec_data).convs)
+                if grid > 0:
+                    tests_prep = expand_tests(tests=tests_prep, level=grid)
+                print tests_prep
             for test_prep in tests_prep:
                 print 'setting up test for: ' + test_prep
                 for value_prep in tests_prep[test_prep]['test_range']:
@@ -172,6 +206,9 @@ class VaspInterface(AbstractCodeInterface):
                                 tests = self.get_conv_res_test(spec_data, structure)['tests']
                             else:
                                 tests = MPGWG0W0VaspInputSet(structure, spec_data).convs
+                                if grid > 0:
+                                    tests = expand_tests(tests=tests, level=grid)
+                                print tests
                         if job in ['GW0', 'scGW0']:
                             input_set = MPGWG0W0VaspInputSet(structure, spec_data)
                             input_set.gw0_on()
@@ -243,6 +280,10 @@ class AbinitInterface(AbstractCodeInterface):
     def supported_methods(self):
         return ['prep', 'G0W0']
 
+    @property
+    def conv_pars(self):
+        return {'nbands': 'nscf_nbands', 'ecuteps': 'ecuteps'}
+
     other_vars = """
         [u'space_group', u'primitive_vectors', u'reduced_symmetry_matrices', u'reduced_symmetry_translations',
          u'atom_species', u'reduced_atom_positions', u'valence_charges', u'atomic_numbers', u'atom_species_names',
@@ -255,10 +296,6 @@ class AbinitInterface(AbstractCodeInterface):
          u'degwgap', u'egwgap', u'en_qp_diago', u'e0', u'e0gap', u'sigxme', u'vxcme', u'vUme', u'degw', u'dsigmee0',
          u'egw', u'eigvec_qp', u'hhartree', u'sigmee', u'sigcmee0', u'sigcmesi', u'sigcme4sd', u'sigxcme4sd',
          u'ze0', u'omega4sd'] for later use """
-
-    def conv_res_string(self, conv_res):
-        string = str({'nscf_nbands': conv_res['values']['nbands'], 'ecuteps': conv_res['values']['ecuteps']})
-        return string
 
     def read_convergence_data(self, data_dir):
         run = os.path.join(data_dir, 'out_SIGRES.nc')
@@ -279,7 +316,7 @@ class AbinitInterface(AbstractCodeInterface):
             warnings.append('converge defined for abinit, still under development')
         if data['functional'] not in ['PBE']:
             errors.append(str(data['functional'] + 'not defined for ABINIT yet'))
-        errors.append(self.test_methods(data))
+        errors.extend(self.test_methods(data))
         return warnings, errors
 
     def excecute_flow(self, structure, spec_data):
@@ -310,12 +347,11 @@ class NewCodeInterface(AbstractCodeInterface):
     def supported_methods(self):
         return ['method1', 'method2']
 
-    # methods for data parsing
+    @property
+    def conv_pars(self):
+        return {'nbands': 'new_code_nbands', 'ecuteps': 'new_code_nbands'}
 
-    def conv_res_string(self, conv_res):
-        string = str(conv_res)  # adapt to proper input parameters of NEW_CODE
-        raise NotImplementedError
-        return string
+    # methods for data parsing
 
     def read_convergence_data(self, data_dir):
         results = {}  # adapt to read the output of NEW_CODE
@@ -329,7 +365,7 @@ class NewCodeInterface(AbstractCodeInterface):
         """
         errors = []
         warnings = []
-        errors.append(self.test_methods(data))
+        errors.extend(self.test_methods(data))
 
     def excecute_flow(self, structure, spec_data):
         """
@@ -339,14 +375,31 @@ class NewCodeInterface(AbstractCodeInterface):
         """
 
 
+CODE_CLASSES = {'VASP': VaspInterface,
+                'ABINIT': AbinitInterface,
+                'NEW_CODE': NewCodeInterface}
+
+
 def get_code_interface(code):
     """
     Factory function to return a code interface object
     """
-    code_classes = {'VASP': VaspInterface,
-                    'ABINIT': AbinitInterface,
-                    'NEW_CODE': NewCodeInterface}
-    if code not in code_classes.keys():
+    if code not in CODE_CLASSES.keys():
         raise NotImplementedError
-    return code_classes[code]()
+    return CODE_CLASSES[code]()
 
+
+def get_all_nbands():
+    nband_names = []
+    for code in CODE_CLASSES.values():
+        conv_pars = code().conv_pars
+        nband_names.append(conv_pars['nbands'])
+    return nband_names
+
+
+def get_all_ecuteps():
+    ecuteps_names = []
+    for code in CODE_CLASSES.values():
+        conv_pars = code().conv_pars
+        ecuteps_names.append(conv_pars['ecuteps'])
+    return ecuteps_names

@@ -117,7 +117,7 @@ class AbstractAbinitioSpec(object):
         i: loop structures for input generation
         o: loop structures for output parsing
         """
-
+        print 'loop structures mode ', mode
         mp_key = os.environ['MP_KEY']
 
         mp_list_vasp = ['mp-149', 'mp-2534', 'mp-8062', 'mp-2469', 'mp-1550', 'mp-830', 'mp-1986', 'mp-10695', 'mp-66',
@@ -161,8 +161,8 @@ class AbstractAbinitioSpec(object):
             if mode == 'i':
                 self.excecute_flow(structure)
             elif mode == 'o':
-                if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
-                    self.process_data(structure)
+                # if os.path.isdir(s_name(structure)) or os.path.isdir(s_name(structure)+'.conv'):
+                self.process_data(structure)
 
         if 'ceci' in self.data['mode'] and mode == 'i':
             os.chmod("job_collection", stat.S_IRWXU)
@@ -256,7 +256,6 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
         """
         test if there are inherent errors in the input
         """
-        print self.code_interface.test(self.data)
         self.warnings, self.errors = self.code_interface.test(self.data)
         if self.data['mode'].lower() not in ['input', 'ceci', 'fw']:
             self.errors.append('unspecified mode')
@@ -268,7 +267,6 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
         if self.data["converge"] and not self.data['mode'] == 'fw':
             self.warnings.append('only real converging in fw mode, for other modes ALL convergence steps are created')
         if len(self.errors) > 0:
-            print self.errors
             print str(len(self.errors)) + ' error(s) found:'
             for error in self.errors:
                 print ' > ' + error
@@ -296,6 +294,7 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
         agreement with the scanning part
         """
         data = GWConvergenceData(spec=self, structure=structure)
+        print 'here'
         if self.data['converge']:
             done = False
             try:
@@ -370,7 +369,7 @@ class GWConvergenceData():
         self.structure = structure
         self.spec = spec
         self.data = {}
-        self.code_interface = get_code_interface(spec.code)
+        self.code_interface = get_code_interface(spec['code'])
         self.conv_res = {'control': {}}
         self.full_res = {'all_done': False, 'grid': 0}
         self.name = s_name(structure)
@@ -418,6 +417,8 @@ class GWConvergenceData():
         n = 0
         self.data = {}
         tree = os.walk(self.name + subset)
+        print tree
+        print 'hallo'
         for dirs in tree:
             print 'looking at : ' + dirs[0]
             self.data.update(self.code_interface.read_convergence_data(dirs[0]))

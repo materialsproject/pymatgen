@@ -156,34 +156,44 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
 
 
 def expand_tests(tests, level):
-    for test in tests.keys():
-        if test in ['ecuteps', 'ENCUTGW']:
-            ec = str(test)
-        if test in ['NBANDS', 'nscf_nbands']:
-            nb = str(test)
+    from pymatgen.io.gwwrapper.codeinterfaces import get_all_ecuteps, get_all_nbands
     new_tests = copy.deepcopy(tests)
-    nb_range = tests[nb]['test_range']
-    ec_range = tests[ec]['test_range']
-    nb_step = nb_range[-1] - nb_range[-2]
-    ec_step = ec_range[-1] - ec_range[-2]
-    if int(level / 2) == level:
-        # even level of grid extension > new ec wedge
-        extension = tuple(range(nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step))
-        new_nb_range = nb_range + extension
-        new_ec_range = (ec_range[-1] + int(level / 2 * ec_step),)
-    else:
-        # odd level of grid extension > new nb wedge
-        extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step))
-        new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step),)
-        new_ec_range = ec_range + extension
-    new_tests[ec].update({'test_range': new_ec_range})
-    new_tests[nb].update({'test_range': new_nb_range})
+    for test in tests.keys():
+        if test in get_all_ecuteps():
+            ec = str(test)
+            ec_range = tests[ec]['test_range']
+            ec_step = ec_range[-1] - ec_range[-2]
+            print ec_step
+            if int(level / 2) == level / 2:
+                print 'new ec wedge'
+                # even level of grid extension > new ec wedge
+                new_ec_range = (ec_range[-1] + int(level / 2 * ec_step),)
+            else:
+                print 'new nb wedge'
+                # odd level of grid extension > new nb wedge
+                extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step))
+                new_ec_range = ec_range + extension
+            new_tests[ec].update({'test_range': new_ec_range})
+        if test in get_all_nbands():
+            nb = str(test)
+            nb_range = tests[nb]['test_range']
+            nb_step = nb_range[-1] - nb_range[-2]
+            print nb_step
+            if int(level / 2) == level / 2:
+                # even level of grid extension > new ec wedge
+                extension = tuple(range(nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step))
+                new_nb_range = nb_range + extension
+            else:
+                # odd level of grid extension > new nb wedge
+                new_nb_range = (nb_range[-1] + int((level + 1) / 2 * nb_step),)
+            new_tests[nb].update({'test_range': new_nb_range})
+    print new_tests
     return new_tests
 
 
 def print_gnuplot_header(filename, title='', mode='convplot', filetype='jpeg'):
     xl = 'set xlabel "nbands"\n'
-    yl = 'set ylabel "encutgw (eV)"\n'
+    yl = 'set ylabel "ecuteps (eV)"\n'
     zl = 'set zlabel "gap (eV)"\n'
     if mode == 'convplot':
         f = open(filename, mode='a')
@@ -207,7 +217,6 @@ def read_grid_from_file(filename):
         print 'Problems reading ', filename
         full_res = {'grid': 0, 'all_done': False}
     except (OSError, IOError):
-        print 'Inputfile ', filename, ' not found, asuming first calculations grid = 0'
         full_res = {'grid': 0, 'all_done': False}
     return full_res
 
