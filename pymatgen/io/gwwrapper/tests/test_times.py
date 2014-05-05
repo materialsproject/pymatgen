@@ -38,12 +38,22 @@ def test_cd():
 
 if __name__ == '__main__':
     n = 100
-    print 'write', timeit.timeit("test_write()", setup="from __main__ import test_write", number=n)
-    print 'read (200 times as many)', timeit.timeit("test_read()", setup="from __main__ import test_read", number=n*200)
-    print 'mk folders', timeit.timeit("test_make_folders()", setup="from __main__ import test_make_folders", number=n)
-    print 'cd folders', timeit.timeit("test_cd()", setup="from __main__ import test_cd", number=n)
 
-    assert timeit.timeit("test_write()", setup="from __main__ import test_write", number=n) < 5
-    assert timeit.timeit("test_read()", setup="from __main__ import test_read", number=n*200) < 5
-    assert timeit.timeit("test_make_folders()", setup="from __main__ import test_make_folders", number=n) < 1
-    assert timeit.timeit("test_cd()", setup="from __main__ import test_cd", number=n) < 1
+    test_write()
+    size = os.path.getsize('test')
+    print 'file size', size
+
+    write = timeit.timeit("test_write()", setup="from __main__ import test_write", number=n)
+    read = timeit.timeit("test_read()", setup="from __main__ import test_read", number=n*200)
+    mk_folders = timeit.timeit("test_make_folders()", setup="from __main__ import test_make_folders", number=n)
+    cd_folders = timeit.timeit("test_cd()", setup="from __main__ import test_cd", number=n)
+
+    print n, 'times written: ', write, ', ', size * n / write, 'b/s'
+    print n*200, 'times read:  ', read, ', ', size * 200 * n / write, 'b/s'
+    print 'made and removed 100 folders', mk_folders
+    print 'made, moved to, returned and removed 100 folders', cd_folders
+
+    assert write < 5
+    assert read < 5
+    assert mk_folders < 1
+    assert cd_folders < 1
