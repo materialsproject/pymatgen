@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 """
-Script to test writing GW Input for VASP.
-Reads the POSCAR_name in the the current folder and outputs GW input to
-subfolders name
+Input sets for VASP GW calculations
+Single vasp GW work: Creates input and jobscripts from the input sets for a specific job
 """
 
 from __future__ import division
@@ -13,7 +12,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "Oct 23, 2013"
+__date__ = "May 2014"
 
 import os
 import json
@@ -35,7 +34,7 @@ number is assumed to be on the environment variable NPARGWCALC.
 """
 
 
-class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
+class GWscDFTPrepVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static calculations preparing for a GW calculation.
@@ -78,9 +77,9 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         """
         Method to switch a specific test on
         """
-        all_tests = MPGWscDFTPrepVaspInputSet.get_defaults_tests()
-        all_tests.update(MPGWDFTDiagVaspInputSet.get_defaults_tests())
-        all_tests.update(MPGWG0W0VaspInputSet.get_defaults_tests())
+        all_tests = GWscDFTPrepVaspInputSet.get_defaults_tests()
+        all_tests.update(GWDFTDiagVaspInputSet.get_defaults_tests())
+        all_tests.update(GWG0W0VaspInputSet.get_defaults_tests())
         test_type = all_tests[test]['method']
         npar = self.get_npar(self.structure)
         if test_type == 'incar_settings':
@@ -153,7 +152,7 @@ class MPGWscDFTPrepVaspInputSet(DictVaspInputSet):
         self.incar_settings.update({"PREC": "Accurate", "ENCUT": 400})
 
 
-class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
+class GWDFTDiagVaspInputSet(GWscDFTPrepVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
     for static non self-consistent exact diagonalization step preparing for
@@ -193,11 +192,11 @@ class MPGWDFTDiagVaspInputSet(MPGWscDFTPrepVaspInputSet):
             self.incar_settings.update({"ALGO": 'fast'})
 
     def set_prec_high(self):
-        super(MPGWDFTDiagVaspInputSet, self).set_prec_high()
+        super(GWDFTDiagVaspInputSet, self).set_prec_high()
         self.set_gw_bands(30)
 
 
-class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
+class GWG0W0VaspInputSet(GWDFTDiagVaspInputSet):
     """
     Should go to Pymatgen vaspinputsets
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
@@ -258,7 +257,7 @@ class MPGWG0W0VaspInputSet(MPGWDFTDiagVaspInputSet):
         # todo update tests ....
 
     def set_prec_high(self):
-        super(MPGWG0W0VaspInputSet, self).set_prec_high()
+        super(GWG0W0VaspInputSet, self).set_prec_high()
         self.incar_settings.update({"ENCUTGW": 400, "NOMEGA": int(self.incar_settings["NOMEGA"]*1.5)})
         self.incar_settings.update({"PRECFOCK": "accurate"})
 
@@ -282,11 +281,11 @@ class Wannier90InputSet():
         pass
 
     def make_exclude_bands(self, structure, f):
-        nocc = MPGWscDFTPrepVaspInputSet(structure, self.spec).get_electrons(structure) / 2
+        nocc = GWscDFTPrepVaspInputSet(structure, self.spec).get_electrons(structure) / 2
         n1 = str(int(1))
         n2 = str(int(nocc - self.parameters["n_include_bands"]))
         n3 = str(int(nocc + 1 + self.parameters["n_include_bands"]))
-        n4 = str(int(MPGWG0W0VaspInputSet(structure, self.spec).incar_settings["NBANDS"]))
+        n4 = str(int(GWG0W0VaspInputSet(structure, self.spec).incar_settings["NBANDS"]))
         line = "exclude_bands : " + n1 + "-" + n2 + ", " + n3 + "-" + n4 + "\n"
         f.write(line)
         #todo there is still a bug here...
@@ -310,7 +309,7 @@ class Wannier90InputSet():
 
 class SingleVaspGWWork():
     """
-    Create VASP input for a single standard G0W0 and GW0 calculations
+    Create VASP input for a single standard G0W0 and GW0 calculation step
     the combination of job and option specifies what needs to be created
     """
     def __init__(self, structure, job, spec, option=None, converged=False):
@@ -337,26 +336,26 @@ class SingleVaspGWWork():
                 option_name = '.'+str(self.option['test'])+str(self.option['value'])
         if self.job == 'prep':
 
-            inpset = MPGWscDFTPrepVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
+            inpset = GWscDFTPrepVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec['converge'] and not self.converged:
                 spec_tmp = self.spec.copy()
                 spec_tmp.update({'kp_grid_dens': 2})
-                inpset = MPGWscDFTPrepVaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
+                inpset = GWscDFTPrepVaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
-                if self.option['test_prep'] in MPGWscDFTPrepVaspInputSet.get_defaults_convs().keys() or self.option['test_prep'] in MPGWscDFTPrepVaspInputSet.get_defaults_tests().keys():
+                if self.option['test_prep'] in GWscDFTPrepVaspInputSet.get_defaults_convs().keys() or self.option['test_prep'] in GWscDFTPrepVaspInputSet.get_defaults_tests().keys():
                     inpset.set_test(self.option['test_prep'], self.option['value_prep'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             inpset.write_input(self.structure, path)
 
-            inpset = MPGWDFTDiagVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
+            inpset = GWDFTDiagVaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec["prec"] == "h":
                 inpset.set_prec_high()
             if self.spec['converge'] and not self.converged:
                 spec_tmp = self.spec.copy()
                 spec_tmp.update({'kp_grid_dens': 2})
-                inpset = MPGWDFTDiagVaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
+                inpset = GWDFTDiagVaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
@@ -364,11 +363,11 @@ class SingleVaspGWWork():
 
         if self.job == 'G0W0':
 
-            inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
+            inpset = GWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec['converge'] and not self.converged:
                 spec_tmp = self.spec.copy()
                 spec_tmp.update({'kp_grid_dens': 2})
-                inpset = MPGWG0W0VaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
+                inpset = GWG0W0VaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
@@ -385,11 +384,11 @@ class SingleVaspGWWork():
 
         if self.job == 'GW0':
 
-            inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
+            inpset = GWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec['converge'] and not self.converged:
                 spec_tmp = self.spec.copy()
                 spec_tmp.update({'kp_grid_dens': 2})
-                inpset = MPGWG0W0VaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
+                inpset = GWG0W0VaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
@@ -407,11 +406,11 @@ class SingleVaspGWWork():
 
         if self.job == 'scGW0':
 
-            inpset = MPGWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
+            inpset = GWG0W0VaspInputSet(self.structure, self.spec, functional=self.spec['functional'])
             if self.spec['converge'] and not self.converged:
                 spec_tmp = self.spec.copy()
                 spec_tmp.update({'kp_grid_dens': 2})
-                inpset = MPGWG0W0VaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
+                inpset = GWG0W0VaspInputSet(self.structure, spec_tmp, functional=self.spec['functional'])
                 inpset.incar_settings.update({"ENCUT": 800})
             if self.spec['test'] or self.spec['converge']:
                 inpset.set_test(self.option['test_prep'], self.option['value_prep'])
@@ -431,7 +430,7 @@ class SingleVaspGWWork():
         """
         Create job script for ceci.
         """
-        npar = MPGWscDFTPrepVaspInputSet(self.structure, self.spec,
+        npar = GWscDFTPrepVaspInputSet(self.structure, self.spec,
                                          functional=self.spec['functional']).get_npar(self.structure)
         if self.option is not None:
             option_prep_name = str(self.option['test_prep']) + str(self.option['value_prep'])

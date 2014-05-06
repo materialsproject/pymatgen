@@ -1,7 +1,5 @@
 """
-Script to test writing GW Input for VASP.
-Reads the POSCAR_name in the the current folder and outputs GW input to
-subfolders name
+Script to parse bandstructure output
 """
 
 from __future__ import division
@@ -30,13 +28,6 @@ from abipy.abilab import abiopen, ElectronBandsPlotter
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-"""
-MPGWVaspInputSet.joson contains the standards for GW calculations. This set contains all
-parameters for the first sc dft calculation. The modifications for the subsequent
-sub calculations are made below.
-For many settings the number of cores on which the calculations will be run is needed, this
-number is assumed to be on the environment variable NPARGWCALC.
-"""
 
 try:
     data = Vasprun('vasprun.xml', ionic_step_skip=1)

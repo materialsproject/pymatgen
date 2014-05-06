@@ -1,7 +1,5 @@
 """
-Script to test writing GW Input for VASP.
-Reads the POSCAR_name in the the current folder and outputs GW input to
-subfolders name
+
 """
 
 from __future__ import division
@@ -11,7 +9,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "Oct 23, 2013"
+__date__ = "May 2014"
 
 import os
 import os.path
@@ -31,6 +29,11 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class GWWorkflow(object):
+    """
+    UNDER CONSTRUCTION
+    Base class for GW workflows. the code specific implementations should extend this one.
+    the base class should contain the convergence calculations structure
+    """
 
     @property
     def grid(self):

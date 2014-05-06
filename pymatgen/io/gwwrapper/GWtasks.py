@@ -1,7 +1,5 @@
 """
-Script to test writing GW Input for VASP.
-Reads the POSCAR_name in the the current folder and outputs GW input to
-subfolders name
+GW tasks for fireworks workflows, currently Vasp only
 """
 
 from __future__ import division
@@ -11,7 +9,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "Oct 23, 2013"
+__date__ = "May 2014"
 
 import os
 import os.path
@@ -20,7 +18,7 @@ import shutil
 import subprocess
 
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
-from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWG0W0VaspInputSet
+from pymatgen.io.gwwrapper.GWvaspinputsets import GWG0W0VaspInputSet
 from fireworks.core.firework import FWAction
 from uclworks.utils.clusters import get_vasp_environment
 from uclworks.firetasks.vasptasks import VaspGWTask
@@ -91,7 +89,7 @@ class VaspGWExecuteTask(VaspGWTask):
         logging.basicConfig(filename=os.path.join(self.get_launch_dir(), name + '.log'), level=logging.DEBUG)
         vasp_exe = get_vasp_environment()['vasp_exe']
         vasp_mpi_executer = get_vasp_environment()['vasp_mpi_executer']
-        n_tasks = MPGWG0W0VaspInputSet(self.structure).get_npar(self.structure)
+        n_tasks = GWG0W0VaspInputSet(self.structure).get_npar(self.structure)
 
         frontend_serial = True
         custodian = False

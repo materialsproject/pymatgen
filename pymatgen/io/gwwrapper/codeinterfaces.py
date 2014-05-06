@@ -1,9 +1,10 @@
 """
 UNDER DEVELOPMENT
 Classes for code interfaces.
+Uses code specific GWworkflows defined in GWworkflows. These may also be moved into the code interface.
 Eventually all code dependent methods used by the the gwwrapper should be contained in a class defined here
 Currently working on the implementation for VASP and ABINIT.
-The data parsing part is underway ....
+The VASP GWworkflow is currently coded here directly this still needs to be moved to the GWWorkflows
 A new implementation can be created from the New_Code template, the new class should be added to the get_code_interface
 factory function at the end.
 """
@@ -15,7 +16,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "Oct 23, 2013"
+__date__ = "May 2014"
 
 import os
 import os.path
@@ -27,8 +28,8 @@ from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.gwwrapper.GWhelpers import is_converged, read_grid_from_file, s_name, expand_tests
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
-from pymatgen.io.gwwrapper.GWvaspinputsets import MPGWscDFTPrepVaspInputSet, MPGWDFTDiagVaspInputSet, \
-    MPGWG0W0VaspInputSet
+from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
+    GWG0W0VaspInputSet
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -161,12 +162,10 @@ class VaspInterface(AbstractCodeInterface):
         ### general part for the base class
         grid = 0
         all_done = False
-        workdir = None
         converged = is_converged(False, structure)
         try:
             grid = read_grid_from_file(s_name(structure)+".full_res")['grid']
             all_done = read_grid_from_file(s_name(structure)+".full_res")['all_done']
-            workdir = os.path.join(s_name(structure), 'work_'+str(self.grid))
         except (IOError, OSError):
             pass
 
@@ -182,13 +181,13 @@ class VaspInterface(AbstractCodeInterface):
             fw_work_flow = []
         if spec_data['test'] or spec_data['converge']:
             if spec_data['test']:
-                tests_prep = MPGWscDFTPrepVaspInputSet(structure, spec_data).tests
-                tests_prep.update(MPGWDFTDiagVaspInputSet(structure, spec_data).tests)
+                tests_prep = GWscDFTPrepVaspInputSet(structure, spec_data).tests
+                tests_prep.update(GWDFTDiagVaspInputSet(structure, spec_data).tests)
             elif spec_data['converge'] and converged:
                 tests_prep = self.get_conv_res_test(spec_data, structure)['tests_prep']
             else:
-                tests_prep = MPGWscDFTPrepVaspInputSet(structure, spec_data).convs
-                tests_prep.update(MPGWDFTDiagVaspInputSet(structure, spec_data).convs)
+                tests_prep = GWscDFTPrepVaspInputSet(structure, spec_data).convs
+                tests_prep.update(GWDFTDiagVaspInputSet(structure, spec_data).convs)
                 if grid > 0:
                     tests_prep = expand_tests(tests=tests_prep, level=grid)
                 print tests_prep
@@ -201,16 +200,16 @@ class VaspInterface(AbstractCodeInterface):
                     for job in spec_data['jobs'][1:]:
                         if job == 'G0W0':
                             if spec_data['test']:
-                                tests = MPGWG0W0VaspInputSet(structure, spec_data).tests
+                                tests = GWG0W0VaspInputSet(structure, spec_data).tests
                             elif spec_data['converge'] and converged:
                                 tests = self.get_conv_res_test(spec_data, structure)['tests']
                             else:
-                                tests = MPGWG0W0VaspInputSet(structure, spec_data).convs
+                                tests = GWG0W0VaspInputSet(structure, spec_data).convs
                                 if grid > 0:
                                     tests = expand_tests(tests=tests, level=grid)
                                 print tests
                         if job in ['GW0', 'scGW0']:
-                            input_set = MPGWG0W0VaspInputSet(structure, spec_data)
+                            input_set = GWG0W0VaspInputSet(structure, spec_data)
                             input_set.gw0_on()
                             if spec_data['test']:
                                 tests = input_set.tests
@@ -230,9 +229,9 @@ class VaspInterface(AbstractCodeInterface):
         """
         tests_conv = {}
         tests_prep_conv = {}
-        tests_prep = MPGWscDFTPrepVaspInputSet(structure, spec_data).tests
-        tests_prep.update(MPGWDFTDiagVaspInputSet(structure, spec_data).tests)
-        tests = MPGWG0W0VaspInputSet(structure, spec_data).tests
+        tests_prep = GWscDFTPrepVaspInputSet(structure, spec_data).tests
+        tests_prep.update(GWDFTDiagVaspInputSet(structure, spec_data).tests)
+        tests = GWG0W0VaspInputSet(structure, spec_data).tests
         conv_res = is_converged(spec_data, structure, return_values=True)
         for test in conv_res.keys():
             if test in tests_prep.keys():
@@ -265,7 +264,7 @@ class VaspInterface(AbstractCodeInterface):
 
     @staticmethod
     def get_npar(spec_data, structure):
-        return MPGWG0W0VaspInputSet(structure, spec_data).get_npar(structure)
+        return GWG0W0VaspInputSet(structure, spec_data).get_npar(structure)
 
 
 class AbinitInterface(AbstractCodeInterface):

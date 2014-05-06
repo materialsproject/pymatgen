@@ -9,7 +9,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "Mar 24, 2014"
+__date__ = "May 2014"
 
 from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
 from custodian.custodian import ErrorHandler
