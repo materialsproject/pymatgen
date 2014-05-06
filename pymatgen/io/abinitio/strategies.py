@@ -640,6 +640,8 @@ class InputWriter(object):
     dictionary with extra ABINIT variables and produces a (nicely formatted?) 
     string with the input file.
     """
+    MAX_SLEN = 100
+
     def __init__(self, *args, **kwargs):
         self.abiobj_dict = collections.OrderedDict()
         self.extra_abivars = collections.OrderedDict()
@@ -716,6 +718,40 @@ class InputWriter(object):
 
         return token
 
+    def _cut_lines(self, lines):
+        MAX_SLEN = self.MAX_SLEN
+
+        new_lines = []
+        for line in lines:
+            if len(line) > MAX_SLEN:
+                #start, stop = 0, 0
+                #while True:
+                #    stop = start + MAX_SLEN
+                #    if stop > len(line): break
+                #    print(start, stop)
+                #    if stop > len(line): stop = len(line)
+                #    new_lines.append(line[start:stop])
+                #    start = stop
+
+                tokens = lines.split()
+                cum_nchars, start = 0, 0
+                for stop, tok in enumerate(tokens):
+                    cum_nchars += len(tok) + 1
+
+                    if cum_nchars > MAX_SLEN:
+                        cum_nchars = 0
+                        new_lines.append("".join(tokens[start:stop]))
+                    else:
+                        start = stop
+
+                if cum_nchars:
+                    new_lines.append("".join(tokens[start:stop]))
+
+            else:
+                new_lines.append(line)
+
+        return new_lines
+
     def get_string(self, pretty=False):
         """
         Returns a string representation of self. The reason why this
@@ -743,6 +779,8 @@ class InputWriter(object):
             app([80*"#", ""])
             for (k, v) in self.extra_abivars.items():
                 app(self._format_kv(k, v))
+
+        #lines = self._cut_lines(lines)
 
         if pretty:
             return str_aligned(lines, header=None)

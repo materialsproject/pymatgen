@@ -714,9 +714,10 @@ class PyFlowScheduler(object):
         finally:
             # Write file with the list of exceptions:
             if self.exceptions:
-                dump_file = os.path.join(self.flow.workdir, "_exceptions")
-                with open(dump_file, "w") as fh:
-                    fh.writelines(self.exceptions)
+            dump_file = os.path.join(self.flow.workdir, "_exceptions")
+            with open(dump_file, "w") as fh:
+                fh.writelines(self.exceptions)
+                fh.write("Shutdown message:\n%s" % msg)
 
             # Shutdown the scheduler thus allowing the process to exit.
             self.sched.shutdown(wait=False)
