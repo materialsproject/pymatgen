@@ -1,6 +1,6 @@
 """
 Classes for writing GW Input and analyzing GW data. The underlying classes can handle the use of VASP and ABINIT via the
-code interfaces provided in CodeInterfaces.
+code interfaces provided in codeinterfaces.
 Reads the POSCAR_name in the the current folder and outputs GW input to subfolders name or lists of structures
 """
 
@@ -11,7 +11,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "Oct 23, 2013"
+__date__ = "May 2014"
 
 import os
 import stat
@@ -31,6 +31,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class AbstractAbinitioSpec(object):
     """
+    Contains all non GW specific methods
     todo for some reason I can not make this class have both a metaclass and subcalss from msonable ...
     """
     __metaclass__ = ABCMeta

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Script to write GW Input for VASP and ABINIT.
+Script to write GW Input for VASP and ABINIT / set up work flows.
 """
 
 from __future__ import division
@@ -11,7 +11,7 @@ __copyright__ = " "
 __version__ = "0.9"
 __maintainer__ = "Michiel van Setten"
 __email__ = "mjvansetten@gmail.com"
-__date__ = "Oct 23, 2013"
+__date__ = "May 2014"
 
 import os
 import os.path
@@ -22,7 +22,6 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 if __name__ == "__main__":
-    import this
     spec_in = get_spec('GW')
     try:
         spec_in.read_from_file('spec.in')
