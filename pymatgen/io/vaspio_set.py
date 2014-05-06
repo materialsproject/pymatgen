@@ -613,7 +613,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             basis.
     """
 
-    def __init__(self, kpoints_density=90, sym_prec=0.01, **kwargs):
+    def __init__(self, kpoints_density=90, sym_prec=0.1, **kwargs):
         with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MP Static", json.load(f), **kwargs)
@@ -655,7 +655,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
-                      additional_info=False, sym_prec=0.01):
+                      additional_info=False, sym_prec=0.1):
         """
         Process structure for static calculations from previous run.
 
@@ -707,7 +707,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
                                user_incar_settings=None,
                                make_dir_if_not_present=True,
-                               kpoints_density=90, sym_prec=0.01):
+                               kpoints_density=90, sym_prec=0.1):
         """
         Generate a set of Vasp input files for static calculations from a
         directory of previous Vasp run.
@@ -787,7 +787,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         new_kpoints = mpsvip.get_kpoints(structure)
         if previous_kpoints.style[0] != new_kpoints.style[0]:
             if previous_kpoints.style[0] == "M" and \
-                    SymmetryFinder(structure, 0.01).get_lattice_type() != \
+                    SymmetryFinder(structure, 0.1).get_lattice_type() != \
                     "hexagonal":
                 k_div = (kp + 1 if kp % 2 == 1 else kp
                          for kp in new_kpoints.kpts[0])
@@ -858,7 +858,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             structure.lattice.reciprocal_lattice.volume * structure.num_sites
         grid = super(MPBSHSEVaspInputSet, self).get_kpoints(structure).kpts
         if self.mode == "Line":
-            ir_kpts = SymmetryFinder(structure,symprec=0.01).get_ir_reciprocal_mesh(grid[0])
+            ir_kpts = SymmetryFinder(structure,symprec=0.1).get_ir_reciprocal_mesh(grid[0])
             kpoints, labels=HighSymmKpath(structure).get_kpoints()
             kpts = []
             weights = []
@@ -876,7 +876,7 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            kpts=kpts, kpts_weights=weights, labels=all_labels)
 
         elif self.mode == "Uniform":
-            ir_kpts=SymmetryFinder(structure,symprec=0.01).get_ir_reciprocal_mesh(grid[0])
+            ir_kpts=SymmetryFinder(structure,symprec=0.1).get_ir_reciprocal_mesh(grid[0])
             kpts = []
             weights = []
             for k in ir_kpts:
@@ -919,7 +919,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
     def __init__(self, user_incar_settings, mode="Line",
                  constrain_total_magmom=False, sort_structure=False,
-                 kpoints_density=1000, sym_prec=0.01):
+                 kpoints_density=1000, sym_prec=0.1):
         self.mode = mode
         self.sym_prec = sym_prec
         if mode not in ["Line", "Uniform"]:
