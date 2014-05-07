@@ -345,7 +345,7 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                         print '| Full type calculation but the full results do not agree with the parm_scr.'
                         print '|   Increase the tol to find beter converged parameters and test the full grid again.'
                         print '|   TODO'
-                        # read the system specific tol for Sytem.conv_res
+                        # read the system specific tol for System.conv_res
                         # if it's not there create it from the global tol
                         # reduce tol
                         # set data.type to convergence
@@ -418,10 +418,7 @@ class GWConvergenceData():
         n = 0
         self.data = {}
         tree = os.walk(self.name + subset)
-        print tree
-        print 'hallo'
         for dirs in tree:
-            print 'looking at : ' + dirs[0]
             self.data.update(self.code_interface.read_convergence_data(dirs[0]))
             n += 1
 
