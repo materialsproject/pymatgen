@@ -378,7 +378,7 @@ class GWConvergenceData():
 
     def read_conv_res_from_file(self, filename):
         """
-        Read the results of a previous paramert screening set of calculations from file
+        Read the results of a previous parameter screening set of calculations from file
         """
         success = False
         try:
@@ -386,6 +386,7 @@ class GWConvergenceData():
             self.conv_res = ast.literal_eval(f.read())
             f.close()
             success = True
+            print self.conv_res
         except SyntaxError:
             print 'Problems reading ', filename
         except (OSError, IOError):
@@ -552,10 +553,13 @@ class GWConvergenceData():
 
     def get_var_range(self, var):
         var_range = []
-        for data_point in self.data.values():
-            if data_point[var] not in var_range:
-                var_range.append(data_point[var])
-        return sorted(var_range)
+        if self.data:
+            for data_point in self.data.values():
+                if data_point[var] not in var_range:
+                    var_range.append(data_point[var])
+            return sorted(var_range)
+        else:
+            return None
 
     def print_gnuplot_line(self, filename):
         """
