@@ -138,15 +138,6 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(primitive_structure.lattice.volume,
                                structure.lattice.volume / 4.0)
 
-    def test_get_ir_kpoints(self):
-        v = Vasprun(os.path.join(test_dir, 'vasprun_Si_bands.xml'))
-        finder = SymmetryFinder(v.final_structure)
-        actual_kpts = v.actual_kpoints
-        mapping = finder.get_ir_kpoints_mapping(actual_kpts)
-        irr_kpts = finder.get_ir_kpoints(actual_kpts)
-        self.assertLess(len(irr_kpts), len(actual_kpts))
-        self.assertEqual(len(irr_kpts), len(set(mapping)))
-
     def test_get_ir_reciprocal_mesh(self):
         grid=self.sg.get_ir_reciprocal_mesh()
         self.assertEquals(len(grid), 216)

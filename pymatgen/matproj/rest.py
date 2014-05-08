@@ -171,9 +171,7 @@ class MPRester(object):
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(chemsys_formula_id, prop=prop)
-        ss = [d[prop] for d in data]
-        return [Structure(s.lattice, s.species_and_occu, s.frac_coords)
-                for s in ss]
+        return [d[prop] for d in data]
 
     def get_entries(self, chemsys_formula_id, compatible_only=True,
                     inc_structure=None):
@@ -232,8 +230,7 @@ class MPRester(object):
         """
         prop = "final_structure" if final else "initial_structure"
         data = self.get_data(material_id, prop=prop)
-        s = data[0][prop]
-        return Structure(s.lattice, s.species_and_occu, s.frac_coords)
+        return data[0][prop]
 
     def get_entry_by_material_id(self, material_id):
         """
