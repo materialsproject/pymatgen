@@ -337,7 +337,7 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                         break
                     if len(data.data) < 4:
                         print '| Full type calculation but no complete data found.'
-                        print data
+                        print data.data
                         break
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
                         print '| Full type calculation and the full results agree with the parm_scr. All_done for this compound.'
@@ -425,6 +425,8 @@ class GWConvergenceData():
         self.data = {}
         tree = os.walk(self.name + subset)
         for dirs in tree:
+            print dirs[0]
+            print self.code_interface.read_convergence_data(dirs[0])
             self.data.update(self.code_interface.read_convergence_data(dirs[0]))
             n += 1
 
