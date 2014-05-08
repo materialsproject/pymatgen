@@ -430,7 +430,7 @@ class GWConvergenceData():
                 print dirs[0]
                 print read
                 self.data.update({n: read})
-            n += 1
+                n += 1
 
     def set_type(self):
         """
