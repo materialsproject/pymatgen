@@ -380,6 +380,7 @@ class GWConvergenceData():
         """
         Read the results of a previous parameter screening set of calculations from file
         """
+        print 'reading'
         success = False
         try:
             f = open(filename, mode='r')
