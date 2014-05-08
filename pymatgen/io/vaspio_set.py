@@ -427,6 +427,21 @@ class MITNEBVaspInputSet(DictVaspInputSet):
                                       ediff_per_atom=False, **kwargs)
         self.nimages = nimages
 
+    def _process_structures(self, structures):
+        """
+        Remove any atom jumps across the cell
+        """
+        input_structures = structures
+        structures = [input_structures[0]]
+        for s in input_structures[1:]:
+            prev = structures[-1]
+            for i in range(len(s)):
+                t = np.round(prev[i].frac_coords - s[i].frac_coords)
+                if np.sum(t) > 0.5:
+                    s.translate_sites([i], t, to_unit_cell=False)
+            structures.append(s)
+        return structures
+
     def write_input(self, structures, output_dir, make_dir_if_not_present=True,
                     write_cif=False):
         """
@@ -444,6 +459,9 @@ class MITNEBVaspInputSet(DictVaspInputSet):
         """
         if len(structures) != self.incar_settings['IMAGES'] + 2:
             raise ValueError('incorrect number of structures')
+
+        structures = self._process_structures(structures)
+
         if make_dir_if_not_present and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         s0 = structures[0]
