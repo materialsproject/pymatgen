@@ -136,7 +136,6 @@ class MPRester(object):
             url = "{}/materials/{}/{}".format(
                 self.preamble, chemsys_formula_id, data_type)
 
-        response = None
         try:
             response = self.session.get(url)
             if response.status_code in [200, 400]:
@@ -152,8 +151,7 @@ class MPRester(object):
                               .format(response.status_code))
 
         except Exception as ex:
-            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(response, "content") else str(ex)
-            raise MPRestError(msg)
+            raise MPRestError(str(ex))
 
     def get_structures(self, chemsys_formula_id, final=True):
         """
