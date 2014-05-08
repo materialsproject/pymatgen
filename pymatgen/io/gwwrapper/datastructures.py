@@ -604,7 +604,7 @@ class GWConvergenceData():
             tmp = data[0]
             try:
                 f.write('%10.5f %10.5f %10.5f %10.5f \n' % (data[0], data[1], data[2], data[3]))
-            except KeyError:
+            except (KeyError, IndexError):
                 f.write('%10.5f %10.5f %10.5f \n' % (data[0], data[1], data[2]))
         f.close()
 
