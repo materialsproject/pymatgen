@@ -23,6 +23,7 @@ import collections
 import itertools
 from abc import ABCMeta, abstractmethod, abstractproperty
 import random
+import warnings
 
 import numpy as np
 
@@ -368,16 +369,27 @@ class IStructure(SiteCollection, MSONable):
                 that are less than 0.01 Ang apart. Defaults to False.
             to_unit_cell (bool): Whether to translate sites into the unit
                 cell.
+
+        Returns:
+            (Structure) Note that missing properties are set as None.
         """
-        props = collections.defaultdict(list)
+        prop_keys = []
+        props = {}
         lattice = None
-        for site in sites:
+        for i, site in enumerate(sites):
             if not lattice:
                 lattice = site.lattice
             elif site.lattice != lattice:
                 raise ValueError("Sites must belong to the same lattice")
             for k, v in site.properties.items():
-                props[k].append(v)
+                if k not in prop_keys:
+                    prop_keys.append(k)
+                    props[k] = [None] * len(sites)
+                props[k][i] = v
+        for k, v in props.items():
+            if any((vv is None for vv in v)):
+                warnings.warn("Not all sites have property %s. Missing values "
+                              "are set to None." % k)
         return cls(lattice, [site.species_and_occu for site in sites],
                    [site.frac_coords for site in sites],
                    site_properties=props,

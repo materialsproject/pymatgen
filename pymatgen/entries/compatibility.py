@@ -26,6 +26,18 @@ from pymatgen.analysis.structure_analyzer import oxide_type
 import abc
 
 
+class CompatibilityError(Exception):
+    """
+    Exception class for Compatibility. Raised by attempting correction
+    on incompatible calculation
+    """
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+
 class Correction(object):
     """
     A Correction class is a pre-defined scheme for correction a computed
@@ -44,8 +56,10 @@ class Correction(object):
             entry: A ComputedEntry object.
 
         Returns:
-            The energy correction ot be applied. None if the entry is
-            incompatible.
+            The energy correction to be applied.
+
+        Raises:
+            CompatibilityError if entry is not compatible.
         """
         return
 
@@ -57,14 +71,13 @@ class Correction(object):
             entry: A ComputedEntry object.
 
         Returns:
-            An processed entry. None if entry is not compatible within the
-            processing scheme.
+            An processed entry.
+
+        Raises:
+            CompatibilityError if entry is not compatible.
         """
-        c = self.get_correction(entry)
-        if c is not None:
-            entry.correction += c
-            return entry
-        return None
+        entry.correction += self.get_correction(entry)
+        return entry
 
 
 class PotcarCorrection(Correction):
@@ -86,6 +99,7 @@ class PotcarCorrection(Correction):
 
     Raises:
         ValueError if entry do not contain "potcar_symbols" key.
+        CombatibilityError if wrong potcar symbols
     """
     def __init__(self, name):
         if name == "MP":
@@ -108,7 +122,7 @@ class PotcarCorrection(Correction):
                 "PotcarCorrection can only be checked for entries with a "
                 "\"potcar_symbols\" in entry.parameters")
         if not self.valid_potcars.issuperset(psp_settings):
-            return None
+            raise CompatibilityError('Incompatible potcar')
         return 0
 
     def __str__(self):
@@ -285,7 +299,7 @@ class UCorrection(Correction):
 
     def get_correction(self, entry):
         if entry.parameters.get("run_type", "GGA") == "HF":
-            return None
+            raise CompatibilityError('Invalid run type')
 
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
@@ -303,7 +317,7 @@ class UCorrection(Correction):
             sym = el.symbol
             #Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                return None
+                raise CompatibilityError('Invalid U value on {}'.format(sym))
             if sym in ucorr:
                 correction += float(ucorr[sym]) * comp[el]
 
@@ -340,8 +354,9 @@ class Compatibility(object):
             An adjusted entry if entry is compatible, otherwise None is
             returned.
         """
-        corrections = self.get_corrections_dict(entry)
-        if corrections is None:
+        try:
+            corrections = self.get_corrections_dict(entry)
+        except CompatibilityError:
             return None
         entry.correction = sum(corrections.values())
         return entry
@@ -359,9 +374,7 @@ class Compatibility(object):
         corrections = {}
         for c in self.corrections:
             val = c.get_correction(entry)
-            if val is None:
-                return None
-            elif val != 0:
+            if val != 0:
                 corrections[str(c)] = val
         return corrections
 
