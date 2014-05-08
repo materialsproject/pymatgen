@@ -35,6 +35,10 @@ class MethodsTest(unittest.TestCase):
             filename = os.path.join(test_dir, fname)
             struct = read_structure(filename)
             self.assertIsInstance(struct, Structure)
+            prim = read_structure(filename, primitive=True)
+            self.assertLessEqual(len(prim), len(struct))
+            sorted_s = read_structure(filename, sort=True)
+            self.assertEqual(sorted_s, sorted_s.get_sorted_structure())
 
     def test_read_mol(self):
         test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..",

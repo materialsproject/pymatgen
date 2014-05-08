@@ -25,7 +25,7 @@ import requests
 import json
 import warnings
 
-from pymatgen import Composition, PMGJSONDecoder
+from pymatgen import Structure, Composition, PMGJSONDecoder
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.entries.exp_entries import ExpEntry
@@ -136,6 +136,7 @@ class MPRester(object):
             url = "{}/materials/{}/{}".format(
                 self.preamble, chemsys_formula_id, data_type)
 
+        response = None
         try:
             response = self.session.get(url)
             if response.status_code in [200, 400]:
@@ -151,7 +152,8 @@ class MPRester(object):
                               .format(response.status_code))
 
         except Exception as ex:
-            raise MPRestError(str(ex))
+            msg = "{}. Content: {}".format(str(ex), response.content) if hasattr(response, "content") else str(ex)
+            raise MPRestError(msg)
 
     def get_structures(self, chemsys_formula_id, final=True):
         """

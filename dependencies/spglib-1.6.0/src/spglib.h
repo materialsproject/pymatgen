@@ -1,4 +1,4 @@
-/* spglib.h version 1.4.1 */
+/* spglib.h version 1.5.1 */
 /* Copyright (C) 2008 Atsushi Togo */
 
 #ifndef __spglib_H__
@@ -6,7 +6,9 @@
 
 /* SPGCONST is used instead of 'const' so to avoid gcc warning. */
 /* However there should be better way than this way.... */
+#ifndef SPGCONST
 #define SPGCONST
+#endif
 
 /*
   ------------------------------------------------------------------
@@ -72,13 +74,15 @@ typedef struct {
   int *equivalent_atoms;
 } SpglibDataset;
 
+/* This is a copy from spg_database.h except for holohedry. */
 typedef struct {
-  int size;
-  int (*triplets)[3];
-  int *weights;
-  int mesh[3];
-  int (*mesh_points)[3];
-} SpglibTriplets;
+  int number;
+  char schoenflies[7];
+  char hall_symbol[17];
+  char international[32];
+  char international_full[20];
+  char international_short[11];
+} SpglibSpacegroupType;
 
 SpglibDataset * spg_get_dataset(SPGCONST double lattice[3][3],
 				SPGCONST double position[][3],
@@ -225,6 +229,10 @@ int spg_get_pointgroup(char symbol[6],
 		       SPGCONST int rotations[][3][3],
 		       const int num_rotations);
 
+/* Space-group type information is accessed by index of hall symbol. */
+/* The index is defined from 1 to 530. */
+SpglibSpacegroupType spg_get_spacegroup_type(int hall_number);
+
 /* Bravais lattice with internal atomic points are returned. */
 /* The arrays are require to have 4 times larger memory space */
 /* those of input cell. */
@@ -243,25 +251,6 @@ int spgat_refine_cell(double lattice[3][3],
 		      const double symprec,
 		      const double angle_tolerance);
 
-/* Irreducible k-points are searched from the input k-points */
-/* (``kpoints``).  The result is returned as a map of */
-/* numbers (``map``), where ``kpoints`` and ``map`` have to have */
-/* the same number of elements.  The array index of ``map`` */
-/* corresponds to the reducible k-point numbering.  After finding */
-/* irreducible k-points, the indices of the irreducible k-points */
-/* are mapped to the elements of ``map``, i.e., number of unique */
-/* values in ``map`` is the number of the irreducible k-points. */
-/* The number of the irreducible k-points is also returned as the */
-/* return value. */
-int spg_get_ir_kpoints(int map[],
-		       SPGCONST double kpoints[][3],
-		       const int num_kpoints,
-		       SPGCONST double lattice[3][3],
-		       SPGCONST double position[][3],
-		       const int types[],
-		       const int num_atom,
-		       const int is_time_reversal,
-		       const double symprec);
 
 /* Irreducible reciprocal grid points are searched from uniform */
 /* mesh grid points specified by ``mesh`` and ``is_shift``. */
@@ -274,12 +263,12 @@ int spg_get_ir_kpoints(int map[],
 /* faster when the mesh is very dense. */
 
 /* The reducible uniform grid points are returned in reduced */
-/* coordinates as ``grid_point``. A map between reducible and */
+/* coordinates as ``grid_address``. A map between reducible and */
 /* irreducible points are returned as ``map`` as in the indices of */
-/* ``grid_point``. The number of the irreducible k-points are */
+/* ``grid_address``. The number of the irreducible k-points are */
 /* returned as the return value.  The time reversal symmetry is */
 /* imposed by setting ``is_time_reversal`` 1. */
-int spg_get_ir_reciprocal_mesh(int grid_point[][3],
+int spg_get_ir_reciprocal_mesh(int grid_address[][3],
 			       int map[],
 			       const int mesh[3],
 			       const int is_shift[3],
@@ -295,10 +284,10 @@ int spg_get_ir_reciprocal_mesh(int grid_point[][3],
 /* symmetry operations in real space with stabilizers. The */
 /* stabilizers are written in reduced coordinates. Number of the */
 /* stabilizers are given by ``num_q``. Reduced k-points are stored */
-/* in ``map`` as indices of ``grid_point``. The number of the */
+/* in ``map`` as indices of ``grid_address``. The number of the */
 /* reduced k-points with stabilizers are returned as the return */
 /* value. */
-int spg_get_stabilized_reciprocal_mesh(int grid_point[][3],
+int spg_get_stabilized_reciprocal_mesh(int grid_address[][3],
 				       int map[],
 				       const int mesh[3],
 				       const int is_shift[3],
@@ -308,18 +297,43 @@ int spg_get_stabilized_reciprocal_mesh(int grid_point[][3],
 				       const int num_q,
 				       SPGCONST double qpoints[][3]);
 
+/* Grid addresses are relocated inside Brillouin zone. */
+/* Number of ir-grid-points inside Brillouin zone is returned. */
+/* It is assumed that the following arrays have the shapes of */
+/*   bz_grid_address[prod(mesh + 1)][3] */
+/*   bz_map[prod(mesh * 2)] */
+/* where grid_address[prod(mesh)][3]. */
+/* Each element of grid_address is mapped to each element of */
+/* bz_grid_address with keeping element order. bz_grid_address has */
+/* larger memory space to represent BZ surface even if some points */
+/* on a surface are translationally equivalent to the other points */
+/* on the other surface. Those equivalent points are added successively */
+/* as grid point numbers to bz_grid_address. Those added grid points */
+/* are stored after the address of end point of grid_address, i.e. */
+/*                                                                       */
+/* |-----------------array size of bz_grid_address---------------------| */
+/* |--grid addresses similar to grid_address--|--newly added ones--|xxx| */
+/*                                                                       */
+/* where xxx means the memory space that may not be used. Number of grid */
+/* points stored in bz_grid_address is returned. */
+/* bz_map is used to recover grid point index expanded to include BZ */
+/* surface from grid address. The grid point indices are mapped to */
+/* (mesh[0] * 2) x (mesh[1] * 2) x (mesh[2] * 2) space (bz_map). */
+int spg_relocate_BZ_grid_address(int bz_grid_address[][3],
+				 int bz_map[],
+				 SPGCONST int grid_address[][3],
+				 const int mesh[3],
+				 SPGCONST double rec_lattice[3][3],
+				 const int is_shift[3]);
+
 /* Irreducible triplets of k-points are searched under conservation of */
 /* :math:``\mathbf{k}_1 + \mathbf{k}_2 + \mathbf{k}_3 = \mathbf{G}``. */
-/* Don't forget to free memory space of triplets using spg_free_triplets */
-SpglibTriplets * spg_get_triplets_reciprocal_mesh(const int mesh[3],
-						  const int is_time_reversal,
-						  const int num_rot,
-						  SPGCONST int rotations[][3][3]);
-
-void spg_free_triplets(SpglibTriplets * triplets);
-
+/* Memory spaces of grid_address[prod(mesh)][3], weights[prod(mesh)] */
+/* and third_q[prod(mesh)] are required. rotations are point-group- */
+/* operations in real space for which duplicate operations are allowed */
+/* in the input. */
 int spg_get_triplets_reciprocal_mesh_at_q(int weights[],
-					  int grid_points[][3],
+					  int grid_address[][3],
 					  int third_q[],
 					  const int grid_point,
 					  const int mesh[3],
@@ -327,14 +341,40 @@ int spg_get_triplets_reciprocal_mesh_at_q(int weights[],
 					  const int num_rot,
 					  SPGCONST int rotations[][3][3]);
 
-int spg_extract_triplets_reciprocal_mesh_at_q(int triplets_at_q[][3],
-					      int weight_triplets_at_q[],
-					      const int fixed_grid_number,
-					      const int num_triplets,
-					      SPGCONST int triplets[][3],
-					      const int mesh[3],
-					      const int is_time_reversal,
-					      const int num_rot,
-					      SPGCONST int rotations[][3][3]);
+/* Irreducible grid-point-triplets in BZ are stored. */
+/* triplets are recovered from grid_point and triplet_weights. */
+/* BZ boundary is considered in this recovery. Therefore grid addresses */
+/* are given not by grid_address, but by bz_grid_address. */
+/* triplets[num_ir_triplets][3] = number of non-zero triplets weights*/
+/* Number of ir-triplets is returned. */
+int spg_get_BZ_triplets_at_q(int triplets[][3],
+			     const int grid_point,
+			     SPGCONST int bz_grid_address[][3],
+			     const int bz_map[],
+			     const int triplet_weights[],
+			     const int mesh[3]);
 
+void spg_get_neighboring_grid_points(int relative_grid_points[],
+				     const int grid_point,
+				     SPGCONST int relative_grid_address[][3],
+				     const int num_relative_grid_address,
+				     const int mesh[3],
+				     SPGCONST int bz_grid_address[][3],
+				     const int bz_map[]);
+
+void
+spg_get_tetrahedra_relative_grid_address(int relative_grid_address[24][4][3],
+					 SPGCONST double rec_lattice[3][3]);
+double
+spg_get_tetrahedra_integration_weight(const double omega,
+				      SPGCONST double tetrahedra_omegas[24][4],
+				      const char function);
+void
+spg_get_tetrahedra_integration_weight_at_omegas
+(double integration_weights[],
+ const int num_omegas,
+ const double omegas[],
+ SPGCONST double tetrahedra_omegas[24][4],
+ const char function);
 #endif
+
