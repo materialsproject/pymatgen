@@ -427,8 +427,6 @@ class GWConvergenceData():
         for dirs in tree:
             read = self.code_interface.read_convergence_data(dirs[0])
             if read:
-                print dirs[0]
-                print read
                 self.data.update({n: read})
                 n += 1
 
@@ -563,7 +561,6 @@ class GWConvergenceData():
     def get_var_range(self, var):
         var_range = []
         if self.data:
-            print self.data
             for data_point in self.data.values():
                 if data_point[var] not in var_range:
                     var_range.append(data_point[var])
