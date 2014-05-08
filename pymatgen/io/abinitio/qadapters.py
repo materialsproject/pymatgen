@@ -303,7 +303,7 @@ class AbstractQueueAdapter(object):
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
-        subs_dict['job_name'] = job_name 
+        subs_dict['job_name'] = job_name.replace('/','_') 
         subs_dict['_qout_path'] = qout_path
         subs_dict['_qerr_path'] = qerr_path
 
@@ -710,11 +710,12 @@ class SGEAdapter(AbstractQueueAdapter):
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             process.wait()
 
-            # grab the returncode. PBS returns 0 if the job was successful
+            # grab the returncode. SGE returns 0 if the job was successful
             if process.returncode == 0:
                 try:
-                    # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
-                    queue_id = int(process.stdout.read().split('.')[0])
+                    # output should of the form 
+                    # Your job 1659048 ("NAME_OF_JOB") has been submitted 
+                    queue_id = int(process.stdout.read().split(' ')[2])
                     logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
 
                 except:
@@ -740,13 +741,12 @@ class SGEAdapter(AbstractQueueAdapter):
             username = getpass.getuser()
 
         # run qstat
-        qstat = Command(['qstat', '-a', '-u', username])
+        qstat = Command(['qstat', '-u', username])
         process = qstat.run(timeout=5)
 
         # parse the result
         if process[0] == 0:
-            # lines should have this form
-            # '1339044.sdb          username  queuename    2012-02-29-16-43  20460   --   --    --  00:20 C 00:09'
+            # lines should contain username
             # count lines that include the username in it
 
             # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
