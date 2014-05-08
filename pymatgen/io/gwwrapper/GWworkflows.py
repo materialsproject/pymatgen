@@ -294,5 +294,5 @@ class SingleAbinitGWWorkFlow():
     def create_job_file(self):
         job_file = open("job_collection", mode='a')
         job_file.write('nohup abirun.py ' + self.work_dir + ' scheduler > ' + self.work_dir + '.log & \n')
-        job_file.write('sleep 2')
+        job_file.write('sleep 2\n')
         job_file.close()
