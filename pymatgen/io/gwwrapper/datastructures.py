@@ -427,7 +427,7 @@ class GWConvergenceData():
         for dirs in tree:
             print dirs[0]
             print self.code_interface.read_convergence_data(dirs[0])
-            self.data.update(self.code_interface.read_convergence_data(dirs[0]))
+            self.data.update({n: self.code_interface.read_convergence_data(dirs[0])})
             n += 1
 
     def set_type(self):
