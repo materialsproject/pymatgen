@@ -125,6 +125,7 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
             from scipy.optimize import curve_fit
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
+                # todo print this to file via a method in helper, as dict
                 print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+file_name+'"'
                 f = open(file_name, mode='a')
                 for n in range(0, len(ys), 1):
