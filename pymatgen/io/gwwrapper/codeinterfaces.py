@@ -19,13 +19,14 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "May 2014"
 
 import os
+import shutil
 import os.path
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.core.units import Ha_to_eV
-from pymatgen.io.gwwrapper.GWhelpers import is_converged, read_grid_from_file, s_name, expand_tests
+from pymatgen.io.gwwrapper.GWhelpers import is_converged, read_grid_from_file, s_name, expand_tests, store_conv_results
 from pymatgen.io.gwwrapper.GWvaspinputsets import SingleVaspGWWork
 from pymatgen.io.gwwrapper.GWworkflows import VaspGWFWWorkFlow, SingleAbinitGWWorkFlow
 from pymatgen.io.gwwrapper.GWvaspinputsets import GWscDFTPrepVaspInputSet, GWDFTDiagVaspInputSet, \
@@ -104,6 +105,12 @@ class AbstractCodeInterface(object):
         excecute spec prepare input/jobfiles or submit to fw for a given structure
         for vasp the different jobs are created into a flow
         for abinit a flow is created using abinitio
+        """
+
+    @abstractmethod
+    def store_results(self, name):
+        """
+        method to store the final results
         """
 
 
@@ -266,6 +273,12 @@ class VaspInterface(AbstractCodeInterface):
     def get_npar(spec_data, structure):
         return GWG0W0VaspInputSet(structure, spec_data).get_npar(structure)
 
+    def store_results(self, name):
+        folder = name + '.res'
+        store_conv_results(name, folder)
+        #todo copy the final file containing the qp to folder
+        raise NotImplementedError
+
 
 class AbinitInterface(AbstractCodeInterface):
     """
@@ -333,6 +346,11 @@ class AbinitInterface(AbstractCodeInterface):
             flow.build_and_pickle_dump()
             work_flow.create_job_file()
 
+    def store_results(self, name):
+        folder = name + '.res'
+        store_conv_results(name, folder)
+        shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"), folder)
+
 
 class NewCodeInterface(AbstractCodeInterface):
     """
@@ -373,6 +391,12 @@ class NewCodeInterface(AbstractCodeInterface):
         like in abinit
         """
 
+    def store_results(self, name):
+        folder = name + '.res'
+        store_conv_results(name, folder)
+        # copy the final file containing the qp to folder
+
+
 
 CODE_CLASSES = {'VASP': VaspInterface,
                 'ABINIT': AbinitInterface,
@@ -402,3 +426,4 @@ def get_all_ecuteps():
         conv_pars = code().conv_pars
         ecuteps_names.append(conv_pars['ecuteps'])
     return ecuteps_names
+

@@ -12,9 +12,11 @@ __email__ = "mjvansetten@gmail.com"
 __date__ = "May 2014"
 
 import time
+import os
 import ast
 import copy
 import math
+import shutil
 from pymatgen.core.units import Ha_to_eV, eV_to_Ha
 
 
@@ -239,3 +241,13 @@ def is_converged(hartree_parameters, structure, return_values=False):
         return conv_res['values']
     else:
         return converged
+
+
+def store_conv_results(name, folder):
+    print "| Storing results for %s" % name
+    os.mkdir(folder)
+    for data_file in ['conv_res', 'full_res', 'log', 'conv.log', 'str']:
+        try:
+            os.rename(name+'.'+data_file, os.path.join(folder, name+'.'+data_file))
+        except OSError:
+            pass
