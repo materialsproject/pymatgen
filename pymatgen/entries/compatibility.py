@@ -138,8 +138,10 @@ class GasCorrection(Correction):
         name: Name of settings to use. Current valid settings are MP or
             MIT, which is the relevant settings based on the MP or MIT
             VaspInputSets.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
+            corrections are to be applied or not. 
     """
-    def __init__(self, name):
+    def __init__(self, name, correct_peroxide=True):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
@@ -151,6 +153,7 @@ class GasCorrection(Correction):
             k: float(v) for k, v
             in config.items("{}OxideCorrection".format(name))}
         self.name = name
+        self.correct_peroxide = correct_peroxide
 
     def get_correction(self, entry):
         comp = entry.composition
@@ -162,36 +165,39 @@ class GasCorrection(Correction):
 
         correction = 0
         #Check for oxide, peroxide, superoxide, and ozonide corrections.
-        if len(comp) >= 2 and Element("O") in comp:
-            if "oxide_type" in entry.data:
-                if entry.data["oxide_type"] in self.oxide_correction:
-                    ox_corr = self.oxide_correction[
-                        entry.data["oxide_type"]]
-                    correction += ox_corr * comp["O"]
-                if entry.data["oxide_type"] == "hydroxide":
-                    ox_corr = self.oxide_correction["oxide"]
-                    correction += ox_corr * comp["O"]
-
-            elif hasattr(entry, "structure"):
-                ox_type, nbonds = oxide_type(entry.structure, 1.05,
-                                             return_nbonds=True)
-                if ox_type in self.oxide_correction:
-                    correction += self.oxide_correction[ox_type] * \
-                        nbonds
-                elif ox_type == "hydroxide":
-                    correction += self.oxide_correction["oxide"] * comp["O"]
-            else:
-                if rform in UCorrection.common_peroxides:
-                    correction += self.oxide_correction["peroxide"] * \
-                        comp["O"]
-                elif rform in UCorrection.common_superoxides:
-                    correction += self.oxide_correction["superoxide"] * \
-                        comp["O"]
-                elif rform in UCorrection.ozonides:
-                    correction += self.oxide_correction["ozonide"] * \
-                        comp["O"]
-                elif Element("O") in comp.elements and len(comp.elements) > 1:
-                    correction += self.oxide_correction['oxide'] * comp["O"]
+        if self.correct_peroxide:
+            if len(comp) >= 2 and Element("O") in comp:
+                if "oxide_type" in entry.data:
+                    if entry.data["oxide_type"] in self.oxide_correction:
+                        ox_corr = self.oxide_correction[
+                            entry.data["oxide_type"]]
+                        correction += ox_corr * comp["O"]
+                    if entry.data["oxide_type"] == "hydroxide":
+                        ox_corr = self.oxide_correction["oxide"]
+                        correction += ox_corr * comp["O"]
+    
+                elif hasattr(entry, "structure"):
+                    ox_type, nbonds = oxide_type(entry.structure, 1.05,
+                                                 return_nbonds=True)
+                    if ox_type in self.oxide_correction:
+                        correction += self.oxide_correction[ox_type] * \
+                            nbonds
+                    elif ox_type == "hydroxide":
+                        correction += self.oxide_correction["oxide"] * comp["O"]
+                else:
+                    if rform in UCorrection.common_peroxides:
+                        correction += self.oxide_correction["peroxide"] * \
+                            comp["O"]
+                    elif rform in UCorrection.common_superoxides:
+                        correction += self.oxide_correction["superoxide"] * \
+                            comp["O"]
+                    elif rform in UCorrection.ozonides:
+                        correction += self.oxide_correction["ozonide"] * \
+                            comp["O"]
+                    elif Element("O") in comp.elements and len(comp.elements) > 1:
+                        correction += self.oxide_correction['oxide'] * comp["O"]
+        else:
+            correction += self.oxide_correction['oxide'] * comp["O"]
 
         return correction
 
@@ -408,12 +414,14 @@ class MaterialsProjectCompatibility(Compatibility):
             equivalent GGA entries excluded. For example, Fe oxides should
             have a U value under the Advanced scheme. A GGA Fe oxide run
             will therefore be excluded under the scheme.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
+            corrections are to be applied or not. 
     """
 
-    def __init__(self, compat_type="Advanced"):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True):
         name = "MP"
         Compatibility.__init__(
-            self, [PotcarCorrection(name), GasCorrection(name),
+            self, [PotcarCorrection(name), GasCorrection(name, correct_peroxide=correct_peroxide),
                    UCorrection(name, compat_type)])
 
 
@@ -432,10 +440,12 @@ class MITCompatibility(Compatibility):
             equivalent GGA entries excluded. For example, Fe oxides should
             have a U value under the Advanced scheme. A GGA Fe oxide run
             will therefore be excluded under the scheme.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
+            corrections are to be applied or not. 
     """
 
-    def __init__(self, compat_type="Advanced"):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True):
         name = "MIT"
         Compatibility.__init__(
-            self, [PotcarCorrection(name), GasCorrection(name),
+            self, [PotcarCorrection(name), GasCorrection(name, correct_peroxide=correct_peroxide),
                    UCorrection(name, compat_type)])
