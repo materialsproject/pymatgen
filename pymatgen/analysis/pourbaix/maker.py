@@ -139,7 +139,9 @@ class PourbaixDiagram(object):
                 dict_of_non_oh = dict(zip([key for key in entry.composition.keys() if key.symbol not in ["O", "H"]],
                                            [entry.composition[key] for key in [key for key in entry.composition.keys() if key.symbol not in ["O", "H"]]]))
                 if Composition(dict(zip(self._elt_comp.keys(), [self._elt_comp[key] / min([self._elt_comp[key] for key in self._elt_comp.keys()])
-                                                                 for key in self._elt_comp.keys()]))).reduced_formula == Composition(dict_of_non_oh).reduced_formula:
+                                                                 for key in self._elt_comp.keys()]))).reduced_formula ==\
+                        Composition(dict(zip(dict_of_non_oh.keys(), [dict_of_non_oh[el] / min([dict_of_non_oh[key] for key in dict_of_non_oh.keys()])
+                                                                     for el in dict_of_non_oh.keys()]))).reduced_formula:                                                                     
                     processed_entries.append(MultiEntry([entry], [1.0]))
                 continue
 
