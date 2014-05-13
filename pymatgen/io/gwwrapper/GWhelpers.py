@@ -33,7 +33,7 @@ def now():
 
 
 def s_name(structure):
-    name_ = str(structure.composition.reduced_formula) + '_' + str(structure.item)
+    name_ = str(structure.composition.reduced_formula) # + '_' + str(structure.item)
     return name_
 
 
@@ -250,7 +250,7 @@ def is_converged(hartree_parameters, structure, return_values=False):
 def store_conv_results(name, folder):
     print "| Storing results for %s" % name
     os.mkdir(folder)
-    for data_file in ['conv_res', 'full_res', 'log', 'conv.log', 'str']:
+    for data_file in ['conv_res', 'full_res', 'log', 'conv.log', 'str', 'fitdat', 'convdat']:
         try:
             os.rename(name+'.'+data_file, os.path.join(folder, name+'.'+data_file))
         except OSError:
