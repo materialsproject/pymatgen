@@ -328,9 +328,9 @@ class SingleVaspGWWork():
         if self.spec['converge'] and self.converged:
             path_add = '.conv'
         if self.option is None:
-            path = self.structure.composition.reduced_formula
+            path = s_name(self.structure)
         else:
-            path = os.path.join(self.structure.composition.reduced_formula + path_add,
+            path = os.path.join(s_name(self.structure) + path_add,
                                 str(self.option['test_prep'])+str(self.option['value_prep']))
             if 'test' in self.option.keys():
                 option_name = '.'+str(self.option['test'])+str(self.option['value'])

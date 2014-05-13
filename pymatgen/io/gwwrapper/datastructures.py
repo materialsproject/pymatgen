@@ -21,12 +21,13 @@ import pymatgen as pmg
 import pymongo
 
 from abc import abstractproperty, abstractmethod, ABCMeta
-from pymatgen.io.vaspio.vasp_input import Poscar
-from pymatgen.matproj.rest import MPRester
+from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
+from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.io.gwwrapper.GWhelpers import test_conv, print_gnuplot_header, s_name
+from pymatgen.io.gwwrapper.GWhelpers import test_conv, print_gnuplot_header, s_name, add_gg_gap
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
+from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -132,20 +133,22 @@ class AbstractAbinitioSpec(object):
             files = os.listdir('.')
             items_list = files
         elif self.data['source'] == 'mar_exp':
+            items_list = []
             local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
             local_db_gaps = local_serv.band_gaps
             pwd = os.environ['MAR_PAS']
             local_db_gaps.authenticate("setten", pwd)
-            print local_db_gaps.exp.find()[0]
             for c in local_db_gaps.exp.find():
                 print Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'], c['MP_id']
-            exit()
+                items_list.append('mp-' + c['MP_id'])
         else:
             items_list = [line.strip() for line in open(self.data['source'])]
 
         for item in items_list:
+            print '\n'
             if item.startswith('POSCAR_'):
                 structure = pmg.read_structure(item)
+                structure.item = item
                 comment = Poscar.from_file(item).comment
                 # print comment
                 if comment.startswith("gap"):
@@ -155,21 +158,35 @@ class AbstractAbinitioSpec(object):
                     structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
                 else:
                     # print "no bandstructure information available, adding GG as 'gap'"
-                    structure.vbm_l = "G"
-                    structure.cbm_l = "G"
-                    structure.cbm = (0.0, 0.0, 0.0)
-                    structure.vbm = (0.0, 0.0, 0.0)
+                    structure = add_gg_gap(structure)
             elif item.startswith('mp-'):
                 with MPRester(mp_key) as mp_database:
-                    structure = mp_database.get_structure_by_material_id(item, final=True)
-                    bandstructure = mp_database.get_bandstructure_by_material_id(item)
-                    structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
-                    structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
-                    structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
-                    structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
+                    if self.data['source'].startswith('mp-'):
+                        print 'structure from mp database', item
+                        structure = mp_database.get_structure_by_material_id(item, final=True)
+                        structure.item = item
+                    elif self.data['source'] == 'mar_exp':
+                        print 'structure from marilyn', item, item[3:]
+                        exp = local_db_gaps.exp.find({'MP_id': item[3:]})[0]
+                        structure = Structure.from_dict(exp['icsd_data']['structure'])
+                        #print structure
+                        remove_ox = OxidationStateRemovalTransformation()
+                        structure = remove_ox.apply_transformation(structure)
+                        structure.item = item
+                    try:
+                        bandstructure = mp_database.get_bandstructure_by_material_id(item)
+                        structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
+                        structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
+                        structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
+                        structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
+                    except (MPRestError, IndexError, KeyError) as err:
+                        print err.message
+                        structure = add_gg_gap(structure)
+                        pass
+
             else:
                 continue
-            print "\n", item, s_name(structure)
+            print item, s_name(structure)
             if mode == 'i':
                 self.excecute_flow(structure)
             elif mode == 'o':
@@ -505,7 +522,7 @@ class GWConvergenceData():
                     zs.append(zd[x][y])
                 except KeyError:
                     pass
-            conv_data = test_conv(ys, zs, tol, file_name=self.name+'condat')
+            conv_data = test_conv(ys, zs, name=self.name+'fitdat', tol=tol, file_name=self.name+'condat')
             extrapolated.append(conv_data[4])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
@@ -516,7 +533,7 @@ class GWConvergenceData():
                 y_conv.append(None)
                 z_conv.append(None)
         if ecuteps_l:
-            conv_data = test_conv(xs, z_conv, tol, file_name=self.name+'condat')
+            conv_data = test_conv(xs, z_conv, name=self.name+'fitdat', tol=tol, file_name=self.name+'condat')
             if conv_data[0]:
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
@@ -527,7 +544,7 @@ class GWConvergenceData():
         self.conv_res['control'].update({'ecuteps': ecuteps_l, 'nbands': nbands_l})
         self.conv_res.update({'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
                               'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}})
-        return test_conv(xs, extrapolated, -1, file_name=self.name+'condat')
+        return test_conv(xs, extrapolated, name=self.name+'fitdat', tol=-1, file_name=self.name+'condat')
 
     def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
         """

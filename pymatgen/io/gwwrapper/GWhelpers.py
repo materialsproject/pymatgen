@@ -33,7 +33,7 @@ def now():
 
 
 def s_name(structure):
-    name_ = structure.composition.reduced_formula
+    name_ = str(structure.composition.reduced_formula) + '_' + str(structure.item)
     return name_
 
 
@@ -109,7 +109,7 @@ def p0reci(xs, ys):
     return [a0, b0, 1]
 
 
-def test_conv(xs, ys, tol=0.0001, file_name='data'):
+def test_conv(xs, ys, name, tol=0.0001, file_name='data'):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -126,6 +126,9 @@ def test_conv(xs, ys, tol=0.0001, file_name='data'):
             if None not in ys:
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
                 # todo print this to file via a method in helper, as dict
+                f = open(name, mode='a')
+                f.write(str(popt) + '\n' + str(pcov) + '\n')
+                f.close()
                 print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+file_name+'"'
                 f = open(file_name, mode='a')
                 for n in range(0, len(ys), 1):
@@ -252,3 +255,11 @@ def store_conv_results(name, folder):
             os.rename(name+'.'+data_file, os.path.join(folder, name+'.'+data_file))
         except OSError:
             pass
+
+
+def add_gg_gap(structure):
+    structure.vbm_l = "G"
+    structure.cbm_l = "G"
+    structure.cbm = (0.0, 0.0, 0.0)
+    structure.vbm = (0.0, 0.0, 0.0)
+    return structure
