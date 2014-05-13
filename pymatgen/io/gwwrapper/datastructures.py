@@ -18,6 +18,7 @@ import stat
 import os.path
 import ast
 import pymatgen as pmg
+import pymongo
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar
@@ -25,6 +26,7 @@ from pymatgen.matproj.rest import MPRester
 from pymatgen.serializers.json_coders import MSONable
 from pymatgen.io.gwwrapper.GWhelpers import test_conv, print_gnuplot_header, s_name
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
+from pymatgen.core.structure import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -129,6 +131,15 @@ class AbstractAbinitioSpec(object):
         elif self.data['source'] == 'poscar':
             files = os.listdir('.')
             items_list = files
+        elif self.data['source'] == 'mar_exp':
+            local_serv = pymongo.Connection("marilyn.pcpm.ucl.ac.be")
+            local_db_gaps = local_serv.band_gaps
+            pwd = os.environ['MAR_PAS']
+            local_db_gaps.authenticate("setten", pwd)
+            print local_db_gaps.exp.find()[0]
+            for c in local_db_gaps.exp.find():
+                print Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'], c['MP_id']
+            exit()
         else:
             items_list = [line.strip() for line in open(self.data['source'])]
 
@@ -311,6 +322,9 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                 if data.type['parm_scr']:
                     data.read()
                     # determine the parameters that give converged results
+                    if len(data.data) == 0:
+                        print '| parm_scr type calculation but no data found.'
+                        break
                     extrapolated = data.find_conv_pars(self['tol'])
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     if data.conv_res['control']['nbands']:
