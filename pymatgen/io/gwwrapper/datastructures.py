@@ -522,7 +522,7 @@ class GWConvergenceData():
                     zs.append(zd[x][y])
                 except KeyError:
                     pass
-            conv_data = test_conv(ys, zs, name=self.name+'fitdat', tol=tol, file_name=self.name+'condat')
+            conv_data = test_conv(ys, zs, name=self.name, tol=tol,)
             extrapolated.append(conv_data[4])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
@@ -533,7 +533,7 @@ class GWConvergenceData():
                 y_conv.append(None)
                 z_conv.append(None)
         if ecuteps_l:
-            conv_data = test_conv(xs, z_conv, name=self.name+'fitdat', tol=tol, file_name=self.name+'condat')
+            conv_data = test_conv(xs, z_conv, name=self.name, tol=tol)
             if conv_data[0]:
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
@@ -544,7 +544,7 @@ class GWConvergenceData():
         self.conv_res['control'].update({'ecuteps': ecuteps_l, 'nbands': nbands_l})
         self.conv_res.update({'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
                               'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}})
-        return test_conv(xs, extrapolated, name=self.name+'fitdat', tol=-1, file_name=self.name+'condat')
+        return test_conv(xs, extrapolated, name=self.name, tol=-1)
 
     def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
         """
