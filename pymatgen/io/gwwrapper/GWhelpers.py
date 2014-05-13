@@ -176,7 +176,7 @@ def expand_tests(tests, level):
             else:
                 print 'new nb wedge'
                 # odd level of grid extension > new nb wedge
-                extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + int((level - 1) / 2) * ec_step, ec_step))
+                extension = tuple(range(ec_range[-1] + ec_step, ec_range[-1] + (1 + int((level - 1) / 2)) * ec_step, ec_step))
                 new_ec_range = ec_range + extension
             new_tests[ec].update({'test_range': new_ec_range})
         if test in get_all_nbands():
@@ -186,7 +186,7 @@ def expand_tests(tests, level):
             print nb_step
             if int(level / 2) == level / 2:
                 # even level of grid extension > new ec wedge
-                extension = tuple(range(nb_range[-1] + nb_step, nb_range[-1] + int(level / 2) * nb_step, nb_step))
+                extension = tuple(range(nb_range[-1] + nb_step, nb_range[-1] + (1 + int(level / 2)) * nb_step, nb_step))
                 new_nb_range = nb_range + extension
             else:
                 # odd level of grid extension > new nb wedge
