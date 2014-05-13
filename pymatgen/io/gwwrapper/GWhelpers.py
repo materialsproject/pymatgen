@@ -127,7 +127,13 @@ def test_conv(xs, ys, name, tol=0.0001):
                 popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
-                f.write(str(popt) + '\n' + str(pcov) + '\n')
+                f.write('{')
+                f.write('"popt": ' + str(popt) + ',')
+                f.write('"pcov": ' + str(pcov) + ',')
+                f.write('data: [')
+                for n in range(0, len(ys), 1):
+                    f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
+                f.write(']}\n')
                 f.close()
                 print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
                 f = open(name+'.convdat', mode='a')
