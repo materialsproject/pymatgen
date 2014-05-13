@@ -146,7 +146,7 @@ class SingleAbinitGWWorkFlow():
             path_add = '.conv'
         else:
             path_add = ''
-        self.work_dir = self.structure.composition.reduced_formula+path_add
+        self.work_dir = s_name(self.structure)+path_add
         abi_pseudo = os.environ['ABINIT_PS_EXT']
         abi_pseudo_dir = os.environ['ABINIT_PS']
         pseudos = []
@@ -188,7 +188,7 @@ class SingleAbinitGWWorkFlow():
         return int(bands)
 
     def get_work_dir(self):
-            name = self.structure.composition.reduced_formula
+            name = s_name(self.structure)
             if self.option is not None:
                 return str(name)+'_'+str(self.option['test'])+'_'+str(self.option['value'])
             else:
