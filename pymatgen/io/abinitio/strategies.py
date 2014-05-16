@@ -427,7 +427,7 @@ class RelaxStrategy(ScfStrategy):
 
     @property
     def runlevel(self):
-        return "scf"
+        return "relax"
 
     def make_input(self):
         # Input for the GS run
