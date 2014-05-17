@@ -292,8 +292,8 @@ class Electrons(AbivarAble):
         self.algorithm = algorithm
 
         # FIXME
-        if nband is None:
-            self.fband = 4
+        #if nband is None:
+        #    self.fband = 4
 
     @property
     def nsppol(self):
