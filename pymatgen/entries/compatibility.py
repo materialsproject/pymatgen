@@ -26,6 +26,18 @@ from pymatgen.analysis.structure_analyzer import oxide_type
 import abc
 
 
+class CompatibilityError(Exception):
+    """
+    Exception class for Compatibility. Raised by attempting correction
+    on incompatible calculation
+    """
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+
 class Correction(object):
     """
     A Correction class is a pre-defined scheme for correction a computed
@@ -44,8 +56,10 @@ class Correction(object):
             entry: A ComputedEntry object.
 
         Returns:
-            The energy correction ot be applied. None if the entry is
-            incompatible.
+            The energy correction to be applied.
+
+        Raises:
+            CompatibilityError if entry is not compatible.
         """
         return
 
@@ -57,14 +71,13 @@ class Correction(object):
             entry: A ComputedEntry object.
 
         Returns:
-            An processed entry. None if entry is not compatible within the
-            processing scheme.
+            An processed entry.
+
+        Raises:
+            CompatibilityError if entry is not compatible.
         """
-        c = self.get_correction(entry)
-        if c is not None:
-            entry.correction += c
-            return entry
-        return None
+        entry.correction += self.get_correction(entry)
+        return entry
 
 
 class PotcarCorrection(Correction):
@@ -86,6 +99,7 @@ class PotcarCorrection(Correction):
 
     Raises:
         ValueError if entry do not contain "potcar_symbols" key.
+        CombatibilityError if wrong potcar symbols
     """
     def __init__(self, name):
         if name == "MP":
@@ -108,7 +122,7 @@ class PotcarCorrection(Correction):
                 "PotcarCorrection can only be checked for entries with a "
                 "\"potcar_symbols\" in entry.parameters")
         if not self.valid_potcars.issuperset(psp_settings):
-            return None
+            raise CompatibilityError('Incompatible potcar')
         return 0
 
     def __str__(self):
@@ -124,8 +138,10 @@ class GasCorrection(Correction):
         name: Name of settings to use. Current valid settings are MP or
             MIT, which is the relevant settings based on the MP or MIT
             VaspInputSets.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
+            corrections are to be applied or not. 
     """
-    def __init__(self, name):
+    def __init__(self, name, correct_peroxide=True):
         module_dir = os.path.dirname(os.path.abspath(__file__))
         config = ConfigParser.SafeConfigParser()
         config.optionxform = str
@@ -137,6 +153,7 @@ class GasCorrection(Correction):
             k: float(v) for k, v
             in config.items("{}OxideCorrection".format(name))}
         self.name = name
+        self.correct_peroxide = correct_peroxide
 
     def get_correction(self, entry):
         comp = entry.composition
@@ -148,36 +165,39 @@ class GasCorrection(Correction):
 
         correction = 0
         #Check for oxide, peroxide, superoxide, and ozonide corrections.
-        if len(comp) >= 2 and Element("O") in comp:
-            if "oxide_type" in entry.data:
-                if entry.data["oxide_type"] in self.oxide_correction:
-                    ox_corr = self.oxide_correction[
-                        entry.data["oxide_type"]]
-                    correction += ox_corr * comp["O"]
-                if entry.data["oxide_type"] == "hydroxide":
-                    ox_corr = self.oxide_correction["oxide"]
-                    correction += ox_corr * comp["O"]
-
-            elif hasattr(entry, "structure"):
-                ox_type, nbonds = oxide_type(entry.structure, 1.05,
-                                             return_nbonds=True)
-                if ox_type in self.oxide_correction:
-                    correction += self.oxide_correction[ox_type] * \
-                        nbonds
-                elif ox_type == "hydroxide":
-                    correction += self.oxide_correction["oxide"] * comp["O"]
-            else:
-                if rform in UCorrection.common_peroxides:
-                    correction += self.oxide_correction["peroxide"] * \
-                        comp["O"]
-                elif rform in UCorrection.common_superoxides:
-                    correction += self.oxide_correction["superoxide"] * \
-                        comp["O"]
-                elif rform in UCorrection.ozonides:
-                    correction += self.oxide_correction["ozonide"] * \
-                        comp["O"]
-                elif Element("O") in comp.elements and len(comp.elements) > 1:
-                    correction += self.oxide_correction['oxide'] * comp["O"]
+        if self.correct_peroxide:
+            if len(comp) >= 2 and Element("O") in comp:
+                if "oxide_type" in entry.data:
+                    if entry.data["oxide_type"] in self.oxide_correction:
+                        ox_corr = self.oxide_correction[
+                            entry.data["oxide_type"]]
+                        correction += ox_corr * comp["O"]
+                    if entry.data["oxide_type"] == "hydroxide":
+                        ox_corr = self.oxide_correction["oxide"]
+                        correction += ox_corr * comp["O"]
+    
+                elif hasattr(entry, "structure"):
+                    ox_type, nbonds = oxide_type(entry.structure, 1.05,
+                                                 return_nbonds=True)
+                    if ox_type in self.oxide_correction:
+                        correction += self.oxide_correction[ox_type] * \
+                            nbonds
+                    elif ox_type == "hydroxide":
+                        correction += self.oxide_correction["oxide"] * comp["O"]
+                else:
+                    if rform in UCorrection.common_peroxides:
+                        correction += self.oxide_correction["peroxide"] * \
+                            comp["O"]
+                    elif rform in UCorrection.common_superoxides:
+                        correction += self.oxide_correction["superoxide"] * \
+                            comp["O"]
+                    elif rform in UCorrection.ozonides:
+                        correction += self.oxide_correction["ozonide"] * \
+                            comp["O"]
+                    elif Element("O") in comp.elements and len(comp.elements) > 1:
+                        correction += self.oxide_correction['oxide'] * comp["O"]
+        else:
+            correction += self.oxide_correction['oxide'] * comp["O"]
 
         return correction
 
@@ -285,7 +305,7 @@ class UCorrection(Correction):
 
     def get_correction(self, entry):
         if entry.parameters.get("run_type", "GGA") == "HF":
-            return None
+            raise CompatibilityError('Invalid run type')
 
         calc_u = entry.parameters.get("hubbards", None)
         calc_u = defaultdict(int) if calc_u is None else calc_u
@@ -303,7 +323,7 @@ class UCorrection(Correction):
             sym = el.symbol
             #Check for bad U values
             if calc_u.get(sym, 0) != usettings.get(sym, 0):
-                return None
+                raise CompatibilityError('Invalid U value on {}'.format(sym))
             if sym in ucorr:
                 correction += float(ucorr[sym]) * comp[el]
 
@@ -340,8 +360,9 @@ class Compatibility(object):
             An adjusted entry if entry is compatible, otherwise None is
             returned.
         """
-        corrections = self.get_corrections_dict(entry)
-        if corrections is None:
+        try:
+            corrections = self.get_corrections_dict(entry)
+        except CompatibilityError:
             return None
         entry.correction = sum(corrections.values())
         return entry
@@ -359,9 +380,7 @@ class Compatibility(object):
         corrections = {}
         for c in self.corrections:
             val = c.get_correction(entry)
-            if val is None:
-                return None
-            elif val != 0:
+            if val != 0:
                 corrections[str(c)] = val
         return corrections
 
@@ -395,12 +414,14 @@ class MaterialsProjectCompatibility(Compatibility):
             equivalent GGA entries excluded. For example, Fe oxides should
             have a U value under the Advanced scheme. A GGA Fe oxide run
             will therefore be excluded under the scheme.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
+            corrections are to be applied or not. 
     """
 
-    def __init__(self, compat_type="Advanced"):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True):
         name = "MP"
         Compatibility.__init__(
-            self, [PotcarCorrection(name), GasCorrection(name),
+            self, [PotcarCorrection(name), GasCorrection(name, correct_peroxide=correct_peroxide),
                    UCorrection(name, compat_type)])
 
 
@@ -419,10 +440,12 @@ class MITCompatibility(Compatibility):
             equivalent GGA entries excluded. For example, Fe oxides should
             have a U value under the Advanced scheme. A GGA Fe oxide run
             will therefore be excluded under the scheme.
+        correct_peroxide: Specify whether peroxide/superoxide/ozonide 
+            corrections are to be applied or not. 
     """
 
-    def __init__(self, compat_type="Advanced"):
+    def __init__(self, compat_type="Advanced", correct_peroxide=True):
         name = "MIT"
         Compatibility.__init__(
-            self, [PotcarCorrection(name), GasCorrection(name),
+            self, [PotcarCorrection(name), GasCorrection(name, correct_peroxide=correct_peroxide),
                    UCorrection(name, compat_type)])

@@ -71,8 +71,12 @@ class SymmetryFinder(object):
         #pymatgen version.
         self._transposed_latt = structure.lattice.matrix.transpose()
         #Spglib requires numpy floats.
-        self._transposed_latt = self._transposed_latt.astype(float)
-        self._positions = np.array([site.frac_coords for site in structure])
+        self._transposed_latt = np.array(
+            self._transposed_latt, dtype='double', order='C')
+        self._positions = np.array(
+            [site.frac_coords for site in structure], dtype='double',
+            order='C'
+        )
         unique_species = []
         zs = []
 
@@ -85,7 +89,7 @@ class SymmetryFinder(object):
                 unique_species.append(species)
                 zs.extend([len(unique_species)] * len(tuple(g)))
         self._unique_species = unique_species
-        self._numbers = np.array(zs)
+        self._numbers = np.array(zs, dtype='intc')
         self._spacegroup_data = spg.spacegroup(
             self._transposed_latt.copy(), self._positions.copy(),
             self._numbers, self._symprec, self._angle_tol)
@@ -242,8 +246,8 @@ class SymmetryFinder(object):
         # Get number of symmetry operations and allocate symmetry operations
         # multi = spg.multiplicity(cell, positions, numbers, symprec)
         multi = 48 * self._structure.num_sites
-        rotation = np.zeros((multi, 3, 3), dtype=int)
-        translation = np.zeros((multi, 3))
+        rotation = np.zeros((multi, 3, 3), dtype='intc')
+        translation = np.zeros((multi, 3), dtype='double')
 
         num_sym = spg.symmetry(rotation, translation,
                                self._transposed_latt.copy(),
@@ -323,13 +327,18 @@ class SymmetryFinder(object):
         # Atomic positions have to be specified by scaled positions for spglib.
         num_atom = self._structure.num_sites
         lattice = self._transposed_latt.copy()
-        pos = np.zeros((num_atom * 4, 3), dtype=float)
+        pos = np.zeros((num_atom * 4, 3), dtype='double')
         pos[:num_atom] = self._positions.copy()
 
-        numbers = np.zeros(num_atom * 4, dtype=int)
-        numbers[:num_atom] = self._numbers.copy()
-        num_atom_bravais = spg.refine_cell(
-            lattice, pos, numbers, num_atom, self._symprec, self._angle_tol)
+        numbers = np.zeros(num_atom * 4, dtype='intc')
+        numbers[:num_atom] = np.array(self._numbers, dtype='intc')
+        num_atom_bravais = spg.refine_cell(lattice,
+                                           pos,
+                                           numbers,
+                                           num_atom,
+                                           self._symprec,
+                                           self._angle_tol)
+
         zs = numbers[:num_atom_bravais]
         species = [self._unique_species[i - 1] for i in zs]
         s = Structure(lattice.T.copy(),
@@ -365,55 +374,6 @@ class SymmetryFinder(object):
             #structure.
             return self._structure.get_reduced_structure()
 
-    def get_ir_kpoints_mapping(self, kpoints, is_time_reversal=True):
-        """
-        Irreducible k-points are searched from the input kpoints. The result is
-        returned as a map of numbers. The array index of map corresponds to the
-        reducible k-point numbering. After finding irreducible k-points, the
-        indices of the irreducible k-points are mapped to the elements of map,
-        i.e., number of unique values in map is the number of the irreducible
-        k-points.
-
-        Args:
-            kpoints (Nx3 array): Input kpoints.
-            is_time_reversal (bool): Set to True to impose time reversal
-                symmetry.
-
-        Returns:
-            Numbering of reducible kpoints. Equivalent kpoints will have the
-            same number. The number of unique values is the number of the
-            irreducible kpoints.
-        """
-        npkpoints = np.array(kpoints)
-        mapping = np.zeros(npkpoints.shape[0], dtype=int)
-        positions = self._positions.copy()
-        lattice = self._transposed_latt.copy()
-        numbers = self._numbers.copy()
-        spg.ir_kpoints(mapping, npkpoints, lattice, positions, numbers,
-                       is_time_reversal * 1, self._symprec)
-        return mapping
-
-    def get_ir_kpoints(self, kpoints, is_time_reversal=True):
-        """
-        Irreducible k-points are searched from the input kpoints.
-
-        Args:
-            kpoints (Nx3 array): Input kpoints.
-            is_time_reversal (bool): Set to True to impose time reversal
-                symmetry.
-
-        Returns:
-            A set of irreducible kpoints.
-        """
-        mapping = self.get_ir_kpoints_mapping(kpoints, is_time_reversal)
-        irr_kpts = []
-        n = []
-        for i, kpts in enumerate(kpoints):
-            if mapping[i] not in n:
-                irr_kpts.append(kpts)
-                n.append(i)
-        return irr_kpts
-
     def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), shift=(0, 0, 0),
                                is_time_reversal=True):
         """
@@ -434,18 +394,23 @@ class SymmetryFinder(object):
             tuples [(ir_kpoint, weight)], with ir_kpoint given
             in fractional coordinates
         """
+        mapping = np.zeros(np.prod(mesh), dtype='intc')
+        mesh_points = np.zeros((np.prod(mesh), 3), dtype='intc')
+        spg.ir_reciprocal_mesh(
+            mesh_points,
+            mapping,
+            np.array(mesh, dtype='intc'),
+            np.array(shift, dtype='intc'),
+            is_time_reversal * 1,
+            self._transposed_latt,
+            self._positions,
+            self._numbers,
+            self._symprec)
+
         results = []
-        intmap = np.zeros(np.prod(mesh), dtype=int)
-        grid = np.zeros((np.prod(mesh), 3), dtype=int)
-        positions = self._positions.copy()
-        lattice = self._transposed_latt.copy()
-        numbers = self._numbers.copy()
-        spg.ir_reciprocal_mesh(grid, intmap, np.array(mesh), np.array(shift),
-                               is_time_reversal * 1, lattice, positions,
-                               numbers, self._symprec)
-        tmp_map = list(intmap)
-        for i in np.unique(intmap):
-            results.append((grid[i]/mesh, tmp_map.count(i)))
+        tmp_map = list(mapping)
+        for i in np.unique(mapping):
+            results.append((mesh_points[i] / mesh, tmp_map.count(i)))
         return results
 
     def get_primitive_standard_structure(self):
@@ -784,7 +749,8 @@ class SymmetryFinder(object):
 
         new_coords = np.dot(transf, np.transpose(struct.frac_coords)).T
         new_struct = Structure(latt, struct.species_and_occu, new_coords,
-                               site_properties=struct.site_properties,to_unit_cell=True)
+                               site_properties=struct.site_properties,
+                               to_unit_cell=True)
         return new_struct.get_sorted_structure()
 
 
@@ -830,6 +796,4 @@ def get_point_group(rotations):
     31  "-43m "
     32  "m-3m "
     """
-    # Convert to Python int compatible
-    rotations = np.int_(rotations)
-    return spg.pointgroup(rotations)
+    return spg.pointgroup(np.array(rotations, dtype='intc', order='C'))
