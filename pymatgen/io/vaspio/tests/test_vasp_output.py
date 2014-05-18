@@ -122,6 +122,12 @@ class VasprunTest(unittest.TestCase):
         vasprun_unconverged = Vasprun(filepath)
         self.assertFalse(vasprun_unconverged.converged)
 
+        filepath = os.path.join(test_dir, 'vasprun.xml.dfpt')
+        vasprun_dfpt = Vasprun(filepath)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+
     def test_to_dict(self):
         filepath = os.path.join(test_dir, 'vasprun.xml')
         vasprun = Vasprun(filepath)
