@@ -85,9 +85,9 @@ int mat_check_identity_matrix_i3(SPGCONST int a[3][3],
   }
 }
 
-int mat_check_identity_matrix_d3( SPGCONST double a[3][3],
-				  SPGCONST double b[3][3],
-				  const double symprec )
+int mat_check_identity_matrix_d3(SPGCONST double a[3][3],
+				 SPGCONST double b[3][3],
+				 const double symprec)
 {
   if ( mat_Dabs( a[0][0] - b[0][0] ) > symprec ||
        mat_Dabs( a[0][1] - b[0][1] ) > symprec ||
@@ -105,9 +105,9 @@ int mat_check_identity_matrix_d3( SPGCONST double a[3][3],
   }
 }
 
-int mat_check_identity_matrix_id3( SPGCONST int a[3][3],
-				   SPGCONST double b[3][3],
-				   const double symprec )
+int mat_check_identity_matrix_id3(SPGCONST int a[3][3],
+				  SPGCONST double b[3][3],
+				  const double symprec)
 {
   if ( mat_Dabs( a[0][0] - b[0][0] ) > symprec ||
        mat_Dabs( a[0][1] - b[0][1] ) > symprec ||
@@ -171,9 +171,9 @@ void mat_multiply_matrix_di3(double m[3][3],
   mat_copy_matrix_d3(m, c);
 }
 
-void mat_multiply_matrix_id3( double m[3][3],
-			      SPGCONST int a[3][3],
-			      SPGCONST double b[3][3])
+void mat_multiply_matrix_id3(double m[3][3],
+			     SPGCONST int a[3][3],
+			     SPGCONST double b[3][3])
 {
   int i, j;                   /* a_ij */
   double c[3][3];
@@ -222,9 +222,21 @@ void mat_multiply_matrix_vector_id3(double v[3],
     v[i] = c[i];
 }
 
-void mat_add_matrix_i3( int m[3][3],
-			SPGCONST int a[3][3],
-			SPGCONST int b[3][3] )
+void mat_multiply_matrix_vector_di3(double v[3],
+				    SPGCONST double a[3][3],
+				    const int b[3])
+{
+  int i;
+  double c[3];
+  for (i = 0; i < 3; i++)
+    c[i] = a[i][0] * b[0] + a[i][1] * b[1] + a[i][2] * b[2];
+  for (i = 0; i < 3; i++)
+    v[i] = c[i];
+}
+
+void mat_add_matrix_i3(int m[3][3],
+		       SPGCONST int a[3][3],
+		       SPGCONST int b[3][3])
 {
   int i, j;
   for ( i = 0; i < 3; i++ ) {
@@ -269,7 +281,7 @@ void mat_cast_matrix_3d_to_3i(int m[3][3], SPGCONST double a[3][3])
 /* }} */
 int mat_inverse_matrix_d3(double m[3][3],
 			  SPGCONST double a[3][3],
-			  SPGCONST double precision)
+			  const double precision)
 {
   double det;
   double c[3][3];
@@ -340,20 +352,20 @@ void mat_transpose_matrix_i3(int a[3][3], SPGCONST int b[3][3])
   mat_copy_matrix_i3(a, c);
 }
 
-void mat_get_metric( double metric[3][3],
-		     SPGCONST double lattice[3][3])
+void mat_get_metric(double metric[3][3],
+		    SPGCONST double lattice[3][3])
 {
   double lattice_t[3][3];
   mat_transpose_matrix_d3(lattice_t, lattice);
   mat_multiply_matrix_d3(metric, lattice_t, lattice);
 }
 
-double mat_norm_squared_d3( const double a[3] )
+double mat_norm_squared_d3(const double a[3])
 {
   return a[0]*a[0]+a[1]*a[1]+a[2]*a[2];
 }
 
-int mat_norm_squared_i3( const int a[3] )
+int mat_norm_squared_i3(const int a[3])
 {
   return a[0]*a[0]+a[1]*a[1]+a[2]*a[2];
 }
@@ -398,7 +410,7 @@ MatINT * mat_alloc_MatINT(const int size)
   return matint;
 }
 
-void mat_free_MatINT( MatINT * matint )
+void mat_free_MatINT(MatINT * matint)
 {
   if ( matint->size > 0 ) {
     free( matint->mat );
@@ -408,7 +420,7 @@ void mat_free_MatINT( MatINT * matint )
   matint = NULL;
 }
 
-VecDBL * mat_alloc_VecDBL( const int size )
+VecDBL * mat_alloc_VecDBL(const int size)
 {
   VecDBL *vecdbl;
   vecdbl = (VecDBL*) malloc( sizeof( VecDBL ) );
@@ -424,7 +436,7 @@ VecDBL * mat_alloc_VecDBL( const int size )
   return vecdbl;
 }
 
-void mat_free_VecDBL( VecDBL * vecdbl )
+void mat_free_VecDBL(VecDBL * vecdbl)
 {
   if ( vecdbl->size > 0 ) {
     free( vecdbl->vec );
@@ -435,7 +447,7 @@ void mat_free_VecDBL( VecDBL * vecdbl )
 }
 
 
-int mat_is_int_matrix( SPGCONST double mat[3][3], double symprec )
+int mat_is_int_matrix(SPGCONST double mat[3][3], const double symprec)
 {
   int i,j ;
   for ( i = 0; i < 3; i++ ) {
