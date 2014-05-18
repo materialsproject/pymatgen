@@ -809,18 +809,27 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     Args:
         user_incar_settings (dict): A dict specifying additional incar
             settings
+        ionic: a boolean telling if we clamp the ions (False) or we
+        add the ionic part to the dielectric constant (True default)
     """
 
-    def __init__(self, user_incar_settings=None):
+    def __init__(self, user_incar_settings=None, ionic=True):
         with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MaterialsProject Static Dielectric DFPT", json.load(f))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
-        self.incar_settings.update(
-            {"IBRION": 8, "LEPSILON": True})
+        self.incar_settings.update(self.user_incar_settings)
+        if ionic:
+            self.incar_settings.update(
+                {"IBRION": 8, "LEPSILON": True, 'LREAL':False})
+        else:
+            self.incar_settings.update(
+                {"LEPSILON": True, 'LREAL':False})
         if 'NPAR' in self.incar_settings:
             del self.incar_settings['NPAR']
+        if 'NSW' in self.incar_settings:
+            del self.incar_settings['NSW']
 
 
 class MPBSHSEVaspInputSet(DictVaspInputSet):
@@ -888,7 +897,6 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             return Kpoints(comment="HSE run on uniform grid",
                            style="Reciprocal", num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
-
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
