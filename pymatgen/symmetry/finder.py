@@ -331,16 +331,12 @@ class SymmetryFinder(object):
         pos = np.zeros((num_atom * 4, 3), dtype='double')
         pos[:num_atom] = self._positions.copy()
 
-        numbers = np.zeros(num_atom * 4, dtype='intc')
-        numbers[:num_atom] = np.array(self._numbers, dtype='intc')
-        num_atom_bravais = spg.refine_cell(lattice,
-                                           pos,
-                                           numbers,
-                                           num_atom,
-                                           self._symprec,
-                                           self._angle_tol)
+        zs = np.zeros(num_atom * 4, dtype='intc')
+        zs[:num_atom] = np.array(self._numbers, dtype='intc')
+        num_atom_bravais = spg.refine_cell(
+            lattice, pos, zs, num_atom, self._symprec, self._angle_tol)
 
-        zs = numbers[:num_atom_bravais]
+        zs = zs[:num_atom_bravais]
         species = [self._unique_species[i - 1] for i in zs]
         s = Structure(lattice.T.copy(),
                       species,
@@ -356,19 +352,18 @@ class SymmetryFinder(object):
             as an Structure object. If no primitive cell is found, None is
             returned.
         """
-
         # Atomic positions have to be specified by scaled positions for spglib.
-        positions = self._positions.copy()
+        pos = self._positions.copy()
         lattice = self._transposed_latt.copy()
         numbers = self._numbers.copy()
         # lattice is transposed with respect to the definition of Atoms class
-        num_atom_prim = spg.primitive(lattice, positions, numbers,
+        num_atom_prim = spg.primitive(lattice, pos, numbers,
                                       self._symprec, self._angle_tol)
         zs = numbers[:num_atom_prim]
         species = [self._unique_species[i - 1] for i in zs]
 
         if num_atom_prim > 0:
-            return Structure(lattice.T, species, positions[:num_atom_prim],
+            return Structure(lattice.T, species, pos[:num_atom_prim],
                              to_unit_cell=True).get_reduced_structure()
         else:
             #Not sure if we should return None or just return the full
@@ -398,14 +393,9 @@ class SymmetryFinder(object):
         mapping = np.zeros(np.prod(mesh), dtype='intc')
         mesh_points = np.zeros((np.prod(mesh), 3), dtype='intc')
         spg.ir_reciprocal_mesh(
-            mesh_points,
-            mapping,
-            np.array(mesh, dtype='intc'),
-            np.array(shift, dtype='intc'),
-            is_time_reversal * 1,
-            self._transposed_latt,
-            self._positions,
-            self._numbers,
+            mesh_points, mapping, np.array(mesh, dtype='intc'),
+            np.array(shift, dtype='intc'), is_time_reversal * 1,
+            self._transposed_latt, self._positions, self._numbers,
             self._symprec)
 
         results = []
