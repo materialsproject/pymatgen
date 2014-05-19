@@ -532,6 +532,7 @@ class Vasprun(object):
             eigen[index][str(spin)] = values
         vout["eigenvalues"] = eigen
         vout['dielectric'] = self.dielectric
+        vout['epsilon_static'] = self.epsilon_static
 
         peigen = []
 
