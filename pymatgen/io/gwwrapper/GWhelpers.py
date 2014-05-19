@@ -33,7 +33,7 @@ def now():
 
 
 def s_name(structure):
-    name_ = str(structure.composition.reduced_formula) # + '_' + str(structure.item)
+    name_ = str(structure.composition.reduced_formula) + '_' + str(structure.item)
     return name_
 
 
