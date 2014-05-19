@@ -140,52 +140,58 @@ class AbstractAbinitioSpec(object):
             local_db_gaps.authenticate("setten", pwd)
             for c in local_db_gaps.exp.find():
                 print Structure.from_dict(c['icsd_data']['structure']).composition.reduced_formula, c['icsd_id'], c['MP_id']
-                items_list.append('mp-' + c['MP_id'])
+                items_list.append({'name': 'mp-' + c['MP_id'], 'icsd': c['icsd_id'], 'mp': c['MP_id']})
         else:
             items_list = [line.strip() for line in open(self.data['source'])]
 
         for item in items_list:
             print '\n'
-            if item.startswith('POSCAR_'):
-                structure = pmg.read_structure(item)
-                structure.item = item
-                comment = Poscar.from_file(item).comment
-                # print comment
-                if comment.startswith("gap"):
-                    structure.vbm_l = comment.split(" ")[1]
-                    structure.vbm = (comment.split(" ")[2], comment.split(" ")[3], comment.split(" ")[4])
-                    structure.cbm_l = comment.split(" ")[5]
-                    structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
-                else:
-                    # print "no bandstructure information available, adding GG as 'gap'"
-                    structure = add_gg_gap(structure)
-            elif item.startswith('mp-'):
-                with MPRester(mp_key) as mp_database:
-                    if self.data['source'].startswith('mp-'):
+            # special case, this should be encaptulated
+            if self.data['source'] == 'mar_exp':
+                print 'structure from marilyn', item['name'], item['icsd'], item['mp']
+                exp = local_db_gaps.exp.find({'MP_id': item['mp']})[0]
+                structure = Structure.from_dict(exp['icsd_data']['structure'])
+                try:
+                    kpts = local_db_gaps.GGA_BS.find({'transformations.history.0.id': item['icsd']})[0]['calculations']\
+                    [-1]['band_structure']['kpoints']
+                except (IndexError, KeyError):
+                    kpts = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+                #print structure
+                remove_ox = OxidationStateRemovalTransformation()
+                structure = remove_ox.apply_transformation(structure)
+                structure.kpts = kpts
+                print 'kpoints:', structure.kpts[0], structure.kpts[1]
+                structure.item = item['name']
+            else:
+                if item.startswith('POSCAR_'):
+                    structure = pmg.read_structure(item)
+                    comment = Poscar.from_file(item).comment
+                    # print comment
+                    if comment.startswith("gap"):
+                        structure.vbm_l = comment.split(" ")[1]
+                        structure.vbm = (comment.split(" ")[2], comment.split(" ")[3], comment.split(" ")[4])
+                        structure.cbm_l = comment.split(" ")[5]
+                        structure.cbm = (comment.split(" ")[6], comment.split(" ")[7], comment.split(" ")[8])
+                    else:
+                        # print "no bandstructure information available, adding GG as 'gap'"
+                        structure = add_gg_gap(structure)
+                elif item.startswith('mp-'):
+                    with MPRester(mp_key) as mp_database:
                         print 'structure from mp database', item
                         structure = mp_database.get_structure_by_material_id(item, final=True)
-                        structure.item = item
-                    elif self.data['source'] == 'mar_exp':
-                        print 'structure from marilyn', item, item[3:]
-                        exp = local_db_gaps.exp.find({'MP_id': item[3:]})[0]
-                        structure = Structure.from_dict(exp['icsd_data']['structure'])
-                        #print structure
-                        remove_ox = OxidationStateRemovalTransformation()
-                        structure = remove_ox.apply_transformation(structure)
-                        structure.item = item
-                    try:
-                        bandstructure = mp_database.get_bandstructure_by_material_id(item)
-                        structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
-                        structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
-                        structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
-                        structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
-                    except (MPRestError, IndexError, KeyError) as err:
-                        print err.message
-                        structure = add_gg_gap(structure)
-                        pass
-
-            else:
-                continue
+                        try:
+                            bandstructure = mp_database.get_bandstructure_by_material_id(item)
+                            structure.vbm_l = bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].label
+                            structure.cbm_l = bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].label
+                            structure.cbm = tuple(bandstructure.kpoints[bandstructure.get_cbm()['kpoint_index'][0]].frac_coords)
+                            structure.vbm = tuple(bandstructure.kpoints[bandstructure.get_vbm()['kpoint_index'][0]].frac_coords)
+                        except (MPRestError, IndexError, KeyError) as err:
+                            print err.message
+                            structure = add_gg_gap(structure)
+                else:
+                    continue
+                structure.kpts = [list(structure.cbm), list(structure.vbm)]
+                structure.item = item
             print item, s_name(structure)
             if mode == 'i':
                 self.excecute_flow(structure)
