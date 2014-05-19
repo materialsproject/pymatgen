@@ -349,7 +349,8 @@ class AbinitInterface(AbstractCodeInterface):
     def store_results(self, name):
         folder = name + '.res'
         store_conv_results(name, folder)
-        shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"), folder)
+        shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),
+                        os.path.join(folder, "out_SIGRES.nc"))
 
 
 class NewCodeInterface(AbstractCodeInterface):
