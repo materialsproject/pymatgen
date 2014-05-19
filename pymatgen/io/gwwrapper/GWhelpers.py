@@ -256,7 +256,7 @@ def is_converged(hartree_parameters, structure, return_values=False):
 def store_conv_results(name, folder):
     print "| Storing results for %s" % name
     os.mkdir(folder)
-    for data_file in ['conv_res', 'full_res', 'log', 'conv.log', 'str', 'fitdat', 'convdat']:
+    for data_file in ['conv_res', 'full_res', 'log', 'conv.log', 'str', 'fitdat', 'convdat', 'data']:
         try:
             os.rename(name+'.'+data_file, os.path.join(folder, name+'.'+data_file))
         except OSError:
