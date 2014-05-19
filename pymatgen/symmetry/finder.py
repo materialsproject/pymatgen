@@ -5,6 +5,7 @@ An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
 
 v1.0 - Now works with both ordered and disordered structure.
+v2.0 - Updated for spglib 1.6.
 
 .. note::
     Not all spglib functions are implemented.
@@ -14,7 +15,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
@@ -693,9 +694,7 @@ class SymmetryFinder(object):
                 return np.all(recp_angles <= 90) or np.all(recp_angles > 90)
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1.0, 0.0, 0.0],
-                          [0.0, 1.0, 0.0],
-                          [0.0, 0.0, 1.0]]
+                transf = np.eye(3)
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -709,9 +708,9 @@ class SymmetryFinder(object):
                                            * cos(gamma)) / sin(gamma)]]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1.0, 0.0, 0.0],
-                          [0.0, 1.0, 0.0],
-                          [0.0, 0.0, -1.0]]
+                transf = [[-1, 0, 0],
+                          [0, 1, 0],
+                          [0, 0, -1]]
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -725,9 +724,9 @@ class SymmetryFinder(object):
                                           * cos(gamma)) / sin(gamma)]]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1.0, 0.0, 0.0],
-                          [0.0, -1.0, 0.0],
-                          [0.0, 0.0, 1.0]]
+                transf = [[-1, 0, 0],
+                          [0, -1, 0],
+                          [0, 0, 1]]
                 new_matrix = test_matrix
 
             test_matrix = [[a, 0, 0],
@@ -740,9 +739,9 @@ class SymmetryFinder(object):
                                            + 2 * cos(alpha) * cos(beta)
                                            * cos(gamma)) / sin(gamma)]]
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1.0, 0.0, 0.0],
-                          [0.0, -1.0, 0.0],
-                          [0.0, 0.0, -1.0]]
+                transf = [[1, 0, 0],
+                          [0, -1, 0],
+                          [0, 0, -1]]
                 new_matrix = test_matrix
 
             latt = Lattice(new_matrix)
