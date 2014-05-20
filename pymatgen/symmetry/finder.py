@@ -404,7 +404,7 @@ class SymmetryFinder(object):
             results.append((mesh_points[i] / mesh, tmp_map.count(i)))
         return results
 
-    def get_primitive_standard_structure(self):
+    def get_primitive_standard_structure(self, international_monoclinic=True):
         """
         Gives a structure with a primitive cell according to certain standards
         the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
@@ -415,7 +415,8 @@ class SymmetryFinder(object):
         Returns:
             The structure in a primitive standardized cell
         """
-        conv = self.get_conventional_standard_structure()
+        conv = self.get_conventional_standard_structure(
+            international_monoclinic=international_monoclinic)
         lattice = self.get_lattice_type()
 
         if "P" in self.get_spacegroup_symbol() or lattice == "hexagonal":
@@ -468,7 +469,8 @@ class SymmetryFinder(object):
                 new_sites.append(new_s)
         return Structure.from_sites(new_sites)
 
-    def get_conventional_standard_structure(self):
+    def get_conventional_standard_structure(
+            self, international_monoclinic=True):
         """
         Gives a structure with a conventional cell according to certain
         standards. The standards are defined in Setyawan, W., & Curtarolo,
@@ -647,17 +649,18 @@ class SymmetryFinder(object):
                     for c in range(len(sorted_dic)):
                         transf[c][sorted_dic[c]['orig_index']] = 1
 
-            # The above code makes alpha the non-right angle.
-            # The following will convert to proper international convention
-            # that beta is the non-right angle.
-            op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
-            transf = np.dot(op, transf)
-            new_matrix = np.dot(op, new_matrix)
-            beta = Lattice(new_matrix).beta
-            if beta < 90:
-                op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+            if international_monoclinic:
+                # The above code makes alpha the non-right angle.
+                # The following will convert to proper international convention
+                # that beta is the non-right angle.
+                op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
                 transf = np.dot(op, transf)
                 new_matrix = np.dot(op, new_matrix)
+                beta = Lattice(new_matrix).beta
+                if beta < 90:
+                    op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+                    transf = np.dot(op, transf)
+                    new_matrix = np.dot(op, new_matrix)
 
             latt = Lattice(new_matrix)
 
