@@ -669,7 +669,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             structure (Structure/IStructure): structure to get POSCAR
         """
         sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
-        return Poscar(sym_finder.get_primitive_standard_structure())
+        return Poscar(sym_finder.get_primitive_standard_structure(False))
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
@@ -713,13 +713,13 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             return structure
         elif additional_info:
             info = [sym_finder.get_refined_structure(),
-                    sym_finder.get_conventional_standard_structure(),
+                    sym_finder.get_conventional_standard_structure(False),
                     sym_finder.get_symmetry_dataset(),
                     sym_finder.get_symmetry_operations()]
-            return [sym_finder.get_primitive_standard_structure(),
+            return [sym_finder.get_primitive_standard_structure(False),
                     info]
         else:
-            return sym_finder.get_primitive_standard_structure()
+            return sym_finder.get_primitive_standard_structure(False)
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
@@ -1064,7 +1064,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 present.
         """
         user_incar_settings = user_incar_settings or {}
-        
+
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
