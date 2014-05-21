@@ -371,11 +371,11 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                     data.read(subset='.conv')
                     if len(data.data) == 0:
                         print '| Full type calculation but no data found.'
-                        break
+                        done = True
                     if len(data.data) < 4:
                         print '| Full type calculation but no complete data found.'
                         print data.data
-                        break
+                        done = True
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
                         print '| Full type calculation and the full results agree with the parm_scr. All_done for this compound.'
                         data.full_res.update({'all_done': True})
