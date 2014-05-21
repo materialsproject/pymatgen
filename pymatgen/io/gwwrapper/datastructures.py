@@ -376,7 +376,6 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                         done = True
                     if len(data.data) < 4:
                         print '| Full type calculation but no complete data found.'
-                        print json.dumps(data.data, sort_keys=True, indent=4)
                         print data.data
                         done = True
                     if data.test_full_kp_results(tol_rel=1, tol_abs=0.001):
