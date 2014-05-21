@@ -257,7 +257,8 @@ def store_conv_results(name, folder):
     print "| Storing results for %s" % name
     if not os.path.isdir(folder):
         os.mkdir(folder)
-    for data_file in ['conv_res', 'full_res', 'log', 'conv.log', 'str', 'fitdat', 'convdat', 'data']:
+    shutil.copy(name+'.full_res', os.path.join(folder, name+'.full_res'))
+    for data_file in ['conv_res', 'log', 'conv.log', 'str', 'fitdat', 'convdat', 'data']:
         try:
             os.rename(name+'.'+data_file, os.path.join(folder, name+'.'+data_file))
         except OSError:
