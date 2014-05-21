@@ -395,7 +395,6 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                         # set data.type to convergence
                         # loop
                         done = True
-                        pass
         elif self.data['test']:
             data.read()
             data.set_type()
