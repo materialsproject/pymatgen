@@ -130,7 +130,7 @@ class XRDCalculator(object):
                                                           lorentz_factor
                 else:
                     intensities[two_theta] = [I_hkl * lorentz_factor,
-                                             tuple(hkl)]
+                                              tuple(hkl)]
                     two_thetas.append(two_theta)
 
         max_intensity = max([v[0] for v in intensities.values()])
@@ -142,9 +142,23 @@ class XRDCalculator(object):
 
     def get_xrd_plot(self, structure, two_theta_range=None,
                       annotate_peaks=True):
+        """
+        Returns the XRD plot as a matplotlib.pyplot.
+
+        Args:
+            structure: Input structure
+            two_theta_range: Range of two_thetas for which to plot. Defaults
+                to None, which means the entire range is plotted.
+            annotate_peaks: Whether to annotate the peaks with plane
+                information.
+
+        Returns:
+            (matplotlib.pyplot)
+        """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(16, 10)
-        two_theta_range = [-1, float("inf")] if two_theta_range is None else two_theta_range
+        two_theta_range = [-1, float("inf")] if two_theta_range is None \
+            else two_theta_range
         for d in self.get_xrd_data(structure):
             if two_theta_range[0] <= d[0] <= two_theta_range[1]:
                 plt.plot([d[0], d[0]], [0, d[1][0]], color='k',
@@ -156,5 +170,15 @@ class XRDCalculator(object):
 
     def show_xrd_plot(self, structure, two_theta_range=None,
                       annotate_peaks=True):
+        """
+        Shows the XRD plot.
+
+        Args:
+            structure: Input structure
+            two_theta_range: Range of two_thetas for which to plot. Defaults
+                to None, which means the entire range is plotted.
+            annotate_peaks: Whether to annotate the peaks with plane
+                information.
+        """
         self.get_xrd_plot(structure, two_theta_range=two_theta_range,
                           annotate_peaks=annotate_peaks).show()
