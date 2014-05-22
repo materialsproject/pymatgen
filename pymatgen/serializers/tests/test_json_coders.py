@@ -23,6 +23,7 @@ import json
 from pymatgen.serializers.json_coders import PMGJSONEncoder, PMGJSONDecoder,\
     MSONable, MSONError
 import datetime
+import numpy as np
 
 
 class MSONableTest(unittest.TestCase):
@@ -138,6 +139,14 @@ class PMGJSONTest(unittest.TestCase):
         jsonstr = json.dumps(a, cls=PMGJSONEncoder)
         d = json.loads(jsonstr, cls=PMGJSONDecoder)
         self.assertEqual(type(d["dt"]), datetime.datetime)
+
+    def test_numpy(self):
+        x = np.array([1, 2, 3])
+        self.assertRaises(TypeError, json.dumps, x)
+        self.assertEqual(json.dumps(x, cls=PMGJSONEncoder), "[1, 2, 3]")
+        x = np.min([1, 2, 3]) > 2
+        self.assertRaises(TypeError, json.dumps, x)
+        self.assertEqual(json.dumps(x, cls=PMGJSONEncoder), "false")
 
 
 if __name__ == "__main__":

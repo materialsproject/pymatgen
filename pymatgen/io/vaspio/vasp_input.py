@@ -386,7 +386,7 @@ class Poscar(MSONable):
             for v in self.predictor_corrector[2:]:
                 lines.append(" ".join([format_str.format(i) for i in v]))
 
-        return "\n".join(lines)
+        return "\n".join(lines) + "\n"
 
     def __str__(self):
         """
@@ -400,7 +400,7 @@ class Poscar(MSONable):
         the Poscar.get_string method and are passed through directly.
         """
         with open(filename, "w") as f:
-            f.write(self.get_string(**kwargs) + "\n")
+            f.write(self.get_string(**kwargs))
 
     @property
     def to_dict(self):
@@ -535,9 +535,9 @@ class Incar(dict):
                 lines.append([k, self[k]])
 
         if pretty:
-            return str_aligned(lines)
+            return str_aligned(lines) + "\n"
         else:
-            return str_delimited(lines, None, " = ")
+            return str_delimited(lines, None, " = ") + "\n"
 
     def __str__(self):
         return self.get_string(sort_keys=True, pretty=False)
@@ -550,7 +550,7 @@ class Incar(dict):
             filename (str): filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
@@ -825,7 +825,7 @@ class Kpoints(MSONable):
                        kpts_shift=shift)
 
     @staticmethod
-    def automatic_density(structure, kppa):
+    def automatic_density(structure, kppa, force_gamma=False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and
@@ -838,6 +838,8 @@ class Kpoints(MSONable):
         Args:
             structure (Structure): Input structure
             kppa (int): Grid density
+            force_gamma (bool): Force a gamma centered mesh (default is to
+                use gamma only for hexagonal cells)
 
         Returns:
             Kpoints
@@ -871,7 +873,7 @@ class Kpoints(MSONable):
         num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
-        if has_odd or is_hexagonal:
+        if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst
@@ -880,6 +882,43 @@ class Kpoints(MSONable):
             "{} / atom".format(kppa)
         num_kpts = 0
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+
+    @staticmethod
+    def automatic_linemode(divisions, ibz):
+        """
+        Convenient static constructor for a KPOINTS in mode line_mode.
+        gamma centered Monkhorst-Pack grids and the number of subdivisions
+        along each reciprocal lattice vector determined by the scheme in the
+        VASP manual.
+
+        Args:
+            divisions: Parameter determining the number of k-points along each
+                hight symetry lines.
+            ibz: HighSymmKpath object (pymatgen.symmetry.bandstructure)
+
+        Returns:
+            Kpoints object
+        """
+        kpoints = list()
+        labels = list()
+        for path in ibz.kpath["path"]:
+            kpoints.append(ibz.kpath["kpoints"][path[0]])
+            labels.append(path[0])
+            for i in range(1, len(path) - 1):
+                kpoints.append(ibz.kpath["kpoints"][path[i]])
+                labels.append(path[i])
+                kpoints.append(ibz.kpath["kpoints"][path[i]])
+                labels.append(path[i])
+
+            kpoints.append(ibz.kpath["kpoints"][path[-1]])
+            labels.append(path[-1])
+
+        return Kpoints("Line_mode KPOINTS file",
+                       style=Kpoints.supported_modes.Line_mode,
+                       coord_type="Reciprocal",
+                       kpts=kpoints,
+                       labels=labels,
+                       num_kpts=int(divisions))
 
     @staticmethod
     def from_file(filename):
@@ -991,17 +1030,19 @@ class Kpoints(MSONable):
             filename (str): Filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     def __str__(self):
         lines = [self.comment, str(self.num_kpts), self.style]
         style = self.style.lower()[0]
-        if style == "Line-mode":
+        if style == "l":
             lines.append(self.coord_type)
         for i in xrange(len(self.kpts)):
             lines.append(" ".join([str(x) for x in self.kpts[i]]))
             if style == "l":
                 lines[-1] += " ! " + self.labels[i]
+                if i % 2 == 1:
+                    lines[-1] += "\n"
             elif self.num_kpts > 0:
                 if self.labels is not None:
                     lines[-1] += " %i %s" % (self.kpts_weights[i],
@@ -1022,14 +1063,19 @@ class Kpoints(MSONable):
         #Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join([str(x) for x in self.kpts_shift]))
-        return "\n".join(lines)
+        return "\n".join(lines) + "\n"
 
     @property
     def to_dict(self):
         """json friendly dict representation of Kpoints"""
         d = {"comment": self.comment, "nkpoints": self.num_kpts,
              "generation_style": self.style, "kpoints": self.kpts,
-             "usershift": self.kpts_shift}
+             "usershift": self.kpts_shift,
+             "kpts_weights": self.kpts_weights, "coord_type": self.coord_type,
+             "labels": self.labels, "tet_number": self.tet_number,
+             "tet_weight": self.tet_weight,
+             "tet_connections": self.tet_connections
+        }
         optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
         for para in optional_paras:
             if para in self.__dict__:
@@ -1047,7 +1093,13 @@ class Kpoints(MSONable):
         num_kpts = d.get("nkpoints", 0)
         #coord_type = d.get("coord_type", None)
         return cls(comment=comment, kpts=kpts, style=generation_style,
-                   kpts_shift=kpts_shift, num_kpts=num_kpts)
+                   kpts_shift=kpts_shift, num_kpts=num_kpts,
+                   kpts_weights=d.get("kpts_weights"),
+                   coord_type=d.get("coord_type"),
+                   labels=d.get("labels"), tet_number=d.get("tet_number", 0),
+                   tet_weight=d.get("tet_weight", 0),
+                   tet_connections=d.get("tet_connections")
+        )
 
 
 def get_potcar_dir():
@@ -1098,12 +1150,11 @@ class PotcarSingle(object):
         self.keywords = dict(keypairs)
 
     def __str__(self):
-        return self.data
+        return self.data + "\n"
 
     def write_file(self, filename):
-        writer = open(filename, "w")
-        writer.write(self.__str__() + "\n")
-        writer.close()
+        with zopen(filename, "w") as f:
+            f.write(self.__str__())
 
     @staticmethod
     def from_file(filename):
@@ -1228,7 +1279,7 @@ class Potcar(list):
         return potcar
 
     def __str__(self):
-        return "\n".join([str(potcar).strip("\n") for potcar in self])
+        return "\n".join([str(potcar).strip("\n") for potcar in self]) + "\n"
 
     def write_file(self, filename):
         """
@@ -1238,7 +1289,7 @@ class Potcar(list):
             filename (str): filename to write to.
         """
         with open(filename, "w") as f:
-            f.write(self.__str__() + "\n")
+            f.write(self.__str__())
 
     @property
     def symbols(self):

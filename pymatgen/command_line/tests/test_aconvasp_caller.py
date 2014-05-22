@@ -9,6 +9,7 @@ from monty.os.path import which
 
 
 aconvasp_present = which('aconvasp')
+aconvasp_present = False  # disable aconvasp testing for now.
 
 
 @unittest.skipIf(not aconvasp_present, "aconvasp not present.")

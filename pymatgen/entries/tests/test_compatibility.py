@@ -333,6 +333,76 @@ class OxideTypeCorrectionTest(unittest.TestCase):
         self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
 
 
+class OxideTypeCorrectionNoPeroxideCorrTest(unittest.TestCase):
+    
+    def setUp(self):
+        self.compat = MITCompatibility(correct_peroxide=False)
+
+    def test_oxide_energy_corr(self):
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_li, el_o]
+        latt = Lattice.from_parameters(3.278, 3.278, 3.278,
+                                       60, 60, 60)
+        coords = [[0.25, 0.25, 0.25],
+                  [0.75, 0.75, 0.75],
+                  [0.0, 0.0, 0.0]]
+        struct = Structure(latt, elts, coords)
+        li2o_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        li2o_entry_corrected = self.compat.process_entry(li2o_entry)
+        self.assertAlmostEqual(li2o_entry_corrected.energy, -3.0 -0.66975, 4)
+
+    def test_peroxide_energy_corr(self):
+        latt = Lattice.from_parameters(3.159597, 3.159572, 7.685205, 89.999884, 89.999674, 60.000510)
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_li, el_li, el_li, el_o, el_o, el_o, el_o]
+        coords = [[0.666656, 0.666705, 0.750001],
+                  [0.333342, 0.333378, 0.250001],
+                  [0.000001, 0.000041, 0.500001],
+                  [0.000001, 0.000021, 0.000001],
+                  [0.333347, 0.333332, 0.649191],
+                  [0.333322, 0.333353, 0.850803],
+                  [0.666666, 0.666686, 0.350813],
+                  [0.666665, 0.666684, 0.149189]]
+        struct = Structure(latt, elts, coords)
+        li2o2_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        li2o2_entry_corrected = self.compat.process_entry(li2o2_entry)
+        self.assertRaises(AssertionError, self.assertAlmostEqual,
+                           *(li2o2_entry_corrected.energy, -3 - 0.44317 * 4, 4))
+        self.assertAlmostEqual(li2o2_entry_corrected.energy, -3 - 0.66975 * 4, 4)
+
+    def test_ozonide(self):
+        el_li = Element("Li")
+        el_o = Element("O")
+        elts = [el_li, el_o, el_o, el_o]
+        latt = Lattice.from_parameters(3.999911, 3.999911, 3.999911,
+                                       133.847504, 102.228244, 95.477342)
+        coords = [[0.513004, 0.513004, 1.000000],
+                  [0.017616, 0.017616, 0.000000],
+                  [0.649993, 0.874790, 0.775203],
+                  [0.099587, 0.874790, 0.224797]]
+        struct = Structure(latt, elts, coords)
+        lio3_entry = ComputedStructureEntry(struct, -3,
+                                            parameters={'is_hubbard': False,
+                                          'hubbards': None,
+                                          'run_type': 'GGA',
+                                          'potcar_symbols':
+        ['PAW_PBE Fe 06Sep2000', 'PAW_PBE O 08Apr2002']})
+        lio3_entry_corrected = self.compat.process_entry(lio3_entry)
+        self.assertAlmostEqual(lio3_entry_corrected.energy, -3.0 - 3 * 0.66975)
+
+
 class AqueousCorrectionTest(unittest.TestCase):
 
     def setUp(self):

@@ -22,7 +22,6 @@ import collections
 from warnings import warn
 from pyhull.voronoi import VoronoiTess
 from pymatgen import PeriodicSite
-from pymatgen.util.coord_utils import pbc_all_distances
 from pymatgen import Element, Specie, Composition
 
 
@@ -61,7 +60,6 @@ class VoronoiCoordFinder(object):
             A dict of sites sharing a common Voronoi facet with the site
             n and their solid angle weights
         """
-
         localtarget = self._target
         center = self._structure[n]
         neighbors = self._structure.get_sites_in_sphere(
@@ -399,12 +397,13 @@ class OxideType(object):
                 h_sites_frac_coords.append(site.frac_coords)
 
         if h_sites_frac_coords:
-            dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords,
-                                            h_sites_frac_coords)
+            dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
+                                                    h_sites_frac_coords)
             if np.any(dist_matrix < relative_cutoff * 0.93):
-                return "hydroxide", len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0
-        dist_matrix = pbc_all_distances(lattice, o_sites_frac_coords,
-                                        o_sites_frac_coords)
+                return "hydroxide", len(
+                    np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2.0
+        dist_matrix = lattice.get_all_distances(o_sites_frac_coords,
+                                                o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
         is_superoxide = False
         is_peroxide = False

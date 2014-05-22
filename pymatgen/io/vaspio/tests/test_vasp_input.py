@@ -45,7 +45,8 @@ class PoscarTest(unittest.TestCase):
 1 1
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 F"""
+0.750000 0.500000 0.750000 F
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("SiF"))
 
@@ -58,7 +59,8 @@ direct
 1 1
 direct
 0.000000 0.000000 0.000000
-0.750000 0.500000 0.750000"""
+0.750000 0.500000 0.750000
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.structure.composition, Composition("HHe"))
 
@@ -72,7 +74,8 @@ direct
 Selective dynamics
 direct
 0.000000 0.000000 0.000000 T T T Si
-0.750000 0.500000 0.750000 F F F O"""
+0.750000 0.500000 0.750000 F F F O
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(poscar.selective_dynamics, [[True, True, True],
                                                      [False, False, False]])
@@ -88,7 +91,8 @@ direct
 Selective dynamics
 direct
 0.000000 0.000000 0.000000 T T T Si
-0.750000 0.500000 0.750000 F F F O"""
+0.750000 0.500000 0.750000 F F F O
+"""
         poscar = Poscar.from_string(poscar_string)
         d = poscar.to_dict
         poscar2 = Poscar.from_dict(d)
@@ -117,7 +121,8 @@ Si
 2
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 Si'''
+0.750000 0.500000 0.750000 Si
+'''
 
         self.assertEquals(str(poscar), expected_str, "Wrong POSCAR output!")
 
@@ -130,7 +135,8 @@ direct
 1 1
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 F"""
+0.750000 0.500000 0.750000 F
+"""
 
         expected = """Test1
 1.0
@@ -141,7 +147,8 @@ Si F
 1 1
 direct
 0.000000 0.000000 0.000000 Si
-0.750000 0.500000 0.750000 F"""
+0.750000 0.500000 0.750000 F
+"""
         poscar = Poscar.from_string(poscar_string)
         self.assertEqual(str(poscar), expected)
 
@@ -266,6 +273,8 @@ class KpointsTest(unittest.TestCase):
         kpoints = Kpoints.from_file(filepath)
         self.assertIsNotNone(kpoints.labels)
         self.assertEqual(kpoints.style, "Line_mode")
+        kpoints_str = str(kpoints)
+        self.assertEqual(kpoints_str.split("\n")[3], "Reciprocal")
 
         filepath = os.path.join(test_dir, 'KPOINTS.explicit')
         kpoints = Kpoints.from_file(filepath)
@@ -289,6 +298,9 @@ class KpointsTest(unittest.TestCase):
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
         self.assertEqual(kpoints.kpts, [[2, 4, 4]])
+        self.assertEqual(kpoints.style, "Monkhorst")
+        kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
+        self.assertEqual(kpoints.style, "Gamma")
 
     def test_to_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
@@ -302,12 +314,14 @@ class KpointsTest(unittest.TestCase):
         file_name = os.path.join(test_dir, 'KPOINTS.band')
         k = Kpoints.from_file(file_name)
         d = k.to_dict
+        import json
+        json.dumps(d)
         #This doesn't work
-        #k2 = Kpoints.from_dict(d)
-        #self.assertEqual(k.kpts, k2.kpts)
-        #self.assertEqual(k.style, k2.style)
-        #self.assertEqual(k.kpts_shift, k2.kpts_shift)
-        #self.assertEqual(k.num_kpts, k2.num_kpts)
+        k2 = Kpoints.from_dict(d)
+        self.assertEqual(k.kpts, k2.kpts)
+        self.assertEqual(k.style, k2.style)
+        self.assertEqual(k.kpts_shift, k2.kpts_shift)
+        self.assertEqual(k.num_kpts, k2.num_kpts)
 
 
 class PotcarSingleTest(unittest.TestCase):

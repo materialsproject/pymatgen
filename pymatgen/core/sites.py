@@ -58,10 +58,9 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
             totaloccu = self._species.num_atoms
             if totaloccu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
-            self._is_ordered = (totaloccu == 1 and len(self._species) == 1)
+            self._is_ordered = totaloccu == 1 and len(self._species) == 1
         else:
-            self._species = Composition(
-                {get_el_sp(atoms_n_occu): 1})
+            self._species = Composition({get_el_sp(atoms_n_occu): 1})
             self._is_ordered = True
 
         self._coords = coords
@@ -218,9 +217,7 @@ class Site(collections.Mapping, collections.Hashable, MSONable):
 
     def __repr__(self):
         return "Site: {} ({:.4f}, {:.4f}, {:.4f})".format(
-            self.species_string, self._coords[0], self._coords[1],
-            self._coords[2]
-        )
+            self.species_string, *self._coords)
 
     def __cmp__(self, other):
         """

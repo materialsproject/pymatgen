@@ -25,14 +25,13 @@ __date__ = "4/5/13"
 
 import os
 import subprocess
-import tempfile
 import shutil
 
 from pymatgen.io.vaspio.vasp_output import Chgcar
 from pymatgen.io.vaspio.vasp_input import Potcar
 from monty.os.path import which
 from monty.dev import requires
-from monty.io import ScratchDir
+from monty.tempfile import ScratchDir
 
 
 @requires(which("bader"),
@@ -126,7 +125,6 @@ class BaderAnalysis(object):
                     elif toks[0] == "NUMBER OF ELECTRONS":
                         self.nelectrons = float(toks[1])
             self.data = data
-
 
     def get_charge(self, atom_index):
         """
