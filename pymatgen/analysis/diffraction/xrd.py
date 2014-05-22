@@ -14,7 +14,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
-from math import sin, cos, asin
+from math import sin, cos, asin, pi
 import math, cmath
 import os
 
@@ -52,16 +52,34 @@ with open(os.path.join(os.path.dirname(__file__),
 
 
 class XRDCalculator(object):
+    """
+    Computes the XRD pattern of a crystal structure. This takes into account
+    the atomic scattering factors and the Lorentz polarization factor, but not
+    the Debye-Waller (temperature) factor (for which data is typically not
+    available).
+
+    The formalism for this code is based on that given in Chapters 11 and 12
+    of Structure of Materials by Marc De Graef and Michael E. McHenry.
+    """
+
+    #Tuple of available radiation keywords.
+    AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
     def __init__(self, radiation="CuKa"):
+        """
+        Initializes the XRD calculator with a given radiation.
+
+        Args:
+            radiation: The type of radiation. Choose from any of those
+                available in the AVAILABLE_RADIATION class variable. Defaults
+                to CuKa, i.e, Cu K_alpha radiation.
+        """
         self.radiation = radiation
         self.wavelength = WAVELENGTHS[radiation]
 
     def get_xrd_data(self, structure):
         """
-        Calculates the XRD data for a structure. This takes into account the
-        atomic scattering factors and the Lorentz polarization factor and
-        multiplicity factors, but not the Debye-Waller (temperature) factor.
+        Calculates the XRD data for a structure.
 
         Args:
             structure: Input structure
@@ -77,13 +95,14 @@ class XRDCalculator(object):
         # Obtain crystallographic reciprocal lattice and points within
         # limiting sphere (within 2/wavelength)
         recip_latt = latt.reciprocal_lattice_crystallographic
-        recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
-                                                    2 / wavelength)
+        recip_pts = recip_latt.get_points_in_sphere(
+            [[0, 0, 0]], [0, 0, 0], 2 / wavelength)
 
         intensities = {}
-        for hkl, g_hkl, ind in sorted(recip_pts,
-                                      key=lambda d: (d[1], -d[0][2],
-                                                     -d[0][1], -d[0][0])):
+        two_thetas = []
+        for hkl, g_hkl, ind in sorted(
+                recip_pts, key=lambda d: (d[1], -d[0][2],
+                                          -d[0][1], -d[0][0])):
             if g_hkl != 0:
                 theta = asin(wavelength * g_hkl / 2)
                 s = g_hkl / 2
@@ -92,38 +111,36 @@ class XRDCalculator(object):
                 for site in structure:
                     el = site.specie
                     asf = ATOMIC_SCATTERING_FACTORS[el.symbol]
-                    fs = el.Z - 41.78214 * s_2 * sum([d[0] * math.exp(-d[1] *
-                                                                      s_2)
-                                                      for d in asf])
-                    F_hkl += fs * cmath.exp(2j * math.pi
+                    fs = el.Z - 41.78214 * s_2 * sum(
+                        [d[0] * math.exp(-d[1] * s_2) for d in asf])
+                    F_hkl += fs * cmath.exp(2j * pi
                                             * np.dot(hkl, site.frac_coords))
 
                 I_hkl = (F_hkl * F_hkl.conjugate()).real
 
-                lorentz_factor = (1 + cos(2 * theta) ** 2) / (sin(theta) ** 2 * cos(theta))
-                twotheta = 2 * theta / math.pi * 180
-                if twotheta in intensities:
-                    intensities[twotheta][0] += I_hkl * lorentz_factor
-                else:
-                    intensities[twotheta] = [I_hkl * lorentz_factor,
-                                             tuple(hkl)]
+                lorentz_factor = (1 + cos(2 * theta) ** 2) / \
+                    (sin(theta) ** 2 * cos(theta))
+                two_theta = 2 * theta / pi * 180
 
-        cleaned_intensities = {}
-        prev = 0
-        for k in sorted(intensities.keys()):
-            if abs(k - prev) < 1e-8:
-                cleaned_intensities[prev][0] += intensities[k][0]
-            else:
-                cleaned_intensities[k] = intensities[k]
-                prev = k
-        max_intensity = max([v[0] for v in cleaned_intensities.values()])
+                #Deal with floating point precision issues.
+                ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
+                               1e-8)
+                if len(ind[0]) > 0:
+                    intensities[two_thetas[ind[0]]][0] += I_hkl * \
+                                                          lorentz_factor
+                else:
+                    intensities[two_theta] = [I_hkl * lorentz_factor,
+                                             tuple(hkl)]
+                    two_thetas.append(two_theta)
+
+        max_intensity = max([v[0] for v in intensities.values()])
         data = []
-        for k in sorted(cleaned_intensities.keys()):
-            v = cleaned_intensities[k]
+        for k in sorted(intensities.keys()):
+            v = intensities[k]
             data.append([k, [v[0] / max_intensity * 100, v[1]]])
         return data
 
-    def show_xrd_plot(self, structure, two_theta_range=None,
+    def get_xrd_plot(self, structure, two_theta_range=None,
                       annotate_peaks=True):
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(16, 10)
@@ -135,4 +152,9 @@ class XRDCalculator(object):
                 if annotate_peaks:
                     plt.annotate(str(d[1][1]), xy=[d[0], d[1][0]],
                                  xytext=[d[0], d[1][0]], fontsize=16)
-        plt.show()
+        return plt
+
+    def show_xrd_plot(self, structure, two_theta_range=None,
+                      annotate_peaks=True):
+        self.get_xrd_plot(structure, two_theta_range=two_theta_range,
+                          annotate_peaks=annotate_peaks).show()
