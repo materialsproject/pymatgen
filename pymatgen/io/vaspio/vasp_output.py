@@ -31,7 +31,6 @@ import numpy as np
 
 from monty.io import zopen, reverse_readline
 
-from pymatgen.util.coord_utils import get_points_in_sphere_pbc
 from pymatgen.util.io_utils import clean_lines, micro_pyawk, \
     clean_json
 from pymatgen.core.structure import Structure
@@ -139,6 +138,10 @@ class Vasprun(object):
         real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
         imag_partxy, imag_partyz, imag_partxz]])
 
+    .. atribute:: epsilon_static
+        The static part of the dielectric constant. Present when it's a DFPT run
+        (LEPSILON=TRUE)
+
     .. attribute:: nionic_steps
         The total number of ionic steps. This number is always equal
         to the total number of steps in the actual run even if
@@ -187,7 +190,7 @@ class Vasprun(object):
                             "actual_kpoints_weights", "dos_energies",
                             "eigenvalues", "tdos", "idos", "pdos", "efermi",
                             "ionic_steps", "dos_has_errors",
-                            "projected_eigenvalues", "dielectric"]
+                            "projected_eigenvalues", "dielectric", "epsilon_static"]
 
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
@@ -340,17 +343,19 @@ class Vasprun(object):
             - make a bit more general for non Symm Line band structures
             - make a decision on the convention with 2*pi or not.
         """
+
         if not kpoints_filename:
             kpoints_filename = self.filename.replace('vasprun.xml', 'KPOINTS')
-        if not os.path.exists(kpoints_filename):
-            raise VaspParserError('KPOINTS needed to obtain band structure.')
+        if not os.path.exists(kpoints_filename) and line_mode is True:
+            raise VaspParserError('KPOINTS needed to obtain band structure along symmetry lines.')
 
         if efermi is None:
             efermi = self.efermi
 
-        kpoint_file = Kpoints.from_file(kpoints_filename)
+        kpoint_file=None
+        if os.path.exists(kpoints_filename):
+            kpoint_file = Kpoints.from_file(kpoints_filename)
         lattice_new = Lattice(self.lattice_rec.matrix * 2 * math.pi)
-        #lattice_rec=[self.lattice_rec.matrix[i][j] for i,j in range(3)]
 
         kpoints = [np.array(self.actual_kpoints[i])
                    for i in range(len(self.actual_kpoints))]
@@ -394,15 +399,16 @@ class Vasprun(object):
                     )
 
         #check if we have an hybrid band structure computation
-        #for this we look at the presence of the LHFCALC tag and of k-points
-        #that have weights=0.0
+        #for this we look at the presence of the LHFCALC tag
         hybrid_band = False
         if self.parameters['LHFCALC']:
-            for l in kpoint_file.labels:
-                if l is not None:
-                    hybrid_band = True
+            hybrid_band = True
 
-        if kpoint_file.style == "Line_mode" or hybrid_band or line_mode:
+        if kpoint_file is not None:
+            if kpoint_file.style == "Line_mode":
+                line_mode = True
+
+        if line_mode:
             labels_dict = {}
             if hybrid_band:
                 start_bs_index = 0
@@ -430,6 +436,9 @@ class Vasprun(object):
                 else:
                     eigenvals = {Spin.up: up_eigen}
             else:
+                if '' in kpoint_file.labels:
+                    raise Exception("a band structure along symmetry lines requires a label for each kpoint. "
+                                    "Check your KPOINTS file")
                 labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
                 labels_dict.pop(None, None)
             return BandStructureSymmLine(kpoints, eigenvals, lattice_new,
@@ -523,6 +532,7 @@ class Vasprun(object):
             eigen[index][str(spin)] = values
         vout["eigenvalues"] = eigen
         vout['dielectric'] = self.dielectric
+        vout['epsilon_static'] = self.epsilon_static
 
         peigen = []
 
@@ -588,6 +598,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.lattice_rec = []
         self.stress = []
         self.dielectric = ([], [], [])
+        self.epsilon_static = []
 
         self.input_read = False
         self.read_structure = False
@@ -596,6 +607,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.read_eigen = False
         self.read_projected_eigen = False
         self.read_diel = False
+        self.read_epsilon_static = False
         self.read_dos = False
         self.in_efermi = False
         self.read_atoms = False
@@ -655,6 +667,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.posstr.write(data)
         elif self.read_rec_lattice:
             self.latticerec.write(data)
+        elif self.read_epsilon_static:
+            self.epsilonstr.write(data)
 
     def endElement(self, name):
         """
@@ -718,6 +732,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and (state["varray"] == "forces" or
                                   state["varray"] == "stress"):
                 self.read_positions = True
+            elif name == "v" and state["varray"] == "epsilon":
+                self.read_epsilon_static = True
             elif name == "dielectricfunction":
                 logger.debug("Reading dielectric function...")
                 self.read_diel = True
@@ -790,6 +806,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = True
         elif name == "varray" and (state["varray"] in ["forces", "stress"]):
             self.posstr = StringIO.StringIO()
+        elif name == "varray" and (state["varray"] in ["epsilon"]):
+            self.epsilonstr = StringIO.StringIO()
 
     def _read_input(self, name):
         state = self._state
@@ -864,6 +882,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                                        self.posstr.getvalue().split()))
             self.stress.shape = (3, 3)
             self.read_positions = False
+        elif name == "varray" and state["varray"] == "epsilon":
+            self.epsilon_static = np.array(map(float,
+                                        self.epsilonstr.getvalue().split()))
+            self.epsilon_static.shape = (3, 3)
+            self.read_epsilon_static = False
         elif name == "calculation":
             self.ionic_steps.append({"electronic_steps": self.scdata,
                                      "structure": self.structures[-1],
@@ -1705,9 +1728,8 @@ class VolumetricData(object):
             coords = []
             for (x, y, z) in itertools.product(*[xrange(i) for i in a]):
                 coords.append([x / a[0], y / a[1], z / a[2]])
-            sites_dist = get_points_in_sphere_pbc(struct.lattice, coords,
-                                                  struct[ind].coords,
-                                                  radius)
+            sites_dist = struct.lattice.get_points_in_sphere(
+                coords, struct[ind].coords, radius)
             self._distance_matrix[ind] = {"max_radius": radius,
                                           "data": np.array(sites_dist)}
 

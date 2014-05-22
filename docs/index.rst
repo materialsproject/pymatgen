@@ -74,6 +74,38 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.7
+------
+1. Quick bug-fix release that provides a better solution to Structure handling
+   of properties instead of sanitizing MPRester structures.
+
+v2.9.6
+------
+1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
+   phase).
+2. Better error checking for Bandstructure KPOINTs.
+3. Patch to sanitize structures obtained from MPRester.
+
+v2.9.5
+------
+1. Bug fix for linear assignment, which may sometimes affect Structure
+   Matcher results.
+2. Minor improvement to the way grand canonical PDs work.
+
+v2.9.4
+------
+1. Bug fix for Pourbaix Maker (Sai).
+2. Streamline use of scratch directories for various calls. Require monty >=
+   0.1.2.
+3. High accuracy mode for Zeo++ (Bharat Medasani).
+
+v2.9.3
+------
+1. Bug fix release for printing TransformedStructures from Substitutor (Will
+   Richards).
+2. Misc improvements in BVAnalyzer, coord_utils and defects (Will Richards,
+   David Waroquiers and Bharat Medasani).
+
 v2.9.2
 ------
 1. Bug fix release for DummySpecie, which failed when deserializing from
@@ -89,7 +121,7 @@ v2.9.0
 1. Updates to support ABINIT 7.6.1 (by Matteo Giantomassi).
 2. Vastly improved docs.
 3. Refactoring to move commonly used Python utility functions to `Monty
-   package <https://pypi.python.org/pypi/monty>`_, which is now a depedency
+   package <https://pypi.python.org/pypi/monty>`_, which is now a dependency
    for pymatgen.
 4. Minor fixes and improvements to DiffusionAnalyzer.
 5. Many bug fixes and improvements.

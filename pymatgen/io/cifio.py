@@ -28,7 +28,7 @@ import numpy as np
 from pymatgen.core.periodic_table import Element, Specie
 from monty.io import zopen
 from pymatgen.util.coord_utils import in_coord_list_pbc
-from pymatgen.util.string_utils import remove_non_ascii
+from monty.string import remove_non_ascii
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.core.composition import Composition
@@ -178,8 +178,12 @@ class CifParser(object):
         for k, v in self._cif.items():
             try:
                 structures.append(self._get_structure(v, primitive))
-            except KeyError:
-                pass
+            except KeyError as exc:
+                # Warn the user (Errors should never pass silently)
+                # A user reported a problem with cif files produced by Avogadro
+                # in which the atomic coordinates are in Cartesian coords.
+                warnings.warn(str(exc))
+
         return structures
 
     @property

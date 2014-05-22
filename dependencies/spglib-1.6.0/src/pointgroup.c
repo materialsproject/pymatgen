@@ -370,11 +370,15 @@ int ptg_get_pointgroup_number_by_rotations(SPGCONST int rotations[][3][3],
 
 Pointgroup ptg_get_pointgroup(const int pointgroup_number)
 {
+  int i;
   Pointgroup pointgroup;
   PointgroupType pointgroup_type;
   
   pointgroup_type = pointgroup_data[ pointgroup_number ];
   strcpy(pointgroup.symbol, pointgroup_type.symbol);
+  for (i = 0; i < 5; i++) {
+    if (pointgroup.symbol[i] == ' ') {pointgroup.symbol[i] = '\0';}
+  }
   pointgroup.holohedry = pointgroup_type.holohedry;
   pointgroup.laue = pointgroup_type.laue;
 

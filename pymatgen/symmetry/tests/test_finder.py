@@ -138,15 +138,6 @@ class SymmetryFinderTest(unittest.TestCase):
         self.assertAlmostEqual(primitive_structure.lattice.volume,
                                structure.lattice.volume / 4.0)
 
-    def test_get_ir_kpoints(self):
-        v = Vasprun(os.path.join(test_dir, 'vasprun_Si_bands.xml'))
-        finder = SymmetryFinder(v.final_structure)
-        actual_kpts = v.actual_kpoints
-        mapping = finder.get_ir_kpoints_mapping(actual_kpts)
-        irr_kpts = finder.get_ir_kpoints(actual_kpts)
-        self.assertLess(len(irr_kpts), len(actual_kpts))
-        self.assertEqual(len(irr_kpts), len(set(mapping)))
-
     def test_get_ir_reciprocal_mesh(self):
         grid=self.sg.get_ir_reciprocal_mesh()
         self.assertEquals(len(grid), 216)
@@ -204,11 +195,11 @@ class SymmetryFinderTest(unittest.TestCase):
         structure = parser.get_structures(False)[0]
         s = SymmetryFinder(structure, symprec=1e-2)
         conv = s.get_conventional_standard_structure()
-        self.assertAlmostEqual(conv.lattice.alpha, 62.461675798000002)
-        self.assertAlmostEqual(conv.lattice.beta, 90)
+        self.assertAlmostEqual(conv.lattice.alpha, 90)
+        self.assertAlmostEqual(conv.lattice.beta, 117.53832420192903)
         self.assertAlmostEqual(conv.lattice.gamma, 90)
-        self.assertAlmostEqual(conv.lattice.a, 3.9605285073099998)
-        self.assertAlmostEqual(conv.lattice.b, 14.033435583000625)
+        self.assertAlmostEqual(conv.lattice.a, 14.033435583000625)
+        self.assertAlmostEqual(conv.lattice.b, 3.96052850731)
         self.assertAlmostEqual(conv.lattice.c, 6.8743926325200002)
 
         parser = CifParser(os.path.join(test_dir, 'rhomb_1170.cif'))
@@ -272,8 +263,8 @@ class SymmetryFinderTest(unittest.TestCase):
         s = SymmetryFinder(structure, symprec=1e-2)
         prim = s.get_primitive_standard_structure()
         self.assertAlmostEqual(prim.lattice.alpha, 63.579155761999999)
-        self.assertAlmostEqual(prim.lattice.beta, 63.579155761999999)
-        self.assertAlmostEqual(prim.lattice.gamma, 31.520348638000002)
+        self.assertAlmostEqual(prim.lattice.beta, 116.42084423747779)
+        self.assertAlmostEqual(prim.lattice.gamma, 148.47965136208569)
         self.assertAlmostEqual(prim.lattice.a, 7.2908007159612325)
         self.assertAlmostEqual(prim.lattice.b, 7.2908007159612325)
         self.assertAlmostEqual(prim.lattice.c, 6.8743926325200002)
