@@ -29,9 +29,9 @@ class XRDCalculatorTest(unittest.TestCase):
         c = XRDCalculator()
         data = c.get_xrd_data(structure)
         #Check the first two peaks
-        self.assertAlmostEqual(data[0][0], 21.109953842244817)
-        self.assertAlmostEqual(data[0][1][0], 36.483541952310695)
-        self.assertAlmostEqual(data[1][0], 30.027884973250128)
+        self.assertAlmostEqual(data[0][0], 21.107738329639844)
+        self.assertAlmostEqual(data[0][1][0], 36.483184003748946)
+        self.assertAlmostEqual(data[1][0], 30.024695921112777)
         self.assertAlmostEqual(data[1][1][0], 100)
 
 

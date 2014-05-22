@@ -14,6 +14,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
+from math import sin, cos, asin
 import math, cmath
 import os
 
@@ -23,7 +24,26 @@ import json
 
 #XRD wavelengths in angstroms
 WAVELENGTHS = {
-    "CuKa": 0.1542 * 10
+    "CuKa": 1.54184,
+    "CuKa2": 1.54439,
+    "CuKa1": 1.54056,
+    "CuKb1": 1.39222,
+    "MoKa": 0.71073,
+    "MoKa2": 0.71359,
+    "MoKa1": 0.70930,
+    "MoKb1": 0.63229,
+    "CrKa": 2.29100,
+    "CrKa2": 2.29361,
+    "CrKa1": 2.28970,
+    "CrKb1": 2.08487,
+    "FeKa": 1.93735,
+    "FeKa2": 1.93998,
+    "FeKa1": 1.93604,
+    "FeKb1": 1.75661,
+    "CoKa": 1.79026,
+    "CoKa2": 1.79285,
+    "CoKa1": 1.78896,
+    "CoKb1": 1.63079
 }
 
 with open(os.path.join(os.path.dirname(__file__),
@@ -53,16 +73,19 @@ class XRDCalculator(object):
         """
         wavelength = self.wavelength
         latt = structure.lattice
-        # Obtain reciprocal lattice and points within limiting sphere
+
+        # Obtain crystallographic reciprocal lattice and points within
+        # limiting sphere (within 2/wavelength)
         recip_latt = latt.reciprocal_lattice_crystallographic
         recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0],
                                                     2 / wavelength)
 
         intensities = {}
-        for hkl, g_hkl, ind in sorted(recip_pts, key=lambda d: (d[1], -d[0][0],
-                                                            -d[0][1], -d[0][2])):
+        for hkl, g_hkl, ind in sorted(recip_pts,
+                                      key=lambda d: (d[1], -d[0][2],
+                                                     -d[0][1], -d[0][0])):
             if g_hkl != 0:
-                theta = math.asin(wavelength / (2 / g_hkl))
+                theta = asin(wavelength * g_hkl / 2)
                 s = g_hkl / 2
                 s_2 = s ** 2
                 F_hkl = 0
@@ -77,7 +100,7 @@ class XRDCalculator(object):
 
                 I_hkl = (F_hkl * F_hkl.conjugate()).real
 
-                lorentz_factor = (1 + math.cos(2 * theta) ** 2) / (math.sin(theta) ** 2 * math.cos(theta))
+                lorentz_factor = (1 + cos(2 * theta) ** 2) / (sin(theta) ** 2 * cos(theta))
                 twotheta = 2 * theta / math.pi * 180
                 if twotheta in intensities:
                     intensities[twotheta][0] += I_hkl * lorentz_factor
