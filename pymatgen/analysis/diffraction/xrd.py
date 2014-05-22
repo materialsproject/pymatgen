@@ -14,8 +14,8 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
-from math import sin, cos, asin, pi
-import math, cmath
+from math import sin, cos, asin, pi, exp
+import cmath
 import os
 
 import numpy as np
@@ -98,8 +98,8 @@ class XRDCalculator(object):
             ]
         """
         if self.symprec:
-            f = SymmetryFinder(structure, symprec=self.symprec)
-            structure = f.get_refined_structure()
+            finder = SymmetryFinder(structure, symprec=self.symprec)
+            structure = finder.get_refined_structure()
 
         wavelength = self.wavelength
         latt = structure.lattice
@@ -113,22 +113,21 @@ class XRDCalculator(object):
         intensities = {}
         two_thetas = []
         for hkl, g_hkl, ind in sorted(
-                recip_pts, key=lambda d: (d[1], -d[0][2],
-                                          -d[0][1], -d[0][0])):
+                recip_pts, key=lambda i: (i[1], -i[0][2], -i[0][1], -i[0][0])):
             if g_hkl != 0:
                 theta = asin(wavelength * g_hkl / 2)
                 s = g_hkl / 2
                 s_2 = s ** 2
-                F_hkl = 0
+                f_hkl = 0
                 for site in structure:
                     el = site.specie
                     asf = ATOMIC_SCATTERING_FACTORS[el.symbol]
                     fs = el.Z - 41.78214 * s_2 * sum(
-                        [d[0] * math.exp(-d[1] * s_2) for d in asf])
-                    F_hkl += fs * cmath.exp(2j * pi
+                        [d[0] * exp(-d[1] * s_2) for d in asf])
+                    f_hkl += fs * cmath.exp(2j * pi
                                             * np.dot(hkl, site.frac_coords))
 
-                I_hkl = (F_hkl * F_hkl.conjugate()).real
+                i_hkl = (f_hkl * f_hkl.conjugate()).real
 
                 lorentz_factor = (1 + cos(2 * theta) ** 2) / \
                     (sin(theta) ** 2 * cos(theta))
@@ -138,10 +137,9 @@ class XRDCalculator(object):
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
                                1e-5)
                 if len(ind[0]) > 0:
-                    intensities[two_thetas[ind[0]]][0] += I_hkl * \
-                                                          lorentz_factor
+                    intensities[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
                 else:
-                    intensities[two_theta] = [I_hkl * lorentz_factor,
+                    intensities[two_theta] = [i_hkl * lorentz_factor,
                                               tuple(hkl)]
                     two_thetas.append(two_theta)
 
@@ -153,7 +151,7 @@ class XRDCalculator(object):
         return data
 
     def get_xrd_plot(self, structure, two_theta_range=None,
-                      annotate_peaks=True):
+                     annotate_peaks=True):
         """
         Returns the XRD plot as a matplotlib.pyplot.
 
