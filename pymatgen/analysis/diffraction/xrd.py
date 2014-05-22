@@ -136,7 +136,7 @@ class XRDCalculator(object):
 
                 #Deal with floating point precision issues.
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
-                               1e-3)
+                               1e-5)
                 if len(ind[0]) > 0:
                     intensities[two_thetas[ind[0]]][0] += I_hkl * \
                                                           lorentz_factor
