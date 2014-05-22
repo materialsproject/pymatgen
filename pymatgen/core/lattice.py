@@ -330,8 +330,11 @@ class Lattice(MSONable):
     @property
     def reciprocal_lattice(self):
         """
-        Return the reciprocal lattice. The property is lazily generated for
-        efficiency.
+        Return the reciprocal lattice. Note that this is the standard
+        reciprocal lattice used for solid state physics with a factor of 2 *
+        pi. If you are looking for the crystallographic reciprocal lattice,
+        use the reciprocal_lattice_crystallographic property.
+        The property is lazily generated for efficiency.
         """
         try:
             return self._reciprocal_lattice
@@ -341,6 +344,16 @@ class Lattice(MSONable):
             self._reciprocal_lattice = Lattice(np.array(v) * 2 * np.pi /
                                                self.volume)
             return self._reciprocal_lattice
+
+    @property
+    def reciprocal_lattice_crystallographic(self):
+        """
+        Returns the *crystallographic* reciprocal lattice, i.e., no factor of
+        2 * pi.
+        """
+        v = [np.cross(self._matrix[(i + 1) % 3], self._matrix[(i + 2) % 3])
+             for i in xrange(3)]
+        return Lattice(np.array(v) / self.volume)
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
