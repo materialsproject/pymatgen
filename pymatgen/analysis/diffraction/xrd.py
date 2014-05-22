@@ -21,6 +21,8 @@ import os
 import numpy as np
 import json
 
+from pymatgen.symmetry.finder import SymmetryFinder
+
 
 #XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -65,7 +67,7 @@ class XRDCalculator(object):
     #Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
-    def __init__(self, radiation="CuKa"):
+    def __init__(self, radiation="CuKa", symprec=0):
         """
         Initializes the XRD calculator with a given radiation.
 
@@ -73,9 +75,15 @@ class XRDCalculator(object):
             radiation: The type of radiation. Choose from any of those
                 available in the AVAILABLE_RADIATION class variable. Defaults
                 to CuKa, i.e, Cu K_alpha radiation.
+            symprec:
+                Symmetry precision for structure refinement. If set to 0,
+                no refinement is done. Otherwise, refinement is performed
+                using spglib with provided precision.
+
         """
         self.radiation = radiation
         self.wavelength = WAVELENGTHS[radiation]
+        self.symprec = symprec
 
     def get_xrd_data(self, structure):
         """
@@ -89,6 +97,10 @@ class XRDCalculator(object):
                 [two_theta, [scaled_intensity, [h, k, l]]
             ]
         """
+        if self.symprec:
+            f = SymmetryFinder(structure, symprec=self.symprec)
+            structure = f.get_refined_structure()
+
         wavelength = self.wavelength
         latt = structure.lattice
 
@@ -124,7 +136,7 @@ class XRDCalculator(object):
 
                 #Deal with floating point precision issues.
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
-                               1e-8)
+                               1e-3)
                 if len(ind[0]) > 0:
                     intensities[two_thetas[ind[0]]][0] += I_hkl * \
                                                           lorentz_factor
