@@ -94,7 +94,7 @@ class XRDCalculator(object):
 
         Returns:
             {XRD data} in the form of [
-                [two_theta, [scaled_intensity, [h, k, l]]
+                [two_theta, scaled_intensity, [h, k, l]]
             ]
         """
         if self.symprec:
@@ -149,7 +149,7 @@ class XRDCalculator(object):
             v = intensities[k]
             scaled_intensity = v[0] / max_intensity * 100
             if scaled_intensity > 1e-3:
-                data.append([k, [scaled_intensity, v[1]]])
+                data.append([k, scaled_intensity, v[1]])
         return data
 
     def get_xrd_plot(self, structure, two_theta_range=None,
@@ -171,13 +171,13 @@ class XRDCalculator(object):
         plt = get_publication_quality_plot(16, 10)
         two_theta_range = [-1, float("inf")] if two_theta_range is None \
             else two_theta_range
-        for d in self.get_xrd_data(structure):
-            if two_theta_range[0] <= d[0] <= two_theta_range[1]:
-                plt.plot([d[0], d[0]], [0, d[1][0]], color='k',
-                         linewidth=3, label=str(d[1][1]))
+        for two_theta, i, hkl in self.get_xrd_data(structure):
+            if two_theta_range[0] <= two_theta <= two_theta_range[1]:
+                plt.plot([two_theta, two_theta], [0, i], color='k',
+                         linewidth=3, label=str(hkl))
                 if annotate_peaks:
-                    plt.annotate(str(d[1][1]), xy=[d[0], d[1][0]],
-                                 xytext=[d[0], d[1][0]], fontsize=16)
+                    plt.annotate(str(hkl), xy=[two_theta, i],
+                                 xytext=[two_theta, i], fontsize=16)
         return plt
 
     def show_xrd_plot(self, structure, two_theta_range=None,
