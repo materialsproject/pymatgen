@@ -48,7 +48,7 @@ WAVELENGTHS = {
 }
 
 with open(os.path.join(os.path.dirname(__file__),
-                       "atomic_scattering_factors.json")) as f:
+                       "atomic_scattering_params.json")) as f:
     ATOMIC_SCATTERING_PARAMS = json.load(f)
 
 
