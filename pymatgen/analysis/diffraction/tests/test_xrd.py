@@ -46,7 +46,7 @@ class XRDCalculatorTest(unittest.TestCase):
         s = read_structure(os.path.join(test_dir, "Li10GeP2S12.cif"))
         data = c.get_xrd_data(s)
         self.assertAlmostEqual(data[1][0], 14.058274883353876)
-        self.assertAlmostEqual(data[1][1], 18.741241872965848)
+        self.assertAlmostEqual(data[1][1], 4.4111123641667671)
 
 
 if __name__ == '__main__':

@@ -133,7 +133,7 @@ class XRDCalculator(object):
         zs = np.array(zs)
         coeffs = np.array(coeffs)
         fcoords = np.array(fcoords)
-        occus = np.array(occu)
+        occus = np.array(occus)
 
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][2], -i[0][1], -i[0][0])):
