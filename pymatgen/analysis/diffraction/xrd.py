@@ -14,8 +14,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
-from math import sin, cos, asin, pi, exp
-import cmath
+from math import sin, cos, asin, pi
 import os
 
 import numpy as np
@@ -61,7 +60,10 @@ class XRDCalculator(object):
     available).
 
     The formalism for this code is based on that given in Chapters 11 and 12
-    of Structure of Materials by Marc De Graef and Michael E. McHenry.
+    of Structure of Materials by Marc De Graef and Michael E. McHenry. Note
+    that the multiplicity correction is not needed since this code simply
+    goes through all reciprocal points within the limiting sphere,
+    which includes all symmetrically equivalent planes.
     """
 
     #Tuple of available radiation keywords.
@@ -119,10 +121,17 @@ class XRDCalculator(object):
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][2], -i[0][1], -i[0][0])):
             if g_hkl != 0:
+                # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
-                s = g_hkl / 2
-                s_2 = s ** 2
 
+                # s = sin(theta) / wavelength = |ghkl| / 2 (d = 1/|ghkl|)
+                s = g_hkl / 2
+
+                #Store s squared since we are using it a few times.
+                s2 = s ** 2
+
+                # Vectorized computation of g.r for all fractional coords and
+                # hkl.
                 grs = np.dot(fcoords, np.transpose([hkl])).T[0]
 
                 """
@@ -132,17 +141,23 @@ class XRDCalculator(object):
                     for site in structure:
                         el = site.specie
                         coeff = ATOMIC_SCATTERING_FACTORS_COEFF[el.symbol]
-                        fs = el.Z - 41.78214 * s_2 * sum(
-                             [d[0] * exp(-d[1] * s_2) for d in coeff])
+                        fs = el.Z - 41.78214 * s2 * sum(
+                             [d[0] * exp(-d[1] * s2) for d in coeff])
                 """
-                fs = zs - 41.78214 * s_2 * np.sum(
-                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s_2), axis=1)
+                fs = zs - 41.78214 * s2 * np.sum(
+                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
+
+                # Structure factor = sum of atomic scattering factors (with
+                # position factor exp(2j * pi * g.r). Vectorized computation.
                 f_hkl = np.sum(fs * np.exp(2j * pi * grs))
 
+                # Intensity for hkl is modulus square of structure factor.
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
 
+                #Lorentz polarization correction for hkl
                 lorentz_factor = (1 + cos(2 * theta) ** 2) / \
                     (sin(theta) ** 2 * cos(theta))
+
                 two_theta = 2 * theta / pi * 180
 
                 #Deal with floating point precision issues.
@@ -155,6 +170,7 @@ class XRDCalculator(object):
                                               tuple(hkl)]
                     two_thetas.append(two_theta)
 
+        # Scale intensities so that the max intensity is 100.
         max_intensity = max([v[0] for v in intensities.values()])
         data = []
         for k in sorted(intensities.keys()):
