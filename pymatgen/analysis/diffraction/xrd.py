@@ -66,7 +66,7 @@ class XRDCalculator(object):
     this code simply goes through all reciprocal points within the limiting
     sphere, which includes all symmetrically equivalent planes.
     """
-    
+
     #Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
@@ -116,7 +116,9 @@ class XRDCalculator(object):
 
         # Create a flattened array of zs, coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
-        # later.
+        # later. Note that these are not necessarily the same size as the
+        # structure as each partially occupied species occupies its own
+        # position in the flattened array.
         zs = []
         coeffs = []
         fcoords = []
@@ -149,16 +151,14 @@ class XRDCalculator(object):
                 # hkl.
                 grs = np.dot(fcoords, np.transpose([hkl])).T[0]
 
-                """
-                Highly vectorized computation of atomic scattering factors.
-                Equivalent non-vectorized code is::
-
-                    for site in structure:
-                        el = site.specie
-                        coeff = ATOMIC_SCATTERING_FACTORS_COEFF[el.symbol]
-                        fs = el.Z - 41.78214 * s2 * sum(
-                             [d[0] * exp(-d[1] * s2) for d in coeff])
-                """
+                # Highly vectorized computation of atomic scattering factors.
+                # Equivalent non-vectorized code is::
+                #
+                #   for site in structure:
+                #      el = site.specie
+                #      coeff = ATOMIC_SCATTERING_FACTORS_COEFF[el.symbol]
+                #      fs = el.Z - 41.78214 * s2 * sum(
+                #          [d[0] * exp(-d[1] * s2) for d in coeff])
                 fs = zs - 41.78214 * s2 * np.sum(
                     coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
 
