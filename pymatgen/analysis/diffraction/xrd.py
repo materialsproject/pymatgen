@@ -49,7 +49,7 @@ WAVELENGTHS = {
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_factors.json")) as f:
-    ATOMIC_SCATTERING_FACTORS_COEFF = json.load(f)
+    ATOMIC_SCATTERING_PARAMS = json.load(f)
 
 
 class XRDCalculator(object):
@@ -64,7 +64,44 @@ class XRDCalculator(object):
     the Debye-Waller (temperature) factor (for which data is typically not
     available). Note that the multiplicity correction is not needed since
     this code simply goes through all reciprocal points within the limiting
-    sphere, which includes all symmetrically equivalent planes.
+    sphere, which includes all symmetrically equivalent planes. The algorithm
+    is as follows
+
+    1. Calculate reciprocal lattice of structure. Find all reciprocal points
+       within the limiting sphere given by :math:`\\frac{2}{\\lambda}`.
+
+    2. For each reciprocal point :math:`\\mathbf{g_{hkl}}` corresponding to
+       lattice plane :math:`(hkl)`, compute the Bragg condition
+       :math:`\\sin(\\theta) = \\frac{\\lambda}{2d_{hkl}}`
+
+    3. Compute the structure factor as the sum of the atomic scattering
+       factors. The atomic scattering factors are given by
+
+       .. math::
+
+           f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \\exp(-b_is^2)
+
+       where :math:`s = \\frac{\\sin(\\theta)}{\\lambda}` and :math:`a_i`
+       and :math:`b_i` are the fitted parameters for each element. The
+       structure factor is then given by
+
+       .. math::
+
+           F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}} \cdot \\mathbf{r})
+
+    4. The intensity is then given by the modulus square of the structure
+       factor.
+
+       .. math::
+
+           I_{hkl} = F_{hkl}F_{hkl}^*
+
+    5. Finally, the Lorentz polarization correction factor is applied. This
+       factor is given by:
+
+       .. math::
+
+           P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}{\\sin^2(\\theta)\\cos(\\theta)}
     """
 
     #Tuple of available radiation keywords.
@@ -126,7 +163,7 @@ class XRDCalculator(object):
         for site in structure:
             for sp, occu in site.species_and_occu.items():
                 zs.append(sp.Z)
-                coeffs.append(ATOMIC_SCATTERING_FACTORS_COEFF[sp.symbol])
+                coeffs.append(ATOMIC_SCATTERING_PARAMS[sp.symbol])
                 fcoords.append(site.frac_coords)
                 occus.append(occu)
 
@@ -156,7 +193,7 @@ class XRDCalculator(object):
                 #
                 #   for site in structure:
                 #      el = site.specie
-                #      coeff = ATOMIC_SCATTERING_FACTORS_COEFF[el.symbol]
+                #      coeff = ATOMIC_SCATTERING_PARAMS[el.symbol]
                 #      fs = el.Z - 41.78214 * s2 * sum(
                 #          [d[0] * exp(-d[1] * s2) for d in coeff])
                 fs = zs - 41.78214 * s2 * np.sum(

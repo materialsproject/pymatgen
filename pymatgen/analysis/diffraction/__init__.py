@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-TODO: Modify module doc.
+This package implements various diffraction analyses.
 """
 
 from __future__ import division
