@@ -93,9 +93,7 @@ class XRDCalculator(object):
             structure: Input structure
 
         Returns:
-            {XRD data} in the form of [
-                [two_theta, scaled_intensity, [h, k, l]]
-            ]
+            {XRD data} in the form of [[two_theta, scaled_intensity, [h, k, l]]]
         """
         if self.symprec:
             finder = SymmetryFinder(structure, symprec=self.symprec)
