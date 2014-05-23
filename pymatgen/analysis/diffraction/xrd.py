@@ -50,7 +50,7 @@ WAVELENGTHS = {
 
 with open(os.path.join(os.path.dirname(__file__),
                        "atomic_scattering_factors.json")) as f:
-    ATOMIC_SCATTERING_FACTORS = json.load(f)
+    ATOMIC_SCATTERING_FACTORS_COEFF = json.load(f)
 
 
 class XRDCalculator(object):
@@ -112,20 +112,35 @@ class XRDCalculator(object):
 
         intensities = {}
         two_thetas = []
+
+        zs = np.array([site.specie.Z for site in structure])
+        coeffs = np.array([ATOMIC_SCATTERING_FACTORS_COEFF[site.specie.symbol]
+                          for site in structure])
+        fcoords = structure.frac_coords
+
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][2], -i[0][1], -i[0][0])):
             if g_hkl != 0:
                 theta = asin(wavelength * g_hkl / 2)
                 s = g_hkl / 2
                 s_2 = s ** 2
-                f_hkl = 0
-                for site in structure:
-                    el = site.specie
-                    asf = ATOMIC_SCATTERING_FACTORS[el.symbol]
-                    fs = el.Z - 41.78214 * s_2 * sum(
-                        [d[0] * exp(-d[1] * s_2) for d in asf])
-                    f_hkl += fs * cmath.exp(2j * pi
-                                            * np.dot(hkl, site.frac_coords))
+
+                grs = np.dot(fcoords, np.transpose([hkl])).T[0]
+
+                """
+                Highly vectorized computation of atomic scattering factors.
+                Equivalent non-vectorized code is::
+
+                    for site in structure:
+                        el = site.specie
+                        coeff = ATOMIC_SCATTERING_FACTORS_COEFF[el.symbol]
+                        fs = el.Z - 41.78214 * s_2 * sum(
+                             [d[0] * exp(-d[1] * s_2) for d in coeff])
+                """
+                fs = zs - 41.78214 * s_2 * np.sum(
+                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s_2), axis=1)
+
+                f_hkl = np.sum(np.array(fs) * np.exp(2j * pi * grs))
 
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
 

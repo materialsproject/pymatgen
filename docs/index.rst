@@ -74,6 +74,10 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.8
+------
+1. Initial beta version of XRD pattern calculator.
+
 v2.9.7
 ------
 1. Quick bug-fix release that provides a better solution to Structure handling
