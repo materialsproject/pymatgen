@@ -129,6 +129,7 @@ class Vasprun(object):
         in VASP).
 
     .. attribute:: dielectric
+
         The real and imaginary part of the dielectric constant (e.g., computed
         by RPA) in function of the energy (frequency). Optical properties (e.g.
         absorption coefficient) can be obtained through this.
@@ -138,7 +139,13 @@ class Vasprun(object):
         real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
         imag_partxy, imag_partyz, imag_partxz]])
 
+    .. attribute:: epsilon_static
+
+        The static part of the dielectric constant. Present when it's a DFPT run
+        (LEPSILON=TRUE)
+
     .. attribute:: nionic_steps
+
         The total number of ionic steps. This number is always equal
         to the total number of steps in the actual run even if
         ionic_step_skip is used.
@@ -186,7 +193,7 @@ class Vasprun(object):
                             "actual_kpoints_weights", "dos_energies",
                             "eigenvalues", "tdos", "idos", "pdos", "efermi",
                             "ionic_steps", "dos_has_errors",
-                            "projected_eigenvalues", "dielectric"]
+                            "projected_eigenvalues", "dielectric", "epsilon_static"]
 
     def __init__(self, filename, ionic_step_skip=None,
                  ionic_step_offset=0, parse_dos=True,
@@ -528,6 +535,7 @@ class Vasprun(object):
             eigen[index][str(spin)] = values
         vout["eigenvalues"] = eigen
         vout['dielectric'] = self.dielectric
+        vout['epsilon_static'] = self.epsilon_static
 
         peigen = []
 
@@ -593,6 +601,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.lattice_rec = []
         self.stress = []
         self.dielectric = ([], [], [])
+        self.epsilon_static = []
 
         self.input_read = False
         self.read_structure = False
@@ -601,6 +610,7 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
         self.read_eigen = False
         self.read_projected_eigen = False
         self.read_diel = False
+        self.read_epsilon_static = False
         self.read_dos = False
         self.in_efermi = False
         self.read_atoms = False
@@ -660,6 +670,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.posstr.write(data)
         elif self.read_rec_lattice:
             self.latticerec.write(data)
+        elif self.read_epsilon_static:
+            self.epsilonstr.write(data)
 
     def endElement(self, name):
         """
@@ -723,6 +735,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             elif name == "v" and (state["varray"] == "forces" or
                                   state["varray"] == "stress"):
                 self.read_positions = True
+            elif name == "v" and state["varray"] == "epsilon":
+                self.read_epsilon_static = True
             elif name == "dielectricfunction":
                 logger.debug("Reading dielectric function...")
                 self.read_diel = True
@@ -795,6 +809,8 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
             self.read_structure = True
         elif name == "varray" and (state["varray"] in ["forces", "stress"]):
             self.posstr = StringIO.StringIO()
+        elif name == "varray" and (state["varray"] in ["epsilon"]):
+            self.epsilonstr = StringIO.StringIO()
 
     def _read_input(self, name):
         state = self._state
@@ -869,6 +885,11 @@ class VasprunHandler(xml.sax.handler.ContentHandler):
                                        self.posstr.getvalue().split()))
             self.stress.shape = (3, 3)
             self.read_positions = False
+        elif name == "varray" and state["varray"] == "epsilon":
+            self.epsilon_static = np.array(map(float,
+                                        self.epsilonstr.getvalue().split()))
+            self.epsilon_static.shape = (3, 3)
+            self.read_epsilon_static = False
         elif name == "calculation":
             self.ionic_steps.append({"electronic_steps": self.scdata,
                                      "structure": self.structures[-1],

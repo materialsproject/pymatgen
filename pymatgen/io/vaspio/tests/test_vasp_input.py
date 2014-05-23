@@ -298,6 +298,9 @@ class KpointsTest(unittest.TestCase):
         poscar = Poscar.from_file(filepath)
         kpoints = Kpoints.automatic_density(poscar.structure, 500)
         self.assertEqual(kpoints.kpts, [[2, 4, 4]])
+        self.assertEqual(kpoints.style, "Monkhorst")
+        kpoints = Kpoints.automatic_density(poscar.structure, 500, True)
+        self.assertEqual(kpoints.style, "Gamma")
 
     def test_to_dict_from_dict(self):
         k = Kpoints.monkhorst_automatic([2, 2, 2], [0, 0, 0])
