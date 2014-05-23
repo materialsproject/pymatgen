@@ -181,7 +181,7 @@ class XRDCalculator(object):
                 data.append([k, scaled_intensity, v[1]])
         return data
 
-    def get_xrd_plot(self, structure, two_theta_range=None,
+    def get_xrd_plot(self, structure, two_theta_range=(0, 90),
                      annotate_peaks=True):
         """
         Returns the XRD plot as a matplotlib.pyplot.
@@ -189,7 +189,7 @@ class XRDCalculator(object):
         Args:
             structure: Input structure
             two_theta_range: Range of two_thetas for which to plot. Defaults
-                to None, which means the entire range is plotted.
+                to (0, 90).
             annotate_peaks: Whether to annotate the peaks with plane
                 information.
 
@@ -209,7 +209,7 @@ class XRDCalculator(object):
                                  xytext=[two_theta, i], fontsize=16)
         return plt
 
-    def show_xrd_plot(self, structure, two_theta_range=None,
+    def show_xrd_plot(self, structure, two_theta_range=(0, 90),
                       annotate_peaks=True):
         """
         Shows the XRD plot.
@@ -217,7 +217,7 @@ class XRDCalculator(object):
         Args:
             structure: Input structure
             two_theta_range: Range of two_thetas for which to plot. Defaults
-                to None, which means the entire range is plotted.
+                to (0, 90).
             annotate_peaks: Whether to annotate the peaks with plane
                 information.
         """
