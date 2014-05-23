@@ -853,15 +853,17 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
 class MPBSHSEVaspInputSet(DictVaspInputSet):
     """
     Implementation of a VaspInputSet for HSE band structure computations
-    Remember that HSE band structures cannot be non-self consistent. So, a band structure
-    along syymetry lines for instance needs a uniform grid with appropriate weights + weight 0
-    path in reciprocal space
+    Remember that HSE band structures cannot be non-self consistent. So, a band
+    structure along syymetry lines for instance needs a uniform grid with
+    appropriate weights + weight 0 path in reciprocal space
+
     Args:
         user_incar_settings(dict): A dict specifying additional incar
             settings
-        added_kpoints: a list of kpoints (list of 3 number list) with weight 0 added to the run.
-            The k-points are in fractional coordinates
-        kpoints_density: the kpoint density of the uniform grid used for the band structure run
+        added_kpoints: a list of kpoints (list of 3 number list) with weight 0
+            added to the run. The k-points are in fractional coordinates
+        kpoints_density: the kpoint density of the uniform grid used for the
+            band structure run
         mode: Line: Generate k-points along symmetry lines for
             bandstructure. Uniform: Generate uniform k-points grid
 

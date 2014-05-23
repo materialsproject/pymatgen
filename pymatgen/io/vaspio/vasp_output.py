@@ -129,6 +129,7 @@ class Vasprun(object):
         in VASP).
 
     .. attribute:: dielectric
+
         The real and imaginary part of the dielectric constant (e.g., computed
         by RPA) in function of the energy (frequency). Optical properties (e.g.
         absorption coefficient) can be obtained through this.
@@ -138,11 +139,13 @@ class Vasprun(object):
         real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
         imag_partxy, imag_partyz, imag_partxz]])
 
-    .. atribute:: epsilon_static
+    .. attribute:: epsilon_static
+
         The static part of the dielectric constant. Present when it's a DFPT run
         (LEPSILON=TRUE)
 
     .. attribute:: nionic_steps
+
         The total number of ionic steps. This number is always equal
         to the total number of steps in the actual run even if
         ionic_step_skip is used.
