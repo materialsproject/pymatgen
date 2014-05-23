@@ -147,7 +147,9 @@ class XRDCalculator(object):
         data = []
         for k in sorted(intensities.keys()):
             v = intensities[k]
-            data.append([k, [v[0] / max_intensity * 100, v[1]]])
+            scaled_intensity = v[0] / max_intensity * 100
+            if scaled_intensity > 1e-3:
+                data.append([k, [scaled_intensity, v[1]]])
         return data
 
     def get_xrd_plot(self, structure, two_theta_range=None,
