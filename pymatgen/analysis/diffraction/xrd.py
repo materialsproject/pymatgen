@@ -137,8 +137,7 @@ class XRDCalculator(object):
                 """
                 fs = zs - 41.78214 * s_2 * np.sum(
                     coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s_2), axis=1)
-
-                f_hkl = np.sum(np.array(fs) * np.exp(2j * pi * grs))
+                f_hkl = np.sum(fs * np.exp(2j * pi * grs))
 
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
 
