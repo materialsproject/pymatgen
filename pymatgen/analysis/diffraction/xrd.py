@@ -66,8 +66,7 @@ class XRDCalculator(object):
     this code simply goes through all reciprocal points within the limiting
     sphere, which includes all symmetrically equivalent planes.
     """
-    # TODO: Make this work with disordered structures.
-
+    
     #Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
@@ -115,10 +114,24 @@ class XRDCalculator(object):
         intensities = {}
         two_thetas = []
 
-        zs = np.array([site.specie.Z for site in structure])
-        coeffs = np.array([ATOMIC_SCATTERING_FACTORS_COEFF[site.specie.symbol]
-                          for site in structure])
-        fcoords = structure.frac_coords
+        # Create a flattened array of zs, coeffs, fcoords and occus. This is
+        # used to perform vectorized computation of atomic scattering factors
+        # later.
+        zs = []
+        coeffs = []
+        fcoords = []
+        occus = []
+        for site in structure:
+            for sp, occu in site.species_and_occu.items():
+                zs.append(sp.Z)
+                coeffs.append(ATOMIC_SCATTERING_FACTORS_COEFF[sp.symbol])
+                fcoords.append(site.frac_coords)
+                occus.append(occu)
+
+        zs = np.array(zs)
+        coeffs = np.array(coeffs)
+        fcoords = np.array(fcoords)
+        occus = np.array(occu)
 
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][2], -i[0][1], -i[0][0])):
@@ -150,8 +163,9 @@ class XRDCalculator(object):
                     coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
 
                 # Structure factor = sum of atomic scattering factors (with
-                # position factor exp(2j * pi * g.r). Vectorized computation.
-                f_hkl = np.sum(fs * np.exp(2j * pi * grs))
+                # position factor exp(2j * pi * g.r and occupancies).
+                # Vectorized computation.
+                f_hkl = np.sum(fs * occus * np.exp(2j * pi * grs))
 
                 # Intensity for hkl is modulus square of structure factor.
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
