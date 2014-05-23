@@ -66,6 +66,7 @@ class XRDCalculator(object):
     this code simply goes through all reciprocal points within the limiting
     sphere, which includes all symmetrically equivalent planes.
     """
+    # TODO: Make this work with disordered structures.
 
     #Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
