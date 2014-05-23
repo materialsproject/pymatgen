@@ -54,16 +54,17 @@ with open(os.path.join(os.path.dirname(__file__),
 
 class XRDCalculator(object):
     """
-    Computes the XRD pattern of a crystal structure. This takes into account
-    the atomic scattering factors and the Lorentz polarization factor, but not
-    the Debye-Waller (temperature) factor (for which data is typically not
-    available).
+    Computes the XRD pattern of a crystal structure.
 
-    The formalism for this code is based on that given in Chapters 11 and 12
-    of Structure of Materials by Marc De Graef and Michael E. McHenry. Note
-    that the multiplicity correction is not needed since this code simply
-    goes through all reciprocal points within the limiting sphere,
-    which includes all symmetrically equivalent planes.
+    This code is implemented by Shyue Ping Ong as part of UCSD's NANO106 -
+    Crystallography of Materials. The formalism for this code is based on
+    that given in Chapters 11 and 12 of Structure of Materials by Marc De
+    Graef and Michael E. McHenry. This takes into account the atomic
+    scattering factors and the Lorentz polarization factor, but not
+    the Debye-Waller (temperature) factor (for which data is typically not
+    available). Note that the multiplicity correction is not needed since
+    this code simply goes through all reciprocal points within the limiting
+    sphere, which includes all symmetrically equivalent planes.
     """
 
     #Tuple of available radiation keywords.
