@@ -47,7 +47,7 @@ class XRDCalculatorTest(unittest.TestCase):
         data = c.get_xrd_data(s)
         self.assertAlmostEqual(data[1][0], 14.058274883353876)
         self.assertAlmostEqual(data[1][1], 4.4111123641667671)
-
+        c.show_xrd_plot(s)
 
 if __name__ == '__main__':
     unittest.main()
