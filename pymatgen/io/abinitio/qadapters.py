@@ -171,6 +171,7 @@ class AbstractQueueAdapter(object):
         """
         # Make defensive copies so that we can change the values at runtime.
         self.qparams = qparams.copy() if qparams is not None else {}
+        self._verbatim = []
 
         if is_string(setup):
             setup = [setup]
@@ -293,6 +294,14 @@ class AbstractQueueAdapter(object):
             Exit status.
         """
 
+    def add_verbatim(self, lines):
+        """
+        Add a list of lines or just a string to the header.
+        No programmatic interface to change these options is provided
+        """
+        if is_string(lines): lines = [lines]
+        self.verbatim.extend(lines)
+
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         qtemplate = QScriptTemplate(self.QTEMPLATE)
@@ -315,6 +324,10 @@ class AbstractQueueAdapter(object):
         for line in unclean_template.split('\n'):
             if '$$' not in line:
                 clean_template.append(line)
+
+        # Add verbatim lines
+        if self._verbatim:
+            clean_template.extend(self._verbatim)
 
         return '\n'.join(clean_template)
 
@@ -400,6 +413,7 @@ class AbstractQueueAdapter(object):
 ####################
 # Concrete classes #
 ####################
+
 
 class ShellAdapter(AbstractQueueAdapter):
     QTYPE = "shell"
@@ -564,12 +578,17 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -A $${account}
 #PBS -l walltime=$${walltime}
 #PBS -q $${queue}
+#PBS -l model=$${model}
 #PBS -l mppwidth=$${mppwidth}
 #PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -N $${job_name}
+#PBS -l place=$${excl}
+#PBS -W group_list=$${group_list}
+#PBS -l pvmem=$${pvmem}
+######PBS -l select=96:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1
+######PBS -l pvmem=1000mb
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
-
 """
     @property
     def mpi_ncpus(self):
@@ -578,7 +597,8 @@ class PbsAdapter(AbstractQueueAdapter):
                                                     
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
-        if "ppn" not in self.qparams: self.qparams["ppn"] = 1
+        if "ppn" not in self.qparams:
+            self.qparams["ppn"] = 1
 
         ppnode = self.qparams.get("ppn")
         self.qparams["nodes"] = mpi_ncpus // ppnode 
@@ -586,8 +606,9 @@ class PbsAdapter(AbstractQueueAdapter):
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
         raise NotImplementedError("")
-        #self.qparams["mem_per_cpu"] = mem_mb
-        ## Remove mem if it's defined.
+        mem_mb = str(mem_mb) + " mb"
+        self.qparams["pvmem"] = mem_mb
+        # Remove mem if it's defined.
         #self.qparams.pop("mem", None)
 
     def cancel(self, job_id):
@@ -604,7 +625,7 @@ class PbsAdapter(AbstractQueueAdapter):
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             process.wait()
 
-            # grab the returncode. PBS returns 0 if the job was successful
+            # grab the return code. PBS returns 0 if the job was successful
             if process.returncode == 0:
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
@@ -622,12 +643,12 @@ class PbsAdapter(AbstractQueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
-                      'The error response reads: {}'.format(process.stderr.read()))
+                       'The error response reads: {}'.format(process.stderr.read()))
+                raise self.Error(msg)
 
         except:
             # random error, e.g. no qsub on machine!
             raise self.Error("Running qsub caused an error...")
-
 
     def get_njobs_in_queue(self, username=None):
         # Initialize username
@@ -663,7 +684,6 @@ class SGEAdapter(AbstractQueueAdapter):
     """
     Adapter for Sun Grid Engine (SGE) task submission software.
     """
-
     QTYPE = "sge"
 
     QTEMPLATE = """\
@@ -729,7 +749,8 @@ class SGEAdapter(AbstractQueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
-                      'The error response reads: {}'.format(process.stderr.read()))
+                       'The error response reads: {}'.format(process.stderr.read()))
+                raise self.Error(msg)
 
         except:
             # random error, e.g. no qsub on machine!
@@ -762,6 +783,7 @@ class SGEAdapter(AbstractQueueAdapter):
         logger.critical(err_msg)
 
         return None
+
 
 class QScriptTemplate(string.Template):
     delimiter = '$$'
