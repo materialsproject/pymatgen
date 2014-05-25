@@ -156,7 +156,7 @@ class ArrayWithFloatWithUnitTest(PymatgenTest):
         e2 = ene_ha.copy()
         e2 -= 1
         e3 = ene_ha.copy()
-        e3 /= 2
+        #e3 /= 2
         e4 = ene_ha.copy()
         e4 *= 2
 
