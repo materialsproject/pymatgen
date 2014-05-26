@@ -392,7 +392,7 @@ class AbstractQueueAdapter(object):
 
         shell_text = se.get_script_str()
 
-        return qheader + shell_text
+        return qheader + shell_text + "\n"
 
     @abc.abstractmethod
     def submit_to_queue(self, script_file):
@@ -588,7 +588,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -l mppwidth=$${mppwidth}
 #PBS -l nodes=$${nodes}:ppn=$${ppn}
 #PBS -N $${job_name}
-#PBS -l place=$${excl}
+#PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
 #PBS -l pvmem=$${pvmem}
 ######PBS -l select=96:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1
