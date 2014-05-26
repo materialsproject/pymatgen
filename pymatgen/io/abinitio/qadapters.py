@@ -353,19 +353,23 @@ class AbstractQueueAdapter(object):
         if self.setup:
             se.add_comment("Setup section")
             se.add_lines(self.setup)
+            se.add_emptyline()
 
         if self.modules:
             se.add_comment("Load Modules")
             se.add_line("module purge")
             se.load_modules(self.modules)
+            se.add_emptyline()
 
         if self.has_omp:
             se.add_comment("OpenMp Environment")
             se.declare_vars(self.omp_env)
+            se.add_emptyline()
 
         if self.shell_env:
             se.add_comment("Shell Environment")
             se.declare_vars(self.shell_env)
+            se.add_emptyline()
 
         # Cd to launch_dir
         se.add_line("cd " + os.path.abspath(launch_dir))
@@ -373,6 +377,7 @@ class AbstractQueueAdapter(object):
         if self.pre_run:
             se.add_comment("Commands before execution")
             se.add_lines(self.pre_run)
+            se.add_emptyline()
 
         # Construct the string to run the executable with MPI and mpi_ncpus.
         mpi_ncpus = self.mpi_ncpus
@@ -381,6 +386,7 @@ class AbstractQueueAdapter(object):
         se.add_line(line)
 
         if self.post_run:
+            se.add_emptyline()
             se.add_comment("Commands after execution")
             se.add_lines(self.post_run)
 
