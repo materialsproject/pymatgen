@@ -107,22 +107,29 @@ class XRDCalculator(object):
     #Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
-    def __init__(self, radiation="CuKa", symprec=0):
+    def __init__(self, wavelength="CuKa", symprec=0):
         """
         Initializes the XRD calculator with a given radiation.
 
         Args:
-            radiation: The type of radiation. Choose from any of those
-                available in the AVAILABLE_RADIATION class variable. Defaults
-                to CuKa, i.e, Cu K_alpha radiation.
+            wavelength (str/float): The wavelength can be specified as either a
+                float or a string. If it is a string, it must be one of the
+                supported definitions in the AVAILABLE_RADIATION class
+                variable, which provides useful commonly used wavelengths.
+                If it is a float, it is interpreted as a wavelength in
+                angstroms.
+                Defaults to "CuKa", i.e, Cu K_alpha radiation.
             symprec:
                 Symmetry precision for structure refinement. If set to 0,
                 no refinement is done. Otherwise, refinement is performed
                 using spglib with provided precision.
 
         """
-        self.radiation = radiation
-        self.wavelength = WAVELENGTHS[radiation]
+        if isinstance(wavelength, float):
+            self.wavelength = wavelength
+        else:
+            self.radiation = wavelength
+            self.wavelength = WAVELENGTHS[wavelength]
         self.symprec = symprec
 
     def get_xrd_data(self, structure):
@@ -133,7 +140,11 @@ class XRDCalculator(object):
             structure: Input structure
 
         Returns:
-            {XRD data} in the form of [[two_theta, scaled_intensity, [h, k, l]]]
+            {XRD pattern} in the form of
+            [[two_theta, scaled_intensity, [h, k, l]]]
+            Two_theta is in degrees. Scaled intensity has a maximum value of
+            100 for the highest peak. [h, k, l] refers the Miller indices for
+            the diffracted lattice plane.
         """
         if self.symprec:
             finder = SymmetryFinder(structure, symprec=self.symprec)
