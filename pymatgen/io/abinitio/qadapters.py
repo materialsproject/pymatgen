@@ -237,7 +237,7 @@ class AbstractQueueAdapter(object):
     @property
     def has_omp(self):
         """True if we are using OpenMP threads"""
-        return hasattr(self,"omp_env") and bool(getattr(self, "omp_env"))
+        return hasattr(self, "omp_env") and bool(getattr(self, "omp_env"))
 
     @property
     def tot_ncpus(self):
@@ -300,7 +300,7 @@ class AbstractQueueAdapter(object):
         No programmatic interface to change these options is provided
         """
         if is_string(lines): lines = [lines]
-        self.verbatim.extend(lines)
+        self._verbatim.extend(lines)
 
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
@@ -491,7 +491,6 @@ class SlurmAdapter(AbstractQueueAdapter):
 
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
-
 """
 
     @property
@@ -582,40 +581,32 @@ class PbsAdapter(AbstractQueueAdapter):
 #!/bin/bash
 
 #PBS -A $${account}
+#PBS -N $${job_name}
 #PBS -l walltime=$${walltime}
 #PBS -q $${queue}
 #PBS -l model=$${model}
-#PBS -l mppwidth=$${mppwidth}
-#PBS -l nodes=$${nodes}:ppn=$${ppn}
-#PBS -N $${job_name}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-#PBS -l pvmem=$${pvmem}
-######PBS -l select=96:ncpus=1:vmem=1000mb:mpiprocs=1:ompthreads=1
-######PBS -l pvmem=1000mb
+#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=1
+#PBS -l pvmem=$${pvmem}mb
+####PBS -l mppwidth=$${mppwidth}
+####PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
-        return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
+        return self.qparams.get("select", 1)
                                                     
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
-        if "ppn" not in self.qparams:
-            self.qparams["ppn"] = 1
-
-        ppnode = self.qparams.get("ppn")
-        self.qparams["nodes"] = mpi_ncpus // ppnode 
+        self.qparams["select"] = mpi_ncpus
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
-        raise NotImplementedError("")
-        mem_mb = str(mem_mb) + " mb"
         self.qparams["pvmem"] = mem_mb
-        # Remove mem if it's defined.
-        #self.qparams.pop("mem", None)
+        self.qparams["vmem"] = mem_mb
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
