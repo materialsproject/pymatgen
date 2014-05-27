@@ -48,6 +48,5 @@ class XRDCalculatorTest(unittest.TestCase):
         self.assertAlmostEqual(data[1][0], 14.058274883353876)
         self.assertAlmostEqual(data[1][1], 4.4111123641667671)
 
-
 if __name__ == '__main__':
     unittest.main()

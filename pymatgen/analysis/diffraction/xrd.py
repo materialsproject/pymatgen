@@ -259,6 +259,10 @@ class XRDCalculator(object):
                 if annotate_peaks:
                     plt.annotate(str(hkl), xy=[two_theta, i],
                                  xytext=[two_theta, i], fontsize=16)
+        plt.xlabel(r"2\theta (degrees)")
+        plt.ylabel("Intensities (scaled)")
+        plt.tight_layout()
+
         return plt
 
     def show_xrd_plot(self, structure, two_theta_range=(0, 90),
