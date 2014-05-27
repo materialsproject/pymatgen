@@ -8,12 +8,9 @@ import time
 import shutil
 import collections
 import abc
-import warnings
 import copy
-import yaml
-import numpy as np
-from pymatgen.io.abinitio import myaml
 
+from pymatgen.io.abinitio import myaml
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
 
@@ -23,15 +20,15 @@ except ImportError:
     pass
 
 from monty.json import loadf 
-from pymatgen.core.design_patterns import Enum, AttrDict
+from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
+from pymatgen.util.string_utils import is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput, order_pseudos
+from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
 
 import logging
 logger = logging.getLogger(__name__)
@@ -56,10 +53,12 @@ __all__ = [
 ]
 
 # Tools and helper functions.
+
 def straceback():
     """Returns a string with the traceback."""
     import traceback
     return traceback.format_exc()
+
 
 class TaskResults(dict, MSONable):
     """
@@ -548,7 +547,7 @@ class TaskManager(object):
             stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
-            )
+        )
 
         # Write the script.
         script_file = task.job_file.path
@@ -1027,7 +1026,7 @@ class Node(object):
 
     def add_required_files(self, files):
         """
-        Add a list of path to the list of files required by the `Node`.
+        Add a list of paths to the list of files required by the `Node`.
 
         Args:
             files:
@@ -1230,7 +1229,7 @@ class Task(Node):
 
     @property
     def can_run(self):
-        """The task can run if its status is < S_SUB and all the other depencies (if any) are done!"""
+        """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and all_ok
 
@@ -1485,7 +1484,7 @@ class Task(Node):
 
     def check_status(self):
         """
-        This function check the status of the task by inspecting the output and the 
+        This function checks the status of the task by inspecting the output and the
         error files produced by the application and by the queue manager.
         """
         # A locked task can only be unlocked by calling set_status explicitly.
@@ -1539,7 +1538,7 @@ class Task(Node):
         #
         # 2) Segmentation fault that (by definition) was not handled by ABINIT.
         #    In this case we check if the ABINIT standard error is not empty.
-        #    hoping that nobody has written to sdterr (e.g. libraries in debug mode)
+        #    hoping that nobody has written to stderr (e.g. libraries in debug mode)
         #
         # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
         #    In this case we check if the error file of the queue manager is not empty.
@@ -2212,7 +2211,6 @@ class RelaxTask(AbinitTask):
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
-
                 irdvars = irdvars_for_ext(ext)
                 infile = self.out_to_in(ofile)
                 break
@@ -2493,6 +2491,7 @@ class OpticTask(Task):
         Optic allows the user to specify the paths of the input file.
         hence we don't need to create symbolic links.
         """
+
 
 class AnaddbTask(Task):
     # TODO

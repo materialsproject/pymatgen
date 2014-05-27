@@ -6,7 +6,7 @@ import collections
 import shutil
 import operator
 
-from pymatgen.util.string_utils import list_strings, StringColorizer, WildCard
+from pymatgen.util.string_utils import list_strings, WildCard
 
 import logging
 logger = logging.getLogger(__name__)
@@ -374,13 +374,16 @@ def _bop_not(obj):
     """Boolean not."""
     return not bool(obj)
 
+
 def _bop_and(obj1, obj2):
     """Boolean and."""
     return bool(obj1) and bool(obj2)
 
+
 def _bop_or(obj1, obj2):
     """Boolean or."""
     return bool(obj1) or bool(obj2)
+
 
 def _bop_divisible(num1, num2):
     """Return True if num1 is divisible by num2."""
