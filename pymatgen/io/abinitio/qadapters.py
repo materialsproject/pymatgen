@@ -16,6 +16,7 @@ import abc
 import string
 import copy
 import getpass
+import warnings
 
 from subprocess import Popen, PIPE
 from pymatgen.io.abinitio.launcher import ScriptEditor
@@ -252,6 +253,10 @@ class AbstractQueueAdapter(object):
         else:
             return 1
 
+    @abc.abstractmethod
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+
     @abc.abstractproperty
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
@@ -446,6 +451,10 @@ export MPI_NCPUS=$${MPI_NCPUS}
         """Set the number of CPUs used for MPI."""
         self.qparams["MPI_NCPUS"] = mpi_ncpus
 
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+
     def set_mem_per_cpu(self, mem_mb):
         """mem_per_cpu is not available in ShellAdapter."""
 
@@ -507,6 +516,11 @@ class SlurmAdapter(AbstractQueueAdapter):
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
         self.qparams["ntasks"] = mpi_ncpus
+
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        warnings.warn("set_omp_ncpus not availabe for %s" % self.__class__.__name__)
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
@@ -593,7 +607,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -l model=$${model}
 #PBS -l place=$${place}
 #PBS -W group_list=$${group_list}
-#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=1
+#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
 #PBS -l pvmem=$${pvmem}mb
 ####PBS -l mppwidth=$${mppwidth}
 ####PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
@@ -608,6 +622,11 @@ class PbsAdapter(AbstractQueueAdapter):
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
         self.qparams["select"] = mpi_ncpus
+
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        self.qparams["ompthreads"] = omp_ncpus
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
@@ -710,7 +729,12 @@ class SGEAdapter(AbstractQueueAdapter):
                                                     
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
-        self.qparams["ncpus"] = mpi_ncpus 
+        self.qparams["ncpus"] = mpi_ncpus
+
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        warnings.warn("set_omp_ncpus not availabe for %s" % self.__class__.__name__)
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
