@@ -64,9 +64,12 @@ Before installing pymatgen, you may need to first install a few critical
 dependencies manually. Please refer to the official `pymatgen page`_ for
 installation details and requirements.
 
-1. Numpy's distutils is needed to compile the spglib and pyhull
+1. Installation has been tested to be most successful with gcc,
+   and several external C dependencies have issues with icc. Use gcc where
+   possible and do "export CC=gcc" prior to installation.
+2. Numpy's distutils is needed to compile the spglib and pyhull
    dependencies. This should be the first thing you install.
-2. Pyhull and PyCifRW. The recent versions of pip does not allow the
+3. Pyhull and PyCifRW. The recent versions of pip does not allow the
    installation of externally hosted files. Furthermore,
    there are some issues with easy_install for these extensions. Install
    both these dependencies manually using "pip install <package>
@@ -87,9 +90,6 @@ or::
 
 Some extra functionality (e.g., generation of POTCARs) do require additional
 setup (please see the `official pymatgen page <http://pymatgen.org/>`_).
-
-**Note**: You may need to install numpy before installing pymatgen as numpy's
-distutils is needed to compile the spglib and pyhull dependencies.
 
 **Note for Windows users**: Given that pymatgen requires several Python C
 extensions, it is generally recommended that you install it in a cygwin or
