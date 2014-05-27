@@ -14,7 +14,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
-from math import sin, cos, asin, pi
+from math import sin, cos, asin, pi, degrees
 import os
 
 import numpy as np
@@ -107,6 +107,16 @@ class XRDCalculator(object):
     #Tuple of available radiation keywords.
     AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
 
+    #Tolerance in which to treat two peaks as having the same two theta.
+    TWO_THETA_TOL = 1e-5
+
+    # Tolerance in which to treat a peak as effectively 0 if the scaled
+    # intensity is less than this number. Since the max intensity is 100,
+    # this means the peak must be less than 1e-5 of the peak intensity to be
+    # considered as zero. This deals with numerical issues where systematic
+    # absences do not cancel exactly to zero.
+    SCALED_INTENSITY_TOL = 1e-3
+
     def __init__(self, wavelength="CuKa", symprec=0):
         """
         Initializes the XRD calculator with a given radiation.
@@ -189,15 +199,16 @@ class XRDCalculator(object):
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
 
-                # s = sin(theta) / wavelength = |ghkl| / 2 (d = 1/|ghkl|)
+                # s = sin(theta) / wavelength = 1 / 2d = |ghkl| / 2 (d =
+                # 1/|ghkl|)
                 s = g_hkl / 2
 
-                #Store s squared since we are using it a few times.
+                #Store s^2 since we are using it a few times.
                 s2 = s ** 2
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
-                grs = np.dot(fcoords, np.transpose([hkl])).T[0]
+                g_dot_r = np.dot(fcoords, np.transpose([hkl])).T[0]
 
                 # Highly vectorized computation of atomic scattering factors.
                 # Equivalent non-vectorized code is::
@@ -213,7 +224,7 @@ class XRDCalculator(object):
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
                 # Vectorized computation.
-                f_hkl = np.sum(fs * occus * np.exp(2j * pi * grs))
+                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r))
 
                 # Intensity for hkl is modulus square of structure factor.
                 i_hkl = (f_hkl * f_hkl.conjugate()).real
@@ -222,11 +233,11 @@ class XRDCalculator(object):
                 lorentz_factor = (1 + cos(2 * theta) ** 2) / \
                     (sin(theta) ** 2 * cos(theta))
 
-                two_theta = 2 * theta / pi * 180
+                two_theta = degrees(2 * theta)
 
                 #Deal with floating point precision issues.
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
-                               1e-5)
+                               XRDCalculator.TWO_THETA_TOL)
                 if len(ind[0]) > 0:
                     intensities[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
                 else:
@@ -240,7 +251,7 @@ class XRDCalculator(object):
         for k in sorted(intensities.keys()):
             v = intensities[k]
             scaled_intensity = v[0] / max_intensity * 100
-            if scaled_intensity > 1e-3:
+            if scaled_intensity > XRDCalculator.SCALED_INTENSITY_TOL:
                 data.append([k, scaled_intensity, v[1]])
         return data
 
