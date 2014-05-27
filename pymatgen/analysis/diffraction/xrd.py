@@ -150,8 +150,8 @@ class XRDCalculator(object):
             structure: Input structure
 
         Returns:
-            {XRD pattern} in the form of
-            [[two_theta, scaled_intensity, [h, k, l]]]
+            (XRD pattern) in the form of
+            [[two_theta, scaled_intensity, [h, k, l]], ...]
             Two_theta is in degrees. Scaled intensity has a maximum value of
             100 for the highest peak. [h, k, l] refers the Miller indices for
             the diffracted lattice plane.
