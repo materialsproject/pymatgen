@@ -337,6 +337,8 @@ class AbstractQueueAdapter(object):
         Uses the template_file along with internal parameters to create the script.
 
         Args:
+            job_name:
+                Name of the job.
             launch_dir: 
                 (str) The directory the job will be launched in.
             qout_path
@@ -344,6 +346,10 @@ class AbstractQueueAdapter(object):
             qerr_path:
                 Path of the Queue manager error file.
         """
+        # PBS does not accept job_names longer than 15 chars.
+        if len(job_name) > 15 and isinstance(self, PbsAdapter):
+                job_name = job_name[:15]
+
         # Construct the header for the Queue Manager.
         qheader = self._make_qheader(job_name, qout_path, qerr_path)
 
