@@ -1513,10 +1513,10 @@ class Task(Node):
 
                 # Analyze the error file of the resource manager.
                 if self.qerr_file.exists:
-                    err_info = self.qerr_file.read()
-                    if err_info:
+                    err_msg = self.qerr_file.read()
+                    if err_msg:
                         logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
-                        return self.set_status(self.S_ERROR, info_msg=err_info)
+                        return self.set_status(self.S_ERROR, info_msg=err_msg)
 
                 return self.status
 
@@ -1580,7 +1580,7 @@ class Task(Node):
         dest = os.path.join(self.indir.path, in_file)
                                                                            
         if os.path.exists(dest) and not os.path.islink(dest):
-           logger.warning("Will overwrite %s with %s" % (dest, out_file))
+            logger.warning("Will overwrite %s with %s" % (dest, out_file))
                                                                            
         os.rename(out_file, dest)
         return dest
@@ -1816,7 +1816,7 @@ class Task(Node):
             shutil.rmtree(self.workdir)
 
         else:
-            w = WildCard(exclude_wildcards)
+            w = WildCard(exclude_wildcard)
 
             for dirpath, dirnames, filenames in os.walk(self.workdir):
                 for fname in filenames:
@@ -1974,7 +1974,7 @@ class AbinitTask(Task):
 
     @property
     def filesfile_string(self):
-        """String with the list of files and prefixex needed to execute ABINIT."""
+        """String with the list of files and prefixes needed to execute ABINIT."""
         lines = []
         app = lines.append
         pj = os.path.join

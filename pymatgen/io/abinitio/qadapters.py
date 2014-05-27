@@ -348,7 +348,7 @@ class AbstractQueueAdapter(object):
         """
         # PBS does not accept job_names longer than 15 chars.
         if len(job_name) > 15 and isinstance(self, PbsAdapter):
-                job_name = job_name[:15]
+            job_name = job_name[:15]
 
         # Construct the header for the Queue Manager.
         qheader = self._make_qheader(job_name, qout_path, qerr_path)
