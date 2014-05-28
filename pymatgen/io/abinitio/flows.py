@@ -362,9 +362,9 @@ class AbinitFlow(Node):
                     deadlocks.append((task, dep.node))
 
         if deadlocks:
-           lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
-           lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
-           raise ValueError("\n".join(lines))
+            lines = ["Detect wrong list of dependecies that will lead to a deadlock:"]
+            lines.extend(["%s <--> %s" % nodes for nodes in deadlocks])
+            raise ValueError("\n".join(lines))
 
     #def detect_deadlock(self):
     #    eu_tasks = list(self.errored_tasks) + list(self.unconverged_tasks)
@@ -382,6 +382,61 @@ class AbinitFlow(Node):
         """Check the status of the workflows in self."""
         for work in self:
             work.check_status()
+
+    def fix_queue_errors(self):
+        """
+        Fixer for errors originating from the scheduler. General strategy, first try to increase resources in order to
+        fix the problem, if this is not possible, call a task specific method to attempt to decrease the demands.
+        """
+        from pymatgen.io.gwwrapper.scheduler_error_parsers import NodeFailureError, MemoryCancelError, TimeCancelError
+
+        for task in self.iflat_tasks(status='S_QUEUE_ERROR'):
+            print(task)
+            for error in task.queue_errors:
+                print('fixing :' + str(error))
+                if isinstance(error, NodeFailureError):
+                    # if the problematic node is know exclude it
+                    if error.nodes is not None:
+                        task.manager.qadapter.exclude_nodes(error.nodes)
+                        task.restart()
+                        return task.set_status(task.S_READY)
+                    else:
+                        info_msg = 'Node error detected but no was node identified. Unrecoverable error.'
+                        return task.set_status(task.S_FINAL_ERROR, info_msg)
+                elif isinstance(error, MemoryCancelError):
+                    # ask the qadapter to provide more memory
+                    if task.manager.qadapter.increase_mem():
+                        task.restart()
+                        return task.set_status(task.S_READY, info_msg='increased mem')
+                    # if this failed ask the task to provide a method to reduce the memory demand
+                    elif task.reduce_memory_demand():
+                        task.restart()
+                        return task.set_status(task.S_READY, info_msg='decreased mem demand')
+                    else:
+                        info_msg = 'Memory error detected but the memory could not be increased neigther could the ' \
+                                   'memory demand be decreased. Unrecoverable error.'
+                        return task.set_status(task.S_FINAL_ERROR, info_msg)
+                elif isinstance(error, TimeCancelError):
+                    # ask the qadapter to provide more memory
+                    if task.manager.qadapter.increase_time():
+                        task.restart()
+                        return task.set_status(task.S_READY, info_msg='increased wall time')
+                    # if this fails ask the qadapter to increase the number of cpus
+                    elif task.manager.qadapter.increase_cpus():
+                        task.restart()
+                        return task.set_status(task.S_READY, info_msg='increased number of cpus')
+                    # if this failed ask the task to provide a method to speed up the task
+                    elif task.speed_up():
+                        task.restart()
+                        return task.set_status(task.S_READY, info_msg='task speedup')
+                    else:
+                        info_msg = 'Time cancel error detected but the time could not be increased neigther could ' \
+                                   'the time demand be decreased by speedup of increasing the number of cpus. ' \
+                                   'Unrecoverable error.'
+                        return task.set_status(task.S_FINAL_ERROR, info_msg)
+                else:
+                    info_msg = 'No solution provided for error %s. Unrecoverable error.' % error.name
+                    return task.set_status(task.S_FINAL_ERROR, info_msg)
 
     def show_status(self, stream=sys.stdout):
         """

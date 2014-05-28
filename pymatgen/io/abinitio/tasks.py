@@ -52,6 +52,7 @@ __all__ = [
     "AnaddbTask",
 ]
 
+
 # Tools and helper functions.
 
 def straceback():
@@ -186,7 +187,6 @@ class ParalConf(AttrDict):
     def tot_mem(self):
         """Estimated total memory in Mbs (computed from mem_per_cpu)"""
         return self.mem_per_cpu * self.tot_ncpus
-
 
 
 class ParalHintsParser(object):
@@ -602,6 +602,7 @@ try:
 except IOError:
     _COUNTER = -1
 
+
 def get_newnode_id():
     """
     Returns a new node identifier used both for `Task` and `Workflow` objects.
@@ -790,10 +791,13 @@ STATUS2STR = collections.OrderedDict([
     (4, "Submitted"),     # Node has been submitted (The `Task` is running or we have started to finalize the Workflow)
     (5, "Running"),       # Node is running.
     (6, "Done"),          # Node done, This does not imply that results are ok or that the calculation completed successfully
-    (7, "Error"),         # Node raised some kind of Error (the submission process, the queue manager or ABINIT ...).
-    (8, "Unconverged"),   # This usually means that an iterative algorithm didn't converge.
-    (9, "Completed"),     # Execution completed successfully.
+    (7, "Error"),         # Node raised an Error by ABINIT.
+    (8, "Queue_Error"),   # Node raised an Error by submitting submission script, or by executing it
+    (9, "Final_Error"),   # Node raised an unrecoverable error, usually raised when an attempt to fix one of other types failed.
+    (10, "Unconverged"),  # This usually means that an iterative algorithm didn't converge.
+    (11, "Completed"),    # Execution completed successfully.
 ])
+
 
 class Status(int):
     """This object is an integer representing the status of the `Node`."""
@@ -832,8 +836,10 @@ class Node(object):
     S_RUN = Status(5)
     S_DONE = Status(6)
     S_ERROR = Status(7)
-    S_UNCONVERGED = Status(8)
-    S_OK = Status(9)
+    S_QUEUE_ERROR = Status(8)
+    S_FINAL_ERROR = Status(9)
+    S_UNCONVERGED = Status(10)
+    S_OK = Status(11)
 
     ALL_STATUS = [
         S_INIT,
@@ -843,6 +849,8 @@ class Node(object):
         S_RUN,
         S_DONE,
         S_ERROR,
+        S_QUEUE_ERROR,
+        S_FINAL_ERROR,
         S_UNCONVERGED,
         S_OK,
     ]
@@ -1486,53 +1494,64 @@ class Task(Node):
         """
         This function checks the status of the task by inspecting the output and the
         error files produced by the application and by the queue manager.
+        The process
+        1) see it the job is blocked
+        2) see if an error occured at submitting the job the job was submitted, TODO these problems can be solved
+        3) see if there is output
+            4) see if abinit reports problems
+            5) see if both err files exist and are empty
+        6) no output and no err files, the job must still be running
+        7) try to find out what caused the problems
+        8) there is a problem but we did not figure out what ...
+        9) the only way of landing here is if there is a output file but no err files...
         """
-        # A locked task can only be unlocked by calling set_status explicitly.
+
+        # 1) A locked task can only be unlocked by calling set_status explicitly.
         black_list = [self.S_LOCKED]
         if self.status in black_list: return
 
-        # Check the returncode of the process first.
+        # 2) Check the returncode of the process (the process of submitting the job) first.
+        # this point type of problem should also be handled by the scheduler error parser
         if self.returncode != 0:
-            return self.set_status(self.S_ERROR, info_msg="return code %s" % self.returncode)
+            info_msg = "return code %s" % self.returncode
+            return self.set_status(self.S_ERROR, info_msg=info_msg)           # The job was not submitter properly
 
-        # Start to check when the output file has been created.
-        if not self.output_file.exists:
-            logger.debug("output_file does not exists")
+#        err_msg = None
+#=======
+#            if not self.stderr_file.exists and not self.qerr_file.exists:
+#                # The job is still in the queue.
+#                return self.status
+#
+#            else:
+#                # Analyze the standard error of the executable:
+#                if self.stderr_file.exists:
+#                    err_msg = self.stderr_file.read()
+#                    if err_msg:
+#                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
+#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+#
+#                # Analyze the error file of the resource manager.
+#                if self.qerr_file.exists:
+#                    err_msg = self.qerr_file.read()
+#                    if err_msg:
+#                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
+#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+#
+#                return self.status
+#
+#        # Check if the run completed successfully.
+#        report = self.get_event_report()
+#
+#        if report.run_completed:
+#            # Check if the calculation converged.
+#            not_ok = self.not_converged()
 
-            if not self.stderr_file.exists and not self.qerr_file.exists:
-                # The job is still in the queue.
-                return self.status
+#            if not_ok:
+#                return self.set_status(self.S_UNCONVERGED)
+#            else:
+#                return self.set_status(self.S_OK)
 
-            else:
-                # Analyze the standard error of the executable:
-                if self.stderr_file.exists:
-                    err_msg = self.stderr_file.read()
-                    if err_msg:
-                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
-                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-
-                # Analyze the error file of the resource manager.
-                if self.qerr_file.exists:
-                    err_msg = self.qerr_file.read()
-                    if err_msg:
-                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
-                        return self.set_status(self.S_ERROR, info_msg=err_msg)
-
-                return self.status
-
-        # Check if the run completed successfully.
-        report = self.get_event_report()
-
-        if report.run_completed:
-            # Check if the calculation converged.
-            not_ok = self.not_converged()
-
-            if not_ok:
-                return self.set_status(self.S_UNCONVERGED)
-            else:
-                return self.set_status(self.S_OK)
-
-        # This is the delicate part since we have to discern among different possibilities:
+#       # This is the delicate part since we have to discern among different possibilities:
         #
         # 1) Calculation stopped due to an Abinit Error or Bug.
         #
@@ -1549,24 +1568,108 @@ class Task(Node):
         # Point 2) and 3) are the most complicated since there's no standard!
 
         # 1) Search for possible errors or bugs in the ABINIT **output** file.
-        if report.errors or report.bugs:
-            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
-            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
+#        if report.errors or report.bugs:
+#            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
+#            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
-        if self.stderr_file.exists:
-            err_info = self.stderr_file.read()
-            if err_info:
-                return self.set_status(self.S_ERROR, info_msg=err_info)
+#       >>>>>>> pymatgen-matteo/master
 
-        # 3) Analyze the error file of the resource manager.
+        err_msg = None
+        if self.stderr_file.exists:
+            err_msg = self.stderr_file.read()
+
+        err_info = None
         if self.qerr_file.exists:
             err_info = self.qerr_file.read()
-            if err_info:
-                return self.set_status(self.S_ERROR, info_msg=err_info)
 
-        # 4) Assume the job is still running.
+        # 3) Start to check if the output file has been created.
+        if self.output_file.exists:
+            report = self.get_event_report()
+            if report.run_completed:
+                # Check if the calculation converged.
+                not_ok = self.not_converged()
+                if not_ok:
+                    return self.set_status(self.S_UNCONVERGED)
+                else:
+                    return self.set_status(self.S_OK)
+
+            # 4)
+            if report.errors or report.bugs:
+                # Abinit reports problems
+                logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
+                info_msg = str(report.errors) + str(report.bugs)
+                return self.set_status(self.S_ERROR, info_msg=info_msg)
+                # The job is unfixable due to ABINIT errors
+            # 5)
+            if self.stderr_file.exists and not err_info:
+                if self.qerr_file.exists and not err_msg:
+                    # there is output and no errors
+                    # Check if the run completed successfully.
+                    if report.run_completed:
+                        # Check if the calculation converged.
+                        not_ok = self.not_converged()
+                        if not_ok:
+                            return self.set_status(self.S_UNCONVERGED)
+                            # The job finished but did not converge
+                        else:
+                            return self.set_status(self.S_OK)
+                            # The job finished properly
+
+                    return self.set_status(self.S_RUN)
+                    # The job still seems to be running
+
+        # 6)
+        if not self.output_file.exists:
+            logger.debug("output_file does not exists")
+            if not self.stderr_file.exists and not self.qerr_file.exists:     # No output at all
+                return self.status
+                # The job is still in the queue.
+
+        # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
+        if self.qerr_file.exists:
+            from pymatgen.io.gwwrapper.scheduler_error_parsers import get_parser
+            scheduler_parser = get_parser(self.manager.qadapter.QTYPE, err_file=self.qerr_file.path,
+                                          out_file=self.qout_file.path, run_err_file=self.stderr_file.path)
+            scheduler_parser.parse()
+            if scheduler_parser.errors:
+                # the queue errors in the task
+                print('scheduler errors found:')
+                print(scheduler_parser.errors)
+                self.queue_errors = scheduler_parser.errors
+                return self.set_status(self.S_QUEUE_ERROR)
+                # The job is killed or crashed and we know what happend
+            else:
+                if err_info:
+                    return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)
+                    # The job is killed or crashed but we don't know what happend
+
+        # 8) anlizing the err files and abinit output did not identify a problem
+        # but if the files are not empty we do have a problem but no way of solving it:
+        if err_info or err_msg:
+            return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)
+            # The job is killed or crashed but we don't know what happend
+
+        # 9) if we still haven't returned there is no indication of any error and the job can only still be running
+        # but we should actually never land here, or we have delays in the file system ....
+        print('the job still seems to be running maybe it is hanging without producing output... ')
         return self.set_status(self.S_RUN)
+
+    def reduce_memory_demand(self):
+        """
+        Method that can be called by the flow to decrease the memory demand of a specific task.
+        Returns True in case of success, False in case of Failure.
+        Should be overwritten by specific tasks.
+        """
+        return False
+
+    def speed_up(self):
+        """
+        Method that can be called by the flow to decrease the time needed for a specific task.
+        Returns True in case of success, False in case of Failure
+        Should be overwritten by specific tasks.
+        """
+        return False
 
     def out_to_in(self, out_file):
         """
@@ -2087,6 +2190,11 @@ class AbinitTask(Task):
 
         return confs, optimal
 
+    def restart(self):
+        """
+        general restart used when scheduler problems have been taken care of
+        """
+        return self._restart()
 
 # TODO
 # Enable restarting capabilites:
@@ -2095,6 +2203,7 @@ class AbinitTask(Task):
 #   2) Change the parser so that we can use strings in the input file.
 #      We need this change for restarting structural relaxations so that we can read 
 #      the initial structure from file.
+
 
 class ScfTask(AbinitTask):
     """
@@ -2424,7 +2533,7 @@ class OpticTask(Task):
 
         deps = {task: "1WF" for task in ddk_nodes}
         deps.update({nscf_node: "WFK"})
-        print("deps",deps)
+        print("deps", deps)
 
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)

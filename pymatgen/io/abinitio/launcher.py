@@ -277,7 +277,7 @@ class PyLauncher(object):
         num_loops, num_launched, launched = 0, 0, []
         got_empty_list = 0
 
-        while num_loops != max_loops:
+        while num_loops <= max_loops:
             tasks = self.fetch_tasks_to_run()
 
             # I don't know why but we receive duplicated tasks.
@@ -296,6 +296,12 @@ class PyLauncher(object):
                 break
 
             for task in tasks:
+            # see if there is place in the que
+                if get_running_jobs() > 22:
+                    num_loops = max_loops
+                    print('too many jobs in the queue, going back to sleep')
+                    break
+
                 fired = task.start()
 
                 if fired:
@@ -304,6 +310,7 @@ class PyLauncher(object):
 
                 if num_launched == max_nlaunch:
                     # Exit the outermst loop.
+                    print('num_launched == max_nlaunch, going back to sleep')
                     num_loops = max_loops
                     break
 
@@ -312,6 +319,7 @@ class PyLauncher(object):
 
         # Update the database.
         self.flow.check_status()
+        self.flow.fix_queue_errors()
         self.flow.pickle_dump()
 
         return num_launched
@@ -565,7 +573,7 @@ class PyFlowScheduler(object):
         """
         This function tries to run all the tasks that can be submitted.
         """
-        max_nlaunch, excs = -1, []
+        max_nlaunch, excs = 10, []
 
         flow = self.flow
         flow.check_status()
@@ -593,7 +601,7 @@ class PyFlowScheduler(object):
 
         # Submit the tasks that are ready.
         try:
-            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch)
+            nlaunch = PyLauncher(flow).rapidfire(max_nlaunch=max_nlaunch, sleep_time=10)
             self.nlaunch += nlaunch
 
             if nlaunch:
@@ -603,7 +611,8 @@ class PyFlowScheduler(object):
             excs.append(straceback())
 
         show_status = (self.verbose or flow.num_errored_tasks or flow.num_unconverged_tasks)
-        if show_status: flow.show_status()
+        #if show_status: flow.show_status()
+        flow.show_status()
 
         if excs:
             logger.critical("*** Scheduler exceptions:\n *** %s" % "\n".join(excs))
@@ -812,6 +821,19 @@ def sendmail(subject, text, mailto, sender=None):
     outdata, errdata = p.communicate(msg)
     return len(errdata)
 
+
+def get_running_jobs():
+    try:
+        import os
+        import subprocess
+        from subprocess import PIPE
+        name = os.environ['LOGNAME']
+        cmd = ['squeue', '-u'+name]
+        data = subprocess.Popen(cmd, stdout=PIPE).communicate()[0]
+        n = len(data.splitlines()) - 1
+    except OSError:
+        n = 0
+    return n
 
 # Test for sendmail
 #def sendmail_test():

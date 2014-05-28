@@ -9,11 +9,15 @@ import os
 from pymatgen.io.abinitio.abiobjects import (Smearing, KSampling, Screening,
     SelfEnergy, ExcHamiltonian)
 
+from pymatgen.io.abinitio.abiobjects import HilbertTransform
+
 from pymatgen.io.abinitio.strategies import (ScfStrategy, NscfStrategy,
     ScreeningStrategy, SelfEnergyStrategy, MDFBSE_Strategy)
 
-from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence, 
+from pymatgen.io.abinitio.workflows import (PseudoIterativeConvergence,
     PseudoConvergence, BandStructureWorkflow, G0W0_Workflow, BSEMDF_Workflow)
+
+
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -177,10 +181,9 @@ def bandstructure(structure, pseudos, scf_kppa, nscf_nband,
 #
 #    #return Relaxation(relax_strategy, workdir=workdir, manager=manager)
 
-
-def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, 
+def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                       accuracy="normal", spin_mode="polarized", smearing="fermi_dirac:0.1 eV",
-                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None, 
+                      ppmodel="godby", charge=0.0, scf_algorithm=None, inclvkb=2, scr_nband=None,
                       sigma_nband=None, gw_qprange=1, workdir=None, manager=None, **extra_abivars):
     """
     Returns a Work object that performs G0W0 calculations for the given the material.
@@ -258,6 +261,110 @@ def g0w0_with_ppmodel(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsig
 
     return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, 
                          workdir=workdir, manager=manager)
+
+
+def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, accuracy="normal", spin_mode="polarized",
+                  smearing="fermi_dirac:0.1 eV", response_models=["godby"], charge=0.0, scf_algorithm=None, inclvkb=2,
+                  scr_nband=None, sigma_nband=None, gw_qprange=1, workdir=None, manager=None, gamma=True,
+                  **extra_abivars):
+    """
+    Returns a Work object that performs G0W0 calculations for the given the material.
+
+    Args:
+        structure:
+            Pymatgen structure.
+        pseudos:
+            List of `Pseudo` objects.
+        scf_
+            Defines the sampling used for the SCF run.
+        nscf_nband:
+            Number of bands included in the NSCF run.
+        ecuteps:
+            Cutoff energy [Ha] for the screening matrix.
+        ecutsigx:
+            Cutoff energy [Ha] for the exchange part of the self-energy.
+        accuracy:
+            Accuracy of the calculation.
+        spin_mode:
+            Spin polarization.
+        smearing:
+            Smearing technique.
+        ppmodel:
+            Plasmonpole technique.
+        charge:
+            Electronic charge added to the unit cell.
+        scf_algorithm:
+            Algorithm used for solving of the SCF cycle.
+        inclvkb:
+            Treatment of the dipole matrix elements (see abinit variable).
+        scr_nband:
+            Number of bands used to compute the screening (default is nscf_nband)
+        sigma_nband:
+            Number of bands used to compute the self-energy (default is nscf_nband)
+        workdir:
+            Working directory.
+        manager:
+            `TaskManager` instance.
+        extra_abivars
+            Dictionary with extra variables passed to ABINIT.
+    """
+    # TODO: Cannot use istwfk != 1.
+
+    if gamma:
+        if scf_kppa == 1:
+            scf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(1, 1, 1))
+        elif scf_kppa == 2:
+            scf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+            nscf_ksampling = KSampling.gamma_centered(kpts=(2, 2, 2))
+        else:
+            scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+            nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0, shifts=(0, 0, 0))
+    else:
+        scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+        nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
+
+
+
+    if "istwfk" not in extra_abivars:
+        extra_abivars["istwfk"] = "*1"
+
+    scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
+                               smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
+    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, max(nscf_nband), **extra_abivars)
+
+    if scr_nband is None:
+        scr_nband = nscf_nband
+    if sigma_nband is None:
+        sigma_nband = nscf_nband
+
+    if extra_abivars['ecut'][0] < max(ecuteps) / 4:
+        extra_abivars['ecut'][0] = max(ecuteps) / 4
+    if ecutsigx < max(ecuteps):
+        ecutsigx = max(ecuteps)
+
+    sigma_strategy = []
+
+    if 'cd' in response_models:
+        hilbert = HilbertTransform(nomegasf=100, domegasf=None, spmeth=1, nfreqre=None, freqremax=None, nfreqim=None,
+                                      freqremin=None)
+
+    for response_model in response_models:
+        for ecuteps_v in ecuteps:
+            for nscf_nband_v in nscf_nband:
+                scr_nband = nscf_nband_v
+                sigma_nband = nscf_nband_v
+                if response_model == 'cd':
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", hilbert=hilbert, ecutwfn=None, inclvkb=inclvkb)
+                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, hilbert=hilbert)
+                else:
+                    ppmodel = response_model
+                    screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
+                    self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
+                scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
+                sigma_strategy.append(SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars))
+
+    return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
 
 #def g0w0_with_cd(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, hilbert,
