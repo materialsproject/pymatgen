@@ -873,16 +873,16 @@ class PbsAdapter(AbstractQueueAdapter):
         return None
 
     def exclude_nodes(self, nodes):
-        return False
+        raise NotImplementedError("exclude_nodes")
 
     def increase_mem(self, factor):
-        return False
+        raise NotImplementedError("increase_mem")
 
     def increase_time(self, factor):
-        return False
+        raise NotImplementedError("increase_time")
 
     def increase_cpus(self, factor):
-        return False
+        raise NotImplementedError("increase_cpus")
 
 
 class SGEAdapter(AbstractQueueAdapter):
@@ -993,6 +993,28 @@ class SGEAdapter(AbstractQueueAdapter):
         logger.critical(err_msg)
 
         return None
+
+    def exclude_nodes(self, nodes):
+        """
+        Method to exclude nodes in the calculation
+        """
+        raise NotImplementedError("exclude_nodes")
+                                                                         
+    def increase_mem(self, factor):
+        """
+        Method to increase the amount of memory asked for, by factor.
+        """
+        raise NotImplementedError("increase_mem")
+                                                                         
+    def increase_time(self, factor):
+        """
+        Method to increase the available wall time asked for, by factor.
+        """
+        raise NotImplementedError("increase_time")
+
+    def increase_cpus(self, factor):
+        raise NotImplementedError("increase_cpus")
+
 
 
 class QScriptTemplate(string.Template):
