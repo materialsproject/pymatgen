@@ -307,7 +307,7 @@ class Workflow(BaseWorkflow):
         self.set_workdir(new_workdir, chroot=True)
 
         for i, task in enumerate(self):
-            new_tdir = os.path.join(self.workdir, "task_" + str(i))
+            new_tdir = os.path.join(self.workdir, "t" + str(i))
             task.set_workdir(new_tdir, chroot=True)
 
     def __len__(self):
@@ -391,7 +391,7 @@ class Workflow(BaseWorkflow):
                     # Use the one of the workflow.
                     task.set_manager(self.manager)
 
-            task_workdir = os.path.join(self.workdir, "task_" + str(i))
+            task_workdir = os.path.join(self.workdir, "t" + str(i))
 
             if not hasattr(task, "workdir"):
                 task.set_workdir(task_workdir)
@@ -423,7 +423,7 @@ class Workflow(BaseWorkflow):
         """
         task_workdir = None
         if hasattr(self, "workdir"):
-            task_workdir = os.path.join(self.workdir, "task_" + str(len(self)))
+            task_workdir = os.path.join(self.workdir, "t" + str(len(self)))
 
         if isinstance(obj, Task):
             task = obj
