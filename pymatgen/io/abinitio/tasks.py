@@ -389,6 +389,8 @@ class TaskManager(object):
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None, policy=None):
 
+        print(qtype)
+
         qad_class = qadapter_class(qtype)
 
         self.qadapter = qad_class(qparams=qparams, setup=setup, modules=modules, shell_env=shell_env, omp_env=omp_env, 
