@@ -74,6 +74,11 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.9
+------
+1. XRDCalculator now supports disordered structures.
+2. Minor speed ups and improvements.
+
 v2.9.8
 ------
 1. Initial beta version of XRD pattern calculator.
