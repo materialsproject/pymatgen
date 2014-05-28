@@ -389,7 +389,7 @@ class TaskManager(object):
     def __init__(self, qtype, qparams=None, setup=None, modules=None, shell_env=None, omp_env=None, 
                  pre_run=None, post_run=None, mpi_runner=None, policy=None):
 
-        print(qtype)
+        print(' *** ' + str(qtype))
 
         qad_class = qadapter_class(qtype)
 
@@ -578,8 +578,8 @@ class TaskManager(object):
         task.set_status(task.S_SUB)
 
         # FIXME: CD to script file dir?
-        print(script_file)
-        print(self.qadapter)
+        print(' *** ' + str(script_file))
+        print(' *** ' + str(self.qadapter))
         process, queue_id = self.qadapter.submit_to_queue(script_file)
 
         # Save the queue id.
