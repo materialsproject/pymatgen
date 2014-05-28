@@ -576,6 +576,8 @@ class TaskManager(object):
         task.set_status(task.S_SUB)
 
         # FIXME: CD to script file dir?
+        print(script_file)
+        print(self.qadapter)
         process, queue_id = self.qadapter.submit_to_queue(script_file)
 
         # Save the queue id.
