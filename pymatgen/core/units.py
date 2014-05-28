@@ -325,7 +325,6 @@ class FloatWithUnit(float):
                 "{} is not a supported unit for {}".format(unit, unit_type))
         self._unit = Unit(unit)
         self._unit_type = unit_type
-        super(FloatWithUnit, self).__init__(val)
 
     def __repr__(self):
         return super(FloatWithUnit, self).__repr__()
