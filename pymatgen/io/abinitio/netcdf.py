@@ -150,7 +150,8 @@ class NetcdfReader(object):
 
         if cmode is None:
             # scalar or array
-            return var[0] if not var.shape else var[:]
+            #return var[0] if not var.shape else var[:]
+            return var.getValue() if not var.shape else var[:]
         else:
             assert var.shape[-1] == 2
             if cmode == "c":

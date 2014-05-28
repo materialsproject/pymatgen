@@ -16,6 +16,7 @@ import abc
 import string
 import copy
 import getpass
+import warnings
 
 from subprocess import Popen, PIPE
 from pymatgen.io.abinitio.launcher import ScriptEditor
@@ -126,6 +127,7 @@ def qadapter_class(qtype):
     return {"shell": ShellAdapter,
             "slurm": SlurmAdapter,
             "pbs": PbsAdapter,
+            "sge": SGEAdapter,
             }[qtype.lower()]
 
 
@@ -170,6 +172,7 @@ class AbstractQueueAdapter(object):
         """
         # Make defensive copies so that we can change the values at runtime.
         self.qparams = qparams.copy() if qparams is not None else {}
+        self._verbatim = []
 
         if is_string(setup):
             setup = [setup]
@@ -237,7 +240,7 @@ class AbstractQueueAdapter(object):
     @property
     def has_omp(self):
         """True if we are using OpenMP threads"""
-        return hasattr(self,"omp_env") and bool(getattr(self, "omp_env"))
+        return hasattr(self, "omp_env") and bool(getattr(self, "omp_env"))
 
     @property
     def tot_ncpus(self):
@@ -251,6 +254,10 @@ class AbstractQueueAdapter(object):
             return self.omp_env["OMP_NUM_THREADS"]
         else:
             return 1
+
+    @abc.abstractmethod
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
 
     @abc.abstractproperty
     def mpi_ncpus(self):
@@ -294,6 +301,14 @@ class AbstractQueueAdapter(object):
             Exit status.
         """
 
+    def add_verbatim(self, lines):
+        """
+        Add a list of lines or just a string to the header.
+        No programmatic interface to change these options is provided
+        """
+        if is_string(lines): lines = [lines]
+        self._verbatim.extend(lines)
+
     def _make_qheader(self, job_name, qout_path, qerr_path):
         """Return a string with the options that are passed to the resource manager."""
         qtemplate = QScriptTemplate(self.QTEMPLATE)
@@ -304,7 +319,7 @@ class AbstractQueueAdapter(object):
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
         # so that we can easily locate this file.
-        subs_dict['job_name'] = job_name 
+        subs_dict['job_name'] = job_name.replace('/','_') 
         subs_dict['_qout_path'] = qout_path
         subs_dict['_qerr_path'] = qerr_path
 
@@ -317,6 +332,10 @@ class AbstractQueueAdapter(object):
             if '$$' not in line:
                 clean_template.append(line)
 
+        # Add verbatim lines
+        if self._verbatim:
+            clean_template.extend(self._verbatim)
+
         return '\n'.join(clean_template)
 
     def get_script_str(self, job_name, launch_dir, executable, qout_path, qerr_path, stdin=None, stdout=None, stderr=None):
@@ -325,6 +344,8 @@ class AbstractQueueAdapter(object):
         Uses the template_file along with internal parameters to create the script.
 
         Args:
+            job_name:
+                Name of the job.
             launch_dir: 
                 (str) The directory the job will be launched in.
             qout_path
@@ -332,6 +353,10 @@ class AbstractQueueAdapter(object):
             qerr_path:
                 Path of the Queue manager error file.
         """
+        # PBS does not accept job_names longer than 15 chars.
+        if len(job_name) > 15 and isinstance(self, PbsAdapter):
+            job_name = job_name[:15]
+
         # Construct the header for the Queue Manager.
         qheader = self._make_qheader(job_name, qout_path, qerr_path)
 
@@ -341,19 +366,23 @@ class AbstractQueueAdapter(object):
         if self.setup:
             se.add_comment("Setup section")
             se.add_lines(self.setup)
+            se.add_emptyline()
 
         if self.modules:
             se.add_comment("Load Modules")
             se.add_line("module purge")
             se.load_modules(self.modules)
+            se.add_emptyline()
 
         if self.has_omp:
             se.add_comment("OpenMp Environment")
             se.declare_vars(self.omp_env)
+            se.add_emptyline()
 
         if self.shell_env:
             se.add_comment("Shell Environment")
             se.declare_vars(self.shell_env)
+            se.add_emptyline()
 
         # Cd to launch_dir
         se.add_line("cd " + os.path.abspath(launch_dir))
@@ -361,6 +390,7 @@ class AbstractQueueAdapter(object):
         if self.pre_run:
             se.add_comment("Commands before execution")
             se.add_lines(self.pre_run)
+            se.add_emptyline()
 
         # Construct the string to run the executable with MPI and mpi_ncpus.
         mpi_ncpus = self.mpi_ncpus
@@ -369,12 +399,13 @@ class AbstractQueueAdapter(object):
         se.add_line(line)
 
         if self.post_run:
+            se.add_emptyline()
             se.add_comment("Commands after execution")
             se.add_lines(self.post_run)
 
         shell_text = se.get_script_str()
 
-        return qheader + shell_text
+        return qheader + shell_text + "\n"
 
     @abc.abstractmethod
     def submit_to_queue(self, script_file):
@@ -449,6 +480,10 @@ export MPI_NCPUS=$${MPI_NCPUS}
         """Set the number of CPUs used for MPI."""
         self.qparams["MPI_NCPUS"] = mpi_ncpus
 
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+
     def set_mem_per_cpu(self, mem_mb):
         """mem_per_cpu is not available in ShellAdapter."""
 
@@ -513,7 +548,6 @@ class SlurmAdapter(AbstractQueueAdapter):
 
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
-
 """
 
     @property
@@ -533,6 +567,11 @@ class SlurmAdapter(AbstractQueueAdapter):
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
         self.qparams["ntasks"] = mpi_ncpus
+
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        warnings.warn("set_omp_ncpus not availabe for %s" % self.__class__.__name__)
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
@@ -734,34 +773,38 @@ class PbsAdapter(AbstractQueueAdapter):
 #!/bin/bash
 
 #PBS -A $${account}
+#PBS -N $${job_name}
 #PBS -l walltime=$${walltime}
 #PBS -q $${queue}
-#PBS -l mppwidth=$${mppwidth}
-#PBS -l nodes=$${nodes}:ppn=$${ppn}
-#PBS -N $${job_name}
+#PBS -l model=$${model}
+#PBS -l place=$${place}
+#PBS -W group_list=$${group_list}
+#PBS -l select=$${select}:ncpus=1:vmem=$${vmem}mb:mpiprocs=1:ompthreads=$${ompthreads}
+#PBS -l pvmem=$${pvmem}mb
+####PBS -l mppwidth=$${mppwidth}
+####PBS -l nodes=$${nodes}:ppn=$${ppn}  # OLD SYNTAX
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
-
 """
 
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
-        return self.qparams.get("nodes", 1) * self.qparams.get("ppn", 1)
+        return self.qparams.get("select", 1)
                                                     
     def set_mpi_ncpus(self, mpi_ncpus):
         """Set the number of CPUs used for MPI."""
-        if "ppn" not in self.qparams: self.qparams["ppn"] = 1
+        self.qparams["select"] = mpi_ncpus
 
-        ppnode = self.qparams.get("ppn")
-        self.qparams["nodes"] = mpi_ncpus // ppnode 
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        self.qparams["ompthreads"] = omp_ncpus
 
     def set_mem_per_cpu(self, mem_mb):
         """Set the memory per CPU in Megabytes"""
-        raise NotImplementedError("")
-        #self.qparams["mem_per_cpu"] = mem_mb
-        ## Remove mem if it's defined.
-        #self.qparams.pop("mem", None)
+        self.qparams["pvmem"] = mem_mb
+        self.qparams["vmem"] = mem_mb
 
     def cancel(self, job_id):
         return os.system("qdel %d" % job_id)
@@ -777,7 +820,7 @@ class PbsAdapter(AbstractQueueAdapter):
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
             process.wait()
 
-            # grab the returncode. PBS returns 0 if the job was successful
+            # grab the return code. PBS returns 0 if the job was successful
             if process.returncode == 0:
                 try:
                     # output should of the form '2561553.sdb' or '352353.jessup' - just grab the first part for job id
@@ -796,7 +839,7 @@ class PbsAdapter(AbstractQueueAdapter):
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
                        'The error response reads: {}'.format(process.stderr.read()))
-
+                raise self.Error(msg)
         except:
             # random error, e.g. no qsub on machine!
             raise self.Error("Running qsub caused an error...")
@@ -841,6 +884,116 @@ class PbsAdapter(AbstractQueueAdapter):
 
     def increase_cpus(self, factor):
         return False
+
+
+class SGEAdapter(AbstractQueueAdapter):
+    """
+    Adapter for Sun Grid Engine (SGE) task submission software.
+    """
+    QTYPE = "sge"
+
+    QTEMPLATE = """\
+#!/bin/bash
+
+#$ -A $${account}
+#$ -N $${job_name}
+#$ -l h rt=$${walltime}
+#$ -pe $${queue} $${ncpus}
+#$ -cwd
+#$ -j y
+#$ -m n
+#$ -e $${_qerr_path}
+#$ -o $${_qout_path}
+#$ -S /bin/bash
+"""
+    @property
+    def mpi_ncpus(self):
+        """Number of CPUs used for MPI."""
+        return self.qparams.get("ncpus", 1) 
+                                                    
+    def set_mpi_ncpus(self, mpi_ncpus):
+        """Set the number of CPUs used for MPI."""
+        self.qparams["ncpus"] = mpi_ncpus
+
+    def set_omp_ncpus(self, omp_ncpus):
+        """Set the number of OpenMP threads."""
+        self.omp_env["OMP_NUM_THREADS"] = omp_ncpus
+        warnings.warn("set_omp_ncpus not availabe for %s" % self.__class__.__name__)
+
+    def set_mem_per_cpu(self, mem_mb):
+        """Set the memory per CPU in Megabytes"""
+        raise NotImplementedError("")
+        #self.qparams["mem_per_cpu"] = mem_mb
+        ## Remove mem if it's defined.
+        #self.qparams.pop("mem", None)
+
+    def cancel(self, job_id):
+        return os.system("qdel %d" % job_id)
+
+    def submit_to_queue(self, script_file):
+
+        if not os.path.exists(script_file):
+            raise self.Error('Cannot find script file located at: {}'.format(script_file))
+
+        # submit the job
+        try:
+            cmd = ['qsub', script_file]
+            process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            process.wait()
+
+            # grab the returncode. SGE returns 0 if the job was successful
+            if process.returncode == 0:
+                try:
+                    # output should of the form 
+                    # Your job 1659048 ("NAME_OF_JOB") has been submitted 
+                    queue_id = int(process.stdout.read().split(' ')[2])
+                    logger.info('Job submission was successful and queue_id is {}'.format(queue_id))
+
+                except:
+                    # probably error parsing job code
+                    logger.warning("Could not parse job id following qsub...")
+                    queue_id = None
+
+                finally:
+                    return process, queue_id
+
+            else:
+                # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
+                msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
+                       'The error response reads: {}'.format(process.stderr.read()))
+                raise self.Error(msg)
+
+        except:
+            # random error, e.g. no qsub on machine!
+            raise self.Error("Running qsub caused an error...")
+
+    def get_njobs_in_queue(self, username=None):
+        # Initialize username
+        if username is None:
+            username = getpass.getuser()
+
+        # run qstat
+        qstat = Command(['qstat', '-u', username])
+        process = qstat.run(timeout=5)
+
+        # parse the result
+        if process[0] == 0:
+            # lines should contain username
+            # count lines that include the username in it
+
+            # TODO: only count running or queued jobs. or rather, *don't* count jobs that are 'C'.
+            outs = process[1].split('\n')
+            njobs = len([line.split() for line in outs if username in line])
+            logger.info('The number of jobs currently in the queue is: {}'.format(njobs))
+
+            return njobs
+
+        # there's a problem talking to qstat server?
+        err_msg = ('Error trying to get the number of jobs in the queue using qstat service\n' + 
+                   'The error response reads: {}'.format(process[2]))
+        logger.critical(err_msg)
+
+        return None
 
 
 class QScriptTemplate(string.Template):
