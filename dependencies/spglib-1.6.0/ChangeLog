@@ -1,3 +1,60 @@
+2014-02-17  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.6.0:
+
+	* src/spglib.c (spg_get_spacegroup_type):
+
+	A function is made for accessing space-group-type database.
+
+2014-01-07  Atsushi Togo  <atz.togo@gmail.com>
+
+	* src/tetrahedron_method.*:
+
+	Tetrahedron method is implemented. Example is found in the example
+	directory.
+
+2013-09-10  Atsushi Togo  <atz.togo@gmail.com>
+
+	* Version 1.5.2:
+
+	* kpoint.c (kpt_relocate_BZ_grid_address):
+
+	New function kpt_relocate_BZ_grid_address is implemented in
+	kpoint.c. k-points on the mesh of the reciprocal primitive lattice
+	are relocated to fit in the Brillouin zone. To treat
+	translationally equivalent k-points, the memory space of
+	bz_grid_address[prod(mesh + 1)][3] is required.  bz_map[prod(mesh
+	* 2 - 1)] is used to map k-points on the expanded k-space where
+	the shape is same as the reciprocal primitive lattice but the size
+	along each lattice vector is multiplied by mesh * 2 - 1. BZ zone
+	is included in this expanded k-space, so the bz_map can hold the
+	location of relocated k-points. Irreducible k-points are stored
+	from 0 to index of prod(mesh) - 1 in bz_grid_address in the same
+	order of grid_address, and the translationally equivalent k-points
+	are stored after that. Fast indexing of the location of relocated
+	k-points can be executed using bz_map with similar way to usual
+	grid_address scheme.
+
+	* kpoint.c (kpt_get_BZ_triplets_at_q):
+
+	New function kpt_get_BZ_triplets_at_q is implemented using
+	relocate_BZ_grid_address. This generates a set of triplets that
+	cleanly fit in BZ.
+
+2013-09-10  Atsushi Togo  <atz.togo@gmail.com>
+
+	* kpoint.c:
+
+	Remove get_triplets_reciprocal_mesh and
+	extract_triplets_reciprocal_mesh_at_q.  Add
+	get_grid_triplets_at_q. This function treats q-points on boundary
+	correctly.
+
+	* spglib.c (spg_get_symmetry):
+
+	Previously symmetry operations were obtained by sym_get_operation.
+	Now it is changed so that they are extracted from spglib_dataset.
+
 2013-04-16  Atsushi Togo  <atz.togo@gmail.com>
 
 	* symmetry.c (get_operation):

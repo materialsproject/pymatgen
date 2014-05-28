@@ -825,7 +825,7 @@ class Kpoints(MSONable):
                        kpts_shift=shift)
 
     @staticmethod
-    def automatic_density(structure, kppa):
+    def automatic_density(structure, kppa, force_gamma=False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and
@@ -838,6 +838,8 @@ class Kpoints(MSONable):
         Args:
             structure (Structure): Input structure
             kppa (int): Grid density
+            force_gamma (bool): Force a gamma centered mesh (default is to
+                use gamma only for hexagonal cells)
 
         Returns:
             Kpoints
@@ -871,7 +873,7 @@ class Kpoints(MSONable):
         num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
-        if has_odd or is_hexagonal:
+        if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst

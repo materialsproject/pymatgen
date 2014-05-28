@@ -58,11 +58,19 @@ class LatticeTestCase(PymatgenTest):
         self.assertArrayAlmostEqual(fcoord, rand_coord)
 
     def test_reciprocal_lattice(self):
-        self.assertArrayAlmostEqual(self.lattice.reciprocal_lattice.matrix,
+        recip_latt = self.lattice.reciprocal_lattice
+        self.assertArrayAlmostEqual(recip_latt.matrix,
                                     0.628319 * np.eye(3), 5)
         self.assertArrayAlmostEqual(self.tetragonal.reciprocal_lattice.matrix,
                                     [[0.628319, 0., 0.], [0., 0.628319, 0],
                                      [0., 0., 0.3141590]], 5)
+
+        #Test the crystallographic version.
+        recip_latt_xtal = self.lattice.reciprocal_lattice_crystallographic
+        self.assertArrayAlmostEqual(recip_latt.matrix,
+                                    recip_latt_xtal.matrix * 2 * np.pi,
+                                    5)
+
 
     def test_static_methods(self):
         lengths_c = [3.840198, 3.84019885, 3.8401976]

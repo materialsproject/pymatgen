@@ -27,16 +27,25 @@ class TestMoleculeStructureComparator(TestCase):
         self.assertTrue(msc2.are_equal(thio1, thio2))
 
     def test_get_bonds(self):
-        mol = read_mol(os.path.join(test_dir, "t1.xyz"))
+        mol1 = read_mol(os.path.join(test_dir, "t1.xyz"))
         msc = MoleculeStructureComparator()
         # noinspection PyProtectedMember
-        bonds = msc._get_bonds(mol)
+        bonds = msc._get_bonds(mol1)
         bonds_ref = [(0, 1), (0, 2), (0, 3), (0, 23), (3, 4), (3, 5), (5, 6),
                      (5, 7), (7, 8), (7, 9), (7, 21), (9, 10), (9, 11),
                      (9, 12), (12, 13), (12, 14), (12, 15), (15, 16), (15, 17),
                      (15, 18), (18, 19), (18, 20), (18, 21), (21, 22),
                      (21, 23), (23, 24), (23, 25)]
         self.assertEqual(bonds, bonds_ref)
+        mol2 = read_mol(os.path.join(test_dir, "MgBH42.xyz"))
+        bonds = msc._get_bonds(mol2)
+        self.assertEqual(bonds, [(1, 3), (2, 3), (3, 4), (3, 5), (6, 8), (7, 8),
+                                 (8, 9), (8, 10)])
+        msc = MoleculeStructureComparator(ignore_ionic_bond=False)
+        bonds = msc._get_bonds(mol2)
+        self.assertEqual(bonds, [(0, 1), (0, 2), (0, 3), (0, 5), (0, 6), (0, 7),
+                                 (0, 8), (0, 9), (1, 3), (2, 3), (3, 4), (3, 5),
+                                 (6, 8), (7, 8), (8, 9), (8, 10)])
 
     def test_to_and_from_dict(self):
         msc1 = MoleculeStructureComparator()
