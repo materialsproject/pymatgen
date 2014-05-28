@@ -423,6 +423,14 @@ class AbiStructure(Structure, AbivarAble):
         """
         return cls.boxed_molecule([pseudo], cart_coords, acell=acell)
 
+    def get_sorted_structure(self):
+        """
+        orders the structure according to increasing Z of the elements
+        """
+        sites = sorted(self.sites, key=lambda site: site.specie.Z)
+        structure = Structure.from_sites(sites)
+        return AbiStructure(structure)
+
     def to_abivars(self):
         "Returns a dictionary with the abinit variables."
         types_of_specie = self.types_of_specie
@@ -608,6 +616,7 @@ class KSampling(AbivarAble):
             `KSampling` object.
         """
         return cls(kpts              = [kpts],
+                   kpt_shifts        = (0.0, 0.0, 0.0),
                    use_symmetries    = use_symmetries,
                    use_time_reversal = use_time_reversal,
                    comment           = "gamma-centered mode",
@@ -729,7 +738,8 @@ class KSampling(AbivarAble):
         return cls._path(ndivsm, kpath_bounds=kpath_bounds, comment="Explicit K-path")
 
     @classmethod
-    def automatic_density(cls, structure, kppa, chksymbreak=None, use_symmetries=True, use_time_reversal=True):
+    def automatic_density(cls, structure, kppa, chksymbreak=None, use_symmetries=True, use_time_reversal=True,
+                          shifts=(0.5, 0.5, 0.5)):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
@@ -775,10 +785,12 @@ class KSampling(AbivarAble):
 
         comment = "pymatgen generated KPOINTS with grid density = " + "{} / atom".format(kppa)
 
+        shifts = np.reshape(shifts, (-1, 3))
+
         return cls(mode              = "monkhorst",
                    num_kpts          = 0,
                    kpts              = [num_div],
-                   kpt_shifts        = [0.5, 0.5, 0.5],
+                   kpt_shifts        = shifts,
                    chksymbreak       = chksymbreak,
                    use_symmetries    = use_symmetries   ,
                    use_time_reversal = use_time_reversal,
@@ -787,7 +799,6 @@ class KSampling(AbivarAble):
 
     def to_abivars(self):
         return self.abivars
-
 
 
 class Constraints(AbivarAble):
@@ -1019,7 +1030,7 @@ class HilbertTransform(AbivarAble):
         """
         # Spectral function
         self.nomegasf = nomegasf
-        self.domegasg = domegasf
+        self.domegasf = domegasf
         self.spmeth   = spmeth
 
         # Mesh for the contour-deformation method used for the integration of the self-energy
@@ -1168,7 +1179,7 @@ class SelfEnergy(AbivarAble):
     }
 
     def __init__(self, se_type, sc_mode, nband, ecutsigx, screening,
-                 gw_qprange=1, ppmodel=None, ecuteps=None, ecutwfn=None):
+                 gw_qprange=1, ppmodel=None, ecuteps=None, ecutwfn=None, gwpara=2):
         """
         Args:
             se_type:
@@ -1204,6 +1215,7 @@ class SelfEnergy(AbivarAble):
         self.ecutsigx  = ecutsigx
         self.screening = screening
         self.gw_qprange = gw_qprange
+        self.gwpara = gwpara
 
         if ppmodel is not None:
             assert not screening.use_hilbert
@@ -1261,6 +1273,7 @@ class SelfEnergy(AbivarAble):
             ecutsigx=self.ecutsigx,
             symsigma=self.symsigma,
             gw_qprange=self.gw_qprange,
+            gwpara=self.gwpara
             #"ecutwfn"  : self.ecutwfn,
             #"kptgw"    : self.kptgw,
             #"nkptgw"   : self.nkptgw,

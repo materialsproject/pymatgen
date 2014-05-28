@@ -884,6 +884,56 @@ class Kpoints(MSONable):
         return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
 
     @staticmethod
+    def automatic_gamma_density(structure, kppa):
+        """
+        Returns an automatic Kpoint object based on a struc:ture and a kpoint
+        density. Uses Gamma centered meshes always. For GW.
+
+        Algorithm:
+            Uses a simple approach scaling the number of divisions along each
+            reciprocal lattice vector proportional to its length.
+
+        Args:
+            structure:
+                Input structure
+            kppa:
+                Grid density
+        """
+
+        latt = structure.lattice
+        lengths = latt.abc
+        ngrid = kppa / structure.num_sites
+
+        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
+        num_div = [int(round(mult / l)) for l in lengths]
+
+        #ensure that numDiv[i] > 0
+        num_div = [i if i > 0 else 1 for i in num_div]
+
+        angles = latt.angles
+        hex_angle_tol = 5  # in degrees
+        hex_length_tol = 0.01  # in angstroms
+        right_angles = [i for i in xrange(3)
+                        if abs(angles[i] - 90) < hex_angle_tol]
+        hex_angles = [i for i in xrange(3)
+                      if abs(angles[i] - 60) < hex_angle_tol or
+                      abs(angles[i] - 120) < hex_angle_tol]
+
+        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
+                        and abs(lengths[right_angles[0]] -
+                                lengths[right_angles[1]]) < hex_length_tol)
+
+        # VASP documentation recommends to use even grids for n <= 8 and odd
+        # grids for n > 8.
+        num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
+
+        style = Kpoints.supported_modes.Gamma
+
+        comment = "pymatgen generated KPOINTS with grid density = " + \
+            "{} / atom".format(kppa)
+        num_kpts = 0
+        return Kpoints(comment, num_kpts, style, [num_div], [0, 0, 0])
+
     def automatic_linemode(divisions, ibz):
         """
         Convenient static constructor for a KPOINTS in mode line_mode.

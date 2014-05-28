@@ -25,7 +25,6 @@ from pymatgen.util.string_utils import is_string
 import logging
 logger = logging.getLogger(__name__)
 
-
 __all__ = [
     "MpiRunner",
     "qadapter_class",
@@ -205,8 +204,10 @@ class AbstractQueueAdapter(object):
             err_msg = ""
             for param in self.qparams:
                 if param not in self.supported_qparams:
-                    err_msg += "Unsupported QUEUE parameter name %s\n"  % param
-
+                    err_msg += "Unsupported QUEUE parameter name %s\n" % param
+                    err_msg += "Supported are: \n"
+                    for param_sup in self.supported_qparams:
+                        err_msg += "    %s \n" % param_sup
             if err_msg:
                 raise ValueError(err_msg)
 
@@ -312,7 +313,7 @@ class AbstractQueueAdapter(object):
         qtemplate = QScriptTemplate(self.QTEMPLATE)
 
         # set substitution dict for replacements into the template and clean null values
-        subs_dict = {k: v for k,v in self.qparams.items() if v is not None}  
+        subs_dict = {k: v for k, v in self.qparams.items() if v is not None}
 
         # Set job_name and the names for the stderr and stdout of the 
         # queue manager (note the use of the extensions .qout and .qerr
@@ -352,8 +353,8 @@ class AbstractQueueAdapter(object):
                 Path of the Queue manager error file.
         """
         # PBS does not accept job_names longer than 15 chars.
-        if len(job_name) > 15 and isinstance(self, PbsAdapter):
-            job_name = job_name[:15]
+        if len(job_name) > 14 and isinstance(self, PbsAdapter):
+            job_name = job_name[:14]
 
         # Construct the header for the Queue Manager.
         qheader = self._make_qheader(job_name, qout_path, qerr_path)
@@ -427,6 +428,33 @@ class AbstractQueueAdapter(object):
             username: (str) the username of the jobs to count (default is to autodetect)
         """
 
+    #some method to fix problems
+
+    @abc.abstractmethod
+    def exclude_nodes(self, nodes):
+        """
+        Method to exclude nodes in the calculation
+        """
+
+    @abc.abstractmethod
+    def increase_mem(self, factor):
+        """
+        Method to increase the amount of memory asked for, by factor.
+        """
+
+    @abc.abstractmethod
+    def increase_time(self, factor):
+        """
+        Method to increase the available wall time asked for, by factor.
+        """
+
+    @abc.abstractmethod
+    def increase_cpus(self, factor):
+        """
+        Method to increase the number of cpus asked for.
+        """
+
+
 ####################
 # Concrete classes #
 ####################
@@ -479,6 +507,18 @@ export MPI_NCPUS=$${MPI_NCPUS}
     def get_njobs_in_queue(self, username=None):
         return None
 
+    def exclude_nodes(self, nodes):
+        return False
+
+    def increase_mem(self, factor):
+        return False
+
+    def increase_time(self, factor):
+        return False
+
+    def increase_cpus(self, factor):
+        return False
+
 
 class SlurmAdapter(AbstractQueueAdapter):
     QTYPE = "slurm"
@@ -494,6 +534,7 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --account=$${account}
 #SBATCH --job-name=$${job_name}
 #SBATCH	--nodes=$${nodes}
+#SBATCH	--exclude=$${exclude_nodes}
 #SBATCH --mem=$${mem}
 #SBATCH --mem-per-cpu=$${mem_per_cpu}
 #SBATCH --mail-user=$${mail_user}
@@ -507,6 +548,15 @@ class SlurmAdapter(AbstractQueueAdapter):
 #SBATCH --output=$${_qout_path}
 #SBATCH --error=$${_qerr_path}
 """
+
+    @property
+    def limits(self):
+        """
+        the limits for certain parameters set on the cluster.
+        currently hard coded, should be read at init
+        the increase functions will not increase beyond thise limits
+        """
+        return {'max_total_tasks': 544, 'max_cpus_per_node': 16, 'mem': 6400000, 'mem_per_cpu': 64000, 'time': 2880}
 
     @property
     def mpi_ncpus(self):
@@ -531,15 +581,24 @@ class SlurmAdapter(AbstractQueueAdapter):
     def cancel(self, job_id):
         return os.system("scancel %d" % job_id)
 
-    def submit_to_queue(self, script_file):
+    def submit_to_queue(self, script_file, submit_err_file="sbatch.err"):
 
         if not os.path.exists(script_file):
             raise self.Error('Cannot find script file located at: {}'.format(script_file))
+
+        submit_err_file = os.path.join(os.path.dirname(script_file), submit_err_file)
 
         # submit the job
         try:
             cmd = ['sbatch', script_file]
             process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            # write the err output to file, a error parser may read it and a fixer may know what to do ...
+            f = open(submit_err_file, mode='w')
+            f.write('sbatch submit process stderr:')
+            f.write(str(process.stderr.read()))
+            f.write('qparams:')
+            f.write(str(self.qparams))
+            f.close()
             process.wait()
 
             # grab the returncode. SLURM returns 0 if the job was successful
@@ -560,12 +619,124 @@ class SlurmAdapter(AbstractQueueAdapter):
             else:
                 # some qsub error, e.g. maybe wrong queue specified, don't have permission to submit, etc...
                 err_msg = ("Error in job submission with SLURM file {f} and cmd {c}\n".format(f=script_file, c=cmd) + 
-                           "The error response reads: {}".format(process.stderr.read()))
+                           "The error response reads: {c}".format(c=process.stderr.read()))
                 raise self.Error(err_msg)
 
-        except:
+        except BaseException as details:
+            print('print exception: ' + str(details))
+            f = open(submit_err_file, mode='a')
+            f.write('print exception: ' + str(details))
+            f.close()
+            try:
+                print('sometimes we land here, no idea what is happening ... Michiel')
+                print(details)
+                print(cmd)
+                print(process.returncode)
+            except:
+                pass
+
             # random error, e.g. no qsub on machine!
             raise self.Error('Running sbatch caused an error...')
+
+    def exclude_nodes(self, nodes):
+        try:
+            if 'exclude_nodes' not in self.qparams.keys():
+                self.qparams.update({'exclude_nodes': 'node'+nodes[0]})
+                print('excluded node %s' % nodes[0])
+            for node in nodes[1:]:
+                self.qparams['exclude_nodes'] += ',node'+node
+                print('excluded node %s' % node)
+            print(self.qparams)
+            return True
+        except (KeyError, IndexError):
+            return False
+
+    def increase_cpus(self, factor=1.5):
+        print('increasing cpus')
+        try:
+            if self.qparams['ntasks'] > 1:
+                # mpi parallel
+                n = int(self.qparams['ntasks'] * factor)
+                if n < self.limits['max_total_tasks']:
+                    self.qparams['ntasks'] = n
+                    print('increased ntasks to %s' % n)
+                    return True
+                else:
+                    raise QueueAdapterError
+            elif self.qparams['ntasks'] == 1 and self.qparams['cpus_per_task'] > 1:
+                # open mp parallel
+                n = int(self.qparams['cpus_per_task'] * factor)
+                if n < self.limits['max_cpus_per_node']:
+                    self.qparams['cpus_per_task'] = n
+                    return True
+                else:
+                    raise QueueAdapterError
+            else:
+                raise QueueAdapterError
+        except (KeyError, QueueAdapterError):
+            return False
+
+    def increase_mem(self, factor=1.5):
+        print('increasing memory')
+        try:
+            if 'mem' in self.qparams.keys():
+                n = int(self.qparams['mem'] * factor)
+                if n < self.limits['mem']:
+                    self.qparams['mem'] = n
+                    print('increased mem to %s' % n)
+                    return True
+                else:
+                    raise QueueAdapterError
+            elif 'mem_per_cpu' in self.qparams.keys():
+                n = int(self.qparams['mem_per_cpu'] * factor)
+                if n < self.limits['mem_per_cpu']:
+                    self.qparams['mem'] = n
+                    print('increased mem_per_cpu to %s' % n)
+                    return True
+                else:
+                    raise QueueAdapterError
+            else:
+                raise QueueAdapterError
+        except (KeyError, IndexError, QueueAdapterError):
+            return False
+
+    def increase_time(self, factor=1.5):
+        print('increasing time')
+        days, hours, minutes = 0, 0, 0
+        try:
+            # a slurm time parser ;-) forgetting about seconds
+            # feel free to pull this out and mak time in minutes always
+            if '-' not in self.qparams['time']:
+                # "minutes",
+                # "minutes:seconds",
+                # "hours:minutes:seconds",
+                if ':' not in self.qparams['time']:
+                    minutes = int(float(self.qparams['time']))
+                elif self.qparams['time'].count(':') == 1:
+                    minutes = int(float(self.qparams['time'].split(':')[0]))
+                else:
+                    minutes = int(float(self.qparams['time'].split(':')[1]))
+                    hours = int(float(self.qparams['time'].split(':')[0]))
+            else:
+                # "days-hours",
+                # "days-hours:minutes",
+                # "days-hours:minutes:seconds".
+                days = int(float(self.qparams['time'].split('-')[0]))
+                hours = int(float(self.qparams['time'].split('-')[1].split(':')[0]))
+                try:
+                    minutes = int(float(self.qparams['time'].split('-')[1].split(':')[1]))
+                except IndexError:
+                    pass
+            time = (days * 24 + hours) * 60 + minutes
+            time *= factor
+            if time < self.limits['time']:
+                self.qparams['time'] = time
+                print('increased time to %s' % time)
+                return True
+            else:
+                raise QueueAdapterError
+        except (KeyError, QueueAdapterError):
+            return False
 
     def get_njobs_in_queue(self, username=None):
         if username is None:
@@ -614,6 +785,7 @@ class PbsAdapter(AbstractQueueAdapter):
 #PBS -o $${_qout_path}
 #PBS -e $${_qerr_path}
 """
+
     @property
     def mpi_ncpus(self):
         """Number of CPUs used for MPI."""
@@ -667,7 +839,6 @@ class PbsAdapter(AbstractQueueAdapter):
                 msg = ('Error in job submission with PBS file {f} and cmd {c}\n'.format(f=script_file, c=cmd) + 
                        'The error response reads: {}'.format(process.stderr.read()))
                 raise self.Error(msg)
-
         except:
             # random error, e.g. no qsub on machine!
             raise self.Error("Running qsub caused an error...")
@@ -700,6 +871,18 @@ class PbsAdapter(AbstractQueueAdapter):
         logger.critical(err_msg)
 
         return None
+
+    def exclude_nodes(self, nodes):
+        return False
+
+    def increase_mem(self, factor):
+        return False
+
+    def increase_time(self, factor):
+        return False
+
+    def increase_cpus(self, factor):
+        return False
 
 
 class SGEAdapter(AbstractQueueAdapter):
