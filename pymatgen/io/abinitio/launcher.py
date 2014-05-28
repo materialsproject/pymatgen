@@ -419,7 +419,7 @@ class PyFlowScheduler(object):
         self.mailto = kwargs.pop("mailto", None)
         self.verbose = int(kwargs.pop("verbose", 0))
 
-        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 24 * 3600))
+        self.REMINDME_S = float(kwargs.pop("REMINDME_S", 14 * 24 * 3600))
         self.MAX_NUM_PYEXCS = int(kwargs.pop("MAX_NUM_PYEXCS", 0))
         self.MAX_NUM_ABIERRS = int(kwargs.pop("MAX_NUM_ABIERRS", 0))
         self.SAFETY_RATIO = int(kwargs.pop("SAFETY_RATIO", 3))
@@ -664,7 +664,8 @@ class PyFlowScheduler(object):
             err_msg += boxed(msg)
 
         # Paranoid check: disable the scheduler if we have submitted
-        # too many jobs (it might be due to some bug or other external reasons such as race conditions betwee difference callbacks.!)
+        # too many jobs (it might be due to some bug or other external reasons 
+        # such as race conditions between difference callbacks!)
         if self.nlaunch > self.SAFETY_RATIO * self.flow.num_tasks:
             msg = "Too many jobs launched %d. Total number of tasks = %s, Will shutdown the scheduler and exit" % (
             self.nlaunch, self.flow.num_tasks)
@@ -726,6 +727,7 @@ class PyFlowScheduler(object):
                 dump_file = os.path.join(self.flow.workdir, "_exceptions")
                 with open(dump_file, "w") as fh:
                     fh.writelines(self.exceptions)
+                    fh.write("Shutdown message:\n%s" % msg)
 
             # Shutdown the scheduler thus allowing the process to exit.
             self.sched.shutdown(wait=False)

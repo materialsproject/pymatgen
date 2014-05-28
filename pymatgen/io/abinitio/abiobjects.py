@@ -22,6 +22,30 @@ from pymatgen.io.smartio import read_structure
 
 from .netcdf import structure_from_etsf_file
 
+# tools
+def contract(s):
+    """
+    >>> contract("1 1 1 2 2 3")
+     3*1 2*2 1*3
+
+    >>> contract("1 1 3 2 3")
+     2*1 1*3 1*2 1*3
+    """
+    if not s: return s
+
+    tokens = s.split()
+    old = tokens[0]
+    count = [[1, old]]
+
+    for t in tokens[1:]:
+        if t == old:
+            count[-1][0] += 1
+        else:
+            old = t
+            count.append([1, t])
+
+    return " ".join("%d*%s" % (c, t) for c, t in count)
+
 
 class AbivarAble(object):
     """
@@ -268,8 +292,8 @@ class Electrons(AbivarAble):
         self.algorithm = algorithm
 
         # FIXME
-        if nband is None:
-            self.fband = 4
+        #if nband is None:
+        #    self.fband = 4
 
     @property
     def nsppol(self):

@@ -8,12 +8,9 @@ import time
 import shutil
 import collections
 import abc
-import warnings
 import copy
-import yaml
-import numpy as np
-from pymatgen.io.abinitio import myaml
 
+from pymatgen.io.abinitio import myaml
 from pymatgen.io.abinitio import abiinspect
 from pymatgen.io.abinitio import events 
 
@@ -23,15 +20,15 @@ except ImportError:
     pass
 
 from monty.json import loadf 
-from pymatgen.core.design_patterns import Enum, AttrDict
+from pymatgen.core.design_patterns import AttrDict
 from pymatgen.util.io_utils import FileLock
-from pymatgen.util.string_utils import stream_has_colours, is_string, list_strings, WildCard
+from pymatgen.util.string_utils import is_string, list_strings, WildCard
 from pymatgen.serializers.json_coders import MSONable, json_pretty_dump
 from pymatgen.io.abinitio.utils import File, Directory, irdvars_for_ext, abi_splitext, abi_extensions, FilepathFixer, Condition
 
 from pymatgen.io.abinitio.qadapters import qadapter_class
 from pymatgen.io.abinitio.netcdf import ETSF_Reader
-from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput, order_pseudos
+from pymatgen.io.abinitio.strategies import StrategyWithInput, OpticInput, AnaddbInput
 
 import logging
 logger = logging.getLogger(__name__)
@@ -57,6 +54,7 @@ __all__ = [
 
 
 # Tools and helper functions.
+
 def straceback():
     """Returns a string with the traceback."""
     import traceback
@@ -197,7 +195,7 @@ class ParalHintsParser(object):
 
     def parse(self, filename):
         """
-        Read the AutoParal section (YAML forma) from filename.
+        Read the AutoParal section (YAML format) from filename.
         Assumes the file contains only one section.
         """
         with abiinspect.YamlTokenizer(filename) as r:
@@ -549,7 +547,7 @@ class TaskManager(object):
             stdin=task.files_file.path, 
             stdout=task.log_file.path,
             stderr=task.stderr_file.path,
-            )
+        )
 
         # Write the script.
         script_file = task.job_file.path
@@ -1036,7 +1034,7 @@ class Node(object):
 
     def add_required_files(self, files):
         """
-        Add a list of path to the list of files required by the `Node`.
+        Add a list of paths to the list of files required by the `Node`.
 
         Args:
             files:
@@ -1239,7 +1237,7 @@ class Task(Node):
 
     @property
     def can_run(self):
-        """The task can run if its status is < S_SUB and all the other depencies (if any) are done!"""
+        """The task can run if its status is < S_SUB and all the other dependencies (if any) are done!"""
         all_ok = all([stat == self.S_OK for stat in self.deps_status])
         return self.status < self.S_SUB and all_ok
 
@@ -1494,7 +1492,7 @@ class Task(Node):
 
     def check_status(self):
         """
-        This function check the status of the task by inspecting the output and the 
+        This function checks the status of the task by inspecting the output and the
         error files produced by the application and by the queue manager.
         The process
         1) see it the job is blocked
@@ -1518,7 +1516,65 @@ class Task(Node):
             info_msg = "return code %s" % self.returncode
             return self.set_status(self.S_ERROR, info_msg=info_msg)           # The job was not submitter properly
 
-        err_msg = None
+#        err_msg = None
+#=======
+#            if not self.stderr_file.exists and not self.qerr_file.exists:
+#                # The job is still in the queue.
+#                return self.status
+#
+#            else:
+#                # Analyze the standard error of the executable:
+#                if self.stderr_file.exists:
+#                    err_msg = self.stderr_file.read()
+#                    if err_msg:
+#                        logger.critical("%s: executable stderr:\n %s" % (self, err_msg))
+#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+#
+#                # Analyze the error file of the resource manager.
+#                if self.qerr_file.exists:
+#                    err_msg = self.qerr_file.read()
+#                    if err_msg:
+#                        logger.critical("%s: queue stderr:\n %s" % (self, err_msg))
+#                        return self.set_status(self.S_ERROR, info_msg=err_msg)
+#
+#                return self.status
+#
+#        # Check if the run completed successfully.
+#        report = self.get_event_report()
+#
+#        if report.run_completed:
+#            # Check if the calculation converged.
+#            not_ok = self.not_converged()
+
+#            if not_ok:
+#                return self.set_status(self.S_UNCONVERGED)
+#            else:
+#                return self.set_status(self.S_OK)
+
+#       # This is the delicate part since we have to discern among different possibilities:
+        #
+        # 1) Calculation stopped due to an Abinit Error or Bug.
+        #
+        # 2) Segmentation fault that (by definition) was not handled by ABINIT.
+        #    In this case we check if the ABINIT standard error is not empty.
+        #    hoping that nobody has written to stderr (e.g. libraries in debug mode)
+        #
+        # 3) Problem with the resource manager and/or the OS (walltime error, resource error, phase of the moon ...)
+        #    In this case we check if the error file of the queue manager is not empty.
+        #    Also in this case we *assume* that there's something wrong if the stderr of the queue manager is not empty
+        # 
+        # 4) Calculation is still running!
+        #
+        # Point 2) and 3) are the most complicated since there's no standard!
+
+        # 1) Search for possible errors or bugs in the ABINIT **output** file.
+#        if report.errors or report.bugs:
+#            logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
+#            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
+
+        # 2) Analyze the stderr file for Fortran runtime errors.
+#>>>>>>> pymatgen-matteo/master
+
         if self.stderr_file.exists:
             err_msg = self.stderr_file.read()
 
@@ -1609,7 +1665,7 @@ class Task(Node):
         dest = os.path.join(self.indir.path, in_file)
                                                                            
         if os.path.exists(dest) and not os.path.islink(dest):
-           logger.warning("Will overwrite %s with %s" % (dest, out_file))
+            logger.warning("Will overwrite %s with %s" % (dest, out_file))
                                                                            
         os.rename(out_file, dest)
         return dest
@@ -1845,7 +1901,7 @@ class Task(Node):
             shutil.rmtree(self.workdir)
 
         else:
-            w = WildCard(exclude_wildcards)
+            w = WildCard(exclude_wildcard)
 
             for dirpath, dirnames, filenames in os.walk(self.workdir):
                 for fname in filenames:
@@ -2003,7 +2059,7 @@ class AbinitTask(Task):
 
     @property
     def filesfile_string(self):
-        """String with the list of files and prefixex needed to execute ABINIT."""
+        """String with the list of files and prefixes needed to execute ABINIT."""
         lines = []
         app = lines.append
         pj = os.path.join
@@ -2246,7 +2302,6 @@ class RelaxTask(AbinitTask):
         for ext in ["WFK", "DEN"]:
             ofile = self.outdir.has_abiext(ext)
             if ofile:
-
                 irdvars = irdvars_for_ext(ext)
                 infile = self.out_to_in(ofile)
                 break
@@ -2460,7 +2515,7 @@ class OpticTask(Task):
 
         deps = {task: "1WF" for task in ddk_nodes}
         deps.update({nscf_node: "WFK"})
-        print("deps",deps)
+        print("deps", deps)
 
         strategy = OpticInput(optic_input)
         super(OpticTask, self).__init__(strategy=strategy, workdir=workdir, manager=manager, deps=deps)

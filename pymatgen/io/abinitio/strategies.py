@@ -20,7 +20,7 @@ __email__ = "gmatteo at gmail.com"
 
 def select_pseudos(pseudos, structure, ret_table=True):
     """
-    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials 
+    Given a list of pseudos and a pymatgen structure, extract the pseudopotentials
     for the calculation (useful when we receive an entire periodic table).
 
     Raises:
@@ -32,13 +32,13 @@ def select_pseudos(pseudos, structure, ret_table=True):
     for symbol in structure.types_of_specie:
         # Get the list of pseudopotentials in table from atom symbol.
         pseudos_for_type = table.pseudos_with_symbol(symbol)
-                                                                             
+
         if not pseudos_for_type:
             raise ValueError("Cannot find pseudo for symbol %s" % symbol)
 
         if len(pseudos_for_type) > 1:
             raise ValueError("Find multiple pseudos for symbol %s" % symbol)
-                                                                             
+
         pseudos.append(pseudos_for_type[0])
 
     if ret_table:
@@ -54,11 +54,11 @@ def order_pseudos(pseudos, structure):
 
 def num_valence_electrons(pseudos, structure):
     """
-    Compute the number of valence electrons from 
+    Compute the number of valence electrons from
     a list of pseudopotentials and the crystalline structure.
 
     Args:
-        pseudos: 
+        pseudos:
             List of strings, list of of pseudos or `PseudoTable` instance.
         structure:
             Pymatgen structure.
@@ -85,14 +85,14 @@ class Strategy(object):
     A Strategy object generates the ABINIT input file used for a particular type of calculation
     e.g. ground-state runs, structural relaxations, self-energy calculations ...
 
-    A Strategy can absorb data (e.g. data produced in the previous steps of a workflow) and 
+    A Strategy can absorb data (e.g. data produced in the previous steps of a workflow) and
     can use this piece of information to generate/optimize the input variables.
     Strategy objects must provide the method make_input that builds and returns the abinit input file.
 
     Attributes:
         accuracy:
             Accuracy of the calculation used to define basic parameters of the run.
-            such as tolerances, basis set truncation ... 
+            such as tolerances, basis set truncation ...
         pseudos:
             List of pseudopotentials.
     """
@@ -100,7 +100,7 @@ class Strategy(object):
 
     # Mapping runlevel --> optdriver variable
     _runl2optdriver = {
-        "scf"      : 0 , 
+        "scf"      : 0 ,
         "nscf"     : 0 ,
         "relax"    : 0 ,
         "dfpt"     : 1 ,
@@ -111,21 +111,22 @@ class Strategy(object):
 
     # Name of the (default) tolerance used by the runlevels.
     _runl2tolname = {
-        "scf"      : 'tolvrs', 
-        "nscf"     : 'tolwfr', 
+        "scf"      : 'tolvrs',
+        "nscf"     : 'tolwfr',
         "dfpt"     : 'toldfe',   # ?
         "screening": 'toldfe',   # dummy
         "sigma"    : 'toldfe',   # dummy
         "bse"      : 'toldfe',   # ?
+        "relax"    : 'tolrff',
     }
 
     # Tolerances for the different levels of accuracy.
     T = collections.namedtuple('Tolerance', "low normal high")
     _tolerances = {
-        "toldfe": T(1.e-7,  1.e-8,  1.e-9), 
+        "toldfe": T(1.e-7,  1.e-8,  1.e-9),
         "tolvrs": T(1.e-7,  1.e-8,  1.e-9),
         "tolwfr": T(1.e-15, 1.e-17, 1.e-19),
-        "tolrdf": T(0.04,   0.02,   0.01),
+        "tolrff": T(0.04,   0.02,   0.01),
         }
     del T
 
@@ -143,7 +144,7 @@ class Strategy(object):
     @abc.abstractproperty
     def runlevel(self):
         """String defining the Runlevel. See _runl2optdriver."""
-                                                            
+
     @property
     def optdriver(self):
         """The optdriver associated to the calculation."""
@@ -187,7 +188,7 @@ class Strategy(object):
     def isnc(self):
         """True if norm-conserving calculation."""
         return self.pseudos.allnc
-                                              
+
     @property
     def ispaw(self):
         """True if PAW calculation."""
@@ -198,7 +199,7 @@ class Strategy(object):
         """Cutoff energy in Hartree."""
         try:
             # User option.
-            return self.extra_abivars["ecut"] 
+            return self.extra_abivars["ecut"]
         except KeyError:
             # Compute ecut from the Pseudo Hints.
             hints = [p.hint_for_accuracy(self.accuracy) for p in self.pseudos]
@@ -214,7 +215,7 @@ class Strategy(object):
         except KeyError:
             raise NotImplementedError("")
             #ratio = max(p.suggested_augratio(accuracy) for p in self.pseudos])
-            #ratio = augration_high if high else augratio_norm 
+            #ratio = augration_high if high else augratio_norm
             #pawecutdg = ecut * ratio
 
     @property
@@ -235,7 +236,7 @@ class Strategy(object):
     def need_forces(self):
         """True if forces are required at each SCF step (like the stresses)."""
         return self.runlevel in ["relax",]
-                                                                            
+
     @property
     def need_stress(self):
         """True if the computation of the stress is required."""
@@ -262,7 +263,7 @@ class ScfStrategy(Strategy):
     """
     Strategy for ground-state SCF calculations.
     """
-    def __init__(self, structure, pseudos, ksampling, accuracy="normal", spin_mode="polarized", 
+    def __init__(self, structure, pseudos, ksampling, accuracy="normal", spin_mode="polarized",
                  smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, use_symmetries=True, **extra_abivars):
         """
         Args:
@@ -274,10 +275,10 @@ class ScfStrategy(Strategy):
                 Ksampling object defining the sampling of the BZ.
             accuracy:
                 Accuracy of the calculation.
-            spin_mode: 
+            spin_mode:
                 Spin polarization mode.
-            smearing: 
-                string or Smearing instance. 
+            smearing:
+                string or Smearing instance.
             charge:
                 Total charge of the system. Default is 0.
             scf_algorithm:
@@ -386,7 +387,7 @@ class NscfStrategy(Strategy):
         )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
+
         input = InputWriter(scf_strategy.structure, self.electrons, self.ksampling, **extra)
         return input.get_string()
 
@@ -394,8 +395,8 @@ class NscfStrategy(Strategy):
 class RelaxStrategy(ScfStrategy):
     """Extends ScfStrategy by adding an algorithm for the structural relaxation."""
 
-    def __init__(self, structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized", 
-                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_solver=None, **extra_abivars):
+    def __init__(self, structure, pseudos, ksampling, relax_algo, accuracy="normal", spin_mode="polarized",
+                 smearing="fermi_dirac:0.1 eV", charge=0.0, scf_algorithm=None, **extra_abivars):
         """
         Args:
             structure:
@@ -408,10 +409,10 @@ class RelaxStrategy(ScfStrategy):
                 Object defining the algorithm for the structural relaxation.
             accuracy:
                 Accuracy of the calculation.
-            spin_mode: 
+            spin_mode:
                 Flag defining the spin polarization. Defaults to "polarized"
-            smearing: 
-                String or `Smearing` instance. 
+            smearing:
+                String or `Smearing` instance.
             charge:
                 Total charge of the system. Default is 0.
             scf_algorithm:
@@ -419,15 +420,15 @@ class RelaxStrategy(ScfStrategy):
             extra_abivars:
                 Extra ABINIT variables that will be directly added to the input file
         """
-        super(RelaxStrategy, self).__init__(structure, pseudos, ksampling, 
-                 accuracy=accuracy, spin_mode=spin_mode, smearing=smearing, 
+        super(RelaxStrategy, self).__init__(structure, pseudos, ksampling,
+                 accuracy=accuracy, spin_mode=spin_mode, smearing=smearing,
                  charge=charge, scf_algorithm=scf_algorithm, **extra_abivars)
 
         self.relax_algo = relax_algo
 
     @property
     def runlevel(self):
-        return "scf"
+        return "relax"
 
     def make_input(self):
         # Input for the GS run
@@ -500,7 +501,7 @@ class ScreeningStrategy(Strategy):
         )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
+
         input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.screening, **extra)
         return input.get_string()
 
@@ -565,14 +566,14 @@ class SelfEnergyStrategy(Strategy):
             )
         extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
+
         input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.sigma, **extra)
         return input.get_string()
 
 
 class MDFBSE_Strategy(Strategy):
     """
-    Strategy for Bethe-Salpeter calculation based on the 
+    Strategy for Bethe-Salpeter calculation based on the
     model dielectric function and the scissors operator
     """
     def __init__(self, scf_strategy, nscf_strategy, exc_ham, **extra_abivars):
@@ -629,18 +630,20 @@ class MDFBSE_Strategy(Strategy):
         )
         #extra.update(self.tolerance)
         extra.update(self.extra_abivars)
-                                                                                     
+
         input = InputWriter(self.scf_strategy.structure, self.electrons, self.ksampling, self.exc_ham, **extra)
         return input.get_string()
 
 
 
-class InputWriter(object): 
+class InputWriter(object):
     """
-    This object receives a list of `AbivarAble` objects, an optional 
-    dictionary with extra ABINIT variables and produces a (nicely formatted?) 
+    This object receives a list of `AbivarAble` objects, an optional
+    dictionary with extra ABINIT variables and produces a (nicely formatted?)
     string with the input file.
     """
+    MAX_SLEN = 100
+
     def __init__(self, *args, **kwargs):
         self.abiobj_dict = collections.OrderedDict()
         self.extra_abivars = collections.OrderedDict()
@@ -696,17 +699,17 @@ class InputWriter(object):
     @staticmethod
     def _format_kv(key, value):
         """Formatter"""
-        if value is None:  
+        if value is None:
             return [] # Use ABINIT default.
-                                                                                   
+
         if isinstance(value, collections.Iterable) and not is_string(value):
             arr = np.array(value)
             if len(arr.shape) in [0,1]: # scalar or vector.
                 token = [key, " ".join(str(i) for i in arr)]
-                                                                                   
-            else: 
-                # array --> matrix 
-                matrix = np.reshape(arr, (-1, arr.shape[-1])) 
+
+            else:
+                # array --> matrix
+                matrix = np.reshape(arr, (-1, arr.shape[-1]))
                 lines  = []
                 for (idx, row) in enumerate(matrix):
                     lines.append(" ".join(str(i) for i in row))
@@ -716,6 +719,40 @@ class InputWriter(object):
             token = [key, str(value)]
 
         return token
+
+    def _cut_lines(self, lines):
+        MAX_SLEN = self.MAX_SLEN
+
+        new_lines = []
+        for line in lines:
+            if len(line) > MAX_SLEN:
+                #start, stop = 0, 0
+                #while True:
+                #    stop = start + MAX_SLEN
+                #    if stop > len(line): break
+                #    print(start, stop)
+                #    if stop > len(line): stop = len(line)
+                #    new_lines.append(line[start:stop])
+                #    start = stop
+
+                tokens = lines.split()
+                cum_nchars, start = 0, 0
+                for stop, tok in enumerate(tokens):
+                    cum_nchars += len(tok) + 1
+
+                    if cum_nchars > MAX_SLEN:
+                        cum_nchars = 0
+                        new_lines.append("".join(tokens[start:stop]))
+                    else:
+                        start = stop
+
+                if cum_nchars:
+                    new_lines.append("".join(tokens[start:stop]))
+
+            else:
+                new_lines.append(line)
+
+        return new_lines
 
     def get_string(self, pretty=False):
         """
@@ -746,6 +783,8 @@ class InputWriter(object):
             for (k, v) in self.extra_abivars.items():
                 app(self._format_kv(k, v))
 
+        #lines = self._cut_lines(lines)
+
         if pretty:
             return str_aligned(lines, header=None)
         else:
@@ -756,7 +795,7 @@ class StrategyWithInput(object):
     # TODO: Find a better way to do this. I will likely need to refactor the Strategy object
     def __init__(self, abinit_input):
         self.abinit_input = abinit_input
-                                         
+
     @property
     def pseudos(self):
         # FIXME: pseudos must be order but I need to define an ABC for the Strategies and Inputs.
@@ -775,7 +814,7 @@ class StrategyWithInput(object):
     def remove_extra_abivars(self, keys):
         """Remove variables from extra_abivars."""
         self.abinit_input.remove_variables(keys)
-                                         
+
     def make_input(self):
         return str(self.abinit_input)
 
@@ -810,12 +849,12 @@ class OpticInput(object):
         OpticVar("zcut",      0.01,  "Value of the *smearing factor*, in Hartree"),
         OpticVar("wmesh",(0.010, 1), "Frequency *step* and *maximum* frequency (Ha)"),
         OpticVar("scissor", 0.000,   "*Scissor* shift if needed, in Hartree"),
-        OpticVar("sing_tol", 0.001,  "*Tolerance* on closeness of singularities (in Hartree)"), 
+        OpticVar("sing_tol", 0.001,  "*Tolerance* on closeness of singularities (in Hartree)"),
         OpticVar("num_lin_comp", None, "*Number of components* of linear optic tensor to be computed"),
         OpticVar("lin_comp", None,    "Linear *coefficients* to be computed (x=1, y=2, z=3)"),
         OpticVar("num_nonlin_comp", None, "Number of components of nonlinear optic tensor to be computed"),
         OpticVar("nonlin_comp", None, "! Non-linear coefficients to be computed"),
-    ]                                             
+    ]
 
     _VARNAMES = [v.name for v in _VARIABLES]
 
@@ -829,8 +868,8 @@ class OpticInput(object):
                 raise ValueError("varname %s not in %s" % (k, str(self.VARNAMES)))
             self.vars[k] = v
 
-    def __init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components, 
-                nonlinear_components=None, ddk_files=None, wfk=None): 
+    def __init__(self, zcut, wstep, wmax, scissor, sing_tol, linear_components,
+                nonlinear_components=None, ddk_files=None, wfk=None):
 
         self.vars = vars = collections.OrderedDict(*self.VAR_NAMES)
 
@@ -875,7 +914,7 @@ class OpticInput(object):
     def add_extra_abivars(self, abivars):
         """
         Connection is explicit via the input file
-        since we can pass the paths of the output files 
+        since we can pass the paths of the output files
         produced by the previous runs.
         """
 
@@ -912,7 +951,7 @@ class AnaddbInput(object):
     def add_extra_abivars(self, abivars):
         """
         Connection is explicit via the input file
-        since we can pass the paths of the output files 
+        since we can pass the paths of the output files
         produced by the previous runs.
         """
 
@@ -934,7 +973,7 @@ class AnaddbInput(object):
     #    Split an input file with multiple datasets into a  list of `ndtset` distinct input files.
     #    """
     #    # Propagate subclasses (if any)
-    #    cls = self.__class__ 
+    #    cls = self.__class__
     #    news = []
 
     #    for i in range(self.ndtset):
