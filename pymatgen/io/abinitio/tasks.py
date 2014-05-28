@@ -1573,8 +1573,9 @@ class Task(Node):
 #            return self.set_status(self.S_ERROR, info_msg=str(report.errors) + str(report.bugs))
 
         # 2) Analyze the stderr file for Fortran runtime errors.
-#>>>>>>> pymatgen-matteo/master
+#       >>>>>>> pymatgen-matteo/master
 
+        err_msg = None
         if self.stderr_file.exists:
             err_msg = self.stderr_file.read()
 
@@ -1585,30 +1586,45 @@ class Task(Node):
         # 3) Start to check if the output file has been created.
         if self.output_file.exists:
             report = self.get_event_report()
+            if report.run_completed:
+                # Check if the calculation converged.
+                not_ok = self.not_converged()
+                if not_ok:
+                    return self.set_status(self.S_UNCONVERGED)
+                else:
+                    return self.set_status(self.S_OK)
+
             # 4)
-            if report.errors or report.bugs:                                 # Abinit reports problems
+            if report.errors or report.bugs:
+                # Abinit reports problems
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
                 info_msg = str(report.errors) + str(report.bugs)
-                return self.set_status(self.S_ERROR, info_msg=info_msg)      # The job is unfixable due to ABINIT errors
+                return self.set_status(self.S_ERROR, info_msg=info_msg)
+                # The job is unfixable due to ABINIT errors
             # 5)
             if self.stderr_file.exists and not err_info:
-                if self.qerr_file.exists and not err_msg:                    # there is output and no errors
+                if self.qerr_file.exists and not err_msg:
+                    # there is output and no errors
                     # Check if the run completed successfully.
                     if report.run_completed:
                         # Check if the calculation converged.
                         not_ok = self.not_converged()
                         if not_ok:
-                            return self.set_status(self.S_UNCONVERGED)       # The job finished but did not converge
+                            return self.set_status(self.S_UNCONVERGED)
+                            # The job finished but did not converge
                         else:
-                            return self.set_status(self.S_OK)                # The job finished properly
+                            return self.set_status(self.S_OK)
+                            # The job finished properly
 
-                    return self.set_status(self.S_RUN)                       # The job still seems to be running
+                    return self.set_status(self.S_RUN)
+                    # The job still seems to be running
 
         # 6)
         if not self.output_file.exists:
             logger.debug("output_file does not exists")
             if not self.stderr_file.exists and not self.qerr_file.exists:     # No output at all
-                return self.status                                            # The job is still in the queue.
+                return self.status
+                # The job is still in the queue.
 
         # 7) Analyze the files of the resource manager and abinit and execution err (mvs)
         if self.qerr_file.exists:
@@ -1621,16 +1637,18 @@ class Task(Node):
                 print('scheduler errors found:')
                 print(scheduler_parser.errors)
                 self.queue_errors = scheduler_parser.errors
-                return self.set_status(self.S_QUEUE_ERROR)                    # The job is killed or crashed and we know what happend
+                return self.set_status(self.S_QUEUE_ERROR)
+                # The job is killed or crashed and we know what happend
             else:
-                err_info = self.qerr_file.read()
                 if err_info:
-                    return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)   # The job is killed or crashed but we don't know what happend
+                    return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)
+                    # The job is killed or crashed but we don't know what happend
 
         # 8) anlizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
         if err_info or err_msg:
-            return self.set_status(self.S_FINAL_ERROR, info_msg=err_info) # The job is killed or crashed but we don't know what happend
+            return self.set_status(self.S_FINAL_ERROR, info_msg=err_info)
+            # The job is killed or crashed but we don't know what happend
 
         # 9) if we still haven't returned there is no indication of any error and the job can only still be running
         # but we should actually never land here, or we have delays in the file system ....
