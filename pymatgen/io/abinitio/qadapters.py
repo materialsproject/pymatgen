@@ -25,7 +25,6 @@ from pymatgen.util.string_utils import is_string
 import logging
 logger = logging.getLogger(__name__)
 
-
 __all__ = [
     "MpiRunner",
     "qadapter_class",
