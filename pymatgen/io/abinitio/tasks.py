@@ -1174,9 +1174,9 @@ class Task(Node):
         self.outdir = Directory(os.path.join(self.workdir, "outdata"))
         self.tmpdir = Directory(os.path.join(self.workdir, "tmpdata"))
 
-        # stderr and output file of the queue manager.
-        self.qerr_file = File(os.path.join(self.workdir, "queue.err"))
-        self.qout_file = File(os.path.join(self.workdir, "queue.out"))
+        # stderr and output file of the queue manager. Note extensions.
+        self.qerr_file = File(os.path.join(self.workdir, "queue.qerr"))
+        self.qout_file = File(os.path.join(self.workdir, "queue.qout"))
 
     def set_manager(self, manager):
         """Set the `TaskManager` to use to launch the Task."""
