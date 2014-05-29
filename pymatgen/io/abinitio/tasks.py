@@ -1265,9 +1265,15 @@ class Task(Node):
         self.fix_ofiles()
 
     def _on_ok(self):
+        # Read timing data.
+        #self.read_timing()
+        # Fix output file names.
         self.fix_ofiles()
+        # Get results
         results = self.on_ok()
+        # Set internal flag.
         self._finalized = True
+
         return results
 
     def on_ok(self):
@@ -1480,7 +1486,7 @@ class Task(Node):
             #if status == self.S_UNCONVERGED:
             #    logger.debug("Task %s broadcasts signal S_UNCONVERGED" % self)
             #    dispatcher.send(signal=self.S_UNCONVERGED, sender=self)
-                                                                                
+
             # Finalize the task.
             if not self.finalized:
                 self._on_ok()
@@ -2195,6 +2201,23 @@ class AbinitTask(Task):
         general restart used when scheduler problems have been taken care of
         """
         return self._restart()
+
+    #@property
+    #def timing(self):
+    #    """Object with timing data. None if timing is not available"""
+    #    try:
+    #        return self._timing
+    #    except AttributeError:
+    #        return None
+
+    #def read_timig(self):
+    #    """
+    #    Read timing data from the main output file and store it in self.timing if available.
+    #    """
+    #    from pymatgen.io.abitimer import AbinitTimerParser
+    #    _timing = AbinitTimerParser()
+    #    retval = timing.parse(self.output_file) 
+    #    if retval == self.output_file: self._timing = _timing
 
 # TODO
 # Enable restarting capabilites:
