@@ -526,6 +526,15 @@ class TaskManager(object):
         """Set the memory (in Megabytes) per CPU."""
         self.qadapter.set_mem_per_cpu(mem_mb)
 
+    def set_autoparal(self, value):
+        """Set the value of autoparal."""
+        assert value in [0, 1]
+        self.policy.autoparal = value
+
+    def set_max_ncpus(self, value):
+        """Set the value of max_ncpus."""
+        self.policy.max_ncpus = value
+
     def write_jobfile(self, task):
         """
         Write the submission script.
@@ -2115,8 +2124,7 @@ class AbinitTask(Task):
            Returns (None, None) if some problem occurred.
         """
         logger.info("in autoparal_fake_run")
-        manager = self.manager
-        policy = manager.policy
+        manager, policy = self.manager, self.manager.policy
 
         if policy.autoparal == 0 or policy.max_ncpus in [None, 1]: 
             msg = "Nothing to do in autoparal, returning (None, None)"
