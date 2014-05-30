@@ -74,10 +74,29 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.9
+------
+1. XRDCalculator now supports disordered structures.
+2. Minor speed ups and improvements.
+
+v2.9.8
+------
+1. Initial beta version of XRD pattern calculator.
+2. Pymatgen now uses spglib 1.6.0.
+3. Update to Vasprun to compute static deilectric constants with DFPT in VASP.
+   (Geoffroy Hautier)
+
+v2.9.7
+------
+1. Quick bug-fix release that provides a better solution to Structure handling
+   of properties instead of sanitizing MPRester structures.
+
 v2.9.6
 ------
 1. Patch to allow 1D phase diagrams (essentially finding the lowest energy
    phase).
+2. Better error checking for Bandstructure KPOINTs.
+3. Patch to sanitize structures obtained from MPRester.
 
 v2.9.5
 ------
@@ -159,7 +178,10 @@ Stable version
     Before installing pymatgen, you may need to first install a few critical
     dependencies manually.
 
-    1. Numpy's distutils is needed to compile the spglib and pyhull
+    1. Installation has been tested to be most successful with gcc,
+       and several dependencies have issues with icc. Use gcc where
+       possible and do "export CC=gcc" prior to installation.
+    2. Numpy's distutils is needed to compile the spglib and pyhull
        dependencies. This should be the first thing you install.
     2. Pyhull and PyCifRW. The recent versions of pip does not allow the
        installation of externally hosted files. Furthermore,
