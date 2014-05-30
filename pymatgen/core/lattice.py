@@ -927,3 +927,15 @@ class Lattice(MSONable):
         distances = np.min(d_2, axis=2) ** 0.5
 
         return distances
+
+    def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
+        lengths, angles = self.lengths_and_angles
+        right_angles = [i for i in xrange(3)
+                        if abs(angles[i] - 90) < hex_angle_tol]
+        hex_angles = [i for i in xrange(3)
+                      if abs(angles[i] - 60) < hex_angle_tol or
+                         abs(angles[i] - 120) < hex_angle_tol]
+
+        return (len(right_angles) == 2 and len(hex_angles) == 1
+                and abs(lengths[right_angles[0]] -
+                        lengths[right_angles[1]]) < hex_length_tol)
