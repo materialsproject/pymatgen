@@ -17,8 +17,10 @@ import unittest
 import os
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.xrd import XRDCalculator
+from pymatgen.analysis.diffraction.xrd import XRDCalculator, \
+    get_unique_families
 from pymatgen.io.smartio import read_structure
+import numpy as np
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
@@ -38,6 +40,7 @@ class XRDCalculatorTest(unittest.TestCase):
         self.assertAlmostEqual(data[0][1], 36.483184003748946)
         self.assertAlmostEqual(data[1][0], 30.024695921112777)
         self.assertAlmostEqual(data[1][1], 100)
+
         s = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
         data = c.get_xrd_data(s)
         self.assertAlmostEqual(data[1][0], 17.03504233621785)
@@ -47,6 +50,14 @@ class XRDCalculatorTest(unittest.TestCase):
         data = c.get_xrd_data(s)
         self.assertAlmostEqual(data[1][0], 14.058274883353876)
         self.assertAlmostEqual(data[1][1], 4.4111123641667671)
+
+        # Test a hexagonal structure.
+        s = read_structure(os.path.join(test_dir, "Graphite.cif"),
+                           primitive=False)
+        data = c.get_xrd_data(s)
+        self.assertAlmostEqual(data[0][0], 7.929279053132362)
+        self.assertAlmostEqual(data[0][1], 100)
+        self.assertAlmostEqual(len(list(data[0][2].keys())[0]), 4)
 
 if __name__ == '__main__':
     unittest.main()
