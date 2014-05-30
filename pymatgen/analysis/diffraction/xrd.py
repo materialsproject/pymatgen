@@ -19,6 +19,7 @@ import os
 
 import numpy as np
 import json
+import itertools
 
 from pymatgen.symmetry.finder import SymmetryFinder
 
@@ -142,19 +143,24 @@ class XRDCalculator(object):
             self.wavelength = WAVELENGTHS[wavelength]
         self.symprec = symprec
 
-    def get_xrd_data(self, structure):
+    def get_xrd_data(self, structure, scaled=True):
         """
         Calculates the XRD data for a structure.
 
         Args:
-            structure: Input structure
+            structure (Structure): Input structure
+            scaled (bool): Whether to return scaled intensities. The maximum
+                peak is set to a value of 100. Defaults to True. Use False if
+                you need the absolute values to combine XRD plots.
 
         Returns:
             (XRD pattern) in the form of
-            [[two_theta, scaled_intensity, [h, k, l]], ...]
-            Two_theta is in degrees. Scaled intensity has a maximum value of
-            100 for the highest peak. [h, k, l] refers the Miller indices for
-            the diffracted lattice plane.
+            [[two_theta, intensity, {(h, k, l): mult}], ...]
+            Two_theta is in degrees. Intensity is in arbitrary units and if
+            scaled (the default), has a maximum value of 100 for the highest
+            peak. {(h, k, l): mult} is a dict of Miller indices for all
+            diffracted lattice planes contributing to that intensity and
+            their multiplicities.
         """
         if self.symprec:
             finder = SymmetryFinder(structure, symprec=self.symprec)
@@ -162,6 +168,7 @@ class XRDCalculator(object):
 
         wavelength = self.wavelength
         latt = structure.lattice
+        is_hex = latt.is_hexagonal()
 
         # Obtain crystallographic reciprocal lattice and points within
         # limiting sphere (within 2/wavelength)
@@ -194,7 +201,7 @@ class XRDCalculator(object):
         occus = np.array(occus)
 
         for hkl, g_hkl, ind in sorted(
-                recip_pts, key=lambda i: (i[1], -i[0][2], -i[0][1], -i[0][0])):
+                recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             if g_hkl != 0:
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
@@ -235,14 +242,18 @@ class XRDCalculator(object):
 
                 two_theta = degrees(2 * theta)
 
+                if is_hex:
+                    #Use Miller-Bravais indices for hexagonal lattices.
+                    hkl = (hkl[0], hkl[1], - hkl[0] - hkl[1], hkl[2])
                 #Deal with floating point precision issues.
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
                                XRDCalculator.TWO_THETA_TOL)
                 if len(ind[0]) > 0:
                     intensities[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
+                    intensities[two_thetas[ind[0]]][1].append(tuple(hkl))
                 else:
                     intensities[two_theta] = [i_hkl * lorentz_factor,
-                                              tuple(hkl)]
+                                              [tuple(hkl)]]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
@@ -250,9 +261,10 @@ class XRDCalculator(object):
         data = []
         for k in sorted(intensities.keys()):
             v = intensities[k]
-            scaled_intensity = v[0] / max_intensity * 100
+            scaled_intensity = v[0] / max_intensity * 100 if scaled else v[0]
+            fam = get_unique_families(v[1])
             if scaled_intensity > XRDCalculator.SCALED_INTENSITY_TOL:
-                data.append([k, scaled_intensity, v[1]])
+                data.append([k, scaled_intensity, fam])
         return data
 
     def get_xrd_plot(self, structure, two_theta_range=(0, 90),
@@ -274,12 +286,13 @@ class XRDCalculator(object):
         plt = get_publication_quality_plot(16, 10)
         two_theta_range = [-1, float("inf")] if two_theta_range is None \
             else two_theta_range
-        for two_theta, i, hkl in self.get_xrd_data(structure):
+        for two_theta, i, hkls in self.get_xrd_data(structure):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
+                label = ", ".join([str(hkl) for hkl in hkls.keys()])
                 plt.plot([two_theta, two_theta], [0, i], color='k',
-                         linewidth=3, label=str(hkl))
+                         linewidth=3, label=label)
                 if annotate_peaks:
-                    plt.annotate(str(hkl), xy=[two_theta, i],
+                    plt.annotate(label, xy=[two_theta, i],
                                  xytext=[two_theta, i], fontsize=16)
         plt.xlabel(r"2\theta (degrees)")
         plt.ylabel("Intensities (scaled)")
@@ -301,3 +314,37 @@ class XRDCalculator(object):
         """
         self.get_xrd_plot(structure, two_theta_range=two_theta_range,
                           annotate_peaks=annotate_peaks).show()
+
+
+def get_unique_families(hkls):
+    """
+    Returns unique families of Miller indices. Families must be permutations
+    of each other.
+
+    Args:
+        hkls ([h, k, l]): List of Miller indices.
+
+    Returns:
+        {hkl: multiplicity}: A dict with unique hkl and multiplicity.
+    """
+    #TODO: Definitely can be sped up.
+    def is_perm(hkl1, hkl2):
+        v = [[i, -i] for i in hkl2]
+        for hkl in itertools.product(*v):
+            for p in itertools.permutations(hkl):
+                if np.all(np.equal(hkl1, p)):
+                    return True
+        return False
+
+    unique = {}
+    for hkl1 in hkls:
+        found = False
+        for hkl2 in unique.keys():
+            if is_perm(hkl1, hkl2):
+                found = True
+                unique[hkl2] += 1
+                break
+        if not found:
+            unique[hkl1] = 1
+
+    return unique
