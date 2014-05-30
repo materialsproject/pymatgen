@@ -27,11 +27,8 @@ def get_spglib_ext():
     # set rest of spglib
     spgsrcdir = os.path.join(spglibdir, "src")
     include_dirs = [spgsrcdir]
-    sources = ["cell.c", "debug.c", "hall_symbol.c", "kpoint.c", "lattice.c",
-               "mathfunc.c", "pointgroup.c", "primitive.c", "refinement.c",
-               "sitesym_database.c", "site_symmetry.c", "spacegroup.c",
-               "spin.c", "spg_database.c", "spglib.c", "symmetry.c"]
-    sources = [os.path.join(spgsrcdir, srcfile) for srcfile in sources]
+    sources = [os.path.join(spgsrcdir, srcfile) for srcfile in
+        os.listdir(spgsrcdir) if srcfile.endswith(".c")]
     return Extension("pymatgen._spglib",
                      include_dirs=include_dirs + get_numpy_include_dirs(),
                      sources=[os.path.join(spglibdir, "_spglib.c")] + sources)
@@ -44,7 +41,7 @@ with open("README.rst") as f:
 setup(
     name="pymatgen",
     packages=find_packages(),
-    version="2.9.6",
+    version="2.9.9",
     install_requires=["numpy>=1.5", "pyhull>=1.4.3", "PyCifRW>=3.3",
                       "requests>=1.0", "pybtex>=0.16", "pyyaml>=3.0",
                       "monty>=0.2.2"],
@@ -60,7 +57,8 @@ setup(
                   "pymatgen.structure_prediction": ["data/*.json"],
                   "pymatgen.vis": ["ElementColorSchemes.cfg"],
                   "pymatgen.command_line": ["OxideTersoffPotentials"],
-                  "pymatgen.analysis.defects": ["*.json"]},
+                  "pymatgen.analysis.defects": ["*.json"],
+                  "pymatgen.analysis.diffraction": ["*.json"]},
     author="Shyue Ping Ong, Anubhav Jain, Michael Kocher, Geoffroy Hautier,"
     "William Davidson Richards, Stephen Dacek, Dan Gunter, Shreyas Cholia, "
     "Matteo Giantomassi, Vincent L Chevrier, Rickard Armiento",
