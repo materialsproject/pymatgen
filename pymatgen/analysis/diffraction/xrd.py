@@ -19,7 +19,6 @@ import os
 
 import numpy as np
 import json
-import itertools
 
 from pymatgen.symmetry.finder import SymmetryFinder
 
@@ -176,9 +175,6 @@ class XRDCalculator(object):
         recip_pts = recip_latt.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], 2 / wavelength)
 
-        intensities = {}
-        two_thetas = []
-
         # Create a flattened array of zs, coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
         # later. Note that these are not necessarily the same size as the
@@ -188,6 +184,7 @@ class XRDCalculator(object):
         coeffs = []
         fcoords = []
         occus = []
+
         for site in structure:
             for sp, occu in site.species_and_occu.items():
                 zs.append(sp.Z)
@@ -200,9 +197,13 @@ class XRDCalculator(object):
         fcoords = np.array(fcoords)
         occus = np.array(occus)
 
+        peaks = {}
+        two_thetas = []
+
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             if g_hkl != 0:
+
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
 
@@ -249,18 +250,18 @@ class XRDCalculator(object):
                 ind = np.where(np.abs(np.subtract(two_thetas, two_theta)) <
                                XRDCalculator.TWO_THETA_TOL)
                 if len(ind[0]) > 0:
-                    intensities[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
-                    intensities[two_thetas[ind[0]]][1].append(tuple(hkl))
+                    peaks[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
+                    peaks[two_thetas[ind[0]]][1].append(tuple(hkl))
                 else:
-                    intensities[two_theta] = [i_hkl * lorentz_factor,
+                    peaks[two_theta] = [i_hkl * lorentz_factor,
                                               [tuple(hkl)]]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
-        max_intensity = max([v[0] for v in intensities.values()])
+        max_intensity = max([v[0] for v in peaks.values()])
         data = []
-        for k in sorted(intensities.keys()):
-            v = intensities[k]
+        for k in sorted(peaks.keys()):
+            v = peaks[k]
             scaled_intensity = v[0] / max_intensity * 100 if scaled else v[0]
             fam = get_unique_families(v[1])
             if scaled_intensity > XRDCalculator.SCALED_INTENSITY_TOL:
@@ -329,12 +330,9 @@ def get_unique_families(hkls):
     """
     #TODO: Definitely can be sped up.
     def is_perm(hkl1, hkl2):
-        v = [[i, -i] for i in hkl2]
-        for hkl in itertools.product(*v):
-            for p in itertools.permutations(hkl):
-                if np.all(np.equal(hkl1, p)):
-                    return True
-        return False
+        h1 = map(abs, hkl1)
+        h2 = map(abs, hkl2)
+        return all([i == j for i, j in zip(sorted(h1), sorted(h2))])
 
     unique = {}
     for hkl1 in hkls:
