@@ -5,6 +5,7 @@ An interface to the excellent spglib library by Atsushi Togo
 (http://spglib.sourceforge.net/) for pymatgen.
 
 v1.0 - Now works with both ordered and disordered structure.
+v2.0 - Updated for spglib 1.6.
 
 .. note::
     Not all spglib functions are implemented.
@@ -14,7 +15,7 @@ from __future__ import division
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
-__version__ = "1.0"
+__version__ = "2.0"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "Mar 9, 2012"
@@ -330,16 +331,12 @@ class SymmetryFinder(object):
         pos = np.zeros((num_atom * 4, 3), dtype='double')
         pos[:num_atom] = self._positions.copy()
 
-        numbers = np.zeros(num_atom * 4, dtype='intc')
-        numbers[:num_atom] = np.array(self._numbers, dtype='intc')
-        num_atom_bravais = spg.refine_cell(lattice,
-                                           pos,
-                                           numbers,
-                                           num_atom,
-                                           self._symprec,
-                                           self._angle_tol)
+        zs = np.zeros(num_atom * 4, dtype='intc')
+        zs[:num_atom] = np.array(self._numbers, dtype='intc')
+        num_atom_bravais = spg.refine_cell(
+            lattice, pos, zs, num_atom, self._symprec, self._angle_tol)
 
-        zs = numbers[:num_atom_bravais]
+        zs = zs[:num_atom_bravais]
         species = [self._unique_species[i - 1] for i in zs]
         s = Structure(lattice.T.copy(),
                       species,
@@ -355,19 +352,18 @@ class SymmetryFinder(object):
             as an Structure object. If no primitive cell is found, None is
             returned.
         """
-
         # Atomic positions have to be specified by scaled positions for spglib.
-        positions = self._positions.copy()
+        pos = self._positions.copy()
         lattice = self._transposed_latt.copy()
         numbers = self._numbers.copy()
         # lattice is transposed with respect to the definition of Atoms class
-        num_atom_prim = spg.primitive(lattice, positions, numbers,
+        num_atom_prim = spg.primitive(lattice, pos, numbers,
                                       self._symprec, self._angle_tol)
         zs = numbers[:num_atom_prim]
         species = [self._unique_species[i - 1] for i in zs]
 
         if num_atom_prim > 0:
-            return Structure(lattice.T, species, positions[:num_atom_prim],
+            return Structure(lattice.T, species, pos[:num_atom_prim],
                              to_unit_cell=True).get_reduced_structure()
         else:
             #Not sure if we should return None or just return the full
@@ -397,14 +393,9 @@ class SymmetryFinder(object):
         mapping = np.zeros(np.prod(mesh), dtype='intc')
         mesh_points = np.zeros((np.prod(mesh), 3), dtype='intc')
         spg.ir_reciprocal_mesh(
-            mesh_points,
-            mapping,
-            np.array(mesh, dtype='intc'),
-            np.array(shift, dtype='intc'),
-            is_time_reversal * 1,
-            self._transposed_latt,
-            self._positions,
-            self._numbers,
+            mesh_points, mapping, np.array(mesh, dtype='intc'),
+            np.array(shift, dtype='intc'), is_time_reversal * 1,
+            self._transposed_latt, self._positions, self._numbers,
             self._symprec)
 
         results = []
@@ -413,7 +404,7 @@ class SymmetryFinder(object):
             results.append((mesh_points[i] / mesh, tmp_map.count(i)))
         return results
 
-    def get_primitive_standard_structure(self):
+    def get_primitive_standard_structure(self, international_monoclinic=True):
         """
         Gives a structure with a primitive cell according to certain standards
         the standards are defined in Setyawan, W., & Curtarolo, S. (2010).
@@ -424,7 +415,8 @@ class SymmetryFinder(object):
         Returns:
             The structure in a primitive standardized cell
         """
-        conv = self.get_conventional_standard_structure()
+        conv = self.get_conventional_standard_structure(
+            international_monoclinic=international_monoclinic)
         lattice = self.get_lattice_type()
 
         if "P" in self.get_spacegroup_symbol() or lattice == "hexagonal":
@@ -477,7 +469,8 @@ class SymmetryFinder(object):
                 new_sites.append(new_s)
         return Structure.from_sites(new_sites)
 
-    def get_conventional_standard_structure(self):
+    def get_conventional_standard_structure(
+            self, international_monoclinic=True):
         """
         Gives a structure with a conventional cell according to certain
         standards. The standards are defined in Setyawan, W., & Curtarolo,
@@ -656,17 +649,18 @@ class SymmetryFinder(object):
                     for c in range(len(sorted_dic)):
                         transf[c][sorted_dic[c]['orig_index']] = 1
 
-            # The above code makes alpha the non-right angle.
-            # The following will convert to proper international convention
-            # that beta is the non-right angle.
-            op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
-            transf = np.dot(op, transf)
-            new_matrix = np.dot(op, new_matrix)
-            beta = Lattice(new_matrix).beta
-            if beta < 90:
-                op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+            if international_monoclinic:
+                # The above code makes alpha the non-right angle.
+                # The following will convert to proper international convention
+                # that beta is the non-right angle.
+                op = [[0, 1, 0], [1, 0, 0], [0, 0, -1]]
                 transf = np.dot(op, transf)
                 new_matrix = np.dot(op, new_matrix)
+                beta = Lattice(new_matrix).beta
+                if beta < 90:
+                    op = [[-1, 0, 0], [0, -1, 0], [0, 0, 1]]
+                    transf = np.dot(op, transf)
+                    new_matrix = np.dot(op, new_matrix)
 
             latt = Lattice(new_matrix)
 
@@ -693,9 +687,7 @@ class SymmetryFinder(object):
                 return np.all(recp_angles <= 90) or np.all(recp_angles > 90)
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1.0, 0.0, 0.0],
-                          [0.0, 1.0, 0.0],
-                          [0.0, 0.0, 1.0]]
+                transf = np.eye(3)
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -709,9 +701,9 @@ class SymmetryFinder(object):
                                            * cos(gamma)) / sin(gamma)]]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1.0, 0.0, 0.0],
-                          [0.0, 1.0, 0.0],
-                          [0.0, 0.0, -1.0]]
+                transf = [[-1, 0, 0],
+                          [0, 1, 0],
+                          [0, 0, -1]]
                 new_matrix = test_matrix
 
             test_matrix = [[-a, 0, 0],
@@ -725,9 +717,9 @@ class SymmetryFinder(object):
                                           * cos(gamma)) / sin(gamma)]]
 
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[-1.0, 0.0, 0.0],
-                          [0.0, -1.0, 0.0],
-                          [0.0, 0.0, 1.0]]
+                transf = [[-1, 0, 0],
+                          [0, -1, 0],
+                          [0, 0, 1]]
                 new_matrix = test_matrix
 
             test_matrix = [[a, 0, 0],
@@ -740,9 +732,9 @@ class SymmetryFinder(object):
                                            + 2 * cos(alpha) * cos(beta)
                                            * cos(gamma)) / sin(gamma)]]
             if is_all_acute_or_obtuse(test_matrix):
-                transf = [[1.0, 0.0, 0.0],
-                          [0.0, -1.0, 0.0],
-                          [0.0, 0.0, -1.0]]
+                transf = [[1, 0, 0],
+                          [0, -1, 0],
+                          [0, 0, -1]]
                 new_matrix = test_matrix
 
             latt = Lattice(new_matrix)
