@@ -22,7 +22,6 @@ import json
 
 from pymatgen.symmetry.finder import SymmetryFinder
 
-
 #XRD wavelengths in angstroms
 WAVELENGTHS = {
     "CuKa": 1.54184,
@@ -253,8 +252,7 @@ class XRDCalculator(object):
                     peaks[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
                     peaks[two_thetas[ind[0]]][1].append(tuple(hkl))
                 else:
-                    peaks[two_theta] = [i_hkl * lorentz_factor,
-                                              [tuple(hkl)]]
+                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)]]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
