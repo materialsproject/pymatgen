@@ -222,7 +222,7 @@ class SingleAbinitGWWorkFlow():
         nscf_nband = [10 * self.get_bands(self.structure)]
         ecuteps = [8]
         ecutsigx = 8
-        ecut = [28, 24, 20]
+        ecuts = [28, 24, 20]
 
         response_models = ['godby']
 
@@ -273,12 +273,11 @@ class SingleAbinitGWWorkFlow():
             return
 
         extra_abivars = dict(
-            ecut=ecut,
+            ecuts=ecuts,
             gwmem=01,
             getden=-1,
             istwfk="*1",
             timopt=-1,
-            pawecutdg=ecut*2,
             paral_kgb=0,
             nbdbuf=8
         )
