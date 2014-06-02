@@ -324,8 +324,6 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
         scf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
         nscf_ksampling = KSampling.automatic_density(structure, scf_kppa, chksymbreak=0)
 
-
-
     if "istwfk" not in extra_abivars:
         extra_abivars["istwfk"] = "*1"
 
