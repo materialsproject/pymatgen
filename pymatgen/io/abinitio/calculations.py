@@ -368,8 +368,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
                     ppmodel = response_model
                     screening = Screening(ecuteps_v, scr_nband, w_type="RPA", sc_mode="one_shot", ecutwfn=None, inclvkb=inclvkb)
                     self_energy = SelfEnergy("gw", "one_shot", sigma_nband, ecutsigx, screening, ppmodel=ppmodel, gw_qprange=1)
-                scr_strategy = ScreeningStrategy(scf_strategy, nscf_strategy, screening, **extra_abivars)
-                sigma_strategy.append(SelfEnergyStrategy(scf_strategy, nscf_strategy, scr_strategy, self_energy, **extra_abivars))
+                scr_strategy = ScreeningStrategy(scf_strategy[-1], nscf_strategy, screening, **extra_abivars)
+                sigma_strategy.append(SelfEnergyStrategy(scf_strategy[-1], nscf_strategy, scr_strategy, self_energy, **extra_abivars))
 
     return G0W0_Workflow(scf_strategy, nscf_strategy, scr_strategy, sigma_strategy, workdir=workdir, manager=manager)
 
