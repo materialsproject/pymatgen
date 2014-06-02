@@ -21,7 +21,6 @@ import pymatgen as pmg
 import pymongo
 import json
 
-
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
 from pymatgen.matproj.rest import MPRester, MPRestError
@@ -30,6 +29,7 @@ from pymatgen.io.gwwrapper.GWhelpers import test_conv, print_gnuplot_header, s_n
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation
+
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -592,8 +592,6 @@ class GWConvergenceData():
     def get_data_array(self):
         data_array = {}
         for k in self.data:
-            print self.data[k]
-            print type(self.data[k])
             try:
                 data_array[self.data[k]['nbands']].update({self.data[k]['ecuteps']: self.data[k]['gwgap']})
             except KeyError:
