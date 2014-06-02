@@ -229,7 +229,7 @@ class SingleAbinitGWWorkFlow():
         try:
             grid = read_grid_from_file(s_name(self.structure)+".full_res")['grid']
             all_done = read_grid_from_file(s_name(self.structure)+".full_res")['all_done']
-            workdir = os.path.join(s_name(self.structure), 'work_'+str(grid))
+            workdir = os.path.join(s_name(self.structure), 'w'+str(grid))
         except (IOError, OSError):
             grid = 0
             all_done = False
