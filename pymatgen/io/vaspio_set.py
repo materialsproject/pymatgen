@@ -193,6 +193,9 @@ class DictVaspInputSet(AbstractVaspInputSet):
             basis. This is generally desired, though for some calculations (
             e.g. NEB) this should be turned off (and an appropriate EDIFF
             supplied in user_incar_settings)
+        potcar_functional (str): Functional to use. Default (None) is to use
+            the functional in Potcar.DEFAULT_FUNCTIONAL. Valid values:
+            "PBE", "LDA", "PW91", "LDA_US"
     """
 
     def __init__(self, name, config_dict, hubbard_off=False,
