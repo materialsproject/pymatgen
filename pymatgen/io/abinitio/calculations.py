@@ -327,8 +327,16 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if "istwfk" not in extra_abivars:
         extra_abivars["istwfk"] = "*1"
 
-    scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
-                               smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
+    ecuts = extra_abivars.pop('ecuts')
+    scf_strategy = []
+    for ecut in ecuts:
+        print(ecut)
+        extra_abivars['ecut'] = [ecut]
+        scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
+                                   smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
+
+    extra_abivars['ecut'] = [ecuts[-1]]
+
     nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, max(nscf_nband), **extra_abivars)
 
     if scr_nband is None:

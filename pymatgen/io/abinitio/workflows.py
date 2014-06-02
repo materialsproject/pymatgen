@@ -1328,7 +1328,12 @@ class G0W0_Workflow(Workflow):
         super(G0W0_Workflow, self).__init__(workdir=workdir, manager=manager)
 
         # Register the GS-SCF run.
-        self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
+        # register all scf_inputs but link the nscf only the last scf in the list
+        if isinstance(scf_input, (list, tuple)):
+            for single_scf_input in scf_input:
+                self.scf_task = scf_task = self.register(single_scf_input, task_class=ScfTask)
+        else:
+            self.scf_task = scf_task = self.register(scf_input, task_class=ScfTask)
 
         # Construct the input for the NSCF run.
         self.nscf_task = nscf_task = self.register(nscf_input, deps={scf_task: "DEN"}, task_class=NscfTask)
