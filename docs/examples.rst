@@ -23,4 +23,4 @@ Working with Materials API
 Materials Analysis
 ------------------
 
-* `Calculating XRD patterns <_static/Calculating%20XRD%20Patterns.html>`_
+* `Calculating XRD patterns <_static/Calculating%20XRD%20patterns.html>`_
