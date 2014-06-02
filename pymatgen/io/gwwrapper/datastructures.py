@@ -592,8 +592,8 @@ class GWConvergenceData():
     def get_data_array(self):
         data_array = {}
         for k in self.data:
-            print k
-            print type(k)
+            print self.data[k]
+            print type(self.data[k])
             try:
                 data_array[self.data[k]['nbands']].update({self.data[k]['ecuteps']: self.data[k]['gwgap']})
             except KeyError:
