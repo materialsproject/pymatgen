@@ -609,6 +609,7 @@ MPHSEVaspInputSet = partial(DictVaspInputSet.from_json_file, "MP HSE",
 Same as the MPVaspInput set, but with HSE parameters.
 """
 
+
 class MPStaticVaspInputSet(DictVaspInputSet):
     """
     Implementation of VaspInputSet overriding MaterialsProjectVaspInputSet
@@ -663,7 +664,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             a primitive standardized cell
         """
         if not primitive_standard:
-            structure=self.get_poscar(structure).structure
+            structure = self.get_poscar(structure).structure
         self.kpoints_settings['grid_density'] = \
             self.kpoints_settings["kpoints_density"] * \
             structure.lattice.reciprocal_lattice.volume * \
@@ -679,7 +680,7 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             structure (Structure/IStructure): structure to get POSCAR
         """
         sym_finder = SymmetryFinder(structure, symprec=self.sym_prec)
-        return Poscar(sym_finder.get_primitive_standard_structure())
+        return Poscar(sym_finder.get_primitive_standard_structure(False))
 
     @staticmethod
     def get_structure(vasp_run, outcar=None, initial_structure=False,
@@ -723,13 +724,13 @@ class MPStaticVaspInputSet(DictVaspInputSet):
             return structure
         elif additional_info:
             info = [sym_finder.get_refined_structure(),
-                    sym_finder.get_conventional_standard_structure(),
+                    sym_finder.get_conventional_standard_structure(False),
                     sym_finder.get_symmetry_dataset(),
                     sym_finder.get_symmetry_operations()]
-            return [sym_finder.get_primitive_standard_structure(),
+            return [sym_finder.get_primitive_standard_structure(False),
                     info]
         else:
-            return sym_finder.get_primitive_standard_structure()
+            return sym_finder.get_primitive_standard_structure(False)
 
     @staticmethod
     def from_previous_vasp_run(previous_vasp_dir, output_dir='.',
@@ -805,9 +806,11 @@ class MPStaticVaspInputSet(DictVaspInputSet):
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Perform checking on INCAR parameters
-        if any([previous_incar.get("NSW", 0) != 0, previous_incar["IBRION"] != -1,
-               previous_incar["LCHARG"] != True,
-               any([sum(previous_incar["LDAUU"])<=0, previous_incar["LMAXMIX"]<4])
+        if any([previous_incar.get("NSW", 0) != 0,
+                previous_incar["IBRION"] != -1,
+                previous_incar["LCHARG"] != True,
+               any([sum(previous_incar["LDAUU"]) <= 0,
+                    previous_incar["LMAXMIX"]<4])
                if previous_incar.get("LDAU") else False]):
             raise ValueError("Incompatible INCAR parameters!")
 
@@ -837,38 +840,50 @@ class MPStaticDielectricDFPTVaspInputSet(DictVaspInputSet):
     Args:
         user_incar_settings (dict): A dict specifying additional incar
             settings
+        ionic: a boolean telling if we clamp the ions (False) or we
+        add the ionic part to the dielectric constant (True default)
     """
 
-    def __init__(self, user_incar_settings=None):
+    def __init__(self, user_incar_settings=None, ionic=True):
         with open(os.path.join(MODULE_DIR, "MPVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MaterialsProject Static Dielectric DFPT", json.load(f))
         self.user_incar_settings = user_incar_settings if \
             user_incar_settings is not None else {}
-        self.incar_settings.update(
-            {"IBRION": 8, "LEPSILON": True})
+        self.incar_settings.update(self.user_incar_settings)
+        if ionic:
+            self.incar_settings.update(
+                {"IBRION": 8, "LEPSILON": True, 'LREAL':False})
+        else:
+            self.incar_settings.update(
+                {"LEPSILON": True, 'LREAL': False})
         if 'NPAR' in self.incar_settings:
             del self.incar_settings['NPAR']
+        if 'NSW' in self.incar_settings:
+            del self.incar_settings['NSW']
 
 
 class MPBSHSEVaspInputSet(DictVaspInputSet):
     """
     Implementation of a VaspInputSet for HSE band structure computations
-    Remember that HSE band structures cannot be non-self consistent. So, a band structure
-    along syymetry lines for instance needs a uniform grid with appropriate weights + weight 0
-    path in reciprocal space
+    Remember that HSE band structures cannot be non-self consistent. So, a band
+    structure along syymetry lines for instance needs a uniform grid with
+    appropriate weights + weight 0 path in reciprocal space
+
     Args:
         user_incar_settings(dict): A dict specifying additional incar
             settings
-        added_kpoints: a list of kpoints (list of 3 number list) with weight 0 added to the run.
-            The k-points are in fractional coordinates
-        kpoints_density: the kpoint density of the uniform grid used for the band structure run
+        added_kpoints: a list of kpoints (list of 3 number list) with weight 0
+            added to the run. The k-points are in fractional coordinates
+        kpoints_density: the kpoint density of the uniform grid used for the
+            band structure run
         mode: Line: Generate k-points along symmetry lines for
             bandstructure. Uniform: Generate uniform k-points grid
 
     """
 
-    def __init__(self, user_incar_settings=None, added_kpoints=[], mode="Line", kpoints_density=100):
+    def __init__(self, user_incar_settings=None, added_kpoints=[], mode="Line",
+                 kpoints_density=100):
         with open(os.path.join(MODULE_DIR, "MPHSEVaspInputSet.json")) as f:
             DictVaspInputSet.__init__(
                 self, "MaterialsProject HSE Band Structure", json.load(f))
@@ -886,11 +901,12 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             structure.lattice.reciprocal_lattice.volume * structure.num_sites
         grid = super(MPBSHSEVaspInputSet, self).get_kpoints(structure).kpts
         if self.mode == "Line":
-            ir_kpts = SymmetryFinder(structure,symprec=0.1).get_ir_reciprocal_mesh(grid[0])
-            kpoints, labels=HighSymmKpath(structure).get_kpoints()
+            ir_kpts = SymmetryFinder(structure, symprec=0.1)\
+                .get_ir_reciprocal_mesh(grid[0])
+            kpoints, labels = HighSymmKpath(structure).get_kpoints()
             kpts = []
             weights = []
-            all_labels=[]
+            all_labels = []
             for k in ir_kpts:
                 kpts.append(k[0])
                 weights.append(int(k[1]))
@@ -904,7 +920,8 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
                            kpts=kpts, kpts_weights=weights, labels=all_labels)
 
         elif self.mode == "Uniform":
-            ir_kpts=SymmetryFinder(structure,symprec=0.1).get_ir_reciprocal_mesh(grid[0])
+            ir_kpts = SymmetryFinder(structure, symprec=0.1)\
+                .get_ir_reciprocal_mesh(grid[0])
             kpts = []
             weights = []
             for k in ir_kpts:
@@ -916,7 +933,6 @@ class MPBSHSEVaspInputSet(DictVaspInputSet):
             return Kpoints(comment="HSE run on uniform grid",
                            style="Reciprocal", num_kpts=len(kpts),
                            kpts=kpts, kpts_weights=weights)
-
 
 
 class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
@@ -1066,7 +1082,7 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                 present.
         """
         user_incar_settings = user_incar_settings or {}
-        
+
         try:
             vasp_run = Vasprun(os.path.join(previous_vasp_dir, "vasprun.xml"),
                                parse_dos=False, parse_eigen=None)
@@ -1078,7 +1094,8 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
 
         #Get a Magmom-decorated structure
         structure = MPNonSCFVaspInputSet.get_structure(vasp_run, outcar)
-        nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run, outcar)
+        nscf_incar_settings = MPNonSCFVaspInputSet.get_incar_settings(vasp_run,
+                                                                      outcar)
         mpnscfvip = MPNonSCFVaspInputSet(nscf_incar_settings, mode)
         mpnscfvip.write_input(structure, output_dir, make_dir_if_not_present)
         if copy_chgcar:
@@ -1091,17 +1108,20 @@ class MPNonSCFVaspInputSet(MPStaticVaspInputSet):
                                    + str(e))
 
         #Overwrite necessary INCAR parameters from previous runs
-        previous_incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001, "LCHARG": False,
-             "LORBIT": 11, "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11})
+        previous_incar.update({"IBRION": -1, "ISMEAR": 0, "SIGMA": 0.001,
+                               "LCHARG": False, "LORBIT": 11, "LWAVE": False,
+                               "NSW": 0, "ISYM": 0, "ICHARG": 11})
         previous_incar.update(nscf_incar_settings)
         previous_incar.update(user_incar_settings)
         previous_incar.pop("MAGMOM", None)
         previous_incar.write_file(os.path.join(output_dir, "INCAR"))
 
         # Perform checking on INCAR parameters
-        if any([previous_incar.get("NSW",0) != 0, previous_incar["IBRION"] != -1,
-               previous_incar["ICHARG"] != 11,
-               any([sum(previous_incar["LDAUU"])<=0, previous_incar["LMAXMIX"]<4])
+        if any([previous_incar.get("NSW", 0) != 0,
+                previous_incar["IBRION"] != -1,
+                previous_incar["ICHARG"] != 11,
+               any([sum(previous_incar["LDAUU"]) <= 0,
+                    previous_incar["LMAXMIX"] < 4])
                if previous_incar.get("LDAU") else False]):
             raise ValueError("Incompatible INCAR parameters!")
 
