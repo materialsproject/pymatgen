@@ -338,7 +338,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     extra_abivars['ecut'] = [ecuts[-1]]
 
-    nscf_strategy = NscfStrategy(scf_strategy, nscf_ksampling, max(nscf_nband), **extra_abivars)
+    nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
 
     if scr_nband is None:
         scr_nband = nscf_nband
