@@ -157,12 +157,12 @@ class XRDCalculator(object):
 
         Returns:
             (XRD pattern) in the form of
-            [[two_theta, intensity, {(h, k, l): mult}], ...]
+            [[two_theta, intensity, {(h, k, l): mult}, d_hkl], ...]
             Two_theta is in degrees. Intensity is in arbitrary units and if
             scaled (the default), has a maximum value of 100 for the highest
             peak. {(h, k, l): mult} is a dict of Miller indices for all
             diffracted lattice planes contributing to that intensity and
-            their multiplicities.
+            their multiplicities. d_hkl is the interplanar spacing.
         """
         if self.symprec:
             finder = SymmetryFinder(structure, symprec=self.symprec)
@@ -206,6 +206,8 @@ class XRDCalculator(object):
         for hkl, g_hkl, ind in sorted(
                 recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             if g_hkl != 0:
+
+                d_hkl = 1 / g_hkl
 
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
@@ -256,7 +258,8 @@ class XRDCalculator(object):
                     peaks[two_thetas[ind[0]]][0] += i_hkl * lorentz_factor
                     peaks[two_thetas[ind[0]]][1].append(tuple(hkl))
                 else:
-                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)]]
+                    peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)],
+                                        d_hkl]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
@@ -267,7 +270,7 @@ class XRDCalculator(object):
             scaled_intensity = v[0] / max_intensity * 100 if scaled else v[0]
             fam = get_unique_families(v[1])
             if scaled_intensity > XRDCalculator.SCALED_INTENSITY_TOL:
-                data.append([k, scaled_intensity, fam])
+                data.append([k, scaled_intensity, fam, v[2]])
         return data
 
     def get_xrd_plot(self, structure, two_theta_range=(0, 90),
