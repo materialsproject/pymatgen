@@ -224,7 +224,6 @@ class Smearing(AbivarAble, MSONable):
         return Smearing(d["occopt"], d["tsmear"])
 
 
-
 class ElectronsAlgorithm(dict, AbivarAble):
     "Variables controlling the SCF/NSCF algorithm."
     # None indicates that we use abinit defaults.

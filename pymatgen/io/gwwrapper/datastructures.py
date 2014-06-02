@@ -346,6 +346,7 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
             while not done:
                 if data.type['parm_scr']:
                     data.read()
+                    print data.data
                     # determine the parameters that give converged results
                     if len(data.data) == 0:
                         print '| parm_scr type calculation but no data found.'
@@ -575,18 +576,27 @@ class GWConvergenceData():
         else:
             return False
 
-    def get_sorted_data_list(self):
+    def get_sorted_data_list(self, data_type='gw_gap'):
         data_list = []
         for k in self.data:
-            try:
-                data_list.append([self.data[k]['nbands'],
-                                  self.data[k]['ecuteps'],
-                                  self.data[k]['gwgap'],
-                                  self.data[k]['nomega']])
-            except KeyError:
-                data_list.append([self.data[k]['nbands'],
-                                  self.data[k]['ecuteps'],
-                                  self.data[k]['gwgap']])
+            if data_type == 'gw_gap':
+                if 'gwgap' in self.data[k].keys():
+                    try:
+                        data_list.append([self.data[k]['nbands'],
+                                          self.data[k]['ecuteps'],
+                                          self.data[k]['gwgap'],
+                                          self.data[k]['nomega']])
+                    except KeyError:
+                        data_list.append([self.data[k]['nbands'],
+                                          self.data[k]['ecuteps'],
+                                          self.data[k]['gwgap']])
+            elif data_type == 'ks_width':
+                if 'ecut' in self.data[k].keys():
+                    data_list.append([self.data[k]['ecut'],
+                                      self.data[k]['min'],
+                                      self.data[k]['max']])
+
+
         return sorted(data_list)
 
     def get_data_array(self):

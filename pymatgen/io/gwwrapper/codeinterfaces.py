@@ -310,16 +310,28 @@ class AbinitInterface(AbstractCodeInterface):
          u'ze0', u'omega4sd'] for later use """
 
     def read_convergence_data(self, data_dir):
-        run = os.path.join(data_dir, 'out_SIGRES.nc')
+        gwrun = os.path.join(data_dir, 'out_SIGRES.nc')
+        scfrun = os.path.join(data_dir, 'out_SIGRES.nc')
         results = {}
-        if os.path.isfile(run):
-            data = NetcdfReader(run)
+        if os.path.isfile(gwrun):
+            # return the gap at gamma
+            data = NetcdfReader(gwrun)
             data.print_tree()
             results = {'ecuteps': Ha_to_eV * data.read_value('ecuteps')[0],
                        'nbands': data.read_value('sigma_nband')[0],
                        'gwgap': data.read_value('egwgap')[0][0]}
             data.close()
-        return results
+            return results
+        if os.path.isfile(scfrun):
+            # return the lowest and hightest eigenvalue at gamma
+            data = NetcdfReader(scfrun)
+            out = NetcdfReader('out_OUT.nc')
+            results = {'ecut': Ha_to_eV * out.read_value('ecut')[0],
+                       'min': data.read_value('Eigenvalues')[0][0][0],
+                       'max': data.read_value('Eigenvalues')[0][0][-1]}
+            data.close()
+            print 'devel: ', results
+            return results
 
     def test(self, data):
         errors = []
@@ -349,7 +361,11 @@ class AbinitInterface(AbstractCodeInterface):
     def store_results(self, name):
         folder = name + '.res'
         store_conv_results(name, folder)
-        shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),
+        try:
+            shutil.copyfile(os.path.join(name+".conv", "w0", "t6", "outdata", "out_SIGRES.nc"),
+                        os.path.join(folder, "out_SIGRES.nc"))
+        except:  # compatibility issue
+            shutil.copyfile(os.path.join(name+".conv", "work_0", "task_6", "outdata", "out_SIGRES.nc"),
                         os.path.join(folder, "out_SIGRES.nc"))
 
 
