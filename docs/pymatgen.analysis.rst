@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     pymatgen.analysis.defects
+    pymatgen.analysis.diffraction
     pymatgen.analysis.pourbaix
 
 Submodules
