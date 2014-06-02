@@ -359,6 +359,53 @@ class PBSErrorParse(AbstractErrorParser):
     Implementation for the PBS scheduler
     """
 
+# =>> PBS: job killed: walltime 1842 exceeded limit 1800 que std
+
+    @property
+    def error_definitions(self):
+        return {
+#            SubmitError: {
+#                'batch_err': {
+#                    'string': "Batch job submission failed",
+#                    'meta_filter': {}
+#                }
+#            },
+#            FullQueueError: {
+#                'batch_err': {
+#                    'string': "sbatch: error: Batch job submission failed: Job violates accounting/QOS policy",
+#                    'meta_filter': {}
+#                }
+#            },
+#            MemoryCancelError: {
+#                'err': {
+#                    'string': "Exceeded job memory limit",
+#                    'meta_filter': {}
+#                }
+#            },
+            TimeCancelError: {
+                'out': {
+                    'string': "job killed: walltime",
+                    'meta_filter': {
+                        'broken_limit': [r"job killed: walltime (\d+) exceeded limit (\d+) que std", 1]
+                    }
+                }
+            },
+ #           NodeFailureError: {
+ #               'run_err': {
+ #                   'string': "can't open /dev/ipath, network down",
+ #                   'meta_filter': {
+ #                       'nodes': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]
+ #                   }
+ #               }
+ #           },
+            AbstractError: {
+                'out': {
+                    'string': "a string to be found",
+                    'meta_filter': {}
+                }
+            }
+        }
+
 
 ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParse}
 

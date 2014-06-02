@@ -569,6 +569,7 @@ class GWConvergenceData():
         print 'nbands  %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['nbands']), abs(nb_slope), lnb)
         lec = abs(ec_slope) < (1 + tol_rel) * abs(self.conv_res['derivatives']['ecuteps']) and abs(ec_slope) < tol_abs
         print 'ecuteps %0.5f     %0.5f %r' % (abs(self.conv_res['derivatives']['ecuteps']), abs(ec_slope), lec)
+        print 'values: (nb, ec, gap)', nbs[0], ecs[0], zd[nbs[0]][ecs[0]]
         if lnb and lec:
             return True
         else:
