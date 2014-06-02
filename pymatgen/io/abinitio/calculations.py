@@ -332,6 +332,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     for ecut in ecuts:
         print(ecut)
         extra_abivars['ecut'] = [ecut]
+        extra_abivars['pawecutdg'] = ecut*2
         scf_strategy = ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
                                    smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars)
 
