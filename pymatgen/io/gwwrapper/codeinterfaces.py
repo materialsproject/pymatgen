@@ -311,7 +311,8 @@ class AbinitInterface(AbstractCodeInterface):
 
     def read_convergence_data(self, data_dir):
         gwrun = os.path.join(data_dir, 'out_SIGRES.nc')
-        scfrun = os.path.join(data_dir, 'out_OUT.nc')
+        scfrunout = os.path.join(data_dir, 'out_OUT.nc')
+        scfruneig = os.path.join(data_dir, 'out_EIG.nc')
         results = {}
         if os.path.isfile(gwrun):
             # return the gap at gamma
@@ -322,10 +323,10 @@ class AbinitInterface(AbstractCodeInterface):
                        'gwgap': data.read_value('egwgap')[0][0]}
             data.close()
             return results
-        if os.path.isfile(scfrun):
+        if os.path.isfile(scfruneig):
             # return the lowest and hightest eigenvalue at gamma
-            data = NetcdfReader(scfrun)
-            out = NetcdfReader('out_OUT.nc')
+            data = NetcdfReader(scfruneig)
+            out = NetcdfReader(scfrunout)
             results = {'ecut': Ha_to_eV * out.read_value('ecut')[0],
                        'min': data.read_value('Eigenvalues')[0][0][0],
                        'max': data.read_value('Eigenvalues')[0][0][-1]}
