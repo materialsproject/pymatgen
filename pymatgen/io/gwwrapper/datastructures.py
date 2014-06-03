@@ -346,14 +346,16 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
             while not done:
                 if data.type['parm_scr']:
                     data.read()
-                    print data.data
+                    #print data.data
                     # determine the parameters that give converged results
                     if len(data.data) == 0:
                         print '| parm_scr type calculation but no data found.'
                         break
                     extrapolated = data.find_conv_pars(self['tol'])
-                    print data.get_data_array_2d('ecut', 'max')
-                    data.find_conv_pars_scf('ecut', 'max', self['tol']/10)
+                    #print data.get_data_array_2d('ecut', 'max')
+                    if data.find_conv_pars_scf('ecut', 'max', self['tol']/100)[0]:
+                        print '| parm_scr type calculation, converged scf values found'
+                        print data.conv_res
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     if data.conv_res['control']['nbands']:
                         print '| parm_scr type calculation, converged values found, extrapolated value: ', extrapolated[4]
@@ -557,9 +559,6 @@ class GWConvergenceData():
         return test_conv(xs, extrapolated, name=self.name, tol=-1)
 
     def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
-        var_l = False
-        var_c = 0
-        var_d = 0
         xs = self.get_var_range(x_name)
         ys = []
         for x in xs:
@@ -567,6 +566,9 @@ class GWConvergenceData():
         print xs
         print ys
         conv_data = test_conv(xs, ys, name=self.name, tol=tol,)
+        self.conv_res['control'].update({'x_name': conv_data[0]})
+        self.conv_res['values'].update({'x_name': conv_data[1]})
+        self.conv_res['derivatives'].update({'x_name': conv_data[5]})
         print conv_data
 
     def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
