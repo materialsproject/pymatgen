@@ -439,7 +439,7 @@ class GWConvergenceData():
         except SyntaxError:
             print 'Problems reading ', filename
         except (OSError, IOError):
-            print 'Inputfile ', filename, ' not found exiting.'
+            print 'Inputfile ', filename, ' not found.'
         return success
 
     def read_full_res_from_file(self):
@@ -456,7 +456,7 @@ class GWConvergenceData():
         except SyntaxError:
             print 'Problems reading ', filename
         except (OSError, IOError):
-            print 'Inputfile ', filename, ' not found exiting.'
+            print 'Inputfile ', filename, ' not found.'
         return success
 
     def read(self, subset=''):
