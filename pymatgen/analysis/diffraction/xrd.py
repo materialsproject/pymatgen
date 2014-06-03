@@ -44,10 +44,10 @@ WAVELENGTHS = {
     "CoKa2": 1.79285,
     "CoKa1": 1.78896,
     "CoKb1": 1.63079,
-    "AgKa": 5.60885,
-    "AgKa2": 5.63813,
-    "AgKa1": 5.59421,
-    "AgKb1": 4.97082,
+    "AgKa": 0.560885,
+    "AgKa2": 0.563813,
+    "AgKa1": 0.559421,
+    "AgKb1": 0.497082,
 }
 
 with open(os.path.join(os.path.dirname(__file__),
