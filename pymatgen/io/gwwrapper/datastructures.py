@@ -569,7 +569,7 @@ class GWConvergenceData():
         self.conv_res['control'].update({'x_name': conv_data[0]})
         self.conv_res['values'].update({'x_name': conv_data[1]})
         self.conv_res['derivatives'].update({'x_name': conv_data[5]})
-        print conv_data
+        return conv_data
 
     def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
         """
