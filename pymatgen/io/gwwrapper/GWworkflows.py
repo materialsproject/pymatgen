@@ -222,7 +222,7 @@ class SingleAbinitGWWorkFlow():
         nscf_nband = [10 * self.get_bands(self.structure)]
         ecuteps = [8]
         ecutsigx = 8
-        ecuts = [32, 28, 24, 20]  # todo this is now hard coded should run via test
+        ecuts = [36, 32, 28, 24, 20]  # todo this is now hard coded should run via test
 
         response_models = ['godby']
 

@@ -353,6 +353,7 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                         break
                     extrapolated = data.find_conv_pars(self['tol'])
                     print data.get_data_array_2d('ecut', 'max')
+                    data.find_conv_pars_scf('ecut', 'max', self['tol']/10)
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     if data.conv_res['control']['nbands']:
                         print '| parm_scr type calculation, converged values found, extrapolated value: ', extrapolated[4]
@@ -554,6 +555,15 @@ class GWConvergenceData():
         self.conv_res.update({'values': {'ecuteps': ecuteps_c, 'nbands': nbands_c, 'gap': gap},
                               'derivatives': {'ecuteps': ecuteps_d, 'nbands': nbands_d}})
         return test_conv(xs, extrapolated, name=self.name, tol=-1)
+
+    def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
+        var_l = False
+        var_c = 0
+        var_d = 0
+        xs = self.get_var_range(x_name)
+        yd = self.get_data_array_2d(x_name, y_name)
+        conv_data = test_conv(xs, yd, name=self.name, tol=tol,)
+        print conv_data
 
     def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
         """
