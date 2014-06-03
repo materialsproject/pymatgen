@@ -327,11 +327,12 @@ class AbinitInterface(AbstractCodeInterface):
             # return the lowest and hightest eigenvalue at gamma
             data = NetcdfReader(scfruneig)
             out = NetcdfReader(scfrunout)
-            results = {'ecut': Ha_to_eV * out.read_value('ecut')[0],
-                       'min': data.read_value('Eigenvalues')[0][0][0],
-                       'max': data.read_value('Eigenvalues')[0][0][-1]}
-            data.close()
-            print 'devel: ', results
+            if data.read_value('Eigenvalues')[0][0][-1] < 2.0:  # bad way to select only the scf results ..
+                results = {'ecut': Ha_to_eV * out.read_value('ecut')[0],
+                           'min': data.read_value('Eigenvalues')[0][0][0],
+                           'max': data.read_value('Eigenvalues')[0][0][-1]}
+                data.close()
+                print 'devel: ', results
             return results
 
     def test(self, data):
