@@ -412,6 +412,9 @@ class Workflow(BaseWorkflow):
                 None means that this obj has no dependency.
             required_files:
                 List of strings with the path of the files used by the task.
+                Note that the files must exist when the task is registered.
+                Use the standard approach based on Workflows, Tasks and deps 
+                if the files will be produced in the future.
             manager:
                 The `TaskManager` responsible for the submission of the task. If manager is None, we use 
                 the `TaskManager` specified during the creation of the `Workflow`.
