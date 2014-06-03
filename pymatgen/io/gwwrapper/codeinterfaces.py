@@ -311,7 +311,7 @@ class AbinitInterface(AbstractCodeInterface):
 
     def read_convergence_data(self, data_dir):
         gwrun = os.path.join(data_dir, 'out_SIGRES.nc')
-        scfrun = os.path.join(data_dir, 'out_SIGRES.nc')
+        scfrun = os.path.join(data_dir, 'out_OUT.nc')
         results = {}
         if os.path.isfile(gwrun):
             # return the gap at gamma
