@@ -609,6 +609,7 @@ class GWConvergenceData():
                     data_array.update({self.data[k]['nbands']: {self.data[k]['ecuteps']: self.data[k]['gwgap']}})
             except KeyError:
                 pass
+        print data_array
         return data_array
 
     def get_var_range(self, var):
