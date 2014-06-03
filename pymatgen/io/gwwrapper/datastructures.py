@@ -561,8 +561,12 @@ class GWConvergenceData():
         var_c = 0
         var_d = 0
         xs = self.get_var_range(x_name)
-        yd = self.get_data_array_2d(x_name, y_name)
-        conv_data = test_conv(xs, yd, name=self.name, tol=tol,)
+        ys = []
+        for x in xs:
+            ys.append(self.get_data_array_2d(x_name, y_name)[xs])
+        print xs
+        print ys
+        conv_data = test_conv(xs, ys, name=self.name, tol=tol,)
         print conv_data
 
     def test_full_kp_results(self, tol_rel=0.5, tol_abs=0.001):
