@@ -352,7 +352,7 @@ class GWSpecs(AbstractAbinitioSpec, MSONable):
                         print '| parm_scr type calculation but no data found.'
                         break
                     extrapolated = data.find_conv_pars(self['tol'])
-                    print data.get_data_array_2d('ecut', 'min')
+                    print data.get_data_array_2d('ecut', 'max')
                     # if converged ok, if not increase the grid parameter of the next set of calculations
                     if data.conv_res['control']['nbands']:
                         print '| parm_scr type calculation, converged values found, extrapolated value: ', extrapolated[4]
