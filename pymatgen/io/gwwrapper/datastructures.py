@@ -563,7 +563,7 @@ class GWConvergenceData():
         xs = self.get_var_range(x_name)
         ys = []
         for x in xs:
-            ys.append(self.get_data_array_2d(x_name, y_name)[xs])
+            ys.append(self.get_data_array_2d(x_name, y_name)[x])
         print xs
         print ys
         conv_data = test_conv(xs, ys, name=self.name, tol=tol,)
