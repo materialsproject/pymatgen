@@ -465,7 +465,6 @@ class GWConvergenceData():
         self.data = {}
         tree = os.walk(self.name + subset)
         for dirs in tree:
-            print dirs
             read = self.code_interface.read_convergence_data(dirs[0])
             if read:
                 self.data.update({n: read})
@@ -604,9 +603,12 @@ class GWConvergenceData():
         data_array = {}
         for k in self.data:
             try:
-                data_array[self.data[k]['nbands']].update({self.data[k]['ecuteps']: self.data[k]['gwgap']})
+                try:
+                    data_array[self.data[k]['nbands']].update({self.data[k]['ecuteps']: self.data[k]['gwgap']})
+                except KeyError:
+                    data_array.update({self.data[k]['nbands']: {self.data[k]['ecuteps']: self.data[k]['gwgap']}})
             except KeyError:
-                data_array.update({self.data[k]['nbands']: {self.data[k]['ecuteps']: self.data[k]['gwgap']}})
+                pass
         return data_array
 
     def get_var_range(self, var):
