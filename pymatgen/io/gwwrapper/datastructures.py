@@ -613,8 +613,11 @@ class GWConvergenceData():
         var_range = []
         if self.data:
             for data_point in self.data.values():
-                if data_point[var] not in var_range:
-                    var_range.append(data_point[var])
+                try:
+                    if data_point[var] not in var_range:
+                        var_range.append(data_point[var])
+                except KeyError:
+                    pass
             return sorted(var_range)
         else:
             return None
