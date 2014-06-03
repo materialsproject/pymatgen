@@ -616,7 +616,7 @@ class GWConvergenceData():
         data_array = {}
         for k in self.data:
             try:
-                data_array.update({data_array[self.data[k][x_name]]: self.data[k][y_name]})
+                data_array.update({self.data[k][x_name]: self.data[k][y_name]})
             except KeyError:
                 pass
         return data_array
