@@ -36,8 +36,13 @@ class XRDCalculatorTest(unittest.TestCase):
         #Check the first two peaks
         self.assertAlmostEqual(data[0][0], 21.107738329639844)
         self.assertAlmostEqual(data[0][1], 36.483184003748946)
+        self.assertEqual(data[0][2], {(1, 0, 0): 6})
+        self.assertAlmostEqual(data[0][3], 4.2089999999999996)
         self.assertAlmostEqual(data[1][0], 30.024695921112777)
         self.assertAlmostEqual(data[1][1], 100)
+        self.assertEqual(data[1][2], {(1, 1, 0): 12})
+        self.assertAlmostEqual(data[1][3], 2.976212442014178)
+
         s = read_structure(os.path.join(test_dir, "LiFePO4.cif"))
         data = c.get_xrd_data(s)
         self.assertAlmostEqual(data[1][0], 17.03504233621785)
@@ -47,6 +52,14 @@ class XRDCalculatorTest(unittest.TestCase):
         data = c.get_xrd_data(s)
         self.assertAlmostEqual(data[1][0], 14.058274883353876)
         self.assertAlmostEqual(data[1][1], 4.4111123641667671)
+
+        # Test a hexagonal structure.
+        s = read_structure(os.path.join(test_dir, "Graphite.cif"),
+                           primitive=False)
+        data = c.get_xrd_data(s)
+        self.assertAlmostEqual(data[0][0], 7.929279053132362)
+        self.assertAlmostEqual(data[0][1], 100)
+        self.assertAlmostEqual(len(list(data[0][2].keys())[0]), 4)
 
 if __name__ == '__main__':
     unittest.main()
