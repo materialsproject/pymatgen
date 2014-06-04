@@ -1898,7 +1898,7 @@ class Procar(object):
     @property
     def nb_kpoints(self):
         """
-        returns the number of k-points in the band structure calculation
+        Returns the number of k-points in the band structure calculation
         """
         return self._nb_kpoints
 
@@ -1907,12 +1907,15 @@ class Procar(object):
         Method returning a dictionary of projections on elements.
         Spin polarized calculation are not supported.
 
+        Args:
+            structure (Structure): Input structure.
+
         Returns:
             a dictionary in the {Spin.up:[k index][b index][{Element:values}]]
         """
         dico = {Spin.up: []}
-        dico[Spin.up] = [[defaultdict(float) 
-                          for i in range(self._nb_kpoints)] 
+        dico[Spin.up] = [[defaultdict(float)
+                          for i in range(self._nb_kpoints)]
                          for j in range(self.nb_bands)]
 
         for iat in self.data:
