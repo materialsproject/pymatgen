@@ -74,6 +74,13 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.10
+-------
+1. Support for Ag radiation in XRD calculator.
+2. Improved Procar class for extraction of information. (Germain Salvato
+   Vallverdu)
+3. Bug fix for extraction of GGA data from Materials API.
+
 v2.9.9
 ------
 1. XRDCalculator now supports disordered structures.
