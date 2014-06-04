@@ -72,7 +72,7 @@ _gulp_kw = {
 }
 
 
-class GulpIO:
+class GulpIO(object):
     """
     To generate GULP input and process output
     """
@@ -561,7 +561,8 @@ def get_energy_tersoff(structure, gulp_cmd='gulp'):
 
 
 def get_energy_buckingham(structure, gulp_cmd='gulp',
-                          keywords=('optimise', 'conp'), valence_dict=None):
+                          keywords=('optimise', 'conp', 'qok'),
+                          valence_dict=None):
     """
     Compute the energy of a structure using Buckingham potential.
 
