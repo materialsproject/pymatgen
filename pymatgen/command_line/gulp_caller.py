@@ -343,7 +343,7 @@ class GulpIO:
             structure: pymatgen.core.structure.Structure
         """
         bv = BVAnalyzer()
-        el = [site.species_string for site in structure.sites]
+        el = [site.specie.symbol for site in structure.sites]
         valences = bv.get_valences(structure)
         el_val_dict = dict(zip(el, valences))
 
