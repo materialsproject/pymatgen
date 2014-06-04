@@ -266,10 +266,16 @@ class GulpIO:
                 dict, where El is element.
         """
         if not val_dict:
-            bv = BVAnalyzer()
-            el = [site.species_string for site in structure.sites]
-            valences = bv.get_valences(structure)
-            val_dict = dict(zip(el, valences))
+            try:
+                #If structure is oxidation state decorated, use that first.
+                el = [site.specie.symbol for site in structure]
+                valences = [site.specie.oxi_state for site in structure]
+                val_dict = dict(zip(el, valences))
+            except AttributeError:
+                bv = BVAnalyzer()
+                el = [site.specie.symbol for site in structure]
+                valences = bv.get_valences(structure)
+                val_dict = dict(zip(el, valences))
 
         #Try bush library first
         bpb = BuckinghamPotential('bush')
@@ -343,7 +349,7 @@ class GulpIO:
             structure: pymatgen.core.structure.Structure
         """
         bv = BVAnalyzer()
-        el = [site.specie.symbol for site in structure.sites]
+        el = [site.specie.symbol for site in structure]
         valences = bv.get_valences(structure)
         el_val_dict = dict(zip(el, valences))
 
