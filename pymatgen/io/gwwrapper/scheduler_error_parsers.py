@@ -354,34 +354,14 @@ class SlurmErrorParser(AbstractErrorParser):
         }
 
 
-class PBSErrorParse(AbstractErrorParser):
+class PBSErrorParser(AbstractErrorParser):
     """
     Implementation for the PBS scheduler
     """
 
-# =>> PBS: job killed: walltime 1842 exceeded limit 1800 que std
-
     @property
     def error_definitions(self):
         return {
-#            SubmitError: {
-#                'batch_err': {
-#                    'string': "Batch job submission failed",
-#                    'meta_filter': {}
-#                }
-#            },
-#            FullQueueError: {
-#                'batch_err': {
-#                    'string': "sbatch: error: Batch job submission failed: Job violates accounting/QOS policy",
-#                    'meta_filter': {}
-#                }
-#            },
-#            MemoryCancelError: {
-#                'err': {
-#                    'string': "Exceeded job memory limit",
-#                    'meta_filter': {}
-#                }
-#            },
             TimeCancelError: {
                 'out': {
                     'string': "job killed: walltime",
@@ -390,14 +370,6 @@ class PBSErrorParse(AbstractErrorParser):
                     }
                 }
             },
- #           NodeFailureError: {
- #               'run_err': {
- #                   'string': "can't open /dev/ipath, network down",
- #                   'meta_filter': {
- #                       'nodes': [r"node(\d+)\.(\d+)can't open (\S*), network down \(err=26\)", 1]
- #                   }
- #               }
- #           },
             AbstractError: {
                 'out': {
                     'string': "a string to be found",
@@ -407,7 +379,7 @@ class PBSErrorParse(AbstractErrorParser):
         }
 
 
-ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParse}
+ALL_PARSERS = {'slurm': SlurmErrorParser, 'pbs': PBSErrorParser}
 
 
 def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_file=None):
@@ -424,7 +396,7 @@ def get_parser(scheduler, err_file, out_file=None, run_err_file=None, batch_err_
 
 
 if __name__ == "__main__":
-    my_parser = get_parser('slurm', err_file='queue.err', out_file='queue.out', run_err_file='run.err',
+    my_parser = get_parser('pbs', err_file='queue.err', out_file='queue.out', run_err_file='run.err',
                            batch_err_file='sbatch.err')
     my_parser.parse()
     print 'parser.errors', my_parser.errors
