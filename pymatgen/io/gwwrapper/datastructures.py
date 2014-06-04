@@ -34,7 +34,7 @@ from pymatgen.transformations.standard_transformations import OxidationStateRemo
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-class AbstractAbinitioSpec(object):
+class AbstractAbinitioSpec(MSONable):
     """
     Contains all non GW specific methods
     todo for some reason I can not make this class have both a metaclass and subcalss from msonable ...
@@ -237,7 +237,7 @@ class AbstractAbinitioSpec(object):
         """
 
 
-class GWSpecs(AbstractAbinitioSpec, MSONable):
+class GWSpecs(AbstractAbinitioSpec):
     """
     Class for GW specifications.
     """
