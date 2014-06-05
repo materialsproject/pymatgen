@@ -328,9 +328,19 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     scf_strategy = []
     to_add = {}
-    extra_abivars.update({'paral_kgb': 0})
+
+    extra_abivars.update(to_add)
+    extra_abivars.update({'paral_kgb': 1})
+
+    from pymatgen.io.abinitio.tasks import TaskManager
+    tmp_manager = TaskManager.from_user_config()
+
+    extra_abivars.update({'npkpt': 1, 'npfft': 4})
+    ncpus = tmp_manager.tot_ncpus
+    extra_abivars.update({'npbands': ncpus/4})
 
     for k in extra_abivars.keys():
+        print(k, k[-2:-1])
         if k[-2:-1] == '_s':
             values = extra_abivars.pop(k)
             to_add.update({k: values[-1]})
@@ -344,16 +354,6 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if len(scf_strategy) == 0:
         scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
                                         smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
-
-    extra_abivars.update(to_add)
-    extra_abivars.update({'paral_kgb': 1})
-
-    from pymatgen.io.abinitio.tasks import TaskManager
-    tmp_manager = TaskManager.from_user_config()
-
-    extra_abivars.update({'npkpt': 1, 'npfft': 4})
-    ncpus = tmp_manager.tot_ncpus
-    extra_abivars.update({'npbands': ncpus/4})
 
     nscf_strategy = NscfStrategy(scf_strategy[-1], nscf_ksampling, max(nscf_nband), **extra_abivars)
 
