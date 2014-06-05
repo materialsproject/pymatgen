@@ -229,7 +229,7 @@ class SingleAbinitGWWorkFlow():
         # ecuts = [36, 32, 28, 24, 20]  # todo this is now hard coded should run via test
 
         extra_abivars = dict(
-            ecut_s=[20],
+            ecut=[20],
             gwmem=01,
             getden=-1,
             istwfk="*1",
