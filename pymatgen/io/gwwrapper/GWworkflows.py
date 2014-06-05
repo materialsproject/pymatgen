@@ -132,7 +132,10 @@ class SingleAbinitGWWorkFlow():
     TESTS = {'ecuteps': {'test_range': (10, 14), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (30, 40), 'method': 'set_bands', 'control': "gap", 'level': "nscf"},
              'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
-    CONVS = {'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
+    # scf level test are run independently, the last value will be used in the nscf and sigma tests
+    CONVS = {'test': {'test_range': (1, 2, 3), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
+             'ecut': {'test_range': (36, 32, 28, 24, 20), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
+             'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (5, 15, 25, 35, 45), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
     def __init__(self, structure, spec, option=None):
@@ -222,7 +225,24 @@ class SingleAbinitGWWorkFlow():
         nscf_nband = [10 * self.get_bands(self.structure)]
         ecuteps = [8]
         ecutsigx = 8
-        ecuts = [36, 32, 28, 24, 20]  # todo this is now hard coded should run via test
+
+        # ecuts = [36, 32, 28, 24, 20]  # todo this is now hard coded should run via test
+
+        extra_abivars = dict(
+            ecut_s=[20],
+            gwmem=01,
+            getden=-1,
+            istwfk="*1",
+            timopt=-1,
+            nbdbuf=8
+        )
+
+        if self.option is not None:
+            for k in self.option.keys():
+                if k in ['ecuteps', 'nscf_nbands']:
+                    pass
+                else:
+                    extra_abivars.update({k: self.option[k]})
 
         response_models = ['godby']
 
@@ -251,15 +271,18 @@ class SingleAbinitGWWorkFlow():
                 ecuteps = []
                 nscf_nband = []
                 for test in tests:
-                    for value in tests[test]['test_range']:
-                        if test == 'nscf_nbands':
-                            nscf_nband.append(value * self.get_bands(self.structure))
-                            #scr_nband takes nscf_nbands if not specified
-                            #sigma_nband takes scr_nbands if not specified
-                        if test == 'ecuteps':
-                            ecuteps.append(value)
-                        if test == 'response_model':
-                            response_models.append(value)
+                    if test['level'] == 'scf':
+                        extra_abivars.update({test + '_s': tests[test]['test_range']})
+                    else:
+                        for value in tests[test]['test_range']:
+                            if test == 'nscf_nbands':
+                                nscf_nband.append(value * self.get_bands(self.structure))
+                                #scr_nband takes nscf_nbands if not specified
+                                #sigma_nband takes scr_nbands if not specified
+                            if test == 'ecuteps':
+                                ecuteps.append(value)
+                            if test == 'response_model':
+                                response_models.append(value)
             elif self.option is not None:
                 print '| setting up for testing the converged values at the high kp grid '
                 # in this case a convergence study has already been performed.
@@ -268,19 +291,15 @@ class SingleAbinitGWWorkFlow():
                                                    self.convs['ecuteps']['test_range'][0]]
                 nscf_nband = [self.option['nscf_nbands'], self.option['nscf_nbands'] + self.convs['nscf_nbands'][
                     'test_range'][1] - self.convs['nscf_nbands']['test_range'][0]]
+                for option in self.option:
+                    if option not in ['ecuteps', 'nscf_nband']:
+                        extra_abivars.update({option + '_s': self.option[option]})
         else:
             print '| all is done for this material'
             return
 
-        extra_abivars = dict(
-            ecuts=ecuts,
-            gwmem=01,
-            getden=-1,
-            istwfk="*1",
-            timopt=-1,
-            paral_kgb=1,
-            nbdbuf=8
-        )
+        print extra_abivars
+        exit()
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                              accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
