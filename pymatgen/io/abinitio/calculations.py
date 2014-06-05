@@ -340,8 +340,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     extra_abivars.update({'npbands': ncpus/4})
 
     for k in extra_abivars.keys():
-        print(k, k[-2:-1])
-        if k[-2:-1] == '_s':
+        print(k, k[-2:])
+        if k[-2:] == '_s':
             values = extra_abivars.pop(k)
             to_add.update({k: values[-1]})
             for value in values:
