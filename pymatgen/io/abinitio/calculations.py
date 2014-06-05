@@ -337,7 +337,7 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
 
     extra_abivars.update({'npkpt': 1, 'npfft': 4})
     ncpus = tmp_manager.tot_ncpus
-    extra_abivars.update({'npbands': ncpus/4})
+    extra_abivars.update({'npbands': int(ncpus/4)})
 
     for k in extra_abivars.keys():
         print(k, k[-2:])
