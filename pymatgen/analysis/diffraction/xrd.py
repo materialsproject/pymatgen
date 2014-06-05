@@ -191,15 +191,18 @@ class XRDCalculator(object):
         for site in structure:
             for sp, occu in site.species_and_occu.items():
                 zs.append(sp.Z)
-                coeffs.append(ATOMIC_SCATTERING_PARAMS[sp.symbol])
+                c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
+                if len(c) < 4:
+                    c.append([0, 0])
+                coeffs.append(c)
                 fcoords.append(site.frac_coords)
                 occus.append(occu)
+
 
         zs = np.array(zs)
         coeffs = np.array(coeffs)
         fcoords = np.array(fcoords)
         occus = np.array(occus)
-
         peaks = {}
         two_thetas = []
 

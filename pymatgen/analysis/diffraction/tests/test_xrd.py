@@ -63,5 +63,15 @@ class XRDCalculatorTest(unittest.TestCase):
         self.assertAlmostEqual(data[0][1], 100)
         self.assertAlmostEqual(len(list(data[0][2].keys())[0]), 4)
 
+        #Add test case with different lengths of coefficients.
+        coords = [[0.25, 0.25, 0.173], [0.75, 0.75, 0.827], [0.75, 0.25, 0],
+                  [0.25, 0.75, 0], [0.25, 0.25, 0.676], [0.75, 0.75, 0.324]]
+        sp = ["Si", "Si", "Ru", "Ru", "Pr", "Pr"]
+        s = Structure(Lattice.tetragonal(4.192, 6.88), sp, coords)
+        data = c.get_xrd_data(s)
+        self.assertAlmostEqual(data[0][0], 12.86727341476735)
+        self.assertAlmostEqual(data[0][1], 31.448239816769796)
+        self.assertAlmostEqual(data[0][3], 6.88)
+
 if __name__ == '__main__':
     unittest.main()
