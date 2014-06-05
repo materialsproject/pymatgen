@@ -62,6 +62,7 @@ class XRDCalculatorTest(unittest.TestCase):
         self.assertAlmostEqual(len(list(data[0][2].keys())[0]), 4)
 
         #Add test case with different lengths of coefficients.
+        #Also test d_hkl.
         coords = [[0.25, 0.25, 0.173], [0.75, 0.75, 0.827], [0.75, 0.25, 0],
                   [0.25, 0.75, 0], [0.25, 0.25, 0.676], [0.75, 0.75, 0.324]]
         sp = ["Si", "Si", "Ru", "Ru", "Pr", "Pr"]
