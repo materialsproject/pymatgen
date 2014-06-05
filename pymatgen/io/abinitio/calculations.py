@@ -330,14 +330,14 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     to_add = {}
 
     extra_abivars.update(to_add)
-    extra_abivars.update({'paral_kgb': 1})
+    #extra_abivars.update({'paral_kgb': 1})
 
-    from pymatgen.io.abinitio.tasks import TaskManager
-    tmp_manager = TaskManager.from_user_config()
+    #from pymatgen.io.abinitio.tasks import TaskManager
+    #tmp_manager = TaskManager.from_user_config()
 
-    extra_abivars.update({'npkpt': 1, 'npfft': 4})
-    ncpus = tmp_manager.tot_ncpus
-    extra_abivars.update({'npbands': int(ncpus/4)})
+    #extra_abivars.update({'npkpt': 1, 'npfft': 4})
+    #ncpus = tmp_manager.tot_ncpus
+    #extra_abivars.update({'npbands': int(ncpus/4)})
 
     for k in extra_abivars.keys():
         print(k, k[-2:])
