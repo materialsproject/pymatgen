@@ -17,10 +17,8 @@ import unittest
 import os
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.analysis.diffraction.xrd import XRDCalculator, \
-    get_unique_families
+from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.io.smartio import read_structure
-import numpy as np
 
 
 test_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..",
