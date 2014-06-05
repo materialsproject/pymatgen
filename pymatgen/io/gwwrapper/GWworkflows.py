@@ -271,7 +271,7 @@ class SingleAbinitGWWorkFlow():
                 ecuteps = []
                 nscf_nband = []
                 for test in tests:
-                    if test['level'] == 'scf':
+                    if tests[test]['level'] == 'scf':
                         extra_abivars.update({test + '_s': tests[test]['test_range']})
                     else:
                         for value in tests[test]['test_range']:
