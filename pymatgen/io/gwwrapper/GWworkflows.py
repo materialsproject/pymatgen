@@ -299,7 +299,6 @@ class SingleAbinitGWWorkFlow():
             return
 
         print extra_abivars
-        exit()
 
         work = g0w0_extended(abi_structure, self.pseudo_table, scf_kppa, nscf_nband, ecuteps, ecutsigx,
                              accuracy="normal", spin_mode="unpolarized", smearing=None, response_models=response_models,
