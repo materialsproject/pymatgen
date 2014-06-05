@@ -342,12 +342,15 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     for k in extra_abivars.keys():
         print(k, k[-2:])
         if k[-2:] == '_s':
+            var = k[:len(k)-2]
+            print('var:', var)
             values = extra_abivars.pop(k)
             to_add.update({k: values[-1]})
             for value in values:
                 print(value)
                 extra_abivars['ecut'] = [value]
                 extra_abivars['pawecutdg'] = extra_abivars['ecut'][0]*2
+                print(extra_abivars)
                 scf_strategy.append(ScfStrategy(structure, pseudos, scf_ksampling, accuracy=accuracy, spin_mode=spin_mode,
                                                 smearing=smearing, charge=charge, scf_algorithm=None, **extra_abivars))
 
