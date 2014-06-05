@@ -370,8 +370,8 @@ def g0w0_extended(structure, pseudos, scf_kppa, nscf_nband, ecuteps, ecutsigx, a
     if ecutsigx < max(ecuteps):
         ecutsigx = max(ecuteps)
 
-    for x in ('paral_kgb', 'npkpt', 'npfft', 'npbands'):
-        del extra_abivars[x]
+    # for x in ('paral_kgb', 'npkpt', 'npfft', 'npbands'):
+    #    del extra_abivars[x]
 
     sigma_strategy = []
 
