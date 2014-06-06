@@ -176,15 +176,12 @@ class XRDCalculator(object):
         latt = structure.lattice
         is_hex = latt.is_hexagonal()
 
-        min_r, max_r = 0, 2 / wavelength
-        if two_theta_range is not None:
-            # Obtained from Bragg condition. Note that reciprocal lattice
-            # vector length is 1 / d_hkl.
-            min_r, max_r = [2 * sin(radians(t / 2)) / wavelength
-                            for t in two_theta_range]
+        # Obtained from Bragg condition. Note that reciprocal lattice
+        # vector length is 1 / d_hkl.
+        min_r, max_r = (0, 2 / wavelength) if two_theta_range is None else \
+            [2 * sin(radians(t / 2)) / wavelength for t in two_theta_range]
 
-        # Obtain crystallographic reciprocal lattice and points within
-        # limiting sphere (within 2/wavelength)
+        # Obtain crystallographic reciprocal lattice points within range
         recip_latt = latt.reciprocal_lattice_crystallographic
         recip_pts = recip_latt.get_points_in_sphere(
             [[0, 0, 0]], [0, 0, 0], max_r)
@@ -194,7 +191,7 @@ class XRDCalculator(object):
         # Create a flattened array of zs, coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
         # later. Note that these are not necessarily the same size as the
-        # structure as each partially occupied species occupies its own
+        # structure as each partially occupied specie occupies its own
         # position in the flattened array.
         zs = []
         coeffs = []
@@ -208,7 +205,6 @@ class XRDCalculator(object):
                 coeffs.append(c)
                 fcoords.append(site.frac_coords)
                 occus.append(occu)
-
 
         zs = np.array(zs)
         coeffs = np.array(coeffs)
