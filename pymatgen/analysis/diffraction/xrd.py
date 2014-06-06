@@ -14,7 +14,7 @@ __email__ = "ongsp@ucsd.edu"
 __date__ = "5/22/14"
 
 
-from math import sin, cos, asin, pi, degrees
+from math import sin, cos, asin, pi, degrees, radians
 import os
 
 import numpy as np
@@ -145,7 +145,7 @@ class XRDCalculator(object):
             self.wavelength = WAVELENGTHS[wavelength]
         self.symprec = symprec
 
-    def get_xrd_data(self, structure, scaled=True):
+    def get_xrd_data(self, structure, scaled=True, two_theta_range=(0, 90)):
         """
         Calculates the XRD data for a structure.
 
@@ -154,6 +154,9 @@ class XRDCalculator(object):
             scaled (bool): Whether to return scaled intensities. The maximum
                 peak is set to a value of 100. Defaults to True. Use False if
                 you need the absolute values to combine XRD plots.
+            two_theta_range: Tuple for range of two_thetas to calculate.
+                Defaults to (0, 90). Set to None if you want all diffracted
+                beams within the limiting sphere of radius 2 / wavelength.
 
         Returns:
             (XRD pattern) in the form of
@@ -172,11 +175,18 @@ class XRDCalculator(object):
         latt = structure.lattice
         is_hex = latt.is_hexagonal()
 
+        min_r, max_r = 0, 2 / wavelength
+        if two_theta_range is not None:
+            min_r, max_r = [2 * sin(radians(t / 2)) / wavelength
+                            for t in two_theta_range]
+
         # Obtain crystallographic reciprocal lattice and points within
         # limiting sphere (within 2/wavelength)
         recip_latt = latt.reciprocal_lattice_crystallographic
         recip_pts = recip_latt.get_points_in_sphere(
-            [[0, 0, 0]], [0, 0, 0], 2 / wavelength)
+            [[0, 0, 0]], [0, 0, 0], max_r)
+        if min_r:
+            recip_pts = filter(lambda d: d[1] >= min_r, recip_pts)
 
         # Create a flattened array of zs, coeffs, fcoords and occus. This is
         # used to perform vectorized computation of atomic scattering factors
