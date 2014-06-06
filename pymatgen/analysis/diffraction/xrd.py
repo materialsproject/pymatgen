@@ -178,6 +178,8 @@ class XRDCalculator(object):
 
         min_r, max_r = 0, 2 / wavelength
         if two_theta_range is not None:
+            # Obtained from Bragg condition. Note that reciprocal lattice
+            # vector length is 1 / d_hkl.
             min_r, max_r = [2 * sin(radians(t / 2)) / wavelength
                             for t in two_theta_range]
 
