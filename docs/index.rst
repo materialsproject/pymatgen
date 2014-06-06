@@ -76,10 +76,11 @@ Latest Change Log
 
 v2.9.10
 -------
-1. Support for Ag radiation in XRD calculator.
-2. Improved Procar class for extraction of information. (Germain Salvato
+1. Bug fix for unequal coefficients sizes in XRD.
+2. Support for Ag radiation in XRD calculator.
+3. Improved Procar class for extraction of information. (Germain Salvato
    Vallverdu)
-3. Bug fix for extraction of GGA data from Materials API.
+4. Bug fix for extraction of GGA data from Materials API.
 
 v2.9.9
 ------
