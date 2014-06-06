@@ -154,9 +154,10 @@ class XRDCalculator(object):
             scaled (bool): Whether to return scaled intensities. The maximum
                 peak is set to a value of 100. Defaults to True. Use False if
                 you need the absolute values to combine XRD plots.
-            two_theta_range: Tuple for range of two_thetas to calculate.
-                Defaults to (0, 90). Set to None if you want all diffracted
-                beams within the limiting sphere of radius 2 / wavelength.
+            two_theta_range ([float of length 2]): Tuple for range of
+                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+                None if you want all diffracted beams within the limiting
+                sphere of radius 2 / wavelength.
 
         Returns:
             (XRD pattern) in the form of
@@ -293,8 +294,10 @@ class XRDCalculator(object):
 
         Args:
             structure: Input structure
-            two_theta_range: Range of two_thetas for which to plot. Defaults
-                to (0, 90).
+            two_theta_range ([float of length 2]): Tuple for range of
+                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+                None if you want all diffracted beams within the limiting
+                sphere of radius 2 / wavelength.
             annotate_peaks: Whether to annotate the peaks with plane
                 information.
 
@@ -303,9 +306,8 @@ class XRDCalculator(object):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(16, 10)
-        two_theta_range = [-1, float("inf")] if two_theta_range is None \
-            else two_theta_range
-        for two_theta, i, hkls in self.get_xrd_data(structure):
+        for two_theta, i, hkls in self.get_xrd_data(
+                structure, two_theta_range=two_theta_range):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl) for hkl in hkls.keys()])
                 plt.plot([two_theta, two_theta], [0, i], color='k',
@@ -325,10 +327,12 @@ class XRDCalculator(object):
         Shows the XRD plot.
 
         Args:
-            structure: Input structure
-            two_theta_range: Range of two_thetas for which to plot. Defaults
-                to (0, 90).
-            annotate_peaks: Whether to annotate the peaks with plane
+            structure (Structure): Input structure
+            two_theta_range ([float of length 2]): Tuple for range of
+                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
+                None if you want all diffracted beams within the limiting
+                sphere of radius 2 / wavelength.
+            annotate_peaks (bool): Whether to annotate the peaks with plane
                 information.
         """
         self.get_xrd_plot(structure, two_theta_range=two_theta_range,
