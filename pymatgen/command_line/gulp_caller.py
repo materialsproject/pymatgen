@@ -474,7 +474,7 @@ class GulpIO(object):
         return Structure(latt, sp, coords)
 
 
-class GulpCaller:
+class GulpCaller(object):
     """
     Class to run gulp from commandline
     """

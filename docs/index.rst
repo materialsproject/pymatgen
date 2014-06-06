@@ -74,6 +74,12 @@ several advantages over other codes out there:
 Latest Change Log
 =================
 
+v2.9.11
+-------
+1. Bug fix for get_xrd_plot.
+2. Speed up XRD calculator by allowing specification of two theta ranges.
+3. Minor improvements to Gulp caller.
+
 v2.9.10
 -------
 1. Bug fix for unequal coefficients sizes in XRD.
