@@ -74,7 +74,6 @@ class XRDCalculatorTest(unittest.TestCase):
         self.assertEqual(len(data), 42)
         data = c.get_xrd_data(s, two_theta_range=[0, 60])
         self.assertEqual(len(data), 18)
-        c.get_xrd_plot(structure)
 
 if __name__ == '__main__':
     unittest.main()
