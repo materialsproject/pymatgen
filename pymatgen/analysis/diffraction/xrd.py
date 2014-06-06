@@ -308,7 +308,7 @@ class XRDCalculator(object):
         """
         from pymatgen.util.plotting_utils import get_publication_quality_plot
         plt = get_publication_quality_plot(16, 10)
-        for two_theta, i, hkls in self.get_xrd_data(
+        for two_theta, i, hkls, d_hkl in self.get_xrd_data(
                 structure, two_theta_range=two_theta_range):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 label = ", ".join([str(hkl) for hkl in hkls.keys()])
