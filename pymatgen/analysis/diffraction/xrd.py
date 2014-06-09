@@ -201,7 +201,12 @@ class XRDCalculator(object):
         for site in structure:
             for sp, occu in site.species_and_occu.items():
                 zs.append(sp.Z)
-                c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
+                try:
+                    c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
+                except KeyError:
+                    raise ValueError("Unable to calculate XRD pattern as "
+                                     "there is no scattering coefficients for"
+                                     " %s." % sp.symbol)
                 coeffs.append(c)
                 fcoords.append(site.frac_coords)
                 occus.append(occu)
