@@ -47,9 +47,6 @@ class ZeoCssr(Cssr):
         structure: A structure to create ZeoCssr object
     """
 
-    # @requires(zeo_found,
-    #          "ZeoCssr requires Zeo++ cython extension to be installed. Please "
-    #          "contact developers of Zeo++ to obtain it.")
     def __init__(self, structure):
         super(ZeoCssr, self).__init__(structure)
 
@@ -218,6 +215,9 @@ class ZeoVoronoiXYZ(XYZ):
             ))
         return "\n".join(output)
 
+@requires(zeo_found,
+            "get_voronoi_nodes requires Zeo++ cython extension to be "
+            "installed. Please contact developers of Zeo++ to obtain it.")
 def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     Analyze the void space in the input structure using voronoi decomposition
