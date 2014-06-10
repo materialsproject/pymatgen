@@ -88,7 +88,7 @@ class Slab(Structure):
         new_sites = []
         for site in slab:
             if shift <= np.dot(site.coords, normal) < nlayers_slab * dist + \
-                    shift + 1e-8:
+                    shift:
                 new_sites.append(site)
         slab = Structure.from_sites(new_sites)
 
