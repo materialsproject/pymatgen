@@ -16,6 +16,7 @@ __date__ = "6/10/14"
 from fractions import gcd
 import math
 import numpy as np
+import itertools
 
 from pymatgen.core.structure import Structure
 
@@ -50,20 +51,36 @@ class Slab(Structure):
         normal = recp.get_cartesian_coords(miller_index)
         normal /= np.linalg.norm(normal)
 
+        surf_scale = []
+        non_orth_ind = []
+        eye = np.eye(3, dtype=np.int)
         dist = float('inf')
         for i in xrange(3):
             d = np.dot(normal, lattice.matrix[i])
-            if d < dist:
-                latt_index = i
-                dist = d
+            if d < 1e-8:
+                surf_scale.append(eye[i])
+            else:
+                non_orth_ind.append(i)
+                if d < dist:
+                    latt_index = i
+                    dist = d
+
+        lcm_index = lcm([i for i in miller_index if i != 0])
+        if len(non_orth_ind) > 1:
+            for i, j in itertools.combinations(non_orth_ind, 2):
+                l = [0, 0, 0]
+                l[i] = -int(round(lcm_index / miller_index[i]))
+                l[j] = int(round(lcm_index / miller_index[j]))
+                surf_scale.append(l)
+                if len(surf_scale) == 2:
+                    break
 
         nlayers = int(math.ceil((min_slab_size + min_vacuum_size) / dist))
+        surf_scale.append(eye[latt_index] * nlayers)
 
-        a, b, c = [int(round(lcm(miller_index) / i)) for i in miller_index]
         slab = Structure.from_sites(structure)
 
-        slab.make_supercell([[-a, 0, c], [0, -b, c],
-                             np.eye(3, dtype=np.int)[latt_index] * nlayers])
+        slab.make_supercell(surf_scale)
         new_sites = []
         for site in slab:
             if np.dot(site.coords, normal) <= min_slab_size:
@@ -75,6 +92,7 @@ class Slab(Structure):
         super(Structure, self).__init__(slab.lattice,
                                         slab.species_and_occu,
                                         slab.frac_coords)
+        self.normal = normal
 
 
 import unittest
@@ -92,10 +110,11 @@ class SlabTest(unittest.TestCase):
         ssize = 6
         vsize = 10
         s = Slab(self.cu, hkl, ssize, vsize)
-        #For visual debugging
+        # For visual debugging
         # from pymatgen import write_structure
+        # write_structure(s.parent, "cu.cif")
         # write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
-        #                 (str(hkl), ssize, vsize))
+        #                  (str(hkl), ssize, vsize))
 
 
 if __name__ == "__main__":
