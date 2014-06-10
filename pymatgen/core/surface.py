@@ -29,27 +29,56 @@ def lcm(numbers):
 
 
 class Slab(Structure):
+    """
+    Subclass of Structure representing a Slab. Implements additional
+    attributes pertaining to slabs.
+
+    .. attribute:: parent
+
+        Parent structure from which Slab was derived.
+
+    .. attribute:: min_slab_size
+
+        Minimum size in angstroms of layers containing atoms
+
+    .. attribute:: min_vac_size
+
+        Minimize size in angstroms of layers containing vacuum
+
+    .. attribute:: scale_factor
+
+        Final computed scale factor that brings the parent cell to the
+        surface cell.
+
+    .. attribute:: normal
+
+        Surface normal vector.
+    """
 
     def __init__(self, structure, miller_index, min_slab_size,
-                 min_vacuum_size, shift=0):
+                 min_vacuum_size, lll_reduce=True, shift=0):
         """
         Makes a Slab structure. Note that the code will make a slab with
-        whatever size that is specified, rounded upwards.
+        whatever size that is specified, rounded upwards. The a and b lattice
+        vectors are always in-plane, and the c lattice is always out of plane
+        (though not necessarily orthogonal).
 
         Args:
             structure (Structure): Initial input structure.
-            miller_index ([h, k, l]): Miller index of plane.
+            miller_index ([h, k, l]): Miller index of plane parallel to
+                surface. Note that this is referenced to the input structure. If
+                you need this to be based on the conventional cell,
+                you should supply the conventional structure.
             min_slab_size (float): In Angstroms
             min_vacuum_size (float): In Angstroms
+            lll_reduce (bool): Whether to perform an LLL reduction on the
+                eventual structure.
             shift (float): In Angstroms (shifting the origin)
         """
-        self.parent = structure
-        self.min_slab_size = min_slab_size
-        self.min_vac_size = min_vacuum_size
-        lattice = structure.lattice
+        latt = structure.lattice
 
         #Calculate the surface normal using the reciprocal lattice vector.
-        recp = lattice.reciprocal_lattice_crystallographic
+        recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
         normal /= np.linalg.norm(normal)
 
@@ -58,7 +87,7 @@ class Slab(Structure):
         eye = np.eye(3, dtype=np.int)
         dist = float('inf')
         for i in xrange(3):
-            d = np.dot(normal, lattice.matrix[i])
+            d = np.dot(normal, latt.matrix[i])
             if d < 1e-8:
                 surf_scale.append(eye[i])
             else:
@@ -92,12 +121,26 @@ class Slab(Structure):
                 new_sites.append(site)
         slab = Structure.from_sites(new_sites)
 
-        slab = slab.get_primitive_structure()
-        slab = slab.copy(sanitize=True)
-        super(Structure, self).__init__(slab.lattice,
-                                        slab.species_and_occu,
-                                        slab.frac_coords)
+        if lll_reduce:
+            lll_slab = slab.copy(sanitize=True)
+            mapping = lll_slab.lattice.find_mapping(slab.lattice)
+            surf_scale = np.dot(mapping[2], surf_scale)
+            slab = lll_slab
+
+        super(Structure, self).__init__(
+            slab.lattice, slab.species_and_occu, slab.frac_coords,
+            site_properties=slab.site_properties)
+
+        self.parent = structure
+        self.min_slab_size = min_slab_size
+        self.min_vac_size = min_vacuum_size
+        self.scale_factor = np.array(surf_scale)
         self.normal = normal
+
+    @property
+    def surface_area(self):
+        m = self.lattice.matrix
+        return np.linalg.norm(np.cross(m[0], m[1]))
 
 
 import unittest
@@ -111,15 +154,24 @@ class SlabTest(unittest.TestCase):
                              [0, 0.5, 0.5]])
 
     def test_init(self):
-        hkl = [1, 1, 1]
-        ssize = 6
-        vsize = 10
-        s = Slab(self.cu, hkl, ssize, vsize)
-        # For visual debugging
-        from pymatgen import write_structure
-        write_structure(s.parent, "cu.cif")
-        write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
-                         (str(hkl), ssize, vsize))
+        for hkl in itertools.product(xrange(4), xrange(4), xrange(4)):
+            if any(hkl):
+                ssize = 6
+                vsize = 10
+                s = Slab(self.cu, hkl, ssize, vsize)
+                if hkl == [0, 1, 1]:
+                    self.assertEqual(len(s), 13)
+                    self.assertAlmostEqual(s.surface_area, 12.727922061357855)
+                manual = self.cu.copy()
+                manual.make_supercell(s.scale_factor)
+                self.assertEqual(manual.lattice.lengths_and_angles,
+                                 s.lattice.lengths_and_angles)
+
+        # # For visual debugging
+        # from pymatgen import write_structure
+        # write_structure(s.parent, "cu.cif")
+        # write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
+        #                  (str(hkl), ssize, vsize))
 
 
 if __name__ == "__main__":
