@@ -77,9 +77,9 @@ class Slab(Structure):
                 if len(surf_scale) == 2:
                     break
 
-        nsurflayers = int(math.ceil(min_slab_size / dist))
-        nvaclayers = int(math.ceil(min_vacuum_size / dist))
-        nlayers = nsurflayers + nvaclayers
+        nlayers_slab = int(math.ceil(min_slab_size / dist))
+        nlayers_vac = int(math.ceil(min_vacuum_size / dist))
+        nlayers = nlayers_slab + nlayers_vac
         surf_scale.append(eye[latt_index] * nlayers)
 
         slab = Structure.from_sites(structure)
@@ -87,7 +87,7 @@ class Slab(Structure):
         slab.make_supercell(surf_scale)
         new_sites = []
         for site in slab:
-            if shift <= np.dot(site.coords, normal) <= nsurflayers * dist + \
+            if shift <= np.dot(site.coords, normal) < nlayers_slab * dist + \
                     shift + 1e-8:
                 new_sites.append(site)
         slab = Structure.from_sites(new_sites)
