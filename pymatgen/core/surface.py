@@ -30,7 +30,8 @@ def lcm(numbers):
 
 class Slab(Structure):
 
-    def __init__(self, structure, miller_index, min_slab_size, min_vacuum_size):
+    def __init__(self, structure, miller_index, min_slab_size,
+                 min_vacuum_size, shift=0):
         """
         Makes a Slab structure. Note that the code will make a slab with
         whatever size that is specified, rounded upwards.
@@ -40,6 +41,7 @@ class Slab(Structure):
             miller_index ([h, k, l]): Miller index of plane.
             min_slab_size (float): In Angstroms
             min_vacuum_size (float): In Angstroms
+            shift (float): In Angstroms (shifting the origin)
         """
         self.parent = structure
         self.min_slab_size = min_slab_size
@@ -75,7 +77,9 @@ class Slab(Structure):
                 if len(surf_scale) == 2:
                     break
 
-        nlayers = int(math.ceil((min_slab_size + min_vacuum_size) / dist))
+        nsurflayers = int(math.ceil(min_slab_size / dist))
+        nvaclayers = int(math.ceil(min_vacuum_size / dist))
+        nlayers = nsurflayers + nvaclayers
         surf_scale.append(eye[latt_index] * nlayers)
 
         slab = Structure.from_sites(structure)
@@ -83,7 +87,8 @@ class Slab(Structure):
         slab.make_supercell(surf_scale)
         new_sites = []
         for site in slab:
-            if np.dot(site.coords, normal) <= min_slab_size:
+            if shift <= np.dot(site.coords, normal) <= nsurflayers * dist + \
+                    shift + 1e-8:
                 new_sites.append(site)
         slab = Structure.from_sites(new_sites)
 
@@ -111,10 +116,10 @@ class SlabTest(unittest.TestCase):
         vsize = 10
         s = Slab(self.cu, hkl, ssize, vsize)
         # For visual debugging
-        # from pymatgen import write_structure
-        # write_structure(s.parent, "cu.cif")
-        # write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
-        #                  (str(hkl), ssize, vsize))
+        from pymatgen import write_structure
+        write_structure(s.parent, "cu.cif")
+        write_structure(s, "cu_slab_%s_%.3f_%.3f.cif" %
+                         (str(hkl), ssize, vsize))
 
 
 if __name__ == "__main__":
