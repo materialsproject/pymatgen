@@ -393,9 +393,11 @@ class AbinitFlow(Node):
             #todo
             info_msg = 'We encountered an abi critial envent that could not be fixed'
             print(info_msg)
-            if not self._waited:
+            try:
+                print('waited ', self._waited, ' cycles')
+            except AttributeError:
                 self._waited = 0
-            print('waited ', self._waited, ' cycles')
+                print('waited ', self._waited, ' cycles')
             for error in task.abi_errors:
                 print('trying to fix:')
                 print(error)
