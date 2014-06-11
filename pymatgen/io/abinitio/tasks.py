@@ -1600,6 +1600,7 @@ class Task(Node):
                 # Abinit reports problems
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
                 info_msg = str(report.errors) + str(report.bugs)
+                print(info_msg)
                 return self.set_status(self.S_ABICRITICAL, info_msg=info_msg)
                 # The job is unfixable due to ABINIT errors
             # 5)
