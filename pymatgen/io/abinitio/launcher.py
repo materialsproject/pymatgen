@@ -321,7 +321,6 @@ class PyLauncher(object):
         self.flow.check_status()
         self.flow.fix_queue_critical()
         self.flow.fix_abi_critical()
-        self.flow.fix_abi_critical()
         self.flow.pickle_dump()
 
         return num_launched

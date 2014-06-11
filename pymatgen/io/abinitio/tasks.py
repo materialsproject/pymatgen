@@ -1508,7 +1508,8 @@ class Task(Node):
 
         # 1) A locked task can only be unlocked by calling set_status explicitly.
         black_list = [self.S_LOCKED]
-        if self.status in black_list: return
+        if self.status in black_list:
+            return
 
         # 2) Check the returncode of the process (the process of submitting the job) first.
         # this point type of problem should also be handled by the scheduler error parser
@@ -1585,6 +1586,7 @@ class Task(Node):
 
         # 3) Start to check if the output file has been created.
         if self.output_file.exists:
+            print('output file found')
             report = self.get_event_report()
             if report.run_completed:
                 # Check if the calculation converged.
@@ -1606,15 +1608,15 @@ class Task(Node):
                 if self.qerr_file.exists and not err_msg:
                     # there is output and no errors
                     # Check if the run completed successfully.
-                    if report.run_completed:
-                        # Check if the calculation converged.
-                        not_ok = self.not_converged()
-                        if not_ok:
-                            return self.set_status(self.S_UNCONVERGED)
-                            # The job finished but did not converge
-                        else:
-                            return self.set_status(self.S_OK)
-                            # The job finished properly
+#                    if report.run_completed:
+#                        # Check if the calculation converged.
+#                        not_ok = self.not_converged()
+#                        if not_ok:
+#                            return self.set_status(self.S_UNCONVERGED)
+#                            # The job finished but did not converge
+#                        else:
+#                            return self.set_status(self.S_OK)
+#                            # The job finished properly
 
                     return self.set_status(self.S_RUN)
                     # The job still seems to be running
@@ -1638,15 +1640,17 @@ class Task(Node):
                 print(scheduler_parser.errors)
                 self.queue_errors = scheduler_parser.errors
                 return self.set_status(self.S_QUEUECRITICAL)
-                # The job is killed or crashed and we know what happend
+                # The job is killed or crashed and we know what happened
             else:
-                if err_info:
+                if len(err_info) > 0:
+                    print('found unknown que error:\n', err_info)
                     return self.set_status(self.S_ERROR, info_msg=err_info)
-                    # The job is killed or crashed but we don't know what happend
+                    # The job is killed or crashed but we don't know what happened
 
-        # 8) anlizing the err files and abinit output did not identify a problem
+        # 8) analizing the err files and abinit output did not identify a problem
         # but if the files are not empty we do have a problem but no way of solving it:
-        if err_info or err_msg:
+        if len(err_msg) > 0:
+            print('found error message:\n', err_msg)
             return self.set_status(self.S_ERROR, info_msg=err_info)
             # The job is killed or crashed but we don't know what happend
 
