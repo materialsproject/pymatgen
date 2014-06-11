@@ -1599,10 +1599,12 @@ class Task(Node):
             if report.errors or report.bugs:
                 if report.errors:
                     print('errors:')
-                    print(report.errors)
+                    for error in report.errors:
+                        print(error)
                 if report.bugs:
                     print('bugs:')
-                    print(report.bugs)
+                    for bug in report.bugs:
+                        print(bug)
                 # Abinit reports problems
                 logger.critical("%s: Found Errors or Bugs in ABINIT main output!" % self)
                 info_msg = str(report.errors) + str(report.bugs)
