@@ -1604,7 +1604,10 @@ class Task(Node):
                     print('errors:')
                     for error in report.errors:
                         print(error)
-                        self.abi_errors.append(error)
+                        try:
+                            self.abi_errors.append(error)
+                        except AttributeError:
+                            self.abi_errors = [error]
                 if report.bugs:
                     print('bugs:')
                     for bug in report.bugs:
