@@ -399,6 +399,7 @@ class AbinitFlow(Node):
             for error in task.abi_errors:
                 print('trying to fix:')
                 print(error)
+                print('by waiting for the phase of the moon to change a bit ... ')
             if self._waited > 3:
                 task.set_status(task.S_ERROR, info_msg)
             self._waited = self._waited + 1
