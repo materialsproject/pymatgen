@@ -392,6 +392,7 @@ class AbinitFlow(Node):
             info_msg = 'We encountered an abi critial envent that could not be fixed'
             print(info_msg)
             for error in task.abi_errors:
+                print('trying to fix:')
                 print(error)
             task.set_status(task.S_ERROR, info_msg)
 
