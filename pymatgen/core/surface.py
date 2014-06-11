@@ -83,38 +83,42 @@ class Slab(Structure):
         normal = recp.get_cartesian_coords(miller_index)
         normal /= np.linalg.norm(normal)
 
-        surf_scale = []
+        slab_scale_factor = []
         non_orth_ind = []
         eye = np.eye(3, dtype=np.int)
         dist = float('inf')
-        for i in xrange(3):
-            d = np.dot(normal, latt.matrix[i])
-            if d < 1e-8:
-                surf_scale.append(eye[i])
+        for i, j in enumerate(miller_index):
+            if j == 0:
+                # Lattice vector is perpendicular to surface normal, i.e.,
+                # in plane of surface. We will simply choose this lattice
+                # vector as one of the basis vectors.
+                slab_scale_factor.append(eye[i])
             else:
+                #Calculate projection of lattice vector onto surface normal.
+                d = abs(np.dot(normal, latt.matrix[i]))
                 non_orth_ind.append(i)
                 if d < dist:
                     latt_index = i
                     dist = d
 
-        lcm_index = lcm([i for i in miller_index if i != 0])
         if len(non_orth_ind) > 1:
+            lcm_miller = lcm([miller_index[i] for i in non_orth_ind])
             for i, j in itertools.combinations(non_orth_ind, 2):
                 l = [0, 0, 0]
-                l[i] = -int(round(lcm_index / miller_index[i]))
-                l[j] = int(round(lcm_index / miller_index[j]))
-                surf_scale.append(l)
-                if len(surf_scale) == 2:
+                l[i] = -int(round(lcm_miller / miller_index[i]))
+                l[j] = int(round(lcm_miller / miller_index[j]))
+                slab_scale_factor.append(l)
+                if len(slab_scale_factor) == 2:
                     break
 
         nlayers_slab = int(math.ceil(min_slab_size / dist))
         nlayers_vac = int(math.ceil(min_vacuum_size / dist))
         nlayers = nlayers_slab + nlayers_vac
-        surf_scale.append(eye[latt_index] * nlayers)
+        slab_scale_factor.append(eye[latt_index] * nlayers)
 
-        slab = Structure.from_sites(structure)
+        slab = structure.copy()
 
-        slab.make_supercell(surf_scale)
+        slab.make_supercell(slab_scale_factor)
         new_sites = []
         for site in slab:
             if shift <= np.dot(site.coords, normal) < nlayers_slab * dist + \
@@ -125,19 +129,19 @@ class Slab(Structure):
         if lll_reduce:
             lll_slab = slab.copy(sanitize=True)
             mapping = lll_slab.lattice.find_mapping(slab.lattice)
-            surf_scale = np.dot(mapping[2], surf_scale)
+            slab_scale_factor = np.dot(mapping[2], slab_scale_factor)
             slab = lll_slab
-
-        super(Structure, self).__init__(
-            slab.lattice, slab.species_and_occu, slab.frac_coords,
-            site_properties=slab.site_properties)
 
         self.parent = structure
         self.min_slab_size = min_slab_size
         self.min_vac_size = min_vacuum_size
-        self.scale_factor = np.array(surf_scale)
+        self.scale_factor = np.array(slab_scale_factor)
         self.normal = normal
         self.miller_index = miller_index
+
+        super(Structure, self).__init__(
+            slab.lattice, slab.species_and_occu, slab.frac_coords,
+            site_properties=slab.site_properties)
 
     @property
     def surface_area(self):
