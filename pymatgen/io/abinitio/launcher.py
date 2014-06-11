@@ -829,7 +829,7 @@ def get_running_jobs():
         import subprocess
         from subprocess import PIPE
         name = os.environ['LOGNAME']
-        cmd = ['squeue', '-u'+name]
+        cmd = ['qstat', '-u'+name]
         data = subprocess.Popen(cmd, stdout=PIPE).communicate()[0]
         n = len(data.splitlines()) - 1
     except OSError:
