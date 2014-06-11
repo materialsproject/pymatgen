@@ -76,7 +76,8 @@ class Slab(Structure):
             shift (float): In Angstroms (shifting the origin)
         """
         latt = structure.lattice
-
+        d = reduce(gcd, miller_index)
+        miller_index = [int(i / d) for i in miller_index]
         #Calculate the surface normal using the reciprocal lattice vector.
         recp = latt.reciprocal_lattice_crystallographic
         normal = recp.get_cartesian_coords(miller_index)
@@ -136,6 +137,7 @@ class Slab(Structure):
         self.min_vac_size = min_vacuum_size
         self.scale_factor = np.array(surf_scale)
         self.normal = normal
+        self.miller_index = miller_index
 
     @property
     def surface_area(self):
