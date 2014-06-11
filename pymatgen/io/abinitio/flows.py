@@ -391,6 +391,8 @@ class AbinitFlow(Node):
             #todo
             info_msg = 'We encountered an abi critial envent that could not be fixed'
             print(info_msg)
+            for error in task.abi_errors:
+                print(error)
             task.set_status(task.S_ERROR, info_msg)
 
     def fix_queue_critical(self):
