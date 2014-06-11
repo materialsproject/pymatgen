@@ -397,7 +397,6 @@ class AbinitFlow(Node):
                 print('waited ', self._waited, ' cycles')
             except AttributeError:
                 self._waited = 0
-                print('waited ', self._waited, ' cycles')
             for error in task.abi_errors:
                 print('trying to fix:')
                 print(error)
