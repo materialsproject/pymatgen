@@ -80,6 +80,8 @@ class AbinitFlow(Node):
         # List of workflows.
         self._works = []
 
+        self._waited = 0
+
         # List of callbacks that must be executed when the dependencies reach S_OK
         self._callbacks = []
 
@@ -391,10 +393,13 @@ class AbinitFlow(Node):
             #todo
             info_msg = 'We encountered an abi critial envent that could not be fixed'
             print(info_msg)
+            print('waited ', self._waited, ' cycles')
             for error in task.abi_errors:
                 print('trying to fix:')
                 print(error)
-            task.set_status(task.S_ERROR, info_msg)
+            if self._waited > 3:
+                task.set_status(task.S_ERROR, info_msg)
+            self._waited = self._waited + 1
 
     def fix_queue_critical(self):
         """
