@@ -390,6 +390,7 @@ class AbinitFlow(Node):
         for task in self.iflat_tasks(status='S_ABICRITICAL'):
             #todo
             info_msg = 'We encountered an abi critial envent that could not be fixed'
+            print(info_msg)
             task.set_status(task.S_ERROR, info_msg)
 
     def fix_queue_critical(self):
