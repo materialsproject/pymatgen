@@ -1134,6 +1134,9 @@ class Task(Node):
         # Number of restarts effectuated.
         self.num_restarts = 0
 
+        self.queue_errors = []
+        self.abi_errors = []
+
     def __getstate__(self):
         """
         Return state is pickled as the contents for the instance.
@@ -1601,6 +1604,7 @@ class Task(Node):
                     print('errors:')
                     for error in report.errors:
                         print(error)
+                        self.abi_errors.append(error)
                 if report.bugs:
                     print('bugs:')
                     for bug in report.bugs:
