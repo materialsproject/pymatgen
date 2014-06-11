@@ -1586,7 +1586,6 @@ class Task(Node):
 
         # 3) Start to check if the output file has been created.
         if self.output_file.exists:
-            print('output file found')
             report = self.get_event_report()
             if report.run_completed:
                 # Check if the calculation converged.
