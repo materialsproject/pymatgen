@@ -123,7 +123,7 @@ class XRDCalculator(object):
     # absences do not cancel exactly to zero.
     SCALED_INTENSITY_TOL = 1e-3
 
-    def __init__(self, wavelength="CuKa", symprec=0):
+    def __init__(self, wavelength="CuKa", symprec=0, debye_waller_factors=None):
         """
         Initializes the XRD calculator with a given radiation.
 
@@ -137,6 +137,8 @@ class XRDCalculator(object):
             symprec (float): Symmetry precision for structure refinement. If
                 set to 0, no refinement is done. Otherwise, refinement is
                 performed using spglib with provided precision.
+            debye_waller_factors ({element symbol: float}): Allows the
+                specification of Debye-Waller factors.
         """
         if isinstance(wavelength, float):
             self.wavelength = wavelength
@@ -144,6 +146,7 @@ class XRDCalculator(object):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
         self.symprec = symprec
+        self.debye_waller_factors = debye_waller_factors or {}
 
     def get_xrd_data(self, structure, scaled=True, two_theta_range=(0, 90)):
         """
@@ -197,6 +200,7 @@ class XRDCalculator(object):
         coeffs = []
         fcoords = []
         occus = []
+        dwfactors = []
 
         for site in structure:
             for sp, occu in site.species_and_occu.items():
@@ -208,6 +212,7 @@ class XRDCalculator(object):
                                      "there is no scattering coefficients for"
                                      " %s." % sp.symbol)
                 coeffs.append(c)
+                dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
                 fcoords.append(site.frac_coords)
                 occus.append(occu)
 
@@ -215,6 +220,7 @@ class XRDCalculator(object):
         coeffs = np.array(coeffs)
         fcoords = np.array(fcoords)
         occus = np.array(occus)
+        dwfactors = np.array(dwfactors)
         peaks = {}
         two_thetas = []
 
@@ -249,17 +255,20 @@ class XRDCalculator(object):
                 fs = zs - 41.78214 * s2 * np.sum(
                     coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
 
+                dw_correction = np.exp(-dwfactors * s2)
+
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
                 # Vectorized computation.
-                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r))
-
-                # Intensity for hkl is modulus square of structure factor.
-                i_hkl = (f_hkl * f_hkl.conjugate()).real
+                f_hkl = np.sum(fs * occus * np.exp(2j * pi * g_dot_r)
+                               * dw_correction)
 
                 #Lorentz polarization correction for hkl
                 lorentz_factor = (1 + cos(2 * theta) ** 2) / \
                     (sin(theta) ** 2 * cos(theta))
+
+                # Intensity for hkl is modulus square of structure factor.
+                i_hkl = (f_hkl * f_hkl.conjugate()).real
 
                 two_theta = degrees(2 * theta)
 
