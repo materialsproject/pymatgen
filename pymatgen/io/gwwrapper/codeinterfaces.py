@@ -325,7 +325,6 @@ class AbinitInterface(AbstractCodeInterface):
                 ecuteps = data.read_value('ecuteps')[0]
             else:
                 raise Exception
-            print data.read_value('sigma_nband'), type(data.read_value('sigma_nband'))
             if not isinstance(data.read_value('sigma_nband'), collections.Iterable):
                 sigma_nband = data.read_value('sigma_nband')
             elif not isinstance(data.read_value('sigma_nband')[0], collections.Iterable):
