@@ -560,7 +560,7 @@ class GWConvergenceData():
 
     def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
         xs = self.get_var_range(x_name)
-        print x_name, yname
+        print x_name, y_name
         print xs
         ys = []
         print self.get_data_array_2d(x_name, y_name)
