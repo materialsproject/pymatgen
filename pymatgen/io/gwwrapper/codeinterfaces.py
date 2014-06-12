@@ -21,6 +21,7 @@ __date__ = "May 2014"
 import os
 import shutil
 import os.path
+import collections
 
 from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.abinitio.netcdf import NetcdfReader
@@ -318,19 +319,19 @@ class AbinitInterface(AbstractCodeInterface):
             # return the gap at gamma
             data = NetcdfReader(gwrun)
             data.print_tree()
-            if isinstance(data.read_value('ecuteps'), float):
+            if not isinstance(data.read_value('ecuteps'), collections.Iterable):
                 ecuteps = data.read_value('ecuteps')
                 print ecuteps
-            elif isinstance(data.read_value('ecuteps')[0], float):
+            elif not isinstance(data.read_value('ecuteps')[0], collections.Iterable):
                 ecuteps = data.read_value('ecuteps')[0]
                 print ecuteps
             else:
                 raise Exception
             print data.read_value('sigma_nband'), type(data.read_value('sigma_nband'))
-            if isinstance(data.read_value('sigma_nband'), float):
+            if not isinstance(data.read_value('sigma_nband'), collections.Iterable):
                 sigma_nband = data.read_value('sigma_nband')
                 print sigma_nband
-            elif isinstance(data.read_value('sigma_nband')[0], float):
+            elif not isinstance(data.read_value('sigma_nband')[0], collections.Iterable):
                 sigma_nband = data.read_value('sigma_nband')[0]
                 print sigma_nband
             else:
