@@ -318,8 +318,8 @@ class AbinitInterface(AbstractCodeInterface):
             # return the gap at gamma
             data = NetcdfReader(gwrun)
             data.print_tree()
-            results = {'ecuteps': Ha_to_eV * data.read_value('ecuteps'),
-                       'nbands': data.read_value('sigma_nband'),
+            results = {'ecuteps': Ha_to_eV * data.read_value('ecuteps')[0],
+                       'nbands': data.read_value('sigma_nband')[0],
                        'gwgap': data.read_value('egwgap')[0][0]}
             data.close()
             return results
