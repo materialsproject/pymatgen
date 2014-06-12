@@ -138,7 +138,8 @@ class XRDCalculator(object):
                 set to 0, no refinement is done. Otherwise, refinement is
                 performed using spglib with provided precision.
             debye_waller_factors ({element symbol: float}): Allows the
-                specification of Debye-Waller factors.
+                specification of Debye-Waller factors. Note that these
+                factors are temperature dependent.
         """
         if isinstance(wavelength, float):
             self.wavelength = wavelength
