@@ -114,16 +114,16 @@ def exponential(x, a, b, n):
     import numpy as np
     if n < 1.000001:
         n = 1.000001
-        print n
+        #print n
     elif n > 1.2:
         n = 1.2
-        print n
+        #print n
     if b < -10:
         b = -10
-        print b
+        #print b
     elif b > 10:
         b = 10
-        print b
+        #print b
     #print a, b, x
     if isinstance(x, list):
         y_l = []
@@ -138,7 +138,7 @@ def exponential(x, a, b, n):
 
 
 def p0exp(xs, ys):
-    n0 = 1.01
+    n0 = 1.005
     # b0 = (n0 ** -xs[-1] - n0 ** -xs[0]) / (ys[-1] - ys[0])
     # a0 = ys[0] - b0 * n0 ** -xs[0]
 
