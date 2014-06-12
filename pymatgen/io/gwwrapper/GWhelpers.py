@@ -162,7 +162,10 @@ def test_conv(xs, ys, name, tol=0.0001):
             else:
                 conv = False
                 x_value = float('inf')
-        return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
+        if n_value is None:
+            return [conv, x_value, y_value, n_value, popt[0], None]
+        else:
+            return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
     else:
         return [conv, x_value, y_value, n_value, popt[0], None]
 
