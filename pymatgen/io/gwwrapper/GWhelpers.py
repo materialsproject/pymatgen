@@ -83,8 +83,8 @@ def reciprocal(x, a, b, n):
     reciprocal function to the power n to fit convergence data
     """
     import numpy as np
-    if n < 0.5:
-        n = 0.5
+    if n < 1:
+        n = 1
     elif n > 5:
         n = 5
     #print a, b, x
@@ -98,6 +98,34 @@ def reciprocal(x, a, b, n):
     #print y
     #print type(y)
     return y
+
+
+def exponential(x, a, b, n):
+    """
+    exponential function base n to fit convergence data
+    """
+    import numpy as np
+    if n < 1:
+        n = 1
+    elif n > 3:
+        n = 3
+    #print a, b, x
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / x_v ** n)
+        y = np.array(y_l)
+    else:
+        y = a + b / x ** n
+    #print y
+    #print type(y)
+    return y
+
+
+def p0exp(xs, ys):
+    b0 = (2 ** xs[-1] - 2 ** xs[0]) / (ys[-1] - ys[0])
+    a0 = ys[0] - b0 * 2 ** xs[0]
+    return [a0, b0, 2]
 
 
 def double_reciprocal(x, a, b, c):
@@ -142,7 +170,7 @@ def test_conv(xs, ys, name, tol=0.0001):
             import numpy as np
             from scipy.optimize import curve_fit
             if None not in ys:
-                popt, pcov = curve_fit(double_reciprocal, xs, ys, p0reci(xs, ys))
+                popt, pcov = curve_fit(exponential, xs, ys, p0exp(xs, ys))
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
                 f.write('{')
@@ -153,8 +181,9 @@ def test_conv(xs, ys, name, tol=0.0001):
                     f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
                 f.write(']}\n')
                 f.close()
-                print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
-                print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
+               # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
+              #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
+                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** x, "'+name+'.convdat"'
                 f = open(name+'.convdat', mode='a')
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
