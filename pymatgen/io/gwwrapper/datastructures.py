@@ -353,7 +353,7 @@ class GWSpecs(AbstractAbinitioSpec):
                         break
                     extrapolated = data.find_conv_pars(self['tol'])
                     #print data.get_data_array_2d('ecut', 'max')
-                    if data.find_conv_pars_scf('ecut', 'max', self['tol']/100)[0]:
+                    if data.find_conv_pars_scf('ecut', 'full_width', self['tol']/100)[0]:
                         print '| parm_scr type calculation, converged scf values found'
                         print data.conv_res
                     # if converged ok, if not increase the grid parameter of the next set of calculations
@@ -566,6 +566,7 @@ class GWConvergenceData():
         print xs
         print ys
         conv_data = test_conv(xs, ys, name=self.name, tol=tol,)
+        print conv_data
         self.conv_res['control'].update({x_name: conv_data[0]})
         self.conv_res['values'].update({x_name: conv_data[1]})
         self.conv_res['derivatives'].update({x_name: conv_data[5]})
