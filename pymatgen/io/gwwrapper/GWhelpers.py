@@ -123,8 +123,8 @@ def exponential(x, a, b, n):
 
 
 def p0exp(xs, ys):
-    b0 = (2 ** xs[-1] - 2 ** xs[0]) / (ys[-1] - ys[0])
-    a0 = ys[0] - b0 * 2 ** xs[0]
+    b0 = (2 ** -xs[-1] - 2 ** -xs[0]) / (ys[-1] - ys[0])
+    a0 = ys[0] - b0 * 2 ** -xs[0]
     return [a0, b0, 2]
 
 
