@@ -184,8 +184,8 @@ def test_conv(xs, ys, name, tol=0.0001):
                 f.close()
                # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
-                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, "'+name+'.convdat."', counter
-                f = open(name+'.convdat'+str(counter), mode='a')
+                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, convdat."', counter
+                f = open('convdat.'+str(counter), mode='w')
                 counter += 1
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
