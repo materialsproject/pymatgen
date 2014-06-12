@@ -560,6 +560,8 @@ class GWConvergenceData():
 
     def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
         xs = self.get_var_range(x_name)
+        print x_name, yname
+        print xs
         ys = []
         print self.get_data_array_2d(x_name, y_name)
         for x in xs:
@@ -633,7 +635,7 @@ class GWConvergenceData():
     def get_data_array_2d(self, x_name, y_name):
         data_array = {}
         for k in self.data:
-            print k
+            print k, x_name, y_name
             print self.data[k]
             try:
                 data_array.update({self.data[k][x_name]: self.data[k][y_name]})
