@@ -113,10 +113,10 @@ def exponential(x, a, b, n):
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v ** n)
+            y_l.append(a + b * n ** -x_v)
         y = np.array(y_l)
     else:
-        y = a + b / x ** n
+        y = a + b * n ** -x
     #print y
     #print type(y)
     return y
@@ -183,7 +183,7 @@ def test_conv(xs, ys, name, tol=0.0001):
                 f.close()
                # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
-                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** x, "'+name+'.convdat"'
+                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, "'+name+'.convdat"'
                 f = open(name+'.convdat', mode='a')
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
