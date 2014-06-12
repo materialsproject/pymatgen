@@ -318,8 +318,8 @@ class AbinitInterface(AbstractCodeInterface):
             # return the gap at gamma
             data = NetcdfReader(gwrun)
             data.print_tree()
-            results = {'ecuteps': Ha_to_eV * data.read_value('ecuteps')[0],
-                       'nbands': data.read_value('sigma_nband')[0],
+            results = {'ecuteps': Ha_to_eV * data.read_value('ecuteps'),
+                       'nbands': data.read_value('sigma_nband'),
                        'gwgap': data.read_value('egwgap')[0][0]}
             data.close()
             return results
@@ -328,7 +328,7 @@ class AbinitInterface(AbstractCodeInterface):
             data = NetcdfReader(scfruneig)
             out = NetcdfReader(scfrunout)
             if data.read_value('Eigenvalues')[0][0][-1] < 2.0:  # bad way to select only the scf results ..
-                results = {'ecut': Ha_to_eV * out.read_value('ecut'),
+                results = {'ecut': Ha_to_eV * out.read_value('ecut')[0],
                            'min': data.read_value('Eigenvalues')[0][0][0]*Ha_to_eV,
                            'max': data.read_value('Eigenvalues')[0][0][-1]*Ha_to_eV,
                            'full_width:': (data.read_value('Eigenvalues')[0][0][-1] - data.read_value('Eigenvalues')[0][0][0])*Ha_to_eV}
