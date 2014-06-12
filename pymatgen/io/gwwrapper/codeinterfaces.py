@@ -320,14 +320,18 @@ class AbinitInterface(AbstractCodeInterface):
             data.print_tree()
             if isinstance(data.read_value('ecuteps'), float):
                 ecuteps = data.read_value('ecuteps')
+                print ecuteps
             elif isinstance(data.read_value('ecuteps')[0], float):
                 ecuteps = data.read_value('ecuteps')[0]
+                print ecuteps
             else:
                 raise Exception
             if isinstance(data.read_value('sigma_nband'), int):
                 sigma_nband = data.read_value('sigma_nband')
+                print sigma_nband
             elif isinstance(data.read_value('sigma_nband')[0], int):
                 sigma_nband = data.read_value('sigma_nband')[0]
+                print sigma_nband
             else:
                 raise Exception
             gwgap = data.read_value('egwgap')[0][0]
