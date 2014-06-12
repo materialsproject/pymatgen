@@ -100,6 +100,24 @@ def reciprocal(x, a, b, n):
     return y
 
 
+def double_reciprocal(x, a, b, c):
+    """
+    reciprocal function to the power n to fit convergence data
+    """
+    import numpy as np
+    #print a, b, x
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / x_v + c / x_v ** 2)
+        y = np.array(y_l)
+    else:
+        y = a + b / x + c / x ** 2
+    #print y
+    #print type(y)
+    return y
+
+
 def p0reci(xs, ys):
     """
     predictor for first guess for reciprocal
@@ -124,7 +142,7 @@ def test_conv(xs, ys, name, tol=0.0001):
             import numpy as np
             from scipy.optimize import curve_fit
             if None not in ys:
-                popt, pcov = curve_fit(reciprocal, xs, ys, p0reci(xs, ys))
+                popt, pcov = curve_fit(double_reciprocal, xs, ys, p0reci(xs, ys))
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
                 f.write('{')
