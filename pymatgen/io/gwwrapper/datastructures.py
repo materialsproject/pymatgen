@@ -560,16 +560,11 @@ class GWConvergenceData():
 
     def find_conv_pars_scf(self, x_name, y_name, tol=0.0001):
         xs = self.get_var_range(x_name)
-        print x_name, y_name
-        print xs
         ys = []
         print self.get_data_array_2d(x_name, y_name)
         for x in xs:
             ys.append(self.get_data_array_2d(x_name, y_name)[x])
-        print xs
-        print ys
         conv_data = test_conv(xs, ys, name=self.name, tol=tol,)
-        print conv_data
         self.conv_res['control'].update({x_name: conv_data[0]})
         self.conv_res['values'].update({x_name: conv_data[1]})
         self.conv_res['derivatives'].update({x_name: conv_data[5]})
@@ -635,8 +630,6 @@ class GWConvergenceData():
     def get_data_array_2d(self, x_name, y_name):
         data_array = {}
         for k in self.data:
-            print k, x_name, y_name
-            print self.data[k]
             try:
                 data_array.update({self.data[k][x_name]: self.data[k][y_name]})
             except KeyError:
