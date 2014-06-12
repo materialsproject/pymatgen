@@ -327,10 +327,10 @@ class AbinitInterface(AbstractCodeInterface):
             else:
                 raise Exception
             print data.read_value('sigma_nband')
-            if isinstance(data.read_value('sigma_nband'), (int, float)):
+            if isinstance(data.read_value('sigma_nband'), float):
                 sigma_nband = data.read_value('sigma_nband')
                 print sigma_nband
-            elif isinstance(data.read_value('sigma_nband')[0], (int, float)):
+            elif isinstance(data.read_value('sigma_nband')[0], float):
                 sigma_nband = data.read_value('sigma_nband')[0]
                 print sigma_nband
             else:
