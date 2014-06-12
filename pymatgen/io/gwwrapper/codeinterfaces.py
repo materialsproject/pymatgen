@@ -326,7 +326,7 @@ class AbinitInterface(AbstractCodeInterface):
                 print ecuteps
             else:
                 raise Exception
-            print data.read_value('sigma_nband')
+            print data.read_value('sigma_nband'), type(data.read_value('sigma_nband'))
             if isinstance(data.read_value('sigma_nband'), float):
                 sigma_nband = data.read_value('sigma_nband')
                 print sigma_nband
