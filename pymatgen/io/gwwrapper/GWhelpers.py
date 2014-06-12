@@ -83,10 +83,10 @@ def reciprocal(x, a, b, n):
     reciprocal function to the power n to fit convergence data
     """
     import numpy as np
-    if n < 1:
-        n = 1
-    elif n > 4:
-        n = 4
+    if n < 0.5:
+        n = 0.5
+    elif n > 5:
+        n = 5
     #print a, b, x
     if isinstance(x, list):
         y_l = []
