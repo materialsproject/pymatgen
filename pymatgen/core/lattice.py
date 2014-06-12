@@ -351,9 +351,7 @@ class Lattice(MSONable):
         Returns the *crystallographic* reciprocal lattice, i.e., no factor of
         2 * pi.
         """
-        v = [np.cross(self._matrix[(i + 1) % 3], self._matrix[(i + 2) % 3])
-             for i in xrange(3)]
-        return Lattice(np.array(v) / self.volume)
+        return Lattice(self.reciprocal_lattice.matrix / (2 * np.pi))
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
