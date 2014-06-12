@@ -318,9 +318,25 @@ class AbinitInterface(AbstractCodeInterface):
             # return the gap at gamma
             data = NetcdfReader(gwrun)
             data.print_tree()
-            results = {'ecuteps': Ha_to_eV * data.read_value('ecuteps'),
-                       'nbands': data.read_value('sigma_nband'),
-                       'gwgap': data.read_value('egwgap')[0][0]}
+            if isinstance(data.read_value('ecuteps'), float):
+                ecuteps = data.read_value('ecuteps')
+            elif isinstance(data.read_value('ecuteps')[0], float):
+                ecuteps = data.read_value('ecuteps')[0]
+            else:
+                raise Exception
+            if isinstance(data.read_value('sigma_nband'), int):
+                sigma_nband = data.read_value('sigma_nband')
+            elif isinstance(data.read_value('sigma_nband')[0], int):
+                sigma_nband = data.read_value('sigma_nband')[0]
+            else:
+                raise Exception
+            gwgap = data.read_value('egwgap')[0][0]
+            if not isinstance(gwgap, float):
+                raise Exception
+            print ecuteps, sigma_nband, gwgap
+            results = {'ecuteps': Ha_to_eV * ecuteps,
+                       'nbands': sigma_nband,
+                       'gwgap': gwgap}
             data.close()
             return results
         if os.path.isfile(scfruneig):
