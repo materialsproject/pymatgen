@@ -101,9 +101,9 @@ static int get_stabilized_reciprocal_mesh(int grid_address[][3],
 					  SPGCONST int rotations[][3][3],
 					  const int num_q,
 					  SPGCONST double qpoints[][3]);
-static int get_triplets_reciprocal_mesh_at_q(int weights[],
+static int get_triplets_reciprocal_mesh_at_q(int map_triplets[],
+					     int map_q[],
 					     int grid_address[][3],
-					     int third_q[],
 					     const int grid_point,
 					     const int mesh[3],
 					     const int is_time_reversal,
@@ -517,6 +517,52 @@ int spg_get_stabilized_reciprocal_mesh(int grid_address[][3],
 					qpoints);
 }
 
+void spg_get_grid_points_by_rotations(int rot_grid_points[],
+				      const int address_orig[3],
+				      const int num_rot,
+				      SPGCONST int rot_reciprocal[][3][3],
+				      const int mesh[3],
+				      const int is_shift[3])
+{
+  int i;
+  MatINT *rot;
+
+  rot = mat_alloc_MatINT(num_rot);
+  for (i = 0; i < num_rot; i++) {
+    mat_copy_matrix_i3(rot->mat[i], rot_reciprocal[i]);
+  }
+  kpt_get_grid_points_by_rotations(rot_grid_points,
+				   address_orig,
+				   rot,
+				   mesh,
+				   is_shift);
+  mat_free_MatINT(rot);
+}
+
+void spg_get_BZ_grid_points_by_rotations(int rot_grid_points[],
+					 const int address_orig[3],
+					 const int num_rot,
+					 SPGCONST int rot_reciprocal[][3][3],
+					 const int mesh[3],
+					 const int is_shift[3],
+					 const int bz_map[])
+{
+  int i;
+  MatINT *rot;
+
+  rot = mat_alloc_MatINT(num_rot);
+  for (i = 0; i < num_rot; i++) {
+    mat_copy_matrix_i3(rot->mat[i], rot_reciprocal[i]);
+  }
+  kpt_get_BZ_grid_points_by_rotations(rot_grid_points,
+				      address_orig,
+				      rot,
+				      mesh,
+				      is_shift,
+				      bz_map);
+  mat_free_MatINT(rot);
+}
+
 int spg_relocate_BZ_grid_address(int bz_grid_address[][3],
 				 int bz_map[],
 				 SPGCONST int grid_address[][3],
@@ -532,18 +578,18 @@ int spg_relocate_BZ_grid_address(int bz_grid_address[][3],
 				      is_shift);
 }
 
-int spg_get_triplets_reciprocal_mesh_at_q(int weights[],
+int spg_get_triplets_reciprocal_mesh_at_q(int map_triplets[],
+					  int map_q[],
 					  int grid_address[][3],
-					  int third_q[],
 					  const int grid_point,
 					  const int mesh[3],
 					  const int is_time_reversal,
 					  const int num_rot,
 					  SPGCONST int rotations[][3][3])
 {
-  return get_triplets_reciprocal_mesh_at_q(weights,
+  return get_triplets_reciprocal_mesh_at_q(map_triplets,
+					   map_q,
 					   grid_address,
-					   third_q,
 					   grid_point,
 					   mesh,
 					   is_time_reversal,
@@ -555,15 +601,16 @@ int spg_get_BZ_triplets_at_q(int triplets[][3],
 			     const int grid_point,
 			     SPGCONST int bz_grid_address[][3],
 			     const int bz_map[],
-			     const int triplet_weights[],
+			     const int map_triplets[],
+			     const int num_map_triplets,
 			     const int mesh[3])
-
 {
   return kpt_get_BZ_triplets_at_q(triplets,
 				  grid_point,
 				  bz_grid_address,
 				  bz_map,
-				  triplet_weights,
+				  map_triplets,
+				  num_map_triplets,
 				  mesh);
 }
 
@@ -592,6 +639,13 @@ spg_get_tetrahedra_relative_grid_address(int relative_grid_address[24][4][3],
 					 SPGCONST double rec_lattice[3][3])
 {
   thm_get_relative_grid_address(relative_grid_address, rec_lattice);
+}
+
+void
+spg_get_all_tetrahedra_relative_grid_address
+(int relative_grid_address[4][24][4][3])
+{
+  thm_get_all_relative_grid_address(relative_grid_address);
 }
 
 double
@@ -1074,9 +1128,9 @@ static int get_stabilized_reciprocal_mesh(int grid_address[][3],
   return num_ir;
 }
 
-static int get_triplets_reciprocal_mesh_at_q(int weights[],
+static int get_triplets_reciprocal_mesh_at_q(int map_triplets[],
+					     int map_q[],
 					     int grid_address[][3],
-					     int third_q[],
 					     const int grid_point,
 					     const int mesh[3],
 					     const int is_time_reversal,
@@ -1091,9 +1145,9 @@ static int get_triplets_reciprocal_mesh_at_q(int weights[],
     mat_copy_matrix_i3(rot_real->mat[i], rotations[i]);
   }
 
-  num_ir = kpt_get_ir_triplets_at_q(weights,
+  num_ir = kpt_get_ir_triplets_at_q(map_triplets,
+				    map_q,
 				    grid_address,
-				    third_q,
 				    grid_point,
 				    mesh,
 				    is_time_reversal,
