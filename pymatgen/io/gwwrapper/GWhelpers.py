@@ -105,8 +105,8 @@ def exponential(x, a, b, n):
     exponential function base n to fit convergence data
     """
     import numpy as np
-    if n < 1:
-        n = 1
+    if n < 1.01:
+        n = 1.01
     elif n > 3:
         n = 3
     #print a, b, x
@@ -123,7 +123,7 @@ def exponential(x, a, b, n):
 
 
 def p0exp(xs, ys):
-    n0 = 1.1
+    n0 = 1.2
     b0 = (n0 ** -xs[-1] - n0 ** -xs[0]) / (ys[-1] - ys[0])
     a0 = ys[0] - b0 * n0 ** -xs[0]
     return [a0, b0, n0]
