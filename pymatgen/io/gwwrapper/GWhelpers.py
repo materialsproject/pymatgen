@@ -179,7 +179,7 @@ def test_conv(xs, ys, name, tol=0.0001):
             import numpy as np
             from scipy.optimize import curve_fit
             if None not in ys:
-                popt, pcov = curve_fit(exponential, xs, ys, p0exp(xs, ys))
+                popt, pcov = curve_fit(exponential, xs, ys, p0exp(xs, ys), maxfev=8000)
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
                 f.write('{')
@@ -193,7 +193,7 @@ def test_conv(xs, ys, name, tol=0.0001):
                # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
                 id = id_generator()
-                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, ' 'convdat'+id
+                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, ' 'convdat.'+id
                 f = open('convdat.'+str(id), mode='w')
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
