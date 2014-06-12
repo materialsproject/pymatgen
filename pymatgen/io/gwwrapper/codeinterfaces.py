@@ -321,19 +321,15 @@ class AbinitInterface(AbstractCodeInterface):
             data.print_tree()
             if not isinstance(data.read_value('ecuteps'), collections.Iterable):
                 ecuteps = data.read_value('ecuteps')
-                print ecuteps
             elif not isinstance(data.read_value('ecuteps')[0], collections.Iterable):
                 ecuteps = data.read_value('ecuteps')[0]
-                print ecuteps
             else:
                 raise Exception
             print data.read_value('sigma_nband'), type(data.read_value('sigma_nband'))
             if not isinstance(data.read_value('sigma_nband'), collections.Iterable):
                 sigma_nband = data.read_value('sigma_nband')
-                print sigma_nband
             elif not isinstance(data.read_value('sigma_nband')[0], collections.Iterable):
                 sigma_nband = data.read_value('sigma_nband')[0]
-                print sigma_nband
             else:
                 raise Exception
             gwgap = data.read_value('egwgap')[0][0]
@@ -350,7 +346,14 @@ class AbinitInterface(AbstractCodeInterface):
             data = NetcdfReader(scfruneig)
             out = NetcdfReader(scfrunout)
             if data.read_value('Eigenvalues')[0][0][-1] < 2.0:  # bad way to select only the scf results ..
-                results = {'ecut': Ha_to_eV * out.read_value('ecut')[0],
+                if not isinstance(out.read_value('ecut'), collections.Iterable):
+                    ecut = out.read_value('ecut')
+                elif not isinstance(out.read_value('ecut')[0], collections.Iterable):
+                    ecut = out.read_value('ecut')[0]
+                else:
+                    raise Exception
+                print ecut
+                results = {'ecut': Ha_to_eV * ecut,
                            'min': data.read_value('Eigenvalues')[0][0][0]*Ha_to_eV,
                            'max': data.read_value('Eigenvalues')[0][0][-1]*Ha_to_eV,
                            'full_width:': (data.read_value('Eigenvalues')[0][0][-1] - data.read_value('Eigenvalues')[0][0][0])*Ha_to_eV}
