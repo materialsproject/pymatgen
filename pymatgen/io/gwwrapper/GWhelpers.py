@@ -31,6 +31,13 @@ def now():
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
 
+import string
+import random
+
+
+def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
 
 def s_name(structure):
     name_ = str(structure.composition.reduced_formula) #+ '_' + str(structure.item)
@@ -184,9 +191,9 @@ def test_conv(xs, ys, name, tol=0.0001):
                 f.close()
                # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
-                counter = now()
-                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, convdat."', counter
-                f = open('convdat.'+str(counter), mode='w')
+                id = id_generator()
+                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, convdat."', id
+                f = open('convdat.'+str(id), mode='w')
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
                 f.write('\n')
