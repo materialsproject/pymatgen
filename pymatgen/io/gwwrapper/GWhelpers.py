@@ -123,9 +123,9 @@ def exponential(x, a, b, n):
 
 
 def p0exp(xs, ys):
-    b0 = (2 ** -xs[-1] - 2 ** -xs[0]) / (ys[-1] - ys[0])
-    a0 = ys[0] - b0 * 2 ** -xs[0]
-    return [a0, b0, 2]
+    b0 = (1.5 ** -xs[-1] - 1.5 ** -xs[0]) / (ys[-1] - ys[0])
+    a0 = ys[0] - b0 * 1.5 ** -xs[0]
+    return [a0, b0, 1.5]
 
 
 def double_reciprocal(x, a, b, c):
