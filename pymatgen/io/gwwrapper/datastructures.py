@@ -633,6 +633,8 @@ class GWConvergenceData():
     def get_data_array_2d(self, x_name, y_name):
         data_array = {}
         for k in self.data:
+            print k
+            print self.data[k]
             try:
                 data_array.update({self.data[k][x_name]: self.data[k][y_name]})
             except KeyError:
