@@ -334,7 +334,6 @@ class AbinitInterface(AbstractCodeInterface):
             gwgap = data.read_value('egwgap')[0][0]
             if not isinstance(gwgap, float):
                 raise Exception
-            print ecuteps, sigma_nband, gwgap
             results = {'ecuteps': Ha_to_eV * ecuteps,
                        'nbands': sigma_nband,
                        'gwgap': gwgap}
@@ -351,7 +350,6 @@ class AbinitInterface(AbstractCodeInterface):
                     ecut = out.read_value('ecut')[0]
                 else:
                     raise Exception
-                print ecut
                 results = {'ecut': Ha_to_eV * ecut,
                            'min': data.read_value('Eigenvalues')[0][0][0]*Ha_to_eV,
                            'max': data.read_value('Eigenvalues')[0][0][-1]*Ha_to_eV,
