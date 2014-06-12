@@ -112,10 +112,18 @@ def exponential(x, a, b, n):
     exponential function base n to fit convergence data
     """
     import numpy as np
-    if n < 1.00001:
-        n = 1.00001
+    if n < 1.000001:
+        n = 1.000001
+        print n
     elif n > 1.2:
         n = 1.2
+        print n
+    if b < -10:
+        b = -10
+        print b
+    elif b > 10:
+        b = 10
+        print b
     #print a, b, x
     if isinstance(x, list):
         y_l = []
