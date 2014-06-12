@@ -111,6 +111,7 @@ def exponential(x, a, b, n):
     """
     exponential function base n to fit convergence data
     """
+    print n
     import numpy as np
     if n < 1.001:
         n = 1.001
@@ -192,7 +193,7 @@ def test_conv(xs, ys, name, tol=0.0001):
                # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
                 id = id_generator()
-                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, convdat."', id
+                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], ' ** -x, ' 'convdat'+id
                 f = open('convdat.'+str(id), mode='w')
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
