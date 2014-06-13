@@ -199,6 +199,10 @@ class OutcarTest(unittest.TestCase):
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
 
+    def test_core_state_eigen(self):
+        filepath = os.path.join(test_dir, "OUTCAR.CL")
+        cl = Outcar(filepath).read_core_state_eigen()
+        self.assertAlmostEqual(cl[6]["2s"][-1], -174.4779)
 
 class OszicarTest(unittest.TestCase):
 
