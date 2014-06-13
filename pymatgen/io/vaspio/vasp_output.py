@@ -1147,7 +1147,7 @@ class Outcar(object):
 
     One can then call a specific reader depending on the type of run being
     performed. These are currently: read_igpar(), read_lepsilon() and
-    read_lcalcpol().
+    read_lcalcpol(), read_core_state_eign().
 
     See the documentation of those methods for more documentation.
 
@@ -1482,6 +1482,40 @@ class Outcar(object):
 
         except:
             raise Exception("CLACLCPOL OUTCAR could not be parsed.")
+
+    def read_core_state_eigen(self):
+        """ 
+        Read the core state eigenenergies at each ionic step.
+
+        Returns:
+            A list of dict over the atom such as [{"AO":[core state eig]}].
+            The core state eigenenergie list for each AO is over all ionic
+            step.
+
+        Example:
+            The core state eigenenergie of the 2s AO of the 6th atom of the
+            structure at the last ionic step is [5]["2s"][-1]
+        """
+
+        Natom = len(self.charge)
+        CL = [dict() for i in range(Natom)]
+
+        foutcar = zopen(self.filename, "r")
+        line = foutcar.readline()
+        while line != "":
+            line = foutcar.readline()
+
+            if "the core state eigen" in line:
+                for iat in range(Natom):
+                    line = foutcar.readline()
+                    data = line.split()[1:]
+                    for i in range(0, len(data), 2):
+                        if CL[iat].has_key(data[i]):
+                            CL[iat][data[i]].append(float(data[i+1]))
+                        else:
+                            CL[iat][data[i]] = [float(data[i+1])]
+
+        return CL
 
     @property
     def to_dict(self):
