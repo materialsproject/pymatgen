@@ -64,6 +64,13 @@ class ValenceIonicRadiusEvaluator(object):
     @property
     def structure(self):
         """
+        Returns oxidation state decorated structurel.
+        """
+        return self._structure
+
+    @property
+    def structure(self):
+        """
         Structure used for initialization
         """
         return self._structure
@@ -199,6 +206,12 @@ class Defect(object):
         """
         return self._defect_sites[n]
 
+    def get_defectsite_multiplicity(self, n):
+        """
+        Returns the symmtric multiplicity of the defect site at the index.
+        """
+        return self._defect_site_multiplicity[n]
+
     def get_defectsite_coordination_number(self, n):
         """
         Coordination number of interstitial site.
@@ -261,8 +274,10 @@ class Vacancy(Defect):
         equiv_site_seq = symm_structure.equivalent_sites
 
         self._defect_sites = []
+        self._defect_site_multiplicity = []
         for equiv_sites in equiv_site_seq:
             self._defect_sites.append(equiv_sites[0])
+            self._defect_site_multiplicity.append(len(equiv_sites))
 
         self._vac_site_indices = []
         for site in self._defect_sites:
@@ -420,9 +435,11 @@ class Vacancy(Defect):
                                       sc.lattice,
                                       properties=defect_site.properties)
         for i in range(len(sc.sites)):
-            if sc_defect_site == sc.sites[i]:
+            #if sc_defect_site == sc.sites[i]:
+            if sc_defect_site.distance(sc.sites[i]) < 1e-3:
                 del sc[i]
                 return sc
+        raise ValueError('Something wrong if reached here')
 
     def make_supercells_with_defects(self, scaling_matrix):
         """
@@ -500,7 +517,7 @@ class Interstitial(Defect):
     """
 
     def __init__(self, structure, valences, radii, site_type='voronoi_vertex',
-                 accuracy='Normal', symmetry_flag=True):
+                 accuracy='Normal', symmetry_flag=True, oxi_state = False):
         """
         Given a structure, generate symmetrically distinct interstitial sites.
 
@@ -514,18 +531,30 @@ class Interstitial(Defect):
                 Default is "voronoi_vertex"
             accuracy: Flag denoting whether to use high accuracy version 
                 of Zeo++. Options are "Normal" and "High". Default is normal.
+            symmetry_flag: If True, only returns symmetrically distinct sites
+            oxi_state: If False, input structure is considered devoid of 
+                oxidation-state decoration. And oxi-state for each site is 
+                determined. Use True, if input structure is oxi-state 
+                decorated. This option is useful when the structure is 
+                not electro-neutral after deleting/adding sites. In that
+                case oxi-decorate the structure before deleting/adding the
+                sites.
         """
-        try:
-            bv = BVAnalyzer()
-            self._structure = bv.get_oxi_state_decorated_structure(structure)
-        except:
+        if not oxi_state:
             try:
-                bv = BVAnalyzer(symm_tol=0.0)
+                bv = BVAnalyzer()
                 self._structure = bv.get_oxi_state_decorated_structure(
-                        structure
-                        )
+                        structure)
             except:
-                raise
+                try:
+                    bv = BVAnalyzer(symm_tol=0.0)
+                    self._structure = bv.get_oxi_state_decorated_structure(
+                            structure)
+                except:
+                    raise
+        else:
+            self._structure = structure
+
         self._valence_dict = valences
         self._rad_dict = radii
 
