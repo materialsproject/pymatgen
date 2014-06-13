@@ -9,7 +9,7 @@ env:
 before_install:
   - pip install -Iv https://bitbucket.org/jamesrhester/pycifrw/downloads/PyCifRW-3.6.1.tar.gz
 # command to install dependencies
-install: "pip install -r requirements.txt --use-mirrors"
+install: "pip install -r requirements-travis.txt"
 # This is needed, otherwise, nosetests can't find the installed pymatgen C
 # extensions.
 before_script:

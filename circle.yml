@@ -1,3 +1,6 @@
+machine:
+  timezone:
+    America/Los_Angeles
 dependencies:
   override:
     - pip install -q numpy
