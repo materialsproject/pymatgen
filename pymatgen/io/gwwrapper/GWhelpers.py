@@ -186,14 +186,13 @@ def multy_curve_fit(xs, ys):
     for function in functions:
         popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000)
         perr = max(np.sqrt(np.diag(pcov)))
-        print pcov
-        print np.sqrt(np.diag(pcov))
-        print function, perr
+        print 'pcov:\n', pcov
+        print 'diag:\n', np.sqrt(np.diag(pcov))
+        print 'function:\n', function, perr
         fit_results.update({function: {'perr': perr, 'popt': popt, 'pcov': pcov}})
         for f in fit_results:
             if fit_results[f]['perr'] < best[1]:
                 best = f, fit_results[f]['perr']
-    print fit_results, best
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
@@ -224,7 +223,9 @@ def test_conv(xs, ys, name, tol=0.0001):
                 #perr = np.sqrt(np.diag(pcov))
                 #print perr
                 popt, pcov, func = multy_curve_fit(xs, ys)
-
+                print popt
+                print pcov
+                print func
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
                 f.write('{')
