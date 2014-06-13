@@ -199,10 +199,10 @@ def multy_curve_fit(xs, ys):
 def print_plot_line(function, popt, xs, ys):
     idp = id_generator()
     f = open('convdat.'+str(idp), mode='w')
-                for n in range(0, len(ys), 1):
-                    f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
-                f.write('\n')
-                f.close()
+    for n in range(0, len(ys), 1):
+        f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
+        f.write('\n')
+        f.close()
     if function is exponential:
         print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
     elif function is reciprocal:
