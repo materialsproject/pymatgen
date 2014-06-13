@@ -191,7 +191,7 @@ def multy_curve_fit(xs, ys):
         print 'function:\n', function, perr
         fit_results.update({function: {'perr': perr, 'popt': popt, 'pcov': pcov}})
         for f in fit_results:
-            if fit_results[f]['perr'] < best[1]:
+            if fit_results[f]['perr'] <= best[1]:
                 best = f, fit_results[f]['perr']
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
