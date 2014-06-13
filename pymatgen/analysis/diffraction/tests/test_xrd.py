@@ -75,5 +75,19 @@ class XRDCalculatorTest(unittest.TestCase):
         data = c.get_xrd_data(s, two_theta_range=[0, 60])
         self.assertEqual(len(data), 18)
 
+        #Test with and without Debye-Waller factor
+        tungsten = Structure(Lattice.cubic(3.1653), ["W"] * 2,
+                             [[0, 0, 0], [0.5, 0.5, 0.5]])
+        data = c.get_xrd_data(tungsten, scaled=False)
+        self.assertAlmostEqual(data[0][0], 40.294828554672264)
+        self.assertAlmostEqual(data[0][1], 2414237.5633093244)
+        self.assertAlmostEqual(data[0][3], 2.2382050944897789)
+        c = XRDCalculator(debye_waller_factors={"W": 0.1526})
+        data = c.get_xrd_data(tungsten, scaled=False)
+        self.assertAlmostEqual(data[0][0], 40.294828554672264)
+        self.assertAlmostEqual(data[0][1], 2377745.2296686019)
+        self.assertAlmostEqual(data[0][3], 2.2382050944897789)
+
+
 if __name__ == '__main__':
     unittest.main()
