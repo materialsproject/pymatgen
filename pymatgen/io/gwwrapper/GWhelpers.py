@@ -196,8 +196,13 @@ def multy_curve_fit(xs, ys):
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
-def print_plot_line(function, popt):
+def print_plot_line(function, popt, xs, ys):
     idp = id_generator()
+    f = open('convdat.'+str(idp), mode='w')
+                for n in range(0, len(ys), 1):
+                    f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
+                f.write('\n')
+                f.close()
     if function is exponential:
         print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
     elif function is reciprocal:
@@ -236,16 +241,12 @@ def test_conv(xs, ys, name, tol=0.0001):
                     f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
                 f.write(']}\n')
                 f.close()
-                print_plot_line(func[0], popt)
+                print_plot_line(func[0], popt, xs, ys)
               # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
               #  id = id_generator()
               #  print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+id+"'"
-                f = open('convdat.'+str(id), mode='w')
-                for n in range(0, len(ys), 1):
-                    f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
-                f.write('\n')
-                f.close()
+
         except ImportError:
             popt, pcov = None, None
         for n in range(0, len(ds), 1):
