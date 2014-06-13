@@ -173,6 +173,12 @@ def p0reci(xs, ys):
     return [a0, b0, 1]
 
 
+def multy_curve_fit(xs, ys):
+    popt = 0
+    pcov = 0
+    return popt, pcov
+
+
 def test_conv(xs, ys, name, tol=0.0001):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
