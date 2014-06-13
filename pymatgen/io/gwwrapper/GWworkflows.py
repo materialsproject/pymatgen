@@ -134,7 +134,8 @@ class SingleAbinitGWWorkFlow():
              'response_model': {'test_range': RESPONSE_MODELS, 'method': 'direct', 'control': 'gap', 'level': 'screening'}}
     # scf level test are run independently, the last value will be used in the nscf and sigma tests
     #'test': {'test_range': (1, 2, 3), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
-    CONVS = {'ecut': {'test_range': (36, 32, 28, 24, 20), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
+    CONVS = {#'ecut': {'test_range': (36, 32, 28, 24, 20), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
+             'ecut': {'test_range': (44, 40, 36, 32, 28), 'method': 'direct', 'control': "e_ks_max", 'level': "scf"},
              'ecuteps': {'test_range': (4, 8, 12, 16, 20), 'method': 'direct', 'control': "gap", 'level': "sigma"},
              'nscf_nbands': {'test_range': (5, 15, 25, 35, 45), 'method': 'set_bands', 'control': "gap", 'level': "nscf"}}
 
