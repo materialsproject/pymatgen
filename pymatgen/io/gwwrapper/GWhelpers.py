@@ -155,26 +155,30 @@ def p0_exponential(xs, ys):
     return [a0, b0, n0]
 
 
-def double_reciprocal(x, a, b, c):
+def single_reciprocal(x, a, b, c):
     """
-    reciprocal function to the power n to fit convergence data
+    reciprocal function to fit convergence data
     """
     import numpy as np
     #print a, b, x
     if isinstance(x, list):
         y_l = []
         for x_v in x:
-            y_l.append(a + b / x_v + c / x_v ** 2)
+            y_l.append(a + b / (x_v - c))
         y = np.array(y_l)
     else:
-        y = a + b / x + c / x ** 2
+        y = a + b / (x - c)
     #print y
     #print type(y)
     return y
 
 
+def p0_single_reciprocal(xs, ys):
+    pass
+
+
 def multy_curve_fit(xs, ys):
-    functions = {exponential: p0_exponential, reciprocal: p0_reciprocal()}
+    functions = {exponential: p0_exponential, reciprocal: p0_reciprocal}
     import numpy as np
     from scipy.optimize import curve_fit
     fit_results = {}
