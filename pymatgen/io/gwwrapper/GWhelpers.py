@@ -107,6 +107,15 @@ def reciprocal(x, a, b, n):
     return y
 
 
+def p0_reciprocal(xs, ys):
+    """
+    predictor for first guess for reciprocal
+    """
+    a0 = ys[len(ys) - 1]
+    b0 = ys[0]*xs[0] - a0*xs[0]
+    return [a0, b0, 1]
+
+
 def exponential(x, a, b, n):
     """
     exponential function base n to fit convergence data
@@ -137,7 +146,7 @@ def exponential(x, a, b, n):
     return y
 
 
-def p0exp(xs, ys):
+def p0_exponential(xs, ys):
     n0 = 1.005
     b0 = (n0 ** -xs[-1] - n0 ** -xs[0]) / (ys[-1] - ys[0])
     a0 = ys[0] - b0 * n0 ** -xs[0]
@@ -164,19 +173,22 @@ def double_reciprocal(x, a, b, c):
     return y
 
 
-def p0reci(xs, ys):
-    """
-    predictor for first guess for reciprocal
-    """
-    a0 = ys[len(ys) - 1]
-    b0 = ys[0]*xs[0] - a0*xs[0]
-    return [a0, b0, 1]
-
-
 def multy_curve_fit(xs, ys):
-    popt = 0
-    pcov = 0
-    return popt, pcov
+    functions = {exponential: p0_exponential, reciprocal: p0_reciprocal()}
+    import numpy as np
+    from scipy.optimize import curve_fit
+    fit_results = {}
+    best = ['', np.inf()]
+    for function in functions:
+        popt, pcov = curve_fit(function, xs, ys, functions[exponential], maxfev=8000)
+        perr = np.sqrt(np.diag(pcov))
+        print function, perr
+        fit_results.update({function: {'perr': perr, 'popt': popt, 'pcov': pcov}})
+        for f in fit_results:
+            if fit_results[f]['perr'] < best[0]:
+                best = f, fit_results[f]['perr']
+    print fit_results, best
+    return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov']
 
 
 def test_conv(xs, ys, name, tol=0.0001):
@@ -194,7 +206,11 @@ def test_conv(xs, ys, name, tol=0.0001):
             import numpy as np
             from scipy.optimize import curve_fit
             if None not in ys:
-                popt, pcov = curve_fit(exponential, xs, ys, p0exp(xs, ys), maxfev=8000)
+                #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
+                #perr = np.sqrt(np.diag(pcov))
+                #print perr
+                popt, pcov = multy_curve_fit(xs, ys)
+
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
                 f.write('{')
