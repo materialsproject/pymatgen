@@ -184,7 +184,7 @@ def multy_curve_fit(xs, ys):
     fit_results = {}
     best = ['', np.inf]
     for function in functions:
-        popt, pcov = curve_fit(function, xs, ys, functions[exponential], maxfev=8000)
+        popt, pcov = curve_fit(function, xs, ys, functions[function], maxfev=8000)
         perr = np.sqrt(np.diag(pcov))
         print function, perr
         fit_results.update({function: {'perr': perr, 'popt': popt, 'pcov': pcov}})
