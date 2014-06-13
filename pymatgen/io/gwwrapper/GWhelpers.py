@@ -202,7 +202,7 @@ def print_plot_line(function, popt, xs, ys):
     for n in range(0, len(ys), 1):
         f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
         f.write('\n')
-        f.close()
+    f.close()
     if function is exponential:
         print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
     elif function is reciprocal:
@@ -237,10 +237,10 @@ def test_conv(xs, ys, name, tol=0.0001):
                 f.write('"popt": ' + str(popt) + ', ')
                 f.write('"pcov": ' + str(pcov) + ', ')
                 f.write('"data": [')
-                for n in range(0, len(ys), 1):
-                    f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
-                f.write(']}\n')
-                f.close()
+              #  for n in range(0, len(ys), 1):
+              #      f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
+              #  f.write(']}\n')
+              #  f.close()
                 print_plot_line(func[0], popt, xs, ys)
               # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
