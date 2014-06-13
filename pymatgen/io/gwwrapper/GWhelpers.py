@@ -182,7 +182,7 @@ def multy_curve_fit(xs, ys):
     import numpy as np
     from scipy.optimize import curve_fit
     fit_results = {}
-    best = ['', np.inf()]
+    best = ['', np.inf]
     for function in functions:
         popt, pcov = curve_fit(function, xs, ys, functions[exponential], maxfev=8000)
         perr = np.sqrt(np.diag(pcov))
