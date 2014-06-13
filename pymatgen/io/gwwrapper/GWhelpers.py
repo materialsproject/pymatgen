@@ -185,11 +185,13 @@ def multy_curve_fit(xs, ys):
     best = ['', np.inf]
     for function in functions:
         popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000)
-        perr = np.sqrt(np.diag(pcov))
+        perr = max(np.sqrt(np.diag(pcov)))
+        print pcov
+        print np.sqrt(np.diag(pcov))
         print function, perr
         fit_results.update({function: {'perr': perr, 'popt': popt, 'pcov': pcov}})
         for f in fit_results:
-            if max(fit_results[f]['perr']) < max(best[0]):
+            if fit_results[f]['perr'] < best[1]:
                 best = f, fit_results[f]['perr']
     print fit_results, best
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
