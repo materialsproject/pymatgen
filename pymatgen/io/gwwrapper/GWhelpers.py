@@ -189,10 +189,18 @@ def multy_curve_fit(xs, ys):
         print function, perr
         fit_results.update({function: {'perr': perr, 'popt': popt, 'pcov': pcov}})
         for f in fit_results:
-            if fit_results[f]['perr'] < best[0]:
+            if max(fit_results[f]['perr']) < max(best[0]):
                 best = f, fit_results[f]['perr']
     print fit_results, best
-    return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov']
+    return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
+
+
+def print_plot_line(function, popt):
+    idp = id_generator()
+    if function is exponential:
+        print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
+    elif function is reciprocal:
+        print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+idp+"'"
 
 
 def test_conv(xs, ys, name, tol=0.0001):
@@ -213,7 +221,7 @@ def test_conv(xs, ys, name, tol=0.0001):
                 #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
                 #perr = np.sqrt(np.diag(pcov))
                 #print perr
-                popt, pcov = multy_curve_fit(xs, ys)
+                popt, pcov, func = multy_curve_fit(xs, ys)
 
                 # todo print this to file via a method in helper, as dict
                 f = open(name+'.fitdat', mode='a')
@@ -225,10 +233,11 @@ def test_conv(xs, ys, name, tol=0.0001):
                     f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
                 f.write(']}\n')
                 f.close()
-               # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
+                print_plot_line(func[0], popt)
+              # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
-                id = id_generator()
-                print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+id+"'"
+              #  id = id_generator()
+              #  print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+id+"'"
                 f = open('convdat.'+str(id), mode='w')
                 for n in range(0, len(ys), 1):
                     f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
