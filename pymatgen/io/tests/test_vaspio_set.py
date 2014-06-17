@@ -2,7 +2,7 @@
 
 import unittest
 import os
-from numpy import array
+import numpy as np
 
 from pymatgen.io.vaspio_set import MITVaspInputSet, MITHSEVaspInputSet, \
     MPVaspInputSet, MITGGAVaspInputSet, MITNEBVaspInputSet,\
@@ -74,6 +74,17 @@ class MITMPVaspInputSetTest(unittest.TestCase):
         syms = MPVaspInputSet(sort_structure=False).get_potcar_symbols(struct)
         self.assertEquals(syms, ['P', 'Fe_pv', 'O'])
 
+    def test_lda_potcar(self):
+        coords = list()
+        coords.append([0, 0, 0])
+        coords.append([0.75, 0.5, 0.75])
+        lattice = Lattice([[3.8401979337, 0.00, 0.00],
+                           [1.9200989668, 3.3257101909, 0.00],
+                           [0.00, -2.2171384943, 3.1355090603]])
+        struct = Structure(lattice, ["P", "Fe"], coords)
+        p = MITVaspInputSet(potcar_functional="LDA").get_potcar(struct)
+        self.assertEqual(p.functional, 'LDA')
+
     def test_get_incar(self):
         incar = self.paramset.get_incar(self.struct)
 
@@ -116,11 +127,11 @@ class MITMPVaspInputSetTest(unittest.TestCase):
 
         si = 14
         coords = list()
-        coords.append(array([0, 0, 0]))
-        coords.append(array([0.75, 0.5, 0.75]))
+        coords.append(np.array([0, 0, 0]))
+        coords.append(np.array([0.75, 0.5, 0.75]))
 
         #Silicon structure for testing.
-        latt = Lattice(array([[3.8401979337, 0.00, 0.00],
+        latt = Lattice(np.array([[3.8401979337, 0.00, 0.00],
                               [1.9200989668, 3.3257101909, 0.00],
                               [0.00, -2.2171384943, 3.1355090603]]))
         struct = Structure(latt, [si, si], coords)
@@ -336,6 +347,19 @@ class MITNEBVaspInputSetTest(unittest.TestCase):
         d = self.vis.to_dict
         v = dec.process_decoded(d)
         self.assertEqual(v.incar_settings["IMAGES"], 10)
+
+    def test_write_inputs(self):
+        c1 = [[0.5] * 3, [0.9] * 3]
+        c2 = [[0.5] * 3, [0.9, 0.1, 0.1]]
+        s1 = Structure(Lattice.cubic(5), ['Si', 'Si'], c1)
+        s2 = Structure(Lattice.cubic(5), ['Si', 'Si'], c2)
+        structs = []
+        for s in s1.interpolate(s2, 3, pbc=True):
+            structs.append(Structure.from_sites(s.sites,
+                                        to_unit_cell=True))
+
+        fc = self.vis._process_structures(structs)[2].frac_coords
+        self.assertTrue(np.allclose(fc, [[0.5]*3,[0.9, 1.033333, 1.0333333]]))
 
 
 if __name__ == '__main__':

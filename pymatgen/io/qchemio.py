@@ -179,8 +179,8 @@ class QcTask(MSONable):
                 return True
 
     def set_basis_set(self, basis_set):
-        if isinstance(basis_set, str):
-            self.params["rem"]["basis"] = basis_set.lower()
+        if isinstance(basis_set, str) or isinstance(basis_set, unicode):
+            self.params["rem"]["basis"] = str(basis_set).lower()
         elif isinstance(basis_set, dict):
             self.params["rem"]["basis"] = "gen"
             bs = dict()
@@ -200,6 +200,8 @@ class QcTask(MSONable):
                     raise ValueError("Basis set error: the molecule "
                                      "doesn't contain element " +
                                      ", ".join(basis_elements - mol_elements))
+        else:
+            raise Exception('Can\'t handle type "{}"'.format(type(basis_set)))
 
     def set_auxiliary_basis_set(self, aux_basis_set):
         if isinstance(aux_basis_set, str):
@@ -1205,8 +1207,21 @@ class QcOutput(object):
                             raise Exception("Gradient section parsing failed")
                     grad_comp = []
                 else:
+                    grad_line_token = list(line)
+                    grad_crowd = False
+                    grad_line_final = line
+                    for i in range(5, len(line), 12):
+                        c = grad_line_token[i]
+                        if not c.isspace():
+                            grad_crowd = True
+                            if ' ' in grad_line_token[i+1: i+6+1] or \
+                                    len(grad_line_token[i+1: i+6+1]) < 6:
+                                continue
+                            grad_line_token[i-1] = ' '
+                    if grad_crowd:
+                        grad_line_final = ''.join(grad_line_token)
                     grad_comp.append([float(x) for x
-                                      in line.strip().split()[1:]])
+                                      in grad_line_final.strip().split()[1:]])
             elif parse_freq:
                 if parse_modes:
                     if "TransDip" in line:
@@ -1281,7 +1296,8 @@ class QcOutput(object):
                     parse_input = True
                 elif "Standard Nuclear Orientation (Angstroms)" in line:
                     parse_coords = True
-                elif "Cycle       Energy         DIIS Error" in line:
+                elif "Cycle       Energy         DIIS Error" in line\
+                        or "Cycle       Energy        RMS Gradient" in line:
                     parse_scf_iter = True
                     scf_iters.append([])
                     scf_successful = False

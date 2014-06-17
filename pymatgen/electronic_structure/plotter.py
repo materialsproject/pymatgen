@@ -693,7 +693,7 @@ class BSPlotterProjected(BSPlotter):
         proj_br = []
         print len(proj[Spin.up])
         print len(proj[Spin.up][0])
-        for c in proj[Spin.up][20]:
+        for c in proj[Spin.up][0]:
             print c
         for b in self._bs._branches:
 

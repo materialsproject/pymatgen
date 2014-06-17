@@ -137,8 +137,6 @@ class MPResterTest(unittest.TestCase):
     def test_get_structures(self):
         structs = self.rester.get_structures("Mn3O4")
         self.assertTrue(len(structs) > 0)
-        for s in structs:
-            self.assertEqual(s.composition.reduced_formula, "Mn3O4")
 
     def test_get_entries(self):
         entries = self.rester.get_entries("TiO2")

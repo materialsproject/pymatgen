@@ -33,7 +33,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.physical_constants import BOLTZMANN_CONST
 from pymatgen.core.design_patterns import Enum
 from pymatgen.core.structure import Structure
-from pymatgen.core.periodic_table import Element
+from pymatgen.core.periodic_table import Element, get_el_sp
 from monty.design_patterns import cached_class
 from pymatgen.util.string_utils import str_aligned, str_delimited
 from pymatgen.util.io_utils import clean_lines
@@ -186,6 +186,7 @@ class Poscar(MSONable):
                     try:
                         potcar = Potcar.from_file(os.path.join(dirname, f))
                         names = [sym.split("_")[0] for sym in potcar.symbols]
+                        map(get_el_sp, names) #ensure that the names are valid
                     except:
                         names = None
         with zopen(filename, "r") as f:
@@ -825,7 +826,7 @@ class Kpoints(MSONable):
                        kpts_shift=shift)
 
     @staticmethod
-    def automatic_density(structure, kppa):
+    def automatic_density(structure, kppa, force_gamma=False):
         """
         Returns an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and
@@ -838,6 +839,8 @@ class Kpoints(MSONable):
         Args:
             structure (Structure): Input structure
             kppa (int): Grid density
+            force_gamma (bool): Force a gamma centered mesh (default is to
+                use gamma only for hexagonal cells)
 
         Returns:
             Kpoints
@@ -853,25 +856,14 @@ class Kpoints(MSONable):
         #ensure that numDiv[i] > 0
         num_div = [i if i > 0 else 1 for i in num_div]
 
-        angles = latt.angles
-        hex_angle_tol = 5  # in degrees
-        hex_length_tol = 0.01  # in angstroms
-        right_angles = [i for i in xrange(3)
-                        if abs(angles[i] - 90) < hex_angle_tol]
-        hex_angles = [i for i in xrange(3)
-                      if abs(angles[i] - 60) < hex_angle_tol or
-                      abs(angles[i] - 120) < hex_angle_tol]
-
-        is_hexagonal = (len(right_angles) == 2 and len(hex_angles) == 1
-                        and abs(lengths[right_angles[0]] -
-                                lengths[right_angles[1]]) < hex_length_tol)
+        is_hexagonal = latt.is_hexagonal()
 
         # VASP documentation recommends to use even grids for n <= 8 and odd
         # grids for n > 8.
         num_div = [i + i % 2 if i <= 8 else i - i % 2 + 1 for i in num_div]
 
         has_odd = any([i % 2 == 1 for i in num_div])
-        if has_odd or is_hexagonal:
+        if has_odd or is_hexagonal or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
             style = Kpoints.supported_modes.Monkhorst

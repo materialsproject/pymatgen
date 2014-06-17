@@ -330,8 +330,11 @@ class Lattice(MSONable):
     @property
     def reciprocal_lattice(self):
         """
-        Return the reciprocal lattice. The property is lazily generated for
-        efficiency.
+        Return the reciprocal lattice. Note that this is the standard
+        reciprocal lattice used for solid state physics with a factor of 2 *
+        pi. If you are looking for the crystallographic reciprocal lattice,
+        use the reciprocal_lattice_crystallographic property.
+        The property is lazily generated for efficiency.
         """
         try:
             return self._reciprocal_lattice
@@ -341,6 +344,14 @@ class Lattice(MSONable):
             self._reciprocal_lattice = Lattice(np.array(v) * 2 * np.pi /
                                                self.volume)
             return self._reciprocal_lattice
+
+    @property
+    def reciprocal_lattice_crystallographic(self):
+        """
+        Returns the *crystallographic* reciprocal lattice, i.e., no factor of
+        2 * pi.
+        """
+        return Lattice(self.reciprocal_lattice.matrix / (2 * np.pi))
 
     def __repr__(self):
         f = lambda x: "%0.6f" % x
@@ -914,3 +925,15 @@ class Lattice(MSONable):
         distances = np.min(d_2, axis=2) ** 0.5
 
         return distances
+
+    def is_hexagonal(self, hex_angle_tol=5, hex_length_tol=0.01):
+        lengths, angles = self.lengths_and_angles
+        right_angles = [i for i in xrange(3)
+                        if abs(angles[i] - 90) < hex_angle_tol]
+        hex_angles = [i for i in xrange(3)
+                      if abs(angles[i] - 60) < hex_angle_tol or
+                         abs(angles[i] - 120) < hex_angle_tol]
+
+        return (len(right_angles) == 2 and len(hex_angles) == 1
+                and abs(lengths[right_angles[0]] -
+                        lengths[right_angles[1]]) < hex_length_tol)
