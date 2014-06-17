@@ -528,8 +528,8 @@ class MagOrderingTransformation(AbstractTransformation):
         except ValueError:
             num_to_return = 1
 
-        if num_to_return == 1:
-            return alls[0]["structure"]
+        if num_to_return == 1 or not return_ranked_list:
+            return alls[0]["structure"] if num_to_return else alls
 
         m = StructureMatcher(comparator=SpinComparator())
 
