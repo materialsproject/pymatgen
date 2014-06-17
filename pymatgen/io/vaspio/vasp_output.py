@@ -1707,9 +1707,22 @@ class VolumetricData(object):
 
         f = zopen(file_name, "w")
         p = Poscar(self.structure)
-        f.write(p.get_string(vasp4_compatible=vasp4_compatible) + "\n")
+
+        lines = p.comment + "\n"
+        lines += "   1.00000000000000\n"
+        latt = self.structure.lattice.matrix
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[0,:])
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[1,:])
+        lines += " %12.6f%12.6f%12.6f\n" % tuple(latt[2,:])
+        if not vasp4_compatible:
+            lines += "".join(["%5s" % s for s in p.site_symbols]) + "\n"
+        lines += "".join(["%6d" % x for x in p.natoms]) + "\n"
+        lines += "Direct\n"
+        for site in self.structure:
+            lines += "%10.6f%10.6f%10.6f\n" % tuple(site.frac_coords)
+        lines += "\n"
+        f.write(lines)
         a = self.dim
-        f.write("\n")
 
         def write_spin(data_type):
             lines = []
