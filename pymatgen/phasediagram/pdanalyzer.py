@@ -18,12 +18,11 @@ import numpy as np
 import itertools
 import collections
 
-from pyhull.convex_hull import ConvexHull
 from pyhull.simplex import Simplex
 
 from pymatgen.core.composition import Composition
 from pymatgen.phasediagram.pdmaker import PhaseDiagram, \
-    GrandPotentialPhaseDiagram
+    GrandPotentialPhaseDiagram, get_facets
 from pymatgen.analysis.reaction_calculator import Reaction
 
 
@@ -337,7 +336,7 @@ class PDAnalyzer(object):
         chempot_ranges = collections.defaultdict(list)
         vertices = [[i for i in range(len(self._pd.elements))]]
         if len(all_chempots) > len(self._pd.elements):
-            vertices = ConvexHull(all_chempots, joggle=True).vertices
+            vertices = get_facets(all_chempots)
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
