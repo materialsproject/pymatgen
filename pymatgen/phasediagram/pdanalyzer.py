@@ -337,7 +337,7 @@ class PDAnalyzer(object):
         chempot_ranges = collections.defaultdict(list)
         vertices = [[i for i in range(len(self._pd.elements))]]
         if len(all_chempots) > len(self._pd.elements):
-            vertices = ConvexHull(all_chempots).vertices
+            vertices = ConvexHull(all_chempots, joggle=True).vertices
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
