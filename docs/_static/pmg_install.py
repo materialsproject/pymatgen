@@ -133,11 +133,15 @@ except ImportError:
     subprocess.call(["pip", "install", "-q", "numpy>=1.6.0"])
     from numpy.distutils.misc_util import get_numpy_include_dirs
 
-for pk in ["pyhull>=1.3.6", "PyCifRW>=3.3", "requests>=1.0", "pybtex>=0.16"]:
+for pk in ["pyhull>=1.3.6", "pyyaml", "PyCifRW>=3.3", "requests>=1.0",
+           "pybtex>=0.16"]:
     print("Installing {}".format(pk))
-    if subprocess.call(["pip", "install", "-q", pk]) != 0:
-        print("Error installing required dependency {}".format(pk))
-        sys.exit(-1)
+    ret = subprocess.call(["pip", "install", "-q", pk])
+    if ret != 0:
+        ret = subprocess.call(["easy_install", pk])
+        if ret != 0:
+            print("Error installing required dependency {}".format(pk))
+            sys.exit(-1)
     print
 
 if subprocess.call(["pip", "install", "pymatgen"]) != 0:

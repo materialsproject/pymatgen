@@ -516,10 +516,10 @@ class PourbaixPlotter(object):
                 if bc and hc:
                     bbox = dict(boxstyle="round", hatch=hc, fc=fc)
 #                 bbox.set_path_effects([PathEffects.withSimplePatchShadow()])
-#                 plt.annotate(latexify_ion(latexify(entry)), xy_center,
-#                               color=fc, fontsize=30, bbox=bbox)
-                plt.annotate(label_chr[i], xy_center,
-                              color=bc, fontsize=30, bbox=bbox)
+                plt.annotate(latexify_ion(latexify(entry)), xy_center,
+                            color=bc, fontsize=30, bbox=bbox)
+#                 plt.annotate(label_chr[i], xy_center,
+#                               color=bc, fontsize=30, bbox=bbox)
 
         lw = 3
         plt.plot(h_line[0], h_line[1], "r--", linewidth=lw)

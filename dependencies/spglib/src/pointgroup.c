@@ -370,11 +370,15 @@ int ptg_get_pointgroup_number_by_rotations(SPGCONST int rotations[][3][3],
 
 Pointgroup ptg_get_pointgroup(const int pointgroup_number)
 {
+  int i;
   Pointgroup pointgroup;
   PointgroupType pointgroup_type;
   
   pointgroup_type = pointgroup_data[ pointgroup_number ];
   strcpy(pointgroup.symbol, pointgroup_type.symbol);
+  for (i = 0; i < 5; i++) {
+    if (pointgroup.symbol[i] == ' ') {pointgroup.symbol[i] = '\0';}
+  }
   pointgroup.holohedry = pointgroup_type.holohedry;
   pointgroup.laue = pointgroup_type.laue;
 
@@ -1041,6 +1045,7 @@ static int laue_one_axis(int axes[3],
   num_ortho_axis = get_orthogonal_axis(ortho_axes, prop_rot, rot_order);
   if (! num_ortho_axis) { goto err; }
 
+  tmp_axes[1] = -1;
   tmp_axes[2] = axes[2];
   min_det = 4;
   is_found = 0;
@@ -1074,6 +1079,8 @@ static int laue_one_axis(int axes[3],
   }
 
  err: /* axes are not correctly found. */
+  warning_print("spglib: Secondary axis is not found.");
+  warning_print("(line %d, %s).\n", __LINE__, __FILE__);
   return 0;
 
  end:
