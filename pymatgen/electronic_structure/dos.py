@@ -383,6 +383,30 @@ class CompleteDos(Dos):
         return {el: Dos(self.efermi, self.energies, densities)
                 for el, densities in el_dos.items()}
 
+    def get_element_spd_dos(self, el):
+        """
+        Get element and spd projected Dos
+
+        Args:
+            el: Element in Structure.composition associated with CompleteDos
+
+        Returns:
+            dict of {Element: {"S": densities, "P": densities, "D": densities}}
+        """
+
+        el_dos = dict()
+        for site, atom_dos in self.pdos.items():
+            if site.specie == el:
+                for orb, pdos in atom_dos.items():
+                    orbital_type = orb.orbital_type
+                    if orbital_type not in el_dos:
+                        el_dos[orbital_type] = pdos
+                    else:
+                        el_dos[orbital_type] = \
+                            add_densities(el_dos[orbital_type], pdos)
+
+        return el_dos
+
     @classmethod
     def from_dict(cls, d):
         """
