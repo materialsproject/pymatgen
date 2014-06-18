@@ -354,7 +354,7 @@ class PDAnalyzer(object):
 
         return chempot_ranges
 
-    def getmu_vertices_stability_phase(self, target_comp, dep_elt):
+    def get_chempot_vertices_stability_phase(self, target_comp, dep_elt):
         """
         Returns a set of chemical potentials corresponding to the vertices of
         the simplex in the chemical potential phase diagram.
@@ -401,7 +401,7 @@ class PDAnalyzer(object):
                         all_coords.append(res)
         return all_coords
 
-    def getmu_range_stability_phase(self, target_comp, open_elt):
+    def get_chempot_range_stability_phase(self, target_comp, open_elt):
         """
         returns a set of chemical potentials correspoding to the max and min
         chemical potential of the open element for a given composition. It is
