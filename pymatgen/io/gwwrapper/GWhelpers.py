@@ -17,6 +17,8 @@ import ast
 import copy
 import math
 import shutil
+import string
+import random
 from pymatgen.core.units import Ha_to_eV, eV_to_Ha
 
 
@@ -31,9 +33,6 @@ def now():
     """
     return time.strftime("%H:%M:%S %d/%m/%Y")
 
-import string
-import random
-
 
 def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -44,236 +43,14 @@ def s_name(structure):
     return name_
 
 
-def clean(string, uppercase=False):
+def clean(some_string, uppercase=False):
     """
     helper to clean up an input string
     """
     if uppercase:
-        return string.strip().upper()
+        return some_string.strip().upper()
     else:
-        return string.strip().lower()
-
-
-def get_derivatives(xs, ys):
-    """
-    return the derivatives of y(x) at the points x
-    if scipy is available a spline is generated to calculate the derivatives
-    if scipy is not available the left and right slopes are calculated, if both exist the average is returned
-    """
-    try:
-        if len(xs) < 4:
-            er = SplineInputError('too few data points')
-            raise er
-        from scipy.interpolate import UnivariateSpline
-        spline = UnivariateSpline(xs, ys)
-        d = spline.derivative(1)(xs)
-    except (ImportError, SplineInputError):
-        d = []
-        m, left, right = 0, 0, 0
-        for n in range(0, len(xs), 1):
-            try:
-                left = (ys[n] - ys[n-1]) / (xs[n] - xs[n-1])
-                m += 1
-            except IndexError:
-                pass
-            try:
-                right = (ys[n+1] - ys[n]) / (xs[n+1] - xs[n])
-                m += 1
-            except IndexError:
-                pass
-            d.append(left + right / m)
-    return d
-
-
-def reciprocal(x, a, b, n):
-    """
-    reciprocal function to the power n to fit convergence data
-    """
-    import numpy as np
-    if n < 1:
-        n = 1
-    elif n > 5:
-        n = 5
-    #print a, b, x
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / x_v ** n)
-        y = np.array(y_l)
-    else:
-        y = a + b / x ** n
-    #print y
-    #print type(y)
-    return y
-
-
-def p0_reciprocal(xs, ys):
-    """
-    predictor for first guess for reciprocal
-    """
-    a0 = ys[len(ys) - 1]
-    b0 = ys[0]*xs[0] - a0*xs[0]
-    return [a0, b0, 1]
-
-
-def exponential(x, a, b, n):
-    """
-    exponential function base n to fit convergence data
-    """
-    import numpy as np
-    if n < 1.000001:
-        n = 1.000001
-        #print n
-    elif n > 1.2:
-        n = 1.2
-        #print n
-    if b < -10:
-        b = -10
-        #print b
-    elif b > 10:
-        b = 10
-        #print b
-    #print a, b, x
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b * n ** -x_v)
-        y = np.array(y_l)
-    else:
-        y = a + b * n ** -x
-    #print y
-    #print type(y)
-    return y
-
-
-def p0_exponential(xs, ys):
-    n0 = 1.005
-    b0 = (n0 ** -xs[-1] - n0 ** -xs[0]) / (ys[-1] - ys[0])
-    a0 = ys[0] - b0 * n0 ** -xs[0]
-    #a0 = ys[-1]
-    #b0 = (ys[0] - a0) / n0 ** xs[0]
-    return [a0, b0, n0]
-
-
-def single_reciprocal(x, a, b, c):
-    """
-    reciprocal function to fit convergence data
-    """
-    import numpy as np
-    #print a, b, x
-    if isinstance(x, list):
-        y_l = []
-        for x_v in x:
-            y_l.append(a + b / (x_v - c))
-        y = np.array(y_l)
-    else:
-        y = a + b / (x - c)
-    #print y
-    #print type(y)
-    return y
-
-
-def p0_single_reciprocal(xs, ys):
-    pass
-
-
-def multy_curve_fit(xs, ys):
-    functions = {exponential: p0_exponential, reciprocal: p0_reciprocal}
-    import numpy as np
-    from scipy.optimize import curve_fit
-    fit_results = {}
-    best = ['', np.inf]
-    for function in functions:
-        popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000)
-        perr = max(np.sqrt(np.diag(pcov)))
-        print 'pcov:\n', pcov
-        print 'diag:\n', np.sqrt(np.diag(pcov))
-        print 'function:\n', function, perr
-        fit_results.update({function: {'perr': perr, 'popt': popt, 'pcov': pcov}})
-        for f in fit_results:
-            if fit_results[f]['perr'] <= best[1]:
-                best = f, fit_results[f]['perr']
-    return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
-
-
-def print_plot_line(function, popt, xs, ys):
-    idp = id_generator()
-    f = open('convdat.'+str(idp), mode='w')
-    for n in range(0, len(ys), 1):
-        f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
-        f.write('\n')
-    f.close()
-    if function is exponential:
-        print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
-    elif function is reciprocal:
-        print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+idp+"'"
-
-
-def test_conv(xs, ys, name, tol=0.0001):
-    """
-    test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
-    """
-    conv = False
-    x_value = float('inf')
-    y_value = None
-    n_value = None
-    popt = [None, None, None]
-    if len(xs) > 2:
-        ds = get_derivatives(xs[0:len(ys)], ys)
-        try:
-            import numpy as np
-            from scipy.optimize import curve_fit
-            if None not in ys:
-                #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
-                #perr = np.sqrt(np.diag(pcov))
-                #print perr
-                popt, pcov, func = multy_curve_fit(xs, ys)
-                print popt
-                print pcov
-                print func
-                # todo print this to file via a method in helper, as dict
-                f = open(name+'.fitdat', mode='a')
-                f.write('{')
-                f.write('"popt": ' + str(popt) + ', ')
-                f.write('"pcov": ' + str(pcov) + ', ')
-                f.write('"data": [')
-              #  for n in range(0, len(ys), 1):
-              #      f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
-              #  f.write(']}\n')
-              #  f.close()
-                print_plot_line(func[0], popt, xs, ys)
-              # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
-              #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
-              #  id = id_generator()
-              #  print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+id+"'"
-
-        except ImportError:
-            popt, pcov = None, None
-        for n in range(0, len(ds), 1):
-
-            if tol < 0:
-                if popt[0] is not None:
-                    test = abs(popt[0] - ys[n])
-                else:
-                    test = float('inf')
-            else:
-                test = abs(ds[n])
-
-            if test < abs(tol):
-                conv = True
-                if xs[n] < x_value:
-                    x_value = xs[n]
-                    y_value = ys[n]
-                    n_value = n
-            else:
-                conv = False
-                x_value = float('inf')
-        if n_value is None:
-            return [conv, x_value, y_value, n_value, popt[0], None]
-        else:
-            return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
-    else:
-        return [conv, x_value, y_value, n_value, popt[0], None]
+        return some_string.strip().lower()
 
 
 def expand_tests(tests, level):
@@ -380,3 +157,246 @@ def add_gg_gap(structure):
     structure.cbm = (0.0, 0.0, 0.0)
     structure.vbm = (0.0, 0.0, 0.0)
     return structure
+
+
+def get_derivatives(xs, ys):
+    """
+    return the derivatives of y(x) at the points x
+    if scipy is available a spline is generated to calculate the derivatives
+    if scipy is not available the left and right slopes are calculated, if both exist the average is returned
+    """
+    try:
+        if len(xs) < 4:
+            er = SplineInputError('too few data points')
+            raise er
+        from scipy.interpolate import UnivariateSpline
+        spline = UnivariateSpline(xs, ys)
+        d = spline.derivative(1)(xs)
+    except (ImportError, SplineInputError):
+        d = []
+        m, left, right = 0, 0, 0
+        for n in range(0, len(xs), 1):
+            try:
+                left = (ys[n] - ys[n-1]) / (xs[n] - xs[n-1])
+                m += 1
+            except IndexError:
+                pass
+            try:
+                right = (ys[n+1] - ys[n]) / (xs[n+1] - xs[n])
+                m += 1
+            except IndexError:
+                pass
+            d.append(left + right / m)
+    return d
+
+
+def reciprocal(x, a, b, n):
+    """
+    reciprocal function to the power n to fit convergence data
+    """
+    import numpy as np
+    if n < 1:
+        n = 1
+    elif n > 5:
+        n = 5
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / x_v ** n)
+        y = np.array(y_l)
+    else:
+        y = a + b / x ** n
+    return y
+
+
+def p0_reciprocal(xs, ys):
+    """
+    predictor for first guess for reciprocal
+    """
+    a0 = ys[len(ys) - 1]
+    b0 = ys[0]*xs[0] - a0*xs[0]
+    return [a0, b0, 1]
+
+
+def exponential(x, a, b, n):
+    """
+    exponential function base n to fit convergence data
+    """
+    import numpy as np
+    if n < 1.000001:
+        n = 1.000001
+        #print n
+    elif n > 1.2:
+        n = 1.2
+        #print n
+    if b < -10:
+        b = -10
+        #print b
+    elif b > 10:
+        b = 10
+        #print b
+    #print a, b, x
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b * n ** -x_v)
+        y = np.array(y_l)
+    else:
+        y = a + b * n ** -x
+    #print y
+    #print type(y)
+    return y
+
+
+def p0_exponential(xs, ys):
+    n0 = 1.005
+    b0 = (n0 ** -xs[-1] - n0 ** -xs[0]) / (ys[-1] - ys[0])
+    a0 = ys[0] - b0 * n0 ** -xs[0]
+    #a0 = ys[-1]
+    #b0 = (ys[0] - a0) / n0 ** xs[0]
+    return [a0, b0, n0]
+
+
+def single_reciprocal(x, a, b, c):
+    """
+    reciprocal function to fit convergence data
+    """
+    import numpy as np
+    if isinstance(x, list):
+        y_l = []
+        for x_v in x:
+            y_l.append(a + b / (x_v - c))
+        y = np.array(y_l)
+    else:
+        y = a + b / (x - c)
+    return y
+
+
+def p0_single_reciprocal(xs, ys):
+    c = 1
+    b = (1/(xs[-1] - c)-1/(xs[0] - c)) / (ys[-1] - ys[0])
+    a = ys[0] - b / (xs[0] - c)
+    return [a, b, c]
+
+
+def measure(function, xs, ys, popt):
+    m = 0
+    n = 0
+    for x in xs:
+        m += abs(ys[n] - function(x, popt))
+        n += 1
+    return m
+
+
+def multy_curve_fit(xs, ys):
+    """
+    fit multiple functions to the x, y data, return the best fit
+    """
+    functions = {exponential: p0_exponential, reciprocal: p0_reciprocal, single_reciprocal: p0_single_reciprocal}
+    import numpy as np
+    from scipy.optimize import curve_fit
+    fit_results = {}
+    best = ['', np.inf]
+    for function in functions:
+        popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000)
+        m = measure(function, xs, ys, popt)
+        perr = max(np.sqrt(np.diag(pcov)))
+        #print 'pcov:\n', pcov
+        #print 'diag:\n', np.sqrt(np.diag(pcov))
+        print 'function:\n', function, perr, m
+        fit_results.update({function: {'measure': m, 'perr': perr, 'popt': popt, 'pcov': pcov}})
+        for f in fit_results:
+            if fit_results[f]['measure'] <= best[1]:
+                best = f, fit_results[f]['measure']
+    return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
+
+
+def print_plot_line(function, popt, xs, ys):
+    """
+    print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
+    """
+    idp = id_generator()
+    f = open('convdat.'+str(idp), mode='w')
+    for n in range(0, len(ys), 1):
+        f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
+        f.write('\n')
+    f.close()
+    if function is exponential:
+        line = "plot %s + %s * %s ** -x, 'convdat.%s', %s" % (popt[0], popt[1], popt[2], idp, popt[0])
+        #print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+idp+"'"
+    elif function is reciprocal:
+        line = "plot %s + %s / x**%s, 'convdat.%s', %s" % (popt[0], popt[1], popt[2], idp, popt[0])
+        #print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], "," "'"+'convdat.'+idp+"'"
+    elif function is single_reciprocal:
+        line = "plot %s + %s / (x - %s), 'convdat.%s', %s" % (popt[0], popt[1], popt[2], idp, popt[0])
+        #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
+    print line
+
+
+def test_conv(xs, ys, name, tol=0.0001):
+    """
+    test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
+    """
+    conv = False
+    x_value = float('inf')
+    y_value = None
+    n_value = None
+    popt = [None, None, None]
+    if len(xs) > 2:
+        ds = get_derivatives(xs[0:len(ys)], ys)
+        try:
+            import numpy as np
+            from scipy.optimize import curve_fit
+            if None not in ys:
+                #popt, pcov = curve_fit(exponential, xs, ys, p0_exponential(xs, ys), maxfev=8000)
+                #perr = np.sqrt(np.diag(pcov))
+                #print perr
+                popt, pcov, func = multy_curve_fit(xs, ys)
+                #print popt
+                #print pcov
+                #print func
+                # todo print this to file via a method in helper, as dict
+                f = open(name+'.fitdat', mode='a')
+                f.write('{')
+                f.write('"popt": ' + str(popt) + ', ')
+                f.write('"pcov": ' + str(pcov) + ', ')
+                f.write('"data": [')
+                for n in range(0, len(ys), 1):
+                    f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
+                f.write(']}\n')
+                f.close()
+                print_plot_line(func[0], popt, xs, ys)
+              # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
+              #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
+              #  id = id_generator()
+              #  print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+id+"'"
+
+        except ImportError:
+            popt, pcov = None, None
+        for n in range(0, len(ds), 1):
+
+            if tol < 0:
+                if popt[0] is not None:
+                    test = abs(popt[0] - ys[n])
+                else:
+                    test = float('inf')
+            else:
+                test = abs(ds[n])
+
+            if test < abs(tol):
+                conv = True
+                if xs[n] < x_value:
+                    x_value = xs[n]
+                    y_value = ys[n]
+                    n_value = n
+            else:
+                conv = False
+                x_value = float('inf')
+        if n_value is None:
+            return [conv, x_value, y_value, n_value, popt[0], None]
+        else:
+            return [conv, x_value, y_value, n_value, popt[0], ds[n_value]]
+    else:
+        return [conv, x_value, y_value, n_value, popt[0], None]
+
+
