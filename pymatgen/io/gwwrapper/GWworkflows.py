@@ -21,7 +21,7 @@ from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.pseudos import PseudoTable
 from pymatgen.io.gwwrapper.GWtasks import *
-from pymatgen.io.gwwrapper.GWhelpers import now, s_name, expand_tests, read_grid_from_file, is_converged
+from pymatgen.io.gwwrapper.helpers import now, s_name, expand_tests, read_grid_from_file, is_converged
 from fireworks.core.firework import FireWork, Workflow
 from fireworks.core.launchpad import LaunchPad
 
