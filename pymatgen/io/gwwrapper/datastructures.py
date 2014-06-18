@@ -25,7 +25,8 @@ from abc import abstractproperty, abstractmethod, ABCMeta
 from pymatgen.io.vaspio.vasp_input import Poscar, Kpoints
 from pymatgen.matproj.rest import MPRester, MPRestError
 from pymatgen.serializers.json_coders import MSONable
-from pymatgen.io.gwwrapper.GWhelpers import test_conv, print_gnuplot_header, s_name, add_gg_gap
+from pymatgen.io.gwwrapper.convergence import test_conv
+from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
 from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation
