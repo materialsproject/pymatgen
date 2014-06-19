@@ -355,7 +355,6 @@ class AbinitInterface(AbstractCodeInterface):
                            'max': data.read_value('Eigenvalues')[0][0][-1]*Ha_to_eV,
                            'full_width': (data.read_value('Eigenvalues')[0][0][-1] - data.read_value('Eigenvalues')[0][0][0])*Ha_to_eV}
                 data.close()
-                print 'devel: ', results
             return results
 
     def test(self, data):
