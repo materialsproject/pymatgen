@@ -161,12 +161,9 @@ class AbstractAbinitioSpec(MSONable):
                     kpts = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
                 #print structure
                 remove_ox = OxidationStateRemovalTransformation()
-                print structure
                 structure = remove_ox.apply_transformation(structure)
-                print structure
                 get_prim = PrimitiveCellTransformation()
                 structure = get_prim.apply_transformation(structure)
-                print structure
                 structure.kpts = kpts
                 print 'kpoints:', structure.kpts[0], structure.kpts[1]
                 structure.item = item['name']

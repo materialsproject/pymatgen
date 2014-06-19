@@ -236,7 +236,8 @@ class SingleAbinitGWWorkFlow():
             getden=-1,
             istwfk="*1",
             timopt=-1,
-            nbdbuf=8
+            nbdbuf=8,
+            chksymbreak=-1
         )
 
         if self.option is not None:
