@@ -29,7 +29,7 @@ from pymatgen.io.gwwrapper.convergence import test_conv
 from pymatgen.io.gwwrapper.helpers import print_gnuplot_header, s_name, add_gg_gap
 from pymatgen.io.gwwrapper.codeinterfaces import get_code_interface
 from pymatgen.core.structure import Structure
-from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation
+from pymatgen.transformations.standard_transformations import OxidationStateRemovalTransformation, PrimitiveCellTransformation
 
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -161,7 +161,12 @@ class AbstractAbinitioSpec(MSONable):
                     kpts = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
                 #print structure
                 remove_ox = OxidationStateRemovalTransformation()
+                print structure
                 structure = remove_ox.apply_transformation(structure)
+                print structure
+                get_prim = PrimitiveCellTransformation()
+                structure = get_prim.apply_transformation(structure)
+                print structure
                 structure.kpts = kpts
                 print 'kpoints:', structure.kpts[0], structure.kpts[1]
                 structure.item = item['name']
