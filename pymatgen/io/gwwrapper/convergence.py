@@ -165,7 +165,10 @@ def measure(function, xs, ys, popt):
     m = 0
     n = 0
     for x in xs:
-        m += abs(ys[n] - function(x, popt))
+        if len(popt) == 3:
+            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2]))
+        else:
+            raise NotImplementedError
         n += 1
     return m
 
