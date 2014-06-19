@@ -189,7 +189,7 @@ def multy_curve_fit(xs, ys):
             perr = max(np.sqrt(np.diag(pcov)))
             #print 'pcov:\n', pcov
             #print 'diag:\n', np.sqrt(np.diag(pcov))
-            print 'function:\n', function, perr, m
+            #print 'function:\n', function, perr, m
             fit_results.update({function: {'measure': m, 'perr': perr, 'popt': popt, 'pcov': pcov}})
             for f in fit_results:
                 if fit_results[f]['measure'] <= best[1]:
@@ -200,7 +200,7 @@ def multy_curve_fit(xs, ys):
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
-def print_plot_line(function, popt, xs, ys):
+def print_plot_line(function, popt, xs, ys, name):
     """
     print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
     """
@@ -210,6 +210,7 @@ def print_plot_line(function, popt, xs, ys):
         f.write(str(xs[n]) + ' ' + str(ys[n]) + '\n')
         f.write('\n')
     f.close()
+    line = ''
     if function is exponential:
         line = "plot %s + %s * %s ** -x, 'convdat.%s', %s" % (popt[0], popt[1], popt[2], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "* ", popt[2], " ** -x," "'"+'convdat.'+idp+"'"
@@ -219,7 +220,11 @@ def print_plot_line(function, popt, xs, ys):
     elif function is single_reciprocal:
         line = "plot %s + %s / (x - %s), 'convdat.%s', %s" % (popt[0], popt[1], popt[2], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
-    print line
+    f = open('plot-fits', mode='a')
+    f.write('set title ' + name)
+    f.write("set output " + name + idp + '"')
+    f.write(line)
+    f.close()
 
 
 def test_conv(xs, ys, name, tol=0.0001):
@@ -254,7 +259,7 @@ def test_conv(xs, ys, name, tol=0.0001):
                     f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
                 f.write(']}\n')
                 f.close()
-                print_plot_line(func[0], popt, xs, ys)
+                print_plot_line(func[0], popt, xs, ys, name)
               # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
               #  id = id_generator()
