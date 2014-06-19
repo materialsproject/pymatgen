@@ -166,7 +166,7 @@ def measure(function, xs, ys, popt):
     n = 0
     for x in xs:
         if len(popt) == 3:
-            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2])) * (x - xs[0])
+            m += abs(ys[n] - function(x, popt[0], popt[1], popt[2])) * x
         else:
             raise NotImplementedError
         n += 1
@@ -184,7 +184,7 @@ def multy_curve_fit(xs, ys, verbose):
     best = ['', np.inf]
     for function in functions:
         try:
-            popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=xs - xs[0])
+            popt, pcov = curve_fit(function, xs, ys, functions[function](xs, ys), maxfev=8000, sigma=xs)
             m = measure(function, xs, ys, popt)
             perr = max(np.sqrt(np.diag(pcov)))
             #print 'pcov:\n', pcov
