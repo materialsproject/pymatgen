@@ -277,17 +277,17 @@ def test_conv(xs, ys, name, tol=0.0001):
             else:
                 test = abs(ds[n])
 
-            print test
+            #print test
 
             if test < abs(tol):
-                print 'converged'
+                #print 'converged'
                 conv = True
                 if xs[n] < x_value:
                     x_value = xs[n]
                     y_value = ys[n]
                     n_value = n
             else:
-                print 'not converged'
+                #print 'not converged'
                 conv = False
                 x_value = float('inf')
         if n_value is None:
