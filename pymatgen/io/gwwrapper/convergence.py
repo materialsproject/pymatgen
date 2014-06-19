@@ -200,7 +200,7 @@ def multy_curve_fit(xs, ys):
     return fit_results[best[0]]['popt'], fit_results[best[0]]['pcov'], best
 
 
-def print_plot_line(function, popt, xs, ys, name):
+def print_plot_line(function, popt, xs, ys, name, extra=''):
     """
     print the gnuplot command line to plot the x, y data with the fitted function using the popt parameters
     """
@@ -221,13 +221,13 @@ def print_plot_line(function, popt, xs, ys, name):
         line = "plot %s + %s / (x - %s), 'convdat.%s', %s" % (popt[0], popt[1], popt[2], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
     f = open('plot-fits', mode='a')
-    f.write('set title "' + name + '"\n')
+    f.write('set title "' + name + extra + '"\n')
     f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
     f.write(line + '\n')
     f.close()
 
 
-def test_conv(xs, ys, name, tol=0.0001):
+def test_conv(xs, ys, name, tol=0.0001, extra=''):
     """
     test it and at which x_value dy(x)/dx < tol for all x >= x_value, conv is true is such a x_value exists.
     """
@@ -259,7 +259,7 @@ def test_conv(xs, ys, name, tol=0.0001):
                     f.write('[' + str(xs[n]) + ' ' + str(ys[n]) + ']')
                 f.write(']}\n')
                 f.close()
-                print_plot_line(func[0], popt, xs, ys, name)
+                print_plot_line(func[0], popt, xs, ys, name, extra=extra)
               # print 'plot ', popt[0], ' + ', popt[1], "/x**", popt[2], ', "'+name+'.convdat"'
               #  print 'plot ', popt[0], ' + ', popt[1], "/x", popt[2], '/x**2, "'+name+'.convdat"'
               #  id = id_generator()
