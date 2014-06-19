@@ -221,8 +221,8 @@ def print_plot_line(function, popt, xs, ys, name):
         line = "plot %s + %s / (x - %s), 'convdat.%s', %s" % (popt[0], popt[1], popt[2], idp, popt[0])
         #print 'plot ', popt[0], ' + ', popt[1], "/ (x - ", popt[2], ")," "'"+'convdat.'+idp+"'"
     f = open('plot-fits', mode='a')
-    f.write('set title ' + name + '\n')
-    f.write("set output " + name + idp + '"' + '\n')
+    f.write('set title "' + name + '"\n')
+    f.write("set output '" + name + '-' + idp + ".gif'" + '\n')
     f.write(line + '\n')
     f.close()
 
