@@ -531,7 +531,7 @@ class GWConvergenceData():
         xs = self.get_var_range('nbands')
         ys = self.get_var_range('ecuteps')
         zd = self.get_data_array()
-        print 'plot "'+self.name+'condat'+'"'
+        # print 'plot "'+self.name+'condat'+'"'
         for x in xs:
             zs = []
             for y in ys:
@@ -539,7 +539,7 @@ class GWConvergenceData():
                     zs.append(zd[x][y])
                 except KeyError:
                     pass
-            conv_data = test_conv(ys, zs, name=self.name, tol=tol,)
+            conv_data = test_conv(ys, zs, name=self.name, tol=tol, extra='ecuteps at '+str(x))
             extrapolated.append(conv_data[4])
             if conv_data[0]:
                 y_conv.append(conv_data[1])
@@ -550,7 +550,7 @@ class GWConvergenceData():
                 y_conv.append(None)
                 z_conv.append(None)
         if ecuteps_l:
-            conv_data = test_conv(xs, z_conv, name=self.name, tol=tol)
+            conv_data = test_conv(xs, z_conv, name=self.name, tol=tol, extra='nbands')
             if conv_data[0]:
                 nbands_l = conv_data[0]
                 nbands_c = conv_data[1]
@@ -569,7 +569,7 @@ class GWConvergenceData():
         #print self.get_data_array_2d(x_name, y_name)
         for x in xs:
             ys.append(self.get_data_array_2d(x_name, y_name)[x])
-        conv_data = test_conv(xs, ys, name=self.name, tol=tol)
+        conv_data = test_conv(xs, ys, name=self.name, tol=tol, extra=x_name)
         print conv_data, {x_name: conv_data[0]}, {x_name: conv_data[1]}, {x_name: conv_data[5]}
         self.conv_res['control'].update({x_name: conv_data[0]})
         self.conv_res['values'].update({x_name: conv_data[1]})
