@@ -336,7 +336,7 @@ class PDAnalyzer(object):
         chempot_ranges = collections.defaultdict(list)
         vertices = [[i for i in range(len(self._pd.elements))]]
         if len(all_chempots) > len(self._pd.elements):
-            vertices = get_facets(all_chempots)
+            vertices = get_facets(all_chempots, True)
         for ufacet in vertices:
             for combi in itertools.combinations(ufacet, 2):
                 data1 = facets[combi[0]]
