@@ -278,6 +278,7 @@ def test_conv(xs, ys, name, tol=0.0001):
                 test = abs(ds[n])
 
             if test < abs(tol):
+                print test
                 conv = True
                 if xs[n] < x_value:
                     x_value = xs[n]
